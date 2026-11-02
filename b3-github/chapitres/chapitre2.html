@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -51,7 +51,7 @@
 </div></nav>
 
 <main id="content" class="b3-githubwrap">
-<p class="crumb"><a href="../index.html">Git & GitHub B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+<p class="crumb"><a href="../index.html">Git &amp; GitHub B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
 
 <h1>Chapitre 2 — Stratégies de Fusion Avancées &amp; Rebase Interactif</h1>
 
@@ -75,7 +75,7 @@
       <li>comparer les moteurs de fusion historiques de Git (recursive) et le moteur moderne par défaut (ORT - Ostensibly Recursive’s Twin) ;</li>
       <li>maîtriser le rebase interactif (git rebase -i) avec ses directives clés : pick, reword, edit, squash, fixup, drop ;</li>
       <li>appliquer rigoureusement la règle d’or du rebase pour préserver la cohérence des dépôts d’équipe distribués ;</li>
-      <li>développer en Python 3 des classificateurs de stratégies de fusion, des simulateurs de rebase et des résolveurs de conflits tridirectionnels.</li>
+      <li>développer en scripts Bash et commandes Git des classificateurs de stratégies de fusion, des simulateurs de rebase et des résolveurs de conflits tridirectionnels.</li>
     </ol>
   </div>
 
@@ -129,7 +129,7 @@
     <tr><td><code>edit</code></td><td><code>e</code></td><td>Met en pause le rebase pour amender le contenu du commit (fichiers).</td></tr>
     <tr><td><code>squash</code></td><td><code>s</code></td><td>Fond le commit dans le commit précédent et concatène les messages.</td></tr>
     <tr><td><code>fixup</code></td><td><code>f</code></td><td>Fond le commit dans le précédent en éliminant silencieusement son message.</td></tr>
-    <tr><td><code>drop</code></td><td><code>d</code></td><td>Supprimez purement et simplement le commit de l’historique.</td></tr>
+    <tr><td><code>drop</code></td><td><code>d</code></td><td>Supprime purement et simplement le commit de l’historique.</td></tr>
   </tbody>
 </table>
   <div class="box box--danger">
@@ -149,14 +149,12 @@ const PORT = 3000;
 <p>L’ingénieur doit analyser le contexte, supprimer les marqueurs, conserver la valeur appropriée, indexer le fichier via <code>git add</code> puis finaliser la fusion via <code>git commit</code> (ou <code>git rebase --continue</code>).</p>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="gh3-c2-e1" data-lab
      data-exercise="gh3-c2-e1"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="COMMIT id=C1 parents=NONE&#10;COMMIT id=C2 parents=C1&#10;COMMIT id=C3 parents=C2&#10;BRANCH name=main commit=C1&#10;BRANCH name=feature commit=C3&#10;MERGE_REQUEST current=main incoming=feature">
@@ -170,22 +168,14 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 1 — Détecteur de stratégie de fusion : Fast-Forward vs 3-Way Merge</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Déterminer si une fusion de branches peut s’effectuer en Fast-Forward ou requiert un 3-Way Merge avec commit de fusion.</p>
-    <div class="lab__brief"><p>Dans le graphe orienté acyclique (DAG) des commits de Git :<br>
-- Si le commit de tête de la branche courante (<code>base</code>) est un <strong>ancêtre direct</strong> de la branche à intégrer (<code>target</code>), Git avance simplement le pointeur sans créer de nouveau commit : c'est un <strong>Fast-Forward (FF)</strong>.<br>
-- Si les deux branches ont divergé depuis un ancêtre commun (Lowest Common Ancestor - LCA), un <strong>Three-Way Merge</strong> est nécessaire et un commit de fusion à 2 parents doit être généré.<br><br>
-Le script Bash lit les paramètres sur l’entrée standard (stdin). La déclaration des commits et de leurs parents :<br>
-   <code>COMMIT id=&lt;id&gt; parents=&lt;p1,p2...|NONE&gt;</code>.<br>
-2. La position des branches :<br>
-   <code>BRANCH name=&lt;nom&gt; commit=&lt;id&gt;</code>.<br>
-3. Une demande de fusion :<br>
-   <code>MERGE_REQUEST current=&lt;branche_base&gt; incoming=&lt;branche_target&gt;</code>.<br><br>
-Afficher :<br>
-<code>MERGE_STRATEGY from={incoming} into={current} type={FAST_FORWARD|THREE_WAY_MERGE} lca={lca_id}</code></p></div>
+    <p class="lab__note" id="gh3-c2-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans ce modèle de graphe Git, une avance rapide est possible lorsque le commit courant est un ancêtre du commit à intégrer. Si le commit à intégrer est déjà un ancêtre du commit courant, rien n'est à fusionner. Deux historiques divergents avec au moins une base commune demandent ici une fusion à trois voies ; Git refuse par défaut la fusion d'historiques sans ancêtre commun.<br><br>Déclarez d'abord les commits par <code>COMMIT id=&lt;id&gt; parents=&lt;p1,p2,...|NONE&gt;</code>, puis les branches par <code>BRANCH name=&lt;nom&gt; commit=&lt;id&gt;</code>, puis une ou plusieurs requêtes <code>MERGE_REQUEST current=&lt;branche&gt; incoming=&lt;branche&gt;</code>. Les identifiants sont distincts et sans espaces ; tous les parents et branches demandées existent, et le graphe est acyclique.<br><br>Pour chaque requête, affichez <code>MERGE_STRATEGY from={incoming} into={current} type={FAST_FORWARD|ALREADY_UP_TO_DATE|THREE_WAY_MERGE|NO_COMMON_ANCESTOR} lca={bases}</code>. <code>lca</code> vaut <code>NONE</code> sans base commune ; sinon, indiquez toutes les meilleures bases communes, triées par ordre des octets et séparées par des virgules. Une meilleure base commune n'est ancêtre d'aucune autre base commune distincte. Les options de fusion particulières ne sont pas modélisées.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>COMMIT id=C1 parents=NONE
 COMMIT id=C2 parents=C1
@@ -195,13 +185,12 @@ BRANCH name=feature commit=C3
 MERGE_REQUEST current=main incoming=feature</pre></div>
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>MERGE_STRATEGY from=feature into=main type=FAST_FORWARD lca=C1</pre></div>
     </div>
-    <p class="lab__note">C1 est un ancêtre direct de C3 : avance rapide du pointeur main vers C3.</p>
+    <p class="lab__note">C1 est un ancêtre de C3 : le pointeur peut avancer rapidement.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Construire la liste de tous les ancêtres de chaque commit en remontant les parents.</li>
-        <li>Si base_commit fait partie des ancêtres de incoming_commit, la fusion est FAST_FORWARD.</li>
-        <li>Sinon, trouver le plus proche ancêtre commun (LCA).</li>
+        <li>Constituez les ensembles d’ancêtres en incluant chaque tête elle-même.</li>
+        <li>Éliminez les ancêtres communs qui sont eux-mêmes ancêtres d’un autre ancêtre commun ; plusieurs meilleures bases peuvent subsister.</li>
       </ol>
     </details>
   </div>
@@ -209,6 +198,7 @@ MERGE_REQUEST current=main incoming=feature</pre></div>
 
 <div class="lab" id="gh3-c2-e2" data-lab
      data-exercise="gh3-c2-e2"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="TODO action=pick commit=C1 msg=feat: ajout login&#10;TODO action=squash commit=C2 msg=fix: correction typo&#10;TODO action=reword commit=C3 msg=feat: ajout logout propre">
@@ -222,23 +212,14 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 2 — Simulateur de Rebase Interactif (git rebase -i)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler l’exécution des instructions de réécriture d’historique git-rebase-todo (pick, squash, reword, drop).</p>
-    <div class="lab__brief"><p>Le rebase interactif (<code>git rebase -i</code>) permet de nettoyer un historique de commits avant de proposer une Pull Request.<br><br>
-Actions supportées :<br>
-- <code>pick &lt;id&gt; &lt;msg&gt;</code> : conserve le commit tel quel.<br>
-- <code>reword &lt;id&gt; &lt;nouveau_msg&gt;</code> : conserve les modifications mais remplace le message du commit.<br>
-- <code>drop &lt;id&gt;</code> : supprime purement et simplement le commit de l’historique.<br>
-- <code>squash &lt;id&gt; &lt;msg&gt;</code> : fusionne ce commit dans le commit précédent en concaténant les messages sous la forme <code>{msg_precedent} + {msg_squashe}</code>.<br><br>
-Le script Bash lit les données sur l’entrée standard (stdin).<br><br>
-À l’issue de la réécriture, afficher le nouvel historique résultant :<br>
-Pour chaque commit conservé :<br>
-<code>REBASED_COMMIT id={id} msg="{message}"</code><br>
-Et la ligne finale :<br>
-<code>REBASE_SUMMARY total_commits={n}</code></p></div>
+    <p class="lab__note" id="gh3-c2-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Le rebase interactif permet de réorganiser une série de commits. Simulez ici les actions <code>pick</code> et <code>reword</code> (ajouter le commit et son message fourni), <code>drop</code> (ignorer le commit) et <code>squash</code> (ajouter le message au dernier commit conservé, avec le séparateur <code> + </code>). Les identifiants sont fictifs et ne sont pas de nouveaux hachages Git.<br><br>Chaque ligne est <code>TODO action=&lt;action&gt; commit=&lt;id&gt; msg=&lt;message&gt;</code> ; <code>msg</code> est omis pour <code>drop</code>. Les messages tiennent sur une ligne et ne contiennent pas de guillemet double. Une entrée vide produit un historique vide. Si <code>squash</code> n'a aucun commit précédent, affichez uniquement <code>REBASE_ERROR reason=SQUASH_WITHOUT_PREVIOUS</code>.<br><br>Sinon, affichez chaque commit conservé dans l'ordre : <code>REBASED_COMMIT id={id} msg="{message}"</code>, puis <code>REBASE_SUMMARY total_commits={n}</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>TODO action=pick commit=C1 msg=feat: ajout login
 TODO action=squash commit=C2 msg=fix: correction typo
@@ -251,8 +232,8 @@ REBASE_SUMMARY total_commits=2</pre></div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Gérer une liste de commits réécrits.</li>
-        <li>Lors d’un squash, modifier le dernier commit ajouté dans la liste en combinant les messages.</li>
+        <li>Conservez deux listes parallèles pour les identifiants et les messages.</li>
+        <li>Un squash modifie seulement le dernier message conservé ; drop ne crée aucune entrée.</li>
       </ol>
     </details>
   </div>
@@ -260,6 +241,7 @@ REBASE_SUMMARY total_commits=2</pre></div>
 
 <div class="lab" id="gh3-c2-e3" data-lab
      data-exercise="gh3-c2-e3"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="LINE idx=1 base=port = 80 ours=port = 443 theirs=port = 80&#10;LINE idx=2 base=timeout = 30 ours=timeout = 60 theirs=timeout = 120">
@@ -273,22 +255,14 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 3 — Moteur de résolution de conflits à 3 voies (Base, Ours, Theirs)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Appliquer l’algorithme de fusion à 3 voies ligne à ligne pour détecter les modifications unilatérales et les conflits.</p>
-    <div class="lab__brief"><p>Lors d'un Three-Way Merge, Git compare chaque bloc de code par rapport à la version de l'ancêtre commun (<code>base</code>) :<br><br>
-Règles de décision pour chaque ligne :<br>
-1. Si <code>ours == base</code> et <code>theirs == base</code> : aucun changement -> conserver <code>base</code> (statut <code>CLEAN</code>).<br>
-2. Si <code>ours != base</code> et <code>theirs == base</code> : modification unilatérale par notre branche -> adopter <code>ours</code> (statut <code>RESOLVED_OURS</code>).<br>
-3. Si <code>ours == base</code> et <code>theirs != base</code> : modification unilatérale par la branche distante -> adopter <code>theirs</code> (statut <code>RESOLVED_THEIRS</code>).<br>
-4. Si <code>ours == theirs</code> : les deux branches ont fait exactement le même changement -> adopter <code>ours</code> (statut <code>RESOLVED_SAME</code>).<br>
-5. Si <code>ours != theirs</code> et les deux diffèrent de <code>base</code> : conflit de fusion réel (statut <code>CONFLICT</code>).<br><br>
-Le script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>
-Afficher :<br>
-- Si pas de conflit : <code>MERGE idx={n} status={CLEAN|RESOLVED_OURS|RESOLVED_THEIRS|RESOLVED_SAME} val="{val}"</code><br>
-- Si conflit : <code>MERGE idx={n} status=CONFLICT ours="{ours}" theirs="{theirs}"</code></p></div>
+    <p class="lab__note" id="gh3-c2-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Simulez une fusion à trois voies sur des valeurs fournies ligne par ligne. Pour chaque ligne <code>LINE idx=&lt;id&gt; base=&lt;valeur&gt; ours=&lt;valeur&gt; theirs=&lt;valeur&gt;</code>, les valeurs peuvent être vides ou contenir des espaces, mais pas de guillemet double ni les délimiteurs littéraux <code> ours=</code> et <code> theirs=</code>.<br><br>Si les trois valeurs sont égales, conservez la base (<code>CLEAN</code>). Si seul <code>ours</code> diffère, conservez-le (<code>RESOLVED_OURS</code>) ; si seul <code>theirs</code> diffère, conservez-le (<code>RESOLVED_THEIRS</code>). Si les deux valeurs modifiées sont égales, conservez-les (<code>RESOLVED_SAME</code>). Sinon, il y a <code>CONFLICT</code>.<br><br>Sans conflit, affichez <code>MERGE idx={id} status={statut} val="{valeur}"</code>. En cas de conflit, affichez <code>MERGE idx={id} status=CONFLICT ours="{ours}" theirs="{theirs}"</code>. Ce modèle ligne à ligne ne reproduit pas tous les comportements du moteur de fusion Git.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>LINE idx=1 base=port = 80 ours=port = 443 theirs=port = 80
 LINE idx=2 base=timeout = 30 ours=timeout = 60 theirs=timeout = 120</pre></div>
@@ -299,12 +273,13 @@ MERGE idx=2 status=CONFLICT ours="timeout = 60" theirs="timeout = 120"</pre></di
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Comparer les valeurs par rapport à base.</li>
-        <li>Ne lever CONFLICT que si ours et theirs ont tous deux divergé de base avec des valeurs différentes.</li>
+        <li>Comparez d’abord les deux versions à la base.</li>
+        <li>Un conflit exige deux modifications différentes ; deux changements identiques se résolvent ensemble.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -370,14 +345,14 @@ MERGE idx=2 status=CONFLICT ours="timeout = 60" theirs="timeout = 120"</pre></di
       <div class="q__exp">Le moteur ORT a succédé au moteur recursive historique. Il est infiniment plus rapide et gère de manière optimale les renommages de répertoires et fichiers.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Que symbolise la section comprise entre « <<<<<<< HEAD » et « ======= » dans un fichier en conflit ?</p>
+      <p class="q__stem">Que symbolise la section comprise entre « &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD » et « ======= » dans un fichier en conflit ?</p>
       <div class="opts">
         <button class="opt">Le code tel qu’il existait dans l’ancêtre commun LCA</button>
         <button class="opt" data-correct="1">La version présente sur la branche locale courante sur laquelle on se trouve</button>
         <button class="opt">La version distante provenant de la branche en cours de fusion</button>
         <button class="opt">Le code suggéré automatiquement par le serveur GitHub</button>
       </div>
-      <div class="q__exp">La partie supérieure (entre <<<<<<< HEAD et =======) représente la version du fichier présente sur la branche locale active (HEAD).</div>
+      <div class="q__exp">La partie supérieure (entre &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD et =======) représente la version du fichier présente sur la branche locale active (HEAD).</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle commande permet de forcer la création d’un commit de fusion même si un Fast-Forward est réalisable ?</p>
@@ -398,7 +373,7 @@ MERGE idx=2 status=CONFLICT ours="timeout = 60" theirs="timeout = 120"</pre></di
     <ul>
       <li>Faire un git push --force sur la branche main après un rebase local (catastrophe d’équipe).</li>
       <li>Confondre squash (qui fusionne en conservant les messages) et fixup (qui élimine le message du commit fusionné).</li>
-      <li>Oublier de supprimer les marqueurs de conflit (« <<<<<<< ») avant de commiter un fichier résolu.</li>
+      <li>Oublier de supprimer les marqueurs de conflit (« &lt;&lt;&lt;&lt;&lt;&lt;&lt; ») avant de commiter un fichier résolu.</li>
       <li>Penser que git merge modifie les hashes des commits fusionnés (seul git rebase réécrit les hashes).</li>
     </ul>
   </div>
@@ -437,7 +412,7 @@ MERGE idx=2 status=CONFLICT ours="timeout = 60" theirs="timeout = 120"</pre></di
       <li>Je connais les avantages du moteur de fusion ORT par rapport à recursive.</li>
       <li>Je maîtrise l’utilisation de git rebase -i et des directives squash et fixup.</li>
       <li>Je respecte scrupuleusement la règle d’or du rebase en environnement collaboratif.</li>
-      <li>Je sais décoder et résoudre manuellement les marqueurs de conflits <<<<<<< et >>>>>>>.</li>
+      <li>Je sais décoder et résoudre manuellement les marqueurs de conflits &lt;&lt;&lt;&lt;&lt;&lt;&lt; et &gt;&gt;&gt;&gt;&gt;&gt;&gt;.</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
@@ -453,7 +428,7 @@ MERGE idx=2 status=CONFLICT ours="timeout = 60" theirs="timeout = 120"</pre></di
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à identifier les conditions d’un Fast-Forward ou hésitations lors de la résolution de conflits tridirectionnels.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Difficultés à identifier les conditions d’un Fast-Forward ou hésitations lors de la résolution de conflits tridirectionnels.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne compréhension du LCA, maîtrise des commandes rebase interactives simples et respect rigoureux de la règle d’or.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Excellente maîtrise topologique du DAG, utilisation avancée des directives de rebase interactif et arbitrage expert des fusions complexes avec le moteur ORT.</div>
@@ -467,7 +442,7 @@ MERGE idx=2 status=CONFLICT ours="timeout = 60" theirs="timeout = 120"</pre></di
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : Documentation officielle Git Pro (Scott Chacon & Ben Straub), spécification Conventional Commits 1.0.0, documentation officielle GitHub Actions et guides de durcissement GitHub Security Hardening.</p>
+  Sources : Documentation officielle Git Pro (Scott Chacon &amp; Ben Straub), spécification Conventional Commits 1.0.0, documentation officielle GitHub Actions et guides de durcissement GitHub Security Hardening.</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

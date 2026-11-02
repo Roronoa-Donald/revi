@@ -32,7 +32,8 @@ const dep2 = (lignes[1] || '').split(' ');
     tests: [
       { label: 'Dépendances identiques', stdin: 'user42 active\nuser42 active\n', expected: 'EFFET IGNORE' },
       { label: 'Changement au milieu d une liste', stdin: 'alpha beta gamma\nalpha delta gamma\n', expected: 'EFFET DECLENCHE' },
-      { label: 'Valeur numérique identique', stdin: '100\n100\n', expected: 'EFFET IGNORE' }
+      { label: 'Valeur numérique identique', stdin: '100\n100\n', expected: 'EFFET IGNORE' },
+      { label: 'Dépendance retirée', stdin: 'dev actif cache\ndev actif\n', expected: 'EFFET DECLENCHE' }
     ],
     solution: `const fs = require('fs');
 const lignes = fs.readFileSync(0, 'utf8').trim().split('\\n');

@@ -20,7 +20,7 @@ module.exports = {
     'configurer la signature cryptographique des commits avec GPG et clés SSH pour garantir l’authenticité des auteurs ;',
     'maîtriser la spécification formelle Conventional Commits 1.0.0 et son impact sur le calcul automatique de versions SemVer ;',
     'mettre en place des règles de protection de branche (Rulesets GitHub) empêchant les fusions sans statut CI valide ;',
-    'développer en Python 3 des auditeurs de conformité de workflow, des évaluateurs de règles de fusion et des analyseurs sémantiques de messages.'
+    'développer en scripts Bash et commandes Git des auditeurs de conformité de workflow, des évaluateurs de règles de fusion et des analyseurs sémantiques de messages.'
   ],
   sections: [
     {

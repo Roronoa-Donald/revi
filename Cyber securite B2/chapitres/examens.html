@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -112,10 +112,10 @@ iptables -A INPUT -p tcp --dport 443 -j ACCEPT</code></pre></li>
 </ul>
 <p><strong>Partie 3 : Vérification de signature</strong></p>
 <ol>
-  <li>Calcul de l’empreinte locale $H_1 = \text{SHA-256}(binaire)$.</li>
-  <li>Déchiffrement de la signature fournie $s$ avec la clé publique de l’éditeur : $H_2 = s^e \pmod n$.</li>
-  <li>Comparaison : si $H_1 == H_2$, l’authenticité et l’intégrité sont mathématiquement prouvées.</li>
-  <li>Vérification du certificat X.509 de l’éditeur auprès d’une autorité de certification (CA) de confiance.</li>
+  <li>Obtenir et authentifier la clé publique de l’éditeur ; si elle provient d’un certificat X.509, vérifier notamment la chaîne de confiance, l’identité et la validité.</li>
+  <li>Vérifier la signature du binaire avec cette clé et le schéma prévu, par exemple RSA-PSS, à l’aide d’une bibliothèque adaptée.</li>
+  <li>Refuser le fichier si la vérification échoue ; si elle réussit, l’intégrité et l’origine sont vérifiées sous réserve de la confiance dans la clé et l’algorithme.</li>
+  <li>Pour une comparaison SHA-256 séparée, utiliser une empreinte de référence authentifiée : un hash fourni sans protection avec le fichier ne suffit pas face à un adversaire.</li>
 </ol>
   </div>
 
@@ -157,7 +157,7 @@ iptables -A INPUT -p tcp --dport 443 -j ACCEPT</code></pre></li>
   <li><strong>Contre-mesures</strong> : 1. Valider l’appartenance dans la couche métier (requête <code>WHERE id = :id AND user_id = :session_user_id</code>).<br>2. Remplacer les identifiants numériques séquentiels par des UUID v4 non prédictibles et des jetons de session cryptographiques opaques.</li>
 </ul>
 <p><strong>Partie 2 : Règle Snort</strong></p>
-<pre><code>alert tcp any any -> 10.0.0.10 80 (msg:"ATTACK: Tentative de lecture /etc/passwd"; content:"/etc/passwd"; nocase; priority:1; sid:100050; rev:1;)</code></pre>
+<pre><code>alert tcp any any -&gt; 10.0.0.10 80 (msg:"ATTACK: Tentative de lecture /etc/passwd"; content:"/etc/passwd"; nocase; priority:1; sid:100050; rev:1;)</code></pre>
 <p><strong>Partie 3 : Plan de réponse à incident NIST</strong></p>
 <ol>
   <li><strong>Confinement immédiat</strong> : Isoler physiquement les machines infectées du réseau (déconnexion Ethernet, coupure Wi-Fi), bloquer les connexions sortantes vers les serveurs C2 (Command &amp; Control). NE PAS éteindre les machines immédiatement pour préserver la mémoire vive (RAM) pour l’analyse forensic.</li>

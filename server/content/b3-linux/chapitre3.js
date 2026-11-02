@@ -20,7 +20,7 @@ module.exports = {
     'exploiter les snapshots LVM Copy-on-Write (COW) pour effectuer des sauvegardes de bases de données à chaud sans indisponibilité ;',
     'concevoir et administrer des grappes RAID logicielles avec mdadm (RAID 1, RAID 5, RAID 6) et gérer les disques de rechange (spares) ;',
     'analyser la structure interne des systèmes de fichiers journalisés (superblocs, groupes de blocs, tables d’inodes) ;',
-    'développer en Python 3 des calculateurs d’allocation LVM, des simulateurs de résilience RAID et des détecteurs de saturation d’inodes.'
+    'développer en scripts Bash et commandes système des calculateurs d’allocation LVM, des simulateurs de résilience RAID et des détecteurs de saturation d’inodes.'
   ],
   sections: [
     {

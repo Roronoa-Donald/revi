@@ -54,8 +54,8 @@ function index(course, chapterList) {
       'code B1COM0401) déroule quatre chapitres : généralités, numération, circuits logiques, architecture ' +
       'PC. Ce cours en garde l\'esprit et fait appliquer chaque mécanisme <strong>dans des études de cas</strong> : une grille d’analyse qui reproduit l\'analyse exacte du support — conversions, compléments, tables de portes, ' +
       'bascules front par front — exécuté dans la page.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
-      'script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique écrite ' +
+      '    <p>Chaque chapitre se termine par <strong>trois études de cas</strong> : vous remplissez vraiment votre ' +
+      'grille d’analyse, elle est vérifiée par des critères que vous ne voyez pas. La logique écrite ' +
       'ici se rejoue telle quelle sur les exercices du support (séries de conversions, simplifications, ' +
       'qualification d\'un poste).</p>'
     ].join('\n')),
@@ -68,7 +68,7 @@ function index(course, chapterList) {
       '      <a class="btn" href="chapitres/chapitre1.html">' + ic('rocket') + ' Commencer le chapitre 1</a>',
       '      <a class="btn" href="chapitres/cartes.html">' + ic('cards') + ' Flashcards</a>',
       '      <a class="btn" href="chapitres/formules.html">' + ic('file') + ' Mémo Architecture</a>',
-      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier de scripts</a>',
+      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier d’analyse</a>',
       '      <a class="btn" href="exercices/exercices.html">' + ic('blocks') + ' Exercices &amp; projet</a>',
       '      <a class="btn" href="chapitres/simulateur-examen.html">' + ic('clipboard') + ' Examens blancs</a>',
       '    </p>'
@@ -104,9 +104,9 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du premier octet jusqu\'au poste qualifié. ' +
     'Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou supérieur (et ' +
     'un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
-    'dans la page : votre script est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
-    'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à analyser ' +
+    'dans la page : vous remplissez votre grille d’analyse, puis elle est vérifiée par des critères que vous ne voyez pas. ' +
+    'L\'<a href="atelier.html">atelier d’analyse</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
     '  </div>',
@@ -115,7 +115,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s\'auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo Architecture</span><br><span class="toc__d">Unités, conversions, compléments, portes, Karnaugh, bascules, compteurs, von Neumann.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Scripts gradués et projet final : la fiche de qualification d\'un poste.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier d’analyse</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l\'épreuve, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -167,8 +167,8 @@ function atelier(course) {
       'cours (complément à 2, portes logiques, bascules, compteur modulo), programmez-le et testez-le sur des ' +
       'cas limites.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le script proposé convertit chaque binaire en décimal grâce à la par décomposition en puissances de 2. Transforme-le : ' +
-      'fais-le afficher l\'octal et l\'hexa, gère les mots de 8 bits, ou remplace tout le script par le mécanisme ' +
+      '      <p>Le script proposé convertit chaque binaire en décimal grâce à la par décomposition en puissances de 2. Transformez-le : ' +
+      'faites-le afficher l\'octal et l\'hexa, gérez les mots de 8 bits, ou remplacez tout le script par le mécanisme ' +
       'que vous voulez vérifier.</p>',
       '      <p>Dans un vrai assembleur, ce contrôle se fera ligne par ligne : la structure du script — ' +
       'lire, décider, rapporter — reste exactement la même.</p>',
@@ -218,8 +218,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de scripts — simuler l\'architecture | ' + course.brand,
-      description: 'Atelier de scripts du cours B1 : éditeur dans le navigateur, validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
+      title: 'Atelier d’analyse — simuler l\'architecture | ' + course.brand,
+      description: 'Atelier d’analyse du cours B1 : éditeur dans le navigateur, validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
       active: 'atelier',
       body
     }
@@ -270,11 +270,11 @@ function formules(course) {
       'generations : lampe -> transistor -> circuit integre ->\n',
       '  microprocesseur -> reseau et cloud\n',
       '\n',
-      'capacites : 1 octet = 8 bits ; 1 Ko = 1024 octets\n',
-      '  1 Mo = 1024 Ko ; 1 Go = 1024 Mo ; 1 To = 1024 Go\n',
+      'capacites : 1 octet = 8 bits ; 1 ko = 1000 octets ; 1 Kio = 1024 octets\n',
+      '  1 Mio = 1024 Kio ; 1 Gio = 1024 Mio ; 1 Tio = 1024 Gio\n',
       'debits : MBps (octets/s) = 8 x Mbps (bits/s)\n',
       'mesures : frequence Hz (cycles/s) / puissance W / latence ms</code></pre>',
-      '<p>Puissances de 2 pour les capacités, facteur 8 entre octets et bits.</p>'
+      '<p>Préfixes décimaux : facteur 1000 ; préfixes binaires : facteur 1024 ; facteur 8 entre octets et bits.</p>'
     ].join('\n')),
 
     bloc('Numération : les quatre conversions', [
@@ -304,7 +304,8 @@ function formules(course) {
       'addition : 1+1 = 0 retenue 1 ; 1+1+1 = 1 retenue 1\n',
       'soustraction : additionner le complement a 2\n',
       'decalage gauche de k bits = x 2^k ; droite = division entiere\n',
-      'debordement : le bit sortant du mot (carry) doit etre signale</code></pre>',
+      'debordement non signe : retenue sortante en addition\n',
+      'débordement signé : somme hors intervalle signé, indépendamment de la retenue</code></pre>',
       '<p>Le complément à 2 a gagné : un seul zéro et un seul additionneur.</p>'
     ].join('\n')),
 
@@ -328,8 +329,8 @@ function formules(course) {
     bloc('Blocs combinatoires et séquentiels', [
       '<pre><code>additionneur complet : S = a XOR b XOR r\n',
       '  retenue sortante = ab + r(a XOR b)\n',
-      'comparateur : a>b / a=b / a<b\n',
-      'decodeur 2->4 : une sortie active par adresse (Y3Y2Y1Y0)\n',
+      'comparateur : a&gt;b / a=b / a&lt;b\n',
+      'decodeur 2-&gt;4 : une sortie active par adresse (Y3Y2Y1Y0)\n',
       'multiplexeur : 2^k entrees -> 1 sortie selon k bits de selection\n',
       '\n',
       'RS : S met a 1 / R met a 0 / RS=00 memoire / RS=11 INTERDIT\n',
@@ -363,7 +364,7 @@ function formules(course) {
 
     bloc('Erreurs fréquentes à éviter', [
       '<ul>',
-      '    <li>Croire que 1 Ko = 1000 octets : c\'est 1024 (puissances de 2).</li>',
+      '    <li>Confondre ko (1000 octets) avec Kio (1024 octets).</li>',
       '    <li>Confondre Mbps (bits) et Mo/s (octets) : facteur 8.</li>',
       '    <li>Lire les restes des divisions successives de haut en bas : c\'est de bas en haut.</li>',
       '    <li>Grouper les bits depuis la gauche : les groupements partent de la droite.</li>',
@@ -407,8 +408,8 @@ function examens(course) {
         {
           num: 'Exercice 2',
           badge: '/5 — Unités',
-          text: 'Convertir : 2048 Ko en Mo ; 2 Go en Mo ; un lien de 96 Mbps en Mo/s. Quels sont les quatre critères de choix d\'un processeur ?',
-          sol: '2048 Ko = <strong>2 Mo</strong> (÷ 1024) ; 2 Go = <strong>2048 Mo</strong> ; 96 Mbps = <strong>12 Mo/s</strong> (÷ 8, car 1 Mo/s = 8 Mbps). CPU : <strong>fréquence (GHz), nombre de cœurs, cache, compatibilité socket</strong>.'
+          text: 'Convertir : 2048 Kio en Mio ; 2 Gio en Mio ; un lien de 96 Mbps en Mo/s. Quels sont les quatre critères de choix d\'un processeur ?',
+          sol: '2048 Kio = <strong>2 Mio</strong> (÷ 1024) ; 2 Gio = <strong>2048 Mio</strong> ; 96 Mbps = <strong>12 Mo/s</strong> (÷ 8, car 1 Mo/s = 8 Mbps). CPU : <strong>fréquence (GHz), nombre de cœurs, cache, compatibilité socket</strong>.'
         },
         {
           num: 'Exercice 3',
@@ -465,7 +466,7 @@ function examens(course) {
   ].join('\n');
 
   const mastery = [
-    { stem: '1 Mo vaut…', opts: ['1000 Ko', '1024 Ko', '1024 octets'], correct: 1, exp: 'Puissances de 2 : 1 Mo = 1024 Ko.' },
+    { stem: '1 Mio vaut…', opts: ['1000 Kio', '1024 Kio', '1024 octets'], correct: 1, exp: 'Puissances de 2 : 1 Mio = 1024 Kio.' },
     { stem: 'Un lien de 40 Mbps transfert au plus…', opts: ['5 Mo/s', '40 Mo/s', '4 Mo/s'], correct: 0, exp: '1 Mo/s = 8 Mbps : 40 ÷ 8 = 5 Mo/s.' },
     { stem: '1011 en décimal vaut…', opts: ['11', '13', '9'], correct: 0, exp: '8 + 0 + 2 + 1 = 11.' },
     { stem: 'Le complément à 2 de 0101 est…', opts: ['1010', '1011', '1001'], correct: 1, exp: 'C1 = 1010, puis +1 → 1011.' },
@@ -550,7 +551,7 @@ function exercices(course) {
 
     '  <h2>Application</h2>',
     item('Application', 'n2', [
-      'Calculer le temps d’accès effectif moyen (AMAT) d’une hiérarchie mémoire avec cache L1 ($95\%$ de hit rate).',
+      'Calculer le temps d’accès effectif moyen (AMAT) d’une hiérarchie mémoire avec cache L1 ($95\\%$ de hit rate).',
       'Distinguer les architectures RISC (instructions simples à cycle unique) et CISC (instructions complexes multi-cycles).',
       'Représenter un nombre réel en virgule flottante simple précision norme IEEE 754 (signe, exposant biaisé, mantisse).',
       'Calculer le débit maximal d’un bus PCI-Express selon sa génération et son nombre de lignes (lanes).'
@@ -609,7 +610,7 @@ function render(kit, course, chapterList) {
     return Object.assign({}, chapitre, {
       next: next
         ? { href: 'chapitre' + next.n + '.html', label: 'Chapitre ' + next.n + ' — ' + next.title }
-        : { href: '../atelier.html', label: 'Atelier de scripts' }
+        : { href: '../atelier.html', label: 'Atelier d’analyse' }
     });
   });
 

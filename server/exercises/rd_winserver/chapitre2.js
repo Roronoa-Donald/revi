@@ -27,7 +27,7 @@ $actifs = $total - $enPanne
 # ou "service : interrompu" selon le nombre de nœuds restants.
 `,
     hints: [
-      'Le nombre de nœuds restants vaut $total - $enPanne.',
+      'Le nombre de nœuds restants vaut `$total - $enPanne`.',
       'Affichez sur deux lignes : Write-Output "actifs : $actifs" puis la ligne d’état.'
     ],
     examples: [
@@ -57,9 +57,10 @@ if ($actifs -ge 1) {
     language: 'powershell',
     title: 'Charge par serveur',
     goal: 'Répartir un volume de requêtes entre plusieurs serveurs actifs.',
-    brief: '<p>Le script lit le nombre de <strong>serveurs</strong>, puis le nombre total de ' +
-      '<strong>requêtes</strong> à répartir. Affichez <code>charge : X req/s</code> où <code>X</code> ' +
-      'est le nombre entier de requêtes par serveur (division entière).</p>',
+    brief: '<p>Le script lit le nombre de <strong>serveurs</strong> actifs (au moins un), puis le nombre ' +
+      'total de <strong>requêtes reçues en une seconde</strong> (un entier positif ou nul). Affichez ' +
+      '<code>charge : X req/s</code> où <code>X</code> est le nombre entier de requêtes par serveur, ' +
+      'obtenu par division entière.</p>',
     starter: `$serveurs = [int][Console]::In.ReadLine()
 $requetes = [int][Console]::In.ReadLine()
 
@@ -67,13 +68,14 @@ $requetes = [int][Console]::In.ReadLine()
 # "charge : X req/s".
 `,
     hints: [
-      'La division entière s’obtient avec [math]::Floor($requetes / $serveurs).',
+      'La division entière s’obtient avec `[math]::Floor($requetes / $serveurs)`.',
       'Enveloppez le résultat dans [int] pour obtenir un entier propre.'
     ],
     examples: [
       { stdin: '3\n1200', expected: 'charge : 400 req/s', note: '1200 requêtes sur 3 serveurs.' }
     ],
     tests: [
+      { label: 'Division avec reste', stdin: '3\n1201', expected: 'charge : 400 req/s' },
       { label: 'Deux serveurs', stdin: '2\n800', expected: 'charge : 400 req/s' },
       { label: 'Quatre serveurs', stdin: '4\n1000', expected: 'charge : 250 req/s' },
       { label: 'Aucune requête', stdin: '5\n0', expected: 'charge : 0 req/s' }
@@ -107,7 +109,7 @@ for ($i = 0; $i -lt $n; $i++) {
 `,
     hints: [
       'La comparaison de chaînes utilise -eq : ($sev -eq "critique").',
-      'Affichez $critiques puis testez ($critiques -gt 0) pour choisir l’état.'
+      'Affichez `$critiques` puis testez `($critiques -gt 0)` pour choisir l’état.'
     ],
     examples: [
       { stdin: '3\ninfo\ncritique\nwarning', expected: 'critiques : 1\netat : alerte', note: 'Un seul événement critique.' }

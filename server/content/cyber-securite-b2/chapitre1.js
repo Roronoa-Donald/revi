@@ -25,8 +25,8 @@ module.exports = {
     'définir et différencier les trois piliers fondamentaux de la triade CIA (Confidentialité, Intégrité, Disponibilité) ;',
     'appliquer le modèle AAA (Authentification, Autorisation, Traçabilité/Accounting) dans la conception des systèmes ;',
     'distinguer clairement une menace, une vulnérabilité, un exploit et un impact financier ou opérationnel ;',
-    'quantifier le niveau de risque informatique selon l’approche ISO 27005 (Score = Menace &times; Vulnérabilité &times; Impact) ;',
-    'auditer et renforcer la robustesse des mots de passe selon les recommandations de l’ANSSI et du NIST.'
+    'appliquer une grille pédagogique de risque en précisant que sa formule et ses seuils sont des choix du modèle ;',
+    'distinguer les politiques de mots de passe du NIST et de l’ANSSI sans confondre critères et robustesse.'
   ],
 
   sections: [
@@ -47,7 +47,7 @@ module.exports = {
         '    <h4 class="card-title">2. Intégrité (Integrity)</h4>',
         '    <p>Garantit l’exactitude, la complétude et la non-altération des données tout au long de leur cycle de vie.</p>',
         '    <p><strong>Menaces types :</strong> altération frauduleuse de transactions, injection SQL, empoisonnement DNS/ARP.</p>',
-        '    <p><strong>Contre-mesures :</strong> fonctions de hachage (SHA-256), signatures numériques, contrôles de redondance cyclique.</p>',
+        '    <p><strong>Contre-mesures :</strong> hachage comparé à une référence fiable, MAC ou signatures numériques ; les contrôles de redondance cyclique détectent des erreurs accidentelles mais ne protègent pas contre un adversaire qui peut les recalculer.</p>',
         '  </div>',
         '  <div class="card">',
         '    <h4 class="card-title">3. Disponibilité (Availability)</h4>',
@@ -80,12 +80,12 @@ module.exports = {
       ].join('\n')
     },
     {
-      title: 'Analyse et quantification des risques selon l’ISO 27005',
+      title: 'Analyse des risques et exemple de quantification',
       html: [
         '<p>La sécurité absolue n’existant pas, la gestion des risques permet d’orienter les investissements vers les menaces ' +
-        'les plus dévastatrices. Un risque informatique se décompose en trois variables :</p>',
+        'les plus dévastatrices. L’ISO 27005 propose une démarche de gestion des risques ; la formule et les seuils ci-dessous sont un modèle pédagogique choisi pour ce cours, pas une formule imposée par la norme. Ses décisions de traitement sont des exemples, à adapter au contexte :</p>',
 
-        '<pre><code>// Formule fondamentale de l’évaluation du risque brut :\n' +
+        '<pre><code>// Modèle pédagogique de score de risque brut :\n' +
         'Risque = Menace &times; Vulnerabilite &times; Impact\n\n' +
         'Où :\n' +
         '- Menace (M)       : Potentiel d’un agent externe ou interne à causer un préjudice (échelle 1 à 5)\n' +
@@ -101,39 +101,44 @@ module.exports = {
     {
       title: 'Politique de sécurité des mots de passe &amp; Calcul d’entropie',
       html: [
-        '<p>Le mot de passe demeure le premier rempart d’authentification. L’ANSSI et le NIST recommandent ' +
-        'd’abandonner l’expiration périodique arbitraire au profit d’une longueur minimale substantielle et d’une grande variété de caractères.</p>',
+        '<p>Les référentiels de mots de passe répondent à des contextes différents : leurs exigences ne sont pas interchangeables. ' +
+        'Les règles NIST ci-dessous s’appliquent aux authentificateurs relevant de son périmètre ; la conformité à une politique ne démontre pas, à elle seule, la robustesse d’un secret.</p>',
 
         '<div class="grid grid-2">',
         '  <div class="card">',
-        '    <h4 class="card-title">Les 5 règles de robustesse ANSSI / NIST</h4>',
+        '    <h4 class="card-title">Politique NIST SP 800-63B-4</h4>',
         '    <ul>',
-        '      <li><strong>Longueur minimale :</strong> au moins 12 à 15 caractères.</li>',
-        '      <li><strong>Complexité :</strong> mélange de majuscules, minuscules, chiffres et symboles.</li>',
-        '      <li><strong>Non-prédictibilité :</strong> refus des mots du dictionnaire, dates de naissance ou séquences triviales.</li>',
-        '      <li><strong>Unicité :</strong> jamais de réutilisation d’un même mot de passe sur deux services.</li>',
-        '      <li><strong>Double facteur :</strong> association systématique d’un second facteur MFA.</li>',
+        '      <li><strong>Longueur :</strong> au moins 15 caractères si le mot de passe est utilisé seul. Un service peut autoriser au minimum 8 caractères si ce mot de passe est exclusivement utilisé en MFA ; il peut aussi conserver un seuil supérieur.</li>',
+        '      <li><strong>Composition :</strong> aucune règle de composition ni de classes de caractères n’est imposée ; une phrase sans chiffre ou symbole peut être acceptée.</li>',
+        '      <li><strong>Choix et vérification :</strong> comparer le mot de passe entier à une liste de refus de valeurs communes, attendues ou compromises ; limiter les tentatives de connexion infructueuses.</li>',
+        '      <li><strong>Saisie :</strong> autoriser les gestionnaires de mots de passe ; accepter les espaces et Unicode et permettre au moins 64 caractères sont des recommandations. Chaque point de code Unicode compte pour un caractère.</li>',
+        '      <li><strong>Renouvellement :</strong> pas de changement périodique arbitraire ; imposer un changement en cas d’indice de compromission.</li>',
         '    </ul>',
+        '    <p>Un mot de passe unique par service et la MFA sont de bonnes pratiques ; la seule longueur ne prouve pas sa résistance aux devinettes.</p>',
         '  </div>',
         '  <div class="card">',
-        '    <h4 class="card-title">Entropie de Shannon d’un mot de passe</h4>',
-        '    <p>L’entropie mesure le degré d’incertitude (en bits) face à une attaque par force brute :</p>',
+        '    <h4 class="card-title">Entropie théorique d’un mot de passe aléatoire</h4>',
+        '    <p>Pour des caractères tirés indépendamment et uniformément dans un alphabet de taille <i>N</i>, l’entropie en bits vaut :</p>',
         '    <p><code>E = L &times; log2(N)</code></p>',
-        '    <p>Où <i>L</i> est la longueur et <i>N</i> la taille de l’ensemble de caractères utilisé :</p>',
+        '    <p>Où <i>L</i> est la longueur et <i>N</i> la taille de l’alphabet de génération :</p>',
         '    <ul>',
         '      <li>Chiffres seuls (0-9) : <i>N = 10</i> (3.32 bits / car.)</li>',
         '      <li>Lettres min + maj : <i>N = 52</i> (5.70 bits / car.)</li>',
         '      <li>Alphanumérique + symboles : <i>N = 94</i> (6.55 bits / car.)</li>',
         '    </ul>',
+        '    <p>Cette formule ne mesure pas automatiquement la résistance d’un mot de passe choisi par une personne : ses choix peuvent être prévisibles, même s’ils mélangent des classes.</p>',
         '  </div>',
-        '</div>'
+        '</div>',
+        '<p>Le guide MonServiceSécurisé de l’ANSSI présente une politique distincte, avec des exemples de composition ; ses critères ne doivent pas être attribués au NIST.</p>',
+        '<p>Sources : <a href="https://pages.nist.gov/800-63-4/sp800-63b.html">NIST SP 800-63B-4</a> et ' +
+        '<a href="https://aide.monservicesecurise.cyber.gouv.fr/fr/article/fixer-des-contraintes-de-longueur-et-de-complexite-des-mots-de-passe-14lmvzy/">guide MonServiceSécurisé de l’ANSSI</a> (consultés le 30/10/2026).</p>'
       ].join('\n')
     }
   ],
 
   questions: [
     {
-      stem: 'Quelle propriété de la triade CIA est directement violée lorsqu’un rançongiciel (ransomware) chiffre les disques durs d’une entreprise ?',
+      stem: 'Un rançongiciel chiffre des fichiers et les rend inaccessibles aux utilisateurs ; aucune divulgation n’est constatée. Quelle propriété est directement affectée par cette perte d’accès ?',
       opts: [
         'La Disponibilité',
         'La Confidentialité',
@@ -141,7 +146,7 @@ module.exports = {
         'La Non-répudiation'
       ],
       correct: 0,
-      exp: 'Le chiffrement malveillant empêche les utilisateurs légitimes d’accéder à leurs fichiers et serveurs, ce qui constitue une atteinte directe et majeure à la Disponibilité.'
+      exp: 'Dans ce scénario, le chiffrement rend les fichiers indisponibles. La confidentialité concerne la divulgation, l’authenticité l’origine et la non-répudiation la contestation d’une action ; aucune de ces trois propriétés ne décrit directement la perte d’accès indiquée.'
     },
     {
       stem: 'Dans le modèle AAA, quelle composante détermine si un utilisateur authentifié a le droit de modifier un fichier spécifique ?',
@@ -152,10 +157,10 @@ module.exports = {
         'L’Imputabilité'
       ],
       correct: 0,
-      exp: 'L’authentification prouve qui est l’utilisateur, tandis que l’Autorisation vérifie les privilèges et permissions dont il dispose sur l’objet sollicité.'
+      exp: 'L’autorisation détermine les droits sur le fichier. L’authentification vérifie l’identité ; la traçabilité consigne les actions et l’imputabilité permet de les attribuer, sans décider à elle seule des permissions.'
     },
     {
-      stem: 'Selon la formule standard de l’ISO 27005 (Risque = Menace &times; Vulnérabilité &times; Impact), quel est le niveau de risque pour M=4, V=3, I=5 ?',
+      stem: 'Avec le modèle pédagogique du cours (M &times; V &times; I ; élevé de 50 à 79), quel est le niveau pour M=4, V=3, I=5 ?',
       opts: [
         'ÉLEVÉ (Score = 60)',
         'FAIBLE (Score = 12)',
@@ -163,10 +168,10 @@ module.exports = {
         'CRITIQUE (Score = 95)'
       ],
       correct: 0,
-      exp: 'Score = 4 * 3 * 5 = 60. Ce score se situe dans la plage 50 à 79, ce qui correspond au niveau de risque ÉLEVÉ.'
+      exp: 'Le produit vaut 60, dans la plage élevée du modèle. Les scores 12, 35 et 95 ne correspondent pas aux trois valeurs données ; les seuils présentés sont propres à cet exercice.'
     },
     {
-      stem: 'Pourquoi l’entropie d’un mot de passe de 14 caractères composé uniquement de chiffres est-elle bien inférieure à celle d’un mot de passe de 14 caractères complet ?',
+      stem: 'Pour 14 caractères tirés indépendamment et uniformément, pourquoi un alphabet de 94 caractères donne-t-il plus d’entropie théorique qu’un alphabet de 10 chiffres ?',
       opts: [
         'Parce que la taille de l’alphabet N n’est que de 10 contre 94, réduisant drastiquement le nombre total de combinaisons N^L',
         'Parce que les chiffres sont stockés sur moins d’octets en mémoire vive',
@@ -174,7 +179,18 @@ module.exports = {
         'Parce que le protocole TCP interdit l’envoi de chiffres isolés'
       ],
       correct: 0,
-      exp: 'L’entropie vaut L * log2(N). Avec N=10, 14 * 3.32 ≈ 46.5 bits d’entropie. Avec N=94, 14 * 6.55 ≈ 91.7 bits, soit une résistance des milliards de fois supérieure aux attaques.'
+      exp: 'Pour ces tirages indépendants et uniformes, E = L * log2(N) : environ 46,5 bits pour N=10 et 91,7 pour N=94. Le stockage en mémoire ne détermine pas cet espace ; SHA-256 accepte des données numériques et TCP transporte aussi des chiffres. Cette formule ne prouve pas la robustesse d’un choix humain prévisible.'
+    },
+    {
+      stem: 'Selon NIST SP 800-63B-4, quelle règle s’applique à un mot de passe utilisé comme facteur unique ?',
+      opts: [
+        'Au moins 15 caractères, sans règle de composition obligatoire, avec vérification contre une liste de refus',
+        'Au moins 12 caractères et obligatoirement une majuscule, une minuscule, un chiffre et un symbole',
+        'Exactement 8 caractères, sans contrôle des valeurs compromises',
+        'Au moins 15 caractères et un changement mensuel imposé'
+      ],
+      correct: 0,
+      exp: 'Dans son périmètre, le NIST exige 15 caractères en facteur unique, sans règle de composition, avec liste de refus. Douze caractères et des classes obligatoires ne correspondent pas à cette règle ; huit ne suffisent pas en facteur unique et un changement mensuel n’est pas imposé. La longueur ne démontre pas la robustesse.'
     }
   ],
 
@@ -198,14 +214,14 @@ module.exports = {
     'La triade CIA (Confidentialité, Intégrité, Disponibilité) est la boussole incontournable de tout audit de sécurité.',
     'Le modèle AAA garantit que chaque requête est identifiée (Authentification), vérifiée (Autorisation) et consignée (Traçabilité).',
     'Le risque résulte du croisement d’une menace, d’une vulnérabilité et d’un impact financier ou réglementaire.',
-    'La robustesse d’un mot de passe dépend avant tout de sa longueur et de sa diversité (entropie &ge; 80 bits).',
+    'Une longueur suffisante, une liste de refus et la limitation des essais contribuent à la sécurité ; le respect de catégories ne prouve pas la robustesse.',
     'La sécurité opérationnelle exige une politique cohérente combinant mesures préventives, contrôles continus et PRA.'
   ],
 
   checklist: [
     'Je sais expliciter chaque pilier de la triade CIA avec des exemples d’incidents concrets.',
     'Je distingue rigoureusement Authentification et Autorisation dans une architecture applicative.',
-    'Je maîtrise le calcul et la classification du score de risque selon l’ISO 27005.',
+    'Je sais calculer et classer un score dans le modèle pédagogique donné, sans attribuer ses seuils à la norme.',
     'Je connais la formule de l’entropie de Shannon et les recommandations de l’ANSSI pour les mots de passe.',
     'Je comprends l’intérêt d’une journalisation immuable pour assurer la traçabilité des accès.'
   ],
@@ -218,30 +234,30 @@ module.exports = {
     'Score de criticité du risque',
     'Politique de Sécurité des SI (PSSI)',
     'Entropie de mot de passe (formule de Shannon)',
-    'Règles ANSSI & NIST pour les identifiants',
+    'Politique NIST SP 800-63B-4 pour les mots de passe',
     'Authentification multi-facteurs (MFA)',
     'Traçabilité et horodatage des journaux'
   ],
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois les définitions de la triade CIA et la différence entre menace et vulnérabilité.' },
-    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le calcul de risque ISO 27005 et la formule d’entropie.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur le modèle de risque du cours et la formule d’entropie.' },
     { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les principes fondamentaux de la gestion des risques et du modèle AAA.' },
     { cls: 'top', text: '≥ 95 % — Excellent : passe à la cryptographie appliquée et aux signatures numériques au module 2.' }
   ],
 
   flashcards: [
-    { "q": 'Qu’est-ce que « Modèle AAA (Authentification, Autorisation, Accounting) » ?', "a": 'Modèle AAA (Authentification, Autorisation, Accounting)' },
-    { "q": 'Qu’est-ce que « Menace vs Vulnérabilité vs Exploit vs Impact » ?', "a": 'Menace vs Vulnérabilité vs Exploit vs Impact' },
-    { "q": 'Qu’est-ce que « Gestion des risques ISO 27005 » ?', "a": 'Gestion des risques ISO 27005' },
-    { "q": 'Qu’est-ce que « Score de criticité du risque » ?', "a": 'Score de criticité du risque' },
-    { "q": 'Qu’est-ce que « Politique de Sécurité des SI (PSSI) » ?', "a": 'Politique de Sécurité des SI (PSSI)' },
-    { "q": 'Qu’est-ce que « Règles ANSSI & NIST pour les identifiants » ?', "a": 'Règles ANSSI & NIST pour les identifiants' },
+    { "q": 'Qu’est-ce que « Modèle AAA (Authentification, Autorisation, Accounting) » ?', "a": 'AAA vérifie l’identité, détermine les droits et journalise l’usage des ressources : authentification, autorisation et accounting.' },
+    { "q": 'Qu’est-ce que « Menace vs Vulnérabilité vs Exploit vs Impact » ?', "a": 'Menace : cause possible d’incident ; vulnérabilité : faiblesse ; exploit : moyen de l’exploiter ; impact : conséquences de l’incident.' },
+    { "q": 'Qu’est-ce que « Gestion des risques ISO 27005 » ?', "a": 'Démarche itérative pour identifier, analyser, évaluer et traiter les risques de sécurité de l’information, puis les surveiller.' },
+    { "q": 'Qu’est-ce que « Score de criticité du risque » ?', "a": 'Dans le modèle du cours : menace × vulnérabilité × impact, chacun noté de 1 à 5, soit un score de 1 à 125 ; ce choix dépend de la méthode.' },
+    { "q": 'Qu’est-ce que « Politique de Sécurité des SI (PSSI) » ?', "a": 'Document qui fixe les objectifs, règles, responsabilités et mesures de sécurité du système d’information d’une organisation.' },
+    { "q": 'Que prescrit la politique NIST SP 800-63B-4 pour les mots de passe ?', "a": 'Au moins 15 caractères en facteur unique ; au moins 8 caractères peuvent être autorisés si le mot de passe est utilisé exclusivement en MFA. Sans règles de composition : vérifier aussi une liste de refus et limiter les tentatives.' },
     { q: 'Que désignent les trois lettres de la triade CIA ?', a: 'Confidentialité, Intégrité et Disponibilité (Confidentiality, Integrity, Availability).' },
     { q: 'Quelle est la différence entre une vulnérabilité et une menace ?', a: 'Une vulnérabilité est une faiblesse interne du système ; une menace est une cause potentielle extérieure d’incident.' },
-    { q: 'Comment calcule-t-on le score de risque brut selon l’ISO 27005 ?', a: 'Score = Menace &times; Vulnérabilité &times; Impact (variant de 1 à 125).' },
+    { q: 'Comment calcule-t-on le score dans le modèle pédagogique du cours ?', a: 'Score = Menace &times; Vulnérabilité &times; Impact (de 1 à 125) ; formule et seuils sont des choix du modèle.' },
     { q: 'Quel pilier de la triade est violé lors d’une attaque par injection SQL modifiant un solde ?', a: 'L’Intégrité, car les données ont été altérées de manière frauduleuse.' },
-    { q: 'Quelle est la formule de l’entropie de Shannon pour un mot de passe ?', a: 'E = L &times; log2(N), où L est la longueur et N la taille de l’alphabet de caractères.' },
+    { q: 'Quelle est la formule de l’entropie pour un mot de passe généré aléatoirement ?', a: 'E = L &times; log2(N) seulement si les L caractères sont tirés indépendamment et uniformément dans un alphabet de taille N ; elle ne mesure pas directement un choix humain.' },
     { q: 'Pourquoi le changement fréquent obligatoire de mot de passe est-il aujourd’hui déconseillé ?', a: 'Parce qu’il pousse les utilisateurs à choisir des motifs prévisibles et affaiblit l’entropie globale sans apporter de sécurité réelle.' }
   ]
 };

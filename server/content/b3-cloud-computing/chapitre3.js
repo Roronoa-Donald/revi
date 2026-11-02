@@ -71,7 +71,7 @@ module.exports = {
         '  <div class="card">',
         '    <h4>Sur-Allocation Mémoire (RAM Overcommitment)</h4>',
         '    <p>La RAM ne pouvant être compressée indéfiniment sans impacter la réactivité, le sur-engagement mémoire doit rester très modéré :<br>',
-        '    $$Ratio_{RAM} = \\frac{\\sum RAM_{allouée}}{RAM_{physique}}$$<br>',
+        '    $$Ratio_{RAM} = \\frac{\\sum RAM_{\\text{allouée}}}{RAM_{physique}}$$<br>',
         '    - Ratio sain : 1.0 à 1.25 maximum.<br>',
         '    - Exploite le <em>Memory Ballooning</em> (gonflement d’un pilote invité pour récupérer les pages inactives) et le dédoublonnage (KSM).</p>',
         '  </div>',
@@ -83,7 +83,8 @@ module.exports = {
   method: [
     'Caractériser le profil de charge de chaque service : intensif en calcul (CPU-bound), en mémoire (RAM-bound) ou en entrées/sorties (I/O-bound).',
     'Déterminer le nombre de transactions par seconde (TPS) attendu en régime nominal et en pic critique.',
-    'Mesurer les métriques unitaires consommées par transaction : temps CPU (ms), mémoire allouée (Mo) et nombre d’IOPS disque.',
+    'Mesurer le temps CPU, les opérations disque, la mémoire par transaction, sa durée de résidence et la mémoire de base par instance.',
+    'En régime stable, estimer la concurrence moyenne par débit moyen × durée moyenne ; mesurer ou fournir séparément la concurrence de pointe.',
     'Appliquer une marge de sécurité opérationnelle de 20% à 30% (taux d’utilisation cible de 70% à 80% maximum).',
     'Calculer le nombre minimal d’instances requis pour chaque axe de ressource et retenir le facteur limitant.',
     'Configurer des politiques d’auto-scaling horizontal (HPA) basées sur des métriques réelles (CPU, latence, file de messages).'
@@ -92,7 +93,7 @@ module.exports = {
     'Les hyperviseurs de Type 1 (Bare-Metal) exécutent les machines virtuelles directement sur le matériel avec un overhead négligeable.',
     'HVM tire parti des instructions CPU Intel VT-x/AMD-V pour exécuter des systèmes d’exploitation non modifiés en quasi-natif.',
     'La sur-allocation CPU (overcommitment) est courante (jusqu’à 3:1 ou 4:1), mais la sur-allocation RAM doit rester rigoureusement contenue pour éviter le swap disque.',
-    'Le dimensionnement face à une charge crête transactionnelle exige de comparer les besoins CPU, RAM et IOPS pour identifier le facteur limitant.'
+    'Le dimensionnement compare CPU, RAM et IOPS ; la mémoire dépend de la concurrence, de sa durée et de la mémoire de base, et la pointe ne découle pas de la moyenne.'
   ],
   checklist: [
     'Je sais expliquer la différence architecturale entre KVM/ESXi (Type 1) et VirtualBox (Type 2).',

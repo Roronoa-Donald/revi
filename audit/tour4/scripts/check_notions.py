@@ -23,8 +23,6 @@ def notions(path):
 
 lost_total, bad_title, checked = 0, 0, 0
 for p in sorted(glob.glob(os.path.join(MAIN, "*/chapitres/chapitre*.html"))):
-    if "revi-cours-html" in p:
-        continue
     rel = os.path.relpath(p, MAIN)
     np = os.path.join(NEW, rel)
     if not os.path.exists(np): continue

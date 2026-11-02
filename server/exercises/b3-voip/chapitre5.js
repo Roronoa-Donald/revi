@@ -72,20 +72,20 @@ module.exports = [
   {
     "id": "vo3-c5-e3",
     "chapter": 5,
-    "title": "Résolveur de Traversée NAT STUN & Détecteur de Topologie ICE",
+    "title": "Observer les mappages STUN avant les vérifications ICE",
     "level": "n3",
     "language": "analyse",
-    "goal": "Résoudre les incohérences d'adresses IP privées dans les offres SDP et déterminer la stratégie de traversée NAT (STUN vs TURN).",
-    "brief": "<p>Lorsqu'un terminal VoIP est derrière un routeur NAT, ses paquets SIP et RTP comportent des adresses IP privées inaccessibles depuis Internet. Le protocole STUN (RFC 5389) permet au client de découvrir son adresse IP et son port publics (MAPPED-ADDRESS) vus par le serveur externe. En envoyant deux requêtes STUN vers deux adresses de serveurs distinctes (S1 et S2), le client qualifie le comportement de son NAT :   -> <code>NAT_CONE</code> (Full Cone, Restricted Cone ou Port-Restricted Cone) : STUN suffit pour établir les flux directs sans relais.   -> <code>NAT_SYMETRIQUE</code> : les communications directes échouent souvent sans serveur relais TURN.   -> <code>PAS_DE_NAT</code> (IP publique directe).</p><ul><li>Si l'adresse IP et le port mappés sont identiques pour S1 et S2 :</li><li>Si le port externe change entre S1 et S2 pour le même socket local :</li><li>Si l'adresse mappée est égale à l'adresse locale privée :</li></ul>\n<p>Format d'entrée :<br>Lignes au format :<br>CLIENT_LOCAL=<ip_locale:port> STUN1_MAPPED=<ip_pub1:port1> STUN2_MAPPED=<ip_pub2:port2></p>\n<p>Format de sortie : Pour chaque ligne, déterminer :   - PAS_DE_NAT -> <code>ROUTAGE_DIRECT</code>   - NAT_CONE -> <code>STUN_DIRECT</code>   - NAT_SYMETRIQUE -> <code>SERVEUR_RELAIS_TURN</code> LOCAL:<local> | MAPPED_S1:<s1> | MAPPED_S2:<s2> | TOPOLOGIE:<type> | SOLUTION:<solution></p><ul><li>Le type de NAT : <code>PAS_DE_NAT</code>, <code>NAT_CONE</code> ou <code>NAT_SYMETRIQUE</code>.</li><li>La solution recommandée :</li><li>Afficher :</li></ul>",
-    "starter": "# Grille d'analyse (vo3-c5-e3) — Résolveur de Traversée NAT STUN & Détecteur de Topologie ICE\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : CLIENT_LOCAL=10.0.0.2:16384 STUN1_MAPPED=82.65.1.20:45000 STUN2_MAPPED=82.65.1.20:45000\n# Données : CLIENT_LOCAL=10.0.0.2:16384 STUN1_MAPPED=82.65.1.20:45000 STUN2_MAPPED=82.65.1.20:45002\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : CLIENT_LOCAL=195.154.10.2:5060 STUN1_MAPPED=195.154.10.2:5060 STUN2_MAPPED=195.154.10.2:5060\nA_COMPLETER\n",
+    "goal": "Comparer deux mappages observés sans confondre cette observation avec une preuve de connectivité.",
+    "brief": "<p>Deux serveurs STUN (RFC 8489) observent l'adresse et le port d'un même socket local. Comparez les deux couples observés : s'ils sont égaux, indiquez <code>MAPPAGES_IDENTIQUES</code>, sinon <code>MAPPAGES_DIFFERENTS</code>. Comparer ces deux observations ne permet pas de déterminer le filtrage ni de garantir qu'un pair sera joignable, même si les valeurs sont identiques à l'adresse locale.</p>\n<p>La suite est de procéder à des vérifications de connectivité ICE (RFC 8445), avec un relais TURN éventuel selon les résultats et la configuration. Cette grille n'établit ni le type exact de NAT ni le chemin choisi.</p>\n<p>Chaque ligne contient <code>CLIENT_LOCAL=&lt;adresse:port&gt; STUN1_MAPPED=&lt;adresse:port&gt; STUN2_MAPPED=&lt;adresse:port&gt;</code>. Recopiez les trois valeurs et indiquez l'observation selon ce format :</p>\n<p><code>LOCAL:&lt;local&gt; | MAPPED_S1:&lt;s1&gt; | MAPPED_S2:&lt;s2&gt; | OBSERVATION:&lt;MAPPAGES_IDENTIQUES ou MAPPAGES_DIFFERENTS&gt; | SUITE:VERIFIER_ICE</code></p>",
+    "starter": "# Grille d'analyse (vo3-c5-e3) — Observer les mappages STUN avant les vérifications ICE\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : CLIENT_LOCAL=10.0.0.2:16384 STUN1_MAPPED=82.65.1.20:45000 STUN2_MAPPED=82.65.1.20:45000\n# Données : CLIENT_LOCAL=10.0.0.2:16384 STUN1_MAPPED=82.65.1.20:45000 STUN2_MAPPED=82.65.1.20:45002\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : CLIENT_LOCAL=195.154.10.2:5060 STUN1_MAPPED=195.154.10.2:5060 STUN2_MAPPED=195.154.10.2:5060\nA_COMPLETER\n",
     "hints": [
-      "Comparez l'adresse IP annoncée dans c= avec l'adresse source publique du paquet.",
-      "Désactivez SIP ALG et orientez vers un serveur TURN en présence d'un NAT symétrique."
+      "Comparez les deux couples adresse et port observés par les serveurs.",
+      "Les observations seules ne démontrent pas que le trafic entre les pairs est autorisé."
     ],
     "examples": [
       {
         "stdin": "CLIENT_LOCAL=192.168.1.15:5060 STUN1_MAPPED=198.51.100.42:10500 STUN2_MAPPED=198.51.100.42:10500\nCLIENT_LOCAL=192.168.1.15:5060 STUN1_MAPPED=198.51.100.42:10500 STUN2_MAPPED=198.51.100.42:10501\nCLIENT_LOCAL=203.0.113.10:5060 STUN1_MAPPED=203.0.113.10:5060 STUN2_MAPPED=203.0.113.10:5060",
-        "expected": "LOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10500 | TOPOLOGIE:NAT_CONE | SOLUTION:STUN_DIRECT\nLOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10501 | TOPOLOGIE:NAT_SYMETRIQUE | SOLUTION:SERVEUR_RELAIS_TURN\nLOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5060 | TOPOLOGIE:PAS_DE_NAT | SOLUTION:ROUTAGE_DIRECT\n",
+        "expected": "LOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10500 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\nLOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10501 | OBSERVATION:MAPPAGES_DIFFERENTS | SUITE:VERIFIER_ICE\nLOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5060 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\n",
         "note": "Cas d'usage nominal."
       }
     ],
@@ -93,14 +93,14 @@ module.exports = [
       {
         "label": "Cas de test 1",
         "stdin": "cas:1",
-        "expected": "LOCAL:10.0.0.2:16384 | MAPPED_S1:82.65.1.20:45000 | MAPPED_S2:82.65.1.20:45000 | TOPOLOGIE:NAT_CONE | SOLUTION:STUN_DIRECT\nLOCAL:10.0.0.2:16384 | MAPPED_S1:82.65.1.20:45000 | MAPPED_S2:82.65.1.20:45002 | TOPOLOGIE:NAT_SYMETRIQUE | SOLUTION:SERVEUR_RELAIS_TURN\n"
+        "expected": "LOCAL:10.0.0.2:16384 | MAPPED_S1:82.65.1.20:45000 | MAPPED_S2:82.65.1.20:45000 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\nLOCAL:10.0.0.2:16384 | MAPPED_S1:82.65.1.20:45000 | MAPPED_S2:82.65.1.20:45002 | OBSERVATION:MAPPAGES_DIFFERENTS | SUITE:VERIFIER_ICE\n"
       },
       {
         "label": "Cas de test 2",
         "stdin": "cas:2",
-        "expected": "LOCAL:195.154.10.2:5060 | MAPPED_S1:195.154.10.2:5060 | MAPPED_S2:195.154.10.2:5060 | TOPOLOGIE:PAS_DE_NAT | SOLUTION:ROUTAGE_DIRECT\n"
+        "expected": "LOCAL:195.154.10.2:5060 | MAPPED_S1:195.154.10.2:5060 | MAPPED_S2:195.154.10.2:5060 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\n"
       }
     ],
-    "solution": "[Exemple]\nLOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10500 | TOPOLOGIE:NAT_CONE | SOLUTION:STUN_DIRECT\nLOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10501 | TOPOLOGIE:NAT_SYMETRIQUE | SOLUTION:SERVEUR_RELAIS_TURN\nLOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5060 | TOPOLOGIE:PAS_DE_NAT | SOLUTION:ROUTAGE_DIRECT\n\n\n[Cas 1 — Cas de test 1]\nLOCAL:10.0.0.2:16384 | MAPPED_S1:82.65.1.20:45000 | MAPPED_S2:82.65.1.20:45000 | TOPOLOGIE:NAT_CONE | SOLUTION:STUN_DIRECT\nLOCAL:10.0.0.2:16384 | MAPPED_S1:82.65.1.20:45000 | MAPPED_S2:82.65.1.20:45002 | TOPOLOGIE:NAT_SYMETRIQUE | SOLUTION:SERVEUR_RELAIS_TURN\n\n\n[Cas 2 — Cas de test 2]\nLOCAL:195.154.10.2:5060 | MAPPED_S1:195.154.10.2:5060 | MAPPED_S2:195.154.10.2:5060 | TOPOLOGIE:PAS_DE_NAT | SOLUTION:ROUTAGE_DIRECT"
+    "solution": "[Exemple]\nLOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10500 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\nLOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10501 | OBSERVATION:MAPPAGES_DIFFERENTS | SUITE:VERIFIER_ICE\nLOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5060 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\n\n[Cas 1 — Cas de test 1]\nLOCAL:10.0.0.2:16384 | MAPPED_S1:82.65.1.20:45000 | MAPPED_S2:82.65.1.20:45000 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\nLOCAL:10.0.0.2:16384 | MAPPED_S1:82.65.1.20:45000 | MAPPED_S2:82.65.1.20:45002 | OBSERVATION:MAPPAGES_DIFFERENTS | SUITE:VERIFIER_ICE\n\n[Cas 2 — Cas de test 2]\nLOCAL:195.154.10.2:5060 | MAPPED_S1:195.154.10.2:5060 | MAPPED_S2:195.154.10.2:5060 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE"
   }
 ];

@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -58,12 +58,12 @@
 <div class="chapmeta">
     <span class="tag">Module 5</span>
     <span class="tag tag--time">≈ 2 h 45 de travail</span>
-    <span class="tag tag--time">Réservé B1 et plus</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
   </div>
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>La couche d’accès d’un réseau local d’entreprise est le périmètre le plus vulnérable aux menaces internes et aux compromissions physiques. Tout collaborateur, prestataire ou intrus branchant une machine sur une prise murale RJ-45 ou une borne Wi-Fi peut tenter de saturer la table CAM du commutateur (MAC Flooding) pour transformer le switch en concentrateur (hub) passif et intercepter le trafic, déployer un serveur DHCP pirate (Rogue DHCP) pour détourner la passerelle par défaut des utilisateurs, ou émettre des réponses ARP falsifiées (ARP Poisoning) pour réaliser une attaque d’homme du milieu (Man-In-The-Middle - MITM). L’ingénieur réseau et cybersécurité de niveau Bachelor 3 doit maîtriser l’arsenal complet de durcissement de niveau 2 : configurer Port Security avec apprentissage dynamique Sticky MAC, activer DHCP Snooping avec ségrégation stricte des ports de confiance, et corréler l’inspection dynamique ARP (DAI) avec IP Source Guard pour neutraliser toute tentative d’usurpation.</p>
+    <p>La couche d’accès d’un réseau local d’entreprise est exposée aux menaces internes et aux compromissions physiques. Tout collaborateur, prestataire ou intrus branchant une machine sur une prise murale RJ-45 ou une borne Wi-Fi peut tenter de saturer la table CAM du commutateur (MAC Flooding) pour provoquer la diffusion de certaines trames unicast vers des destinations inconnues et les intercepter dans leur VLAN, déployer un serveur DHCP pirate (Rogue DHCP) pour détourner la passerelle par défaut des utilisateurs, ou émettre des réponses ARP falsifiées (ARP Poisoning) pour réaliser une attaque d’homme du milieu (Man-In-The-Middle - MITM). L’ingénieur réseau et cybersécurité de niveau Bachelor 3 doit maîtriser les outils de durcissement de niveau 2 : configurer Port Security avec apprentissage dynamique Sticky MAC, activer DHCP Snooping avec ségrégation des ports de confiance, et associer l’inspection dynamique ARP (DAI) à IP Source Guard pour réduire les risques d’usurpation selon le contexte et la configuration.</p>
   </div>
 
   <div class="box box--objectifs">
@@ -79,17 +79,19 @@
     </ol>
   </div>
 
-<h2>1. Attaques Fondamentales de Niveau 2 : Saturation CAM & Serveurs DHCP Pirates</h2>
+<h2>1. Attaques Fondamentales de Niveau 2 : Saturation CAM &amp; Serveurs DHCP Pirates</h2>
 
 <p>Historiquement conçu sans préoccupation de sécurité cryptographique, le standard Ethernet considère que tout port physique connecté est légitime. Les attaquants exploitent cette confiance aveugle par deux techniques offensives classiques :</p>
 <div class="grid grid-2">
   <div class="card">
     <h4>1. Saturation de Table CAM (MAC Address Flooding)</h4>
-    <p>La table de commutation (Content Addressable Memory - CAM) possède une mémoire finie (typiquement 8 000 à 32 000 entrées). Un outil offensif (ex: <code>macof</code>) injecte des dizaines de milliers de trames Ethernet forgées avec des adresses MAC sources aléatoires par seconde :</p>
+    <p>La table de commutation (Content Addressable Memory - CAM) possède une capacité finie, qui dépend du matériel. Un outil offensif (ex: <code>macof</code>) peut injecter de nombreuses trames Ethernet avec des adresses MAC sources forgées :</p>
     <ul>
-      <li>La table CAM sature en quelques fractions de seconde.</li>
-      <li>Incapable d’apprendre les adresses légitimes, le commutateur passe en <strong>mode fail-open (Unicast Flooding)</strong> : il diffuse chaque trame reçue sur tous ses ports comme un simple hub.</li>
-      <li>L’attaquant positionné sur son port capture l’intégralité des flux du VLAN en clair.</li>
+      <li>La table CAM peut atteindre sa capacité ; le délai dépend du trafic, du matériel et des protections activées.</li>
+      <li>Si le commutateur ne peut plus apprendre de nouvelles adresses sources, les destinations correspondantes restent inconnues ; des destinations déjà apprises peuvent aussi le devenir lorsque leur entrée expire sans être réapprise.</li>
+      <li>Selon le matériel et sa configuration, les trames unicast vers ces destinations peuvent être diffusées sur les ports autorisés du même VLAN, sauf le port d’entrée. Les destinations encore connues restent généralement commutées vers leur port.</li>
+      <li>Port Security, correctement configuré, peut limiter le nombre d’adresses MAC autorisées par port et bloquer des trames provenant d’adresses non autorisées ou désactiver le port en violation. D’autres contrôles peuvent limiter la diffusion.</li>
+      <li>Si son port est autorisé dans le VLAN et reçoit ces copies, l’attaquant peut capturer certaines trames ; cela ne garantit ni l’accès à tous les flux ni leur lecture en clair. Un chiffrement correctement configuré, par exemple TLS, protège le contenu applicatif d’une simple capture ; certaines métadonnées restent visibles.</li>
     </ul>
   </div>
   <div class="card">
@@ -98,12 +100,12 @@
     <ul>
       <li>Il fournit une adresse IP valide au client.</li>
       <li>Il positionne sa propre machine comme <strong>passerelle par défaut</strong> et <strong>serveur DNS</strong>.</li>
-      <li>Tout le trafic sortant du poste client est intercepté, analysé et modifié avant d’être relayé.</li>
+      <li>Le trafic passant par cette passerelle peut être intercepté ou modifié. Un chiffrement correctement authentifié, tel que TLS, protège le contenu applicatif sans masquer nécessairement toutes les métadonnées.</li>
     </ul>
   </div>
 </div>
 
-<h2>2. Port Security : Contrôle d’Accès Matériel & Modes de Violation</h2>
+<h2>2. Port Security : Contrôle d’Accès Matériel &amp; Modes de Violation</h2>
 
 <p>La fonctionnalité <strong>Port Security</strong> permet de restreindre le nombre d’adresses MAC autorisées à émettre sur une interface d’accès et d’associer des adresses MAC matérielles spécifiques :</p>
 <div class="grid grid-2">
@@ -112,7 +114,7 @@
     <ul>
       <li><strong>Statique :</strong> Configurée manuellement par l’administrateur (<code>switchport port-security mac-address &lt;mac&gt;</code>).</li>
       <li><strong>Dynamique :</strong> Apprise au vol par le commutateur et oubliée au redémarrage.</li>
-      <li><strong>Sticky MAC :</strong> Apprise dynamiquement sur la première trame reçue et automatiquement inscrite dans la configuration courante (<code>running-config</code>) pour persister après redémarrage.</li>
+      <li><strong>Sticky MAC :</strong> Apprise dynamiquement et inscrite dans la configuration courante (<code>running-config</code>). Pour la conserver après redémarrage, sauvegarder cette configuration dans la <code>startup-config</code>, selon la plateforme.</li>
     </ul>
   </div>
   <div class="card">
@@ -129,10 +131,10 @@
 </div>
   <div class="box box--standard">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Rétablissement d'un Port en état err-disable</div>
-<p>Lorsqu’un port passe en état <code>err-disable</code> suite à une violation en mode shutdown, il ne se réactive pas automatiquement par défaut. L’administrateur doit intervenir manuellement (<code>shutdown</code> puis <code>no shutdown</code>), ou activer le redémarrage temporisé automatique : <code>errdisable recovery cause psecure-violation</code> avec un intervalle configuré (ex: 300 secondes).</p>
+<p>Lorsqu’un port passe en état <code>err-disable</code> suite à une violation en mode shutdown, diagnostiquer et corriger la cause avant réactivation. Selon la plateforme et sa configuration, l’administrateur peut intervenir manuellement (<code>shutdown</code> puis <code>no shutdown</code>) ou configurer la récupération temporisée, par exemple <code>errdisable recovery cause psecure-violation</code> avec un intervalle adapté.</p>
   </div>
 
-<h2>3. DHCP Snooping & Dynamic ARP Inspection (DAI)</h2>
+<h2>3. DHCP Snooping &amp; Dynamic ARP Inspection (DAI)</h2>
 
 <p>Pour contrer les attaques de type Rogue DHCP et Man-In-The-Middle par usurpation ARP (ARP Poisoning), les commutateurs combinent deux technologies complémentaires de filtrage dynamique :</p>
 <div class="grid grid-2">
@@ -147,18 +149,20 @@
   </div>
   <div class="card">
     <h4>2. Dynamic ARP Inspection (DAI) &amp; IP Source Guard</h4>
-    <p>Exploite directement la base construite par le DHCP Snooping :</p>
+    <p>Ces fonctions peuvent utiliser les liaisons DHCP Snooping et, selon leur configuration, des règles statiques :</p>
     <ul>
-      <li><strong>Dynamic ARP Inspection (DAI) :</strong> Intercepte toutes les requêtes et réponses ARP sur les ports untrusted. Si le couple IP/MAC ne figure pas dans la table DHCP Snooping, la trame ARP est détruite, neutralisant totalement l’usurpation de passerelle.</li>
-      <li><strong>IP Source Guard (IPSG) :</strong> Filtrez tous les paquets IP au niveau matériel : si un utilisateur change manuellement son adresse IP sans passer par le DHCP légitime, le commutateur bloque immédiatement ses paquets.</li>
+      <li><strong>Dynamic ARP Inspection (DAI) :</strong> Sur les ports non approuvés, vérifie les messages ARP à partir des liaisons DHCP Snooping ou d’une ACL ARP configurée pour les adresses statiques. Les messages refusés sont éliminés ; cette vérification réduit certains risques d’usurpation sans les supprimer tous.</li>
+      <li><strong>IP Source Guard (IPSG) :</strong> Sur une interface où il est activé, filtre les paquets selon les liaisons DHCP ou les liaisons statiques configurées. Une adresse source non autorisée peut être bloquée ; une adresse statique explicitement autorisée reste possible.</li>
     </ul>
   </div>
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="lan3-c5-e1" data-lab
      data-exercise="lan3-c5-e1"
      data-language="analyse"
@@ -191,19 +195,20 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Contrôleur de Port Security et détection de violation (Protect, Restrict, Shutdown)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="lan3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Simuler le mécanisme Cisco Port Security et les modes de réaction face aux adresses MAC non autorisées.</p>
-    <div class="lab__brief"><p>La fonctionnalité <strong>Port Security</strong> sur les commutateurs de niveau 2 restreint l'accès d'un port aux seules adresses MAC approuvées (statiques ou apprises dynamiquement jusqu'à un quota <code>max_mac</code>).<br><br>
-Modes de violation lorsqu'une adresse MAC non autorisée émet une trame :<br>
-- <strong>protect :</strong> Détruit silencieusement la trame sans générer de log ni incrémenter de compteur ; le port reste opérationnel pour les MACs légitimes (&rarr; <code>action=DROP_SILENT state=UP</code>).<br>
-- <strong>restrict :</strong> Détruit la trame, incrémente le compteur de violations et émet un piège SNMP / log syslog ; le port reste UP (&rarr; <code>action=DROP_ALERT state=UP</code>).<br>
-- <strong>shutdown :</strong> Désactive immédiatement le port physique qui passe en état d'erreur irrécupérable <code>ERR_DISABLE</code> (&rarr; <code>action=PORT_SHUTDOWN state=ERR_DISABLE</code>). Toutes les trames suivantes reçues sur ce port sont rejetées (&rarr; <code>action=DROP state=ERR_DISABLE</code>).<br><br>
-Analysez les paramètres du problème pour chaque cas...|NONE&gt;</code><br>
-- Les trames arrivant sur le port :<br>
-  <code>FRAME id=&lt;nom&gt; src_mac=&lt;mac&gt;</code><br><br>
+    <div class="lab__brief"><p>La fonctionnalité <strong>Port Security</strong> limite les adresses MAC autorisées sur un port à celles qui sont configurées ou apprises, jusqu'au quota <code>max_mac</code>.<br><br>
+Pour une trame non autorisée, ce modèle distingue trois modes :<br>
+- <strong>protect :</strong> la trame est détruite sans alerte ni incrément de compteur ; le port reste <code>UP</code> (<code>action=DROP_SILENT</code>).<br>
+- <strong>restrict :</strong> la trame est détruite, le compteur et l'alerte sont activés ; le port reste <code>UP</code> (<code>action=DROP_ALERT</code>).<br>
+- <strong>shutdown :</strong> le port passe en <code>ERR_DISABLE</code> (<code>action=PORT_SHUTDOWN</code>). Dans ce scénario sans rétablissement, les trames suivantes sont rejetées avec <code>action=DROP state=ERR_DISABLE</code>.<br><br>
+En pratique, après diagnostic et correction de la cause, une réactivation manuelle (<code>shutdown</code> puis <code>no shutdown</code>) ou une récupération automatique configurée peut être possible selon la plateforme.<br><br>
+Chaque cas commence par <code>PORT_SEC port=&lt;port&gt; max_mac=&lt;quota&gt; mode=&lt;protect|restrict|shutdown&gt; sticky_macs=&lt;adresses|NONE&gt;</code>, suivi des trames <code>FRAME id=&lt;nom&gt; src_mac=&lt;mac&gt;</code>.<br>
 Pour chaque trame, afficher :<br>
 <code>PORT_SEC_REPORT id={id} port={port} mac={src_mac} status={PERMIT|VIOLATION|PORT_DOWN} action={action} state={state}</code></p></div>
     <div class="lab__sample">
@@ -211,16 +216,12 @@ Pour chaque trame, afficher :<br>
 FRAME id=F1 src_mac=00:11:22:33:44:01
 FRAME id=F2 src_mac=00:aa:bb:cc:dd:02
 FRAME id=F3 src_mac=00:11:22:33:44:01</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PORT_SEC_REPORT id=F1 port=Fa0/1 mac=00:11:22:33:44:01 status=PERMIT action=FORWARD state=UP
-PORT_SEC_REPORT id=F2 port=Fa0/1 mac=00:aa:bb:cc:dd:02 status=VIOLATION action=PORT_SHUTDOWN state=ERR_DISABLE
-PORT_SEC_REPORT id=F3 port=Fa0/1 mac=00:11:22:33:44:01 status=PORT_DOWN action=DROP state=ERR_DISABLE</pre></div>
     </div>
-    <p class="lab__note">F1 est autorisée ; F2 déclenche le shutdown du port ; F3 arrive sur un port désactivé.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
         <li>Le mécanisme de sécurité Port Security surveille le nombre d’adresses MAC distinctes autorisées sur un port de commutateur.</li>
-        <li>Si une trame avec une adresse MAC inconnue arrive alors que le seuil maximal est atteint, le port bascule en violation (err-disable).</li>
+        <li>Si une adresse inconnue dépasse le quota, seul le mode shutdown du scénario place le port en err-disable.</li>
       </ol>
     </details>
   </div>
@@ -254,10 +255,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Validateur de base de données de liaison DHCP Snooping</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="lan3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Filtrer les messages DHCP selon le statut de confiance des ports et alimenter la base de liaison (Binding DB).</p>
     <div class="lab__brief"><p>L'attaque par serveur DHCP pirate (Rogue DHCP Server) permet à un attaquant de distribuer de fausses passerelles et de faux serveurs DNS aux postes du réseau. La parade <strong>DHCP Snooping</strong> classe les ports du commutateur en deux catégories :<br>
 - <strong>Ports de confiance (TRUSTED) :</strong> Reliés aux serveurs DHCP légitimes ou aux uplinks de distribution. Tous les messages DHCP y sont autorisés.<br>
@@ -277,11 +280,7 @@ PORT_TRUST name=Gi0/24 trust=TRUSTED
 DHCP_MSG id=M1 port=Gi0/1 type=DISCOVER client_mac=00:11:22:33:44:01 assigned_ip=0.0.0.0 vlan=10
 DHCP_MSG id=M2 port=Gi0/1 type=OFFER client_mac=00:11:22:33:44:01 assigned_ip=192.168.10.50 vlan=10
 DHCP_MSG id=M3 port=Gi0/24 type=ACK client_mac=00:11:22:33:44:01 assigned_ip=192.168.10.50 vlan=10</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DHCP_SNOOP_REPORT id=M1 port=Gi0/1 type=DISCOVER status=PERMIT action=FORWARD reason=LEGIT_CLIENT_REQUEST
-DHCP_SNOOP_REPORT id=M2 port=Gi0/1 type=OFFER status=SECURITY_VIOLATION action=DROP reason=ROGUE_DHCP_SERVER
-DHCP_SNOOP_REPORT id=M3 port=Gi0/24 type=ACK status=PERMIT action=FORWARD reason=TRUSTED_PORT_TRAFFIC</pre></div>
     </div>
-    <p class="lab__note">M1 est un Discover client normal ; M2 est une tentative d'usurpation DHCP serveur sur port non fiable ; M3 est la réponse légitime du serveur.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -307,55 +306,50 @@ DHCP_SNOOP_REPORT id=M3 port=Gi0/24 type=ACK status=PERMIT action=FORWARD reason
 # Données : ARP_FRAME id=A2 vlan=20 sender_mac=00:00:00:00:00:01 sender_ip=10.0.0.1 target_ip=10.0.0.254
 A_COMPLETER
 
-[Cas 2 — Toutes requêtes ARP légitimes]
+[Cas 2 — Requête conforme à la liaison]
 # Données : BINDING mac=00:22:33:44:55:66 ip=172.16.10.5 vlan=5
 # Données : ARP_FRAME id=OK vlan=5 sender_mac=00:22:33:44:55:66 sender_ip=172.16.10.5 target_ip=172.16.10.1
 A_COMPLETER
 
-[Cas 3 — Hôte inconnu non attribué par DHCP]
+[Cas 3 — Hôte absent de la base de ce VLAN]
 # Données : BINDING mac=00:11:11:11:11:11 ip=192.168.1.5 vlan=1
-# Données : ARP_FRAME id=ROGUE vlan=1 sender_mac=00:99:99:99:99:99 sender_ip=192.168.1.200 target_ip=192.168.1.1
+# Données : ARP_FRAME id=UNKNOWN vlan=1 sender_mac=00:99:99:99:99:99 sender_ip=192.168.1.200 target_ip=192.168.1.1
 A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Filtre anti-usurpation Dynamic ARP Inspection (DAI)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Valider les trames ARP en croisant les couples (IP, MAC) avec la base de données DHCP Snooping.</p>
-    <div class="lab__brief"><p>L'attaque par <strong>empoisonnement de cache ARP (ARP Poisoning / ARP Spoofing)</strong> permet à un pirate d'intercepter tout le trafic d'un sous-réseau en s'interposant entre les postes et la passerelle (Man-in-the-Middle).<br>
-Le mécanisme <strong>Dynamic ARP Inspection (DAI)</strong> intercepte toutes les requêtes et réponses ARP sur les ports non fiables et valide la cohérence du couple <code>(sender_ip, sender_mac)</code> par rapport à la base de liaison <strong>DHCP Snooping Binding Database</strong>.<br><br>
-Analysez les paramètres du problème pour chaque cas. Si le couple <code>(sender_mac, sender_ip, vlan)</code> correspond exactement à une entrée de la base BINDING :<br>
-   <code>status=PERMIT action=FORWARD reason=BINDING_MATCH</code>.<br>
-2. Si <code>sender_ip</code> existe dans la base pour ce <code>vlan</code> mais avec une <code>mac</code> différente (usurpation d'IP avérée) :<br>
-   <code>status=DENY action=DROP_ALERT reason=ARP_SPOOFING_DETECTED</code>.<br>
-3. Si <code>sender_ip</code> n'existe pas du tout dans la base de données :<br>
-   <code>status=DENY action=DROP reason=UNKNOWN_HOST_BINDING</code>.<br><br>
-Pour chaque paquet ARP, afficher :<br>
-<code>DAI_AUDIT id={id} vlan={vlan} sender_ip={sender_ip} sender_mac={sender_mac} status={status} action={action} reason={reason}</code></p></div>
+    <p class="lab__formative-notice" id="lan3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser des trames ARP en les comparant à des liaisons fournies, sans conclure à une attaque sur ce seul indice.</p>
+    <div class="lab__brief"><p>Un empoisonnement de cache ARP peut détourner certaines communications si un attaquant parvient à faire accepter une fausse liaison. <strong>Dynamic ARP Inspection (DAI)</strong> vérifie les messages ARP sur les ports non fiables selon les liaisons DHCP ou les ACL ARP configurées.<br><br>
+Dans cette grille simplifiée, tous les messages proviennent de ports non fiables et seules les liaisons <code>BINDING</code> fournies sont utilisées ; aucune ACL ARP n'est modélisée. Une différence de liaison ne prouve pas une attaque : elle peut aussi résulter d'une configuration erronée ou périmée. Les actions et alertes ci-dessous sont celles du modèle, pas une garantie sur chaque commutateur.<br><br>
+1. Si <code>(sender_mac, sender_ip, vlan)</code> correspond à une liaison : <code>status=PERMIT action=FORWARD reason=BINDING_MATCH</code>.<br>
+2. Si <code>sender_ip</code> est enregistré pour ce VLAN avec une autre MAC : <code>status=DENY action=DROP_ALERT reason=BINDING_MISMATCH</code>.<br>
+3. Si <code>sender_ip</code> n'est pas enregistré pour ce VLAN : <code>status=DENY action=DROP reason=UNKNOWN_HOST_BINDING</code>.<br><br>
+Pour chaque message, indiquez : <code>DAI_AUDIT id={id} vlan={vlan} sender_ip={sender_ip} sender_mac={sender_mac} status={status} action={action} reason={reason}</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BINDING mac=00:11:22:33:44:01 ip=192.168.1.10 vlan=10
 BINDING mac=00:11:22:33:44:02 ip=192.168.1.20 vlan=10
 ARP_FRAME id=ARP1 vlan=10 sender_mac=00:11:22:33:44:01 sender_ip=192.168.1.10 target_ip=192.168.1.1
 ARP_FRAME id=ARP2 vlan=10 sender_mac=00:aa:bb:cc:dd:ee sender_ip=192.168.1.10 target_ip=192.168.1.20
 ARP_FRAME id=ARP3 vlan=10 sender_mac=00:11:22:33:44:99 sender_ip=192.168.1.99 target_ip=192.168.1.1</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DAI_AUDIT id=ARP1 vlan=10 sender_ip=192.168.1.10 sender_mac=00:11:22:33:44:01 status=PERMIT action=FORWARD reason=BINDING_MATCH
-DAI_AUDIT id=ARP2 vlan=10 sender_ip=192.168.1.10 sender_mac=00:aa:bb:cc:dd:ee status=DENY action=DROP_ALERT reason=ARP_SPOOFING_DETECTED
-DAI_AUDIT id=ARP3 vlan=10 sender_ip=192.168.1.99 sender_mac=00:11:22:33:44:99 status=DENY action=DROP reason=UNKNOWN_HOST_BINDING</pre></div>
     </div>
-    <p class="lab__note">ARP1 est légitime ; ARP2 usurpe l'IP 192.168.1.10 avec une fausse MAC ; ARP3 est inconnu dans le bail DHCP.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Normaliser les adresses MAC en minuscules.</li>
-        <li>Gérer un dictionnaire indexé par (vlan, sender_ip) renvoyant la MAC légitime.</li>
+        <li>Normalisez les adresses MAC en minuscules.</li>
+        <li>Comparez chaque couple (vlan, sender_ip) à la MAC enregistrée dans les liaisons fournies.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -364,11 +358,11 @@ DAI_AUDIT id=ARP3 vlan=10 sender_ip=192.168.1.99 sender_mac=00:11:22:33:44:99 st
       <p class="q__stem">Quel est l’objectif d’une attaque par saturation de table CAM (MAC Flooding) menée contre un commutateur ?</p>
       <div class="opts">
         <button class="opt">Détruire physiquement les composants électroniques du commutateur</button>
-        <button class="opt" data-correct="1">Remplir la mémoire du switch pour forcer le basculement en diffusion générale (Unicast Flooding) et intercepter les trames des autres utilisateurs</button>
+        <button class="opt" data-correct="1">Remplir la table CAM pour tenter de provoquer la diffusion de certaines trames unicast vers des destinations inconnues et éventuellement les intercepter dans le même VLAN</button>
         <button class="opt">Empêcher le commutateur de se synchroniser sur le serveur NTP</button>
         <button class="opt">Forcer la négociation du port en mode 10 Mbps half-duplex</button>
       </div>
-      <div class="q__exp">En saturant la table CAM, le switch ne peut plus associer les MACs aux ports et diffuse chaque trame sur tous les ports du VLAN comme un hub.</div>
+      <div class="q__exp">La saturation peut empêcher l’apprentissage de nouvelles adresses ; de nouvelles destinations restent alors inconnues, comme celles dont les entrées expirent sans être réapprises. Selon le commutateur et ses protections, leurs trames unicast peuvent être diffusées sur les ports autorisés du même VLAN. Les destinations encore connues restent généralement acheminées vers leur port et un chiffrement adapté protège le contenu d’une simple capture.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel mode de violation de Port Security désactive immédiatement le port physique et le place en état « err-disable » ?</p>
@@ -411,24 +405,24 @@ DAI_AUDIT id=ARP3 vlan=10 sender_ip=192.168.1.99 sender_mac=00:11:22:33:44:99 st
       <div class="q__exp">La table de liaison associe pour chaque poste : adresse MAC, adresse IP reçue par DHCP, durée du bail, VLAN d’appartenance et numéro de port physique.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Comment la technologie Dynamic ARP Inspection (DAI) neutralise-t-elle les attaques d’usurpation de passerelle (ARP Poisoning) ?</p>
+      <p class="q__stem">Comment la technologie Dynamic ARP Inspection (DAI) contribue-t-elle à réduire les risques d’usurpation ARP ?</p>
       <div class="opts">
         <button class="opt">En convertissant toutes les requêtes ARP en paquets DNS</button>
-        <button class="opt" data-correct="1">En validant chaque paquet ARP reçu sur un port untrusted par comparaison stricte avec la base DHCP Snooping Binding</button>
+        <button class="opt" data-correct="1">En validant les messages ARP des ports untrusted selon les liaisons DHCP ou une ACL ARP applicable</button>
         <button class="opt">En forçant le redémarrage du poste attaquant</button>
         <button class="opt">En désactivant le protocole IP sur le réseau</button>
       </div>
-      <div class="q__exp">DAI intercepte chaque trame ARP sur les ports untrusted : si l’adresse IP ou l’adresse MAC ne correspond pas à l’entrée validée dans la base DHCP Snooping, la trame est détruite.</div>
+      <div class="q__exp">DAI vérifie les messages ARP reçus sur les ports untrusted selon les liaisons DHCP et les ACL ARP configurées. Les messages non autorisés sont rejetés, mais cela ne supprime pas tous les risques.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Quelle technologie de niveau 2 empêche un utilisateur d’utiliser une adresse IP statique configurée manuellement non attribuée par le DHCP ?</p>
+      <p class="q__stem">Quelle technologie permet de filtrer l’adresse IP source d’un port selon les liaisons autorisées ?</p>
       <div class="opts">
         <button class="opt">PortFast</button>
         <button class="opt" data-correct="1">IP Source Guard (IPSG)</button>
         <button class="opt">Root Guard</button>
         <button class="opt">CDP</button>
       </div>
-      <div class="q__exp">IP Source Guard applique un filtre matériel strict au niveau du port : seuls les paquets dont l’adresse IP source figure dans la table DHCP Snooping sont autorisés.</div>
+      <div class="q__exp">IP Source Guard filtre les paquets selon les liaisons DHCP ou les liaisons statiques configurées sur le port ; une adresse statique explicitement autorisée peut donc être utilisée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que se passe-t-il par défaut sous Cisco IOS lorsqu’un commutateur reçoit un paquet DHCP sur un port untrusted contenant l’option 82 alors qu’il n’est pas configuré comme relais de confiance ?</p>
@@ -448,7 +442,7 @@ DAI_AUDIT id=ARP3 vlan=10 sender_ip=192.168.1.99 sender_mac=00:11:22:33:44:99 st
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
     <ul>
       <li>Oublier de configurer « ip dhcp snooping trust » sur la liaison montante vers le serveur DHCP, bloquant l’attribution de baux pour tous les clients du switch.</li>
-      <li>Activer Dynamic ARP Inspection (DAI) sur un VLAN sans avoir préalablement peuplé la base DHCP Snooping (ou sans ACL ARP statique pour les serveurs en IP fixe), bloquant l’ensemble du trafic légitime.</li>
+      <li>Activer Dynamic ARP Inspection (DAI) sans prévoir les liaisons DHCP ou les ACL ARP nécessaires : des messages ARP légitimes peuvent être rejetés et perturber certains hôtes.</li>
       <li>Choisir le mode « protect » au lieu de « shutdown » dans un environnement critique, laissant l’attaquant persister sans aucune alerte générée.</li>
       <li>Ne pas limiter le taux de requêtes ARP (ip arp inspection limit rate) sur les ports utilisateurs, exposant le CPU du commutateur à un déni de service.</li>
     </ul>
@@ -473,25 +467,25 @@ DAI_AUDIT id=ARP3 vlan=10 sender_ip=192.168.1.99 sender_mac=00:11:22:33:44:99 st
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
-      <li>Le MAC Flooding vise à saturer la mémoire CAM du commutateur pour forcer la diffusion de toutes les trames en clair (hub).</li>
+      <li>Le MAC Flooding tente de saturer la table CAM ; des trames unicast vers des destinations devenues inconnues peuvent être diffusées dans leur VLAN si les protections le permettent. Leur contenu n’est pas forcément lisible lorsqu’il est chiffré.</li>
       <li>Port Security limite le nombre d’adresses MAC par port ; le mode shutdown désactive le port en état err-disable en cas d’infraction.</li>
       <li>Le mécanisme Sticky MAC enregistre automatiquement l’adresse apprise dans la configuration courante du commutateur.</li>
       <li>DHCP Snooping sépare les ports de confiance (trusted) des ports utilisateurs (untrusted) pour neutraliser les serveurs pirates.</li>
       <li>La base de données DHCP Snooping Binding associe l’adresse MAC, l’IP attribuée, le VLAN et le port physique du client.</li>
-      <li>DAI inspecte les paquets ARP entrants sur les ports untrusted et bloque les réponses non validées par la base DHCP Snooping.</li>
+      <li>DAI inspecte les messages ARP entrants sur les ports untrusted et peut utiliser les liaisons DHCP ou une ACL ARP applicable pour les valider.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
-      <li>Je comprends comment une attaque par MAC Flooding transforme un commutateur en concentrateur.</li>
+      <li>Je sais expliquer pourquoi le MAC Flooding peut diffuser certaines trames unicast, mais ne rend pas tout le trafic lisible.</li>
       <li>Je connais la différence entre les trois modes de violation de Port Security (protect, restrict, shutdown).</li>
       <li>Je sais expliquer le fonctionnement et l’intérêt du mot-clé sticky dans la commande port-security mac-address.</li>
       <li>Je maîtrise la configuration de DHCP Snooping et la déclaration indispensable des ports de confiance (trusted).</li>
-      <li>Je comprends pourquoi Dynamic ARP Inspection (DAI) dépend directement de la base DHCP Snooping Binding Table.</li>
-      <li>Je sais comment IP Source Guard bloque les tentatives de configuration d’IP statique illégitime sur un port utilisateur.</li>
+      <li>Je comprends comment Dynamic ARP Inspection (DAI) utilise les liaisons DHCP et, pour des hôtes statiques, une ACL ARP adaptée.</li>
+      <li>Je sais comment IP Source Guard filtre les adresses sources selon les liaisons DHCP ou statiques autorisées.</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>Attaque MAC Address Flooding & Table CAM</li><li>Serveur DHCP Pirate (Rogue DHCP)</li><li>Port Security & Maximum MACs</li><li>Modes de Violation (protect, restrict, shutdown)</li><li>Apprentissage Sticky MAC</li><li>DHCP Snooping (Ports Trusted vs Untrusted)</li><li>DHCP Snooping Binding Database</li><li>Dynamic ARP Inspection (DAI) & IP Source Guard</li>
+      <li>Attaque MAC Address Flooding &amp; Table CAM</li><li>Serveur DHCP Pirate (Rogue DHCP)</li><li>Port Security &amp; Maximum MACs</li><li>Modes de Violation (protect, restrict, shutdown)</li><li>Apprentissage Sticky MAC</li><li>DHCP Snooping (Ports Trusted vs Untrusted)</li><li>DHCP Snooping Binding Database</li><li>Dynamic ARP Inspection (DAI) &amp; IP Source Guard</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -503,7 +497,7 @@ DAI_AUDIT id=ARP3 vlan=10 sender_ip=192.168.1.99 sender_mac=00:11:22:33:44:99 st
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à identifier les modes de violation de Port Security ou confusion entre DHCP Snooping et DAI.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Difficultés à identifier les modes de violation de Port Security ou confusion entre DHCP Snooping et DAI.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne compréhension des mécanismes de durcissement de niveau 2, configuration de Port Security et ports de confiance DHCP.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise complète de la chaîne de sécurité intégrée (Port Security Sticky, DHCP Snooping, DAI, IP Source Guard) et remédiation automatisée des err-disable.</div>
@@ -517,7 +511,7 @@ DAI_AUDIT id=ARP3 vlan=10 sender_ip=192.168.1.99 sender_mac=00:11:22:33:44:99 st
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : Standards IEEE 802.1D, 802.1w, 802.1s, 802.3ad, 802.1AX, 802.1AB, RFC 2328 (OSPFv2), RFC 5798 (VRRPv3) et Guides de conception Cisco Campus LAN & ANSSI.</p>
+  Sources : Standards IEEE 802.1D, 802.1w, 802.1s, 802.3ad, 802.1AX, 802.1AB, RFC 2328 (OSPFv2), RFC 5798 (VRRPv3) et Guides de conception Cisco Campus LAN &amp; ANSSI.</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

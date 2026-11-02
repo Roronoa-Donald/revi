@@ -24,7 +24,7 @@ $parServeur = [int][Console]::In.ReadLine()
 # À compléter : calculer le total et afficher "vms : X".
 `,
     hints: [
-      'Le total vaut $serveurs * $parServeur.',
+      'Le total vaut `$serveurs * $parServeur`.',
       'PowerShell affiche avec Write-Output ; concaténez texte et valeur.'
     ],
     examples: [

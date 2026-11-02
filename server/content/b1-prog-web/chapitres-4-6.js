@@ -554,7 +554,7 @@ module.exports = [
           'exécute le script dès qu’il est téléchargé, sans garantie d’ordre : il se réserve aux scripts ' +
           'indépendants.</p>',
           box('tech', 'Vérifier que le script est bien chargé', 'terminal',
-            '    <p>Dans la console du navigateur, écris le nom d’une fonction de ton script : si elle n’est ' +
+            '    <p>Dans la console du navigateur, écris le nom d’une fonction de votre script : si elle n’est ' +
             'pas définie, le fichier n’a pas été chargé (chemin faux) ou a produit une erreur avant sa ' +
             'déclaration. L’onglet Console affiche cette erreur en rouge, avec sa ligne.</p>')
         ].join('\n')
@@ -667,7 +667,7 @@ module.exports = [
             'bouton.addEventListener("click", () => {',
             '  const note = Number(document.querySelector("#note").value);',
             '  if (Number.isNaN(note)) {',
-            '    document.querySelector("#message").textContent = "Notez attendue : un nombre.";',
+            '    document.querySelector("#message").textContent = "Note attendue : un nombre.";',
             '    return;',
             '  }',
             '  document.querySelector("#message").textContent = note >= 10 ? "Admis" : "Non admis";',
@@ -738,8 +738,8 @@ module.exports = [
     ],
 
     pitfalls: [
-      '<strong>Sélecteur qui ne cible rien</strong> : <code>null.textContent</code> échoue ; vérifie l’orthographe de l’<code>id</code>.',
-      '<strong>Script exécuté avant le DOM</strong> : utilise <code>defer</code> ou place le script en fin de <code>body</code>.',
+      '<strong>Sélecteur qui ne cible rien</strong> : <code>null.textContent</code> échoue ; vérifiez l’orthographe de l’<code>id</code>.',
+      '<strong>Script exécuté avant le DOM</strong> : utilisez <code>defer</code> ou placez le script en fin de <code>body</code>.',
       '<strong>Oublier de convertir</strong> : <code>"12" + 1</code> donne <code>"121"</code>, pas 13.',
       '<strong>Écouter chaque enfant au lieu du parent</strong> : le code casse dès qu’un élément est ajouté dynamiquement.',
       '<strong>Utiliser <code>innerHTML</code> avec une donnée utilisateur</strong> : la donnée devient du code exécutable.'
@@ -747,9 +747,9 @@ module.exports = [
 
     methodTitle: 'Écrire un comportement, du début à la fin',
     method: [
-      '<strong>Sélectionne</strong> les éléments par <code>querySelector</code> et vérifie qu’ils existent.',
-      '<strong>Charge le script avec <code>defer</code></strong> pour qu’ils soient présents.',
-      '<strong>Écoute</strong> l’événement, au bon niveau (parent pour les listes).',
+      '<strong>Sélectionnez</strong> les éléments par <code>querySelector</code> et vérifiez qu’ils existent.',
+      '<strong>Chargez le script avec <code>defer</code></strong> pour qu’ils soient présents.',
+      '<strong>Écoutez</strong> l’événement, au bon niveau (parent pour les listes).',
       '<strong>Lisez, convertissez puis validez</strong> les données avant tout calcul.',
       '<strong>Affichez avec <code>textContent</code></strong> ou en créant les éléments par ' +
       '<code>createElement</code>.'

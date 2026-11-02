@@ -32,8 +32,8 @@ $nom = trim(fgets(STDIN));
 // À compléter : afficher "Bonjour <nom> !"
 `,
     hints: [
-      'fgets(STDIN) lit une ligne du clavier ou du tube d’entrée ; trim retire le saut de ligne qui l’accompagne.',
-      'Entrez guillemets doubles, une variable est remplacée par sa valeur : c’est l’interpolation.'
+      'Comment lire une ligne et retirer le saut de ligne avant de l’utiliser ?',
+      'Entre guillemets doubles, une variable est remplacée par sa valeur : c’est l’interpolation.'
     ],
     examples: [
       { stdin: 'Alice', expected: 'Bonjour Alice !', note: 'Le prénom est inséré dans le message.' }
@@ -64,7 +64,7 @@ $prix = (int)trim(fgets(STDIN));
 // À compléter : afficher la fiche sur deux lignes.
 `,
     hints: [
-      'Le cast (int) transforme la ligne lue en entier : indispensable pour calculer ensuite.',
+      'Quel type de valeur faut-il obtenir avant d’effectuer le calcul ?',
       'Deux echo, chacun terminé par le saut de ligne.'
     ],
     examples: [
@@ -98,7 +98,7 @@ $quantite = (int)trim(fgets(STDIN));
 // À compléter : calculer et afficher le total.
 `,
     hints: [
-      'Le total d’une commande est le produit du prix par la quantité.',
+      'Quelle opération relie le prix unitaire, la quantité et le total ?',
       'L’interpolation évalue aussi les expressions simples mises dans des variables : calculez d’abord, affichez ensuite.'
     ],
     examples: [
@@ -575,7 +575,9 @@ for ($i = 0; $i < $n; $i++) {
     tests: [
       { label: 'Déjà trié', stdin: '3\n1\n2\n3', expected: '1 2 3' },
       { label: 'Ordre inverse', stdin: '4\n4\n3\n2\n1', expected: '1 2 3 4' },
-      { label: 'Doublons', stdin: '5\n3\n1\n3\n1\n2', expected: '1 1 2 3 3' }
+      { label: 'Doublons', stdin: '5\n3\n1\n3\n1\n2', expected: '1 1 2 3 3' },
+      { label: 'Minimum position un', stdin: '3\n5\n1\n9', expected: '1 5 9' },
+      { label: 'Dernière paire non triée', stdin: '3\n1\n3\n2', expected: '1 2 3' }
     ],
     solution: `<?php
 $n = (int)trim(fgets(STDIN));
@@ -722,7 +724,8 @@ echo number_format($moyenne, 2, '.', '') . " $max\n";
     tests: [
       { label: 'Une seule note', stdin: '1\n8', expected: '8.00 8' },
       { label: 'Notes irrégulières', stdin: '3\n7\n19\n13', expected: '13.00 19' },
-      { label: 'Moyenne périodique', stdin: '3\n10\n10\n11', expected: '10.33 11' }
+      { label: 'Moyenne périodique', stdin: '3\n10\n10\n11', expected: '10.33 11' },
+      { label: 'Une seule note nulle', stdin: '1\n0', expected: '0.00 0' }
     ],
     solution: `<?php
 function stats($notes)
@@ -777,7 +780,8 @@ echo $mentions[$note] . "\n";
     tests: [
       { label: 'Note maximale', stdin: '10', expected: 'Excellent' },
       { label: 'Milieu de grille', stdin: '5', expected: 'Bien' },
-      { label: 'Note faible', stdin: '3', expected: 'Insuffisant' }
+      { label: 'Note faible', stdin: '3', expected: 'Insuffisant' },
+      { label: 'Borne note un', stdin: '1', expected: 'Insuffisant' }
     ],
     solution: `<?php
 $mentions = [
@@ -825,7 +829,8 @@ echo 0 . "\n";
     tests: [
       { label: 'Trois références', stdin: '3\nclaviers 12\nsouris 8\necrans 5', expected: '25' },
       { label: 'Une seule référence', stdin: '1\nstylos 100', expected: '100' },
-      { label: 'Quatre références', stdin: '4\na 1\nb 2\nc 3\nd 4', expected: '10' }
+      { label: 'Quatre références', stdin: '4\na 1\nb 2\nc 3\nd 4', expected: '10' },
+      { label: 'Quantités identiques', stdin: '2\nclefs 5\ncables 5', expected: '10' }
     ],
     solution: `<?php
 $n = (int)trim(fgets(STDIN));
@@ -870,7 +875,8 @@ echo "\n";
     tests: [
       { label: 'Quatre mots', stdin: '4\nphp\nsql\nphp\npdo', expected: 'php 2' },
       { label: 'Deux mots', stdin: '3\na\nb\nb', expected: 'b 2' },
-      { label: 'Mot net dominant', stdin: '5\nweb\nweb\nweb\napi\nweb', expected: 'web 4' }
+      { label: 'Mot net dominant', stdin: '5\nweb\nweb\nweb\napi\nweb', expected: 'web 4' },
+      { label: 'Mots tous distincts', stdin: '2\nchat\nchien', expected: 'chat 1' }
     ],
     solution: `<?php
 $n = (int)trim(fgets(STDIN));
@@ -964,7 +970,8 @@ echo "\n";
     tests: [
       { label: 'Trois personnes', stdin: '3\nLea 21\nMarc 34\nAna 27', expected: 'Marc 34' },
       { label: 'Une seule personne', stdin: '1\nBob 45', expected: 'Bob 45' },
-      { label: 'Quatre personnes', stdin: '4\na 10\nb 20\nc 30\nd 25', expected: 'c 30' }
+      { label: 'Quatre personnes', stdin: '4\na 10\nb 20\nc 30\nd 25', expected: 'c 30' },
+      { label: 'Âges identiques', stdin: '2\nAlice 20\nBob 20', expected: 'Alice 20' }
     ],
     solution: `<?php
 $n = (int)trim(fgets(STDIN));
@@ -1013,7 +1020,8 @@ for ($i = 0; $i < $n; $i++) {
     tests: [
       { label: 'Note trop haute', stdin: '2\na 12\nb 25', expected: 'Invalide' },
       { label: 'Bornes exactes', stdin: '3\nx 0\ny 20\nz 10', expected: 'Valide' },
-      { label: 'Note négative', stdin: '1\nq -3', expected: 'Invalide' }
+      { label: 'Note négative', stdin: '1\nq -3', expected: 'Invalide' },
+      { label: 'Notes identiques valides', stdin: '2\nAlice 12\nBob 12', expected: 'Valide' }
     ],
     solution: `<?php
 $n = (int)trim(fgets(STDIN));

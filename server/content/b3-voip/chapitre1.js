@@ -85,8 +85,9 @@ module.exports = {
         '</table>',
         '<div class="card">',
         '  <h4>Calcul Rigoureux de la Bande Passante Réseau (Overhead En-Têtes)</h4>',
-        '  <p>Une erreur fréquente consiste à dimensionner un lien WAN en additionnant uniquement les débits bruts des codecs. En ToIP, chaque échantillon audio de 20 ms est encapsulé dans trois en-têtes réseau superposés :</p>',
-        '  <pre><code>[ En-tête IP : 20 octets ] + [ En-tête UDP : 8 octets ] + [ En-tête RTP : 12 octets ] = 40 octets d\'en-têtes</code></pre>',
+        '  <p>Une erreur fréquente consiste à additionner uniquement les débits bruts des codecs. Pour ce modèle, supposons IPv4 sans options, UDP et un en-tête RTP minimal, sans extensions RTP ni liste CSRC :</p>',
+        '  <pre><code>[ IPv4 : 20 octets ] + [ UDP : 8 octets ] + [ RTP minimal : 12 octets ] = 40 octets</code></pre>',
+        '  <p>Avec l\'en-tête de base IPv6 (40 octets), UDP et RTP minimal représentent 60 octets. Les options, extensions, protections et surcharges de couche liaison peuvent augmenter le total : ce calcul mesure seulement le débit IP dans un sens.</p>',
         '  <p>Pour un paquetage standard de <code>PTIME = 20 ms</code> (soit <code>50 paquets par seconde</code>) :</p>',
         '  <ul>',
         '    <li><strong>G.711 (64 kbps) :</strong> Charge utile = 160 octets. Paquet total = 160 + 40 = 200 octets. Débit réel par appel = <code>200 octets * 8 bits * 50 pps = 80.0 kbps</code>.</li>',
@@ -107,7 +108,7 @@ module.exports = {
   method: [
     'Caractériser les flux acoustiques : vérifier la conformité d\'échantillonnage au théorème de Nyquist (8 kHz pour bande étroite, 16 kHz pour large bande HD).',
     'Sélectionner les codecs audio selon les contraintes de liaison : imposer G.711 sur le LAN local et G.729 ou Opus sur les liaisons WAN ou internet contraintes.',
-    'Calculer la surcharge réseau (Overhead) : intégrer systématiquement les 40 octets d\'en-têtes IP/UDP/RTP dans le calcul du débit par canal à 20 ms de PTIME.',
+    'Calculer la surcharge réseau (Overhead) selon la version d\'IP, les options, les extensions et les couches considérées ; 40 octets est le minimum IPv4/UDP/RTP du modèle.',
     'Évaluer la qualité prévisionnelle avec le Modèle E : projeter les scores R et MOS selon la latence mesurée et le taux de pertes de paquets sur le lien.'
   ],
 
@@ -115,7 +116,7 @@ module.exports = {
     'La ToIP remplace la commutation de circuits du RTC par la commutation de paquets numériques IP/UDP/RTP mutualisée sur le réseau informatique.',
     'Le théorème de Nyquist-Shannon impose Fe &ge; 2 * Fmax ; la téléphonie numérise la bande 300-3400 Hz à 8 000 échantillons par seconde.',
     'La recommandation ITU-T G.711 compresse les échantillons linéaires sur 8 bits via la loi A (Europe) ou la loi µ (USA), produisant le débit universel de 64 kbps.',
-    'Les en-têtes réseau IP (20B), UDP (8B) et RTP (12B) ajoutent 40 octets par paquet, élevant le débit réel de G.711 à 80 kbps et de G.729 à 24 kbps par appel à 20 ms.',
+    'Sans options IPv4 ni extensions RTP, les en-têtes IPv4/UDP/RTP ajoutent 40 octets par paquet ; à 20 ms, cela donne 80 kbps pour G.711 et 24 kbps pour G.729, au niveau IP et dans un sens.',
     'Le modèle E (ITU-T G.107) calcule le facteur R et le score MOS (1.0 à 4.5) pour qualifier objectivement l\'expérience utilisateur face au délai et aux pertes.'
   ],
 
@@ -132,12 +133,12 @@ module.exports = {
     { term: 'Théorème de Nyquist', def: 'Règle physique imposant une fréquence d\'échantillonnage au moins double de la fréquence maximale du signal analogique.' },
     { term: 'G.711 (PCM)', def: 'Norme internationale de numérisation vocale non compressée à 64 kbps utilisant la loi A (Europe) ou la loi µ (USA).' },
     { term: 'G.729 (CS-ACELP)', def: 'Codec de compression vocale haute efficacité réduisant le débit audio brut à 8 kbps par modélisation prédictive.' },
-    { term: 'Overhead IP/UDP/RTP', def: 'Surcharge protocolaire de 40 octets ajoutée à chaque paquet voix (IP 20B + UDP 8B + RTP 12B).' },
+    { term: 'Overhead IP/UDP/RTP', def: 'Minimum de 40 octets en IPv4 sans options ou 60 octets avec l\'en-tête IPv6 de base, UDP et RTP minimal ; les autres surcharges sont à ajouter.' },
     { term: 'Score MOS (Mean Opinion Score)', def: 'Échelle de notation standardisée (1.0 à 4.5) mesurant la qualité perçue d\'une transmission vocale.' }
   ],
 
   pitfalls: [
-    'Dimensionner un lien WAN en prenant uniquement le débit brut du codec (8 kbps pour G.729 au lieu des 24 kbps réels avec en-têtes IP/UDP/RTP).',
+    'Dimensionner un lien WAN avec le seul débit du codec, sans les en-têtes, la couche liaison, les éventuelles protections ni le trafic dans chaque sens.',
     'Confondre la fréquence d\'échantillonnage (8 000 Hz = 8 000 mesures/s) et le débit binaire résultant (64 000 bps = 64 kbps).',
     'Oublier que les paquets voix perdus ne sont jamais retransmis en UDP/RTP sous peine d\'introduire un écho et un décalage temporel inaudible.',
     'Utiliser le codec G.711 sur des liaisons satellite ou 4G à fort taux de pertes sans mécanisme de dissimulation de paquets (PLC).'
@@ -157,13 +158,13 @@ module.exports = {
       exp: 'G.711 échantillonne à 8 000 Hz avec 8 bits par échantillon : 8 000 * 8 = 64 000 bits/s = 64 kbps.'
     },
     {
-      stem: 'Quelle taille totale d\'en-têtes réseau (IP + UDP + RTP) est ajoutée à chaque paquet voix lors de la transmission ToIP standard sur réseau IPv4 ?',
+      stem: 'Quelle taille totale d\'en-têtes IP/UDP/RTP obtient-on avec IPv4 sans options et un en-tête RTP minimal ?',
       opts: ['14 octets', '28 octets', '40 octets', '64 octets'],
       correct: 2,
-      exp: 'En-tête IP (20 octets) + En-tête UDP (8 octets) + En-tête RTP (12 octets) = 40 octets de surcharge par paquet.'
+      exp: 'IPv4 sans options (20 octets) + UDP (8 octets) + RTP minimal (12 octets) = 40 octets ; des options et les autres couches peuvent ajouter de la surcharge.'
     },
     {
-      stem: 'Pour une communication utilisant le codec G.711 (64 kbps) avec une durée de paquetisation standard de 20 ms (50 paquets/s), quel est le débit réseau total consommé par appel avec les en-têtes IP/UDP/RTP ?',
+      stem: 'Pour G.711 (64 kbps), 20 ms par paquet, IPv4 sans options et RTP minimal, quel est le débit IP dans un sens ?',
       opts: ['64.0 kbps', '74.7 kbps', '80.0 kbps', '96.0 kbps'],
       correct: 2,
       exp: 'Payload 20ms = (64 000 * 0.02) / 8 = 160 octets. Paquet total = 160 + 40 = 200 octets. Débit = 200 * 8 * 50 = 80 000 bps = 80.0 kbps.'
@@ -195,28 +196,14 @@ module.exports = {
   ],
 
   flashcards: [
-      { q: 'Qu’est-ce que « ToIP / VoIP » ?', a: 'ToIP / VoIP : Téléphonie sur IP : transport de la voix numérisée sous forme de paquets IP/UDP/RTP sur un réseau informatique.' },
-      { q: 'Qu’est-ce que « G.729 (CS-ACELP) » ?', a: 'G.729 (CS-ACELP) : Codec de compression vocale haute efficacité réduisant le débit audio brut à 8 kbps par modélisation prédictive.' },
-      { q: 'Qu’est-ce que « Overhead IP/UDP/RTP » ?', a: 'Overhead IP/UDP/RTP : Surcharge protocolaire de 40 octets ajoutée à chaque paquet voix (IP 20B + UDP 8B + RTP 12B).' },
-      { q: 'Qu’est-ce que « La ToIP remplace la commutation de circuits du RTC par la commutation de paquets numériques IP/UDP/RTP mutualisée sur le réseau informatique. » ?', a: 'La ToIP remplace la commutation de circuits du RTC par la commutation de paquets numériques IP/UDP/RTP mutualisée sur le réseau informatique.' },
-      { q: 'Qu’est-ce que « Le théorème de Nyquist-Shannon impose Fe ≥ 2 * Fmax ; la téléphonie numérise la bande 300-3400 Hz à 8 000 échantillons par seconde. » ?', a: 'Le théorème de Nyquist-Shannon impose Fe ≥ 2 * Fmax ; la téléphonie numérise la bande 300-3400 Hz à 8 000 échantillons par seconde.' },
-      { q: 'Qu’est-ce que « Jitter Buffer » ?', a: 'Jitter Buffer : Mémoire tampon sur le terminal de réception régularisant le flux audio pour restituer un son continu.' },
-      { q: "Qu’est-ce que « SIP (RFC 3261) est le protocole de signalisation en mode texte contrôlant l'établissement, la modification et la rupture des sessions multimédias. » ?", a: "SIP (RFC 3261) est le protocole de signalisation en mode texte contrôlant l'établissement, la modification et la rupture des sessions multimédias." },
-      { q: "Qu’est-ce que « Les terminaux User Agents (UAC/UAS) s'enregistrent auprès du Registrar (REGISTER) et communiquent via des serveurs Proxies en relayant requêtes et réponses numérotées (1xx à 6xx). » ?", a: "Les terminaux User Agents (UAC/UAS) s'enregistrent auprès du Registrar (REGISTER) et communiquent via des serveurs Proxies en relayant requêtes et réponses numérotées (1xx à 6xx)." },
-      { q: 'Qu’est-ce que « chan_sip / chan_pjsip » ?', a: "chan_sip / chan_pjsip : Modules d'Asterisk assurant la prise en charge de la pile protocolaire SIP." },
-      { q: "Qu’est-ce que « Asterisk est un IPBX logiciel modulaire open source articulé autour d'un cœur de commutation, de pilotes de canaux (chan_sip, chan_pjsip, chan_iax2) et d'un dialplan. » ?", a: "Asterisk est un IPBX logiciel modulaire open source articulé autour d'un cœur de commutation, de pilotes de canaux (chan_sip, chan_pjsip, chan_iax2) et d'un dialplan." },
-      { q: "Qu’est-ce que « Les fichiers de configuration résident dans /etc/asterisk/, notamment sip.conf (postes SIP), extensions.conf (logique d'appel) et voicemail.conf (boîtes vocales). » ?", a: "Les fichiers de configuration résident dans /etc/asterisk/, notamment sip.conf (postes SIP), extensions.conf (logique d'appel) et voicemail.conf (boîtes vocales)." },
-      { q: 'Qu’est-ce que « Contexte » ?', a: "Contexte : Conteneur étanche regroupant un jeu d'extensions spécifiques pour segmenter les droits des utilisateurs." },
-      { q: 'Qu’est-ce que « Pattern Matching » ?', a: "Pattern Matching : Filtrage d'extensions par motifs réguliers (_X, _Z, _N) pour factoriser les règles d'appel." },
-      { q: 'Qu’est-ce que « SVI / IVR » ?', a: 'SVI / IVR : Serveur Vocal Interactif guidant les appelants par messages vocaux et saisies de touches DTMF.' },
-      { q: "Qu’est-ce que « Le Dialplan dans extensions.conf définit l'ensemble des règles de routage et des logiques d'appels du système téléphonique. » ?", a: "Le Dialplan dans extensions.conf définit l'ensemble des règles de routage et des logiques d'appels du système téléphonique." },
-      { q: 'Qu’est-ce que « Une instruction de dialplan associe une extension, une priorité séquentielle (1, 2... ou n) et une application système (Answer, Playback, Dial, VoiceMail, Hangup). » ?', a: 'Une instruction de dialplan associe une extension, une priorité séquentielle (1, 2... ou n) et une application système (Answer, Playback, Dial, VoiceMail, Hangup).' },
+      { q: "Quel est le rôle de SIP (RFC 3261) dans une communication multimédia ?", a: "Ce protocole de signalisation textuel établit, modifie et termine des sessions multimédias." },
+      { q: "Quels rôles jouent un UA, un registrar et un proxy en SIP ?", a: "L'UA joue UAC ou UAS ; REGISTER associe une adresse SIP à un contact auprès du registrar ; un proxy relaie les requêtes et les réponses 1xx à 6xx." },
+      { q: "Comment Asterisk articule-t-il son cœur de commutation avec les canaux et le dialplan ?", a: "Cet IPBX open source utilise un cœur, des pilotes comme chan_pjsip et chan_iax2, et un dialplan ; chan_sip a été retiré à partir d'Asterisk 21." },
+      { q: "Où se trouvent généralement les fichiers de configuration Asterisk et à quoi servent-ils ?", a: "Dans /etc/asterisk/ : pjsip.conf pour SIP (sip.conf est historique), extensions.conf pour le routage et voicemail.conf pour la messagerie vocale." },
+      { q: "Que définit le dialplan Asterisk dans extensions.conf ?", a: "Les règles et étapes de traitement des appels, organisées en contextes, extensions et priorités." },
       { q: "Qu’est-ce que « Loi d'Erlang B » ?", a: "Loi d'Erlang B : Modèle mathématique récursif calculant la probabilité de rejet d'appels sur un faisceau de N canaux sans file d'attente." },
-      { q: "Qu’est-ce que « L'intensité de trafic s'exprime en Erlangs (A = Appels * Durée / 3600) ; la loi d'Erlang B calcule la probabilité de blocage sur N canaux sans attente. » ?", a: "L'intensité de trafic s'exprime en Erlangs (A = Appels * Durée / 3600) ; la loi d'Erlang B calcule la probabilité de blocage sur N canaux sans attente." },
-      { q: 'Qu’est-ce que « Les exigences ITU-T G.114 pour la voix imposent une latence <= 150 ms, une gigue <= 30 ms et des pertes de paquets <= 1.0%. » ?', a: 'Les exigences ITU-T G.114 pour la voix imposent une latence <= 150 ms, une gigue <= 30 ms et des pertes de paquets <= 1.0%.' },
-      { q: 'Qu’est-ce que « Toll Fraud » ?', a: 'Toll Fraud : Piratage de commutateurs téléphoniques pour émettre massivement des appels frauduleux vers des numéros surtaxés.' },
+      { q: "Comment calculer le trafic en Erlangs et que fournit Erlang B ?", a: "A = appels par heure × durée moyenne en secondes / 3600 ; Erlang B estime la probabilité de blocage pour N canaux dans un modèle sans attente." },
       { q: "Qu’est-ce que « Les files d'attente ACD (queues.conf) distribuent les flux entrants selon des stratégies adaptées » ?", a: "Les files d'attente ACD (queues.conf) distribuent les flux entrants selon des stratégies adaptées : ringall, leastrecent, roundrobin ou fewestcalls." },
-      { q: 'Qu’est-ce que « Les trunks IAX2 multiplexent signalisation et voix sur le port 4569/UDP unique, offrant une traversée de NAT et une économie de bande passante idéales inter-sites. » ?', a: 'Les trunks IAX2 multiplexent signalisation et voix sur le port 4569/UDP unique, offrant une traversée de NAT et une économie de bande passante idéales inter-sites.' },
     {
       q: 'Qu\'est-ce que le théorème de Nyquist-Shannon et quelle est sa formule ?',
       a: 'Pour numériser fidèlement un signal analogique continu sans repliement de spectre, Fe >= 2 * Fmax.'
@@ -231,11 +218,11 @@ module.exports = {
     },
     {
       q: 'Quelle est la taille des en-têtes réseau IP, UDP et RTP ajoutés à chaque paquet voix ?',
-      a: '40 octets au total : IP (20 octets) + UDP (8 octets) + RTP (12 octets).'
+      a: 'IPv4 sans options : 20 + 8 + 12 = 40 octets ; IPv6 avec en-tête de base : 40 + 8 + 12 = 60 octets. Options, extensions et autres couches ajoutent de la surcharge.'
     },
     {
       q: 'Quel débit réseau global consomme un appel téléphonique G.711 à 20 ms de PTIME ?',
-      a: '80.0 kbps (160 octets de payload + 40 octets d\'en-têtes = 200 octets * 8 bits * 50 paquets/s).'
+      a: '80.0 kbps dans un sens au niveau IP avec IPv4 sans options et RTP minimal ; 88.0 kbps avec IPv6 de base, avant les autres surcharges.'
     },
     {
       q: 'Qu\'est-ce que le score MOS et quelle est son échelle ?',

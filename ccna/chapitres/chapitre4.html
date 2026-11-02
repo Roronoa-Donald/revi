@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -63,7 +63,7 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Un audit de cybersécurité externe classe au niveau « Critique » le parc de commutateurs et routeurs d’une banque régionale. Des mots de passe circulent en clair sur le réseau via Telnet, les bannières d’avertissement légales sont absentes et les accès d’administration par console ne sont pas verrouillés. Les ingénieurs réseau doivent reprendre le contrôle de la flotte d’équipements sous Cisco IOS, maîtriser la hiérarchie des modes d’accès de la CLI, appliquer les 5 règles d’or du durcissement Cisco (chiffrement des mots de passe locaux, secret privilégié haché, SSH version 2 exclusif sur les lignes VTY) et interpréter instantanément les sorties de commandes show pour diagnostiquer les incidents matériels et logiques. Ce quatrième module forme à la pratique opérationnelle quotidienne de l’administration réseau Cisco.</p>
+    <p>Un audit de cybersécurité externe classe au niveau « Critique » le parc de commutateurs et routeurs d’une banque régionale. Des mots de passe circulent en clair sur le réseau via Telnet, les bannières d’avertissement sont absentes et les accès d’administration par console ne sont pas verrouillés. Les ingénieurs réseau doivent reprendre le contrôle de la flotte d’équipements sous Cisco IOS, maîtriser la hiérarchie des modes d’accès de la CLI, appliquer les 5 règles d’or du durcissement Cisco (protection des secrets locaux, secret privilégié adapté à la plateforme, SSH version 2 sur les lignes VTY) et interpréter instantanément les sorties de commandes show pour diagnostiquer les incidents matériels et logiques. Ce quatrième module forme à la pratique opérationnelle quotidienne de l’administration réseau Cisco.</p>
   </div>
 
   <div class="box box--objectifs">
@@ -73,7 +73,7 @@
       <li>naviguer avec aisance entre les différents modes d’exécution de la CLI Cisco IOS (User EXEC, Privileged EXEC, Global Config, Interface Config) ;</li>
       <li>appliquer la configuration de base d’un équipement (hostname, description d’interfaces, bannières MOTD) ;</li>
       <li>distinguer et manipuler la mémoire vive running-config (RAM) et la mémoire non volatile startup-config (NVRAM) ;</li>
-      <li>sécuriser l’accès privilégié avec enable secret (hachage MD5/SHA-256) et chiffrer les mots de passe locaux avec service password-encryption ;</li>
+      <li>distinguer les types de secrets Cisco et les limites de service password-encryption pour protéger les accès ;</li>
       <li>configurer l’accès à distance sécurisé SSH v2 (nom de domaine, clés RSA 2048 bits, désactivation de Telnet sur les lignes VTY) ;</li>
       <li>analyser la commande de diagnostic clé « show ip interface brief » pour distinguer les pannes L1 des erreurs d’encapsulation L2.</li>
     </ol>
@@ -141,15 +141,15 @@
 
 <p>Tout équipement déployé en production doit impérativement respecter les règles de durcissement recommandées par Cisco et l’ANSSI :</p>
 <ol>
-  <li><strong>Chiffrement des mots de passe en mémoire :</strong><br>
+  <li><strong>Masquage de certains mots de passe dans la configuration :</strong><br>
     <code>Router(config)# service password-encryption</code><br>
-    Chiffre automatiquement les mots de passe affichés en clair dans la configuration (algorithme type 7).</li>
+    Le type 7 est un masquage réversible et faible : il ne protège pas un secret contre une personne qui obtient la configuration.</li>
   <li><strong>Protection du mode Privilégié avec enable secret :</strong><br>
     <code>Router(config)# enable secret &lt;MotDePasseRobuste&gt;</code><br>
-    Utilisez un hachage cryptographique fort (MD5 type 5 ou SHA-256 type 8/9). La commande obsolète <code>enable password</code> (en clair) ne doit jamais être utilisée.</li>
-  <li><strong>Configuration d’une bannière légale d’avertissement :</strong><br>
+    Le type 5 utilise MD5 et est faible pour les mots de passe ; le type 8 utilise PBKDF2 avec SHA-256 et le type 9 utilise scrypt. Choisir un type adapté à la politique de sécurité, à la version et à la compatibilité de l’équipement ; la seule présence de <code>enable secret</code> ne prouve pas le type utilisé.</li>
+  <li><strong>Configuration d’une bannière d’avertissement :</strong><br>
     <code>Router(config)# banner motd #ACCES INTERDIT AU PERSONNEL NON AUTORISE#</code><br>
-    Exigence légale pour établir l’accès non autorisé lors de poursuites judiciaires. Ne jamais afficher de message de bienvenue du type « Bienvenue sur notre routeur » !</li>
+    La bannière avertit de la restriction d’accès ; ses éventuelles exigences juridiques dépendent du contexte et doivent être vérifiées localement.</li>
   <li><strong>Authentification locale sur console physique :</strong><br>
     <code>Router(config)# line console 0<br>
     Router(config-line)# login local<br>
@@ -206,9 +206,11 @@ R1(config-line)# exit</code></pre>
 </table>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="na2-c4-e1" data-lab
      data-exercise="na2-c4-e1"
      data-language="analyse"
@@ -245,10 +247,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Parseur et validateur de hiérarchie de modes Cisco IOS</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="na2-c4-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Simuler la navigation entre les modes CLI Cisco IOS (User EXEC, Privileged EXEC, Global Config, Interface Config) et vérifier la validité des commandes.</p>
     <div class="lab__brief"><p>Le script simule une session interactive Cisco IOS sur un équipement nommé <code>Router</code>.<br>
 Modes possibles et leurs invites :<br>
@@ -270,15 +274,7 @@ interface g0/0
 exit
 end
 disable</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Router&gt; enable
-Router# configure terminal
-Router(config)# interface g0/0
-Router(config-if)# exit
-Router(config)# end
-Router# disable
-Router&gt;</pre></div>
     </div>
-    <p class="lab__note">Parcours complet de descente et remontée dans l'arborescence de configuration.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -334,21 +330,22 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Audit et durcissement de configuration Cisco IOS</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser un fichier de configuration running-config pour valider les 5 règles fondamentales de sécurisation.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
-Il contrôle 5 critères de sécurité essentiels :<br>
-1. <code>PASSWORD_ENCRYPTION</code> : présence de la commande <code>service password-encryption</code>.<br>
-2. <code>ENABLE_SECRET</code> : présence de <code>enable secret &lt;mot_de_passe&gt;</code> (et NON <code>enable password</code> en clair).<br>
-3. <code>SSH_ONLY</code> : dans le bloc <code>line vty</code>, présence de <code>transport input ssh</code>.<br>
-4. <code>BANNER_MOTD</code> : présence d'une bannière d'avertissement <code>banner motd</code>.<br>
-5. <code>LOGIN_LOCAL</code> : présence de <code>login local</code> sur la console ou les lignes VTY.<br>
-Indiquez pour chaque règle :<br>
-<code>[VALIDE|ECHEC] &lt;NOM_REGLE&gt; : &lt;detail&gt;</code><br>
-Puis la conclusion : <code>SCORE DE DURCISSEMENT: &lt;X&gt;/5</code> (CONFORME si 5/5, VULNERABLE sinon).</p></div>
+    <p class="lab__formative-notice" id="na2-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Relever la présence de cinq commandes dans un modèle simplifié de configuration Cisco.</p>
+    <div class="lab__brief"><p>Dans ce modèle simplifié, vérifiez uniquement la présence des commandes suivantes pour chaque cas :<br>
+1. <code>PASSWORD_ENCRYPTION</code> : <code>service password-encryption</code>.<br>
+2. <code>ENABLE_SECRET</code> : <code>enable secret &lt;mot_de_passe&gt;</code> ; <code>enable password</code> ne compte pas.<br>
+3. <code>SSH_ONLY</code> : <code>transport input ssh</code> dans le bloc <code>line vty</code> indiqué.<br>
+4. <code>BANNER_MOTD</code> : <code>banner motd</code>.<br>
+5. <code>LOGIN_LOCAL</code> : <code>login local</code> sur la console ou les lignes VTY indiquées.<br>
+Pour chaque critère, utilisez <code>[VALIDE] &lt;NOM_REGLE&gt; : Commande presente</code> ou <code>[ECHEC] &lt;NOM_REGLE&gt; : Commande absente</code>.<br>
+Terminez par <code>SCORE DE PRESENCE: &lt;X&gt;/5 -&gt; CRITERES_REUNIS</code> si les cinq commandes sont présentes, sinon <code>CRITERES_INCOMPLETS</code>.<br>
+Ce contrôle ne permet pas de déterminer le type de secret, la conformité juridique ou la sécurité globale de l'équipement.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>service password-encryption
 enable secret Cisc0$ecr3t
@@ -358,18 +355,11 @@ line con 0
 line vty 0 4
  transport input ssh
  login local</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>[VALIDE] PASSWORD_ENCRYPTION : Chiffrement global active
-[VALIDE] ENABLE_SECRET : Mot de passe privilegie hache
-[VALIDE] SSH_ONLY : Transport SSH exclusif sur VTY
-[VALIDE] BANNER_MOTD : Banniere legale declaree
-[VALIDE] LOGIN_LOCAL : Authentification sur base locale
-SCORE DE DURCISSEMENT: 5/5 -&gt; CONFORME</pre></div>
     </div>
-    <p class="lab__note">Configuration totalement conforme aux bonnes pratiques de sécurité.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>enable secret utilise un hachage MD5/SHA-256 alors qu'enable password stocke en clair ou réversible.</li>
+        <li>Le type 7 est un masquage faible et réversible ; la présence de enable secret ne révèle pas son type.</li>
         <li>Analyser le contexte de bloc "line vty 0 4" pour vérifier le transport SSH.</li>
       </ol>
     </details>
@@ -411,10 +401,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Parseur d'état d'interfaces Cisco (show ip interface brief)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="na2-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Analyser la sortie de la commande Cisco « show ip interface brief » pour diagnostiquer les incidents de couche 1 et couche 2.</p>
     <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
 Chaque ligne comporte les colonnes :<br>
@@ -430,10 +422,7 @@ Format de sortie :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Interface IP-Address OK? Method Status Protocol
 GigabitEthernet0/0 192.168.1.1 YES manual up up
 GigabitEthernet0/1 unassigned YES unset administratively down down</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>GigabitEthernet0/0 (192.168.1.1) -&gt; OPERATIONNEL (L1 Up / L2 Up)
-GigabitEthernet0/1 (unassigned) -&gt; DESACTIVE_ADMIN (Interface sous shutdown)</pre></div>
     </div>
-    <p class="lab__note">Une interface opérationnelle et une interface coupée administrativement.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -443,12 +432,13 @@ GigabitEthernet0/1 (unassigned) -&gt; DESACTIVE_ADMIN (Interface sous shutdown)<
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
-      <p class="q__stem">Quelle commande permet de passer du mode Utilisateur (Router>) au mode Privilégié (Router#) ?</p>
+      <p class="q__stem">Quelle commande permet de passer du mode Utilisateur (Router&gt;) au mode Privilégié (Router#) ?</p>
       <div class="opts">
         <button class="opt">configure terminal</button>
         <button class="opt" data-correct="1">enable</button>
@@ -480,12 +470,12 @@ GigabitEthernet0/1 (unassigned) -&gt; DESACTIVE_ADMIN (Interface sous shutdown)<
     <div class="q">
       <p class="q__stem">Pourquoi est-il impératif d’utiliser « enable secret » plutôt que « enable password » ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">enable secret utilise un hachage cryptographique fort à sens unique (MD5/SHA), tandis qu’enable password stocke le mot de passe en clair ou faiblement réversible</button>
+        <button class="opt" data-correct="1">enable secret permet, selon la version et la compatibilité, un type 8 ou un type 9 ; enable password peut rester en clair ou utiliser un masquage faible</button>
         <button class="opt">enable secret est la seule commande compatible avec IPv6</button>
         <button class="opt">enable secret permet de définir plusieurs mots de passe simultanément</button>
         <button class="opt">enable password est réservé aux commutateurs de niveau 3</button>
       </div>
-      <div class="q__exp">enable secret chiffre le mot de passe avec un algorithme de hachage fort (type 5 ou 8/9). enable password le stocke en clair ou avec un chiffrement trivial type 7 facilement cassé en quelques secondes.</div>
+      <div class="q__exp">Le type 5 fondé sur MD5 est faible ; les types 8 (PBKDF2-SHA-256) et 9 (scrypt) sont à privilégier lorsqu’ils sont compatibles avec la plateforme et sa politique de sécurité. Le type 7 est réversible.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle instruction interdit formellement les connexions Telnet non chiffrées sur les terminaux virtuels (lignes VTY) ?</p>
@@ -525,7 +515,7 @@ GigabitEthernet0/1 (unassigned) -&gt; DESACTIVE_ADMIN (Interface sous shutdown)<
         <button class="opt">Elle génère les clés SSH publiques et privées</button>
         <button class="opt">Elle empêche toute modification de configuration par console</button>
       </div>
-      <div class="q__exp">Elle applique un chiffrement réversible (type 7) sur les mots de passe affichés en clair dans la configuration (mots de passe de console, vty, etc.) pour éviter qu’une personne regardant par-dessus l’épaule de l’administrateur ne les lise.</div>
+      <div class="q__exp">Elle masque certains mots de passe dans la configuration au moyen du type 7, réversible et faible : ce masquage ne protège pas les secrets si la configuration est divulguée.</div>
     </div>
   </div>
 
@@ -548,7 +538,7 @@ GigabitEthernet0/1 (unassigned) -&gt; DESACTIVE_ADMIN (Interface sous shutdown)<
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Configuration &amp; Recette d’un Équipement Cisco</div>
     <ol>
       <li>Étape 1 — Nommage &amp; Accès : Se connecter sur console, attribuer un hostname explicite et configurer logging synchronous.</li>
-      <li>Étape 2 — Sécurisation : Déclarer service password-encryption, enable secret et banner motd.</li>
+      <li>Étape 2 — Sécurisation : Configurer enable secret avec un type adapté à la version, connaître les limites de service password-encryption et déclarer une banner motd.</li>
       <li>Étape 3 — Accès distant : Déclarer le nom de domaine, générer la clé RSA 2048 bits, créer un utilisateur local et forcer transport input ssh sur VTY.</li>
       <li>Étape 4 — Adressage d’interfaces : Configurer l’IP et le masque sur les ports requis, ajouter une description explicite et activer avec no shutdown.</li>
       <li>Étape 5 — Recette : Exécuter show ip interface brief et sauvegarder la configuration avec copy running-config startup-config.</li>
@@ -560,10 +550,10 @@ GigabitEthernet0/1 (unassigned) -&gt; DESACTIVE_ADMIN (Interface sous shutdown)<
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
-      <li>La CLI Cisco IOS s’organise en 4 modes principaux : User EXEC (>), Privileged EXEC (#), Global Config (config)# et Interface (config-if)#.</li>
+      <li>La CLI Cisco IOS s’organise en 4 modes principaux : User EXEC (&gt;), Privileged EXEC (#), Global Config (config)# et Interface (config-if)#.</li>
       <li>La running-config vit en mémoire vive RAM (volatile) ; la startup-config est sauvegardée en NVRAM permanente.</li>
       <li>La commande copy running-config startup-config sauvegarde les modifications de manière persistante.</li>
-      <li>Le durcissement exige enable secret (hachage fort), service password-encryption, banner motd et SSH v2 sur les lignes VTY.</li>
+      <li>Le type 5 de enable secret est faible ; privilégier un type 8 ou 9 compatible et ne pas confondre le masquage réversible de type 7 avec une protection forte.</li>
       <li>Telnet transmettant les données en clair, il doit être formellement banni en production via transport input ssh.</li>
       <li>show ip interface brief permet de diagnostiquer en un coup d’œil l’état physique L1 (Status) et protocolaire L2 (Protocol) de chaque port.</li>
     </ul>
@@ -589,10 +579,10 @@ GigabitEthernet0/1 (unassigned) -&gt; DESACTIVE_ADMIN (Interface sous shutdown)<
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Révisez la hiérarchie des modes d’invite Cisco et la différence entre RAM et NVRAM.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Révisez la hiérarchie des modes d’invite Cisco et la différence entre RAM et NVRAM.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Bonnes connaissances de base. Approfondissez la configuration de SSH v2 et l’analyse des interfaces.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Très bonne maîtrise des commandes Cisco IOS et des principes de durcissement opérationnel.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Administrateur Cisco chevronné ! Vous êvos fin prêt pour le routage IPv4 et les tables de routage.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Administrateur Cisco chevronné ! Vous êtes fin prêt pour le routage IPv4 et les tables de routage.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -73,8 +73,8 @@
       <li>définir et différencier les trois piliers fondamentaux de la triade CIA (Confidentialité, Intégrité, Disponibilité) ;</li>
       <li>appliquer le modèle AAA (Authentification, Autorisation, Traçabilité/Accounting) dans la conception des systèmes ;</li>
       <li>distinguer clairement une menace, une vulnérabilité, un exploit et un impact financier ou opérationnel ;</li>
-      <li>quantifier le niveau de risque informatique selon l’approche ISO 27005 (Score = Menace &times; Vulnérabilité &times; Impact) ;</li>
-      <li>auditer et renforcer la robustesse des mots de passe selon les recommandations de l’ANSSI et du NIST.</li>
+      <li>appliquer une grille pédagogique de risque en précisant que sa formule et ses seuils sont des choix du modèle ;</li>
+      <li>distinguer les politiques de mots de passe du NIST et de l’ANSSI sans confondre critères et robustesse.</li>
     </ol>
   </div>
 
@@ -92,7 +92,7 @@
     <h4 class="card-title">2. Intégrité (Integrity)</h4>
     <p>Garantit l’exactitude, la complétude et la non-altération des données tout au long de leur cycle de vie.</p>
     <p><strong>Menaces types :</strong> altération frauduleuse de transactions, injection SQL, empoisonnement DNS/ARP.</p>
-    <p><strong>Contre-mesures :</strong> fonctions de hachage (SHA-256), signatures numériques, contrôles de redondance cyclique.</p>
+    <p><strong>Contre-mesures :</strong> hachage comparé à une référence fiable, MAC ou signatures numériques ; les contrôles de redondance cyclique détectent des erreurs accidentelles mais ne protègent pas contre un adversaire qui peut les recalculer.</p>
   </div>
   <div class="card">
     <h4 class="card-title">3. Disponibilité (Availability)</h4>
@@ -118,10 +118,10 @@
 <p>Une erreur classique consiste à croire qu’un utilisateur authentifié avec succès dispose nécessairement des droits pour exécuter une opération. L’authentification prouve l’identité ; l’autorisation valide si cette identité possède la permission requise. La rupture de cette frontière engendre les failles de contrôle d’accès (IDOR).</p>
   </div>
 
-<h2>3. Analyse et quantification des risques selon l’ISO 27005</h2>
+<h2>3. Analyse des risques et exemple de quantification</h2>
 
-<p>La sécurité absolue n’existant pas, la gestion des risques permet d’orienter les investissements vers les menaces les plus dévastatrices. Un risque informatique se décompose en trois variables :</p>
-<pre><code>// Formule fondamentale de l’évaluation du risque brut :
+<p>La sécurité absolue n’existant pas, la gestion des risques permet d’orienter les investissements vers les menaces les plus dévastatrices. L’ISO 27005 propose une démarche de gestion des risques ; la formule et les seuils ci-dessous sont un modèle pédagogique choisi pour ce cours, pas une formule imposée par la norme. Ses décisions de traitement sont des exemples, à adapter au contexte :</p>
+<pre><code>// Modèle pédagogique de score de risque brut :
 Risque = Menace &times; Vulnerabilite &times; Impact
 
 Où :
@@ -137,35 +137,41 @@ Score brut = M * V * I   (compris entre 1 et 125)
 
 <h2>4. Politique de sécurité des mots de passe &amp; Calcul d’entropie</h2>
 
-<p>Le mot de passe demeure le premier rempart d’authentification. L’ANSSI et le NIST recommandent d’abandonner l’expiration périodique arbitraire au profit d’une longueur minimale substantielle et d’une grande variété de caractères.</p>
+<p>Les référentiels de mots de passe répondent à des contextes différents : leurs exigences ne sont pas interchangeables. Les règles NIST ci-dessous s’appliquent aux authentificateurs relevant de son périmètre ; la conformité à une politique ne démontre pas, à elle seule, la robustesse d’un secret.</p>
 <div class="grid grid-2">
   <div class="card">
-    <h4 class="card-title">Les 5 règles de robustesse ANSSI / NIST</h4>
+    <h4 class="card-title">Politique NIST SP 800-63B-4</h4>
     <ul>
-      <li><strong>Longueur minimale :</strong> au moins 12 à 15 caractères.</li>
-      <li><strong>Complexité :</strong> mélange de majuscules, minuscules, chiffres et symboles.</li>
-      <li><strong>Non-prédictibilité :</strong> refus des mots du dictionnaire, dates de naissance ou séquences triviales.</li>
-      <li><strong>Unicité :</strong> jamais de réutilisation d’un même mot de passe sur deux services.</li>
-      <li><strong>Double facteur :</strong> association systématique d’un second facteur MFA.</li>
+      <li><strong>Longueur :</strong> au moins 15 caractères si le mot de passe est utilisé seul. Un service peut autoriser au minimum 8 caractères si ce mot de passe est exclusivement utilisé en MFA ; il peut aussi conserver un seuil supérieur.</li>
+      <li><strong>Composition :</strong> aucune règle de composition ni de classes de caractères n’est imposée ; une phrase sans chiffre ou symbole peut être acceptée.</li>
+      <li><strong>Choix et vérification :</strong> comparer le mot de passe entier à une liste de refus de valeurs communes, attendues ou compromises ; limiter les tentatives de connexion infructueuses.</li>
+      <li><strong>Saisie :</strong> autoriser les gestionnaires de mots de passe ; accepter les espaces et Unicode et permettre au moins 64 caractères sont des recommandations. Chaque point de code Unicode compte pour un caractère.</li>
+      <li><strong>Renouvellement :</strong> pas de changement périodique arbitraire ; imposer un changement en cas d’indice de compromission.</li>
     </ul>
+    <p>Un mot de passe unique par service et la MFA sont de bonnes pratiques ; la seule longueur ne prouve pas sa résistance aux devinettes.</p>
   </div>
   <div class="card">
-    <h4 class="card-title">Entropie de Shannon d’un mot de passe</h4>
-    <p>L’entropie mesure le degré d’incertitude (en bits) face à une attaque par force brute :</p>
+    <h4 class="card-title">Entropie théorique d’un mot de passe aléatoire</h4>
+    <p>Pour des caractères tirés indépendamment et uniformément dans un alphabet de taille <i>N</i>, l’entropie en bits vaut :</p>
     <p><code>E = L &times; log2(N)</code></p>
-    <p>Où <i>L</i> est la longueur et <i>N</i> la taille de l’ensemble de caractères utilisé :</p>
+    <p>Où <i>L</i> est la longueur et <i>N</i> la taille de l’alphabet de génération :</p>
     <ul>
       <li>Chiffres seuls (0-9) : <i>N = 10</i> (3.32 bits / car.)</li>
       <li>Lettres min + maj : <i>N = 52</i> (5.70 bits / car.)</li>
       <li>Alphanumérique + symboles : <i>N = 94</i> (6.55 bits / car.)</li>
     </ul>
+    <p>Cette formule ne mesure pas automatiquement la résistance d’un mot de passe choisi par une personne : ses choix peuvent être prévisibles, même s’ils mélangent des classes.</p>
   </div>
 </div>
+<p>Le guide MonServiceSécurisé de l’ANSSI présente une politique distincte, avec des exemples de composition ; ses critères ne doivent pas être attribués au NIST.</p>
+<p>Sources : <a href="https://pages.nist.gov/800-63-4/sp800-63b.html">NIST SP 800-63B-4</a> et <a href="https://aide.monservicesecurise.cyber.gouv.fr/fr/article/fixer-des-contraintes-de-longueur-et-de-complexite-des-mots-de-passe-14lmvzy/">guide MonServiceSécurisé de l’ANSSI</a> (consultés le 30/10/2026).</p>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="cs2-c1-e1" data-lab
      data-exercise="cs2-c1-e1"
      data-language="analyse"
@@ -194,14 +200,16 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Évaluation quantitative du niveau de risque informatique</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="cs2-c1-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Évaluation quantitative du niveau de risque informatique</p>
-    <div class="lab__brief"><p>Dans la gestion des risques selon la norme ISO 27005, le niveau de risque brut est calculé par le produit de la Menace (M, de 1 à 5), de la Vulnérabilité (V, de 1 à 5) et de l’Impact financier/opérationnel (I, de 1 à 5) : <code>Score = M * V * I</code> (variant de 1 à 125).
+    <div class="lab__brief"><p>Dans le modèle pédagogique choisi pour cet exercice, le score de risque brut est calculé par le produit de la Menace (M, de 1 à 5), de la Vulnérabilité (V, de 1 à 5) et de l’Impact financier/opérationnel (I, de 1 à 5) : <code>Score = M * V * I</code> (variant de 1 à 125).
 
-Les seuils de criticité sont définis ainsi :
+Les seuils propres à cet exercice sont définis ainsi :
 - Score &lt; 20 : <code>FAIBLE</code>
 - 20 &le; Score &lt; 50 : <code>MOYEN</code>
 - 50 &le; Score &lt; 80 : <code>ELEVE</code>
@@ -211,14 +219,12 @@ Entrée : Trois entiers séparés par des virgules <code>M,V,I</code>.
 Résultat d’analyse attendu : <code>Score: &lt;Score&gt; | Niveau: &lt;Niveau&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4,5,5</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Score: 100 | Niveau: CRITIQUE</pre></div>
     </div>
-    <p class="lab__note">Exemple de référence.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Appliquez la formule de calcul de risque brut : Score = M × V × I (produit des trois facteurs de 1 à 5).</li>
-        <li>Comparez le score aux seuils ISO 27005 : Faible (&lt; 20), Moyen (20 à 49), Élevé (50 à 79) ou Critique (&gt;= 80).</li>
+        <li>Comment combiner les trois valeurs fournies avec la formule du modèle ?</li>
+        <li>Dans quel intervalle du barème de l’exercice se trouve le score obtenu ?</li>
       </ol>
     </details>
   </div>
@@ -233,49 +239,41 @@ Résultat d’analyse attendu : <code>Score: &lt;Score&gt; | Niveau: &lt;Niveau&
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
 [Cas 1 — Test de validation 1]
-# Données : RANSOMWARE
+# Données : RANSOMWARE — des fichiers chiffrés ne sont plus accessibles aux utilisateurs
 A_COMPLETER
 
 [Cas 2 — Test de validation 2]
-# Données : DDOS
+# Données : DDOS — le trafic sature la bande passante
 A_COMPLETER
 
 [Cas 3 — Test de validation 3]
-# Données : ALTERATION_BASE
+# Données : ALTERATION_BASE — des enregistrements sont modifiés sans autorisation
 A_COMPLETER
 
 [Cas 4 — Test de validation 4]
-# Données : AUTRE_CHOSE
+# Données : AUTRE_CHOSE — aucune information supplémentaire
 A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Classification d’incidents selon la triade CIA</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="cs2-c1-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Classification d’incidents selon la triade CIA</p>
-    <div class="lab__brief"><p>La sécurité de l’information repose sur la triade CIA : Confidentialité, Intégrité, Disponibilité. l’étude de cas comporte un code d’incident et doit déterminer le principe majeur violé ainsi que l’impact :
-- <code>DIVULGATION</code> : <code>Principe: Confidentialite | Impact: Fuite de donnees</code>
-- <code>RANSOMWARE</code> : <code>Principe: Disponibilite | Impact: Chiffrement malveillant des fichiers</code>
-- <code>DDOS</code> : <code>Principe: Disponibilite | Impact: Saturation de la bande passante</code>
-- <code>ALTERATION_BASE</code> : <code>Principe: Integrite | Impact: Modification frauduleuse d enregistrements</code>
-- <code>VOL_SESSION</code> : <code>Principe: Confidentialite | Impact: Usurpation de session utilisateur</code>
-- <code>DEFIGURATION_WEB</code> : <code>Principe: Integrite | Impact: Remplacement non autorise du contenu</code>
-
-Si le code est inconnu, afficher : <code>INCIDENT INCONNU</code>.</p></div>
+    <div class="lab__brief"><p>La triade CIA comprend la <strong>Confidentialite</strong>, l’<strong>Integrite</strong> et la <strong>Disponibilite</strong>. Pour chaque code d’incident, identifiez le principe majeur compromis et sa conséquence.</p><p>Choisissez la conséquence parmi : <code>Fuite de donnees</code>, <code>Chiffrement malveillant des fichiers</code>, <code>Saturation de la bande passante</code>, <code>Modification frauduleuse d enregistrements</code>, <code>Usurpation de session utilisateur</code> <code>Remplacement non autorise du contenu</code> et <code>Indetermine</code>. Répondez <code>Principe: &lt;principe&gt; | Impact: &lt;conséquence&gt;</code>. Si les informations ne permettent pas de conclure, utilisez <code>Indetermine</code> pour chacun des deux champs.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DIVULGATION</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Principe: Confidentialite | Impact: Fuite de donnees</pre></div>
     </div>
-    <p class="lab__note">Exemple de référence.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Identifiez quel pilier (Confidentialité, Intégrité ou Disponibilité) est directement compromis par l’incident.</li>
-        <li>Associez la conséquence opérationnelle exacte : fuite de données, chiffrement malveillant ou altération.</li>
+        <li>Quelle propriété décrit le mieux la conséquence précisée dans chaque situation ?</li>
+        <li>Distinguez une perte d’accès, une divulgation et une modification ; si les faits manquent, ne supposez pas l’impact.</li>
       </ol>
     </details>
   </div>
@@ -285,72 +283,76 @@ Si le code est inconnu, afficher : <code>INCIDENT INCONNU</code>.</p></div>
      data-exercise="cs2-c1-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="Secr3t_P@ssw0rd2026">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c1-e3) — Audit de robustesse de mot de passe (Politique ANSSI / NIST)
+     data-stdin="seul;motdepassecommun">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c1-e3) — Contrôles ciblés des mots de passe selon le NIST
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
 [Cas 1 — Test de validation 1]
-# Données : admin123
+# Données : seul;abcdefghijklmn
 A_COMPLETER
 
 [Cas 2 — Test de validation 2]
-# Données : MotDePasseTresLongMaisSansChiffreNiSymbole
+# Données : seul;moutonlunerosea
 A_COMPLETER
 
 [Cas 3 — Test de validation 3]
-# Données : Court1@
+# Données : mfa;abricot
 A_COMPLETER
 
 [Cas 4 — Test de validation 4]
-# Données : Cyber_Secu_B2#2026
+# Données : mfa;𐐷abricot
+A_COMPLETER
+
+[Cas 5 — Test de validation 5]
+# Données : seul;123456789012345
+A_COMPLETER
+
+[Cas 6 — Test de validation 6]
+# Données : seul;moutonlunerosea123456789012345
+A_COMPLETER
+
+[Cas 7 — Test de validation 7]
+# Données : seul;𐐷abcdefghijklm
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Audit de robustesse de mot de passe (Politique ANSSI / NIST)</h3>
+    <h3 class="lab__title">Exercice 3 — Contrôles ciblés des mots de passe selon le NIST</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Audit de robustesse de mot de passe (Politique ANSSI / NIST)</p>
-    <div class="lab__brief"><p>Pour se prémunir des attaques par dictionnaire et force brute, vérifiez si un mot de passe respecte les 5 critères essentiels :
-1. <code>longueur</code> : au moins 12 caractères
-2. <code>majuscule</code> : au moins une lettre majuscule (A-Z)
-3. <code>minuscule</code> : au moins une lettre minuscule (a-z)
-4. <code>chiffre</code> : au moins un chiffre (0-9)
-5. <code>special</code> : au moins un caractère spécial parmi <code>!@#$%^&*()_+-=[]{}|;:,.<>?</code>
-
-Résultat d’analyse attendu :
-- Si valide : <code>ROBUSTE</code>
-- Si invalide : <code>VULNERABLE (manque: crit1, crit2, ...)</code> dans l’ordre exact ci-dessus.</p></div>
+    <p class="lab__formative-notice" id="cs2-c1-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer les seuils NIST et une liste de refus sans conclure à la robustesse</p>
+    <div class="lab__brief"><p>Cette grille applique seulement quelques contrôles de NIST SP 800-63B-4, pas une politique complète ni une preuve de robustesse. Chaque cas est au format <code>mode;mot_de_passe</code> : <code>seul</code> indique un facteur unique (15 caractères minimum), <code>mfa</code> un mot de passe utilisé exclusivement en MFA (8 caractères minimum dans cette grille ; le NIST permet aussi un seuil supérieur). Comptez les points de code Unicode, sans imposer de classes de caractères.</p><p>La liste de refus fictive contient exactement <code>123456789012345</code> et <code>motdepassecommun</code> ; comparez le mot de passe entier, pas ses sous-chaînes, en respectant la casse. En production, la liste doit notamment couvrir des valeurs communes ou compromises, et les tentatives doivent être limitées.</p><p>Répondez au format <code>DECISION: &lt;décision&gt; | MOTIF: &lt;motif&gt;</code>. Les décisions possibles sont <code>REFUSE</code> et <code>ADMISSIBLE</code> ; les motifs sont <code>longueur</code>, <code>liste_de_refus</code> ou <code>aucun</code>. Vérifiez d’abord la longueur, puis la liste entière : un résultat admissible sur ces seuls critères ne signifie pas que le mot de passe est robuste.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Secr3t_P@ssw0rd2026</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROBUSTE</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>seul;motdepassecommun</pre></div>
     </div>
-    <p class="lab__note">Exemple de référence.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifiez les critères ANSSI/NIST : longueur minimale, diversité des classes de caractères et absence de motifs triviaux.</li>
-        <li>Un mot de passe non conforme sur l’un des critères obligatoires doit être rejeté immédiatement.</li>
+        <li>Comptez les points de code et choisissez le seuil associé au mode indiqué ; ne cherchez pas de classes obligatoires.</li>
+        <li>Comparez la valeur entière à la liste fictive après le contrôle de longueur ; une admissibilité partielle ne démontre pas la robustesse.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
-      <p class="q__stem">Quelle propriété de la triade CIA est directement violée lorsqu’un rançongiciel (ransomware) chiffre les disques durs d’une entreprise ?</p>
+      <p class="q__stem">Un rançongiciel chiffre des fichiers et les rend inaccessibles aux utilisateurs ; aucune divulgation n’est constatée. Quelle propriété est directement affectée par cette perte d’accès ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">La Disponibilité</button>
         <button class="opt">La Confidentialité</button>
         <button class="opt">L’Authenticité</button>
         <button class="opt">La Non-répudiation</button>
       </div>
-      <div class="q__exp">Le chiffrement malveillant empêche les utilisateurs légitimes d’accéder à leurs fichiers et serveurs, ce qui constitue une atteinte directe et majeure à la Disponibilité.</div>
+      <div class="q__exp">Dans ce scénario, le chiffrement rend les fichiers indisponibles. La confidentialité concerne la divulgation, l’authenticité l’origine et la non-répudiation la contestation d’une action ; aucune de ces trois propriétés ne décrit directement la perte d’accès indiquée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans le modèle AAA, quelle composante détermine si un utilisateur authentifié a le droit de modifier un fichier spécifique ?</p>
@@ -360,27 +362,37 @@ Résultat d’analyse attendu :
         <button class="opt">La Traçabilité (Accounting)</button>
         <button class="opt">L’Imputabilité</button>
       </div>
-      <div class="q__exp">L’authentification prouve qui est l’utilisateur, tandis que l’Autorisation vérifie les privilèges et permissions dont il dispose sur l’objet sollicité.</div>
+      <div class="q__exp">L’autorisation détermine les droits sur le fichier. L’authentification vérifie l’identité ; la traçabilité consigne les actions et l’imputabilité permet de les attribuer, sans décider à elle seule des permissions.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Selon la formule standard de l’ISO 27005 (Risque = Menace &times; Vulnérabilité &times; Impact), quel est le niveau de risque pour M=4, V=3, I=5 ?</p>
+      <p class="q__stem">Avec le modèle pédagogique du cours (M &times; V &times; I ; élevé de 50 à 79), quel est le niveau pour M=4, V=3, I=5 ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">ÉLEVÉ (Score = 60)</button>
         <button class="opt">FAIBLE (Score = 12)</button>
         <button class="opt">MOYEN (Score = 35)</button>
         <button class="opt">CRITIQUE (Score = 95)</button>
       </div>
-      <div class="q__exp">Score = 4 * 3 * 5 = 60. Ce score se situe dans la plage 50 à 79, ce qui correspond au niveau de risque ÉLEVÉ.</div>
+      <div class="q__exp">Le produit vaut 60, dans la plage élevée du modèle. Les scores 12, 35 et 95 ne correspondent pas aux trois valeurs données ; les seuils présentés sont propres à cet exercice.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Pourquoi l’entropie d’un mot de passe de 14 caractères composé uniquement de chiffres est-elle bien inférieure à celle d’un mot de passe de 14 caractères complet ?</p>
+      <p class="q__stem">Pour 14 caractères tirés indépendamment et uniformément, pourquoi un alphabet de 94 caractères donne-t-il plus d’entropie théorique qu’un alphabet de 10 chiffres ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Parce que la taille de l’alphabet N n’est que de 10 contre 94, réduisant drastiquement le nombre total de combinaisons N^L</button>
         <button class="opt">Parce que les chiffres sont stockés sur moins d’octets en mémoire vive</button>
         <button class="opt">Parce que les algorithmes de hachage comme SHA-256 refusent les mots de passe numériques</button>
         <button class="opt">Parce que le protocole TCP interdit l’envoi de chiffres isolés</button>
       </div>
-      <div class="q__exp">L’entropie vaut L * log2(N). Avec N=10, 14 * 3.32 ≈ 46.5 bits d’entropie. Avec N=94, 14 * 6.55 ≈ 91.7 bits, soit une résistance des milliards de fois supérieure aux attaques.</div>
+      <div class="q__exp">Pour ces tirages indépendants et uniformes, E = L * log2(N) : environ 46,5 bits pour N=10 et 91,7 pour N=94. Le stockage en mémoire ne détermine pas cet espace ; SHA-256 accepte des données numériques et TCP transporte aussi des chiffres. Cette formule ne prouve pas la robustesse d’un choix humain prévisible.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon NIST SP 800-63B-4, quelle règle s’applique à un mot de passe utilisé comme facteur unique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Au moins 15 caractères, sans règle de composition obligatoire, avec vérification contre une liste de refus</button>
+        <button class="opt">Au moins 12 caractères et obligatoirement une majuscule, une minuscule, un chiffre et un symbole</button>
+        <button class="opt">Exactement 8 caractères, sans contrôle des valeurs compromises</button>
+        <button class="opt">Au moins 15 caractères et un changement mensuel imposé</button>
+      </div>
+      <div class="q__exp">Dans son périmètre, le NIST exige 15 caractères en facteur unique, sans règle de composition, avec liste de refus. Douze caractères et des classes obligatoires ne correspondent pas à cette règle ; huit ne suffisent pas en facteur unique et un changement mensuel n’est pas imposé. La longueur ne démontre pas la robustesse.</div>
     </div>
   </div>
 
@@ -417,20 +429,20 @@ Résultat d’analyse attendu :
       <li>La triade CIA (Confidentialité, Intégrité, Disponibilité) est la boussole incontournable de tout audit de sécurité.</li>
       <li>Le modèle AAA garantit que chaque requête est identifiée (Authentification), vérifiée (Autorisation) et consignée (Traçabilité).</li>
       <li>Le risque résulte du croisement d’une menace, d’une vulnérabilité et d’un impact financier ou réglementaire.</li>
-      <li>La robustesse d’un mot de passe dépend avant tout de sa longueur et de sa diversité (entropie &ge; 80 bits).</li>
+      <li>Une longueur suffisante, une liste de refus et la limitation des essais contribuent à la sécurité ; le respect de catégories ne prouve pas la robustesse.</li>
       <li>La sécurité opérationnelle exige une politique cohérente combinant mesures préventives, contrôles continus et PRA.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
       <li>Je sais expliciter chaque pilier de la triade CIA avec des exemples d’incidents concrets.</li>
       <li>Je distingue rigoureusement Authentification et Autorisation dans une architecture applicative.</li>
-      <li>Je maîtrise le calcul et la classification du score de risque selon l’ISO 27005.</li>
+      <li>Je sais calculer et classer un score dans le modèle pédagogique donné, sans attribuer ses seuils à la norme.</li>
       <li>Je connais la formule de l’entropie de Shannon et les recommandations de l’ANSSI pour les mots de passe.</li>
       <li>Je comprends l’intérêt d’une journalisation immuable pour assurer la traçabilité des accès.</li>
     </ul>
     <h3>Les 10 notions à connaître absolument</h3>
     <ol>
-      <li>Triade CIA (Confidentialité, Intégrité, Disponibilité)</li><li>Modèle AAA (Authentification, Autorisation, Accounting)</li><li>Menace vs Vulnérabilité vs Exploit vs Impact</li><li>Gestion des risques ISO 27005</li><li>Score de criticité du risque</li><li>Politique de Sécurité des SI (PSSI)</li><li>Entropie de mot de passe (formule de Shannon)</li><li>Règles ANSSI & NIST pour les identifiants</li><li>Authentification multi-facteurs (MFA)</li><li>Traçabilité et horodatage des journaux</li>
+      <li>Triade CIA (Confidentialité, Intégrité, Disponibilité)</li><li>Modèle AAA (Authentification, Autorisation, Accounting)</li><li>Menace vs Vulnérabilité vs Exploit vs Impact</li><li>Gestion des risques ISO 27005</li><li>Score de criticité du risque</li><li>Politique de Sécurité des SI (PSSI)</li><li>Entropie de mot de passe (formule de Shannon)</li><li>Politique NIST SP 800-63B-4 pour les mots de passe</li><li>Authentification multi-facteurs (MFA)</li><li>Traçabilité et horodatage des journaux</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -442,10 +454,10 @@ Résultat d’analyse attendu :
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Revoyez les définitions de la triade CIA et la différence entre menace et vulnérabilité.</div>
-      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur le calcul de risque ISO 27005 et la formule d’entropie.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Revoyez les définitions de la triade CIA et la différence entre menace et vulnérabilité.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur le modèle de risque du cours et la formule d’entropie.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous maîtrisez les principes fondamentaux de la gestion des risques et du modèle AAA.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Excellent : passe à la cryptographie appliquée et aux signatures numériques au module 2.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Excellent : passez à la cryptographie appliquée et aux signatures numériques au module 2.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

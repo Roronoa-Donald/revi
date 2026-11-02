@@ -17,8 +17,8 @@ module.exports = {
   situation:
     'Dans l’univers de la 3D numérique, tout objet complexe — du personnage articulé au décor architectural — ' +
     'est discrétisé sous forme d’un maillage polygonal (Polygon Mesh). ' +
-    'Le triangle est la primitive géométrique reine de l’infographie temps réel : ' +
-    'il est garanti d’être strictement planaire et ses trois sommets définissent une normale univoque dans l’espace. ' +
+    'Les surfaces sont souvent décomposées en triangles pour le rendu temps réel : ' +
+    'trois sommets non alignés définissent un plan unique et une normale orientée par leur ordre. ' +
     'Cependant, manipuler des maillages exige une rigueur mathématique sans faille : ' +
     'l’ordre des sommets (Winding Order) détermine si une face regarde la caméra ou doit être ignorée (Back-Face Culling), ' +
     'les transformations géométriques obéissent à des multiplications de matrices affines 4x4 non-commutatives, ' +
@@ -42,9 +42,9 @@ module.exports = {
 
         '<div class="grid grid-2">',
         '  <div class="card">',
-        '    <h4>Pourquoi le Triangle est-il la Primitive Universelle ?</h4>',
+        '    <h4>Pourquoi utiliser des triangles pour les surfaces ?</h4>',
         '    <ul>',
-        '      <li><strong>Planéité absolue :</strong> 3 points dans l’espace sont toujours coplanaires. Un quadrangle (4 sommets) peut être voilé ou tordu, créant des ambiguïtés de rendu.</li>',
+        '      <li><strong>Planéité :</strong> trois points non alignés définissent un plan unique. S’ils sont alignés ou confondus, le triangle est dégénéré et sa normale unitaire n’est pas définie. Un quadrangle peut être voilé.</li>',
         '      <li><strong>Optimisation matérielle :</strong> Les pipelines de rasterisation des GPU sont câblés en silicium pour découper et interpoler des triangles en parallèle.</li>',
         '    </ul>',
         '  </div>',
@@ -60,14 +60,15 @@ module.exports = {
         box(
           'tip',
           'Calcul de la Normale de Face par Produit Vectoriel',
-          '<p>Soit un triangle défini par les sommets <code>A</code>, <code>B</code> et <code>C</code> ordonnés en sens CCW :</p>' +
+          '<p>Soit un triangle non dégénéré défini par les sommets non alignés <code>A</code>, <code>B</code> et <code>C</code> :</p>' +
           '<pre><code>u = B - A    (vecteur directeur 1)\n' +
           'v = C - A    (vecteur directeur 2)\n' +
           'n = u × v    (produit vectoriel orthogonal)\n' +
           'nx = u.y * v.z - u.z * v.y\n' +
           'ny = u.z * v.x - u.x * v.z\n' +
           'nz = u.x * v.y - u.y * v.x\n' +
-          'N = n / ||n|| (normale unitaire de longueur 1.0)</code></pre>'
+          'N = n / ||n|| (normale unitaire de longueur 1.0)</code></pre>' +
+          '<p>Si la norme de <code>n</code> est nulle, aucune normale unitaire ne peut être calculée : ne pas diviser par zéro. Les API graphiques acceptent aussi des primitives de points et de lignes.</p>'
         )
       ].join('\n')
     },
@@ -123,8 +124,8 @@ module.exports = {
 
   methodTitle: 'Protocole de Modélisation Géométrique et de Transformation TRS',
   method: [
-    'Étape 1 — Définir les sommets et faces : Structurer le maillage en triangles coplanaires et ordonner les sommets en sens anti-horaire (CCW).',
-    'Étape 2 — Calculer la normale unitaire : Extraire deux vecteurs directeurs u = B - A et v = C - A, calculer le produit vectoriel n = u × v et normaliser N = n / ||n||.',
+    'Étape 1 — Définir les sommets et faces : Structurer la surface en triangles non dégénérés et ordonner leurs sommets selon la convention choisie.',
+    'Étape 2 — Calculer la normale unitaire : Calculer n = (B - A) × (C - A), puis N = n / ||n|| seulement si la norme est non nulle.',
     'Étape 3 — Configurer le Back-Face Culling : Activer l’élimination des faces arrière pour doubler le débit de rasterisation sur les volumes fermés.',
     'Étape 4 — Composer les transformations géométriques : Multiplier les matrices affines dans l’ordre canonique TRS : Scale en premier, puis Rotation, puis Translation.',
     'Étape 5 — Projeter en coordonnées homogènes : Appliquer la transformation 4x4 au point P(x, y, z, 1) pour obtenir sa position monde sans distorsion orbitale.',
@@ -132,7 +133,7 @@ module.exports = {
   ],
 
   summary: [
-    'Le triangle est la seule primitive géométrique 3D garantie d’être strictement plane.',
+    'Trois sommets non alignés définissent une face triangulaire plane ; les API graphiques proposent aussi des points et des lignes.',
     'Le sens de parcours CCW (Counter-Clockwise) définit la face avant et active le Back-Face Culling.',
     'Le produit vectoriel u × v de deux arêtes d’un triangle produit un vecteur orthogonal à la face.',
     'Une normale doit impérativement être normalisée (divisée par sa norme) pour que les calculs d’ombrage soient exacts.',
@@ -167,15 +168,15 @@ module.exports = {
 
   questions: [
     {
-      stem: 'Pourquoi l’infographie 3D temps réel privilégie-t-elle exclusivement les triangles comme primitive géométrique de base ?',
+      stem: 'Pourquoi utilise-t-on souvent des triangles non dégénérés pour représenter une surface 3D ?',
       opts: [
         'Parce que les triangles consomment moins d’électricité que les carrés',
-        'Parce que 3 points dans l’espace sont toujours strictement coplanaires, évitant toute ambiguïté de déformation ou de torsion de surface',
+        'Parce que trois sommets non alignés définissent un plan unique et une face sans torsion',
         'Parce que les cartes mères ne savent compter que jusqu’à 3',
         'Pour des raisons purement esthétiques'
       ],
       correct: 1,
-      exp: 'Trois points définissent un plan unique de manière indiscutable, garantissant que la face n’est jamais tordue et que sa normale est uniforme.'
+      exp: 'Trois points non alignés définissent un plan unique. Des points alignés produisent un triangle dégénéré sans normale unitaire ; les API graphiques gèrent aussi des points et des lignes.'
     },
     {
       stem: 'Quel est le rôle du mécanisme de « Back-Face Culling » dans un moteur de rendu 3D ?',
@@ -259,7 +260,7 @@ module.exports = {
   flashcards: [
     {
       q: 'Pourquoi les moteurs 3D utilisent-ils des triangles ?',
-      a: 'Car 3 sommets garantissent une face strictement plane sans torsion, directement optimisée par le silicium du GPU.'
+      a: 'Trois sommets non alignés définissent une face plane sans torsion ; les triangles sont souvent utilisés pour les surfaces, mais les API acceptent aussi points et lignes.'
     },
     {
       q: 'À quoi sert le Back-Face Culling ?',
@@ -267,7 +268,7 @@ module.exports = {
     },
     {
       q: 'Comment calcule-t-on la normale d’un triangle ?',
-      a: 'Par le produit vectoriel n = (B - A) × (C - A), puis en divisant par sa norme N = n / ||n||.'
+      a: 'Par le produit vectoriel n = (B - A) × (C - A), puis N = n / ||n|| si sa norme est non nulle ; un triangle dégénéré n’a pas de normale unitaire définie.'
     },
     {
       q: 'Quel est l’ordre canonique des transformations TRS ?',

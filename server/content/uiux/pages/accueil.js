@@ -32,13 +32,13 @@ function index(course, chapterList) {
     '    <div class="hero__actions">',
     '      <a class="btn btn--primary btn--lg" href="chapitres/chapitre1.html">' + ic('play') + ' Démarrer le cours</a>',
     '      <a class="btn btn--lg" href="sommaire.html">' + ic('layers') + ' Voir le sommaire</a>',
-    '      <a class="btn btn--lg" href="atelier.html">' + ic('terminal') + ' Bac à sable Ergonomie</a>',
+    '      <a class="btn btn--lg" href="atelier.html">' + ic('terminal') + ' Atelier d’analyse ergonomique</a>',
     '    </div>',
     '  </header>',
     '',
     '  <section class="statbar">',
     '    <div class="stat"><span class="stat__val">6</span><span class="stat__lbl">Modules fondamentaux</span></div>',
-    '    <div class="stat"><span class="stat__val">18</span><span class="stat__lbl">Exercices de code exécutables</span></div>',
+    '    <div class="stat"><span class="stat__val">18</span><span class="stat__lbl">Études de cas formatives</span></div>',
     '    <div class="stat"><span class="stat__val">48</span><span class="stat__lbl">Questions de QCM corrigées</span></div>',
     '    <div class="stat"><span class="stat__val">2</span><span class="stat__lbl">Examens blancs complets</span></div>',
     '  </section>',
@@ -54,9 +54,9 @@ function index(course, chapterList) {
       'à extraire des insights actionnables par les Personas et la cartographie du parcours (Customer Journey Map), ' +
       'à appliquer les lois fondamentales de la perception (Lois de Fitts, Hick-Hyman, Miller, Jakob), ' +
       'à structurer des interfaces modulaires par l’Atomic Design et les systèmes de grille 8pt, ' +
-      'à garantir une ergonomie tactile irréprochable sur mobile (Thumb Zone, Touch Targets 48x48 px), ' +
+      'à améliorer l’ergonomie tactile sur mobile (Thumb Zone et dimensionnement des cibles), ' +
       'et à concevoir des produits nativement inclusifs respectant les normes d’accessibilité WCAG 2.1 niveau AA. ' +
-      'Chaque module articule principes théoriques fondés, modèles mathématiques, 3 ateliers de programmation interactive et un QCM d’évaluation.</p>'
+      'Chaque module articule principes théoriques, modèles mathématiques, 3 grilles d’analyse et un QCM d’évaluation.</p>'
     ].join('\n')),
     '',
     disclaimer('Ce cours couvre les référentiels professionnels ISO 9241-210, WCAG 2.1 (W3C/WAI) et les heuristiques de Jakob Nielsen.')
@@ -113,24 +113,23 @@ function sommaire(course, chapterList) {
 
 function atelier(course) {
   const body = [
-    crumb(course, [{ label: 'Atelier de code' }]),
+    crumb(course, [{ label: 'Atelier d’analyse' }]),
     '  <h1>Atelier de calcul ergonomique &amp; audit UI/UX</h1>',
-    '  <p class="lead">Simulez les lois de Fitts et Hick, auditez vos contrastes WCAG 2.1, validez l’alignement sur la grille 8pt et explorez les métriques ergonomiques directement dans l’interpréteur Python.</p>',
+    '  <p class="lead">Préparez vos grilles d’analyse pour les lois de Fitts et Hick, les contrastes et les métriques ergonomiques. Ce brouillon n’est ni exécuté ni corrigé ; les études de cas des chapitres proposent séparément une vérification formative.</p>',
     '',
     '  <div class="lab" data-lab',
     '       data-language="analyse"',
-    '       data-height="420"',
-    '       data-stdin="#0f766e #ffffff">',
+    '       data-height="420">',
     '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\\\'analyse et cas d\\\'application.\\n[Cas 1 — Cas d\\\'application libre]\\n# Données :\\nA_COMPLETER\\n</script>',
     '  </div>',
     '',
     '  <h2>Règles d’or de l’ergonomie et du design d’interface</h2>',
     box('standard', 'Principes directeurs pour des interfaces intuitives et accessibles', [
       '<ul>',
-      '  <li><strong>La loi de Jakob prime sur la créativité gratuite :</strong> Vos utilisateurs passent 90% de leur temps sur d’autres applications. Conservez les conventions spatiales universelles (logo en haut à gauche, panier et profil en haut à droite).</li>',
-      '  <li><strong>Respectez impérativement le ratio de contraste WCAG AA :</strong> Tout texte courant doit garantir un contraste minimal de 4.5:1 sur son arrière-plan (3:1 pour le grand texte supérieur à 24px ou 18.5px gras).</li>',
+      '  <li><strong>Appuyez-vous sur les conventions connues :</strong> elles peuvent faciliter le repérage, mais leurs usages dépendent du public et du contexte ; vérifiez-les avec les utilisateurs.</li>',
+      '  <li><strong>Vérifiez le contraste WCAG AA :</strong> le texte courant nécessite en général 4,5:1 avec son arrière-plan ; le grand texte nécessite 3:1 dès 18 pt ou 14 pt en gras (environ 24 px ou 18,7 px CSS). Les exceptions prévues par le critère s’appliquent.</li>',
       '  <li><strong>Alignez vos espacements sur une grille 8pt :</strong> La cohérence visuelle d’un produit repose sur la répétition d’un rythme spatial régulier (8px, 16px, 24px, 32px, 48px).</li>',
-      '  <li><strong>Sécurisez les cibles tactiles mobiles :</strong> Prévoyez une surface d’interaction d’au moins 48x48 px (Android/WCAG) ou 44x44 pt (Apple) pour éviter les erreurs de manipulation.</li>',
+      '  <li><strong>Dimensionnez les cibles :</strong> distinguez les critères WCAG en pixels CSS, la recommandation Android de 48 x 48 dp et la recommandation Apple en points ; vérifiez aussi les exceptions et l’espacement.</li>',
       '</ul>'
     ].join('\n')),
     '',
@@ -139,8 +138,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de code interactif | ' + course.brand,
-      description: 'Espace d’expérimentation et bac à sable de simulation ergonomique UI/UX interactif.',
+      title: 'Atelier d’analyse | ' + course.brand,
+      description: 'Brouillon libre et études de cas en ergonomie UI/UX.',
       active: 'atelier',
       body
     }

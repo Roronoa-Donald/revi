@@ -124,7 +124,7 @@ module.exports = {
     { cls: 'low', text: '&lt; 50 % — Révise l’assemblage du CRUD complet et les verbes associés.' },
     { cls: 'mid', text: '50–69 % — Entraînez-vous sur le découpage en Blueprints et la persistance.' },
     { cls: 'good', text: '70–94 % — Solide : vous maîtrisez l’architecture globale d’une API Flask.' },
-    { cls: 'top', text: '≥ 95 % — Félicitations : vous possèdez toutes les compétences pour concevoir des API professionnelles !' }
+    { cls: 'top', text: '≥ 95 % — Félicitations : vous possédez toutes les compétences pour concevoir des API professionnelles !' }
   ],
 
   flashcards: [

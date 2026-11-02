@@ -111,7 +111,7 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> Soit <code>v₁, …, vₚ</code> une famille de vecteurs de E. ' +
           'L’ensemble de toutes les combinaisons linéaires de ces vecteurs,</p>',
-          '<div class="math-block">$\\\\operatorname{Vect}(v_1, \\\\dots, v_p) = \\\\left\{ \\\\sum_{k=1}^p a_k v_k \;\middle|\; a_1, \\\\dots, a_p \\\\in \\\\mathbb{R} \\\\right\}$</div>',
+          '<div class="math-block">$$\\operatorname{Vect}(v_1, \\dots, v_p) = \\left\\{ \\sum_{k=1}^p a_k v_k \\;\\middle|\\; a_1, \\dots, a_p \\in \\mathbb{R} \\right\\}$$</div>',
           '<p>est un sous-espace vectoriel de E : le <strong>sous-espace engendré</strong> par la famille. ' +
           'La famille est dite <strong>génératrice</strong> de ce sous-espace.</p>',
           '<p><strong>Somme de deux sous-espaces.</strong> Si F et G sont deux sous-espaces de E :</p>',
@@ -236,7 +236,7 @@ module.exports = [
           '<p><strong>Définition.</strong> Une famille <code>(v₁, …, vₚ)</code> est <strong>libre</strong> ' +
           '(ou les vecteurs sont linéairement indépendants) si la seule combinaison linéaire nulle est celle ' +
           'dont tous les coefficients sont nuls :</p>',
-          '<div class="math-block">$\\\\sum_{k=1}^p a_k v_k = 0 \\\\implies a_1 = a_2 = \\\\dots = a_p = 0$</div>',
+          '<div class="math-block">$\\sum_{k=1}^p a_k v_k = 0 \\implies a_1 = a_2 = \\dots = a_p = 0$</div>',
           '<p>Dans le cas contraire, la famille est <strong>liée</strong> : il existe des coefficients non ' +
           'tous nuls qui donnent le vecteur nul, autrement dit un vecteur de la famille est combinaison ' +
           'linéaire des autres.</p>',
@@ -274,7 +274,7 @@ module.exports = [
           'à 1. Pour les matrices <code>m × n</code>, la base canonique est l’ensemble des matrices ' +
           '<code>E<sub>ij</sub></code> n’ayant qu’un 1 en position (i, j).</p>',
           box('intuition', 'Un repère, c’est une base', 'compass',
-            '    <p>Vous connais déjà des bases sans les nommer : donner la position d’un point par ' +
+            '    <p>Vous connaissez déjà des bases sans les nommer : donner la position d’un point par ' +
             '« 3 mètres à droite, 2 mètres en avant » revient à écrire ses coordonnées dans la base ' +
             'des deux directions du sol. Une base est un repère, et la dimension est le nombre de directions ' +
             'indépendantes nécessaires.</p>')
@@ -464,7 +464,7 @@ module.exports = [
           '<p><strong>Comment les trouver ?</strong> L’équation s’écrit <code>(A − λ·I)·X = 0</code>. Comme ' +
           'on cherche <code>X ≠ 0</code>, cette équation n’a de solution non nulle que si la matrice ' +
           '<code>A − λ·I</code> est <em>non inversible</em> :</p>',
-          '<div class="math-block">$\det(A - \\\\lambda I) = 0 \\\\quad (\\\\text{Polynôme caractéristique } P(\\\\lambda))$</div>',
+          '<div class="math-block">$\det(A - \\lambda I) = 0 \\quad (\\text{Polynôme caractéristique } P(\\lambda))$</div>',
           '<p>Pour une matrice 2 × 2, ce déterminant est un polynôme du second degré : on le résout avec le ' +
           'discriminant.</p>',
           '<p><strong>Exemple complet.</strong> <code>A = [[4, 1], [2, 3]]</code> :</p>',

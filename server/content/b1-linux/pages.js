@@ -187,7 +187,7 @@ function atelier(course) {
       '(inventaire, filtre find, droits chmod, comptes passwd), programmez-le et testez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé lit un inventaire et compte par type. Modifiez le comptage, ajoute un total, ' +
-      'ou remplace tout le script par le mécanisme que vous voulez vérifier — un rapport de parc, un audit de ' +
+      'ou remplacez tout le script par le mécanisme que vous voulez vérifier — un rapport de parc, un audit de ' +
       'comptes, une conversion octal.</p>',
       '      <p>Dans un vrai terminal, ce sera <code>ls -l</code>, <code>find</code> et <code>chmod</code> : ' +
       'la structure du script — lire, décider, rapporter — reste exactement la même.</p>',
@@ -287,7 +287,7 @@ function formules(course) {
     bloc('L’arborescence en une image', [
       '<pre><code>/          racine : origine de tout\n',
       'etc        configuration (à sauvegarder)      home   répertoires des utilisateurs\n',
-      'tmp        temporaires, vidés au reboot        var    journaux des démons, spools\n',
+      'tmp        temporaires, conservation non garantie   var    journaux des démons, spools\n',
       'root       maison du super-utilisateur         dev    fichiers des périphériques\n',
       'usr        applications, manuels, librairies   bin/sbin  binaires essentiels\n',
       'boot       noyau et démarrage                  proc   arborescence virtuelle du noyau</code></pre>',
@@ -301,7 +301,7 @@ function formules(course) {
       'renommer/déplacer mv              supprimer   rm (danger : -f, -rf)\n',
       'afficher          cat, more, head, tail        manuel      man cmd\n',
       'écrire            echo "x" &gt; f (écrase) ; echo "x" &gt;&gt; f (ajoute)</code></pre>',
-      '<p>Syntaxe immuable : COMMANDE OPTIONS ARGUMENTS — ls -a /home.</p>'
+      '<p>Forme fréquente : COMMANDE OPTIONS ARGUMENTS — ls -a /home. La syntaxe dépend de chaque commande.</p>'
     ].join('\n')),
 
     bloc('find : chercher', [
@@ -309,18 +309,18 @@ function formules(course) {
       '  -name "motif"      nom (ex. "fich*")     -type f | d   fichier | répertoire\n',
       '  -size +10M         taille                -user login   propriétaire\n',
       '  -ctime, -atime, -mtime                  -group, -perm</code></pre>',
-      '<p>Ex. du TP : find /tmp -name "fich*" ; find /tmp -type f.</p>'
+      '<p>GNU find sans chemin part de . ; -ctime mesure le changement d’état de l’inode, pas sa création. Ex. : find /tmp -name "fich*".</p>'
     ].join('\n')),
 
     bloc('Comptes et groupes', [
       '<pre><code>/etc/passwd  login:mot-de-passe:UID:GID:info:maison:shell\n',
-      '             * = authentification impossible ; !! = désactivé\n',
-      '             x/! = mot de passe dans shadow ; vide = sans mot de passe\n',
-      '/etc/shadow  mots de passe chiffrés (root seul)\n',
+      '             x = vérificateur dans shadow ; vide = politique d’accès à vérifier\n',
+      '/etc/shadow  vérificateurs hachés avec sel ; ! ou * bloquent le mot de passe\n',
+      '             d’autres moyens d’authentification peuvent rester disponibles\n',
       '/etc/group   groupe:*:GID:utilisateurs\n',
       'commandes    useradd, userdel [-r], usermod, passwd, groupadd, groupdel\n',
       'qui          whoami (moi) ; who, users, w (connectés)\n',
-      'UID          root = 0 ; &lt; 1000 = système ; ≥ 1000 = humains</code></pre>',
+      'UID          root = 0 ; UID_MIN et les plages système sont configurables</code></pre>',
       '<p>usermod -d /home/toto -m tutu change la maison et recopie le contenu.</p>'
     ].join('\n')),
 
@@ -382,14 +382,14 @@ function examens(course) {
         {
           num: 'Exercice 1',
           badge: '/5 — Arborescence',
-          text: 'Où stocke-t-on les configurations système, les journaux des démons, les répertoires personnels, les fichiers temporaires ? Justifier pourquoi /etc est le répertoire à sauvegarder, et dire ce que devient /tmp au redémarrage.',
-          sol: 'Configurations : <code>/etc</code> — le restaurer, c’est restaurer la configuration d’une machine. Journaux des démons et spools : <code>/var</code>. Répertoires personnels : <code>/home</code> (celui de root est <code>/root</code>). Fichiers temporaires : <code>/tmp</code>, <strong>effacé à chaque redémarrage</strong>.'
+          text: 'Où stocke-t-on les configurations système, les journaux des démons, les répertoires personnels et les fichiers temporaires ? Que faut-il sauvegarder en plus de /etc et que peut-il arriver à /tmp ?',
+          sol: 'Configurations : <code>/etc</code>. Sauvegarder aussi les données personnelles et applicatives, puis tester la restauration. Journaux : <code>/var</code>. Répertoires personnels : <code>/home</code> (root : <code>/root</code>). Fichiers temporaires : <code>/tmp</code>, dont la conservation n’est pas garantie.'
         },
         {
           num: 'Exercice 2',
           badge: '/5 — /etc/passwd',
-          text: 'Décomposer la ligne caroline:x:1002:1000:Caroline TP:/home/caroline:/bin/bash, champ par champ. Que signifie le champ x ? Cette utilisatrice est-elle humaine ou système ?',
-          sol: 'login=caroline ; mot-de-passe=x (l’empreinte est dans <code>/etc/shadow</code>) ; UID=1002 ; GID=1000 (groupe principal) ; info=Caroline TP ; maison=/home/caroline ; shell=/bin/bash.<br>x ou ! signifient « mot de passe dans shadow » ; UID 1002 ≥ 1000 : <strong>compte humain</strong>.'
+          text: 'Décomposer la ligne caroline:x:1002:1000:Caroline TP:/home/caroline:/bin/bash, champ par champ. Que signifie x ? Dans une simulation classant comme humains les UID à partir de 1000, comment classer ce compte ?',
+          sol: 'login=caroline ; x renvoie au vérificateur dans <code>/etc/shadow</code> ; UID=1002 ; GID=1000 ; info=Caroline TP ; maison=/home/caroline ; shell=/bin/bash.<br>Dans cette simulation, 1002 est classé humain. Sur une machine réelle, les plages sont configurables et l’UID seul ne prouve pas la nature du compte.'
         },
         {
           num: 'Exercice 3',
@@ -401,7 +401,7 @@ function examens(course) {
           num: 'Exercice 4',
           badge: '/5 — Script',
           text: 'Écrire le script qui lit n puis n lignes « type nom », compte fichiers et répertoires, et affiche les deux comptes. Que se passe-t-il si l’entrée ne finit pas par un retour à la ligne ?',
-          sol: 'Boucle <code>for ((i=0; i&lt;n; i++))</code> avec <code>read -r type nom</code>, compteurs initialisés avant, bilan affiché après. Sans <code>\n</code> final, le <strong>dernier read touche l’EOF et échoue</strong> : la dernière ligne peut être perdue — toujours finir l’entrée par un retour à la ligne.'
+          sol: 'Boucle <code>for ((i=0; i&lt;n; i++))</code> avec <code>read -r type nom</code>, compteurs initialisés avant, bilan affiché après. Sans retour à la ligne final, <code>read</code> atteint la fin de fichier et renvoie un statut non nul ; les caractères déjà lus peuvent néanmoins être affectés aux variables. Une boucle qui ne traite que les lectures réussies peut alors ignorer cette dernière ligne.'
         }
       ]
     },
@@ -413,13 +413,13 @@ function examens(course) {
           num: 'Exercice 1',
           badge: '/5 — Histoire',
           text: 'Situer 1969, 1973, 1984, 1991 dans l’histoire d’UNIX et de Linux, avec un nom et un fait par date. Réciter les quatre libertés.',
-          sol: '1969 : Thompson et Ritchie créent UNIX aux Bell Labs. 1973 : réécriture en C (version 4, portabilité). 1984 : Stallman lance le projet GNU. 1991 : Torvalds publie le noyau Linux sous GPL.<br>Libertés 0-1-2-3 : utiliser, étudier/adapter, redistribuer, améliorer/diffuser.'
+          sol: '1969 : Thompson et Ritchie créent UNIX aux Bell Labs. 1973 : réécriture en C (version 4, portabilité). 1984 : Stallman lance le projet GNU. 1991&nbsp;: Torvalds publie le noyau Linux&nbsp;; le noyau passe sous licence GPL en 1992.<br>Libertés 0-1-2-3 : utiliser, étudier/adapter, redistribuer, améliorer/diffuser.'
         },
         {
           num: 'Exercice 2',
           badge: '/5 — Partitionnement',
-          text: 'Proposer un schéma de partitionnement pour un TP Debian 12 (disque 80 Go, RAM 4 Go) avec tailles, FS et points de montage. Justifier le swap et la séparation de /home.',
-          sol: '/dev/sda1 ≈ 30 Go ext4 sur / ; /dev/sda2 ≈ 8 Go swap (≈ deux fois la RAM) ; /dev/sda3 le reste ext4 sur /home.<br>Le swap déborde la mémoire vive ; /home séparé survit à une réinstallation. Vérification : <code>df -h</code>.'
+          text: 'Proposer un schéma de partitionnement pour un TP Debian 12 (disque 80 Go, RAM 4 Go), en distinguant systèmes de fichiers montés et espace swap. Justifier le swap et la séparation de /home.',
+          sol: '/dev/sda1 ≈ 30 Go ext4 sur / ; /dev/sda2 ≈ 8 Go de swap dans cet exemple ; /dev/sda3 le reste ext4 sur /home. La taille du swap dépend des besoins.<br>Le swap est activé, pas monté comme ext4 ; /home séparé peut être conservé si l’installateur ne le reformate pas. Garder une sauvegarde. Vérification : <code>df -h</code> et <code>swapon --show</code>.'
         },
         {
           num: 'Exercice 3',
@@ -447,15 +447,15 @@ function examens(course) {
 
   const mastery = [
     { stem: 'Que contient /var ?', opts: ['Les configurations', 'Les journaux des démons et les spools', 'Les binaires essentiels'], correct: 1, exp: '/var : fichiers variables — journaux, spools de mail, d’impression, de cron.' },
-    { stem: 'root possède quel UID ?', opts: ['0', '1', '1000'], correct: 0, exp: 'root = UID 0 ; les comptes système sont en dessous de 1000.' },
-    { stem: 'Champ !! dans /etc/passwd ?', opts: ['Mot de passe dans shadow', 'Compte désactivé', 'Pas de mot de passe'], correct: 1, exp: '!! désactive le compte ; x/! renvoient à /etc/shadow ; * interdit l’authentification.' },
-    { stem: 'Que fait echo "x" >> f ?', opts: ['Écrase f', 'Ajoutez x à la fin de f', 'Affichez f'], correct: 1, exp: 'Deux chevrons ajoutent (suffixent) ; un seul écrase.' },
+    { stem: 'root possède quel UID ?', opts: ['0', '1', '1000'], correct: 0, exp: 'root = UID 0 ; les autres plages dépendent de la configuration.' },
+    { stem: 'Que signifie un champ commençant par ! dans /etc/shadow ?', opts: ['Mot de passe verrouillé', 'Tous les moyens de connexion sont interdits', 'Le mot de passe est affiché en clair'], correct: 0, exp: 'Le mot de passe est verrouillé ; d’autres moyens d’authentification peuvent rester autorisés.' },
+    { stem: 'Que fait echo "x" >> f ?', opts: ['Écrase f', 'Ajoute x à la fin de f', 'Affiche f'], correct: 1, exp: 'Deux chevrons ajoutent (suffixent) ; un seul écrase.' },
     { stem: 'rwxr-x--- en octal ?', opts: ['754', '750', '705'], correct: 1, exp: 'rwx=7, r-x=5, ---=0 : 750, triplet par triplet.' },
     { stem: 'chmod ug=rwx : effet sur les autres classes ?', opts: ['Rien', 'u et g fixés exactement à rwx, o inchangé', 'o perd tout'], correct: 1, exp: '= fixe exactement les classes visées ; les autres classes ne bougent pas.' },
-    { stem: 'Que fait chown -R tpsysteme dossier ?', opts: ['Change le propriétaire du dossier seul', 'Change le propriétaire du dossier et de tout son contenu', 'Créez tpsysteme'], correct: 1, exp: '-R rend le changement récursif : dossier, sous-dossiers, fichiers.' },
+    { stem: 'Que fait chown -R tpsysteme dossier ?', opts: ['Change le propriétaire du dossier seul', 'Change le propriétaire du dossier et de tout son contenu', 'Crée tpsysteme'], correct: 1, exp: '-R rend le changement récursif : dossier, sous-dossiers, fichiers.' },
     { stem: 'groupdel échoue quand…', opts: ['le groupe a des fichiers', 'le groupe est le groupe principal d’un utilisateur', 'le groupe est vide'], correct: 1, exp: 'Impossible de supprimer un groupe qui sert de groupe principal.' },
     { stem: 'Première ligne d’un script Bash ?', opts: ['# commentaire', '#!/bin/bash', 'read'], correct: 1, exp: 'Le shebang désigne l’interpréteur.' },
-    { stem: 'Sans \n final sur l’entrée, que devient le dernier read ?', opts: ['Il lit une ligne vide', 'Il touche l’EOF et échoue', 'Il attend à l’infini'], correct: 1, exp: 'read échoue à l’EOF : la dernière ligne doit finir par un retour à la ligne.' }
+    { stem: 'Sans retour à la ligne final sur l’entrée, que devient le dernier read ?', opts: ['Il lit nécessairement une ligne vide', 'Il atteint la fin de fichier et renvoie un statut non nul', 'Il attend toujours à l’infini'], correct: 1, exp: '<code>read</code> renvoie un statut non nul à la fin de fichier, mais peut affecter aux variables les caractères déjà lus. Une boucle qui exige un statut nul peut ignorer cette dernière ligne.' }
   ];
 
   const body = [
@@ -551,7 +551,8 @@ function exercices(course) {
       'Convertit une chaîne de neuf droits (sans le type) en notation octale.',
       'Lit n lignes « login uid » et affiche les logins dont l’UID est supérieur ou égal à 1000.',
       'Lit un seuil en octets, puis n lignes « nom taille », et liste les fichiers au-dessus du seuil.',
-      'Simule chmod : lit « droits modif » et applique une action + ou - sur une classe u, g ou o.'
+      'Simulez chmod : lisez n, puis n lignes « droits modif ». Les droits comptent neuf caractères ; ' +
+      'la modification associe une classe (u, g ou o), un signe (+ ou -) et une lettre (r, w ou x), par exemple u+x.'
     ], [
       'read -r n',
       'for ((i=0; i&lt;n; i++)); do',
@@ -591,36 +592,78 @@ function exercices(course) {
       '    g) debut=3 ;;',
       '    o) debut=6 ;;',
       '  esac',
-      '  for ((k=debut; k&lt;debut + 3; k++)); do',
-      '    [ "${droits:$k:1}" = "$lettre" ] || [ "$action" = "+" ] || continue',
-      '    if [ "$action" = "+" ]; then droits="${droits:0:$k}$lettre${droits:$((k + 1))}"',
-      '    else droits="${droits:0:$k}-${droits:$((k + 1))}"; fi',
-      '  done',
+      '  case "$lettre" in',
+      '    r) decalage=0 ;;',
+      '    w) decalage=1 ;;',
+      '    x) decalage=2 ;;',
+      '  esac',
+      '  position=$((debut + decalage))',
+      '  if [ "$action" = "+" ]; then',
+      '    droits="${droits:0:$position}$lettre${droits:$((position + 1))}"',
+      '  else',
+      '    droits="${droits:0:$position}-${droits:$((position + 1))}"',
+      '  fi',
       '  echo "$droits"',
       'done'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
     item('Raisonnement', 'n3', [
-      'Suit une chaîne de liens symboliques jusqu’au fichier final et détecte les liens cassés.',
+      'Simulez une chaîne de liens : lisez n, puis n paires « nom_du_lien destination », puis m et m noms ' +
+      'de fichiers existants, un par ligne, et enfin le nom de départ. Les noms sont sans espaces ; ' +
+      'les noms de liens sont uniques et distincts des fichiers. Affichez « fichier : nom », ' +
+      '« introuvable : nom » ou « boucle : nom » ; dans une boucle, donnez le premier nom répété.',
       'Simule /etc/passwd : ajoute des comptes avec UID automatique à partir de 1000, répond aux ls.',
       'Produit un rapport de parc : comptage par type, budget total et article le plus cher.',
       'Convertit une chaîne complète de dix caractères (type + droits) en ligne « nom : -drwxr-x--- ».'
     ], [
       'read -r n',
-      'declare -A liens',
+      'noms_liens=()',
+      'destinations=()',
       'for ((i=0; i&lt;n; i++)); do',
-      '  read -r cible source',
-      '  liens["$source"]="$cible"',
+      '  read -r nom_lien destination',
+      '  noms_liens+=("$nom_lien")',
+      '  destinations+=("$destination")',
+      'done',
+      'read -r m',
+      'fichiers=()',
+      'for ((i=0; i&lt;m; i++)); do',
+      '  read -r fichier',
+      '  fichiers+=("$fichier")',
       'done',
       'read -r depart',
       'courant="$depart"',
-      'etapes=0',
-      'while [ -n "${liens[$courant]:-}" ] && [ "$etapes" -lt 10 ]; do',
-      '  courant="${liens[$courant]}"',
-      '  etapes=$((etapes + 1))',
+      'visites=()',
+      'while :; do',
+      '  deja_vu=0',
+      '  for nom in "${visites[@]}"; do',
+      '    if [ "$nom" = "$courant" ]; then deja_vu=1; break; fi',
+      '  done',
+      '  if [ "$deja_vu" -eq 1 ]; then',
+      '    printf "boucle : %s\\n" "$courant"',
+      '    break',
+      '  fi',
+      '  visites+=("$courant")',
+      '  lien_trouve=0',
+      '  for ((i=0; i&lt;n; i++)); do',
+      '    if [ "${noms_liens[$i]}" = "$courant" ]; then',
+      '      courant="${destinations[$i]}"',
+      '      lien_trouve=1',
+      '      break',
+      '    fi',
+      '  done',
+      '  if [ "$lien_trouve" -eq 1 ]; then continue; fi',
+      '  existe=0',
+      '  for fichier in "${fichiers[@]}"; do',
+      '    if [ "$fichier" = "$courant" ]; then existe=1; break; fi',
+      '  done',
+      '  if [ "$existe" -eq 1 ]; then',
+      '    printf "fichier : %s\\n" "$courant"',
+      '  else',
+      '    printf "introuvable : %s\\n" "$courant"',
+      '  fi',
+      '  break',
       'done',
-      'echo "$courant"',
       '',
       'read -r n',
       'logins=()',
@@ -666,7 +709,7 @@ function exercices(course) {
 
     '  <h2>Projet intégrateur — « gestion du parc système »</h2>',
     box('situation', 'Cahier des charges', 'play', [
-      '    <p>On te confie l’inventaire d’un parc. Le script lit <code>n</code>, puis <code>n</code> lignes au ' +
+      '    <p>On vous confie l’inventaire d’un parc. Le script lit <code>n</code>, puis <code>n</code> lignes au ' +
       'format <code>type nom droits</code> — type vaut <code>fichier</code> ou <code>repertoire</code>, ' +
       'droits sont neuf caractères type <code>rwxr-x---</code>. Il produit un rapport : effectifs par type, ' +
       'liste des répertoires, la notation octale de chaque entrée, et une recommandation de sécurité (une ' +

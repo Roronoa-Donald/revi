@@ -180,7 +180,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire Agile libre — ' + course.brand,
-      description: 'Bac à sable interactif de manière méthodiquepour tester vos algorithmes de gestion de projet agile.',
+      description: 'Bac à sable interactif pour tester vos algorithmes de gestion de projet agile.',
       active: 'atelier',
       body
     }

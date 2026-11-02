@@ -14,8 +14,8 @@ module.exports = [
     "brief": "<p>Pour chaque situation proposée : canal vaut <code>mot</code> (les mots prononcés), <code>voix</code> (rythme, intonation, volume) ou <code>corps</code> (gestuelle, regard, tenue). Pour chaque situation, indiquez <code>element : canal</code>, où canal vaut <code>verbal</code>, <code>para-verbal</code> ou <code>non-verbal</code>. Concluez par <code>para-verbal : X/n</code>.</p>",
     "starter": "# Grille d'analyse (fr-c1-e1) — Les trois canaux de Mehrabian\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Un seul element corporel]\n# Données : posture corps\nA_COMPLETER\n\n[Cas 2 — Deux elements mixtes]\n# Données : intonation voix\n# Données : vocabulaire mot\nA_COMPLETER\n\n[Cas 3 — Cinq elements]\n# Données : mots mot\n# Données : volume voix\n# Données : expressions corps\n# Données : articulation voix\n# Données : vestimentaire corps\nA_COMPLETER\n",
     "hints": [
-      "Un case à trois canaux : mot, voix, corps — chacun traduit son nom complet.",
-      "Le compteur suit exactement les lignes « voix » ; le bilan sort après la boucle."
+      "L’élément porte-t-il sur les mots, la voix ou le corps ?",
+      "Associez chaque canal à son nom, puis comptez les éléments liés à la voix."
     ],
     "examples": [
       {
@@ -52,8 +52,8 @@ module.exports = [
     "brief": "<p>Pour chaque situation proposée : famille vaut <code>raison</code> (logos), <code>emotion</code> (pathos) ou <code>confiance</code> (éthos). Pour chaque situation, indiquez <code>argument : nom_grec</code>, où nom_grec vaut <code>logos</code>, <code>pathos</code> ou <code>ethos</code>. Concluez par <code>discours : equilibre</code> si les trois ressorts sont présents au moins une fois, <code>discours : incomplet</code> sinon.</p>",
     "starter": "# Grille d'analyse (fr-c1-e2) — Logos, pathos, ethos\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Que des chiffres]\n# Données : chiffres raison\n# Données : donnees raison\nA_COMPLETER\n\n[Cas 2 — Pathos dominant]\n# Données : plaidoyer emotion\n# Données : histoire emotion\n# Données : references confiance\nA_COMPLETER\n\n[Cas 3 — Cinq arguments]\n# Données : stats raison\n# Données : exemples raison\n# Données : recit emotion\n# Données : assurance confiance\n# Données : exprience confiance\nA_COMPLETER\n",
     "hints": [
-      "Un case traduit la famille en nom grec ; un tableau vues[nom]=1 marque le passage.",
-      "Le verdict final teste les trois clés logos, pathos, ethos."
+      "Chaque argument relève-t-il du raisonnement, de l’émotion ou de la crédibilité ?",
+      "Vérifiez si chacun des trois ressorts apparaît au moins une fois."
     ],
     "examples": [
       {
@@ -314,37 +314,37 @@ module.exports = [
     "level": "n3",
     "language": "analyse",
     "title": "L'audit du courrier",
-    "goal": "Croiser trois règles du bureau — article de profession, majuscule de mois, abréviation M. — et décider de la relecture.",
-    "brief": "<p>Pour chaque situation proposée : regle vaut <code>ok</code>, <code>art</code> (« Je suis un chercheur » : article superflu), <code>maj</code> (majuscule sur un jour ou un mois) ou <code>abrev</code> (« Mr » au lieu de « M. »). Pour chaque situation, indiquez <code>phrase : correcte</code>, <code>phrase : article a enlever</code>, <code>phrase : majuscule a enlever</code> ou <code>phrase : abreviation a corriger</code>. Concluez par trois lignes <code>article : X</code>, <code>majuscule : Y</code>, <code>abreviation : Z</code>, puis <code>total : T/n</code> et <code>relecture : urgente</code> si les fautes sont strictement majoritaires, <code>relecture : legere</code> sinon.</p>",
-    "starter": "# Grille d'analyse (fr-c3-e3) — L'audit du courrier\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Tout est fautif]\n# Données : p1 art\n# Données : p2 art\n# Données : p3 maj\nA_COMPLETER\n\n[Cas 2 — Courier propre]\n# Données : p1 ok\n# Données : p2 ok\nA_COMPLETER\n\n[Cas 3 — Six phrases]\n# Données : p1 art\n# Données : p2 abrev\n# Données : p3 abrev\n# Données : p4 ok\n# Données : p5 maj\n# Données : p6 ok\nA_COMPLETER\n",
+    "goal": "Distinguer les usages possibles de l'article de profession des fautes de majuscule et d'abréviation.",
+    "brief": "<p>Chaque étiquette désigne une situation précise : <code>sans</code> est « Je suis chercheur » ; <code>qual</code> est « Je suis un chercheur passionné » : les deux sont recevables. <code>art</code> est « Je suis un chercheur » sans contexte : le choix est à contextualiser, pas à compter comme faute. <code>maj</code> signale une majuscule à un jour ou mois au milieu d'une phrase ; <code>abrev</code>, « Mr » au lieu de « M. » dans un courrier français.</p><p>Pour chaque phrase, indiquez <code>phrase : correcte</code>, <code>phrase : a contextualiser</code>, <code>phrase : majuscule a enlever</code> ou <code>phrase : abreviation a corriger</code>. Concluez par <code>contextes : X</code>, <code>majuscule : Y</code>, <code>abreviation : Z</code>, puis <code>fautes : T/n</code> et <code>relecture : urgente</code> si les fautes sont strictement majoritaires, <code>relecture : legere</code> sinon. Les contextes à préciser ne sont pas des fautes.</p>",
+    "starter": "# Grille d'analyse (fr-c3-e3) — L'audit du courrier\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Articles sans contexte et une faute]\n# Données : p1 art\n# Données : p2 art\n# Données : p3 maj\nA_COMPLETER\n\n[Cas 2 — Deux professions recevables]\n# Données : p1 sans\n# Données : p2 qual\nA_COMPLETER\n\n[Cas 3 — Six phrases]\n# Données : p1 art\n# Données : p2 abrev\n# Données : p3 abrev\n# Données : p4 qual\n# Données : p5 maj\n# Données : p6 maj\nA_COMPLETER\n",
     "hints": [
-      "Trois compteurs distincts : art, maj, abrev — un case les tient à jour.",
-      "Strictement majoritaires : le total doit dépasser n/2 (division entière)."
+      "Comptez les contextes à préciser à part : seul le total des majuscules et abréviations fautives compte comme faute.",
+      "Strictement majoritaires : le nombre de fautes doit dépasser la moitié des phrases."
     ],
     "examples": [
       {
-        "stdin": "5\np1 art\np2 maj\np3 ok\np4 abrev\np5 ok\n",
-        "expected": "p1 : article a enlever\np2 : majuscule a enlever\np3 : correcte\np4 : abreviation a corriger\np5 : correcte\narticle : 1\nmajuscule : 1\nabreviation : 1\ntotal : 3/5\nrelecture : urgente"
+        "stdin": "5\np1 art\np2 maj\np3 qual\np4 abrev\np5 sans\n",
+        "expected": "p1 : a contextualiser\np2 : majuscule a enlever\np3 : correcte\np4 : abreviation a corriger\np5 : correcte\ncontextes : 1\nmajuscule : 1\nabreviation : 1\nfautes : 2/5\nrelecture : legere"
       }
     ],
     "tests": [
       {
-        "label": "Tout est fautif",
+        "label": "Articles sans contexte et une faute",
         "stdin": "cas:1",
-        "expected": "p1 : article a enlever\np2 : article a enlever\np3 : majuscule a enlever\narticle : 2\nmajuscule : 1\nabreviation : 0\ntotal : 3/3\nrelecture : urgente"
+        "expected": "p1 : a contextualiser\np2 : a contextualiser\np3 : majuscule a enlever\ncontextes : 2\nmajuscule : 1\nabreviation : 0\nfautes : 1/3\nrelecture : legere"
       },
       {
-        "label": "Courier propre",
+        "label": "Deux professions recevables",
         "stdin": "cas:2",
-        "expected": "p1 : correcte\np2 : correcte\narticle : 0\nmajuscule : 0\nabreviation : 0\ntotal : 0/2\nrelecture : legere"
+        "expected": "p1 : correcte\np2 : correcte\ncontextes : 0\nmajuscule : 0\nabreviation : 0\nfautes : 0/2\nrelecture : legere"
       },
       {
         "label": "Six phrases",
         "stdin": "cas:3",
-        "expected": "p1 : article a enlever\np2 : abreviation a corriger\np3 : abreviation a corriger\np4 : correcte\np5 : majuscule a enlever\np6 : correcte\narticle : 1\nmajuscule : 1\nabreviation : 2\ntotal : 4/6\nrelecture : urgente"
+        "expected": "p1 : a contextualiser\np2 : abreviation a corriger\np3 : abreviation a corriger\np4 : correcte\np5 : majuscule a enlever\np6 : majuscule a enlever\ncontextes : 1\nmajuscule : 2\nabreviation : 2\nfautes : 4/6\nrelecture : urgente"
       }
     ],
-    "solution": "[Exemple]\np1 : article a enlever\np2 : majuscule a enlever\np3 : correcte\np4 : abreviation a corriger\np5 : correcte\narticle : 1\nmajuscule : 1\nabreviation : 1\ntotal : 3/5\nrelecture : urgente\n\n[Cas 1 — Tout est fautif]\np1 : article a enlever\np2 : article a enlever\np3 : majuscule a enlever\narticle : 2\nmajuscule : 1\nabreviation : 0\ntotal : 3/3\nrelecture : urgente\n\n[Cas 2 — Courier propre]\np1 : correcte\np2 : correcte\narticle : 0\nmajuscule : 0\nabreviation : 0\ntotal : 0/2\nrelecture : legere\n\n[Cas 3 — Six phrases]\np1 : article a enlever\np2 : abreviation a corriger\np3 : abreviation a corriger\np4 : correcte\np5 : majuscule a enlever\np6 : correcte\narticle : 1\nmajuscule : 1\nabreviation : 2\ntotal : 4/6\nrelecture : urgente\n"
+    "solution": "[Exemple]\np1 : a contextualiser\np2 : majuscule a enlever\np3 : correcte\np4 : abreviation a corriger\np5 : correcte\ncontextes : 1\nmajuscule : 1\nabreviation : 1\nfautes : 2/5\nrelecture : legere\n\n[Cas 1 — Articles sans contexte et une faute]\np1 : a contextualiser\np2 : a contextualiser\np3 : majuscule a enlever\ncontextes : 2\nmajuscule : 1\nabreviation : 0\nfautes : 1/3\nrelecture : legere\n\n[Cas 2 — Deux professions recevables]\np1 : correcte\np2 : correcte\ncontextes : 0\nmajuscule : 0\nabreviation : 0\nfautes : 0/2\nrelecture : legere\n\n[Cas 3 — Six phrases]\np1 : a contextualiser\np2 : abreviation a corriger\np3 : abreviation a corriger\np4 : correcte\np5 : majuscule a enlever\np6 : majuscule a enlever\ncontextes : 1\nmajuscule : 2\nabreviation : 2\nfautes : 4/6\nrelecture : urgente\n"
   },
   {
     "id": "fr-c4-e1",
@@ -580,37 +580,37 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "title": "Avoir ou être",
-    "goal": "Choisir l'auxiliaire du passé composé : les verbes de mouvement prennent être, les autres avoir.",
-    "brief": "<p>Pour chaque situation proposée : verbe vaut <code>aller</code>, <code>partir</code>, <code>arriver</code>, <code>sortir</code>, <code>venir</code>, <code>naitre</code>, <code>mourir</code>, <code>rester</code>, <code>descendre</code> ou <code>coucher</code> (être, comme les verbes pronominaux) ou <code>acheter</code>, <code>parler</code>, <code>finir</code>, <code>travailler</code>, <code>manger</code>, <code>faire</code>, <code>telephoner</code> (avoir) ; auxiliaire vaut <code>avoir</code> ou <code>etre</code>. Pour chaque situation, indiquez <code>verbe : auxiliaire correct</code> ou <code>verbe : auxiliaire fautif</code>. Concluez par <code>erreurs : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (fr-c6-e1) — Avoir ou être\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Naitre avec etre]\n# Données : naitre etre\nA_COMPLETER\n\n[Cas 2 — Deux auxiliaires inverses]\n# Données : finir etre\n# Données : sortir avoir\nA_COMPLETER\n\n[Cas 3 — Cinq verbes]\n# Données : venir etre\n# Données : descendre avoir\n# Données : manger avoir\n# Données : coucher etre\n# Données : telephoner etre\nA_COMPLETER\n",
+    "goal": "Choisir l'auxiliaire du passé composé en tenant compte du verbe et de la phrase.",
+    "brief": "<p>Chaque code désigne une phrase précise dont l'auxiliaire est à vérifier : <code>partir</code> (« elle … partie »), <code>marcher</code> (« elle … marché »), <code>venir</code> (« elle … venue »), <code>acheter</code> (« elle … acheté un livre »), <code>sortir_bureau</code> (« elle … sortie du bureau »), <code>sortir_dossier</code> (« elle … sorti le dossier »), <code>monter_etage</code> (« elle … montée à l'étage »), <code>monter_bagages</code> (« elle … monté les bagages »), <code>se_coucher</code> (« elle s'… couchée ») et <code>coucher_enfant</code> (« elle … couché l'enfant »). L'auxiliaire proposé est <code>avoir</code> ou <code>etre</code>.</p><p>Pour chaque ligne, indiquez <code>code : auxiliaire correct</code> ou <code>code : auxiliaire fautif</code>, puis <code>erreurs : X/n</code>. Le mouvement ne suffit pas à déterminer l'auxiliaire.</p>",
+    "starter": "# Grille d'analyse (fr-c6-e1) — Avoir ou être\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Partir et marcher]\n# Données : partir avoir\n# Données : marcher avoir\nA_COMPLETER\n\n[Cas 2 — Sortir et monter selon la construction]\n# Données : sortir_bureau etre\n# Données : sortir_dossier etre\n# Données : monter_etage etre\n# Données : monter_bagages avoir\nA_COMPLETER\n\n[Cas 3 — Pronominal et autres emplois]\n# Données : se_coucher etre\n# Données : coucher_enfant avoir\n# Données : marcher etre\n# Données : venir etre\n# Données : acheter avoir\nA_COMPLETER\n",
     "hints": [
-      "Le case sur le verbe pose l'auxiliaire attendu : être pour les verbes de mouvement et pronominaux, avoir pour les autres.",
+      "Lisez la phrase correspondant à chaque code : « elle est sortie du bureau », mais « elle a sorti le dossier ».",
       "Le compteur suit exactement les auxiliaires fautifs."
     ],
     "examples": [
       {
-        "stdin": "4\naller etre\nacheter avoir\npartir avoir\nparler avoir\n",
-        "expected": "aller : auxiliaire correct\nacheter : auxiliaire correct\npartir : auxiliaire fautif\nparler : auxiliaire correct\nerreurs : 1/4"
+        "stdin": "4\npartir etre\nmarcher avoir\nsortir_bureau avoir\nsortir_dossier avoir\n",
+        "expected": "partir : auxiliaire correct\nmarcher : auxiliaire correct\nsortir_bureau : auxiliaire fautif\nsortir_dossier : auxiliaire correct\nerreurs : 1/4"
       }
     ],
     "tests": [
       {
-        "label": "Naitre avec etre",
+        "label": "Partir et marcher",
         "stdin": "cas:1",
-        "expected": "naitre : auxiliaire correct\nerreurs : 0/1"
+        "expected": "partir : auxiliaire fautif\nmarcher : auxiliaire correct\nerreurs : 1/2"
       },
       {
-        "label": "Deux auxiliaires inverses",
+        "label": "Sortir et monter selon la construction",
         "stdin": "cas:2",
-        "expected": "finir : auxiliaire fautif\nsortir : auxiliaire fautif\nerreurs : 2/2"
+        "expected": "sortir_bureau : auxiliaire correct\nsortir_dossier : auxiliaire fautif\nmonter_etage : auxiliaire correct\nmonter_bagages : auxiliaire correct\nerreurs : 1/4"
       },
       {
-        "label": "Cinq verbes",
+        "label": "Pronominal et autres emplois",
         "stdin": "cas:3",
-        "expected": "venir : auxiliaire correct\ndescendre : auxiliaire fautif\nmanger : auxiliaire correct\ncoucher : auxiliaire correct\ntelephoner : auxiliaire fautif\nerreurs : 2/5"
+        "expected": "se_coucher : auxiliaire correct\ncoucher_enfant : auxiliaire correct\nmarcher : auxiliaire fautif\nvenir : auxiliaire correct\nacheter : auxiliaire correct\nerreurs : 1/5"
       }
     ],
-    "solution": "[Exemple]\naller : auxiliaire correct\nacheter : auxiliaire correct\npartir : auxiliaire fautif\nparler : auxiliaire correct\nerreurs : 1/4\n\n[Cas 1 — Naitre avec etre]\nnaitre : auxiliaire correct\nerreurs : 0/1\n\n[Cas 2 — Deux auxiliaires inverses]\nfinir : auxiliaire fautif\nsortir : auxiliaire fautif\nerreurs : 2/2\n\n[Cas 3 — Cinq verbes]\nvenir : auxiliaire correct\ndescendre : auxiliaire fautif\nmanger : auxiliaire correct\ncoucher : auxiliaire correct\ntelephoner : auxiliaire fautif\nerreurs : 2/5\n"
+    "solution": "[Exemple]\npartir : auxiliaire correct\nmarcher : auxiliaire correct\nsortir_bureau : auxiliaire fautif\nsortir_dossier : auxiliaire correct\nerreurs : 1/4\n\n[Cas 1 — Partir et marcher]\npartir : auxiliaire fautif\nmarcher : auxiliaire correct\nerreurs : 1/2\n\n[Cas 2 — Sortir et monter selon la construction]\nsortir_bureau : auxiliaire correct\nsortir_dossier : auxiliaire fautif\nmonter_etage : auxiliaire correct\nmonter_bagages : auxiliaire correct\nerreurs : 1/4\n\n[Cas 3 — Pronominal et autres emplois]\nse_coucher : auxiliaire correct\ncoucher_enfant : auxiliaire correct\nmarcher : auxiliaire fautif\nvenir : auxiliaire correct\nacheter : auxiliaire correct\nerreurs : 1/5\n"
   },
   {
     "id": "fr-c6-e2",
@@ -623,7 +623,7 @@ module.exports = [
     "starter": "# Grille d'analyse (fr-c6-e2) — Accorder le participe passé\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Ils au masculin pluriel]\n# Données : aller alles ils\nA_COMPLETER\n\n[Cas 2 — Deux accords manques]\n# Données : sortir sorti elle\n# Données : aller allee il\nA_COMPLETER\n\n[Cas 3 — Cinq formes]\n# Données : aller allee elle\n# Données : aller allees elles\n# Données : sortir sorti il\n# Données : aller alle elles\n# Données : sortir sortie elle\nA_COMPLETER\n",
     "hints": [
       "Deux case : le premier donne la forme masculine (alle ou sorti), le second le marqueur du sujet (vide, e, s, es).",
-      "La forme attendue se concatène : attendu=\"$radical$terminaison\"."
+      "La forme attendue se concatène : `attendu=\"$radical$terminaison\"`."
     ],
     "examples": [
       {

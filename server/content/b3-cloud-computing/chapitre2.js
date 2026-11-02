@@ -60,8 +60,8 @@ module.exports = {
       html: [
         '<p>Les hyperscalers déploient leur infrastructure physique selon une hiérarchie géographique stricte :</p>',
         '<ul>',
-        '  <li><strong>Région Cloud :</strong> Zone géographique distincte (ex: <code>eu-west-3</code> Paris, <code>eu-west-1</code> Irlande) regroupant plusieurs centres de données isolés. Chaque région est totalement autonome pour garantir la souveraineté territoriale des données.</li>',
-        '  <li><strong>Zone de Disponibilité (AZ - Availability Zone) :</strong> Un ou plusieurs centres de données distincts au sein d’une même région, distants de quelques kilomètres (moins de 100 km), disposant d’alimentations électriques, de climatisation et de raccordements réseau indépendants, interconnectés par des fibres optiques dédiées à très faible latence (&lt; 2 ms).</li>',
+        '  <li><strong>Région Cloud :</strong> zone géographique proposée par un fournisseur (ex. AWS <code>eu-west-3</code>, Paris). L’organisation et le nombre de zones ou domaines varient selon le fournisseur et la région ; une localisation ne suffit pas à garantir la souveraineté des données.</li>',
+        '  <li><strong>Zone de disponibilité :</strong> selon le fournisseur, ensemble isolé d’un ou plusieurs centres au sein d’une région. Les noms et garanties varient : chez Oracle Cloud, les domaines de disponibilité contiennent eux-mêmes des domaines de panne distincts.</li>',
         '  <li><strong>Points de Présence Edge (PoP / Edge Locations) :</strong> Serveurs relais répartis dans les grandes métropoles mondiales pour mettre en cache les contenus statiques (CDN : CloudFront, Azure CDN, Cloud CDN) et protéger des attaques DDoS (AWS Shield, Cloud Armor).</li>',
         '</ul>'
       ].join('\n')
@@ -106,7 +106,7 @@ module.exports = {
   ],
   summary: [
     'AWS, Azure et GCP offrent des services fonctionnellement équivalents sur le calcul, le stockage, les bases relationnelles et le serverless.',
-    'Une Région est un territoire géographique contenant au moins trois Zones de Disponibilité (AZ) électriquement et physiquement isolées.',
+    'Une région regroupe des ressources géographiques ; le nombre de zones ou domaines dépend du fournisseur et de la région.',
     'En série, les SLA se multiplient, réduisant la disponibilité globale de l’ensemble.',
     'En parallèle, la redondance élimine la panne unique et élève la disponibilité vers les « quatre ou cinq neufs ».',
     'Un SLA de 99.99% n’autorise qu’un maximum de 52 minutes d’interruption sur l’ensemble de l’année.'
@@ -156,7 +156,7 @@ module.exports = {
         'Un serveur mandataire inverse de mise en cache'
       ],
       correct: 1,
-      exp: 'Une AZ est composée d’un ou plusieurs datacenters physiquement isolés (alimentation, refroidissement, connectivité séparés) pour qu’un incident dans une zone n’affecte pas les autres.'
+      exp: 'Selon le fournisseur, une AZ comprend un ou plusieurs centres et des ressources séparées afin de réduire les défaillances communes ; la séparation ne supprime pas tous les risques.'
     },
     {
       stem: 'Si une application dépend successivement d’une passerelle API (SLA 99.9%) et d’une base de données (SLA 99.9%) en série, quel est le SLA composé global ?',
@@ -243,8 +243,8 @@ module.exports = {
       a: 'Le RTO mesure le temps nécessaire pour redémarrer le service, tandis que le RPO mesure l’ancienneté maximale des données perdues.'
     },
     {
-      q: 'Pourquoi une Région Cloud comporte-t-elle au minimum trois Zones de Disponibilité (AZ) ?',
-      a: 'Pour assurer le maintien d’un quorum en cas de perte accidentelle d’une AZ et permettre les maintenances sans dégradation du service.'
+      q: 'Les Régions Cloud ont-elles toutes trois Zones de Disponibilité ?',
+      a: 'Non : cela dépend du fournisseur et de la région. Chez Oracle Cloud, une région comporte un ou plusieurs domaines de disponibilité, chacun subdivisé en domaines de panne ; il faut vérifier la documentation du cas choisi.'
     },
     {
       q: 'Quel est le risque majeur des architectures multi-cloud ?',

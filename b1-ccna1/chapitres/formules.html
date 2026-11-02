@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -70,11 +70,11 @@ paires torsadees : UTP (rien) / FTP (ecran commun) /
 
   STP (blindage par paire) / SFTP (double) / SSTP (super)
 
-categories : cat 3 (16 MHz, 100 Mbit/s) / cat 5e (1 Gbit/s)
+categories : 100BASE-T4 historique : cat 3 ; 100BASE-TX : cat 5
 
-  cat 6a (500 MHz, 10 Gbit/s) / cat 7 (600 MHz, 10 G, 100 m)
+  cat 5e (1 G) ; 10GBASE-T Cisco : cat 6 UTP 55 m, cat 6a 100 m
 
-fibre : laser -> lumiere -> cellule photoelectrique
+fibre : laser -&gt; lumiere -&gt; cellule photoelectrique
 
   attenuation ~0,2 dB/km vers 1550 nm (Beer-Lambert)</code></pre>
 <p>Quatre boîtes, quatre degrés d'intelligence : hub, switch, switch L3, routeur.</p>
@@ -86,7 +86,7 @@ TCP/IP 5 (actualite) : la PHYSIQUE est separee
 
 
 
-OSI 7 -> 1 : application (services) / presentation (codage)
+OSI 7 -&gt; 1 : application (services) / presentation (codage)
 
   session (RPC, NetBIOS) / transport (segments, ports)
 
@@ -110,9 +110,9 @@ unites : bits (1) / trame (2) / paquet (3) / segment (4)</code></pre>
 
 brochage : NIC emet 1-2, recoit 3-6 ; switch fait l'inverse
 
-  droit = appareils DIFFERENTS (pc-switch)
+  sans Auto-MDIX : MDI / MDI-X = droit ; memes types = croise
 
-  croise = appareils SIMILAIRES (switch-switch, pc-pc)
+  PC et routeur MDI classiques : croise
 
   1000BASE-T : 4 paires, simultane
 
@@ -132,26 +132,26 @@ duplex integral : emission et reception simultanees</code></pre>
 
 routage interne, 4 etapes :
 
-  1. FCS (erreur -> trame jetee)
+  1. FCS (erreur -&gt; trame jetee)
 
   2. desencapsulation (l'en-tete de liaison part)
 
-  3. table de routage (meilleure route -> interface + saut)
+  3. table de routage (meilleure route -&gt; interface + saut)
 
   4. reencapsulation + transmission
 
 
 
-sous-reseaux : PAS de routeur entre 2 adresses -> meme groupe
+sous-reseaux : comparer les adresses et les masques
 
-  au moins UN routeur -> groupes differents
+  un meme segment peut porter plusieurs préfixes IP
 
-en-tete IPv4 : 20 octets, IP source/dest 32 bits INTACTES
+en-tete IPv4 : 20 a 60 octets ; TTL et somme de controle actualises
 
-protocoles de routage : connectees -> annonces -> metrique
+protocoles de routage : connectees -&gt; annonces -&gt; metrique
 
-hote : paquet distant -> routeur par defaut ; ARP -> MAC</code></pre>
-<p>L'en-tête IP voyage intact ; les en-têtes de liaison changent à chaque saut.</p>
+hote : paquet distant -&gt; routeur par defaut ; ARP -&gt; MAC</code></pre>
+<p>La trame change à chaque saut. Lors du transfert IPv4, le TTL diminue et la somme de contrôle est actualisée ; sans NAT ni tunnel, les adresses IP restent généralement les mêmes.</p>
 
   <h2>La CLI Cisco</h2>
 <pre><code>acces : console (physique) / Telnet (CLAIR, labo) / SSH (chiffre)
@@ -160,11 +160,11 @@ hote : paquet distant -> routeur par defaut ; ARP -> MAC</code></pre>
 
 modes : user EXEC (regarder, reload REFUSEE)
 
-  -> enable (privilgie, configure terminal)
+  -&gt; enable (privilgie, configure terminal)
 
-  -> config globale (s'applique a l'Entree !)
+  -&gt; config globale (s'applique a l'Entree !)
 
-  -> sous-modes : line con 0, line vty 0 15, interface ...
+  -&gt; sous-modes : line con 0, line vty 0 15, interface ...
 
   exit redescend d'un cran
 
@@ -190,21 +190,25 @@ utilisateurs locaux : username nom secret mdp + login local
 
 SSH : hostname / ip domain-name / crypto key generate rsa
 
-  (>= 768 bits pour SSHv2) / ip ssh version 2 /
+  (IOS XE 17.10 : RSA &gt;= 2048 bits) / ip ssh version 2 /
+
+  authentification : mot de passe ou cle publique selon configuration
 
   transport input ssh (interdit Telnet)
 
 
 
-IPv4 de gestion : interface vlan 1 (SVI) -> ip address ->
+IPv4 de gestion : interface vlan 1 (SVI) -&gt; ip address -&gt;
 
-  no shutdown -> ip default-gateway -> (fac.) ip name-server
+  no shutdown -&gt; ip default-gateway -&gt; (fac.) ip name-server
 
 ou : ip address dhcp
 
 
 
-confort : logging synchronous / exec-timeout m s (0 0 = jamais)
+confort : logging synchronous / exec-timeout m s
+
+  (0 0 : délai EXEC d'inactivité désactivé)
 
   / no ip domain-lookup (pas d'attente DNS)</code></pre>
 <p>Sans ip default-gateway, le commutateur ne parle pas hors de son sous-réseau.</p>
@@ -212,12 +216,12 @@ confort : logging synchronous / exec-timeout m s (0 0 = jamais)
   <h2>Erreurs fréquentes à éviter</h2>
 <ul>
     <li>Confondre FTP (écran commun) et STP (blindage par paire).</li>
-    <li>Poser du cat 3 pour du gigabit : cat 5e minimum, cat 6a pour le 10 G.</li>
+    <li>Confondre 100BASE-T4 sur cat 3 avec 100BASE-TX sur cat 5 ; vérifier la portée et le matériel pour 10GBASE-T.</li>
     <li>Placer « physique » dans le modèle TCP/IP à 4 couches.</li>
     <li>Confondre segment (4), paquet (3) et trame (2).</li>
-    <li>Relier deux commutateurs par un câble droit : c'est croisé.</li>
+    <li>Choisir un câble d'après les noms des appareils sans vérifier MDI/MDI-X et Auto-MDIX.</li>
     <li>Chercher la route avant de vérifier le FCS.</li>
-    <li>Croire que l'en-tête IP change à chaque saut : il reste intact.</li>
+    <li>Croire que l'en-tête IPv4 reste entièrement intact : le TTL et la somme de contrôle changent au routage.</li>
     <li>Utiliser Telnet en production : tout passe en clair.</li>
     <li>Modifier la configuration sans copy running-config startup-config.</li>
     <li>Activer SSH sans crypto key generate rsa : pas de clés, pas de SSH.</li>

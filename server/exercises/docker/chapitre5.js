@@ -47,7 +47,7 @@ module.exports = [
     "level": "n2",
     "language": "shell",
     "goal": "Calculer l’ordre d’instanciation séquentiel des conteneurs via un tri topologique sans cycle.",
-    "brief": "<p>Le script Bash lit les paramètres sur l’entrée standard (stdin)... ou NONE&gt;</code>.<br>\nPar exemple : <code>web -&gt; api</code> signifie que <code>web</code> dépend de <code>api</code> (donc <code>api</code> doit démarrer avant <code>web</code>).<br>\nRègles :<br>\n- Effectuer un tri topologique des services.<br>\n- En cas d'égalité de niveau de dépendance, trier par ordre alphabétique des noms de service.<br>\n- Si une boucle de dépendance mutuelle est détectée, afficher : <code>ERREUR_COMPOSE: Dependance cyclique detectee</code>.<br>\n- Sinon, affichezzr l'ordre strict de démarrage :<br>\n<code>ORDRE_DEMARRAGE: &lt;S1&gt; -&gt; &lt;S2&gt; -&gt; ...</code></p>",
+    "brief": "<p>Le script Bash lit les paramètres sur l’entrée standard (stdin)... ou NONE&gt;</code>.<br>\nPar exemple : <code>web -&gt; api</code> signifie que <code>web</code> dépend de <code>api</code> (donc <code>api</code> doit démarrer avant <code>web</code>).<br>\nRègles :<br>\n- Effectuer un tri topologique des services.<br>\n- En cas d'égalité de niveau de dépendance, trier par ordre alphabétique des noms de service.<br>\n- Si une boucle de dépendance mutuelle est détectée, afficher : <code>ERREUR_COMPOSE: Dependance cyclique detectee</code>.<br>\n- Sinon, afficher l'ordre strict de démarrage :<br>\n<code>ORDRE_DEMARRAGE: &lt;S1&gt; -&gt; &lt;S2&gt; -&gt; ...</code></p>",
     "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c5-e2) — Résolveur d’ordre de démarrage par graphe de dépendances (depends_on)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
     "hints": [
       "Construire la liste d’adjacence et les degrés entrants.",
@@ -85,8 +85,8 @@ module.exports = [
     "title": "Interprète de variables d’environnement et fichiers .env dans Compose",
     "level": "n3",
     "language": "shell",
-    "goal": "Résoudre les syntaxes d’interpolation ${VAR} et ${VAR:-default} dans les fichiers de configuration Compose.",
-    "brief": "<p>Le script Bash lit les paramètres sur l’entrée standard (stdin).env</code>.<br>\n- Bloc 2 (après <code>---</code>) : chaînes de configuration Compose à évaluer (une par ligne).<br>\nRègles d'interpolation :<br>\n- <code>${VAR}</code> : remplacé par la valeur de <code>VAR</code> si elle existe, sinon chaîne vide.<br>\n- <code>${VAR:-default}</code> : remplacé par la valeur de <code>VAR</code> si non vide, sinon par <code>default</code>.<br>\nPour chaque chaîne du bloc 2, afficher :<br>\n<code>RESOLU: &lt;ChaineApresInterpolation&gt;</code></p>",
+    "goal": "Résoudre les syntaxes d’interpolation `${VAR}` et `${VAR:-default}` dans les fichiers de configuration Compose.",
+    "brief": "<p>Le script Bash lit deux blocs sur l’entrée standard (stdin).<br>\n- Bloc 1 : une affectation simple <code>NOM=valeur</code> par ligne, représentant les valeurs d'un fichier <code>.env</code>.<br>\n- Bloc 2 (après <code>---</code>) : chaînes de configuration Compose à évaluer (une par ligne).<br>\nCe modèle utilise uniquement le premier bloc ; il ne reproduit pas les priorités entre environnement du shell et fichiers Compose. Les noms suivent le format <code>[A-Za-z_][A-Za-z0-9_]*</code>, les valeurs sont du texte littéral, et les interpolations imbriquées ou échappées ne sont pas traitées.<br>\nRègles d'interpolation :<br>\n- <code>${VAR}</code> : remplacé par la valeur de <code>VAR</code> si elle existe, sinon chaîne vide.<br>\n- <code>${VAR:-default}</code> : remplacé par la valeur de <code>VAR</code> si non vide, sinon par <code>default</code>.<br>\nPour chaque chaîne du bloc 2, afficher :<br>\n<code>RESOLU: &lt;ChaineApresInterpolation&gt;</code></p>",
     "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c5-e3) — Interprète de variables d’environnement et fichiers .env dans Compose\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
     "hints": [
       "Gérer les expressions régulières ou le parcours caractère par caractère pour repérer ${...}.",
@@ -101,6 +101,16 @@ module.exports = [
     ],
     "tests": [
       {
+        "label": "Variable vide, valeur zéro et valeur absente",
+        "stdin": "EMPTY=\nZERO=0\n---\na:${EMPTY:-fallback}\nb:${EMPTY}\nc:${ZERO:-fallback}\nd:${MISS:-}",
+        "expected": "RESOLU: a:fallback\nRESOLU: b:\nRESOLU: c:0\nRESOLU: d:"
+      },
+      {
+        "label": "Valeur avec signe égal et interpolations répétées",
+        "stdin": "VALUE=one=two\nL=left\n---\n${L}-${VALUE}-${MISS:-right}\n${VALUE}/${VALUE}",
+        "expected": "RESOLU: left-one=two-right\nRESOLU: one=two/one=two"
+      },
+      {
         "label": "Variables simples existantes",
         "stdin": "APP_ENV=production\nAPP_NAME=ecommerce\n---\nenvironment: NODE_ENV=${APP_ENV}\ncontainer_name: ${APP_NAME}_app",
         "expected": "RESOLU: environment: NODE_ENV=production\nRESOLU: container_name: ecommerce_app"
@@ -114,8 +124,13 @@ module.exports = [
         "label": "Multiples interpolations sur la même ligne",
         "stdin": "HOST=localhost\nPORT=3306\n---\nDATABASE_URL=mysql://${HOST}:${PORT}/mydb",
         "expected": "RESOLU: DATABASE_URL=mysql://localhost:3306/mydb"
+      },
+      {
+        "label": "Défaut pour une variable déclarée vide",
+        "stdin": "EMPTY=\n---\nservice: ${EMPTY:-web}",
+        "expected": "RESOLU: service: web"
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — dk2-c5-e3 : Interprète de variables d’environnement et fichiers .env dans Compose\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"UE9SVD04MDgwCkRCX1VTRVI9YWRtaW4KLS0tCmltYWdlOiBuZ2lueDoke1RBRzotbGF0ZXN0fQpwb3J0czogJHtQT1JUfTo4MAp1c2VyOiAke0RCX1VTRVJ9CmRiX3Bhc3M6ICR7REJfUEFTUzotc2VjcmV0MTIzfQ==\")\n    printf '%s\\n' \"UkVTT0xVOiBpbWFnZTogbmdpbng6bGF0ZXN0ClJFU09MVTogcG9ydHM6IDgwODA6ODAKUkVTT0xVOiB1c2VyOiBhZG1pbgpSRVNPTFU6IGRiX3Bhc3M6IHNlY3JldDEyMw==\" | base64 -d\n    echo \"\"\n    ;;\n  \"QVBQX0VOVj1wcm9kdWN0aW9uCkFQUF9OQU1FPWVjb21tZXJjZQotLS0KZW52aXJvbm1lbnQ6IE5PREVfRU5WPSR7QVBQX0VOVn0KY29udGFpbmVyX25hbWU6ICR7QVBQX05BTUV9X2FwcA==\")\n    printf '%s\\n' \"UkVTT0xVOiBlbnZpcm9ubWVudDogTk9ERV9FTlY9cHJvZHVjdGlvbgpSRVNPTFU6IGNvbnRhaW5lcl9uYW1lOiBlY29tbWVyY2VfYXBw\" | base64 -d\n    echo \"\"\n    ;;\n  \"QVVUUkU9dGVzdAotLS0KcHJlZml4XyR7SU5DT05OVX1fc3VmZml4\")\n    printf '%s\\n' \"UkVTT0xVOiBwcmVmaXhfX3N1ZmZpeA==\" | base64 -d\n    echo \"\"\n    ;;\n  \"SE9TVD1sb2NhbGhvc3QKUE9SVD0zMzA2Ci0tLQpEQVRBQkFTRV9VUkw9bXlzcWw6Ly8ke0hPU1R9OiR7UE9SVH0vbXlkYg==\")\n    printf '%s\\n' \"UkVTT0xVOiBEQVRBQkFTRV9VUkw9bXlzcWw6Ly9sb2NhbGhvc3Q6MzMwNi9teWRi\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\nawk '\n$0 == \"---\" && !configuration { configuration = 1; next }\n!configuration {\n  equals = index($0, \"=\")\n  if (equals) values[substr($0, 1, equals - 1)] = substr($0, equals + 1)\n  next\n}\n{\n  remaining = $0\n  result = \"\"\n  while (match(remaining, /\\$\\{[A-Za-z_][A-Za-z0-9_]*(:-[^}]*)?\\}/)) {\n    result = result substr(remaining, 1, RSTART - 1)\n    token = substr(remaining, RSTART + 2, RLENGTH - 3)\n    split_at = index(token, \":-\")\n    if (split_at) {\n      name = substr(token, 1, split_at - 1)\n      fallback = substr(token, split_at + 2)\n      replacement = values[name] != \"\" ? values[name] : fallback\n    } else replacement = values[token]\n    result = result replacement\n    remaining = substr(remaining, RSTART + RLENGTH)\n  }\n  printf \"RESOLU: %s%s\\n\", result, remaining\n}\n'\n"
   }
 ];

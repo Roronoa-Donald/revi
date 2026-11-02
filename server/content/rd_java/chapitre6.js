@@ -81,7 +81,7 @@ module.exports = {
     { stem: 'Quelle exception pour une division entière par zéro ?', opts: ['ArithmeticException', 'NumberFormatException', 'IOException'], correct: 0, exp: 'La division par zéro lève une ArithmeticException.' },
     { stem: 'Quelle exception pour parseInt invalide ?', opts: ['NumberFormatException', 'ArithmeticException', 'NullPointerException'], correct: 0, exp: 'Une chaîne non numérique provoque NumberFormatException.' },
     { stem: 'Comment créer une exception métier ?', opts: ['En étendant Exception', 'En étendant Main', 'En la déclarant static'], correct: 0, exp: 'On crée une classe qui extends Exception.' },
-    { stem: 'Que fait throw ?', opts: ['Lancez une exception', 'Capture une exception', 'Ignore une exception'], correct: 0, exp: 'throw déclenche l’exception choisie.' },
+    { stem: 'Que fait throw ?', opts: ['Lance une exception', 'Capture une exception', 'Ignore une exception'], correct: 0, exp: 'throw déclenche l’exception choisie.' },
     { stem: 'Que déclare throws ?', opts: ['Qu’une méthode peut lever une exception', 'Qu’elle l’attrape', 'Qu’elle est abstraite'], correct: 0, exp: 'throws prévient l’appelant du risque, qui doit capturer ou propager.' },
     { stem: 'Pourquoi capturer un type précis ?', opts: ['Pour distinguer métier et technique', 'Pour accélérer', 'Pour arrondir'], correct: 0, exp: 'Un catch précis sépare les erreurs attendues des bugs inattendus.' }
   ],
@@ -122,7 +122,7 @@ module.exports = {
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Revois la structure try/catch/finally.' },
     { cls: 'mid', text: '50–69 % — Entraînez-vous sur les exceptions standard.' },
-    { cls: 'good', text: '70–94 % — Solide : vous écrivez et attrapes une exception métier.' },
+    { cls: 'good', text: '70–94 % — Solide : vous écrivez et attrapez une exception métier.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : le cours est bouclé, place aux examens blancs.' }
   ],
 

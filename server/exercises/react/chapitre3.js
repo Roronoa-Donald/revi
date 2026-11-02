@@ -32,7 +32,8 @@ const actions = (lignes[1] || '').split(' ');
     tests: [
       { label: 'Remise à zéro suivie d une incrémentation', stdin: '10\nDEC DEC DEC RESET INC\n', expected: 'Etat final : 1' },
       { label: 'Départ à zéro et 5 incrémentations', stdin: '0\nINC INC INC INC INC\n', expected: 'Etat final : 5' },
-      { label: 'Reset direct d un grand nombre', stdin: '42\nRESET\n', expected: 'Etat final : 0' }
+      { label: 'Reset direct d un grand nombre', stdin: '42\nRESET\n', expected: 'Etat final : 0' },
+      { label: 'Décréments sans remise à zéro', stdin: '3\nDEC INC DEC\n', expected: 'Etat final : 2' }
     ],
     solution: `const fs = require('fs');
 const lignes = fs.readFileSync(0, 'utf8').trim().split('\\n');
@@ -73,8 +74,9 @@ const saisie = lignes[0] || '';
     ],
     tests: [
       { label: 'Pas de chiffre', stdin: 'reactjsframework\n', expected: 'Statut : INVALIDE' },
-      { label: '8 caractères avec chiffres', stdin: 'admin1234\n', expected: 'Statut : VALIDE' },
-      { label: 'Trop court malgré le chiffre', stdin: 'court1\n', expected: 'Statut : INVALIDE' }
+      { label: '9 caractères avec chiffres', stdin: 'admin1234\n', expected: 'Statut : VALIDE' },
+      { label: 'Trop court malgré le chiffre', stdin: 'court1\n', expected: 'Statut : INVALIDE' },
+      { label: 'Sept caractères avec chiffres', stdin: 'cle1234\n', expected: 'Statut : INVALIDE' }
     ],
     solution: `const fs = require('fs');
 const lignes = fs.readFileSync(0, 'utf8').trim().split('\\n');

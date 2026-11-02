@@ -7,9 +7,9 @@ module.exports = [
     "title": "Calculateur de Sous-réseaux CIDR & Adresses Réservées AWS",
     "level": "n1",
     "language": "analyse",
-    "goal": "Calculer la plage d'adresses d'un sous-réseau VPC, les 5 adresses IP réservées par AWS et le nombre d'adresses assignables.",
-    "brief": "<p>Dans tout sous-réseau d'un <strong>Amazon Virtual Private Cloud (VPC)</strong>, AWS réserve obligatoirement 5 adresses IP :<br><br>\n1. <code>.0</code> : Adresse réseau.<br>\n2. <code>.1</code> : Passerelle du routeur VPC par défaut.<br>\n3. <code>.2</code> : Serveur DNS fourni par Amazon (AmazonProvidedDNS / Route 53 Resolver).<br>\n4. <code>.3</code> : Réservé par AWS pour extension future.<br>\n5. Dernière adresse (ex: <code>.255</code> pour un /24) : Adresse de diffusion (broadcast réseau).<br><br>\nFormule :<br>\n- Total d'adresses brutes : <code>2 ** (32 - masque)</code>.<br>\n- Adresses IP réellement utilisables pour des instances : <code>Total - 5</code>.<br><br>\nDonnées du cas : <code>VPC_SUBNET CIDR=&lt;ip/masque&gt;</code> (ex: <code>10.0.1.0/24</code>).<br>\nRésultat d’analyse attendu : <code>SUBNET_CALC: total_ips=&lt;t&gt; usable_ips=&lt;u&gt; net_ip=&lt;net&gt; router_ip=&lt;r&gt; dns_ip=&lt;d&gt; broadcast_ip=&lt;b&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (aws3-c4-e1) — Calculateur de Sous-réseaux CIDR & Adresses Réservées AWS\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sous-réseau /28 (le plus petit autorisé par AWS VPC)]\n# Données : VPC_SUBNET CIDR=172.16.0.0/28\nA_COMPLETER\n\n[Cas 2 — Sous-réseau étendu /20 (4096 adresses)]\n# Données : VPC_SUBNET CIDR=192.168.16.0/20\nA_COMPLETER\n\n[Cas 3 — Sous-réseau moyen /26 (64 adresses)]\n# Données : VPC_SUBNET CIDR=10.10.5.128/26\nA_COMPLETER\n",
+    "goal": "Calculer les adresses réservées d'un sous-réseau IPv4 VPC hors BYOIP et le nombre d'adresses assignables.",
+    "brief": "<p>Pour cet exercice, les sous-réseaux IPv4 du <strong>VPC AWS</strong> sont dans le cas usuel <strong>hors BYOIP</strong>. Les quatre premières adresses du CIDR (base, base + 1, base + 2 et base + 3) et sa dernière adresse sont réservées. La base + 1 est réservée au routeur ; la base + 2 est réservée mais n'est pas nécessairement celle du résolveur DNS, qui dépend du bloc principal du VPC. La dernière est l'adresse de diffusion théorique ; AWS ne prend pas en charge la diffusion dans un VPC.<br><br>\nTotal : <code>2 ** (32 - masque)</code> ; adresses assignables dans ce cadre : <code>total - 5</code>. AWS documente une exception pour les plages IPv4 BYOIP : ne généralisez pas cette formule à ces plages.<br><br>\nDonnées : <code>VPC_SUBNET CIDR=&lt;ip/masque&gt;</code> (exemple : <code>10.0.1.0/24</code>).<br>\nRésultat d’analyse attendu : <code>SUBNET_CALC: total_ips=&lt;t&gt; usable_ips=&lt;u&gt; net_ip=&lt;net&gt; router_ip=&lt;r&gt; reserved2_ip=&lt;adresse réservée base+2&gt; last_ip=&lt;dernière adresse&gt;</code>.</p>",
+    "starter": "# Grille d'analyse (aws3-c4-e1) — Calculateur de Sous-réseaux CIDR & Adresses Réservées AWS\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sous-réseau /28 (le plus petit autorisé par AWS VPC)]\n# Données : VPC_SUBNET CIDR=172.16.0.16/28\nA_COMPLETER\n\n[Cas 2 — Sous-réseau étendu /20 (4096 adresses)]\n# Données : VPC_SUBNET CIDR=192.168.16.0/20\nA_COMPLETER\n\n[Cas 3 — Sous-réseau moyen /26 (64 adresses)]\n# Données : VPC_SUBNET CIDR=10.10.5.128/26\nA_COMPLETER\n",
     "hints": [
       "Analysez scrupuleusement le format d'entrée les données d’entrée.",
       "Respectez la casse et les séparateurs attendus en sortie."
@@ -17,7 +17,7 @@ module.exports = [
     "examples": [
       {
         "stdin": "VPC_SUBNET CIDR=10.0.1.0/24",
-        "expected": "SUBNET_CALC: total_ips=256 usable_ips=251 net_ip=10.0.1.0 router_ip=10.0.1.1 dns_ip=10.0.1.2 broadcast_ip=10.0.1.255",
+        "expected": "SUBNET_CALC: total_ips=256 usable_ips=251 net_ip=10.0.1.0 router_ip=10.0.1.1 reserved2_ip=10.0.1.2 last_ip=10.0.1.255",
         "note": "Cas d'usage nominal."
       }
     ],
@@ -25,20 +25,20 @@ module.exports = [
       {
         "label": "Sous-réseau /28 (le plus petit autorisé par AWS VPC)",
         "stdin": "cas:1",
-        "expected": "SUBNET_CALC: total_ips=16 usable_ips=11 net_ip=172.16.0.0 router_ip=172.16.0.1 dns_ip=172.16.0.2 broadcast_ip=172.16.0.15\n"
+        "expected": "SUBNET_CALC: total_ips=16 usable_ips=11 net_ip=172.16.0.16 router_ip=172.16.0.17 reserved2_ip=172.16.0.18 last_ip=172.16.0.31\n"
       },
       {
         "label": "Sous-réseau étendu /20 (4096 adresses)",
         "stdin": "cas:2",
-        "expected": "SUBNET_CALC: total_ips=4096 usable_ips=4091 net_ip=192.168.16.0 router_ip=192.168.16.1 dns_ip=192.168.16.2 broadcast_ip=192.168.31.255\n"
+        "expected": "SUBNET_CALC: total_ips=4096 usable_ips=4091 net_ip=192.168.16.0 router_ip=192.168.16.1 reserved2_ip=192.168.16.2 last_ip=192.168.31.255\n"
       },
       {
         "label": "Sous-réseau moyen /26 (64 adresses)",
         "stdin": "cas:3",
-        "expected": "SUBNET_CALC: total_ips=64 usable_ips=59 net_ip=10.10.5.128 router_ip=10.10.5.129 dns_ip=10.10.5.130 broadcast_ip=10.10.5.191\n"
+        "expected": "SUBNET_CALC: total_ips=64 usable_ips=59 net_ip=10.10.5.128 router_ip=10.10.5.129 reserved2_ip=10.10.5.130 last_ip=10.10.5.191\n"
       }
     ],
-    "solution": "[Exemple]\nSUBNET_CALC: total_ips=256 usable_ips=251 net_ip=10.0.1.0 router_ip=10.0.1.1 dns_ip=10.0.1.2 broadcast_ip=10.0.1.255\n\n[Cas 1 — Sous-réseau /28 (le plus petit autorisé par AWS VPC)]\nSUBNET_CALC: total_ips=16 usable_ips=11 net_ip=172.16.0.0 router_ip=172.16.0.1 dns_ip=172.16.0.2 broadcast_ip=172.16.0.15\n\n\n[Cas 2 — Sous-réseau étendu /20 (4096 adresses)]\nSUBNET_CALC: total_ips=4096 usable_ips=4091 net_ip=192.168.16.0 router_ip=192.168.16.1 dns_ip=192.168.16.2 broadcast_ip=192.168.31.255\n\n\n[Cas 3 — Sous-réseau moyen /26 (64 adresses)]\nSUBNET_CALC: total_ips=64 usable_ips=59 net_ip=10.10.5.128 router_ip=10.10.5.129 dns_ip=10.10.5.130 broadcast_ip=10.10.5.191"
+    "solution": "[Exemple]\nSUBNET_CALC: total_ips=256 usable_ips=251 net_ip=10.0.1.0 router_ip=10.0.1.1 reserved2_ip=10.0.1.2 last_ip=10.0.1.255\n\n[Cas 1 — Sous-réseau /28 (le plus petit autorisé par AWS VPC)]\nSUBNET_CALC: total_ips=16 usable_ips=11 net_ip=172.16.0.16 router_ip=172.16.0.17 reserved2_ip=172.16.0.18 last_ip=172.16.0.31\n\n\n[Cas 2 — Sous-réseau étendu /20 (4096 adresses)]\nSUBNET_CALC: total_ips=4096 usable_ips=4091 net_ip=192.168.16.0 router_ip=192.168.16.1 reserved2_ip=192.168.16.2 last_ip=192.168.31.255\n\n\n[Cas 3 — Sous-réseau moyen /26 (64 adresses)]\nSUBNET_CALC: total_ips=64 usable_ips=59 net_ip=10.10.5.128 router_ip=10.10.5.129 reserved2_ip=10.10.5.130 last_ip=10.10.5.191"
   },
   {
     "id": "aws3-c4-e2",

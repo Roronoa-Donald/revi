@@ -1,5 +1,146 @@
 'use strict';
 
+const MARQUE_DEFINITION = `CREATE TABLE Marque (
+  codemarque TEXT NOT NULL PRIMARY KEY,
+  nommarque TEXT NOT NULL UNIQUE,
+  paysmarque TEXT NOT NULL,
+  UNIQUE (codemarque, nommarque)
+);`;
+
+const VOITURE_DEFINITION = `CREATE TABLE Voiture (
+  immat TEXT NOT NULL PRIMARY KEY,
+  marque TEXT NOT NULL,
+  codemarque TEXT NOT NULL,
+  moteur TEXT NOT NULL,
+  datecirc TEXT,
+  km INTEGER NOT NULL,
+  pxachat INTEGER NOT NULL,
+  nbreplace INTEGER NOT NULL,
+  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)
+);`;
+
+const EQUIPEMENT_DEFINITION = `CREATE TABLE Equipement (
+  codeequipement TEXT NOT NULL PRIMARY KEY,
+  nomequipement TEXT NOT NULL UNIQUE,
+  prix INTEGER DEFAULT 0
+);`;
+
+const VOITURE_EQUIPEMENT_DEFINITION = `CREATE TABLE VoitureEquipement (
+  immat TEXT NOT NULL,
+  codeequipement TEXT NOT NULL,
+  PRIMARY KEY (immat, codeequipement),
+  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,
+  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE
+);`;
+
+const EQUIPEMENT_ANTERIEUR_DEFINITION = `CREATE TABLE Equipement (
+  codeequipement TEXT NOT NULL PRIMARY KEY,
+  nomequipement TEXT NOT NULL UNIQUE
+);`;
+
+const PARC_SCHEMA = `PRAGMA foreign_keys = ON;\n${MARQUE_DEFINITION}\n${VOITURE_DEFINITION}\n${EQUIPEMENT_DEFINITION}\n${VOITURE_EQUIPEMENT_DEFINITION}`;
+const PARC_ANTERIEUR = `PRAGMA foreign_keys = ON;\n${MARQUE_DEFINITION}\n${VOITURE_DEFINITION}\n${EQUIPEMENT_ANTERIEUR_DEFINITION}\n${VOITURE_EQUIPEMENT_DEFINITION}`;
+
+const PARC_EXEMPLE = `${PARC_SCHEMA}
+INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
+  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),
+  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),
+  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');
+INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES
+  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),
+  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),
+  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),
+  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),
+  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),
+  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);
+INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES
+  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),
+  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);
+INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
+  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),
+  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');`;
+
+const PARC_LIMITES = `${PARC_SCHEMA}
+INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
+  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),
+  ('MAZ', 'MAZDA', 'JAPON'), ('NIS', 'NISSAN', 'JAPON'),
+  ('BMW', 'BMW', 'ALLEMAGNE'), ('PEU', 'PEUGEOT', 'FRANCE');
+INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES
+  ('TG-9004-AX', 'TOYOTA', 'TOY', 'ESSENCE', NULL, 4, 6000000, 5),
+  ('TG-9001-AX', 'TOYOTA', 'TOY', 'DIESEL', '2020-03-01', 5, 50000000, 5),
+  ('TG-9003-AX', 'BMW', 'BMW', 'HYBRIDE', NULL, 6, 25000000, 7),
+  ('TG-9002-AX', 'MITSUBISHI', 'MIT', 'ESSENCE', NULL, 5, 50000000, 7),
+  ('TG-9005-AX', 'BMW', 'BMW', 'DIESEL', NULL, 0, 6000000, 5),
+  ('TG-9006-AX', 'MAZDA', 'MAZ', 'ESSENCE', NULL, 10, 6000000, 5);
+INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES
+  ('GPS', 'GPS', 0), ('CAM', 'Caméra de recul', 125000),
+  ('JNT', 'Jantes', 90000), ('RAD', 'Autoradio', NULL), ('AIR', 'Climatisation', 0);
+INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
+  ('TG-9003-AX', 'GPS'), ('TG-9003-AX', 'CAM'), ('TG-9004-AX', 'GPS'),
+  ('TG-9004-AX', 'JNT'), ('TG-9002-AX', 'CAM'), ('TG-9006-AX', 'RAD');`;
+
+const PARC_MINI = `${PARC_SCHEMA}
+INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
+  ('REN', 'RENAULT', 'FRANCE'), ('NIS', 'NISSAN', 'JAPON'), ('KIA', 'KIA', 'COREE DU SUD');
+INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES
+  ('TG-2222-BC', 'RENAULT', 'REN', 'DIESEL', '2020-01-20', 0, 15000000, 5),
+  ('TG-5220-BA', 'NISSAN', 'NIS', 'ESSENCE', '2019-10-21', 6700, 10000000, 5);
+INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES
+  ('GPS', 'GPS', 100000), ('ATT', 'Attelage', 300000), ('RAD', 'Autoradio', NULL);
+INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
+  ('TG-5220-BA', 'GPS'), ('TG-2222-BC', 'GPS'), ('TG-2222-BC', 'ATT');`;
+
+const PARC_SANS_BMW = `${PARC_EXEMPLE}\nDELETE FROM Voiture WHERE immat = 'TG-0480-AV';`;
+const PARC_AVEC_MAZDA = `${PARC_EXEMPLE}\nINSERT INTO Voiture VALUES ('TG-1420-AW', 'MAZDA', 'MAZ', 'ESSENCE', '2016-02-01', 0, 17000000, 5);`;
+const PARC_DATES = `${PARC_EXEMPLE}\nUPDATE Voiture SET datecirc = NULL WHERE immat IN ('TG-3733-AC', 'TG-9420-AF');`;
+const PARC_DATES_MIXTES = `${PARC_LIMITES}\nUPDATE Voiture SET datecirc = '' WHERE immat = 'TG-9002-AX';`;
+const VERIFICATION_SUPPRESSION = '\n-- VERIFY:\nSELECT * FROM Voiture ORDER BY immat ASC;\nSELECT immat, codeequipement FROM VoitureEquipement ORDER BY immat ASC, codeequipement ASC;';
+
+const COLONNES_VOITURE = ['immat', 'marque', 'codemarque', 'moteur', 'datecirc', 'km', 'pxachat', 'nbreplace'];
+const VOITURES_EXEMPLE = [
+  ['TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7],
+  ['TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5],
+  ['TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7],
+  ['TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5],
+  ['TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5],
+  ['TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7]
+];
+const VOITURES_LIMITES = [
+  ['TG-9001-AX', 'TOYOTA', 'TOY', 'DIESEL', '2020-03-01', 5, 50000000, 5],
+  ['TG-9002-AX', 'MITSUBISHI', 'MIT', 'ESSENCE', null, 5, 50000000, 7],
+  ['TG-9003-AX', 'BMW', 'BMW', 'HYBRIDE', null, 6, 25000000, 7],
+  ['TG-9004-AX', 'TOYOTA', 'TOY', 'ESSENCE', null, 4, 6000000, 5],
+  ['TG-9005-AX', 'BMW', 'BMW', 'DIESEL', null, 0, 6000000, 5],
+  ['TG-9006-AX', 'MAZDA', 'MAZ', 'ESSENCE', null, 10, 6000000, 5]
+];
+const VOITURES_MINI = [
+  ['TG-2222-BC', 'RENAULT', 'REN', 'DIESEL', '2020-01-20', 0, 15000000, 5],
+  ['TG-5220-BA', 'NISSAN', 'NIS', 'ESSENCE', '2019-10-21', 6700, 10000000, 5]
+];
+
+function resultatTable(colonnes, lignes) {
+  if (!lignes.length) return '(Requête exécutée avec 0 résultat)';
+  const valeurs = lignes.map(ligne => ligne.map(valeur => valeur === null ? 'NULL' : String(valeur)));
+  const largeurs = colonnes.map((colonne, index) => Math.max(colonne.length, ...valeurs.map(ligne => ligne[index].length)));
+  const separateur = `+${largeurs.map(largeur => '-'.repeat(largeur + 2)).join('+')}+`;
+  const ligneTable = ligne => `| ${ligne.map((valeur, index) => valeur.padEnd(largeurs[index])).join(' | ')} |`;
+  const nombre = lignes.length;
+  return [separateur, ligneTable(colonnes), separateur, ...valeurs.map(ligneTable), separateur,
+    `(${nombre} ${nombre === 1 ? 'ligne retournée' : 'lignes retournées'})`].join('\n');
+}
+
+function resultatModification(nombre, colonnes, lignes) {
+  const message = `Instruction exécutée avec succès (${nombre} ${nombre === 1 ? 'ligne modifiée' : 'lignes modifiées'}).`;
+  return `${message}\n\n${resultatTable(colonnes, lignes)}`;
+}
+
+const RESULTAT_CREATION_INSERTION = 'Instruction exécutée avec succès (0 lignes modifiées).\n\n' +
+  'Instruction exécutée avec succès (1 ligne modifiée).';
+
+function voituresApresEssai(lignes) {
+  return lignes.map(ligne => ligne.map((valeur, index) => index === 5 && valeur < 5 ? valeur + 10 : valeur));
+}
+
 const SQ_EXERCISES = [
   {
     "id": "sq-c1-e1",
@@ -8,37 +149,25 @@ const SQ_EXERCISES = [
     "language": "sql",
     "title": "Lister toutes les colonnes d’une table",
     "goal": "Écrire une requête SELECT * pour afficher l’ensemble des lignes d’une table relationnelle.",
-    "brief": "<p>La table <code>etudiants(id, nom, filiere)</code> est créée dans la base. Écrivez une requête SQL qui sélectionne toutes les colonnes et toutes les lignes de la table <code>etudiants</code> triées par <code>id</code> croissant (<code>ORDER BY id ASC</code>).</p>",
-    "starter": "-- Affichez toutes les colonnes de la table etudiants triées par id\nSELECT nom FROM etudiants;",
+    "brief": "<p>La table <code>Voiture</code> utilise le schéma du simulateur. Affichez toutes ses colonnes et toutes ses lignes, triées par <code>immat</code> croissante.</p>",
+    "starter": "SELECT immat FROM Voiture;",
     "hints": [
-      "Utilisez SELECT * FROM etudiants pour récupérer toutes les colonnes.",
-      "Ajoutez ORDER BY id ASC à la fin de la requête."
+      "Faut-il afficher uniquement l’immatriculation ou toutes les colonnes ?",
+      "Triez les lignes par immatriculation avec ORDER BY."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE etudiants (id INT PRIMARY KEY, nom TEXT, filiere TEXT); INSERT INTO etudiants VALUES (1, 'Amina', 'Reseaux'), (2, 'Koffi', 'Developpement');\n-- exemple",
-        "expected": "+----+-------+---------------+\n| id | nom   | filiere       |\n+----+-------+---------------+\n| 1  | Amina | Reseaux       |\n| 2  | Koffi | Developpement |\n+----+-------+---------------+\n(2 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_EXEMPLE,
+        "expected": resultatTable(COLONNES_VOITURE, VOITURES_EXEMPLE),
+        "note": "Jeu d’exemple réduit utilisant le schéma et des données du simulateur."
       }
     ],
     "tests": [
-      {
-        "label": "Deux étudiants",
-        "stdin": "CREATE TABLE etudiants (id INT PRIMARY KEY, nom TEXT, filiere TEXT); INSERT INTO etudiants VALUES (1, 'Amina', 'Reseaux'), (2, 'Koffi', 'Developpement');",
-        "expected": "+----+-------+---------------+\n| id | nom   | filiere       |\n+----+-------+---------------+\n| 1  | Amina | Reseaux       |\n| 2  | Koffi | Developpement |\n+----+-------+---------------+\n(2 lignes retournées)"
-      },
-      {
-        "label": "Trois étudiants",
-        "stdin": "CREATE TABLE etudiants (id INT PRIMARY KEY, nom TEXT, filiere TEXT); INSERT INTO etudiants VALUES (1, 'Afi', 'Cyber'), (2, 'Yao', 'Cloud'), (3, 'Sena', 'Algo');",
-        "expected": "+----+------+---------+\n| id | nom  | filiere |\n+----+------+---------+\n| 1  | Afi  | Cyber   |\n| 2  | Yao  | Cloud   |\n| 3  | Sena | Algo    |\n+----+------+---------+\n(3 lignes retournées)"
-      },
-      {
-        "label": "Ordre d’insertion inversé",
-        "stdin": "CREATE TABLE etudiants (id INT PRIMARY KEY, nom TEXT, filiere TEXT); INSERT INTO etudiants VALUES (10, 'Binta', 'SQL'), (5, 'Kodjo', 'Linux');",
-        "expected": "+----+-------+---------+\n| id | nom   | filiere |\n+----+-------+---------+\n| 5  | Kodjo | Linux   |\n| 10 | Binta | SQL     |\n+----+-------+---------+\n(2 lignes retournées)"
-      }
+      { "label": "Parc sans BMW", "stdin": PARC_SANS_BMW, "expected": resultatTable(COLONNES_VOITURE, VOITURES_EXEMPLE.filter(ligne => ligne[0] !== 'TG-0480-AV')) },
+      { "label": "Insertion dans un autre ordre", "stdin": PARC_LIMITES, "expected": resultatTable(COLONNES_VOITURE, VOITURES_LIMITES) },
+      { "label": "Deux voitures", "stdin": PARC_MINI, "expected": resultatTable(COLONNES_VOITURE, VOITURES_MINI) }
     ],
-    "solution": "-- Corrigé officiel sq-c1-e1\nSELECT * FROM etudiants ORDER BY id ASC;"
+    "solution": "SELECT * FROM Voiture ORDER BY immat ASC;"
   },
   {
     "id": "sq-c1-e2",
@@ -47,37 +176,25 @@ const SQ_EXERCISES = [
     "language": "sql",
     "title": "Projection de colonnes ciblées",
     "goal": "Sélectionner uniquement certaines colonnes (projection relationnelle) avec SELECT.",
-    "brief": "<p>La table <code>cours(code, intitule, credits)</code> contient la liste des matières. Écrivez une requête SQL qui affiche uniquement les colonnes <code>code</code> et <code>intitule</code> (dans cet ordre), triées par <code>code</code> croissant.</p>",
-    "starter": "-- Sélectionnez uniquement code et intitule de la table cours\nSELECT * FROM cours;",
+    "brief": "<p>Dans <code>Voiture</code>, affichez uniquement les colonnes <code>immat</code> et <code>marque</code>, dans cet ordre, puis triez par <code>immat</code> croissante.</p>",
+    "starter": "SELECT * FROM Voiture;",
     "hints": [
-      "Séparez les noms des colonnes souhaitées par une virgule après SELECT.",
-      "Terminez par ORDER BY code ASC;"
+      "Comment demander plusieurs colonnes tout en conservant leur ordre dans le résultat ?",
+      "Triez par immat avec ORDER BY."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE cours (code TEXT PRIMARY KEY, intitule TEXT, credits INT); INSERT INTO cours VALUES ('INF101', 'Algorithmique', 6), ('INF102', 'Bases de donnees', 5);\n-- exemple",
-        "expected": "+--------+------------------+\n| code   | intitule         |\n+--------+------------------+\n| INF101 | Algorithmique    |\n| INF102 | Bases de donnees |\n+--------+------------------+\n(2 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_EXEMPLE,
+        "expected": resultatTable(['immat', 'marque'], VOITURES_EXEMPLE.map(ligne => ligne.slice(0, 2))),
+        "note": "Jeu d’exemple réduit utilisant le schéma du simulateur."
       }
     ],
     "tests": [
-      {
-        "label": "Deux cours d’informatique",
-        "stdin": "CREATE TABLE cours (code TEXT PRIMARY KEY, intitule TEXT, credits INT); INSERT INTO cours VALUES ('INF101', 'Algorithmique', 6), ('INF102', 'Bases de donnees', 5);",
-        "expected": "+--------+------------------+\n| code   | intitule         |\n+--------+------------------+\n| INF101 | Algorithmique    |\n| INF102 | Bases de donnees |\n+--------+------------------+\n(2 lignes retournées)"
-      },
-      {
-        "label": "Trois matières",
-        "stdin": "CREATE TABLE cours (code TEXT PRIMARY KEY, intitule TEXT, credits INT); INSERT INTO cours VALUES ('RES201', 'Routage', 4), ('MAT101', 'Algebre', 4), ('SEC105', 'Cybersecurite', 5);",
-        "expected": "+--------+---------------+\n| code   | intitule      |\n+--------+---------------+\n| MAT101 | Algebre       |\n| RES201 | Routage       |\n| SEC105 | Cybersecurite |\n+--------+---------------+\n(3 lignes retournées)"
-      },
-      {
-        "label": "Matière unique",
-        "stdin": "CREATE TABLE cours (code TEXT PRIMARY KEY, intitule TEXT, credits INT); INSERT INTO cours VALUES ('SYS101', 'Linux', 5);",
-        "expected": "+--------+----------+\n| code   | intitule |\n+--------+----------+\n| SYS101 | Linux    |\n+--------+----------+\n(1 ligne retournée)"
-      }
+      { "label": "Parc sans BMW", "stdin": PARC_SANS_BMW, "expected": resultatTable(['immat', 'marque'], VOITURES_EXEMPLE.filter(ligne => ligne[0] !== 'TG-0480-AV').map(ligne => ligne.slice(0, 2))) },
+      { "label": "Ordre d’insertion différent", "stdin": PARC_LIMITES, "expected": resultatTable(['immat', 'marque'], VOITURES_LIMITES.map(ligne => ligne.slice(0, 2))) },
+      { "label": "Deux marques", "stdin": PARC_MINI, "expected": resultatTable(['immat', 'marque'], VOITURES_MINI.map(ligne => ligne.slice(0, 2))) }
     ],
-    "solution": "-- Corrigé officiel sq-c1-e2\nSELECT code, intitule FROM cours ORDER BY code ASC;"
+    "solution": "SELECT immat, marque FROM Voiture ORDER BY immat ASC;"
   },
   {
     "id": "sq-c1-e3",
@@ -86,76 +203,74 @@ const SQ_EXERCISES = [
     "language": "sql",
     "title": "Éliminer les doublons avec DISTINCT",
     "goal": "Extraire la liste sans doublons des valeurs d’une colonne avec SELECT DISTINCT.",
-    "brief": "<p>La table <code>enseignants(id, nom, departement)</code> contient plusieurs professeurs par département. Écrivez une requête SQL qui renvoie la liste sans doublon des départements (colonne <code>departement</code>), triée par ordre alphabétique croissant.</p>",
-    "starter": "-- Affichez les départements distincts triés par ordre alphabétique\nSELECT departement FROM enseignants;",
+    "brief": "<p>Dans <code>Voiture</code>, affichez une seule fois chaque valeur de la colonne <code>moteur</code>, par ordre alphabétique croissant.</p>",
+    "starter": "SELECT moteur FROM Voiture;",
     "hints": [
-      "Placez le mot-clé DISTINCT juste après SELECT.",
-      "Ajoutez ORDER BY departement ASC pour trier les résultats."
+      "Quel mot-clé de SELECT élimine les valeurs répétées ?",
+      "Triez le résultat par moteur."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE enseignants (id INT, nom TEXT, departement TEXT); INSERT INTO enseignants VALUES (1, 'Dr Edoh', 'Informatique'), (2, 'Mme Agbegnan', 'Informatique'), (3, 'M. Lawson', 'Mathematiques');\n-- exemple",
-        "expected": "+---------------+\n| departement   |\n+---------------+\n| Informatique  |\n| Mathematiques |\n+---------------+\n(2 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_EXEMPLE,
+        "expected": resultatTable(['moteur'], [['DIESEL'], ['ELECTRIQUE'], ['ESSENCE'], ['HYBRIDE']]),
+        "note": "Plusieurs voitures peuvent partager une même motorisation."
       }
     ],
     "tests": [
-      {
-        "label": "Doublons simples",
-        "stdin": "CREATE TABLE enseignants (id INT, nom TEXT, departement TEXT); INSERT INTO enseignants VALUES (1, 'Dr Edoh', 'Informatique'), (2, 'Mme Agbegnan', 'Informatique'), (3, 'M. Lawson', 'Mathematiques');",
-        "expected": "+---------------+\n| departement   |\n+---------------+\n| Informatique  |\n| Mathematiques |\n+---------------+\n(2 lignes retournées)"
-      },
-      {
-        "label": "Trois départements répétés",
-        "stdin": "CREATE TABLE enseignants (id INT, nom TEXT, departement TEXT); INSERT INTO enseignants VALUES (1, 'A', 'Reseaux'), (2, 'B', 'Droit'), (3, 'C', 'Reseaux'), (4, 'D', 'Gestion'), (5, 'E', 'Droit');",
-        "expected": "+-------------+\n| departement |\n+-------------+\n| Droit       |\n| Gestion     |\n| Reseaux     |\n+-------------+\n(3 lignes retournées)"
-      },
-      {
-        "label": "Tous dans le même département",
-        "stdin": "CREATE TABLE enseignants (id INT, nom TEXT, departement TEXT); INSERT INTO enseignants VALUES (1, 'A', 'Cyber'), (2, 'B', 'Cyber');",
-        "expected": "+-------------+\n| departement |\n+-------------+\n| Cyber       |\n+-------------+\n(1 ligne retournée)"
-      }
+      { "label": "Motorisations répétées sans électrique", "stdin": PARC_SANS_BMW, "expected": resultatTable(['moteur'], [['DIESEL'], ['ESSENCE'], ['HYBRIDE']]) },
+      { "label": "Plusieurs doublons", "stdin": PARC_LIMITES, "expected": resultatTable(['moteur'], [['DIESEL'], ['ESSENCE'], ['HYBRIDE']]) },
+      { "label": "Deux motorisations", "stdin": PARC_MINI, "expected": resultatTable(['moteur'], [['DIESEL'], ['ESSENCE']]) }
     ],
-    "solution": "-- Corrigé officiel sq-c1-e3\nSELECT DISTINCT departement FROM enseignants ORDER BY departement ASC;"
+    "solution": "SELECT DISTINCT moteur FROM Voiture ORDER BY moteur ASC;"
   },
   {
     "id": "sq-c2-e1",
     "chapter": 2,
     "level": "n1",
     "language": "sql",
-    "title": "Créer une table avec clé primaire",
-    "goal": "Écrire une instruction CREATE TABLE définissant des colonnes typées et une clé primaire.",
-    "brief": "<p>Écrivez une instruction SQL <code>CREATE TABLE salles</code> comportant trois colonnes : <code>numero</code> (type <code>INT PRIMARY KEY</code>), <code>batiment</code> (type <code>TEXT NOT NULL</code>) et <code>capacite</code> (type <code>INT</code>), puis insérez les lignes fournies par le test.</p>",
-    "starter": "-- Créez la table salles(numero, batiment, capacite)\nCREATE TABLE salles (\n  numero INT\n);",
+    "title": "Créer et initialiser la table Marque",
+    "goal": "Définir une table avec ses contraintes, puis insérer une marque.",
+    "brief": "<p>Sur une base vide, recréez la table <code>Marque</code> du simulateur : <code>codemarque TEXT NOT NULL PRIMARY KEY</code>, <code>nommarque TEXT NOT NULL UNIQUE</code> et <code>paysmarque TEXT NOT NULL</code>. Ajoutez aussi <code>UNIQUE (codemarque, nommarque)</code>, nécessaire à la clé étrangère composée de <code>Voiture</code>. Puis insérez la marque dont le code est <code>BMW</code>, le nom <code>BMW</code> et le pays <code>ALLEMAGNE</code>. La table existe déjà dans le simulateur initial : cet exercice utilise donc une base vide.</p>",
+    "starter": "CREATE TABLE Marque (\n  codemarque TEXT NOT NULL PRIMARY KEY,\n  nommarque TEXT NOT NULL,\n  paysmarque TEXT NOT NULL\n);\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES ('BMW', 'BMW', '');",
     "hints": [
-      "Déclarez numero INT PRIMARY KEY comme première colonne.",
-      "Déclarez batiment TEXT NOT NULL et capacite INT."
+      "La clé primaire identifie chaque code ; le nom doit aussi être unique.",
+      "Après les colonnes, ajoutez la contrainte UNIQUE portant sur le couple de colonnes indiqué.",
+      "Complétez l’insertion avec le pays de la marque BMW."
     ],
     "examples": [
       {
-        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('salles') ORDER BY cid;\n-- exemple",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+----------+------+---------+------------+----+\n| name     | type | notnull | dflt_value | pk |\n+----------+------+---------+------------+----+\n| numero   | INT  | 0       | NULL       | 1  |\n| batiment | TEXT | 1       | NULL       | 0  |\n| capacite | INT  | 0       | NULL       | 0  |\n+----------+------+---------+------------+----+\n(3 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": "PRAGMA foreign_keys = ON;\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('Marque') ORDER BY cid; SELECT codemarque, nommarque, paysmarque FROM Marque;",
+        "expected": RESULTAT_CREATION_INSERTION + '\n\n' + resultatTable(['name', 'type', 'notnull', 'dflt_value', 'pk'], [
+          ['codemarque', 'TEXT', 1, null, 1], ['nommarque', 'TEXT', 1, null, 0], ['paysmarque', 'TEXT', 1, null, 0]
+        ]) + '\n\n' + resultatTable(['codemarque', 'nommarque', 'paysmarque'], [['BMW', 'BMW', 'ALLEMAGNE']]),
+        "note": "La vérification affiche les colonnes de Marque et la ligne insérée sur une base initialement vide."
       }
     ],
     "tests": [
       {
-        "label": "Deux salles de cours",
-        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('salles') ORDER BY cid;",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+----------+------+---------+------------+----+\n| name     | type | notnull | dflt_value | pk |\n+----------+------+---------+------------+----+\n| numero   | INT  | 0       | NULL       | 1  |\n| batiment | TEXT | 1       | NULL       | 0  |\n| capacite | INT  | 0       | NULL       | 0  |\n+----------+------+---------+------------+----+\n(3 lignes retournées)"
+        "label": "Colonnes et contraintes uniques",
+        "stdin": "PRAGMA foreign_keys = ON;\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('Marque') ORDER BY cid; SELECT COUNT(*) AS contraintes_uniques FROM pragma_index_list('Marque') WHERE \"unique\" = 1; SELECT codemarque, nommarque, paysmarque FROM Marque;",
+        "expected": RESULTAT_CREATION_INSERTION + '\n\n' + resultatTable(['name', 'type', 'notnull', 'dflt_value', 'pk'], [
+          ['codemarque', 'TEXT', 1, null, 1], ['nommarque', 'TEXT', 1, null, 0], ['paysmarque', 'TEXT', 1, null, 0]
+        ]) + '\n\n' + resultatTable(['contraintes_uniques'], [[3]]) + '\n\n' +
+          resultatTable(['codemarque', 'nommarque', 'paysmarque'], [['BMW', 'BMW', 'ALLEMAGNE']])
       },
       {
-        "label": "Amphithéâtre et labo",
-        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('salles') ORDER BY cid;\n-- cas 2",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+----------+------+---------+------------+----+\n| name     | type | notnull | dflt_value | pk |\n+----------+------+---------+------------+----+\n| numero   | INT  | 0       | NULL       | 1  |\n| batiment | TEXT | 1       | NULL       | 0  |\n| capacite | INT  | 0       | NULL       | 0  |\n+----------+------+---------+------------+----+\n(3 lignes retournées)"
+        "label": "Clé étrangère composée du parc",
+        "stdin": `PRAGMA foreign_keys = ON;\n-- VERIFY:\n${VOITURE_DEFINITION}\nINSERT INTO Marque VALUES ('TOY', 'TOYOTA', 'JAPON');\nINSERT INTO Voiture VALUES ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7);\nSELECT immat, marque FROM Voiture;\nSELECT codemarque, nommarque, paysmarque FROM Marque WHERE codemarque = 'BMW';`,
+        "expected": RESULTAT_CREATION_INSERTION + '\n\n' +
+          'Instruction exécutée avec succès (1 ligne modifiée).\n\n'.repeat(2) +
+          resultatModification(1, ['immat', 'marque'], [['TG-3733-AC', 'TOYOTA']]) + '\n\n' +
+          resultatTable(['codemarque', 'nommarque', 'paysmarque'], [['BMW', 'BMW', 'ALLEMAGNE']])
       },
       {
-        "label": "Trois salles",
-        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('salles') ORDER BY cid;\n-- cas 3",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+----------+------+---------+------------+----+\n| name     | type | notnull | dflt_value | pk |\n+----------+------+---------+------------+----+\n| numero   | INT  | 0       | NULL       | 1  |\n| batiment | TEXT | 1       | NULL       | 0  |\n| capacite | INT  | 0       | NULL       | 0  |\n+----------+------+---------+------------+----+\n(3 lignes retournées)"
+        "label": "Clé, unicité et valeurs obligatoires de Marque",
+        "stdin": "PRAGMA foreign_keys = ON;\n-- VERIFY:\nINSERT OR IGNORE INTO Marque VALUES ('TOY', 'TOYOTA', 'JAPON'), ('AUT', 'TOYOTA', 'JAPON'), ('BMW', 'AUTRE MARQUE', 'FRANCE'), (NULL, 'SANS CODE', 'FRANCE'), ('VID', NULL, 'FRANCE'), ('NUL', 'SANS PAYS', NULL); SELECT codemarque, nommarque, paysmarque FROM Marque ORDER BY codemarque;",
+        "expected": RESULTAT_CREATION_INSERTION + '\n\n' +
+          resultatModification(1, ['codemarque', 'nommarque', 'paysmarque'], [['BMW', 'BMW', 'ALLEMAGNE'], ['TOY', 'TOYOTA', 'JAPON']])
       }
     ],
-    "solution": "-- Corrigé officiel sq-c2-e1\nCREATE TABLE salles (\n  numero INT PRIMARY KEY,\n  batiment TEXT NOT NULL,\n  capacite INT\n);"
+    "solution": `${MARQUE_DEFINITION}\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES ('BMW', 'BMW', 'ALLEMAGNE');`
   },
   {
     "id": "sq-c2-e2",
@@ -163,38 +278,46 @@ const SQ_EXERCISES = [
     "level": "n2",
     "language": "sql",
     "title": "Valeur par défaut (DEFAULT) et contrainte NOT NULL",
-    "goal": "Utiliser la clause DEFAULT lors de la création d’une table SQL.",
-    "brief": "<p>Créez la table <code>comptes(id INT PRIMARY KEY, login TEXT NOT NULL, actif INT DEFAULT 1)</code> pour que toute insertion omettant la colonne <code>actif</code> reçoive automatiquement la valeur <code>1</code>.</p>",
-    "starter": "-- Créez la table comptes avec actif INT DEFAULT 1\nCREATE TABLE comptes (id INT PRIMARY KEY, login TEXT NOT NULL, actif INT);",
+    "goal": "Utiliser DEFAULT lors de la création d’une table et d’une insertion.",
+    "brief": "<p>Sur une base vide, créez la table du parc <code>Equipement</code> avec <code>codeequipement TEXT NOT NULL PRIMARY KEY</code>, <code>nomequipement TEXT NOT NULL UNIQUE</code> et <code>prix INTEGER DEFAULT 0</code>. Puis insérez l’équipement de code <code>AIR</code> et de nom <code>Climatisation</code> sans indiquer son prix. Un prix omis reçoit la valeur <code>0</code> ; un <code>NULL</code> explicitement fourni reste <code>NULL</code>. La table existe déjà dans le simulateur initial : cet exercice utilise une base vide.</p>",
+    "starter": "CREATE TABLE Equipement (\n  codeequipement TEXT NOT NULL PRIMARY KEY,\n  nomequipement TEXT NOT NULL UNIQUE,\n  prix INTEGER\n);\nINSERT INTO Equipement (codeequipement, nomequipement) VALUES ('AIR', '');",
     "hints": [
-      "Utilisez la syntaxe actif INT DEFAULT 1 dans la définition de colonne.",
-      "Assurez-vous que id est PRIMARY KEY et login est NOT NULL."
+      "Précisez une valeur par défaut dans la définition de prix.",
+      "Vérifiez la clé primaire, le caractère obligatoire et l’unicité du nom.",
+      "Complétez le nom de l’équipement et omettez la colonne prix dans son insertion."
     ],
     "examples": [
       {
-        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('comptes') ORDER BY cid;\n-- exemple",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+-------+------+---------+------------+----+\n| name  | type | notnull | dflt_value | pk |\n+-------+------+---------+------------+----+\n| id    | INT  | 0       | NULL       | 1  |\n| login | TEXT | 1       | NULL       | 0  |\n| actif | INT  | 0       | 1          | 0  |\n+-------+------+---------+------------+----+\n(3 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": "PRAGMA foreign_keys = ON;\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('Equipement') ORDER BY cid; SELECT codeequipement, nomequipement, prix FROM Equipement;",
+        "expected": RESULTAT_CREATION_INSERTION + '\n\n' + resultatTable(['name', 'type', 'notnull', 'dflt_value', 'pk'], [
+          ['codeequipement', 'TEXT', 1, null, 1], ['nomequipement', 'TEXT', 1, null, 0], ['prix', 'INTEGER', 0, '0', 0]
+        ]) + '\n\n' + resultatTable(['codeequipement', 'nomequipement', 'prix'], [['AIR', 'Climatisation', 0]]),
+        "note": "La vérification affiche les colonnes et l’équipement inséré avec son prix par défaut."
       }
     ],
     "tests": [
       {
-        "label": "Insertion avec valeur par défaut",
-        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('comptes') ORDER BY cid;",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+-------+------+---------+------------+----+\n| name  | type | notnull | dflt_value | pk |\n+-------+------+---------+------------+----+\n| id    | INT  | 0       | NULL       | 1  |\n| login | TEXT | 1       | NULL       | 0  |\n| actif | INT  | 0       | 1          | 0  |\n+-------+------+---------+------------+----+\n(3 lignes retournées)"
+        "label": "Structure, contraintes uniques et valeur par défaut",
+        "stdin": "PRAGMA foreign_keys = ON;\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('Equipement') ORDER BY cid; SELECT COUNT(*) AS contraintes_uniques FROM pragma_index_list('Equipement') WHERE \"unique\" = 1; SELECT codeequipement, nomequipement, prix FROM Equipement;",
+        "expected": RESULTAT_CREATION_INSERTION + '\n\n' + resultatTable(['name', 'type', 'notnull', 'dflt_value', 'pk'], [
+          ['codeequipement', 'TEXT', 1, null, 1], ['nomequipement', 'TEXT', 1, null, 0], ['prix', 'INTEGER', 0, '0', 0]
+        ]) + '\n\n' + resultatTable(['contraintes_uniques'], [[2]]) + '\n\n' +
+          resultatTable(['codeequipement', 'nomequipement', 'prix'], [['AIR', 'Climatisation', 0]])
       },
       {
-        "label": "Deux comptes actifs par défaut",
-        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('comptes') ORDER BY cid;\n-- cas 2",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+-------+------+---------+------------+----+\n| name  | type | notnull | dflt_value | pk |\n+-------+------+---------+------------+----+\n| id    | INT  | 0       | NULL       | 1  |\n| login | TEXT | 1       | NULL       | 0  |\n| actif | INT  | 0       | 1          | 0  |\n+-------+------+---------+------------+----+\n(3 lignes retournées)"
+        "label": "Prix omis et NULL explicite",
+        "stdin": "PRAGMA foreign_keys = ON;\n-- VERIFY:\nINSERT INTO Equipement (codeequipement, nomequipement) VALUES ('GPS', 'Navigation GPS'); INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES ('RAD', 'Autoradio', NULL); SELECT codeequipement, nomequipement, prix FROM Equipement ORDER BY codeequipement;",
+        "expected": RESULTAT_CREATION_INSERTION + '\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n' +
+          resultatModification(1, ['codeequipement', 'nomequipement', 'prix'], [['AIR', 'Climatisation', 0], ['GPS', 'Navigation GPS', 0], ['RAD', 'Autoradio', null]])
       },
       {
-        "label": "Mélange implicite et explicite",
-        "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('comptes') ORDER BY cid;\n-- cas 3",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+-------+------+---------+------------+----+\n| name  | type | notnull | dflt_value | pk |\n+-------+------+---------+------------+----+\n| id    | INT  | 0       | NULL       | 1  |\n| login | TEXT | 1       | NULL       | 0  |\n| actif | INT  | 0       | 1          | 0  |\n+-------+------+---------+------------+----+\n(3 lignes retournées)"
+        "label": "Clé, unicité et valeurs obligatoires d’Equipement",
+        "stdin": "PRAGMA foreign_keys = ON;\n-- VERIFY:\nINSERT OR IGNORE INTO Equipement VALUES ('GPS', 'Navigation GPS', 450000), ('NAV', 'Navigation GPS', 100000), ('AIR', 'Autre équipement', 10000), (NULL, 'Sans code', 0), ('VID', NULL, 0); SELECT codeequipement, nomequipement, prix FROM Equipement ORDER BY codeequipement;",
+        "expected": RESULTAT_CREATION_INSERTION + '\n\n' +
+          resultatModification(1, ['codeequipement', 'nomequipement', 'prix'], [['AIR', 'Climatisation', 0], ['GPS', 'Navigation GPS', 450000]])
       }
     ],
-    "solution": "-- Corrigé officiel sq-c2-e2\nCREATE TABLE comptes (\n  id INT PRIMARY KEY,\n  login TEXT NOT NULL,\n  actif INT DEFAULT 1\n);"
+    "solution": `${EQUIPEMENT_DEFINITION}\nINSERT INTO Equipement (codeequipement, nomequipement) VALUES ('AIR', 'Climatisation');`
   },
   {
     "id": "sq-c2-e3",
@@ -203,37 +326,41 @@ const SQ_EXERCISES = [
     "language": "sql",
     "title": "Ajouter une colonne avec ALTER TABLE",
     "goal": "Faire évoluer le schéma d’une table existante avec ALTER TABLE ADD COLUMN.",
-    "brief": "<p>La table <code>materiels(id INT PRIMARY KEY, designation TEXT)</code> existe déjà. Écrivez l’instruction SQL permettant de lui ajouter une colonne <code>garantie_mois INT DEFAULT 12</code>.</p>",
-    "starter": "-- Ajoutez la colonne garantie_mois INT DEFAULT 12 à la table materiels\nSELECT * FROM materiels;",
+    "brief": "<p>Dans une version antérieure du parc, la table <code>Equipement(codeequipement TEXT NOT NULL PRIMARY KEY, nomequipement TEXT NOT NULL UNIQUE)</code> existe déjà, mais ne possède pas encore la colonne <code>prix</code>. Les autres tables ont les définitions du parc. Ajoutez <code>prix INTEGER DEFAULT 0</code> pour retrouver le schéma actuel du simulateur. La colonne existe déjà dans le simulateur initial : cet exercice utilise donc cet état antérieur.</p>",
+    "starter": "SELECT codeequipement, nomequipement FROM Equipement;",
     "hints": [
-      "Utilisez la commande ALTER TABLE materiels ADD COLUMN ...",
-      "Précisez le type INT suivi de DEFAULT 12."
+      "Modifiez la table existante avec ALTER TABLE et ADD COLUMN, sans la recréer.",
+      "Définissez la colonne prix avec le type et la valeur par défaut demandés."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE materiels (id INT PRIMARY KEY, designation TEXT);\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('materiels') ORDER BY cid;\n-- exemple",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+---------------+------+---------+------------+----+\n| name          | type | notnull | dflt_value | pk |\n+---------------+------+---------+------------+----+\n| id            | INT  | 0       | NULL       | 1  |\n| designation   | TEXT | 0       | NULL       | 0  |\n| garantie_mois | INT  | 0       | 12         | 0  |\n+---------------+------+---------+------------+----+\n(3 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": `${PARC_ANTERIEUR}\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('Equipement') ORDER BY cid;`,
+        "expected": resultatModification(0, ['name', 'type', 'notnull', 'dflt_value', 'pk'], [
+          ['codeequipement', 'TEXT', 1, null, 1], ['nomequipement', 'TEXT', 1, null, 0], ['prix', 'INTEGER', 0, '0', 0]
+        ]),
+        "note": "La base d’exemple contient la version antérieure d’Equipement, sans prix."
       }
     ],
     "tests": [
       {
-        "label": "Équipements réseau existants",
-        "stdin": "CREATE TABLE materiels (id INT PRIMARY KEY, designation TEXT);\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('materiels') ORDER BY cid;",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+---------------+------+---------+------------+----+\n| name          | type | notnull | dflt_value | pk |\n+---------------+------+---------+------------+----+\n| id            | INT  | 0       | NULL       | 1  |\n| designation   | TEXT | 0       | NULL       | 0  |\n| garantie_mois | INT  | 0       | 12         | 0  |\n+---------------+------+---------+------------+----+\n(3 lignes retournées)"
+        "label": "Colonne ajoutée et contraintes conservées",
+        "stdin": `${PARC_ANTERIEUR}\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('Equipement') ORDER BY cid; SELECT COUNT(*) AS contraintes_uniques FROM pragma_index_list('Equipement') WHERE \"unique\" = 1;`,
+        "expected": resultatModification(0, ['name', 'type', 'notnull', 'dflt_value', 'pk'], [
+          ['codeequipement', 'TEXT', 1, null, 1], ['nomequipement', 'TEXT', 1, null, 0], ['prix', 'INTEGER', 0, '0', 0]
+        ]) + '\n\n' + resultatTable(['contraintes_uniques'], [[2]])
       },
       {
-        "label": "Postes de travail",
-        "stdin": "CREATE TABLE materiels (id INT PRIMARY KEY, designation TEXT);\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('materiels') ORDER BY cid;\n-- cas 2",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+---------------+------+---------+------------+----+\n| name          | type | notnull | dflt_value | pk |\n+---------------+------+---------+------------+----+\n| id            | INT  | 0       | NULL       | 1  |\n| designation   | TEXT | 0       | NULL       | 0  |\n| garantie_mois | INT  | 0       | 12         | 0  |\n+---------------+------+---------+------------+----+\n(3 lignes retournées)"
+        "label": "Valeur sur les lignes préexistantes",
+        "stdin": `${PARC_ANTERIEUR}\nINSERT INTO Equipement VALUES ('GPS', 'Navigation GPS'), ('CAM', 'Camera de recul'); UPDATE Equipement SET nomequipement = nomequipement WHERE 0;\n-- VERIFY:\nSELECT codeequipement, nomequipement, prix FROM Equipement ORDER BY codeequipement;`,
+        "expected": resultatModification(0, ['codeequipement', 'nomequipement', 'prix'], [['CAM', 'Camera de recul', 0], ['GPS', 'Navigation GPS', 0]])
       },
       {
-        "label": "Insertion après ALTER TABLE",
-        "stdin": "CREATE TABLE materiels (id INT PRIMARY KEY, designation TEXT);\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('materiels') ORDER BY cid;\n-- cas 3",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+---------------+------+---------+------------+----+\n| name          | type | notnull | dflt_value | pk |\n+---------------+------+---------+------------+----+\n| id            | INT  | 0       | NULL       | 1  |\n| designation   | TEXT | 0       | NULL       | 0  |\n| garantie_mois | INT  | 0       | 12         | 0  |\n+---------------+------+---------+------------+----+\n(3 lignes retournées)"
+        "label": "Prix omis ou NULL après ALTER",
+        "stdin": `${PARC_ANTERIEUR}\n-- VERIFY:\nINSERT INTO Equipement (codeequipement, nomequipement) VALUES ('AIR', 'Climatisation'); INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES ('RAD', 'Autoradio', NULL); SELECT codeequipement, nomequipement, prix FROM Equipement ORDER BY codeequipement;`,
+        "expected": 'Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n' + resultatModification(1, ['codeequipement', 'nomequipement', 'prix'], [['AIR', 'Climatisation', 0], ['RAD', 'Autoradio', null]])
       }
     ],
-    "solution": "-- Corrigé officiel sq-c2-e3\nALTER TABLE materiels ADD COLUMN garantie_mois INT DEFAULT 12;"
+    "solution": "ALTER TABLE Equipement ADD COLUMN prix INTEGER DEFAULT 0;"
   },
   {
     "id": "sq-c3-e1",
@@ -242,37 +369,25 @@ const SQ_EXERCISES = [
     "language": "sql",
     "title": "Filtrer les lignes avec WHERE",
     "goal": "Sélectionner les enregistrements vérifiant une condition numérique avec WHERE.",
-    "brief": "<p>La table <code>notes(etudiant, matiere, note)</code> contient les résultats du semestre. Écrivez une requête SQL affichant <code>etudiant</code> et <code>note</code> pour les lignes où <code>note &gt;= 12</code>, triées par <code>note</code> décroissante puis <code>etudiant</code> croissant.</p>",
-    "starter": "-- Sélectionnez etudiant et note lorsque note >= 12\nSELECT etudiant, note FROM notes;",
+    "brief": "<p>Dans <code>Voiture</code>, affichez <code>immat</code> et <code>km</code> lorsque le kilométrage est supérieur ou égal à <code>5</code>. Triez par <code>km</code> décroissant, puis par <code>immat</code> croissante en cas d’égalité.</p>",
+    "starter": "SELECT immat, km FROM Voiture;",
     "hints": [
-      "Ajoutez la clause WHERE note >= 12 après FROM notes.",
-      "Triez avec ORDER BY note DESC, etudiant ASC."
+      "Une clause WHERE permet de conserver les kilométrages à partir de 5 inclus.",
+      "Utilisez deux critères dans ORDER BY : km décroissant, puis immat croissante."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE notes (etudiant TEXT, matiere TEXT, note INT); INSERT INTO notes VALUES ('Amina', 'SQL', 16), ('Koffi', 'SQL', 9), ('Yao', 'SQL', 14);\n-- exemple",
-        "expected": "+----------+------+\n| etudiant | note |\n+----------+------+\n| Amina    | 16   |\n| Yao      | 14   |\n+----------+------+\n(2 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_EXEMPLE,
+        "expected": resultatTable(['immat', 'km'], [['TG-7854-Z', 500], ['TG-0020-AV', 30], ['TG-4444-AL', 5]]),
+        "note": "Le véhicule à 5 km satisfait la condition."
       }
     ],
     "tests": [
-      {
-        "label": "Trois notes dont une sous la moyenne",
-        "stdin": "CREATE TABLE notes (etudiant TEXT, matiere TEXT, note INT); INSERT INTO notes VALUES ('Amina', 'SQL', 16), ('Koffi', 'SQL', 9), ('Yao', 'SQL', 14);",
-        "expected": "+----------+------+\n| etudiant | note |\n+----------+------+\n| Amina    | 16   |\n| Yao      | 14   |\n+----------+------+\n(2 lignes retournées)"
-      },
-      {
-        "label": "Cas limite à 12 pile",
-        "stdin": "CREATE TABLE notes (etudiant TEXT, matiere TEXT, note INT); INSERT INTO notes VALUES ('Sena', 'Algo', 12), ('Binta', 'Algo', 11), ('Kodjo', 'Algo', 18), ('Afi', 'Algo', 12);",
-        "expected": "+----------+------+\n| etudiant | note |\n+----------+------+\n| Kodjo    | 18   |\n| Afi      | 12   |\n| Sena     | 12   |\n+----------+------+\n(3 lignes retournées)"
-      },
-      {
-        "label": "Toutes les notes excellentes",
-        "stdin": "CREATE TABLE notes (etudiant TEXT, matiere TEXT, note INT); INSERT INTO notes VALUES ('Léa', 'Web', 15), ('Marc', 'Web', 19);",
-        "expected": "+----------+------+\n| etudiant | note |\n+----------+------+\n| Marc     | 19   |\n| Léa      | 15   |\n+----------+------+\n(2 lignes retournées)"
-      }
+      { "label": "Seuil inclus et égalité à départager", "stdin": `${PARC_EXEMPLE}\nUPDATE Voiture SET km = 5 WHERE immat = 'TG-3733-AC';`, "expected": resultatTable(['immat', 'km'], [['TG-7854-Z', 500], ['TG-0020-AV', 30], ['TG-3733-AC', 5], ['TG-4444-AL', 5]]) },
+      { "label": "Égalité au seuil et départage", "stdin": PARC_LIMITES, "expected": resultatTable(['immat', 'km'], [['TG-9006-AX', 10], ['TG-9003-AX', 6], ['TG-9001-AX', 5], ['TG-9002-AX', 5]]) },
+      { "label": "Une voiture retenue", "stdin": PARC_MINI, "expected": resultatTable(['immat', 'km'], [['TG-5220-BA', 6700]]) }
     ],
-    "solution": "-- Corrigé officiel sq-c3-e1\nSELECT etudiant, note FROM notes WHERE note >= 12 ORDER BY note DESC, etudiant ASC;"
+    "solution": "SELECT immat, km FROM Voiture WHERE km >= 5 ORDER BY km DESC, immat ASC;"
   },
   {
     "id": "sq-c3-e2",
@@ -281,37 +396,29 @@ const SQ_EXERCISES = [
     "language": "sql",
     "title": "Recherche par motif avec LIKE et intervalle BETWEEN",
     "goal": "Combiner les opérateurs BETWEEN et LIKE dans une clause WHERE.",
-    "brief": "<p>Dans la table <code>produits(id, nom, prix)</code>, sélectionnez <code>nom</code> et <code>prix</code> des produits dont le <code>prix</code> est compris entre <code>1000</code> et <code>50000</code> inclus (<code>BETWEEN 1000 AND 50000</code>) et dont le <code>nom</code> commence par <code>'Cable'</code> (<code>LIKE 'Cable%'</code>), triés par <code>prix</code> croissant.</p>",
-    "starter": "-- Filtrez avec BETWEEN et LIKE\nSELECT nom, prix FROM produits;",
+    "brief": "<p>Dans <code>Voiture</code>, affichez <code>immat</code>, <code>marque</code> et <code>pxachat</code> pour les voitures dont le prix d’achat est compris entre <code>6000000</code> et <code>50000000</code> inclus et dont la marque commence par <code>M</code>. Triez par prix croissant, puis par immatriculation croissante.</p>",
+    "starter": "SELECT immat, marque, pxachat FROM Voiture;",
     "hints": [
-      "Utilisez WHERE prix BETWEEN 1000 AND 50000 AND nom LIKE 'Cable%'.",
-      "Terminez par ORDER BY prix ASC;"
+      "BETWEEN inclut ses deux bornes ; combinez cette condition avec LIKE et AND.",
+      "Avec LIKE, le caractère % représente une suite quelconque de caractères."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE produits (id INT, nom TEXT, prix INT); INSERT INTO produits VALUES (1, 'Cable RJ45', 2500), (2, 'Cable HDMI', 5000), (3, 'Switch Pro', 15000), (4, 'Cable Fibre Bobine', 85000);\n-- exemple",
-        "expected": "+------------+------+\n| nom        | prix |\n+------------+------+\n| Cable RJ45 | 2500 |\n| Cable HDMI | 5000 |\n+------------+------+\n(2 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_EXEMPLE,
+        "expected": resultatTable(['immat', 'marque', 'pxachat'], [['TG-7854-Z', 'MERCEDES BENZ', 6000000], ['TG-0020-AV', 'MITSUBISHI', 50000000]]),
+        "note": "Les deux bornes du prix sont comprises dans le résultat."
       }
     ],
     "tests": [
+      { "label": "Bornes incluses et prix intermédiaire", "stdin": PARC_AVEC_MAZDA, "expected": resultatTable(['immat', 'marque', 'pxachat'], [['TG-7854-Z', 'MERCEDES BENZ', 6000000], ['TG-1420-AW', 'MAZDA', 17000000], ['TG-0020-AV', 'MITSUBISHI', 50000000]]) },
+      { "label": "M au début plutôt qu’au milieu", "stdin": PARC_LIMITES, "expected": resultatTable(['immat', 'marque', 'pxachat'], [['TG-9006-AX', 'MAZDA', 6000000], ['TG-9002-AX', 'MITSUBISHI', 50000000]]) },
       {
-        "label": "Câbles dans la fourchette de prix",
-        "stdin": "CREATE TABLE produits (id INT, nom TEXT, prix INT); INSERT INTO produits VALUES (1, 'Cable RJ45', 2500), (2, 'Cable HDMI', 5000), (3, 'Switch Pro', 15000), (4, 'Cable Fibre Bobine', 85000);",
-        "expected": "+------------+------+\n| nom        | prix |\n+------------+------+\n| Cable RJ45 | 2500 |\n| Cable HDMI | 5000 |\n+------------+------+\n(2 lignes retournées)"
-      },
-      {
-        "label": "Bornes exactes 1000 et 50000",
-        "stdin": "CREATE TABLE produits (id INT, nom TEXT, prix INT); INSERT INTO produits VALUES (1, 'Cable USB', 1000), (2, 'Cable Blindé', 50000), (3, 'Cable Mini', 500);",
-        "expected": "+--------------+-------+\n| nom          | prix  |\n+--------------+-------+\n| Cable USB    | 1000  |\n| Cable Blindé | 50000 |\n+--------------+-------+\n(2 lignes retournées)"
-      },
-      {
-        "label": "Un seul câble éligible",
-        "stdin": "CREATE TABLE produits (id INT, nom TEXT, prix INT); INSERT INTO produits VALUES (1, 'Souris', 4000), (2, 'Cable Console', 8000);",
-        "expected": "+---------------+------+\n| nom           | prix |\n+---------------+------+\n| Cable Console | 8000 |\n+---------------+------+\n(1 ligne retournée)"
+        "label": "Juste en dehors des bornes",
+        "stdin": `${PARC_MINI}\nINSERT INTO Marque VALUES ('MAZ', 'MAZDA', 'JAPON');\nINSERT INTO Voiture VALUES ('TG-9007-AX', 'MAZDA', 'MAZ', 'ESSENCE', NULL, 0, 5999999, 5), ('TG-9008-AX', 'MAZDA', 'MAZ', 'ESSENCE', NULL, 0, 50000001, 5);`,
+        "expected": resultatTable(['immat', 'marque', 'pxachat'], [])
       }
     ],
-    "solution": "-- Corrigé officiel sq-c3-e2\nSELECT nom, prix FROM produits WHERE prix BETWEEN 1000 AND 50000 AND nom LIKE 'Cable%' ORDER BY prix ASC;"
+    "solution": "SELECT immat, marque, pxachat FROM Voiture WHERE pxachat BETWEEN 6000000 AND 50000000 AND marque LIKE 'M%' ORDER BY pxachat ASC, immat ASC;"
   },
   {
     "id": "sq-c3-e3",
@@ -319,38 +426,27 @@ const SQ_EXERCISES = [
     "level": "n3",
     "language": "sql",
     "title": "Valeurs absentes IS NULL et pagination LIMIT",
-    "goal": "Identifier les enregistrements dont une colonne vaut NULL avec IS NULL.",
-    "brief": "<p>Dans la table <code>livraisons(id_commande, client, date_livraison)</code>, les commandes non encore livrées ont <code>date_livraison</code> à <code>NULL</code>. Affichez <code>id_commande</code> et <code>client</code> des commandes non livrées, triées par <code>id_commande</code> croissant.</p>",
-    "starter": "-- Sélectionnez les commandes dont date_livraison est NULL\nSELECT id_commande, client FROM livraisons;",
+    "goal": "Identifier les enregistrements dont une colonne vaut NULL avec IS NULL et limiter le résultat.",
+    "brief": "<p>Dans <code>Voiture</code>, la date de mise en circulation <code>datecirc</code> peut être <code>NULL</code>. Affichez <code>immat</code> et <code>marque</code> des trois premières voitures dont la date est absente au maximum, triées par <code>immat</code> croissante. Le parc initial du simulateur ne contient pas de date absente ; les jeux ci-dessous en ajoutent pour illustrer le cas.</p>",
+    "starter": "SELECT immat, marque FROM Voiture;",
     "hints": [
-      "En SQL, on teste l’absence de valeur avec IS NULL (et jamais avec = NULL).",
-      "Ajoutez ORDER BY id_commande ASC."
+      "L’absence de valeur se teste avec IS NULL et non avec = NULL.",
+      "Triez par immat, puis limitez le nombre de lignes."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE livraisons (id_commande INT, client TEXT, date_livraison TEXT); INSERT INTO livraisons VALUES (101, 'Amina', '2026-03-01'), (102, 'Koffi', NULL), (103, 'Yao', NULL);\n-- exemple",
-        "expected": "+-------------+--------+\n| id_commande | client |\n+-------------+--------+\n| 102         | Koffi  |\n| 103         | Yao    |\n+-------------+--------+\n(2 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_DATES,
+        "expected": resultatTable(['immat', 'marque'], [['TG-3733-AC', 'TOYOTA'], ['TG-9420-AF', 'TOYOTA']]),
+        "note": "Dans ce jeu adapté, deux dates ont été remplacées par NULL."
       }
     ],
     "tests": [
-      {
-        "label": "Deux commandes en attente",
-        "stdin": "CREATE TABLE livraisons (id_commande INT, client TEXT, date_livraison TEXT); INSERT INTO livraisons VALUES (101, 'Amina', '2026-03-01'), (102, 'Koffi', NULL), (103, 'Yao', NULL);",
-        "expected": "+-------------+--------+\n| id_commande | client |\n+-------------+--------+\n| 102         | Koffi  |\n| 103         | Yao    |\n+-------------+--------+\n(2 lignes retournées)"
-      },
-      {
-        "label": "Une seule commande non livrée",
-        "stdin": "CREATE TABLE livraisons (id_commande INT, client TEXT, date_livraison TEXT); INSERT INTO livraisons VALUES (1, 'Societe A', '2026-01-10'), (2, 'Societe B', NULL), (3, 'Societe C', '2026-01-12');",
-        "expected": "+-------------+-----------+\n| id_commande | client    |\n+-------------+-----------+\n| 2           | Societe B |\n+-------------+-----------+\n(1 ligne retournée)"
-      },
-      {
-        "label": "Trois commandes en attente",
-        "stdin": "CREATE TABLE livraisons (id_commande INT, client TEXT, date_livraison TEXT); INSERT INTO livraisons VALUES (10, 'Client X', NULL), (20, 'Client Y', NULL), (30, 'Client Z', NULL);",
-        "expected": "+-------------+----------+\n| id_commande | client   |\n+-------------+----------+\n| 10          | Client X |\n| 20          | Client Y |\n| 30          | Client Z |\n+-------------+----------+\n(3 lignes retournées)"
-      }
+      { "label": "Une autre date absente", "stdin": `${PARC_EXEMPLE}\nUPDATE Voiture SET datecirc = NULL WHERE immat = 'TG-0020-AV';`, "expected": resultatTable(['immat', 'marque'], [['TG-0020-AV', 'MITSUBISHI']]) },
+      { "label": "Cinq dates absentes, limite à trois", "stdin": PARC_LIMITES, "expected": resultatTable(['immat', 'marque'], [['TG-9002-AX', 'MITSUBISHI'], ['TG-9003-AX', 'BMW'], ['TG-9004-AX', 'TOYOTA']]) },
+      { "label": "Aucune date absente", "stdin": PARC_MINI, "expected": resultatTable(['immat', 'marque'], []) },
+      { "label": "Chaîne vide distincte de NULL", "stdin": PARC_DATES_MIXTES, "expected": resultatTable(['immat', 'marque'], [['TG-9003-AX', 'BMW'], ['TG-9004-AX', 'TOYOTA'], ['TG-9005-AX', 'BMW']]) }
     ],
-    "solution": "-- Corrigé officiel sq-c3-e3\nSELECT id_commande, client FROM livraisons WHERE date_livraison IS NULL ORDER BY id_commande ASC;"
+    "solution": "SELECT immat, marque FROM Voiture WHERE datecirc IS NULL ORDER BY immat ASC LIMIT 3;"
   },
   {
     "id": "sq-c4-e1",
@@ -359,37 +455,42 @@ const SQ_EXERCISES = [
     "language": "sql",
     "title": "Jointure interne (INNER JOIN) entre deux tables",
     "goal": "Associer chaque ligne d’une table enfant à sa table parente via INNER JOIN ... ON.",
-    "brief": "<p>Soient les tables <code>departements(id, nom_dep)</code> et <code>employes(id, nom_emp, dep_id)</code>. Écrivez une requête SQL affichant <code>nom_emp</code> et <code>nom_dep</code> pour chaque employé affecté à un département, triée par <code>nom_emp</code> croissant.</p>",
-    "starter": "-- Joignez employes et departements\nSELECT nom_emp FROM employes;",
+    "brief": "<p>Reliez <code>Marque</code> à <code>Voiture</code> par leur <code>codemarque</code>. Affichez <code>nommarque</code> et <code>immat</code> pour chaque voiture ayant une marque correspondante. Triez par nom de marque croissant, puis par immatriculation croissante. Les marques sans voiture ne figurent pas dans le résultat.</p>",
+    "starter": "SELECT nommarque FROM Marque;",
     "hints": [
-      "Utilisez INNER JOIN departements d ON e.dep_id = d.id.",
-      "Sélectionnez e.nom_emp, d.nom_dep et triez par e.nom_emp ASC."
+      "Utilisez INNER JOIN et reliez les deux colonnes codemarque dans la condition ON.",
+      "Qualifiez les colonnes avec les alias des tables, puis triez sur les deux colonnes demandées."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE departements (id INT, nom_dep TEXT); CREATE TABLE employes (id INT, nom_emp TEXT, dep_id INT); INSERT INTO departements VALUES (1, 'Informatique'), (2, 'Reseaux'); INSERT INTO employes VALUES (10, 'Amina', 1), (11, 'Koffi', 2);\n-- exemple",
-        "expected": "+---------+--------------+\n| nom_emp | nom_dep      |\n+---------+--------------+\n| Amina   | Informatique |\n| Koffi   | Reseaux      |\n+---------+--------------+\n(2 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_EXEMPLE,
+        "expected": resultatTable(['nommarque', 'immat'], [
+          ['BMW', 'TG-0480-AV'], ['HYUNDAI', 'TG-4444-AL'], ['MERCEDES BENZ', 'TG-7854-Z'],
+          ['MITSUBISHI', 'TG-0020-AV'], ['TOYOTA', 'TG-3733-AC'], ['TOYOTA', 'TG-9420-AF']
+        ]),
+        "note": "MAZDA n’apparaît pas dans ce jeu : aucune voiture ne lui correspond."
       }
     ],
     "tests": [
       {
-        "label": "Deux employés dans deux départements",
-        "stdin": "CREATE TABLE departements (id INT, nom_dep TEXT); CREATE TABLE employes (id INT, nom_emp TEXT, dep_id INT); INSERT INTO departements VALUES (1, 'Informatique'), (2, 'Reseaux'); INSERT INTO employes VALUES (10, 'Amina', 1), (11, 'Koffi', 2);",
-        "expected": "+---------+--------------+\n| nom_emp | nom_dep      |\n+---------+--------------+\n| Amina   | Informatique |\n| Koffi   | Reseaux      |\n+---------+--------------+\n(2 lignes retournées)"
+        "label": "Deux marques sans voiture exclues",
+        "stdin": PARC_SANS_BMW,
+        "expected": resultatTable(['nommarque', 'immat'], [
+          ['HYUNDAI', 'TG-4444-AL'], ['MERCEDES BENZ', 'TG-7854-Z'],
+          ['MITSUBISHI', 'TG-0020-AV'], ['TOYOTA', 'TG-3733-AC'], ['TOYOTA', 'TG-9420-AF']
+        ])
       },
       {
-        "label": "Trois employés avec département commun",
-        "stdin": "CREATE TABLE departements (id INT, nom_dep TEXT); CREATE TABLE employes (id INT, nom_emp TEXT, dep_id INT); INSERT INTO departements VALUES (1, 'Securite'), (2, 'Cloud'); INSERT INTO employes VALUES (1, 'Yao', 2), (2, 'Afi', 1), (3, 'Sena', 1);",
-        "expected": "+---------+----------+\n| nom_emp | nom_dep  |\n+---------+----------+\n| Afi     | Securite |\n| Sena    | Securite |\n| Yao     | Cloud    |\n+---------+----------+\n(3 lignes retournées)"
+        "label": "Plusieurs voitures et marques sans voiture",
+        "stdin": PARC_LIMITES,
+        "expected": resultatTable(['nommarque', 'immat'], [
+          ['BMW', 'TG-9003-AX'], ['BMW', 'TG-9005-AX'], ['MAZDA', 'TG-9006-AX'],
+          ['MITSUBISHI', 'TG-9002-AX'], ['TOYOTA', 'TG-9001-AX'], ['TOYOTA', 'TG-9004-AX']
+        ])
       },
-      {
-        "label": "Employé non affecté exclu par INNER JOIN",
-        "stdin": "CREATE TABLE departements (id INT, nom_dep TEXT); CREATE TABLE employes (id INT, nom_emp TEXT, dep_id INT); INSERT INTO departements VALUES (10, 'Support'); INSERT INTO employes VALUES (1, 'Binta', 10), (2, 'Stagiaire', NULL);",
-        "expected": "+---------+---------+\n| nom_emp | nom_dep |\n+---------+---------+\n| Binta   | Support |\n+---------+---------+\n(1 ligne retournée)"
-      }
+      { "label": "Deux voitures de marques différentes", "stdin": PARC_MINI, "expected": resultatTable(['nommarque', 'immat'], [['NISSAN', 'TG-5220-BA'], ['RENAULT', 'TG-2222-BC']]) }
     ],
-    "solution": "-- Corrigé officiel sq-c4-e1\nSELECT e.nom_emp, d.nom_dep FROM employes e INNER JOIN departements d ON e.dep_id = d.id ORDER BY e.nom_emp ASC;"
+    "solution": "SELECT M.nommarque, V.immat FROM Marque M INNER JOIN Voiture V ON M.codemarque = V.codemarque ORDER BY M.nommarque ASC, V.immat ASC;"
   },
   {
     "id": "sq-c4-e2",
@@ -398,115 +499,136 @@ const SQ_EXERCISES = [
     "language": "sql",
     "title": "Jointure externe gauche (LEFT JOIN)",
     "goal": "Conserver toutes les lignes de la table de gauche même sans correspondance à droite.",
-    "brief": "<p>Soient <code>clients(id, nom)</code> et <code>commandes(id, client_id, montant)</code>. Affichez <code>clients.nom</code> et <code>commandes.montant</code> pour <strong>tous</strong> les clients (même ceux n’ayant passé aucune commande, pour lesquels <code>montant</code> vaudra <code>NULL</code>), triés par <code>clients.id</code> croissant.</p>",
-    "starter": "-- Conservez tous les clients avec LEFT JOIN\nSELECT nom FROM clients;",
+    "brief": "<p>Reliez <code>Marque</code> à <code>Voiture</code> par <code>codemarque</code>. Affichez <code>nommarque</code> et <code>immat</code> pour toutes les marques, même sans voiture : dans ce cas, <code>immat</code> vaut <code>NULL</code>. Triez par nom de marque croissant, puis par immatriculation croissante.</p>",
+    "starter": "SELECT nommarque FROM Marque;",
     "hints": [
-      "Utilisez LEFT JOIN commandes cmd ON c.id = cmd.client_id.",
-      "Triez par c.id ASC, cmd.id ASC."
+      "Placez Marque à gauche d’une jointure LEFT JOIN vers Voiture.",
+      "Reliez les codes de marque, puis triez par nom et par immatriculation."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE clients (id INT, nom TEXT); CREATE TABLE commandes (id INT, client_id INT, montant INT); INSERT INTO clients VALUES (1, 'Amina'), (2, 'Koffi'); INSERT INTO commandes VALUES (100, 1, 25000);\n-- exemple",
-        "expected": "+-------+---------+\n| nom   | montant |\n+-------+---------+\n| Amina | 25000   |\n| Koffi | NULL    |\n+-------+---------+\n(2 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_EXEMPLE,
+        "expected": resultatTable(['nommarque', 'immat'], [
+          ['BMW', 'TG-0480-AV'], ['HYUNDAI', 'TG-4444-AL'], ['MAZDA', null], ['MERCEDES BENZ', 'TG-7854-Z'],
+          ['MITSUBISHI', 'TG-0020-AV'], ['TOYOTA', 'TG-3733-AC'], ['TOYOTA', 'TG-9420-AF']
+        ]),
+        "note": "MAZDA est conservée même sans voiture dans ce jeu."
       }
     ],
     "tests": [
       {
-        "label": "Un client avec commande et un client sans commande",
-        "stdin": "CREATE TABLE clients (id INT, nom TEXT); CREATE TABLE commandes (id INT, client_id INT, montant INT); INSERT INTO clients VALUES (1, 'Amina'), (2, 'Koffi'); INSERT INTO commandes VALUES (100, 1, 25000);",
-        "expected": "+-------+---------+\n| nom   | montant |\n+-------+---------+\n| Amina | 25000   |\n| Koffi | NULL    |\n+-------+---------+\n(2 lignes retournées)"
+        "label": "Deux marques sans voiture",
+        "stdin": PARC_SANS_BMW,
+        "expected": resultatTable(['nommarque', 'immat'], [
+          ['BMW', null], ['HYUNDAI', 'TG-4444-AL'], ['MAZDA', null], ['MERCEDES BENZ', 'TG-7854-Z'],
+          ['MITSUBISHI', 'TG-0020-AV'], ['TOYOTA', 'TG-3733-AC'], ['TOYOTA', 'TG-9420-AF']
+        ])
       },
       {
-        "label": "Trois clients dont deux sans commande",
-        "stdin": "CREATE TABLE clients (id INT, nom TEXT); CREATE TABLE commandes (id INT, client_id INT, montant INT); INSERT INTO clients VALUES (1, 'Alpha'), (2, 'Beta'), (3, 'Gamma'); INSERT INTO commandes VALUES (50, 2, 12000);",
-        "expected": "+-------+---------+\n| nom   | montant |\n+-------+---------+\n| Alpha | NULL    |\n| Beta  | 12000   |\n| Gamma | NULL    |\n+-------+---------+\n(3 lignes retournées)"
+        "label": "Deux marques sans voiture et plusieurs correspondances",
+        "stdin": PARC_LIMITES,
+        "expected": resultatTable(['nommarque', 'immat'], [
+          ['BMW', 'TG-9003-AX'], ['BMW', 'TG-9005-AX'], ['MAZDA', 'TG-9006-AX'], ['MITSUBISHI', 'TG-9002-AX'],
+          ['NISSAN', null], ['PEUGEOT', null], ['TOYOTA', 'TG-9001-AX'], ['TOYOTA', 'TG-9004-AX']
+        ])
       },
-      {
-        "label": "Client avec deux commandes",
-        "stdin": "CREATE TABLE clients (id INT, nom TEXT); CREATE TABLE commandes (id INT, client_id INT, montant INT); INSERT INTO clients VALUES (1, 'Sena'), (2, 'Yao'); INSERT INTO commandes VALUES (1, 1, 5000), (2, 1, 8000);",
-        "expected": "+------+---------+\n| nom  | montant |\n+------+---------+\n| Sena | 5000    |\n| Sena | 8000    |\n| Yao  | NULL    |\n+------+---------+\n(3 lignes retournées)"
-      }
+      { "label": "Une marque absente du parc", "stdin": PARC_MINI, "expected": resultatTable(['nommarque', 'immat'], [['KIA', null], ['NISSAN', 'TG-5220-BA'], ['RENAULT', 'TG-2222-BC']]) }
     ],
-    "solution": "-- Corrigé officiel sq-c4-e2\nSELECT c.nom, cmd.montant FROM clients c LEFT JOIN commandes cmd ON c.id = cmd.client_id ORDER BY c.id ASC, cmd.id ASC;"
+    "solution": "SELECT M.nommarque, V.immat FROM Marque M LEFT JOIN Voiture V ON M.codemarque = V.codemarque ORDER BY M.nommarque ASC, V.immat ASC;"
   },
   {
     "id": "sq-c4-e3",
     "chapter": 4,
     "level": "n3",
     "language": "sql",
-    "title": "Jointure sur table d’association (N-N)",
-    "goal": "Relier trois tables (étudiants, inscriptions, cours) via une double jointure.",
-    "brief": "<p>Soient <code>etudiants(id, nom)</code>, <code>cours(id, titre)</code> et la table d’association <code>inscriptions(etudiant_id, cours_id)</code>. Affichez <code>etudiants.nom</code> et <code>cours.titre</code> pour chaque inscription, triés par <code>nom</code> croissant puis <code>titre</code> croissant.</p>",
-    "starter": "-- Reliez etudiants, inscriptions et cours\nSELECT nom FROM etudiants;",
+    "title": "Jointure sur table d’association (N–N)",
+    "goal": "Relier trois tables via une double jointure sur une table d’association.",
+    "brief": "<p>Une voiture peut avoir plusieurs équipements et un équipement peut équiper plusieurs voitures. La table <code>VoitureEquipement(immat, codeequipement)</code> enregistre ces associations. Reliez-la à <code>Voiture</code> et à <code>Equipement</code>, puis affichez <code>immat</code> et <code>nomequipement</code> pour chaque association, triés par immatriculation croissante puis par nom d’équipement croissant.</p>",
+    "starter": "SELECT immat FROM Voiture;",
     "hints": [
-      "Enchaînez deux INNER JOIN : etudiants -> inscriptions puis inscriptions -> cours.",
-      "Triez par e.nom ASC, c.titre ASC."
+      "La première jointure relie l’immatriculation de Voiture à celle de VoitureEquipement.",
+      "La seconde relie le code d’équipement de VoitureEquipement à celui d’Equipement."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE etudiants (id INT, nom TEXT); CREATE TABLE cours (id INT, titre TEXT); CREATE TABLE inscriptions (etudiant_id INT, cours_id INT); INSERT INTO etudiants VALUES (1, 'Amina'), (2, 'Koffi'); INSERT INTO cours VALUES (10, 'SQL'), (20, 'Reseaux'); INSERT INTO inscriptions VALUES (1, 10), (1, 20), (2, 10);\n-- exemple",
-        "expected": "+-------+---------+\n| nom   | titre   |\n+-------+---------+\n| Amina | Reseaux |\n| Amina | SQL     |\n| Koffi | SQL     |\n+-------+---------+\n(3 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_EXEMPLE,
+        "expected": resultatTable(['immat', 'nomequipement'], [
+          ['TG-0020-AV', 'Camera de recul'], ['TG-0480-AV', 'Autoradio'],
+          ['TG-3733-AC', 'Climatisation'], ['TG-3733-AC', 'Navigation GPS'],
+          ['TG-7854-Z', 'Climatisation'], ['TG-9420-AF', 'Navigation GPS']
+        ]),
+        "note": "La Toyota TG-3733-AC a deux équipements ; le GPS équipe deux voitures."
       }
     ],
     "tests": [
       {
-        "label": "Inscriptions multiples",
-        "stdin": "CREATE TABLE etudiants (id INT, nom TEXT); CREATE TABLE cours (id INT, titre TEXT); CREATE TABLE inscriptions (etudiant_id INT, cours_id INT); INSERT INTO etudiants VALUES (1, 'Amina'), (2, 'Koffi'); INSERT INTO cours VALUES (10, 'SQL'), (20, 'Reseaux'); INSERT INTO inscriptions VALUES (1, 10), (1, 20), (2, 10);",
-        "expected": "+-------+---------+\n| nom   | titre   |\n+-------+---------+\n| Amina | Reseaux |\n| Amina | SQL     |\n| Koffi | SQL     |\n+-------+---------+\n(3 lignes retournées)"
+        "label": "Équipement partagé supplémentaire",
+        "stdin": `${PARC_EXEMPLE}\nINSERT INTO VoitureEquipement (immat, codeequipement) VALUES ('TG-9420-AF', 'RAD');`,
+        "expected": resultatTable(['immat', 'nomequipement'], [
+          ['TG-0020-AV', 'Camera de recul'], ['TG-0480-AV', 'Autoradio'],
+          ['TG-3733-AC', 'Climatisation'], ['TG-3733-AC', 'Navigation GPS'],
+          ['TG-7854-Z', 'Climatisation'], ['TG-9420-AF', 'Autoradio'], ['TG-9420-AF', 'Navigation GPS']
+        ])
       },
       {
-        "label": "Deux étudiants sur deux matières",
-        "stdin": "CREATE TABLE etudiants (id INT, nom TEXT); CREATE TABLE cours (id INT, titre TEXT); CREATE TABLE inscriptions (etudiant_id INT, cours_id INT); INSERT INTO etudiants VALUES (1, 'Afi'), (2, 'Yao'); INSERT INTO cours VALUES (1, 'Algo'), (2, 'Linux'); INSERT INTO inscriptions VALUES (1, 2), (2, 1);",
-        "expected": "+-----+-------+\n| nom | titre |\n+-----+-------+\n| Afi | Linux |\n| Yao | Algo  |\n+-----+-------+\n(2 lignes retournées)"
+        "label": "Autres associations et équipements sans voiture",
+        "stdin": PARC_LIMITES,
+        "expected": resultatTable(['immat', 'nomequipement'], [
+          ['TG-9002-AX', 'Caméra de recul'], ['TG-9003-AX', 'Caméra de recul'], ['TG-9003-AX', 'GPS'],
+          ['TG-9004-AX', 'GPS'], ['TG-9004-AX', 'Jantes'], ['TG-9006-AX', 'Autoradio']
+        ])
       },
-      {
-        "label": "Un étudiant inscrit à trois cours",
-        "stdin": "CREATE TABLE etudiants (id INT, nom TEXT); CREATE TABLE cours (id INT, titre TEXT); CREATE TABLE inscriptions (etudiant_id INT, cours_id INT); INSERT INTO etudiants VALUES (1, 'Sena'); INSERT INTO cours VALUES (1, 'C'), (2, 'PHP'), (3, 'Python'); INSERT INTO inscriptions VALUES (1, 1), (1, 2), (1, 3);",
-        "expected": "+------+--------+\n| nom  | titre  |\n+------+--------+\n| Sena | C      |\n| Sena | PHP    |\n| Sena | Python |\n+------+--------+\n(3 lignes retournées)"
-      }
+      { "label": "Un équipement pour deux voitures", "stdin": PARC_MINI, "expected": resultatTable(['immat', 'nomequipement'], [['TG-2222-BC', 'Attelage'], ['TG-2222-BC', 'GPS'], ['TG-5220-BA', 'GPS']]) }
     ],
-    "solution": "-- Corrigé officiel sq-c4-e3\nSELECT e.nom, c.titre FROM etudiants e INNER JOIN inscriptions i ON e.id = i.etudiant_id INNER JOIN cours c ON c.id = i.cours_id ORDER BY e.nom ASC, c.titre ASC;"
+    "solution": "SELECT V.immat, E.nomequipement FROM Voiture V INNER JOIN VoitureEquipement VE ON V.immat = VE.immat INNER JOIN Equipement E ON VE.codeequipement = E.codeequipement ORDER BY V.immat ASC, E.nomequipement ASC;"
   },
   {
     "id": "sq-c5-e1",
     "chapter": 5,
     "level": "n1",
     "language": "sql",
-    "title": "Compter et sommer par catégorie avec GROUP BY",
+    "title": "Compter et sommer par pays avec GROUP BY",
     "goal": "Utiliser COUNT(*) et SUM() associés à GROUP BY.",
-    "brief": "<p>Dans la table <code>ventes(id, categorie, montant)</code>, calculez pour chaque <code>categorie</code> le nombre de ventes (alias <code>nb_ventes</code>) et la somme des montants (alias <code>total_montant</code>), triés par <code>categorie</code> croissante.</p>",
-    "starter": "-- Regroupez par categorie avec COUNT(*) et SUM(montant)\nSELECT categorie FROM ventes;",
+    "brief": "<p>À partir de <code>Marque</code>, reliez les voitures par une jointure gauche sur <code>codemarque</code>. Pour chaque <code>paysmarque</code>, affichez le pays, le nombre de lignes de la jointure (<code>COUNT(*) AS nb_lignes</code>), le nombre de voitures (<code>COUNT(V.immat) AS nb_voitures</code>) et la somme des prix d’achat (<code>SUM(V.pxachat) AS total_achat</code>). Triez par pays croissant.</p><p>Une marque sans voiture produit une ligne dont les colonnes de <code>V</code> sont <code>NULL</code> : <code>COUNT(*)</code> la compte, mais <code>COUNT(V.immat)</code> ne la compte pas. <code>SUM</code> ignore les prix <code>NULL</code> et renvoie <code>NULL</code> si aucun prix n’est présent dans le groupe.</p>",
+    "starter": "SELECT M.paysmarque FROM Marque M LEFT JOIN Voiture V ON M.codemarque = V.codemarque;",
     "hints": [
-      "Utilisez COUNT(*) AS nb_ventes, SUM(montant) AS total_montant.",
-      "Regroupez avec GROUP BY categorie et triez par categorie ASC."
+      "La jointure gauche conserve les marques sans voiture ; distinguez le nombre de lignes et le nombre d’immatriculations non NULL.",
+      "Calculez les agrégats demandés, regroupez par pays et triez le résultat."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE ventes (id INT, categorie TEXT, montant INT); INSERT INTO ventes VALUES (1, 'Clavier', 5000), (2, 'Clavier', 7000), (3, 'Souris', 3000);\n-- exemple",
-        "expected": "+-----------+-----------+---------------+\n| categorie | nb_ventes | total_montant |\n+-----------+-----------+---------------+\n| Clavier   | 2         | 12000         |\n| Souris    | 1         | 3000          |\n+-----------+-----------+---------------+\n(2 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_EXEMPLE,
+        "expected": resultatTable(['paysmarque', 'nb_lignes', 'nb_voitures', 'total_achat'], [
+          ['ALLEMAGNE', 2, 2, 56000000], ['COREE DU SUD', 1, 1, 10000000], ['JAPON', 4, 3, 120000000]
+        ]),
+        "note": "Au Japon, MAZDA contribue une ligne sans voiture ; les deux prix à 50000000 sont additionnés."
       }
     ],
     "tests": [
       {
-        "label": "Deux catégories de périphériques",
-        "stdin": "CREATE TABLE ventes (id INT, categorie TEXT, montant INT); INSERT INTO ventes VALUES (1, 'Clavier', 5000), (2, 'Clavier', 7000), (3, 'Souris', 3000);",
-        "expected": "+-----------+-----------+---------------+\n| categorie | nb_ventes | total_montant |\n+-----------+-----------+---------------+\n| Clavier   | 2         | 12000         |\n| Souris    | 1         | 3000          |\n+-----------+-----------+---------------+\n(2 lignes retournées)"
+        "label": "Prix répétés et deux marques sans voiture",
+        "stdin": PARC_SANS_BMW,
+        "expected": resultatTable(['paysmarque', 'nb_lignes', 'nb_voitures', 'total_achat'], [
+          ['ALLEMAGNE', 2, 1, 6000000], ['COREE DU SUD', 1, 1, 10000000], ['JAPON', 4, 3, 120000000]
+        ])
       },
       {
-        "label": "Trois familles de produits",
-        "stdin": "CREATE TABLE ventes (id INT, categorie TEXT, montant INT); INSERT INTO ventes VALUES (1, 'Cable', 2000), (2, 'Ecran', 45000), (3, 'Cable', 3000), (4, 'Routeur', 25000), (5, 'Ecran', 50000);",
-        "expected": "+-----------+-----------+---------------+\n| categorie | nb_ventes | total_montant |\n+-----------+-----------+---------------+\n| Cable     | 2         | 5000          |\n| Ecran     | 2         | 95000         |\n| Routeur   | 1         | 25000         |\n+-----------+-----------+---------------+\n(3 lignes retournées)"
+        "label": "Pays sans voiture et valeurs répétées",
+        "stdin": PARC_LIMITES,
+        "expected": resultatTable(['paysmarque', 'nb_lignes', 'nb_voitures', 'total_achat'], [
+          ['ALLEMAGNE', 2, 2, 31000000], ['FRANCE', 1, 0, null], ['JAPON', 5, 4, 112000000]
+        ])
       },
       {
-        "label": "Catégorie unique",
-        "stdin": "CREATE TABLE ventes (id INT, categorie TEXT, montant INT); INSERT INTO ventes VALUES (1, 'Serveur', 500000), (2, 'Serveur', 700000);",
-        "expected": "+-----------+-----------+---------------+\n| categorie | nb_ventes | total_montant |\n+-----------+-----------+---------------+\n| Serveur   | 2         | 1200000       |\n+-----------+-----------+---------------+\n(1 ligne retournée)"
-      }
+        "label": "Trois pays dont un sans voiture",
+        "stdin": PARC_MINI,
+        "expected": resultatTable(['paysmarque', 'nb_lignes', 'nb_voitures', 'total_achat'], [
+          ['COREE DU SUD', 1, 0, null], ['FRANCE', 1, 1, 15000000], ['JAPON', 1, 1, 10000000]
+        ])
+      },
+      { "label": "Aucune marque", "stdin": PARC_SCHEMA, "expected": resultatTable(['paysmarque', 'nb_lignes', 'nb_voitures', 'total_achat'], []) }
     ],
-    "solution": "-- Corrigé officiel sq-c5-e1\nSELECT categorie, COUNT(*) AS nb_ventes, SUM(montant) AS total_montant FROM ventes GROUP BY categorie ORDER BY categorie ASC;"
+    "solution": "SELECT M.paysmarque, COUNT(*) AS nb_lignes, COUNT(V.immat) AS nb_voitures, SUM(V.pxachat) AS total_achat FROM Marque M LEFT JOIN Voiture V ON M.codemarque = V.codemarque GROUP BY M.paysmarque ORDER BY M.paysmarque ASC;"
   },
   {
     "id": "sq-c5-e2",
@@ -515,76 +637,67 @@ const SQ_EXERCISES = [
     "language": "sql",
     "title": "Filtrer les groupes après agrégation avec HAVING",
     "goal": "Sélectionner uniquement les groupes dont l’agrégat dépasse un seuil via HAVING.",
-    "brief": "<p>Dans la table <code>commandes(id, client, montant)</code>, affichez le <code>client</code> et le total de ses commandes (<code>SUM(montant) AS total</code>) uniquement pour les clients dont le total est supérieur ou égal à <code>20000</code>, triés par <code>total</code> décroissant.</p>",
-    "starter": "-- Filtrez les groupes ayant SUM(montant) >= 20000 avec HAVING\nSELECT client, SUM(montant) AS total FROM commandes GROUP BY client;",
+    "brief": "<p>Dans <code>Voiture</code>, affichez chaque <code>marque</code> et le total de ses prix d’achat (<code>SUM(pxachat) AS total</code>), uniquement si ce total est supérieur ou égal à <code>50000000</code>. Triez par total décroissant, puis par marque croissante en cas d’égalité.</p>",
+    "starter": "SELECT marque, SUM(pxachat) AS total FROM Voiture GROUP BY marque;",
     "hints": [
-      "WHERE filtre les lignes avant GROUP BY, tandis que HAVING filtre les groupes après GROUP BY.",
-      "Écrivez HAVING SUM(montant) >= 20000 ORDER BY total DESC;"
+      "WHERE filtre les lignes avant le regroupement ; HAVING filtre les groupes après le calcul des agrégats.",
+      "Conservez les groupes dont la somme atteint le seuil, puis triez sur le total et la marque."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE commandes (id INT, client TEXT, montant INT); INSERT INTO commandes VALUES (1, 'Amina', 15000), (2, 'Amina', 10000), (3, 'Koffi', 8000);\n-- exemple",
-        "expected": "+--------+-------+\n| client | total |\n+--------+-------+\n| Amina  | 25000 |\n+--------+-------+\n(1 ligne retournée)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_EXEMPLE,
+        "expected": resultatTable(['marque', 'total'], [['TOYOTA', 70000000], ['BMW', 50000000], ['MITSUBISHI', 50000000]]),
+        "note": "Les marques dont le total vaut exactement 50000000 sont conservées."
       }
     ],
     "tests": [
-      {
-        "label": "Deux clients dont un seul dépasse 20000",
-        "stdin": "CREATE TABLE commandes (id INT, client TEXT, montant INT); INSERT INTO commandes VALUES (1, 'Amina', 15000), (2, 'Amina', 10000), (3, 'Koffi', 8000);",
-        "expected": "+--------+-------+\n| client | total |\n+--------+-------+\n| Amina  | 25000 |\n+--------+-------+\n(1 ligne retournée)"
-      },
-      {
-        "label": "Cas limite à 20000",
-        "stdin": "CREATE TABLE commandes (id INT, client TEXT, montant INT); INSERT INTO commandes VALUES (1, 'Yao', 12000), (2, 'Yao', 8000), (3, 'Sena', 35000), (4, 'Afi', 19000);",
-        "expected": "+--------+-------+\n| client | total |\n+--------+-------+\n| Sena   | 35000 |\n| Yao    | 20000 |\n+--------+-------+\n(2 lignes retournées)"
-      },
-      {
-        "label": "Plusieurs gros clients",
-        "stdin": "CREATE TABLE commandes (id INT, client TEXT, montant INT); INSERT INTO commandes VALUES (1, 'Entreprise A', 50000), (2, 'Entreprise B', 25000), (3, 'Particulier', 5000);",
-        "expected": "+--------------+-------+\n| client       | total |\n+--------------+-------+\n| Entreprise A | 50000 |\n| Entreprise B | 25000 |\n+--------------+-------+\n(2 lignes retournées)"
-      }
+      { "label": "Total juste sous la borne", "stdin": `${PARC_EXEMPLE}\nUPDATE Voiture SET pxachat = 49999999 WHERE immat = 'TG-0020-AV';`, "expected": resultatTable(['marque', 'total'], [['TOYOTA', 70000000], ['BMW', 50000000]]) },
+      { "label": "Total exact et total supérieur", "stdin": PARC_LIMITES, "expected": resultatTable(['marque', 'total'], [['TOYOTA', 56000000], ['MITSUBISHI', 50000000]]) },
+      { "label": "Aucun groupe au seuil", "stdin": PARC_MINI, "expected": resultatTable(['marque', 'total'], []) }
     ],
-    "solution": "-- Corrigé officiel sq-c5-e2\nSELECT client, SUM(montant) AS total FROM commandes GROUP BY client HAVING SUM(montant) >= 20000 ORDER BY total DESC;"
+    "solution": "SELECT marque, SUM(pxachat) AS total FROM Voiture GROUP BY marque HAVING SUM(pxachat) >= 50000000 ORDER BY total DESC, marque ASC;"
   },
   {
     "id": "sq-c5-e3",
     "chapter": 5,
     "level": "n3",
     "language": "sql",
-    "title": "Statistiques complètes par matière (MIN, MAX, COUNT)",
+    "title": "Statistiques par marque (MIN, MAX, COUNT)",
     "goal": "Combiner plusieurs fonctions d’agrégation sur chaque groupe.",
-    "brief": "<p>Dans la table <code>evaluations(matiere, note)</code>, affichez pour chaque <code>matiere</code> : <code>matiere</code>, le nombre de copies (<code>COUNT(*) AS effectif</code>), la note minimale (<code>MIN(note) AS note_min</code>) et la note maximale (<code>MAX(note) AS note_max</code>), triés par <code>matiere</code> croissante.</p>",
-    "starter": "-- Calculez effectif, note_min et note_max par matiere\nSELECT matiere FROM evaluations GROUP BY matiere;",
+    "brief": "<p>Dans <code>Voiture</code>, affichez pour chaque <code>marque</code> : la marque, le nombre de voitures (<code>COUNT(*) AS effectif</code>), le kilométrage minimal (<code>MIN(km) AS km_min</code>) et le kilométrage maximal (<code>MAX(km) AS km_max</code>). Triez par marque croissante.</p>",
+    "starter": "SELECT marque FROM Voiture GROUP BY marque;",
     "hints": [
-      "Appelez COUNT(*), MIN(note) et MAX(note) dans la clause SELECT.",
-      "Regroupez avec GROUP BY matiere ORDER BY matiere ASC;"
+      "Appelez COUNT(*), MIN(km) et MAX(km) dans SELECT.",
+      "Regroupez et triez par marque."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE evaluations (matiere TEXT, note INT); INSERT INTO evaluations VALUES ('Algo', 12), ('Algo', 18), ('SQL', 14), ('SQL', 10), ('SQL', 16);\n-- exemple",
-        "expected": "+---------+----------+----------+----------+\n| matiere | effectif | note_min | note_max |\n+---------+----------+----------+----------+\n| Algo    | 2        | 12       | 18       |\n| SQL     | 3        | 10       | 16       |\n+---------+----------+----------+----------+\n(2 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_EXEMPLE,
+        "expected": resultatTable(['marque', 'effectif', 'km_min', 'km_max'], [
+          ['BMW', 1, 0, 0], ['HYUNDAI', 1, 5, 5], ['MERCEDES BENZ', 1, 500, 500],
+          ['MITSUBISHI', 1, 30, 30], ['TOYOTA', 2, 0, 0]
+        ]),
+        "note": "Les deux Toyota sont comptées même si leurs kilométrages sont identiques."
       }
     ],
     "tests": [
       {
-        "label": "Deux matières évaluées",
-        "stdin": "CREATE TABLE evaluations (matiere TEXT, note INT); INSERT INTO evaluations VALUES ('Algo', 12), ('Algo', 18), ('SQL', 14), ('SQL', 10), ('SQL', 16);",
-        "expected": "+---------+----------+----------+----------+\n| matiere | effectif | note_min | note_max |\n+---------+----------+----------+----------+\n| Algo    | 2        | 12       | 18       |\n| SQL     | 3        | 10       | 16       |\n+---------+----------+----------+----------+\n(2 lignes retournées)"
+        "label": "Kilométrages identiques sans BMW",
+        "stdin": PARC_SANS_BMW,
+        "expected": resultatTable(['marque', 'effectif', 'km_min', 'km_max'], [
+          ['HYUNDAI', 1, 5, 5], ['MERCEDES BENZ', 1, 500, 500], ['MITSUBISHI', 1, 30, 30], ['TOYOTA', 2, 0, 0]
+        ])
       },
       {
-        "label": "Trois matières",
-        "stdin": "CREATE TABLE evaluations (matiere TEXT, note INT); INSERT INTO evaluations VALUES ('Linux', 15), ('Linux', 11), ('Reseaux', 9), ('Reseaux', 17), ('Web', 14);",
-        "expected": "+---------+----------+----------+----------+\n| matiere | effectif | note_min | note_max |\n+---------+----------+----------+----------+\n| Linux   | 2        | 11       | 15       |\n| Reseaux | 2        | 9        | 17       |\n| Web     | 1        | 14       | 14       |\n+---------+----------+----------+----------+\n(3 lignes retournées)"
+        "label": "Minimum et maximum différents",
+        "stdin": PARC_LIMITES,
+        "expected": resultatTable(['marque', 'effectif', 'km_min', 'km_max'], [
+          ['BMW', 2, 0, 6], ['MAZDA', 1, 10, 10], ['MITSUBISHI', 1, 5, 5], ['TOYOTA', 2, 4, 5]
+        ])
       },
-      {
-        "label": "Notes identiques",
-        "stdin": "CREATE TABLE evaluations (matiere TEXT, note INT); INSERT INTO evaluations VALUES ('Anglais', 13), ('Anglais', 13);",
-        "expected": "+---------+----------+----------+----------+\n| matiere | effectif | note_min | note_max |\n+---------+----------+----------+----------+\n| Anglais | 2        | 13       | 13       |\n+---------+----------+----------+----------+\n(1 ligne retournée)"
-      }
+      { "label": "Une voiture par marque", "stdin": PARC_MINI, "expected": resultatTable(['marque', 'effectif', 'km_min', 'km_max'], [['NISSAN', 1, 6700, 6700], ['RENAULT', 1, 0, 0]]) }
     ],
-    "solution": "-- Corrigé officiel sq-c5-e3\nSELECT matiere, COUNT(*) AS effectif, MIN(note) AS note_min, MAX(note) AS note_max FROM evaluations GROUP BY matiere ORDER BY matiere ASC;"
+    "solution": "SELECT marque, COUNT(*) AS effectif, MIN(km) AS km_min, MAX(km) AS km_max FROM Voiture GROUP BY marque ORDER BY marque ASC;"
   },
   {
     "id": "sq-c6-e1",
@@ -593,116 +706,312 @@ const SQ_EXERCISES = [
     "language": "sql",
     "title": "Mettre à jour des lignes ciblées avec UPDATE ... WHERE",
     "goal": "Modifier la valeur d’une colonne sur un sous-ensemble de lignes avec UPDATE.",
-    "brief": "<p>Dans la table <code>stocks(id, article, quantite)</code>, augmentez de <code>10</code> la <code>quantite</code> (<code>quantite = quantite + 10</code>) uniquement pour les articles dont la quantité actuelle est strictement inférieure à <code>5</code> (<code>WHERE quantite &lt; 5</code>).</p>",
-    "starter": "-- Réapprovisionnez de +10 les articles ayant quantite < 5\nUPDATE stocks SET quantite = quantite;",
+    "brief": "<p>Dans une copie de <code>Voiture</code>, ajoutez <code>10</code> au kilométrage <code>km</code> des seules voitures dont le kilométrage actuel est strictement inférieur à <code>5</code>, après un essai de 10 km. Ne modifiez ni les autres voitures ni leurs autres colonnes.</p>",
+    "starter": "UPDATE Voiture SET km = km;",
     "hints": [
-      "Utilisez UPDATE stocks SET quantite = quantite + 10.",
-      "Filtrez impérativement avec WHERE quantite < 5 pour ne pas modifier tout le stock."
+      "La nouvelle valeur peut être calculée à partir de l’ancienne : km + 10.",
+      "Utilisez WHERE pour ne conserver que les kilométrages strictement inférieurs à 5."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE stocks (id INT, article TEXT, quantite INT); INSERT INTO stocks VALUES (1, 'Clavier', 2), (2, 'Souris', 12), (3, 'Ecran', 4);\n-- VERIFY:\nSELECT id, article, quantite FROM stocks ORDER BY id;\n-- exemple",
-        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+---------+----------+\n| id | article | quantite |\n+----+---------+----------+\n| 1  | Clavier | 12       |\n| 2  | Souris  | 12       |\n| 3  | Ecran   | 14       |\n+----+---------+----------+\n(3 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": `${PARC_EXEMPLE}\n-- VERIFY:\nSELECT * FROM Voiture ORDER BY immat ASC;`,
+        "expected": resultatModification(3, COLONNES_VOITURE, voituresApresEssai(VOITURES_EXEMPLE)),
+        "note": "La vérification affiche toutes les voitures après la modification."
       }
     ],
     "tests": [
-      {
-        "label": "Deux articles en alerte de stock",
-        "stdin": "CREATE TABLE stocks (id INT, article TEXT, quantite INT); INSERT INTO stocks VALUES (1, 'Clavier', 2), (2, 'Souris', 12), (3, 'Ecran', 4);\n-- VERIFY:\nSELECT id, article, quantite FROM stocks ORDER BY id;",
-        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+---------+----------+\n| id | article | quantite |\n+----+---------+----------+\n| 1  | Clavier | 12       |\n| 2  | Souris  | 12       |\n| 3  | Ecran   | 14       |\n+----+---------+----------+\n(3 lignes retournées)"
-      },
-      {
-        "label": "Stock à zéro (rupture)",
-        "stdin": "CREATE TABLE stocks (id INT, article TEXT, quantite INT); INSERT INTO stocks VALUES (1, 'Routeur', 0), (2, 'Switch', 5), (3, 'Cable', 20);\n-- VERIFY:\nSELECT id, article, quantite FROM stocks ORDER BY id;",
-        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+---------+----------+\n| id | article | quantite |\n+----+---------+----------+\n| 1  | Routeur | 10       |\n| 2  | Switch  | 5        |\n| 3  | Cable   | 20       |\n+----+---------+----------+\n(3 lignes retournées)"
-      },
-      {
-        "label": "Tous les articles sous le seuil",
-        "stdin": "CREATE TABLE stocks (id INT, article TEXT, quantite INT); INSERT INTO stocks VALUES (1, 'SSD', 1), (2, 'RAM', 3);\n-- VERIFY:\nSELECT id, article, quantite FROM stocks ORDER BY id;",
-        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+---------+----------+\n| id | article | quantite |\n+----+---------+----------+\n| 1  | SSD     | 11       |\n| 2  | RAM     | 13       |\n+----+---------+----------+\n(2 lignes retournées)"
-      }
+      { "label": "Deux voitures à zéro et une à quatre kilomètres", "stdin": `${PARC_EXEMPLE}\nUPDATE Voiture SET km = 4 WHERE immat = 'TG-3733-AC';\n-- VERIFY:\nSELECT * FROM Voiture ORDER BY immat ASC;`, "expected": resultatModification(3, COLONNES_VOITURE, voituresApresEssai(VOITURES_EXEMPLE.map(ligne => ligne[0] === 'TG-3733-AC' ? ligne.map((valeur, index) => index === 5 ? 4 : valeur) : ligne))) },
+      { "label": "Valeurs 0, 4, 5 et 6", "stdin": `${PARC_LIMITES}\n-- VERIFY:\nSELECT * FROM Voiture ORDER BY immat ASC;`, "expected": resultatModification(2, COLONNES_VOITURE, voituresApresEssai(VOITURES_LIMITES)) },
+      { "label": "Une seule voiture à modifier", "stdin": `${PARC_MINI}\n-- VERIFY:\nSELECT * FROM Voiture ORDER BY immat ASC;`, "expected": resultatModification(1, COLONNES_VOITURE, voituresApresEssai(VOITURES_MINI)) }
     ],
-    "solution": "-- Corrigé officiel sq-c6-e1\nUPDATE stocks SET quantite = quantite + 10 WHERE quantite < 5;"
+    "solution": "UPDATE Voiture SET km = km + 10 WHERE km < 5;"
   },
   {
     "id": "sq-c6-e2",
     "chapter": 6,
     "level": "n2",
     "language": "sql",
-    "title": "Supprimer les enregistrements obsolètes avec DELETE ... WHERE",
+    "title": "Supprimer des lignes ciblées avec DELETE ... WHERE",
     "goal": "Supprimer uniquement les lignes répondant à un critère précis avec DELETE FROM.",
-    "brief": "<p>Dans la table <code>sessions(id, utilisateur, expiree)</code>, supprimez toutes les sessions expirées pour lesquelles <code>expiree = 1</code>.</p>",
-    "starter": "-- Supprimez uniquement les sessions où expiree = 1\nSELECT * FROM sessions;",
+    "brief": "<p>Pour cet exercice sur une copie du parc, supprimez de <code>Voiture</code> uniquement les lignes dont la date de circulation <code>datecirc</code> est <code>NULL</code>. Conservez les autres voitures ; une chaîne vide n’est pas <code>NULL</code>. Le parc initial du simulateur ne comporte pas de date absente : certains jeux sont adaptés pour l’exercice.</p><p>Les clés étrangères étant activées, les associations des voitures supprimées disparaissent automatiquement de <code>VoitureEquipement</code> ; les équipements eux-mêmes sont conservés.</p>",
+    "starter": "SELECT * FROM Voiture;",
     "hints": [
-      "Utilisez DELETE FROM sessions WHERE expiree = 1;",
-      "Vérifiez la présence de la clause WHERE pour conserver les sessions actives (expiree = 0)."
+      "DELETE FROM supprime des lignes ; la clause WHERE limite la suppression.",
+      "Testez l’absence de date avec IS NULL."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE sessions (id INT, utilisateur TEXT, expiree INT); INSERT INTO sessions VALUES (1, 'amina', 0), (2, 'koffi', 1), (3, 'yao', 1);\n-- VERIFY:\nSELECT id, utilisateur, expiree FROM sessions ORDER BY id;\n-- exemple",
-        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+-------------+---------+\n| id | utilisateur | expiree |\n+----+-------------+---------+\n| 1  | amina       | 0       |\n+----+-------------+---------+\n(1 ligne retournée)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_DATES + VERIFICATION_SUPPRESSION,
+        "expected": resultatModification(2, COLONNES_VOITURE, VOITURES_EXEMPLE.filter(ligne => !['TG-3733-AC', 'TG-9420-AF'].includes(ligne[0]))) + '\n\n' + resultatTable(['immat', 'codeequipement'], [['TG-0020-AV', 'CAM'], ['TG-0480-AV', 'RAD'], ['TG-7854-Z', 'AIR']]),
+        "note": "La vérification affiche les voitures et associations conservées après les suppressions."
       }
     ],
     "tests": [
       {
-        "label": "Deux sessions expirées sur trois",
-        "stdin": "CREATE TABLE sessions (id INT, utilisateur TEXT, expiree INT); INSERT INTO sessions VALUES (1, 'amina', 0), (2, 'koffi', 1), (3, 'yao', 1);\n-- VERIFY:\nSELECT id, utilisateur, expiree FROM sessions ORDER BY id;",
-        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+-------------+---------+\n| id | utilisateur | expiree |\n+----+-------------+---------+\n| 1  | amina       | 0       |\n+----+-------------+---------+\n(1 ligne retournée)"
+        "label": "Parc initial sans date absente",
+        "stdin": PARC_EXEMPLE + VERIFICATION_SUPPRESSION,
+        "expected": resultatModification(0, COLONNES_VOITURE, VOITURES_EXEMPLE) + '\n\n' + resultatTable(['immat', 'codeequipement'], [['TG-0020-AV', 'CAM'], ['TG-0480-AV', 'RAD'], ['TG-3733-AC', 'AIR'], ['TG-3733-AC', 'GPS'], ['TG-7854-Z', 'AIR'], ['TG-9420-AF', 'GPS']])
       },
+      { "label": "Cinq dates absentes", "stdin": PARC_LIMITES + VERIFICATION_SUPPRESSION, "expected": resultatModification(5, COLONNES_VOITURE, [VOITURES_LIMITES[0]]) + '\n\n' + resultatTable(['immat', 'codeequipement'], []) },
+      { "label": "Aucune date absente", "stdin": PARC_MINI + VERIFICATION_SUPPRESSION, "expected": resultatModification(0, COLONNES_VOITURE, VOITURES_MINI) + '\n\n' + resultatTable(['immat', 'codeequipement'], [['TG-2222-BC', 'ATT'], ['TG-2222-BC', 'GPS'], ['TG-5220-BA', 'GPS']]) },
       {
-        "label": "Une seule session expirée",
-        "stdin": "CREATE TABLE sessions (id INT, utilisateur TEXT, expiree INT); INSERT INTO sessions VALUES (10, 'admin', 0), (20, 'guest', 1), (30, 'dev', 0);\n-- VERIFY:\nSELECT id, utilisateur, expiree FROM sessions ORDER BY id;",
-        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+-------------+---------+\n| id | utilisateur | expiree |\n+----+-------------+---------+\n| 10 | admin       | 0       |\n| 30 | dev         | 0       |\n+----+-------------+---------+\n(2 lignes retournées)"
-      },
-      {
-        "label": "Aucune session expirée",
-        "stdin": "CREATE TABLE sessions (id INT, utilisateur TEXT, expiree INT); INSERT INTO sessions VALUES (1, 'alice', 0), (2, 'bob', 0);\n-- VERIFY:\nSELECT id, utilisateur, expiree FROM sessions ORDER BY id;",
-        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+----+-------------+---------+\n| id | utilisateur | expiree |\n+----+-------------+---------+\n| 1  | alice       | 0       |\n| 2  | bob         | 0       |\n+----+-------------+---------+\n(2 lignes retournées)"
+        "label": "Chaîne vide conservée",
+        "stdin": PARC_DATES_MIXTES + VERIFICATION_SUPPRESSION,
+        "expected": resultatModification(4, COLONNES_VOITURE, [VOITURES_LIMITES[0], ['TG-9002-AX', 'MITSUBISHI', 'MIT', 'ESSENCE', '', 5, 50000000, 7]]) + '\n\n' + resultatTable(['immat', 'codeequipement'], [['TG-9002-AX', 'CAM']])
       }
     ],
-    "solution": "-- Corrigé officiel sq-c6-e2\nDELETE FROM sessions WHERE expiree = 1;"
+    "solution": "DELETE FROM Voiture WHERE datecirc IS NULL;"
   },
   {
     "id": "sq-c6-e3",
     "chapter": 6,
     "level": "n3",
     "language": "sql",
-    "title": "Sous-requête dans WHERE (supprimer ou filtrer selon une autre table)",
+    "title": "Sous-requête dans WHERE",
     "goal": "Utiliser une sous-requête (IN / SELECT) pour filtrer selon les données d’une seconde table.",
-    "brief": "<p>Soient <code>utilisateurs(id, login, role)</code> et <code>journal_connexions(id_log, user_id, action)</code>. Affichez <code>id_log</code> et <code>action</code> du journal uniquement pour les utilisateurs dont le <code>role</code> est <code>'admin'</code> dans la table <code>utilisateurs</code>, triés par <code>id_log</code> croissant.</p>",
-    "starter": "-- Sélectionnez id_log et action des utilisateurs ayant role = 'admin'\nSELECT id_log, action FROM journal_connexions;",
+    "brief": "<p>Dans <code>Voiture</code>, affichez <code>immat</code> et <code>marque</code> pour les voitures dont la marque a <code>paysmarque = 'JAPON'</code> dans la table <code>Marque</code>. Reliez les deux tables par <code>codemarque</code> et triez par <code>immat</code> croissante.</p>",
+    "starter": "SELECT immat, marque FROM Voiture;",
     "hints": [
-      "Utilisez WHERE user_id IN (SELECT id FROM utilisateurs WHERE role = 'admin') ou un INNER JOIN.",
-      "Triez par id_log ASC."
+      "Une sous-requête sur Marque peut renvoyer les codes de toutes les marques japonaises.",
+      "Utilisez IN pour comparer le code de chaque voiture à cet ensemble, puis triez par immat."
     ],
     "examples": [
       {
-        "stdin": "CREATE TABLE utilisateurs (id INT, login TEXT, role TEXT); CREATE TABLE journal_connexions (id_log INT, user_id INT, action TEXT); INSERT INTO utilisateurs VALUES (1, 'root', 'admin'), (2, 'invite', 'lecteur'); INSERT INTO journal_connexions VALUES (100, 1, 'GRANT SELECT'), (101, 2, 'SELECT'), (102, 1, 'BACKUP');\n-- exemple",
-        "expected": "+--------+--------------+\n| id_log | action       |\n+--------+--------------+\n| 100    | GRANT SELECT |\n| 102    | BACKUP       |\n+--------+--------------+\n(2 lignes retournées)",
-        "note": "Résultat de la requête SQL sur la base d’exemple."
+        "stdin": PARC_EXEMPLE,
+        "expected": resultatTable(['immat', 'marque'], [['TG-0020-AV', 'MITSUBISHI'], ['TG-3733-AC', 'TOYOTA'], ['TG-9420-AF', 'TOYOTA']]),
+        "note": "Le jeu contient des voitures de deux marques japonaises."
       }
     ],
     "tests": [
-      {
-        "label": "Actions d’un administrateur et d’un lecteur",
-        "stdin": "CREATE TABLE utilisateurs (id INT, login TEXT, role TEXT); CREATE TABLE journal_connexions (id_log INT, user_id INT, action TEXT); INSERT INTO utilisateurs VALUES (1, 'root', 'admin'), (2, 'invite', 'lecteur'); INSERT INTO journal_connexions VALUES (100, 1, 'GRANT SELECT'), (101, 2, 'SELECT'), (102, 1, 'BACKUP');",
-        "expected": "+--------+--------------+\n| id_log | action       |\n+--------+--------------+\n| 100    | GRANT SELECT |\n| 102    | BACKUP       |\n+--------+--------------+\n(2 lignes retournées)"
-      },
-      {
-        "label": "Deux administrateurs distincts",
-        "stdin": "CREATE TABLE utilisateurs (id INT, login TEXT, role TEXT); CREATE TABLE journal_connexions (id_log INT, user_id INT, action TEXT); INSERT INTO utilisateurs VALUES (1, 'amina', 'admin'), (2, 'koffi', 'editeur'), (3, 'yao', 'admin'); INSERT INTO journal_connexions VALUES (1, 1, 'CREATE USER'), (2, 2, 'UPDATE'), (3, 3, 'REVOKE');",
-        "expected": "+--------+-------------+\n| id_log | action      |\n+--------+-------------+\n| 1      | CREATE USER |\n| 3      | REVOKE      |\n+--------+-------------+\n(2 lignes retournées)"
-      },
-      {
-        "label": "Un seul événement admin",
-        "stdin": "CREATE TABLE utilisateurs (id INT, login TEXT, role TEXT); CREATE TABLE journal_connexions (id_log INT, user_id INT, action TEXT); INSERT INTO utilisateurs VALUES (10, 'secops', 'admin'); INSERT INTO journal_connexions VALUES (50, 10, 'AUDIT_OK');",
-        "expected": "+--------+----------+\n| id_log | action   |\n+--------+----------+\n| 50     | AUDIT_OK |\n+--------+----------+\n(1 ligne retournée)"
-      }
+      { "label": "Trois marques japonaises et des marques étrangères", "stdin": PARC_AVEC_MAZDA, "expected": resultatTable(['immat', 'marque'], [['TG-0020-AV', 'MITSUBISHI'], ['TG-1420-AW', 'MAZDA'], ['TG-3733-AC', 'TOYOTA'], ['TG-9420-AF', 'TOYOTA']]) },
+      { "label": "Trois marques japonaises représentées", "stdin": PARC_LIMITES, "expected": resultatTable(['immat', 'marque'], [['TG-9001-AX', 'TOYOTA'], ['TG-9002-AX', 'MITSUBISHI'], ['TG-9004-AX', 'TOYOTA'], ['TG-9006-AX', 'MAZDA']]) },
+      { "label": "Une seule voiture japonaise", "stdin": PARC_MINI, "expected": resultatTable(['immat', 'marque'], [['TG-5220-BA', 'NISSAN']]) }
     ],
-    "solution": "-- Corrigé officiel sq-c6-e3\nSELECT id_log, action FROM journal_connexions WHERE user_id IN (SELECT id FROM utilisateurs WHERE role = 'admin') ORDER BY id_log ASC;"
+    "solution": "SELECT immat, marque FROM Voiture WHERE codemarque IN (SELECT codemarque FROM Marque WHERE paysmarque = 'JAPON') ORDER BY immat ASC;"
   }
 ];
+
+const TEMOINS_CROISES = {
+  "sq-c1-e1": [
+    {
+      label: "Tri différent, dates présentes",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE'),\n  ('BET', 'BETA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 10000000, 5),\n  ('P-B', 'BETA', 'BET', 'ESSENCE', '2020-01-01', 9, 10000000, 5);",
+      expected: "+-------+--------+------------+---------+------------+----+----------+-----------+\n| immat | marque | codemarque | moteur  | datecirc   | km | pxachat  | nbreplace |\n+-------+--------+------------+---------+------------+----+----------+-----------+\n| P-A   | ALPHA  | ALP        | ESSENCE | 2020-01-01 | 1  | 10000000 | 5         |\n| P-B   | BETA   | BET        | ESSENCE | 2020-01-01 | 9  | 10000000 | 5         |\n+-------+--------+------------+---------+------------+----+----------+-----------+\n(2 lignes retournées)"
+    },
+    {
+      label: "Kilométrages égaux et date absente",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE'),\n  ('BET', 'BETA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-B', 'BETA', 'BET', 'ESSENCE', '2020-01-01', 0, 10000000, 5),\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', NULL, 0, 10000000, 5);",
+      expected: "+-------+--------+------------+---------+------------+----+----------+-----------+\n| immat | marque | codemarque | moteur  | datecirc   | km | pxachat  | nbreplace |\n+-------+--------+------------+---------+------------+----+----------+-----------+\n| P-A   | ALPHA  | ALP        | ESSENCE | NULL       | 0  | 10000000 | 5         |\n| P-B   | BETA   | BET        | ESSENCE | 2020-01-01 | 0  | 10000000 | 5         |\n+-------+--------+------------+---------+------------+----+----------+-----------+\n(2 lignes retournées)"
+    },
+  ],
+  "sq-c1-e2": [
+    {
+      label: "Date absente, tris concordants",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE'),\n  ('BET', 'BETA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', NULL, 1, 10000000, 5),\n  ('P-B', 'BETA', 'BET', 'ESSENCE', '2020-01-01', 1, 10000000, 5);",
+      expected: "+-------+--------+\n| immat | marque |\n+-------+--------+\n| P-A   | ALPHA  |\n| P-B   | BETA   |\n+-------+--------+\n(2 lignes retournées)"
+    },
+    {
+      label: "Dates présentes, tris opposés",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE'),\n  ('BET', 'BETA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'BETA', 'BET', 'ESSENCE', '2020-01-01', 1, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 10000000, 5);",
+      expected: "+-------+--------+\n| immat | marque |\n+-------+--------+\n| P-A   | BETA   |\n| P-B   | ALPHA  |\n+-------+--------+\n(2 lignes retournées)"
+    },
+  ],
+  "sq-c1-e3": [
+    {
+      label: "Motorisation répétée, dates présentes",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 2, 10000000, 5);",
+      expected: "+---------+\n| moteur  |\n+---------+\n| ESSENCE |\n+---------+\n(1 ligne retournée)"
+    },
+    {
+      label: "Motorisations distinctes, date absente",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', NULL, 1, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'DIESEL', '2020-01-01', 1, 10000000, 5);",
+      expected: "+---------+\n| moteur  |\n+---------+\n| DIESEL  |\n| ESSENCE |\n+---------+\n(2 lignes retournées)"
+    },
+  ],
+  "sq-c2-e1": [
+    {
+      label: "Clé texte explicitement NOT NULL",
+      stdin: "PRAGMA foreign_keys=ON;\n-- VERIFY:\nSELECT codemarque, nommarque, paysmarque FROM Marque WHERE codemarque = 'BMW';\nINSERT OR IGNORE INTO Marque (codemarque, nommarque, paysmarque) VALUES (NULL, 'AUTRE', 'FRANCE');\nSELECT COUNT(*) AS null_acceptes FROM Marque WHERE codemarque IS NULL;",
+      expected: "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+------------+-----------+------------+\n| codemarque | nommarque | paysmarque |\n+------------+-----------+------------+\n| BMW        | BMW       | ALLEMAGNE  |\n+------------+-----------+------------+\n(1 ligne retournée)\n\nInstruction exécutée avec succès (0 lignes modifiées).\n\n+---------------+\n| null_acceptes |\n+---------------+\n| 0             |\n+---------------+\n(1 ligne retournée)"
+    },
+    {
+      label: "Unicité individuelle du nom",
+      stdin: "PRAGMA foreign_keys=ON;\n-- VERIFY:\nSELECT codemarque, nommarque, paysmarque FROM Marque WHERE codemarque = 'BMW';\nINSERT OR IGNORE INTO Marque (codemarque, nommarque, paysmarque) VALUES ('ALT', 'BMW', 'FRANCE');\nSELECT COUNT(*) AS noms FROM Marque WHERE nommarque = 'BMW';",
+      expected: "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+------------+-----------+------------+\n| codemarque | nommarque | paysmarque |\n+------------+-----------+------------+\n| BMW        | BMW       | ALLEMAGNE  |\n+------------+-----------+------------+\n(1 ligne retournée)\n\nInstruction exécutée avec succès (0 lignes modifiées).\n\n+------+\n| noms |\n+------+\n| 1    |\n+------+\n(1 ligne retournée)"
+    },
+  ],
+  "sq-c2-e2": [
+    {
+      label: "Unicité individuelle du nom",
+      stdin: "PRAGMA foreign_keys=ON;\n-- VERIFY:\nSELECT codeequipement, nomequipement, prix FROM Equipement WHERE codeequipement = 'AIR';\nINSERT OR IGNORE INTO Equipement (codeequipement, nomequipement) VALUES ('ALT', 'Climatisation');\nSELECT COUNT(*) AS noms FROM Equipement WHERE nomequipement = 'Climatisation';\nINSERT INTO Equipement (codeequipement, nomequipement) VALUES ('TST', 'Trousse');\nSELECT prix FROM Equipement WHERE codeequipement = 'TST';",
+      expected: "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----------------+---------------+------+\n| codeequipement | nomequipement | prix |\n+----------------+---------------+------+\n| AIR            | Climatisation | 0    |\n+----------------+---------------+------+\n(1 ligne retournée)\n\nInstruction exécutée avec succès (0 lignes modifiées).\n\n+------+\n| noms |\n+------+\n| 1    |\n+------+\n(1 ligne retournée)\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+------+\n| prix |\n+------+\n| 0    |\n+------+\n(1 ligne retournée)"
+    },
+    {
+      label: "Nom explicitement NOT NULL",
+      stdin: "PRAGMA foreign_keys=ON;\n-- VERIFY:\nSELECT codeequipement, nomequipement, prix FROM Equipement WHERE codeequipement = 'AIR';\nINSERT OR IGNORE INTO Equipement (codeequipement, nomequipement) VALUES ('ALT', NULL);\nSELECT COUNT(*) AS null_acceptes FROM Equipement WHERE nomequipement IS NULL;\nINSERT INTO Equipement (codeequipement, nomequipement) VALUES ('TST', 'Trousse');\nSELECT prix FROM Equipement WHERE codeequipement = 'TST';",
+      expected: "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----------------+---------------+------+\n| codeequipement | nomequipement | prix |\n+----------------+---------------+------+\n| AIR            | Climatisation | 0    |\n+----------------+---------------+------+\n(1 ligne retournée)\n\nInstruction exécutée avec succès (0 lignes modifiées).\n\n+---------------+\n| null_acceptes |\n+---------------+\n| 0             |\n+---------------+\n(1 ligne retournée)\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+------+\n| prix |\n+------+\n| 0    |\n+------+\n(1 ligne retournée)"
+    },
+  ],
+  "sq-c2-e3": [
+    {
+      label: "Type entier de prix après ALTER",
+      stdin: PARC_ANTERIEUR + "\n-- VERIFY:\nSELECT UPPER(type) AS type FROM pragma_table_info('Equipement') WHERE name = 'prix';",
+      expected: "Instruction exécutée avec succès (0 lignes modifiées).\n\n+---------+\n| type    |\n+---------+\n| INTEGER |\n+---------+\n(1 ligne retournée)"
+    },
+    {
+      label: "Prix par défaut égal à zéro",
+      stdin: PARC_ANTERIEUR + "\n-- VERIFY:\nINSERT INTO Equipement (codeequipement, nomequipement) VALUES ('AUX', 'Trousse');\nSELECT CAST(prix AS INTEGER) AS prix FROM Equipement WHERE codeequipement = 'AUX';",
+      expected: "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+------+\n| prix |\n+------+\n| 0    |\n+------+\n(1 ligne retournée)"
+    },
+  ],
+  "sq-c3-e1": [
+    {
+      label: "Seuil inclus et kilométrages égaux",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 5, 10000000, 5),\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 5, 10000000, 5);",
+      expected: "+-------+----+\n| immat | km |\n+-------+----+\n| P-A   | 5  |\n| P-B   | 5  |\n+-------+----+\n(2 lignes retournées)"
+    },
+    {
+      label: "Kilométrages distincts au-dessus du seuil",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 6, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 9, 10000000, 5);",
+      expected: "+-------+----+\n| immat | km |\n+-------+----+\n| P-B   | 9  |\n| P-A   | 6  |\n+-------+----+\n(2 lignes retournées)"
+    },
+  ],
+  "sq-c3-e2": [
+    {
+      label: "Bornes présentes, marques commençant par M",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('MAZ', 'MAZDA', 'FRANCE'),\n  ('MER', 'MERCEDES', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'MAZDA', 'MAZ', 'ESSENCE', '2020-01-01', 1, 6000000, 5),\n  ('P-B', 'MERCEDES', 'MER', 'ESSENCE', '2020-01-01', 1, 50000000, 5);",
+      expected: "+-------+----------+----------+\n| immat | marque   | pxachat  |\n+-------+----------+----------+\n| P-A   | MAZDA    | 6000000  |\n| P-B   | MERCEDES | 50000000 |\n+-------+----------+----------+\n(2 lignes retournées)"
+    },
+    {
+      label: "Prix intérieurs et M au milieu",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('MAZ', 'MAZDA', 'FRANCE'),\n  ('BMW', 'BMW', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'MAZDA', 'MAZ', 'ESSENCE', '2020-01-01', 1, 10000000, 5),\n  ('P-B', 'BMW', 'BMW', 'ESSENCE', '2020-01-01', 1, 20000000, 5);",
+      expected: "+-------+--------+----------+\n| immat | marque | pxachat  |\n+-------+--------+----------+\n| P-A   | MAZDA  | 10000000 |\n+-------+--------+----------+\n(1 ligne retournée)"
+    },
+  ],
+  "sq-c3-e3": [
+    {
+      label: "Quatre dates NULL sans chaîne vide",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', NULL, 1, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', NULL, 1, 10000000, 5),\n  ('P-C', 'ALPHA', 'ALP', 'ESSENCE', NULL, 1, 10000000, 5),\n  ('P-D', 'ALPHA', 'ALP', 'ESSENCE', NULL, 1, 10000000, 5);",
+      expected: "+-------+--------+\n| immat | marque |\n+-------+--------+\n| P-A   | ALPHA  |\n| P-B   | ALPHA  |\n| P-C   | ALPHA  |\n+-------+--------+\n(3 lignes retournées)"
+    },
+    {
+      label: "Une date NULL et une chaîne vide",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', NULL, 1, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '', 1, 10000000, 5);",
+      expected: "+-------+--------+\n| immat | marque |\n+-------+--------+\n| P-A   | ALPHA  |\n+-------+--------+\n(1 ligne retournée)"
+    },
+  ],
+  "sq-c4-e1": [
+    {
+      label: "Marque sans voiture",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE'),\n  ('BET', 'BETA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'BETA', 'BET', 'ESSENCE', '2020-01-01', 1, 10000000, 5);",
+      expected: "+-----------+-------+\n| nommarque | immat |\n+-----------+-------+\n| BETA      | P-A   |\n+-----------+-------+\n(1 ligne retournée)"
+    },
+    {
+      label: "Toutes les marques présentes, tris opposés",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE'),\n  ('BET', 'BETA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'BETA', 'BET', 'ESSENCE', '2020-01-01', 1, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 10000000, 5);",
+      expected: "+-----------+-------+\n| nommarque | immat |\n+-----------+-------+\n| ALPHA     | P-B   |\n| BETA      | P-A   |\n+-----------+-------+\n(2 lignes retournées)"
+    },
+  ],
+  "sq-c4-e2": [
+    {
+      label: "Marque initiale sans voiture",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE'),\n  ('BET', 'BETA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'BETA', 'BET', 'ESSENCE', '2020-01-01', 1, 10000000, 5);",
+      expected: "+-----------+-------+\n| nommarque | immat |\n+-----------+-------+\n| ALPHA     | NULL  |\n| BETA      | P-A   |\n+-----------+-------+\n(2 lignes retournées)"
+    },
+    {
+      label: "Toutes les marques présentes, tris opposés",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE'),\n  ('BET', 'BETA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'BETA', 'BET', 'ESSENCE', '2020-01-01', 1, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 10000000, 5);",
+      expected: "+-----------+-------+\n| nommarque | immat |\n+-----------+-------+\n| ALPHA     | P-B   |\n| BETA      | P-A   |\n+-----------+-------+\n(2 lignes retournées)"
+    },
+  ],
+  "sq-c4-e3": [
+    {
+      label: "Une voiture et un équipement gratuit",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 10000000, 5);\nINSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES\n  ('AIR', 'Clim', 0),\n  ('GPS', 'GPS', 100);\nINSERT INTO VoitureEquipement (immat, codeequipement) VALUES\n  ('P-A', 'AIR'),\n  ('P-A', 'GPS');",
+      expected: "+-------+---------------+\n| immat | nomequipement |\n+-------+---------------+\n| P-A   | Clim          |\n| P-A   | GPS           |\n+-------+---------------+\n(2 lignes retournées)"
+    },
+    {
+      label: "Équipements payants, tris opposés",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 10000000, 5);\nINSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES\n  ('CAM', 'Camera', 100),\n  ('RAD', 'Radio', 200);\nINSERT INTO VoitureEquipement (immat, codeequipement) VALUES\n  ('P-A', 'RAD'),\n  ('P-B', 'CAM');",
+      expected: "+-------+---------------+\n| immat | nomequipement |\n+-------+---------------+\n| P-A   | Radio         |\n| P-B   | Camera        |\n+-------+---------------+\n(2 lignes retournées)"
+    },
+  ],
+  "sq-c5-e1": [
+    {
+      label: "Marque sans voiture, prix sans répétition",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE'),\n  ('BET', 'BETA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 100, 5);",
+      expected: "+------------+-----------+-------------+-------------+\n| paysmarque | nb_lignes | nb_voitures | total_achat |\n+------------+-----------+-------------+-------------+\n| FRANCE     | 2         | 1           | 100         |\n+------------+-----------+-------------+-------------+\n(1 ligne retournée)"
+    },
+    {
+      label: "Toutes les marques représentées, prix répété",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE'),\n  ('BET', 'BETA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 100, 5),\n  ('P-B', 'BETA', 'BET', 'ESSENCE', '2020-01-01', 1, 100, 5);",
+      expected: "+------------+-----------+-------------+-------------+\n| paysmarque | nb_lignes | nb_voitures | total_achat |\n+------------+-----------+-------------+-------------+\n| FRANCE     | 2         | 2           | 200         |\n+------------+-----------+-------------+-------------+\n(1 ligne retournée)"
+    },
+  ],
+  "sq-c5-e2": [
+    {
+      label: "Un total égal au seuil, aucun inférieur",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE'),\n  ('BET', 'BETA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 50000000, 5),\n  ('P-B', 'BETA', 'BET', 'ESSENCE', '2020-01-01', 1, 60000000, 5);",
+      expected: "+--------+----------+\n| marque | total    |\n+--------+----------+\n| BETA   | 60000000 |\n| ALPHA  | 50000000 |\n+--------+----------+\n(2 lignes retournées)"
+    },
+    {
+      label: "Un total inférieur, aucun égal au seuil",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE'),\n  ('BET', 'BETA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 1000000, 5),\n  ('P-B', 'BETA', 'BET', 'ESSENCE', '2020-01-01', 1, 60000000, 5);",
+      expected: "+--------+----------+\n| marque | total    |\n+--------+----------+\n| BETA   | 60000000 |\n+--------+----------+\n(1 ligne retournée)"
+    },
+  ],
+  "sq-c5-e3": [
+    {
+      label: "Kilométrages identiques",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 4, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 4, 10000000, 5);",
+      expected: "+--------+----------+--------+--------+\n| marque | effectif | km_min | km_max |\n+--------+----------+--------+--------+\n| ALPHA  | 2        | 4      | 4      |\n+--------+----------+--------+--------+\n(1 ligne retournée)"
+    },
+    {
+      label: "Kilométrages distincts",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 2, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 9, 10000000, 5);",
+      expected: "+--------+----------+--------+--------+\n| marque | effectif | km_min | km_max |\n+--------+----------+--------+--------+\n| ALPHA  | 2        | 2      | 9      |\n+--------+----------+--------+--------+\n(1 ligne retournée)"
+    },
+  ],
+  "sq-c6-e1": [
+    {
+      label: "Kilométrages 0 et 5",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 0, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 5, 10000000, 5);\n-- VERIFY:\nSELECT * FROM Voiture ORDER BY immat ASC;",
+      expected: "Instruction exécutée avec succès (1 ligne modifiée).\n\n+-------+--------+------------+---------+------------+----+----------+-----------+\n| immat | marque | codemarque | moteur  | datecirc   | km | pxachat  | nbreplace |\n+-------+--------+------------+---------+------------+----+----------+-----------+\n| P-A   | ALPHA  | ALP        | ESSENCE | 2020-01-01 | 10 | 10000000 | 5         |\n| P-B   | ALPHA  | ALP        | ESSENCE | 2020-01-01 | 5  | 10000000 | 5         |\n+-------+--------+------------+---------+------------+----+----------+-----------+\n(2 lignes retournées)"
+    },
+    {
+      label: "Kilométrages 4 et 6",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 4, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 6, 10000000, 5);\n-- VERIFY:\nSELECT * FROM Voiture ORDER BY immat ASC;",
+      expected: "Instruction exécutée avec succès (1 ligne modifiée).\n\n+-------+--------+------------+---------+------------+----+----------+-----------+\n| immat | marque | codemarque | moteur  | datecirc   | km | pxachat  | nbreplace |\n+-------+--------+------------+---------+------------+----+----------+-----------+\n| P-A   | ALPHA  | ALP        | ESSENCE | 2020-01-01 | 14 | 10000000 | 5         |\n| P-B   | ALPHA  | ALP        | ESSENCE | 2020-01-01 | 6  | 10000000 | 5         |\n+-------+--------+------------+---------+------------+----+----------+-----------+\n(2 lignes retournées)"
+    },
+  ],
+  "sq-c6-e2": [
+    {
+      label: "NULL à zéro kilomètre et chaîne vide",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', NULL, 0, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '', 1, 10000000, 5),\n  ('P-C', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 2, 10000000, 5);\nINSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES\n  ('GPS', 'GPS', 100);\nINSERT INTO VoitureEquipement (immat, codeequipement) VALUES\n  ('P-A', 'GPS'),\n  ('P-B', 'GPS');\n-- VERIFY:\nSELECT * FROM Voiture ORDER BY immat ASC;\nSELECT immat, codeequipement FROM VoitureEquipement ORDER BY immat ASC, codeequipement ASC;\nSELECT codeequipement, nomequipement, prix FROM Equipement ORDER BY codeequipement ASC;",
+      expected: "Instruction exécutée avec succès (1 ligne modifiée).\n\n+-------+--------+------------+---------+------------+----+----------+-----------+\n| immat | marque | codemarque | moteur  | datecirc   | km | pxachat  | nbreplace |\n+-------+--------+------------+---------+------------+----+----------+-----------+\n| P-B   | ALPHA  | ALP        | ESSENCE |            | 1  | 10000000 | 5         |\n| P-C   | ALPHA  | ALP        | ESSENCE | 2020-01-01 | 2  | 10000000 | 5         |\n+-------+--------+------------+---------+------------+----+----------+-----------+\n(2 lignes retournées)\n\n+-------+----------------+\n| immat | codeequipement |\n+-------+----------------+\n| P-B   | GPS            |\n+-------+----------------+\n(1 ligne retournée)\n\n+----------------+---------------+------+\n| codeequipement | nomequipement | prix |\n+----------------+---------------+------+\n| GPS            | GPS           | 100  |\n+----------------+---------------+------+\n(1 ligne retournée)"
+    },
+    {
+      label: "NULL à kilométrage non nul, aucune chaîne vide",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('ALP', 'ALPHA', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'ALPHA', 'ALP', 'ESSENCE', NULL, 4, 10000000, 5),\n  ('P-B', 'ALPHA', 'ALP', 'ESSENCE', '2020-01-01', 1, 10000000, 5);\nINSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES\n  ('GPS', 'GPS', 100);\nINSERT INTO VoitureEquipement (immat, codeequipement) VALUES\n  ('P-A', 'GPS'),\n  ('P-B', 'GPS');\n-- VERIFY:\nSELECT * FROM Voiture ORDER BY immat ASC;\nSELECT immat, codeequipement FROM VoitureEquipement ORDER BY immat ASC, codeequipement ASC;\nSELECT codeequipement, nomequipement, prix FROM Equipement ORDER BY codeequipement ASC;",
+      expected: "Instruction exécutée avec succès (1 ligne modifiée).\n\n+-------+--------+------------+---------+------------+----+----------+-----------+\n| immat | marque | codemarque | moteur  | datecirc   | km | pxachat  | nbreplace |\n+-------+--------+------------+---------+------------+----+----------+-----------+\n| P-B   | ALPHA  | ALP        | ESSENCE | 2020-01-01 | 1  | 10000000 | 5         |\n+-------+--------+------------+---------+------------+----+----------+-----------+\n(1 ligne retournée)\n\n+-------+----------------+\n| immat | codeequipement |\n+-------+----------------+\n| P-B   | GPS            |\n+-------+----------------+\n(1 ligne retournée)\n\n+----------------+---------------+------+\n| codeequipement | nomequipement | prix |\n+----------------+---------------+------+\n| GPS            | GPS           | 100  |\n+----------------+---------------+------+\n(1 ligne retournée)"
+    },
+  ],
+  "sq-c6-e3": [
+    {
+      label: "Une marque japonaise et une marque étrangère représentées",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('TOY', 'TOYOTA', 'JAPON'),\n  ('REN', 'RENAULT', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'TOYOTA', 'TOY', 'ESSENCE', '2020-01-01', 1, 10000000, 5),\n  ('P-B', 'RENAULT', 'REN', 'ESSENCE', '2020-01-01', 1, 10000000, 5);",
+      expected: "+-------+--------+\n| immat | marque |\n+-------+--------+\n| P-A   | TOYOTA |\n+-------+--------+\n(1 ligne retournée)"
+    },
+    {
+      label: "Deux marques japonaises représentées, aucune voiture étrangère",
+      stdin: PARC_SCHEMA + "\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES\n  ('TOY', 'TOYOTA', 'JAPON'),\n  ('MAZ', 'MAZDA', 'JAPON'),\n  ('REN', 'RENAULT', 'FRANCE');\nINSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES\n  ('P-A', 'TOYOTA', 'TOY', 'ESSENCE', '2020-01-01', 1, 10000000, 5),\n  ('P-B', 'MAZDA', 'MAZ', 'ESSENCE', '2020-01-01', 1, 10000000, 5);",
+      expected: "+-------+--------+\n| immat | marque |\n+-------+--------+\n| P-A   | TOYOTA |\n| P-B   | MAZDA  |\n+-------+--------+\n(2 lignes retournées)"
+    },
+  ],
+};
+
+for (const exercise of SQ_EXERCISES) {
+  exercise.tests.unshift(...TEMOINS_CROISES[exercise.id]);
+}
 
 module.exports = SQ_EXERCISES;

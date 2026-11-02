@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -111,7 +111,7 @@
   <tbody>
     <tr><td><strong>Diffuse (Mate)</strong></td><td>Loi de Lambert</td><td><code>Id = max(0.0, N · L)</code></td><td>L’énergie reçue dépend du cosinus de l’angle entre la normale <code>N</code> et la lumière <code>L</code>.</td></tr>
     <tr><td><strong>Spéculaire (Brillante)</strong></td><td>Phong</td><td><code>Is = max(0.0, R · V)^shininess</code></td><td>Reflet brillant le long du rayon réfléchi <code>R = 2(N·L)N - L</code> vu par la caméra <code>V</code>.</td></tr>
-    <tr><td><strong>Spéculaire Optimisé</strong></td><td>Blinn-Phong</td><td><code>Is = max(0.0, N · H)^shininess</code></td><td>Utilisez le vecteur mi-chemin <code>H = normalize(L + V)</code>, plus rapide à calculer sur GPU.</td></tr>
+    <tr><td><strong>Spéculaire Optimisé</strong></td><td>Blinn-Phong</td><td><code>Is = max(0.0, N · H)^shininess</code></td><td>Utilise le vecteur mi-chemin <code>H = normalize(L + V)</code>, plus rapide à calculer sur GPU.</td></tr>
   </tbody>
 </table>
   <div class="box box--tip">
@@ -125,8 +125,8 @@
 <div class="grid grid-2">
   <div class="card">
     <h4>1. Conservation de l’Énergie</h4>
-    <p>Une surface ne peut jamais réémettre plus de lumière qu’elle n’en reçoit. L’énergie lumineuse incidente se divise en deux flux exclusifs :</p>    <pre><code>kd * Diffuse + ks * Speculaire <= Lumiere_Incidente
-kd + ks <= 1.0</code></pre>    <p>Un métal parfait (Metallic = 1.0) n’a aucune réfraction interne : <code>kd = 0</code>, toute la couleur provient du reflet spéculaire.</p>
+    <p>Une surface ne peut jamais réémettre plus de lumière qu’elle n’en reçoit. L’énergie lumineuse incidente se divise en deux flux exclusifs :</p>    <pre><code>kd * Diffuse + ks * Speculaire &lt;= Lumiere_Incidente
+kd + ks &lt;= 1.0</code></pre>    <p>Un métal parfait (Metallic = 1.0) n’a aucune réfraction interne : <code>kd = 0</code>, toute la couleur provient du reflet spéculaire.</p>
   </div>
   <div class="card">
     <h4>2. Effet Fresnel (Formule de Schlick)</h4>
@@ -135,9 +135,11 @@ kd + ks <= 1.0</code></pre>    <p>Un métal parfait (Metallic = 1.0) n’a aucun
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="ig2-c5-e1" data-lab
      data-exercise="ig2-c5-e1"
      data-language="analyse"
@@ -162,10 +164,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Calculateur d’illumination diffuse de Lambert</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="ig2-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la contribution de lumière diffuse reçue par une surface 3D selon la loi du cosinus de Lambert.</p>
     <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
 Loi de Lambert :<br>
@@ -177,11 +181,7 @@ Afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>N=(0,1,0) L=(0,1,0)
 N=(0,1,0) L=(0,-1,0)
 N=(0,1,0) L=(0.707,0.707,0)</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LAMBERT: N=(0.00,1.00,0.00) L=(0.00,1.00,0.00) -&gt; INTENSITE: 1.000
-LAMBERT: N=(0.00,1.00,0.00) L=(0.00,-1.00,0.00) -&gt; INTENSITE: 0.000
-LAMBERT: N=(0.00,1.00,0.00) L=(0.71,0.71,0.00) -&gt; INTENSITE: 0.707</pre></div>
     </div>
-    <p class="lab__note">Face à face = 1.0, dos à la lumière = 0.0, inclinaison 45 degrés = 0.707.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -216,10 +216,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Calculateur de reflet spéculaire de Phong</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="ig2-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la tâche de brillance spéculaire selon le modèle de Phong à partir du vecteur reflet, du vecteur observateur et du coefficient de rugosité.</p>
     <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
 Modèle spéculaire de Phong :<br>
@@ -232,11 +234,7 @@ Afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>R=(0,0,1) V=(0,0,1) ALPHA=32
 R=(0,0,1) V=(0,0,-1) ALPHA=32
 R=(0.707,0,0.707) V=(0,0,1) ALPHA=16</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PHONG: ALPHA=32 -&gt; INTENSITE_SPECULAIRE: 1.000
-PHONG: ALPHA=32 -&gt; INTENSITE_SPECULAIRE: 0.000
-PHONG: ALPHA=16 -&gt; INTENSITE_SPECULAIRE: 0.004</pre></div>
     </div>
-    <p class="lab__note">Alignement parfait = 1.0, reflet opposé = 0.0, désalignement modéré avec alpha 16 = quasi nul.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -271,10 +269,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Vérificateur de conservation d’énergie PBR (Roughness &amp; Metallic)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="ig2-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Valider la cohérence physique des composantes de réflexion selon les lois de l’optique du rendu basé sur la physique (PBR).</p>
     <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
 Règles physiques PBR :<br>
@@ -293,12 +293,7 @@ Afficher :<br>
 MATERIEL=ChromePur METALLIC=1 DIFFUSE=0.000 SPECULAIRE=0.950
 MATERIEL=MateriauMagique METALLIC=0 DIFFUSE=0.800 SPECULAIRE=0.400
 MATERIEL=FauxMetal METALLIC=1 DIFFUSE=0.200 SPECULAIRE=0.800</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PlastiqueBleu -&gt; DIAGNOSTIC: CONFORME_PBR (Bilan d'energie 0.900 &lt;= 1.0)
-ChromePur -&gt; DIAGNOSTIC: CONFORME_PBR (Bilan d'energie 0.950 &lt;= 1.0)
-MateriauMagique -&gt; DIAGNOSTIC: VIOLATION_ENERGIE (Creation spontanee de lumiere: 1.200 &gt; 1.0)
-FauxMetal -&gt; DIAGNOSTIC: VIOLATION_METALLIC (Un metal pur ne possede aucune reflexion diffuse)</pre></div>
     </div>
-    <p class="lab__note">Validation stricte des lois physiques régissant les shaders PBR modernes.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -308,6 +303,7 @@ FauxMetal -&gt; DIAGNOSTIC: VIOLATION_METALLIC (Un metal pur ne possede aucune r
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -453,7 +449,7 @@ FauxMetal -&gt; DIAGNOSTIC: VIOLATION_METALLIC (Un metal pur ne possede aucune r
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Révisez la différence Vertex/Fragment Shader, la loi de Lambert et la conservation d’énergie.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Révisez la différence Vertex/Fragment Shader, la loi de Lambert et la conservation d’énergie.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Bon socle théorique. Approfondissez le vecteur mi-chemin Blinn-Phong et l’effet Fresnel de Schlick.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Très bonne compréhension des shaders et des fondements physiques du PBR.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Score parfait ! Vous maîtrisez les modèles d’éclairage et l’optique du rendu 3D au niveau expert.</div>

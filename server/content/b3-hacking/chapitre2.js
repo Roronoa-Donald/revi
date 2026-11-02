@@ -7,10 +7,10 @@ module.exports = {
   "n": 2,
   "title": "Reconnaissance Passive & Active (OSINT, Cartographie & DNS)",
   "short": "OSINT, Reconnaissance &amp; DNS",
-  "toc": "Principes de la reconnaissance passive et de l'Open Source Intelligence (OSINT), techniques de Google Dorking et moteurs spécialisés (Shodan, Censys), interrogation Whois et registres RIR, cartographie DNS exhaustive et analyse de transfert de zone (AXFR), protocoles de sécurité de messagerie (SPF, DKIM, DMARC), énumération de sous-domaines par fuzzing et logs de transparence de certificats (CT Logs), et filtrage des faux positifs DNS wildcard.",
+  "toc": "Principes de la reconnaissance passive et de l'Open Source Intelligence (OSINT), techniques de Google Dorking et moteurs spécialisés (Shodan, Censys), interrogation Whois et registres RIR, cartographie DNS et portée du transfert de zone (AXFR), protocoles de sécurité de messagerie (SPF, DKIM, DMARC), énumération de sous-domaines et journaux de transparence de certificats, et interprétation des réponses DNS wildcard.",
   "time": "≈ 2 h 45 de travail",
   "free": false,
-  "situation": "Avant d'envoyer le moindre paquet agressif vers une infrastructure cible, un auditeur professionnel doit collecter un maximum d'informations sans se faire repérer. Les serveurs de noms mal configurés révélant l'intégralité des sous-domaines via AXFR, les enregistrements SPF trop permissifs autorisant le spoofing d'adresses email, ou les services d'administration oubliés indexés sur Shodan représentent les portes d'entrée les plus exploitées. En tant que pentesteur B3, vous devez maîtriser l'art de l'OSINT, automatiser la cartographie DNS et identifier la surface d'attaque externe d'une organisation en éliminant les faux positifs causés par les DNS wildcards.",
+  "situation": "Dans le périmètre autorisé, un auditeur peut recueillir des informations de sources ouvertes avant des sondes directes. Un transfert AXFR mal restreint peut révéler les données de la zone concernée ; des politiques de messagerie faibles ou des services indexés fournissent d'autres indices à vérifier. En tant que pentesteur B3, confrontez les observations DNS et les sources disponibles sans exclure un nom sur la seule adresse IP d'un wildcard.",
   "objectives": [
     "maîtriser la méthodologie d'Open Source Intelligence (OSINT) pour cartographier une cible sans contact direct ;",
     "exploiter les opérateurs avancés de Google Dorking et les moteurs spécialisés (Shodan, Censys) ;",
@@ -30,15 +30,15 @@ module.exports = {
     },
     {
       "title": "Cartographie DNS Approfondie et Faille de Transfert de Zone (AXFR)",
-      "html": "<p>Le protocole DNS (Domain Name System) traduit les noms de domaine en adresses IP. Ses enregistrements fournissent une cartographie complète des services d'une entreprise :</p>\n<table class=\"table\">\n  <thead><tr><th>Type</th><th>Rôle Technique</th><th>Intérêt pour l'Auditeur</th></tr></thead>\n  <tbody>\n    <tr><td><code>A / AAAA</code></td><td>Résolution IPv4 (32 bits) / IPv6 (128 bits)</td><td>Adresses IP directes des serveurs hôtes</td></tr>\n    <tr><td><code>MX</code></td><td>Serveurs de messagerie électronique prioritaires</td><td>Identification de la solution email (Google Workspace, Office 365, Postfix)</td></tr>\n    <tr><td><code>NS</code></td><td>Serveurs de noms faisant autorité (Authoritative Name Servers)</td><td>Cibles pour les tests de transfert de zone AXFR</td></tr>\n    <tr><td><code>TXT</code></td><td>Enregistrements textuels arbitraires</td><td>Vérification de domaine, clés SPF, politiques DMARC, tokens tiers</td></tr>\n    <tr><td><code>CNAME</code></td><td>Alias canonique vers un autre nom de domaine</td><td>Détection de vulnérabilités de sous-domaine orphelin (Subdomain Takeover)</td></tr>\n  </tbody>\n</table>\n  <div class=\"box box--standard\">\n    <div class=\"box__title\"><svg class=\"ic\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/assets/img/ui-icons.svg#i-info\"></use></svg> La Faille Critique de Transfert de Zone DNS (AXFR)</div>\n<p>Le mécanisme AXFR (Asynchronous Full Transfer Zone, port TCP 53) permet la synchronisation de la base DNS entre le serveur maître et les serveurs secondaires. Si ce transfert n'est pas restreint aux seules adresses IP des serveurs secondaires, n'importe quel attaquant peut télécharger l'intégralité des enregistrements de la zone :</p>,<pre><code>$ dig axfr @ns1.target.com target.com</code></pre>,<p>Impact : divulgation immédiate de l'ensemble de l'arborescence des sous-domaines (serveurs internes, environnements de test, bases de données privées, VPN).</p>\n  </div>"
+      "html": "<p>Le DNS (Domain Name System) associe notamment des noms à des adresses IP. Ses enregistrements fournissent des indices sur des services, sans constituer une cartographie exhaustive :</p>\n<table class=\"table\">\n  <thead><tr><th>Type</th><th>Rôle technique</th><th>Intérêt pour l'auditeur</th></tr></thead>\n  <tbody>\n    <tr><td><code>A / AAAA</code></td><td>Adresses IPv4 / IPv6</td><td>Adresses associées à un nom</td></tr>\n    <tr><td><code>MX</code></td><td>Serveurs de messagerie et préférences</td><td>Indices sur la réception des courriels</td></tr>\n    <tr><td><code>NS</code></td><td>Serveurs de noms faisant autorité</td><td>Serveurs à examiner dans le périmètre autorisé</td></tr>\n    <tr><td><code>TXT</code></td><td>Enregistrements textuels</td><td>SPF, DMARC et vérifications de domaine</td></tr>\n    <tr><td><code>CNAME</code></td><td>Alias vers un autre nom</td><td>Identifier les dépendances à vérifier</td></tr>\n  </tbody>\n</table>\n<div class=\"box box--standard\">\n  <div class=\"box__title\"><svg class=\"ic\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/assets/img/ui-icons.svg#i-info\"></use></svg> Transfert complet de zone AXFR</div>\n  <p>AXFR transfère une zone DNS sur TCP. Une autorisation trop large peut révéler les enregistrements de la zone transférée ; les zones enfants déléguées ne sont pas nécessairement incluses. Testez uniquement avec autorisation.</p>\n  <pre><code>$ dig @ns1.example.test example.test AXFR</code></pre>\n  <p>Référence : <a href=\"https://www.rfc-editor.org/rfc/rfc5936.html\">RFC 5936</a>.</p>\n</div>"
     },
     {
       "title": "Sécurité de Messagerie : SPF, DKIM et DMARC contre l'Usurpation",
-      "html": "<p>Les mécanismes de protection de messagerie sont systématiquement audités pour évaluer la vulnérabilité au spoofing d'emails :</p>\n<div class=\"grid grid-3\">\n  <div class=\"card\">\n    <h4>SPF (Sender Policy Framework)</h4>\n    <p>Enregistrement TXT définissant les adresses IP autorisées à expédier des emails au nom du domaine.</p>\n    <p>Indicateurs finaux : <code>-all</code> (Hardfail strict, sécurisé), <code>~all</code> (Softfail permissif), <code>+all</code> / <code>?all</code> (Vulnérable à l'usurpation totale).</p>\n  </div>\n  <div class=\"card\">\n    <h4>DKIM (DomainKeys Identified Mail)</h4>\n    <p>Signature cryptographique asymétrique insérée dans les en-têtes du message (en-tête <code>DKIM-Signature</code>).</p>\n    <p>Garantit que le corps et les en-têtes du courriel n'ont pas été altérés en transit.</p>\n  </div>\n  <div class=\"card\">\n    <h4>DMARC (Reporting &amp; Conformance)</h4>\n    <p>Politique indiquant l'action à entreprendre si SPF ou DKIM échoue.</p>\n    <p>Politiques : <code>p=reject</code> (rejet strict du message), <code>p=quarantine</code> (placement en spam), <code>p=none</code> (simple surveillance, aucune protection contre le spoofing).</p>\n  </div>\n</div>"
+      "html": "<p>SPF, DKIM et DMARC apportent des indices et des contrôles complémentaires pour l'authentification des courriels :</p>\n<div class=\"grid grid-3\">\n  <div class=\"card\">\n    <h4>SPF (Sender Policy Framework)</h4>\n    <p>Un enregistrement TXT décrit les hôtes autorisés pour l'identité de domaine évaluée par SPF.</p>\n    <p><code>-all</code> indique un échec, <code>~all</code> un échec souple, <code>+all</code> une correspondance pour tout hôte et <code>?all</code> un résultat neutre. Le traitement final dépend du récepteur et des autres contrôles.</p>\n  </div>\n  <div class=\"card\">\n    <h4>DKIM (DomainKeys Identified Mail)</h4>\n    <p>Une signature <code>DKIM-Signature</code> permet de vérifier le corps et les champs d'en-tête couverts par la signature, selon la canonicalisation utilisée ; elle ne chiffre pas le message.</p>\n  </div>\n  <div class=\"card\">\n    <h4>DMARC (Reporting &amp; Conformance)</h4>\n    <p>DMARC réussit si SPF ou DKIM réussit avec l'alignement requis sur le domaine de l'en-tête From. Si aucun ne réussit avec cet alignement, la politique indique le traitement demandé.</p>\n    <p><code>p=reject</code> demande le rejet, <code>p=quarantine</code> une mise en quarantaine et <code>p=none</code> aucune action particulière. Le récepteur décide du traitement effectif.</p>\n    <p>Référence : <a href=\"https://www.rfc-editor.org/rfc/rfc9989.html\">RFC 9989, mai 2026</a>.</p>\n  </div>\n</div>"
     },
     {
       "title": "Énumération de Sous-Domaines & Gestion des Faux Positifs Wildcard",
-      "html": "<p>La découverte de sous-domaines révèle les applications méconnues de la cible (portails d'administration, APIs de préproduction, gitlab interne) :</p>\n<ul>\n  <li><strong>Certificate Transparency Logs (crt.sh) :</strong> tous les certificats TLS émis publiquement sont enregistrés dans des registres immuables consultables par simple requête.</li>\n  <li><strong>Fuzzing par dictionnaire (Brute-forcing) :</strong> injection d'une liste de mots-clés courants (dev, stage, api, vpn, test) pour résoudre <code>word.target.com</code>.</li>\n  <li><strong>Le piège du DNS Wildcard (Faux Positifs) :</strong> si le serveur DNS est configuré avec <code>*.target.com IN A 192.168.1.100</code>, toute requête sur un sous-domaine aléatoire (ex: <code>kjashd8213.target.com</code>) répondra positivement par cette IP par défaut. L'auditeur doit envoyer une sonde aléatoire au préalable et filtrer systématiquement toute réponse retournant l'IP wildcard.</li>\n</ul>"
+      "html": "<p>La découverte de sous-domaines révèle les applications méconnues de la cible (portails d'administration, APIs de préproduction, gitlab interne) :</p>\n<ul>\n  <li><strong>Certificate Transparency Logs (crt.sh) :</strong> les journaux publics recensent des certificats ou précertificats soumis et leurs noms ; ceux-ci constituent des indices à vérifier, pas un inventaire exhaustif des sous-domaines.</li>\n  <li><strong>Fuzzing par dictionnaire (Brute-forcing) :</strong> injection d'une liste de mots-clés courants (dev, stage, api, vpn, test) pour résoudre <code>word.target.com</code>.</li>\n  <li><strong>Le piège du DNS Wildcard (Faux Positifs) :</strong> une réponse à un nom aléatoire peut indiquer une synthèse wildcard, mais un nom réel peut partager la même adresse IP. Comparer les réponses et recouper les observations avant toute conclusion, dans le périmètre autorisé.</li>\n</ul>"
     }
   ],
   "method": [
@@ -46,20 +46,20 @@ module.exports = {
     "Collecter les informations passives via Google Dorking, theHarvester, Wayback Machine et Shodan.",
     "Auditer la zone DNS : tester le transfert de zone AXFR sur chaque serveur de noms faisant autorité.",
     "Analyser les enregistrements de messagerie SPF, DKIM et DMARC pour évaluer la vulnérabilité au spoofing.",
-    "Énumérer les sous-domaines par dictionnaire en filtrant systématiquement l'IP wildcard de référence."
+    "Comparer les réponses DNS à un motif wildcard et vérifier les noms sans les exclure automatiquement sur leur seule adresse IP."
   ],
   "summary": [
     "L'OSINT permet de cartographier la surface d'attaque d'une entreprise sans émettre un seul paquet suspect vers ses infrastructures.",
     "Shodan et Censys indexent les bannières de millions d'équipements exposés sur Internet (RDP, caméras, bases de données, WAF).",
-    "Une faille de transfert de zone DNS AXFR permet de télécharger instantanément la cartographie complète des sous-domaines.",
-    "Les enregistrements SPF stricts (-all) combinés à DMARC (p=reject) sont impératifs pour neutraliser l'usurpation d'email.",
+    "Un transfert AXFR non autorisé peut divulguer les enregistrements de la zone transférée, sans nécessairement inclure ceux des zones enfants déléguées.",
+    "SPF, DKIM et DMARC contribuent à l'authentification des courriels selon leur configuration et les décisions des récepteurs, sans éliminer toute usurpation.",
     "L'énumération de sous-domaines par dictionnaire exige un filtrage rigoureux des faux positifs DNS wildcard."
   ],
   "checklist": [
     "Je sais concevoir des requêtes Google Dorks complexes pour trouver des fichiers de configuration exposés.",
     "Je sais tester et interpréter un transfert de zone DNS AXFR avec dig.",
     "Je maîtrise l'analyse des syntaxes SPF, DKIM et DMARC et leurs impacts en ingénierie sociale.",
-    "Je sais implémenter un algorithme de détection et d'élimination des faux positifs DNS wildcard de manière méthodique."
+    "Je sais comparer des réponses DNS au motif wildcard sans conclure sur la seule adresse IP."
   ],
   "notions": [
     {
@@ -72,7 +72,7 @@ module.exports = {
     },
     {
       "term": "Transfert de Zone AXFR",
-      "def": "Protocole de réplication complète d'une zone DNS (TCP 53) divulguant l'arborescence intégrale des sous-domaines si mal configuré."
+      "def": "Transfert complet d'une zone DNS sur TCP ; la zone transférée ne comprend pas nécessairement les enregistrements des zones enfants déléguées."
     },
     {
       "term": "SPF (Sender Policy Framework)",
@@ -87,7 +87,7 @@ module.exports = {
     "Confondre reconnaissance passive (sans paquet envoyé à la cible) et active (sondes DNS directes ou requêtes web).",
     "Ignorer le risque d'enregistrements SPF finissant par +all autorisant n'importe quel attaquant à usurper le domaine.",
     "Tomber dans le piège des résolutions DNS wildcard (*.domaine.com) et consigner des centaines de faux sous-domaines inexistants.",
-    "Oublier d'interroger les registres Certificate Transparency (crt.sh) qui listent tous les sous-domaines dotés d'un certificat TLS."
+    "Oublier les journaux Certificate Transparency, qui peuvent fournir des noms à vérifier sans lister tous les sous-domaines ni prouver qu'un service est actif."
   ],
   "questions": [
     {
@@ -126,16 +126,16 @@ module.exports = {
     {
       "stem": "Quelle est la conséquence immédiate d'un enregistrement SPF se terminant par la directive \"+all\" ?",
       "opts": [
-        "N'importe quelle adresse IP sur Internet est autorisée à émettre des emails au nom du domaine (usurpation totale possible)",
+        "Tout hôte correspond au mécanisme SPF all : cet enregistrement ne limite plus les expéditeurs selon leur adresse IP",
         "Tous les emails émis sont automatiquement rejetés par les serveurs destinataires",
         "Les emails sont systématiquement chiffrés avec la clé publique du domaine",
         "Seuls les serveurs MX déclarés ont le droit d'expédier des courriels"
       ],
       "correct": 0,
-      "exp": "La directive \"+all\" indique que tout hôte (IP) est un expéditeur valide, ce qui anéantit l'intérêt du SPF et autorise n'importe qui à usurper l'identité du domaine."
+      "exp": "La directive \"+all\" fait correspondre tout hôte dans l'évaluation SPF. Les autres contrôles et la décision du récepteur restent à examiner."
     },
     {
-      "stem": "Quelle politique DMARC offre la protection la plus stricte en bloquant immédiatement la réception des emails suspects par les serveurs destinataires ?",
+      "stem": "Quelle politique DMARC demande au récepteur de rejeter un message lorsque l'évaluation DMARC échoue ?",
       "opts": [
         "p=reject",
         "p=none",
@@ -143,29 +143,29 @@ module.exports = {
         "p=monitor"
       ],
       "correct": 0,
-      "exp": "La politique \"p=reject\" ordonne aux serveurs de messagerie récepteurs de rejeter catégoriquement tout email dont l'authentification SPF ou DKIM échoue."
+      "exp": "DMARC réussit si SPF ou DKIM réussit avec l'alignement requis ; l'échec d'un seul mécanisme ne suffit pas. En cas d'échec DMARC, p=reject demande le rejet, mais le récepteur décide du traitement."
     },
     {
       "stem": "Pourquoi les registres Certificate Transparency (CT logs) sont-ils une source majeure d'OSINT pour les pentesteurs ?",
       "opts": [
-        "Car chaque certificat TLS émis pour un nouveau sous-domaine y est consigné publiquement et de manière immuable dès sa création",
+        "Car des certificats ou précertificats soumis peuvent révéler des noms à vérifier",
         "Car ils contiennent en clair les mots de passe administrateurs des serveurs web",
         "Car ils permettent de décrypter le trafic HTTPS enregistré à la volée",
         "Car ils contournent les pare-feux applicatifs WAF"
       ],
       "correct": 0,
-      "exp": "Dès qu'un certificat TLS est généré (ex: Let's Encrypt), le nom de domaine et tous ses sous-domaines sont inscrits dans les journaux CT logs publics, révélant les nouvelles applications."
+      "exp": "Les journaux recensent les certificats ou précertificats soumis et leurs noms. Un certificat wildcard ne liste pas tous les sous-domaines, et un nom observé ne prouve pas qu'un service est actif."
     },
     {
       "stem": "Lors d'un brute-force de sous-domaines, que provoque la présence d'un enregistrement DNS \"wildcard\" (*.target.com) ?",
       "opts": [
-        "Toutes les requêtes de test répondent positivement avec la même adresse IP, générant des milliers de faux positifs",
+        "Certains noms inexistants peuvent recevoir une réponse synthétisée, sans que tous les noms soient nécessairement concernés",
         "Le serveur DNS refuse immédiatement toute nouvelle requête en bloquant l'IP de l'auditeur",
         "Les requêtes sont automatiquement redirigées vers le serveur DNS racine mondial",
         "La zone DNS entière est effacée du serveur de noms"
       ],
       "correct": 0,
-      "exp": "Un enregistrement DNS wildcard fait correspondre n'importe quelle chaîne inexistante à une IP par défaut, faisant croire à tort à l'auditeur que tous les sous-domaines testés existent réellement."
+      "exp": "Un wildcard peut synthétiser certaines réponses pour des noms inexistants. Un nom légitime peut partager la même adresse IP : cet indice seul ne suffit pas pour l'exclure."
     },
     {
       "stem": "Quel en-tête HTTP de sécurité empêche qu'un site web soit encapsulé dans un iframe et protège contre les attaques de Clickjacking ?",
@@ -198,32 +198,32 @@ module.exports = {
     }
   ],
   "flashcards": [
-    { "q": "Qu’est-ce que « L'OSINT permet de cartographier la surface d'attaque d'une entreprise sans émettre un seul paquet suspect vers ses infrastructures. » ?", "a": "L'OSINT permet de cartographier la surface d'attaque d'une entreprise sans émettre un seul paquet suspect vers ses infrastructures." },
-    { "q": "Qu’est-ce que « Shodan et Censys indexent les bannières de millions d'équipements exposés sur Internet (RDP, caméras, bases de données, WAF). » ?", "a": "Shodan et Censys indexent les bannières de millions d'équipements exposés sur Internet (RDP, caméras, bases de données, WAF)." },
-    { "q": 'Qu’est-ce que « Une faille de transfert de zone DNS AXFR permet de télécharger instantanément la cartographie complète des sous-domaines. » ?', "a": 'Une faille de transfert de zone DNS AXFR permet de télécharger instantanément la cartographie complète des sous-domaines.' },
+    { "q": "Comment l'OSINT peut-il cartographier une surface d'attaque sans sonder directement la cible ?", "a": "En exploitant des sources ouvertes tierces, comme des registres publics et des moteurs d'indexation." },
+    { "q": "À quoi servent Shodan et Censys lors d'une reconnaissance externe ?", "a": "Ils indexent des millions de services exposés et leurs bannières : RDP, caméras, bases de données ou indices de WAF, par exemple." },
+    { "q": "Que révèle un transfert DNS AXFR autorisé à tort ?", "a": "Les enregistrements de la zone transférée, notamment des noms de sous-domaines, mais pas nécessairement ceux des zones enfants déléguées." },
     {
       "q": "Quelle est la différence fondamentale entre reconnaissance passive et active ?",
-      "a": "La reconnaissance passive n'interagit jamais directement avec la cible (OSINT, Shodan, DNS). La reconnaissance active envoie des sondes directes (pings, scans de ports, requêtes web)."
+      "a": "La reconnaissance passive utilise des sources tierces sans interroger directement la cible. Une requête DNS directe vers ses serveurs relève d'une reconnaissance active, comme les scans et les requêtes web directes."
     },
     {
       "q": "Que recherche un opérateur Google Dorking de type « site:cible.com ext:sql confidential » ?",
       "a": "Des sauvegardes ou dumps de bases de données SQL contenant le mot \"confidential\" indexés par inadvertance sur le site."
     },
     {
-      "q": "Quelle vulnérabilité critique est exploitée lors d'une requête « dig axfr @ns1.target.com » réussie ?",
-      "a": "La faille de transfert de zone DNS non restreint, permettant de télécharger l'intégralité des enregistrements DNS de la cible."
+      "q": "Que révèle une requête « dig @ns1.example.test example.test AXFR » autorisée à tort ?",
+      "a": "Elle peut révéler les enregistrements de la zone transférée ; elle ne comprend pas nécessairement ceux des zones enfants déléguées."
     },
     {
       "q": "Que signifient les terminaisons SPF « -all », « ~all » et « +all » ?",
-      "a": "-all : Hardfail strict (sécurisé) | ~all : Softfail (marquage suspect) | +all : Tout le monde est autorisé (vulnérable au spoofing)."
+      "a": "Pour l'évaluation SPF : -all donne un échec, ~all un échec souple et +all correspond à tout hôte. Le récepteur et les autres mécanismes déterminent ensuite le traitement."
     },
     {
       "q": "Quelles sont les 3 politiques possibles pour la directive « p= » d'un enregistrement DMARC ?",
-      "a": "p=none (simple surveillance, vulnérable), p=quarantine (envoi en spam), p=reject (rejet pur et simple, hautement sécurisé)."
+      "a": "En cas d'échec DMARC, p=none ne demande aucune action particulière, p=quarantine demande une quarantaine et p=reject demande le rejet ; le récepteur décide de l'application."
     },
     {
-      "q": "Comment un auditeur élimine-t-il les faux positifs causés par un DNS wildcard (*.domaine.com) ?",
-      "a": "En envoyant une sonde vers un sous-domaine aléatoire inexistant, puis en ignorant tout résultat retournant cette même adresse IP wildcard."
+      "q": "Comment interpréter une réponse DNS qui partage l’adresse IP d’un wildcard ?",
+      "a": "Un nom légitime peut partager la même IP qu’un wildcard. Comparer plusieurs réponses et recouper avec d’autres observations avant de conclure ; l’IP seule ne suffit pas."
     }
   ]
 };

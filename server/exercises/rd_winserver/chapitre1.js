@@ -29,7 +29,7 @@ for ($i = 0; $i -lt $n; $i++) {
 # À compléter : afficher "total : " suivi de la somme, puis " Go".
 `,
     hints: [
-      'Dans la boucle, une seule instruction suffit : $total += $taille.',
+      'Dans la boucle, une seule instruction suffit : `$total += $taille`.',
       'PowerShell affiche avec Write-Output ; concaténez le texte et la valeur : ("total : " + $total + " Go").'
     ],
     examples: [
@@ -69,7 +69,7 @@ $horsSite = [Console]::In.ReadLine()
 # "3-2-1 : conforme" ou "3-2-1 : non conforme".
 `,
     hints: [
-      'Combinez les tests avec -and : ($copies -ge 3) -and ($supports -ge 2) -and ($horsSite -eq "oui").',
+      'Combinez les tests avec -and : `($copies -ge 3) -and ($supports -ge 2) -and ($horsSite -eq "oui")`.',
       'La comparaison de chaînes utilise -eq, pas ==.'
     ],
     examples: [
@@ -108,8 +108,8 @@ $taille = [int][Console]::In.ReadLine()
 # "alerte : espace insuffisant" ou "libre : X Go".
 `,
     hints: [
-      'Comparez avec -gt : ($taille -gt $capacite).',
-      'L’espace restant vaut $capacite - $taille.'
+      'Comparez avec -gt : `($taille -gt $capacite)`.',
+      'L’espace restant vaut `$capacite - $taille`.'
     ],
     examples: [
       { stdin: '500\n200', expected: 'libre : 300 Go', note: '500 Go de capacité, 200 Go écrits.' }

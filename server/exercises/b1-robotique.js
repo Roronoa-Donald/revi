@@ -50,11 +50,11 @@ module.exports = [
     "language": "analyse",
     "title": "Calculatrice de bord",
     "goal": "Lire deux entiers, calculer somme, différence, produit, quotient et reste, et traiter la division par zéro.",
-    "brief": "<p>La carte reçoit deux entiers <strong>A</strong> et <strong>B</strong> sur la même ligne, séparés par un espace. Indiquez cinq lignes : la somme, la différence (A − B), le produit, le quotient entier et le reste. Si <strong>B vaut 0</strong>, remplacez les deux dernières lignes par une seule : <code>division impossible</code>.</p>",
+    "brief": "<p>La carte reçoit un entier <strong>A</strong> et un entier <strong>B</strong> positif ou nul sur la même ligne, séparés par un espace. Indiquez cinq lignes : la somme, la différence (A − B), le produit, le quotient entier et le reste. Si B est positif, le quotient est arrondi vers moins l’infini et le reste vérifie A = B × quotient + reste, avec 0 ≤ reste &lt; B. Si <strong>B vaut 0</strong>, remplacez les deux dernières lignes par une seule : <code>division impossible</code>.</p>",
     "starter": "# Grille d'analyse (rb-c1-e2) — Calculatrice de bord\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Reste non nul]\n# Données : 7 3\nA_COMPLETER\n\n[Cas 2 — Division par zéro]\n# Données : 9 0\nA_COMPLETER\n\n[Cas 3 — Valeurs négatives]\n# Données : -6 4\nA_COMPLETER\n",
     "hints": [
-      "Le quotient entier s’obtient avec // et le reste avec % : ils répondent tous les deux à la division par zéro.",
-      "Un seul if suffit : si b vaut 0, on affiche le message et rien d’autre."
+      "Commencez par les trois opérations qui restent définies pour tout diviseur.",
+      "Si la division est possible, vérifiez la relation A = B × quotient + reste et le signe du reste."
     ],
     "examples": [
       {
@@ -89,7 +89,7 @@ module.exports = [
     "language": "analyse",
     "title": "Journal de séance",
     "goal": "Mettre en forme un rapport aligné à partir de quatre données lues séparément.",
-    "brief": "<p>Analysez les données soumises pour chaque cas. Il Indiquez un cartouche de quatre lignes où chaque libellé (<code>Membre</code>, <code>Seance</code>, <code>Theme</code>, <code>Duree</code>) est complété par des espaces jusqu’à 12 caractères, suivi de <code>: valeur</code>. La durée est suivie de <code>min</code>.</p>",
+    "brief": "<p>Analysez les données soumises pour chaque cas. Indiquez un cartouche de quatre lignes où chaque libellé (<code>Membre</code>, <code>Seance</code>, <code>Theme</code>, <code>Duree</code>) est complété par des espaces jusqu’à 12 caractères, suivi de <code>: valeur</code>. La durée est suivie de <code>min</code>.</p>",
     "starter": "# Grille d'analyse (rb-c1-e3) — Journal de séance\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Thème long]\n# Données : Zack\n# Données : 3\n# Données : Tri a bulles\n# Données : 120\nA_COMPLETER\n\n[Cas 2 — Séance double chiffre]\n# Données : Awa\n# Données : 12\n# Données : Cesar\n# Données : 60\nA_COMPLETER\n\n[Cas 3 — Thème court]\n# Données : Tom\n# Données : 1\n# Données : LED\n# Données : 45\nA_COMPLETER\n",
     "hints": [
       "Les f-strings savent aligner : f\"{\"Membre\":<12}\" complète « Membre » avec des espaces jusqu’à 12 caractères.",
@@ -167,7 +167,7 @@ module.exports = [
     "language": "analyse",
     "title": "Clignotement dirigé",
     "goal": "Réagir à chaque valeur d’une série dans une boucle et tenir un compteur en parallel.",
-    "brief": "<p>Analysez les données soumises pour chaque cas. Pour chaque état il Indiquez <code>LED ON</code> (si 1) ou <code>LED OFF</code> (si 0). En dernier, il Indiquez le nombre d’allumages : <code>allumee : X</code>.</p>",
+    "brief": "<p>Analysez les données soumises pour chaque cas. Pour chaque état, indiquez <code>LED ON</code> (si 1) ou <code>LED OFF</code> (si 0). En dernier,, indiquez le nombre d’allumages : <code>allumee : X</code>.</p>",
     "starter": "# Grille d'analyse (rb-c2-e2) — Clignotement dirigé\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Aucun allumage]\n# Données : 3\n# Données : 0\n# Données : 0\n# Données : 0\nA_COMPLETER\n\n[Cas 2 — Que des allumages]\n# Données : 5\n# Données : 1\n# Données : 1\n# Données : 1\n# Données : 1\n# Données : 1\nA_COMPLETER\n\n[Cas 3 — Alternance]\n# Données : 6\n# Données : 1\n# Données : 0\n# Données : 1\n# Données : 0\n# Données : 1\n# Données : 0\nA_COMPLETER\n",
     "hints": [
       "Un compteur s’initialise à 0 avant la boucle et s’incrémente d’un cran seulement quand la LED s’allume.",
@@ -206,7 +206,7 @@ module.exports = [
     "language": "analyse",
     "title": "Séquence de feux tricolores",
     "goal": "Répéter une séquence fixe de plusieurs étapes, avec minutages simulés et message final accordé.",
-    "brief": "<p>Le carrefour du robot : rouge 3 s, orange 1 s, verte 3 s, orange 1 s. Analysez les données soumises pour chaque cas. Il termine par <code>termine apres X cycle(s)</code> — le mot prend un <strong>s</strong> seulement si c dépasse 1.</p>",
+    "brief": "<p>Le carrefour du robot : rouge 3 s, orange 1 s, verte 3 s, orange 1 s. Analysez les données soumises pour chaque cas. Terminez par <code>termine apres X cycle(s)</code> — le mot prend un <strong>s</strong> seulement si c dépasse 1.</p>",
     "starter": "# Grille d'analyse (rb-c2-e3) — Séquence de feux tricolores\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trois cycles]\n# Données : 3\nA_COMPLETER\n\n[Cas 2 — Cinq cycles]\n# Données : 5\nA_COMPLETER\n\n[Cas 3 — Sept cycles]\n# Données : 7\nA_COMPLETER\n",
     "hints": [
       "Répétez la séquence cyclique du robot selon le nombre d’itérations paramétré.",
@@ -245,7 +245,7 @@ module.exports = [
     "language": "analyse",
     "title": "Pairs et impairs",
     "goal": "Écrire une fonction de test, l’appliquer à une série et compter les deux cas.",
-    "brief": "<p>Analysez les données soumises pour chaque cas. Pour chacun il Indiquez <code>X pair</code> ou <code>X impair</code>. La dernière ligne donne les deux comptes : <code>pairs : P / impairs : I</code>. Le test s’écrit dans une fonction <code>est_pair(x)</code> qui renvoie un booléen.</p>",
+    "brief": "<p>Analysez les données soumises pour chaque cas. Pour chacun, indiquez <code>X pair</code> ou <code>X impair</code>. La dernière ligne donne les deux comptes : <code>pairs : P / impairs : I</code>. Le test s’écrit dans une fonction <code>est_pair(x)</code> qui renvoie un booléen.</p>",
     "starter": "# Grille d'analyse (rb-c3-e1) — Pairs et impairs\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Majorité de pairs]\n# Données : 3\n# Données : 10\n# Données : 21\n# Données : 12\nA_COMPLETER\n\n[Cas 2 — Aucun pair]\n# Données : 2\n# Données : 1\n# Données : 3\nA_COMPLETER\n\n[Cas 3 — Zéro et négatif]\n# Données : 3\n# Données : 0\n# Données : -7\n# Données : -4\nA_COMPLETER\n",
     "hints": [
       "Le reste d’une division par 2 décide : x % 2 vaut 0 exactement quand x est pair.",
@@ -284,7 +284,7 @@ module.exports = [
     "language": "analyse",
     "title": "Test de primalité",
     "goal": "Écrire une fonction qui renvoie un booléen après une recherche de diviseur, puis la rejouer sur une série.",
-    "brief": "<p>Analysez les données soumises pour chaque cas. Pour chacun il Indiquez <code>X : premier</code> ou <code>X : compose</code>. La décision se prend dans une fonction <code>est_premier(x)</code> : un nombre est premier s’il a exactement deux diviseurs ; <strong>0 et 1 sont composés</strong> ici. Le test des diviseurs s’arrête à la racine carrée de x.</p>",
+    "brief": "<p>Analysez les données soumises pour chaque cas. Pour chacun, indiquez <code>X : premier</code> ou <code>X : compose</code>. La décision se prend dans une fonction <code>est_premier(x)</code> : un nombre est premier s’il a exactement deux diviseurs ; <strong>0 et 1 sont composés</strong> ici. Le test des diviseurs s’arrête à la racine carrée de x.</p>",
     "starter": "# Grille d'analyse (rb-c3-e2) — Test de primalité\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un et grands premiers]\n# Données : 3\n# Données : 1\n# Données : 97\n# Données : 25\nA_COMPLETER\n\n[Cas 2 — Nombres pairs]\n# Données : 3\n# Données : 0\n# Données : 2\n# Données : 49\nA_COMPLETER\n\n[Cas 3 — Carrés parfaits]\n# Données : 3\n# Données : 4\n# Données : 36\n# Données : 7\nA_COMPLETER\n",
     "hints": [
       "Traiter d’abord les cas x < 2, puis boucler d de 2 à int(x ** 0.5) inclus : si x % d vaut 0, ce n’est pas premier.",
@@ -323,7 +323,7 @@ module.exports = [
     "language": "analyse",
     "title": "Contrôle de seuil d’un capteur",
     "goal": "Comparer chaque relevé à un seuil fixé, décider d’une alerte et compter les alertes.",
-    "brief": "<p>Le capteur de distance renvoie des relevés. Analysez les données soumises pour chaque cas. Pour chaque relevé d il Indiquez <code>d cm : ALERTE</code> si d est strictement inférieur au seuil, sinon <code>d cm : OK</code>. La dernière ligne compte les alertes : <code>alertes : A</code>.</p>",
+    "brief": "<p>Le capteur de distance renvoie des relevés. Analysez les données soumises pour chaque cas. Pour chaque relevé d, indiquez <code>d cm : ALERTE</code> si d est strictement inférieur au seuil, sinon <code>d cm : OK</code>. La dernière ligne compte les alertes : <code>alertes : A</code>.</p>",
     "starter": "# Grille d'analyse (rb-c3-e3) — Contrôle de seuil d’un capteur\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Autour du seuil]\n# Données : 10\n# Données : 3\n# Données : 9\n# Données : 10\n# Données : 11\nA_COMPLETER\n\n[Cas 2 — Tout proche]\n# Données : 15\n# Données : 2\n# Données : 15\n# Données : 14\nA_COMPLETER\n\n[Cas 3 — Aucune alerte]\n# Données : 5\n# Données : 2\n# Données : 6\n# Données : 100\nA_COMPLETER\n",
     "hints": [
       "L’ordre des lectures est imposé : le seuil arrive avant le compteur de relevés.",
@@ -440,7 +440,7 @@ module.exports = [
     "language": "analyse",
     "title": "Recherche dichotomique",
     "goal": "Écrire la dichotomie à la main sur une série déjà triée, avec renvoi de −1 si absente.",
-    "brief": "<p>Analysez les données soumises pour chaque cas. Il Indiquez l’<strong>indice</strong> (à partir de 0) de v dans la liste, trouvé par <strong>dichotomie</strong> écrite à la main — ou <code>-1</code> si la valeur n’y figure pas.</p>",
+    "brief": "<p>Analysez les données soumises pour chaque cas. Indiquez l’<strong>indice</strong> (à partir de 0) de v dans la liste, trouvé par <strong>dichotomie</strong> écrite à la main — ou <code>-1</code> si la valeur n’y figure pas.</p>",
     "starter": "# Grille d'analyse (rb-c4-e3) — Recherche dichotomique\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Milieu exact]\n# Données : 5\n# Données : 1\n# Données : 3\n# Données : 5\n# Données : 7\n# Données : 9\n# Données : 7\nA_COMPLETER\n\n[Cas 2 — Valeur absente]\n# Données : 4\n# Données : 10\n# Données : 20\n# Données : 30\n# Données : 40\n# Données : 25\nA_COMPLETER\n\n[Cas 3 — Bords de liste]\n# Données : 6\n# Données : 3\n# Données : 6\n# Données : 9\n# Données : 12\n# Données : 15\n# Données : 18\n# Données : 3\nA_COMPLETER\n",
     "hints": [
       "Deux bornes bas et haut encadrent la zone de recherche : tant que bas <= haut, comparer au milieu (bas + haut) // 2.",
@@ -479,7 +479,7 @@ module.exports = [
     "language": "analyse",
     "title": "Tables de vérité des cinq portes",
     "goal": "Calculer AND, OR, NAND, NOR et XOR sur un couple de bits, sans bibliothèque.",
-    "brief": "<p>Analysez les données soumises pour chaque cas. Il Indiquez cinq lignes, une par porte : <code>AND : x</code>, <code>OR : x</code>, <code>NAND : x</code>, <code>NOR : x</code>, <code>XOR : x</code>. Les valeurs se calculent de manière méthodiquepur : NAND = non(ET), NOR = non(OU), XOR vaut 1 exactement quand les bits diffèrent.</p>",
+    "brief": "<p>Analysez les données soumises pour chaque cas. Indiquez cinq lignes, une par porte : <code>AND : x</code>, <code>OR : x</code>, <code>NAND : x</code>, <code>NOR : x</code>, <code>XOR : x</code>. Les valeurs se calculent de manière méthodique : NAND = non(ET), NOR = non(OU), XOR vaut 1 exactement quand les bits diffèrent.</p>",
     "starter": "# Grille d'analyse (rb-c5-e1) — Tables de vérité des cinq portes\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux bits à 1]\n# Données : 1 1\nA_COMPLETER\n\n[Cas 2 — Deux bits à 0]\n# Données : 0 0\nA_COMPLETER\n\n[Cas 3 — Inverse du premier cas]\n# Données : 0 1\nA_COMPLETER\n",
     "hints": [
       "de manière méthodique, et se note and, ou se note or, et non() se note not. Le résultat s’affiche en 0/1 : int(...).",
@@ -522,7 +522,7 @@ module.exports = [
     "starter": "# Grille d'analyse (rb-c5-e2) — Additionneur complet\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Tout à zéro]\n# Données : 0\n# Données : 0\n# Données : 0\nA_COMPLETER\n\n[Cas 2 — Retenue en cascade]\n# Données : 1\n# Données : 1\n# Données : 1\nA_COMPLETER\n\n[Cas 3 — Un seul bit actif]\n# Données : 0\n# Données : 0\n# Données : 1\nA_COMPLETER\n",
     "hints": [
       "Calculez d’abord x = a ^ b (le XOR Python) : S vaut x ^ cin et Cout se réécrit (a & b) | (cin & x).",
-      "Attention : ^ est le XOR de manière méthodiqueet & le ET bit à bit — sur des bits, c’est exactement nos portes."
+      "Attention : ^ est le XOR et & le ET bit à bit — sur des bits, c’est exactement nos portes."
     ],
     "examples": [
       {
@@ -557,7 +557,7 @@ module.exports = [
     "language": "analyse",
     "title": "Chiffre de César",
     "goal": "Décaler chaque lettre d’un message de k positions, en préservant la casse et les caractères non alphabétiques.",
-    "brief": "<p>Analysez les données soumises pour chaque cas. Il Indiquez le message chiffré : chaque lettre est décalée de k positions dans l’alphabet, avec retour circulaire (modulo 26). Les majuscules restent majuscules, les minuscules restent minuscules ; chiffres, espaces et ponctuation ne bougent pas.</p>",
+    "brief": "<p>Analysez les données soumises pour chaque cas. Indiquez le message chiffré : chaque lettre est décalée de k positions dans l’alphabet, avec retour circulaire (modulo 26). Les majuscules restent majuscules, les minuscules restent minuscules ; chiffres, espaces et ponctuation ne bougent pas.</p>",
     "starter": "# Grille d'analyse (rb-c5-e3) — Chiffre de César\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Retour circulaire]\n# Données : 1\n# Données : xyz\nA_COMPLETER\n\n[Cas 2 — Presque un tour]\n# Données : 25\n# Données : AB\nA_COMPLETER\n\n[Cas 3 — Message mixte]\n# Données : 5\n# Données : Robot-2026!\nA_COMPLETER\n",
     "hints": [
       "Pour une minuscule c : ord(c) - ord(\"a\") donne sa position 0-25 ; on ajoute k, on prend % 26, on revient avec chr(... + ord(\"a\")).",
@@ -635,7 +635,7 @@ module.exports = [
     "language": "analyse",
     "title": "Station météo — états et alertes",
     "goal": "Classer chaque relevé de température par seuils stricts et compter les alertes.",
-    "brief": "<p>Analysez les données soumises pour chaque cas. Pour chaque relevé t il Indiquez <code>t C : ALERTE CHALEUR</code> si t est <strong>strictement supérieur</strong> à 30, <code>t C : ALERTE FROID</code> si t est <strong>strictement inférieur</strong> à 15, sinon <code>t C : normale</code>. La température se réIndiquez sans zéros inutiles (30.0 s’écrit <code>30</code>). La dernière ligne compte toutes les alertes confondues : <code>alertes : A</code>.</p>",
+    "brief": "<p>Analysez les données soumises pour chaque cas. Pour chaque relevé t, indiquez <code>t C : ALERTE CHALEUR</code> si t est <strong>strictement supérieur</strong> à 30, <code>t C : ALERTE FROID</code> si t est <strong>strictement inférieur</strong> à 15, sinon <code>t C : normale</code>. La température se réIndiquez sans zéros inutiles (30.0 s’écrit <code>30</code>). La dernière ligne compte toutes les alertes confondues : <code>alertes : A</code>.</p>",
     "starter": "# Grille d'analyse (rb-c6-e2) — Station météo — états et alertes\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Autour de 30]\n# Données : 3\n# Données : 30\n# Données : 30.1\n# Données : -2\nA_COMPLETER\n\n[Cas 2 — Autour de 15]\n# Données : 2\n# Données : 15\n# Données : 14.9\nA_COMPLETER\n\n[Cas 3 — Tout normal]\n# Données : 3\n# Données : 20\n# Données : 15\n# Données : 30\nA_COMPLETER\n",
     "hints": [
       "Évaluez les seuils de température relevés par les capteurs thermiques : normal, alerte ou critique.",
@@ -674,7 +674,7 @@ module.exports = [
     "language": "analyse",
     "title": "Régulateur de distance",
     "goal": "Décider d’un état par relevé avec trois seuils, puis agréger minimum et moyenne entière.",
-    "brief": "<p>Le robot roule : Analysez les données soumises pour chaque cas. Pour chaque relevé d il Indiquez <code>STOP</code> si d &lt; 10, <code>LENT</code> si 10 ≤ d &lt; 30, sinon <code>LIBRE</code>. Puis deux lignes de bilan : <code>minimum : m</code> (le plus petit relevé) et <code>moyenne : M</code> (moyenne <em>entière</em>, tronquée — division entière).</p>",
+    "brief": "<p>Le robot roule : Analysez les données soumises pour chaque cas. Pour chaque relevé d, indiquez <code>STOP</code> si d &lt; 10, <code>LENT</code> si 10 ≤ d &lt; 30, sinon <code>LIBRE</code>. Puis deux lignes de bilan : <code>minimum : m</code> (le plus petit relevé) et <code>moyenne : M</code> (moyenne <em>entière</em>, tronquée — division entière).</p>",
     "starter": "# Grille d'analyse (rb-c6-e3) — Régulateur de distance\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Frontières 10 et 30]\n# Données : 3\n# Données : 10\n# Données : 30\n# Données : 9\nA_COMPLETER\n\n[Cas 2 — Nul et grand]\n# Données : 4\n# Données : 0\n# Données : 5\n# Données : 100\n# Données : 55\nA_COMPLETER\n\n[Cas 3 — Un seul relevé]\n# Données : 1\n# Données : 29\nA_COMPLETER\n",
     "hints": [
       "Le minimum se suit dans la boucle avec une variable initialisée à une valeur trop grande, ou s’obtient après coup avec min().",

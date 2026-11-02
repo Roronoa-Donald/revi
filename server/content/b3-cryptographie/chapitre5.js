@@ -25,16 +25,16 @@ module.exports = {
     {
       title: 'Signatures Numériques : RSA Sign &amp; Verify, ECDSA et Ed25519',
       html: [
-        '<p>La signature numérique est l\'équivalent électronique certifié d\'une signature manuscrite notariée. Contrairement au chiffrement (qui assure la confidentialité), la signature apporte trois garanties indispensables : l\'<strong>authenticité de l\'émetteur</strong>, l\'<strong>intégrité du document</strong> et la <strong>non-répudiation</strong>.</p>',
+        '<p>Une signature numérique utilisant un schéma sûr contribue à l\'intégrité du document et, lorsque la clé est liée au signataire, à son authenticité. La non-répudiation dépend aussi du contexte et de la gestion des clés ; la signature ne chiffre pas le document.</p>',
         '<div class="grid grid-2">',
         '  <div class="card">',
-        '    <h4>Mécanisme de Signature RSA</h4>',
-        '    <p>Signer un document volumineux directement par exponentiation modulaire serait trop lent. On signe donc le condensé de hachage $H(M)$ :</p>',
+        '    <h4>Calcul RSA jouet et signature réelle</h4>',
+        '    <p>Ce calcul pédagogique utilise un petit module et du RSA brut : il ne fournit aucune garantie de sécurité. En pratique, utilisez une bibliothèque et le schéma RSA-PSS (RFC 8017), qui encode le message avant la primitive RSA.</p>',
         '    <ol>',
-        '      <li><strong>Hachage :</strong> calcul de l\'empreinte $h = H(M)$ (ex: SHA-256).</li>',
+        '      <li><strong>Hachage jouet :</strong> calcul de $h = H(M) \\pmod n$ (ex: SHA-256 réduit modulo le petit $n$).</li>',
         '      <li><strong>Signature (clé privée de l\'émetteur) :</strong><br><code>sig = (h^d) mod n</code></li>',
-        '      <li><strong>Vérification (clé publique de l\'émetteur) :</strong><br>Le destinataire calcule $h\' = (sig^e) \\pmod n$ et vérifie si $h\' == H(M)$.</li>',
-        '      <li>Si l\'égalité est vérifiée, seul le détenteur de la clé privée $d$ a pu créer cette signature et le message n\'a pas été altéré.</li>',
+        '      <li><strong>Vérification jouet :</strong> si $0 \\leq sig &lt; n$, calculer $h\' = (sig^e) \\pmod n$ et comparer à $H(M) \\pmod n$.</li>',
+        '      <li>Une égalité montre seulement que les valeurs réduites coïncident : deux messages distincts peuvent produire le même résultat et accepter la même signature jouet.</li>',
         '    </ol>',
         '  </div>',
         '  <div class="card">',
@@ -46,7 +46,7 @@ module.exports = {
         '  </div>',
         '</div>',
         box('standard', 'Schéma de Bourrage RSA-PSS (RFC 8017)', [
-          '<p>Tout comme le chiffrement RSA exige le bourrage OAEP, la signature RSA en production doit utiliser <strong>RSA-PSS (Probabilistic Signature Scheme)</strong>. RSA-PSS ajoute un sel aléatoire lors de la signature, offrant une preuve de sécurité formelle dans le modèle du standard aléatoire.</p>'
+          '<p>Pour une signature RSA en pratique, utiliser une bibliothèque fiable et un schéma standard comme <strong>RSA-PSS (Probabilistic Signature Scheme)</strong>, avec des paramètres adaptés. Son codage et la primitive RSA sont définis par la RFC 8017.</p>'
         ])
       ].join('\n')
     },
@@ -91,7 +91,7 @@ module.exports = {
         '  <div class="card">',
         '    <h4>Extensions Standard RFC 5280</h4>',
         '    <ul>',
-        '      <li><strong>Subject Alternative Name (SAN) :</strong> obligatoire pour TLS ! Liste les FQDN couverts (ex: <code>api.cloud.corp</code>, wildcards <code>*.cloud.corp</code>). Le champ historique CN (Common Name) est déprécié par les navigateurs modernes.</li>',
+        '      <li><strong>Subject Alternative Name (SAN) :</strong> pour identifier un service TLS, la RFC 9525 impose l\'identifiant approprié dans SAN (par exemple un DNS-ID pour un nom DNS). Le Common Name (CN) ne doit pas servir à identifier le service.</li>',
         '      <li><strong>Basic Constraints :</strong> <code>CA:TRUE</code> ou <code>CA:FALSE</code>, avec contrainte optionnelle <code>pathlen</code> limitant la profondeur de sous-CA autorisées.</li>',
         '      <li><strong>Key Usage :</strong> restreint l\'usage légitime de la clé (ex: <code>digitalSignature</code>, <code>keyEncipherment</code>, <code>keyCertSign</code>).</li>',
         '      <li><strong>Extended Key Usage (EKU) :</strong> <code>serverAuth</code> (serveur Web TLS), <code>clientAuth</code> (mTLS), <code>codeSigning</code>.</li>',
@@ -113,11 +113,12 @@ module.exports = {
         '    <p>Pour qu\'un certificat feuille soit déclaré valide par un client :</p>',
         '    <ol>',
         '      <li>La date courante doit être comprise entre <code>notBefore</code> et <code>notAfter</code>.</li>',
-        '      <li>Le FQDN contacté doit correspondre au SAN du certificat.</li>',
+        '      <li>Le nom DNS contacté doit correspondre à un DNS-ID du SAN selon la RFC 9525 ; le CN n\'est pas utilisé pour cette identité.</li>',
         '      <li>La signature de chaque certificat $i$ doit être validée avec la clé publique du certificat émetteur $i+1$.</li>',
         '      <li>Le certificat émetteur doit posséder <code>Basic Constraints: CA:TRUE</code>.</li>',
+        '      <li>Les contraintes de chemin, les usages de clé et les usages étendus sont vérifiés selon le profil applicable.</li>',
         '      <li>La chaîne doit remonter jusqu\'à un certificat racine présent dans le magasin de confiance local (Trust Anchor).</li>',
-        '      <li>Aucun certificat de la chaîne ne doit figurer comme révoqué.</li>',
+        '      <li>Le statut de révocation est contrôlé selon la politique applicable ; dates et nom seuls ne valident pas cette chaîne.</li>',
         '    </ol>',
         '  </div>',
         '  <div class="card">',
@@ -134,14 +135,14 @@ module.exports = {
   ],
   method: [
     'Conception et sécurisation de la hiérarchie PKI : déployer une autorité racine (Root CA) hors-ligne et déléguer l\'émission à des autorités intermédiaires (Sub-CA) avec contraintes de chemin pathlen adaptées.',
-    'Génération de requêtes CSR et émission conforme X.509 v3 : configurer rigoureusement les extensions Subject Alternative Name (SAN), Key Usage et Extended Key Usage sans s\'appuyer sur le champ déprécié Common Name.',
+    'Génération de requêtes CSR et émission conforme X.509 v3 : configurer SAN, Key Usage et Extended Key Usage sans utiliser le Common Name pour identifier le service TLS.',
     'Validation algorithmique de la chaîne de certification : vérifier séquentiellement les périodes de validité, la correspondance du nom d\'hôte FQDN, les signatures croisées et l\'ancre de confiance racine du magasin local.',
     'Gestion proactive du cycle de vie et de la révocation : auditer les expirations de certificats, surveiller les numéros de série révoqués via CRL/OCSP et activer systématiquement l\'agrafage OCSP Stapling sur les serveurs web.'
   ],
   summary: [
-    'La signature numérique certifie l\'authenticité, l\'intégrité et la non-répudiation en chiffrant l\'empreinte du message avec la clé privée de l\'émetteur.',
+    'Une signature correctement vérifiée et associée à une clé de confiance contribue à l\'authenticité et à l\'intégrité ; le RSA brut jouet ne constitue pas un schéma sûr.',
     'Une PKI résout le problème de distribution des clés publiques grâce à une hiérarchie de confiance (Root CA, Sub-CA, certificats finaux).',
-    'La norme X.509 v3 (RFC 5280) structure les certificats et impose l\'extension SAN (Subject Alternative Name) pour la validation des noms de domaine.',
+    'La RFC 5280 décrit X.509 et la validation des chemins ; la RFC 9525 vérifie l\'identité d\'un service TLS dans SAN, sans utiliser le CN.',
     'Un certificat intermédiaire doit obligatoirement porter la contrainte Basic Constraints CA:TRUE pour signer d\'autres certificats.',
     'La révocation de clés compromises s\'effectue via les listes CRL ou en temps réel via OCSP, optimisé par l\'agrafage OCSP Stapling dans TLS.'
   ],
@@ -160,9 +161,9 @@ module.exports = {
     { term: 'OCSP Stapling', def: 'Technique TLS où le serveur web fournit lui-même au client une preuve signée et horodatée de non-révocation émise par la CA.' }
   ],
   pitfalls: [
-    'N\'inscrire le nom de domaine que dans le champ historique Common Name (CN) sans renseigner l\'extension SAN : les navigateurs modernes rejettent le certificat.',
+    'N\'inscrire le nom de domaine que dans le Common Name (CN) : la RFC 9525 ne permet pas d\'utiliser ce champ pour identifier le service TLS.',
     'Omettre le paramètre Basic Constraints CA:TRUE sur une autorité intermédiaire : les clients rejetteront tous les certificats émis par cette autorité.',
-    'Utiliser des wildcards à plusieurs niveaux (ex: *.corp.com pour héberger api.prod.corp.com) : les règles RFC 6125 limitent le joker à un seul label DNS.',
+    'Utiliser des wildcards à plusieurs niveaux (ex: *.corp.com pour héberger api.prod.corp.com) : la RFC 9525 limite le joker au label DNS le plus à gauche.',
     'Négliger la révocation en supposant qu\'un certificat reste sûr jusqu\'à sa date d\'expiration : en cas de fuite de clé privée, l\'attaquant peut usurper l\'identité sans être inquiété si aucune CRL/OCSP n\'est consultée.'
   ],
   questions: [
@@ -170,13 +171,13 @@ module.exports = {
       stem: 'Dans une signature numérique RSA, quelle clé est utilisée pour créer la signature et quelle clé est utilisée pour la vérifier ?',
       opts: ['Création avec la clé publique, vérification avec la clé privée', 'Création avec la clé privée de l\'émetteur, vérification avec la clé publique de l\'émetteur', 'Création avec la clé symétrique AES, vérification avec le mot de passe', 'Création avec la clé privée du destinataire, vérification avec sa clé publique'],
       correct: 1,
-      exp: 'L\'émetteur signe le condensé du message avec sa propre clé privée (que lui seul possède), et tout destinataire peut vérifier la signature en utilisant la clé publique correspondante.'
+      exp: 'Un schéma standard comme RSA-PSS utilise la clé privée pour signer et la clé publique correspondante pour vérifier. L\'identité dépend aussi du lien de confiance entre cette clé et le signataire.'
     },
     {
       stem: 'Quel champ d\'extension X.509 v3 est aujourd\'hui obligatoire pour valider la correspondance d\'un nom d\'hôte dans les navigateurs web ?',
       opts: ['Common Name (CN)', 'Subject Alternative Name (SAN)', 'Organizational Unit (OU)', 'Locality Name (L)'],
       correct: 1,
-      exp: 'Le RFC 6125 et les exigences des navigateurs (Chrome, Firefox, Safari) imposent la présence du nom d\'hôte dans l\'extension Subject Alternative Name (SAN), le champ CN n\'étant plus pris en compte.'
+      exp: 'La RFC 9525 vérifie un nom DNS de service dans une entrée dNSName du SAN ; le Common Name ne doit pas servir à identifier le service. La chaîne et les autres contraintes doivent aussi être vérifiées.'
     },
     {
       stem: 'Que signifie l\'extension « Basic Constraints: CA:FALSE » dans un certificat X.509 ?',
@@ -200,7 +201,7 @@ module.exports = {
   flashcards: [
     {
       q: 'Qu\'est-ce qui différencie fondamentalement le chiffrement asymétrique de la signature numérique ?',
-      a: 'Le chiffrement assure la confidentialité (chiffré avec clé publique, lu avec clé privée). La signature assure l\'authenticité et l\'intégrité (signé avec clé privée, vérifié avec clé publique).'
+      a: 'Un chiffrement adapté vise la confidentialité. Une signature avec un schéma sûr et une clé publique liée au signataire contribue à l\'authenticité et à l\'intégrité ; le RSA brut jouet ne les garantit pas.'
     },
     {
       q: 'Quel est le rôle d\'une Autorité de Certification racine (Root CA) ?',

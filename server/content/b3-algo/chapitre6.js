@@ -90,7 +90,7 @@ module.exports = {
       "exp": "La programmation dynamique exige formellement une sous-structure optimale (les solutions optimales locales forment la solution globale) et des sous-problèmes chevauchants (évitant le recalcul redondant)."
     },
     {
-      "stem": "Quelle est la complexité temporelle asymptotique pour résoudre le problème du sac à dos 0/1 avec n objets et capacité W ?",
+      "stem": "Pour le sac à dos 0/1 avec n objets de poids entiers strictement positifs et une capacité entière W ≥ 1, quelle est la complexité temporelle de la programmation dynamique tabulaire calculant chaque cellule ?",
       "opts": [
         "O(2^n)",
         "O(n + W)",
@@ -98,7 +98,7 @@ module.exports = {
         "O(n^2 * W^2)"
       ],
       "correct": 2,
-      "exp": "La matrice DP comporte (n + 1) lignes et (W + 1) colonnes, et chaque cellule est calculée en temps constant O(1), donnant une complexité en Theta(n * W)."
+      "exp": "La matrice DP comporte (n + 1) lignes et (W + 1) colonnes, chaque cellule prenant un temps constant : Theta(n * W). Ce coût est pseudo-polynomial : W est une valeur numérique, pas la longueur de son encodage. D’autres algorithmes ont d’autres complexités."
     },
     {
       "stem": "Dans le problème de l’escalier où l’on peut gravir 1 ou 2 marches, que vaut dp[4] si dp[0]=1, dp[1]=1, dp[2]=2, dp[3]=3 ?",
@@ -168,12 +168,12 @@ module.exports = {
     }
   ],
   "flashcards": [
-    { "q": 'Qu’est-ce que « Principe d’optimalité de Bellman » ?', "a": 'Principe d’optimalité de Bellman : Une fois la table remplie, la valeur maximale se trouve en $dp[n][W]$. Pour identifier quels objets ont été emportés, on remonte depuis $(n, W)$ : - Si $dp[i][w] == dp[i-1][w]$ : l’objet $i$ n’a pas été sélectionné, on passe à $(i-1, w)$. - Si $dp[i][w] ≠ dp[i-1][w]$ : l’objet $i' },
-    { "q": 'Qu’est-ce que « Mémoïsation descendante (Top-Down avec cache) » ?', "a": 'Mémoïsation descendante (Top-Down avec cache) : Une fois la table remplie, la valeur maximale se trouve en $dp[n][W]$. Pour identifier quels objets ont été emportés, on remonte depuis $(n, W)$ : - Si $dp[i][w] == dp[i-1][w]$ : l’objet $i$ n’a pas été sélectionné, on passe à $(i-1, w)$. - Si $dp[i][w] ≠ dp[i-1][w]$ : l’objet $i' },
-    { "q": 'Qu’est-ce que « Tabulation ascendante (Bottom-Up itérative) » ?', "a": 'Tabulation ascendante (Bottom-Up itérative) : Une fois la table remplie, la valeur maximale se trouve en $dp[n][W]$. Pour identifier quels objets ont été emportés, on remonte depuis $(n, W)$ : - Si $dp[i][w] == dp[i-1][w]$ : l’objet $i$ n’a pas été sélectionné, on passe à $(i-1, w)$. - Si $dp[i][w] ≠ dp[i-1][w]$ : l’objet $i' },
-    { "q": 'Qu’est-ce que « Problème du sac à dos 0/1 (0/1 Knapsack) » ?', "a": 'Problème du sac à dos 0/1 (0/1 Knapsack) : Une fois la table remplie, la valeur maximale se trouve en $dp[n][W]$. Pour identifier quels objets ont été emportés, on remonte depuis $(n, W)$ : - Si $dp[i][w] == dp[i-1][w]$ : l’objet $i$ n’a pas été sélectionné, on passe à $(i-1, w)$. - Si $dp[i][w] ≠ dp[i-1][w]$ : l’objet $i' },
-    { "q": 'Qu’est-ce que « Plus longue sous-séquence commune (LCS) » ?', "a": 'implémenter l’algorithme de calcul de la Plus Longue Sous-Séquence Commune (LCS - Longest Common Subsequence) ;' },
-    { "q": 'Qu’est-ce que « Reconstruction de la solution optimale par rétro-propagation » ?', "a": 'Reconstruction de la solution optimale par rétro-propagation : Une fois la table remplie, la valeur maximale se trouve en $dp[n][W]$. Pour identifier quels objets ont été emportés, on remonte depuis $(n, W)$ : - Si $dp[i][w] == dp[i-1][w]$ : l’objet $i$ n’a pas été sélectionné, on passe à $(i-1, w)$. - Si $dp[i][w] ≠ dp[i-1][w]$ : l’objet $i' },
+    { "q": 'Qu’est-ce que « Principe d’optimalité de Bellman » ?', "a": 'Après un premier choix d’une solution optimale, les choix restants forment une solution optimale pour l’état atteint et ses contraintes.' },
+    { "q": 'Qu’est-ce que « Mémoïsation descendante (Top-Down avec cache) » ?', "a": 'Résoudre récursivement les sous-problèmes nécessaires et conserver leurs résultats dans un cache pour les réutiliser sans les recalculer.' },
+    { "q": 'Qu’est-ce que « Tabulation ascendante (Bottom-Up itérative) » ?', "a": 'Initialiser les cas de base puis remplir itérativement une table dans un ordre où les dépendances de chaque état sont déjà calculées.' },
+    { "q": 'Qu’est-ce que « Problème du sac à dos 0/1 (0/1 Knapsack) » ?', "a": 'Choisir au plus une fois chaque objet de poids et de valeur donnés pour maximiser la valeur totale sans dépasser la capacité du sac.' },
+    { "q": 'Qu’est-ce que « Plus longue sous-séquence commune (LCS) » ?', "a": 'Une plus longue suite commune à deux séquences qui conserve l’ordre des éléments sans exiger leur contiguïté ; plusieurs solutions de même longueur peuvent exister.' },
+    { "q": 'Qu’est-ce que « Reconstruction de la solution optimale par rétro-propagation » ?', "a": 'Depuis dp[n][W], comparer dp[i][w] à dp[i−1][w] : si les valeurs diffèrent, prendre l’objet i et réduire w de son poids ; sinon le laisser. Décrémenter i jusqu’à 0 ; en cas d’égalité, plusieurs choix peuvent être optimaux.' },
     {
       "q": "Quelles sont les deux propriétés indispensables pour appliquer la programmation dynamique ?",
       "a": "La sous-structure optimale et la présence de sous-problèmes chevauchants."
@@ -187,8 +187,8 @@ module.exports = {
       "a": "dp[i][w] = max(dp[i-1][w], dp[i-1][w - p_i] + v_i) si w >= p_i sinon dp[i-1][w]."
     },
     {
-      "q": "Quelle est la complexité temporelle et spatiale classique du sac à dos 0/1 ?",
-      "a": "Theta(n * W) en temps et Theta(n * W) en mémoire (réductible à O(W) en mémoire)."
+      "q": "Pour la programmation dynamique tabulaire du sac à dos 0/1, quelles sont les complexités et que représente W ?",
+      "a": "n est le nombre d'objets et W la capacité entière : Theta(n * W) en temps et en mémoire. La mémoire peut être réduite à O(W) avec un ordre de mise à jour adapté. La complexité est pseudo-polynomiale."
     },
     {
       "q": "Quelle est la différence entre sous-séquence et sous-chaîne ?",

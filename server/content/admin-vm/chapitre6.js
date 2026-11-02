@@ -26,10 +26,6 @@ module.exports = {
   ],
 
   sections: [
-      {
-        "title": "Continuité de Service : Migration à Chaud (VMware vMotion) & Haute Disponibilité (vSphere HA)",
-        "html": "<div class=\"box box--tech\"><div class=\"box__title\">Notions clés d’examen : vMotion et Cluster de Haute Disponibilité (HA)</div><p>Dans un cluster d’hyperviseurs partageant un stockage centralisé (SAN/NAS), deux fonctionnalités assurent l’équilibrage des ressources et la continuité d’activité :</p><ul><li><strong>VMware vMotion (Live Migration / Migration à chaud) :</strong> permet de <strong>déplacer une machine virtuelle en cours d’exécution d’un serveur hôte physique vers un autre hôte moins sollicité sans aucune interruption de service</strong> pour les utilisateurs. Le moteur copie les pages de mémoire vive (RAM) en tâche de fond via un réseau vMotion dédié, transfère l’état du processeur en quelques millisecondes et bascule l’accès au disque partagé ;</li><li><strong>Haute Disponibilité (vSphere HA / Failover Clustering) :</strong> surveille les battements de cœur (<em>heartbeats</em>) des serveurs physiques du cluster. Si un hôte tombe brutalement en panne matérielle, ses machines virtuelles sont automatiquement redémarrées sur les autres hôtes sains du cluster.</li></ul></div>"
-      },
     {
       title: 'Gestion avancée des ressources',
       html: [
@@ -89,12 +85,16 @@ module.exports = {
           'durcissement et les mises à jour de l’hôte sont prioritaires : ils protègent l’ensemble de ' +
           'la plateforme.</p>')
       ].join('\n')
-    }
+    },
+      {
+        "title": "Continuité de Service : Migration à Chaud (VMware vMotion) & Haute Disponibilité (vSphere HA)",
+        "html": "<div class=\"box box--tech\"><div class=\"box__title\">vMotion et haute disponibilité</div><p>Dans un cluster d’hyperviseurs, deux mécanismes contribuent à la continuité, sous réserve d’une configuration et de ressources adaptées :</p><ul><li><strong>VMware vMotion :</strong> déplace une VM en cours d’exécution vers un autre hôte en cherchant à minimiser l’interruption. Une partie de la mémoire est copiée pendant l’exécution, puis une <strong>pause de bascule</strong> est nécessaire. Sa durée et son impact dépendent de la charge, du réseau et des applications ; des applications sensibles peuvent être perturbées.</li><li><strong>Haute disponibilité vSphere HA :</strong> surveille les hôtes et peut redémarrer leurs VM sur des hôtes sains après une panne. Un redémarrage n’est pas une continuité sans interruption.</li></ul><p>Source : <a href=\"https://knowledge.broadcom.com/external/article/407273/sensitive-virtual-machines-become-impact.html\">impact de la pause vMotion sur les applications sensibles</a>, consulté le 30 octobre 2026.</p></div>"
+      }
   ],
 
   questions: [
     { stem: 'Que garantit une réservation ?', opts: ['Un minimum de ressource', 'Un maximum', 'Une priorité'], correct: 0, exp: 'Elle réserve une part de CPU ou de RAM.' },
-    { stem: 'Que fait une limite ?', opts: ['Plafonne une ressource', 'Réservez un minimum', 'Priorise'], correct: 0, exp: 'Elle empêche une VM de consommer au-delà.' },
+    { stem: 'Que fait une limite ?', opts: ['Plafonne une ressource', 'Réserve un minimum', 'Priorise'], correct: 0, exp: 'Elle empêche une VM de consommer au-delà.' },
     { stem: 'À quoi servent les shares ?', opts: ['Priorité relative entre VM', 'Chiffrer', 'Segmenter'], correct: 0, exp: 'Elles départagent la contention.' },
     { stem: 'Que garantit le quorum ?', opts: ['La prise de décision', 'Le chiffrement', 'La migration'], correct: 0, exp: 'La majorité des nœuds décide.' },
     { stem: 'Que fait le fencing ?', opts: ['Isole un nœud instable', 'Sauvegarde les VM', 'Monitore'], correct: 0, exp: 'Il évite le split brain.' },

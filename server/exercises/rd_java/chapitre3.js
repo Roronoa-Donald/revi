@@ -40,7 +40,8 @@ public class Main {
     tests: [
       { label: 'Valeurs identiques', stdin: '3\n1\n1\n1', expected: 'max : 1' },
       { label: 'Tout négatif', stdin: '4\n-5\n-2\n-9\n-1', expected: 'max : -1' },
-      { label: 'Maximum en doublon', stdin: '6\n10\n0\n5\n10\n3\n8', expected: 'max : 10' }
+      { label: 'Maximum en doublon', stdin: '6\n10\n0\n5\n10\n3\n8', expected: 'max : 10' },
+      { label: 'Maximum unique en tête', stdin: '3\n50\n10\n20', expected: 'max : 50' }
     ],
     solution: `import java.util.Scanner;
 
@@ -156,7 +157,8 @@ public class Main {
     tests: [
       { label: 'Le plus petit premier', stdin: '2', expected: 'premier' },
       { label: 'Nombre composé', stdin: '9', expected: 'non premier' },
-      { label: 'Grand premier', stdin: '97', expected: 'premier' }
+      { label: 'Grand premier', stdin: '97', expected: 'premier' },
+      { label: 'Cas limite un non premier', stdin: '1', expected: 'non premier' }
     ],
     solution: `import java.util.Scanner;
 

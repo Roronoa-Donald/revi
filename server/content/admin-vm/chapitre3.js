@@ -64,7 +64,7 @@ module.exports = {
         'crée de l’attente.</li>',
         '  <li><strong>RAM</strong> : ressource non élastique, à dimensionner finement.</li>',
         '  <li><strong>Disque</strong> : <em>thin</em> pour la souplesse, <em>thick</em> pour la ' +
-        'performance garantie.</li>',
+        'réservation d’espace virtuel ; les performances dépendent du stockage et de la charge.</li>',
         '</ul>',
         '<p>Principe : dimensionner selon la charge réelle et la priorité du service, pas selon le ' +
         '« au cas où ».</p>',
@@ -97,7 +97,7 @@ module.exports = {
     { stem: 'Première phase du cycle de vie ?', opts: ['Conception', 'Retrait', 'Exploitation'], correct: 0, exp: 'On définit les besoins avant de provisionner.' },
     { stem: 'Que fait la phase de provisioning ?', opts: ['Allouer les ressources', 'Archiver', 'Superviser'], correct: 0, exp: 'On attribue CPU, RAM, stockage, réseau.' },
     { stem: 'Quelle ressource est non élastique ?', opts: ['La RAM', 'Le vCPU', 'Le réseau'], correct: 0, exp: 'La RAM ne se partage pas dynamiquement.' },
-    { stem: 'Disque thin : avantage ?', opts: ['Souplesse', 'Performance garantie', 'Chiffrement'], correct: 0, exp: 'L’espace est alloué selon l’usage réel.' },
+    { stem: 'Disque thin : avantage ?', opts: ['Souplesse', 'Performance garantie', 'Chiffrement'], correct: 0, exp: 'Les blocs sont alloués à la demande ; l’occupation doit être mesurée et surveillée.' },
     { stem: 'Un snapshot remplace-t-il une sauvegarde ?', opts: ['Non', 'Oui', 'Toujours'], correct: 0, exp: 'Il vit sur le même stockage et reste temporaire.' },
     { stem: 'Clone lié : faiblesse ?', opts: ['Il dépend de sa base', 'Il est trop gros', 'Il est trop lent'], correct: 0, exp: 'Si la base disparaît, le clone lié ne fonctionne plus.' },
     { stem: 'Que garantit un template ?', opts: ['Cohérence et rapidité', 'Le chiffrement', 'La migration'], correct: 0, exp: 'Un modèle standardise les déploiements.' }
@@ -139,14 +139,14 @@ module.exports = {
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Reprenez les quatre phases du cycle de vie.' },
     { cls: 'mid', text: '50–69 % — Entraînez-vous sur l’allocation des ressources.' },
-    { cls: 'good', text: '70–94 % — Solide : vous cyclez une VM sans laisser de risque.' },
+    { cls: 'good', text: '70–94 % — Solide : vous gérez le cycle de vie d’une VM sans laisser de risque.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe au stockage et aux volumes, chapitre 4.' }
   ],
 
   flashcards: [
     { q: 'Quatre phases du cycle de vie ?', a: 'Conception, provisioning, exploitation, retrait.' },
     { q: 'vCPU : comment ça marche ?', a: 'Partage temporel du CPU physique entre VM.' },
-    { q: 'Thin vs thick ?', a: 'Thin : souple, alloué à l’usage ; thick : réservé d’avance.' },
+    { q: 'Thin vs thick ?', a: 'Thin : blocs alloués à la demande ; thick : réservation d’avance, sans garantie de performance.' },
     { q: 'Snapshot vs backup ?', a: 'Snapshot : retour rapide (court terme) ; backup : résilience.' },
     { q: 'Clone complet vs lié ?', a: 'Complet : indépendant ; lié : dépend de sa base.' },
     { q: 'À quoi sert un template ?', a: 'À standardiser les déploiements de VM.' }

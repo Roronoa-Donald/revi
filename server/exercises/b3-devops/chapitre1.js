@@ -43,41 +43,41 @@ module.exports = [
   {
     "id": "do3-c1-e2",
     "chapter": 1,
-    "title": "Calculateur des 4 Métriques DORA (DevOps Research & Assessment)",
+    "title": "Barème pédagogique fictif : quatre mesures de livraison",
     "level": "n2",
     "language": "analyse",
-    "goal": "Classifier la performance de livraison logicielle d’une équipe selon les critères universels de la méthodologie DORA.",
-    "brief": "<p>Analysez les paramètres du problème pour chaque cas.<br>\nDéfinitions :<br>\n- <code>DF</code> : Deployment Frequency (déploiements par jour)<br>\n- <code>LT</code> : Lead Time for Changes (délai commit vers prod en heures)<br>\n- <code>CFR</code> : Change Failure Rate (taux d'échec au déploiement en %)<br>\n- <code>MTTR</code> : Mean Time to Restore (temps de résolution d'incident en heures)<br><br>\nGrille de classification officielle DORA :<br>\n- <strong>ELITE</strong> : $DF \\ge 1.0$ ET $LT \\le 1.0$ ET $CFR \\le 5.0$ ET $MTTR \\le 1.0$<br>\n- <strong>HIGH</strong> : $DF \\ge 0.14$ ET $LT \\le 24.0$ ET $CFR \\le 15.0$ ET $MTTR \\le 24.0$<br>\n- <strong>MEDIUM</strong> : $DF \\ge 0.033$ ET $LT \\le 168.0$ ET $CFR \\le 30.0$ ET $MTTR \\le 168.0$<br>\n- <strong>LOW</strong> : toute équipe ne satisfaisant pas les seuils ci-dessus.<br><br>\nAfficher :<br>\n<code>DORA_REPORT: CLASSE=&lt;ELITE|HIGH|MEDIUM|LOW&gt; | DF=&lt;df:.2f&gt; dep/j | LT=&lt;lt:.1f&gt;h | CFR=&lt;cfr:.1f&gt;% | MTTR=&lt;mttr:.1f&gt;h</code></p>",
-    "starter": "# Grille d'analyse (do3-c1-e2) — Calculateur des 4 Métriques DORA (DevOps Research & Assessment)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Équipe performante High niveau]\n# Données : DORA df_per_day=0.50 lt_hours=8.0 cfr_pct=10.0 mttr_hours=4.0\nA_COMPLETER\n\n[Cas 2 — Équipe intermédiaire Medium niveau]\n# Données : DORA df_per_day=0.10 lt_hours=48.0 cfr_pct=20.0 mttr_hours=72.0\nA_COMPLETER\n\n[Cas 3 — Déploiements manuels trimestriels à risque élevé Low]\n# Données : DORA df_per_day=0.01 lt_hours=720.0 cfr_pct=45.0 mttr_hours=200.0\nA_COMPLETER\n",
+    "goal": "Appliquer un barème pédagogique daté sans prétendre classifier officiellement une équipe.",
+    "brief": "<p>Ce barème pédagogique fictif du 30 octobre 2026 sert uniquement à calculer un classement sur les quatre valeurs fournies : fréquence <code>DF</code> en déploiements/jour, délai <code>LT</code> en heures, taux <code>CFR</code> en pourcentage et temps moyen général de restauration <code>MTTR</code> en heures. Les seuils ci-dessous ne sont pas un classement officiel ni universel DORA. Le guide DORA consulté à cette date présente cinq métriques, dont le <em>Deployment Rework Rate</em> ; cette cinquième mesure n’est pas fournie ici. De plus, un MTTR général ne mesure pas nécessairement le rétablissement après un déploiement échoué.</p><p>Dans cet exercice seulement : <code>A</code> si DF ≥ 1, LT ≤ 1, CFR ≤ 5 et MTTR ≤ 1 ; sinon <code>B</code> si DF ≥ 0,14, LT ≤ 24, CFR ≤ 15 et MTTR ≤ 24 ; sinon <code>C</code> si DF ≥ 0,033, LT ≤ 168, CFR ≤ 30 et MTTR ≤ 168 ; sinon <code>D</code>. Ces valeurs ne suffisent pas à juger une équipe réelle.</p><p>Afficher <code>BAREME_PEDAGOGIQUE: CLASSE=&lt;A|B|C|D&gt; | DF=&lt;2 décimales&gt; dep/j | LT=&lt;1 décimale&gt;h | CFR=&lt;1 décimale&gt;% | MTTR=&lt;1 décimale&gt;h | CINQUIEME=NON_MESURE</code>.</p>",
+    "starter": "# Grille d'analyse (do3-c1-e2) — Barème pédagogique fictif : quatre mesures de livraison\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Équipe performante High niveau]\n# Données : DORA df_per_day=0.50 lt_hours=8.0 cfr_pct=10.0 mttr_hours=4.0\nA_COMPLETER\n\n[Cas 2 — Équipe intermédiaire Medium niveau]\n# Données : DORA df_per_day=0.10 lt_hours=48.0 cfr_pct=20.0 mttr_hours=72.0\nA_COMPLETER\n\n[Cas 3 — Déploiements manuels trimestriels à risque élevé Low]\n# Données : DORA df_per_day=0.01 lt_hours=720.0 cfr_pct=45.0 mttr_hours=200.0\nA_COMPLETER\n",
     "hints": [
-      "Tester dans l’ordre d’exigence : Élite, puis High, puis Medium, sinon Low.",
-      "Les équipes Élite déploient plusieurs fois par jour avec un lead time inférieur à une heure."
+      "Appliquez les seuils fictifs dans l’ordre A, B, C, puis D.",
+      "Ne confondez pas ce barème sur quatre données avec les cinq métriques actuelles DORA."
     ],
     "examples": [
       {
         "stdin": "DORA df_per_day=3.50 lt_hours=0.5 cfr_pct=2.0 mttr_hours=0.4",
-        "expected": "DORA_REPORT: CLASSE=ELITE | DF=3.50 dep/j | LT=0.5h | CFR=2.0% | MTTR=0.4h",
-        "note": "Tous les critères Élite sont satisfaits avec brio."
+        "expected": "BAREME_PEDAGOGIQUE: CLASSE=A | DF=3.50 dep/j | LT=0.5h | CFR=2.0% | MTTR=0.4h | CINQUIEME=NON_MESURE",
+        "note": "Les valeurs satisfont les seuils A du barème fictif, sans classement réel."
       }
     ],
     "tests": [
       {
         "label": "Équipe performante High niveau",
         "stdin": "cas:1",
-        "expected": "DORA_REPORT: CLASSE=HIGH | DF=0.50 dep/j | LT=8.0h | CFR=10.0% | MTTR=4.0h"
+        "expected": "BAREME_PEDAGOGIQUE: CLASSE=B | DF=0.50 dep/j | LT=8.0h | CFR=10.0% | MTTR=4.0h | CINQUIEME=NON_MESURE"
       },
       {
         "label": "Équipe intermédiaire Medium niveau",
         "stdin": "cas:2",
-        "expected": "DORA_REPORT: CLASSE=MEDIUM | DF=0.10 dep/j | LT=48.0h | CFR=20.0% | MTTR=72.0h"
+        "expected": "BAREME_PEDAGOGIQUE: CLASSE=C | DF=0.10 dep/j | LT=48.0h | CFR=20.0% | MTTR=72.0h | CINQUIEME=NON_MESURE"
       },
       {
         "label": "Déploiements manuels trimestriels à risque élevé Low",
         "stdin": "cas:3",
-        "expected": "DORA_REPORT: CLASSE=LOW | DF=0.01 dep/j | LT=720.0h | CFR=45.0% | MTTR=200.0h"
+        "expected": "BAREME_PEDAGOGIQUE: CLASSE=D | DF=0.01 dep/j | LT=720.0h | CFR=45.0% | MTTR=200.0h | CINQUIEME=NON_MESURE"
       }
     ],
-    "solution": "[Exemple]\nDORA_REPORT: CLASSE=ELITE | DF=3.50 dep/j | LT=0.5h | CFR=2.0% | MTTR=0.4h\n\n[Cas 1 — Équipe performante High niveau]\nDORA_REPORT: CLASSE=HIGH | DF=0.50 dep/j | LT=8.0h | CFR=10.0% | MTTR=4.0h\n\n[Cas 2 — Équipe intermédiaire Medium niveau]\nDORA_REPORT: CLASSE=MEDIUM | DF=0.10 dep/j | LT=48.0h | CFR=20.0% | MTTR=72.0h\n\n[Cas 3 — Déploiements manuels trimestriels à risque élevé Low]\nDORA_REPORT: CLASSE=LOW | DF=0.01 dep/j | LT=720.0h | CFR=45.0% | MTTR=200.0h"
+    "solution": "[Exemple]\nBAREME_PEDAGOGIQUE: CLASSE=A | DF=3.50 dep/j | LT=0.5h | CFR=2.0% | MTTR=0.4h | CINQUIEME=NON_MESURE\n\n[Cas 1 — Équipe performante High niveau]\nBAREME_PEDAGOGIQUE: CLASSE=B | DF=0.50 dep/j | LT=8.0h | CFR=10.0% | MTTR=4.0h | CINQUIEME=NON_MESURE\n\n[Cas 2 — Équipe intermédiaire Medium niveau]\nBAREME_PEDAGOGIQUE: CLASSE=C | DF=0.10 dep/j | LT=48.0h | CFR=20.0% | MTTR=72.0h | CINQUIEME=NON_MESURE\n\n[Cas 3 — Déploiements manuels trimestriels à risque élevé Low]\nBAREME_PEDAGOGIQUE: CLASSE=D | DF=0.01 dep/j | LT=720.0h | CFR=45.0% | MTTR=200.0h | CINQUIEME=NON_MESURE"
   },
   {
     "id": "do3-c1-e3",

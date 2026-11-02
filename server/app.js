@@ -45,18 +45,23 @@ function buildApp(opts = {}) {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "blob:"],
+        formAction: ["'self'", "https://*.fedapay.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "blob:", "https://cdn.fedapay.com"],
         workerSrc: ["'self'", "blob:"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.fedapay.com"],
+        styleSrcElem: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.fedapay.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
-        imgSrc: ["'self'", "data:", "blob:", "https:"],
+        imgSrc: ["'self'", "data:", "blob:", "https:", "https://cdn.fedapay.com"],
         connectSrc: [
           "'self'",
           "https://revi-mu.vercel.app",
           "https://revi-mu.onrender.com",
           "https://fonts.googleapis.com",
-          "https://fonts.gstatic.com"
+          "https://fonts.gstatic.com",
+          "https://api.fedapay.com",
+          "https://sandbox-api.fedapay.com"
         ],
+        frameSrc: ["'self'", "https://*.fedapay.com"],
         frameAncestors: ["'self'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"]
@@ -91,7 +96,7 @@ function buildApp(opts = {}) {
   fastify.register(require('./routes/execute'), { prefix: '/api' });
   fastify.register(require('./routes/exercises'), { prefix: '/api' });
   fastify.register(require('./routes/preparation'), { prefix: '/api/preparation' });
-  fastify.register(require('./routes/fedapay'), { prefix: '/api/fedapay' });
+  fastify.register(require('./routes/fedapay'));
 
   return fastify;
 }

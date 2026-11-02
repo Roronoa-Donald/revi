@@ -11,8 +11,8 @@ module.exports = [
     "brief": "<p>Analysez chaque ligne proposée « tache famille » : famille est un code parmi <code>comptes</code>, <code>logiciels</code>, <code>materiel</code> ou <code>securite</code>. Tâches du support : gérer les comptes utilisateurs → <code>comptes</code> ; installer, configurer, patcher → <code>logiciels</code> ; panne, remplacement, ajout → <code>materiel</code> ; sauvegardes fiables et contrôle d’accès → <code>securite</code>. Pour chaque ligne indiquez <code>tache : OK</code> ou <code>tache : ERREUR</code>, puis <code>correctes : X/n</code>.</p>",
     "starter": "# Grille d'analyse (aw-c1-e1) — Les familles de tâches de l’administrateur\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Les quatre familles]\n# Données : 4\n# Données : comptes comptes\n# Données : patcher logiciels\n# Données : remplacement materiel\n# Données : acces securite\nA_COMPLETER\n\n[Cas 2 — Trois confusions]\n# Données : 4\n# Données : installer materiel\n# Données : panne securite\n# Données : sauvegardes comptes\n# Données : acces securite\nA_COMPLETER\n\n[Cas 3 — Journée d’admin]\n# Données : 5\n# Données : configurer logiciels\n# Données : ajout materiel\n# Données : sauvegardes securite\n# Données : comptes comptes\n# Données : patcher logiciels\nA_COMPLETER\n",
     "hints": [
-      "Un case sur la tâche : comptes → comptes, installer/configurer/patcher → logiciels, panne/remplacement/ajout → materiel, sauvegardes/acces → securite.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Quelle famille décrit le mieux la tâche accomplie ?",
+      "Comparez la famille proposée au rôle de la tâche avant de compter les réponses correctes."
     ],
     "examples": [
       {
@@ -50,8 +50,8 @@ module.exports = [
     "brief": "<p>Le support distingue trois types d’administration : d’un <strong>poste</strong> (station de travail), des <strong>serveurs</strong>, et <strong>réseau</strong> (liaisons et accès distants). Analysez chaque ligne proposée « besoin type » : type est un code parmi <code>poste</code>, <code>serveurs</code> ou <code>reseau</code>. Besoins : mettre à jour le PC d’un stagiaire → <code>poste</code> ; installer un rôle sur un serveur → <code>serveurs</code> ; configurer l’accès distant d’un site → <code>reseau</code> ; remplacer le disque d’un portable → <code>poste</code> ; héberger le dossier partagé de l’entreprise → <code>serveurs</code>. Pour chaque ligne indiquez <code>besoin : OK</code> ou <code>besoin : ERREUR</code>, puis <code>correctes : X/n</code>.</p>",
     "starter": "# Grille d'analyse (aw-c1-e2) — Les trois types d’administration\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Parc mixte]\n# Données : 5\n# Données : portable poste\n# Données : partage serveurs\n# Données : site reseau\n# Données : role serveurs\n# Données : stagiaire poste\nA_COMPLETER\n\n[Cas 2 — Trois erreurs]\n# Données : 4\n# Données : stagiaire serveurs\n# Données : role poste\n# Données : site serveurs\n# Données : distant reseau\nA_COMPLETER\n\n[Cas 3 — Tour de service]\n# Données : 5\n# Données : site reseau\n# Données : partage serveurs\n# Données : portable poste\n# Données : distant reseau\n# Données : role serveurs\nA_COMPLETER\n",
     "hints": [
-      "Un case sur le besoin : stagiaire/portable → poste, role/partage → serveurs, distant/site → reseau.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Le besoin concerne-t-il une station, un serveur ou une liaison réseau ?",
+      "Comparez le type proposé au besoin avant de calculer le bilan."
     ],
     "examples": [
       {
@@ -89,8 +89,8 @@ module.exports = [
     "brief": "<p>Le support rappelle que l’administrateur « gère quotidiennement de multiples tâches, petites ou grosses ». Analysez chaque ligne proposée « tache duree » (durée en minutes). Une tâche de <strong>30 minutes ou plus</strong> est grosse, sinon normale. Pour chaque ligne indiquez <code>tache : normale</code> ou <code>tache : grosse</code>, puis <code>charge : X min</code> (somme des durées) et <code>grosses : Y</code>.</p>",
     "starter": "# Grille d'analyse (aw-c1-e3) — La charge du jour : tâches normales et grosses\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Journée chargée]\n# Données : 4\n# Données : comptes 15\n# Données : panne 60\n# Données : mails 5\n# Données : update 30\nA_COMPLETER\n\n[Cas 2 — Que des petites]\n# Données : 3\n# Données : mails 5\n# Données : comptes 10\n# Données : check 14\nA_COMPLETER\n\n[Cas 3 — Frontière exacte]\n# Données : 3\n# Données : a 29\n# Données : b 30\n# Données : c 31\nA_COMPLETER\n",
     "hints": [
-      "Test de classement : duree -ge 30 → grosse, sinon normale ; la somme progresse dans les deux cas.",
-      "Les deux bilans sortent une seule fois, après la boucle."
+      "Pour chaque durée, de quel côté du seuil se trouve-t-elle ?",
+      "Additionnez toutes les durées et comptez les tâches classées grosses."
     ],
     "examples": [
       {
@@ -440,7 +440,7 @@ module.exports = [
     "brief": "<p>Le support décrit des unités d’organisation « remplies d’objets de différentes classes : utilisateurs, ordinateurs, groupes, contrôleurs de domaine ». Analysez chaque ligne proposée « objet uo » et Indiquez d’abord chaque ligne <code>objet : uo</code>, puis pour chaque unité d’organisation, <strong>dans l’ordre de première apparition</strong>, <code>uo : X objets</code>, et enfin <code>uos : Y</code>.</p>",
     "starter": "# Grille d'analyse (aw-c4-e3) — Les objets par unité d’organisation\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux unités]\n# Données : 4\n# Données : iziti TRI\n# Données : pc-iziti TRI\n# Données : compta VENTES\n# Données : mgmt TRI\nA_COMPLETER\n\n[Cas 2 — Une UO par classe]\n# Données : 4\n# Données : admin DC\n# Données : pc-admin DC\n# Données : imprimantes DC\n# Données : groupes DC\nA_COMPLETER\n\n[Cas 3 — Ordre d’apparition]\n# Données : 4\n# Données : compta VENTES\n# Données : iziti TRI\n# Données : direction DG\n# Données : mgmt TRI\nA_COMPLETER\n",
     "hints": [
-      "Nouvelle UO : [ -z \"${compte[$uo]+x}\" ] → ordre[$g]=$uo et g=$((g+1)).",
+      "Nouvelle UO : `[ -z \"${compte[$uo]+x}\" ]` → `ordre[$g]=$uo` et `g=$((g+1))`.",
       "Les bilans sortent après la boucle : UO dans l’ordre du tableau ordre, puis g."
     ],
     "examples": [
@@ -632,7 +632,7 @@ module.exports = [
     "language": "analyse",
     "title": "Créer les utilisateurs : UPN et options de compte",
     "goal": "Valider l’UPN de chaque utilisateur et signaler l’option de mot de passe.",
-    "brief": "<p>Le support crée les utilisateurs dans l’unité puis distingue les deux formes de session : <strong>UPN</strong> (forme adresse e-mail, contient une arobase) et <code>DOMAINE\\login</code>. Analysez chaque ligne proposée « utilisateur upn changement » : upn est l’identifiant saisi, changement vaut <code>oui</code> (doit changer son mot de passe à la prochaine ouverture) ou <code>non</code>. Pour chaque utilisateur indiquez <code>utilisateur : upn-valide</code> si l’UPN contient une arobase, sinon <code>utilisateur : forme-domaine</code> ; et il note <code>utilisateur : init-mdp</code> en plus si changement vaut oui. Enfin <code>upn : X/n</code> et <code>a-initialiser : Y</code>.</p>",
+    "brief": "<p>Le support crée les utilisateurs dans l’unité puis distinguez les deux formes de session : <strong>UPN</strong> (forme adresse e-mail, contient une arobase) et <code>DOMAINE\\login</code>. Analysez chaque ligne proposée « utilisateur upn changement » : upn est l’identifiant saisi, changement vaut <code>oui</code> (doit changer son mot de passe à la prochaine ouverture) ou <code>non</code>. Pour chaque utilisateur indiquez <code>utilisateur : upn-valide</code> si l’UPN contient une arobase, sinon <code>utilisateur : forme-domaine</code> ; et il note <code>utilisateur : init-mdp</code> en plus si changement vaut oui. Enfin <code>upn : X/n</code> et <code>a-initialiser : Y</code>.</p>",
     "starter": "# Grille d'analyse (aw-c6-e2) — Créer les utilisateurs : UPN et options de compte\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Promotion 2026]\n# Données : 4\n# Données : a.ade a.ade@ntic.ma oui\n# Données : b.ben NTIC\\\\b.ben oui\n# Données : c.cia c.cia@ntic.ma non\n# Données : d.dan NTIC\\\\d.dan non\nA_COMPLETER\n\n[Cas 2 — Que des UPN]\n# Données : 3\n# Données : me me@cdp.org non\n# Données : you you@cdp.org oui\n# Données : us us@cdp.org non\nA_COMPLETER\n\n[Cas 3 — Que du domaine]\n# Données : 3\n# Données : a CD\\\\a non\n# Données : b CD\\\\b non\n# Données : c CD\\\\c oui\nA_COMPLETER\n",
     "hints": [
       "L’arobase dans une variable : case \"$identifiant\" in *@*) forme UPN ;; *) forme domaine ;;",

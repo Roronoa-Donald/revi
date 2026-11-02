@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -108,8 +108,8 @@ REFRESH MATERIALIZED VIEW mv_ca_mensuel;    </div>
   <div class="card">
     <h4 class="card-title">BEFORE vs AFTER</h4>
     <ul>
-      <li><strong>BEFORE :</strong> S’exécute <em>avant</em> la modification physique. Utilisé pour valider des données, forcer des valeurs par défaut ou lever une erreur bloquante.</li>
-      <li><strong>AFTER :</strong> S’exécute <em>après</em> la validation de l’opération. Utilisé pour alimenter des tables de traçabilité (audit logs) ou synchroniser d’autres tables.</li>
+      <li><strong>BEFORE :</strong> S’exécute <em>avant</em> l’opération sur la ligne. Dans PostgreSQL, une fonction déclencheur peut modifier <code>NEW</code> ; les possibilités et la syntaxe varient selon le SGBD.</li>
+      <li><strong>AFTER :</strong> S’exécute <em>après</em> l’opération, mais avant le <code>COMMIT</code>. Dans PostgreSQL comme dans SQLite, un journal écrit dans la même transaction est annulé par <code>ROLLBACK</code> ; une contrainte différée peut encore faire échouer le COMMIT.</li>
     </ul>
   </div>
   <div class="card">
@@ -120,14 +120,14 @@ REFRESH MATERIALIZED VIEW mv_ca_mensuel;    </div>
     </ul>
   </div>
 </div>
+<p><strong>Exemple SQLite :</strong> le déclencheur journalise aussi les changements vers ou depuis NULL.</p>
 <div class="code-block">CREATE TRIGGER trg_audit_prix
 AFTER UPDATE ON Produits
 FOR EACH ROW
+WHEN OLD.prix IS NOT NEW.prix
 BEGIN
-    IF OLD.prix != NEW.prix THEN
-        INSERT INTO HistoriquePrix (produit_id, ancien_prix, nouveau_prix, modifie_le)
-        VALUES (OLD.id, OLD.prix, NEW.prix, CURRENT_TIMESTAMP);
-    END IF;
+    INSERT INTO HistoriquePrix (produit_id, ancien_prix, nouveau_prix, modifie_le)
+    VALUES (OLD.id, OLD.prix, NEW.prix, CURRENT_TIMESTAMP);
 END;</div>
 
 <h2>3. Optimisation Physique, Index B-Tree &amp; Plans d’Exécution EXPLAIN</h2>
@@ -156,14 +156,12 @@ CREATE INDEX idx_cmd_date_client ON Commandes(date_cmd, client_id);    </div>
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="sql2-c6-e1" data-lab
      data-exercise="sql2-c6-e1"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE employes (id INT, nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES (1, 'Amina', 'IT', 350000), (2, 'Koffi', 'Support', 200000), (3, 'Yao', 'Securite', 420000);&#10;-- VERIFY:&#10;SELECT id, nom, departement FROM vue_cadres ORDER BY id;&#10;-- exemple">
@@ -173,11 +171,13 @@ CREATE VIEW vue_cadres AS SELECT id, nom, departement FROM employes WHERE salair
     <h3 class="lab__title">Exercice 1 — Créer une vue relationnelle (CREATE VIEW)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Encapsuler une requête de filtrage dans une vue SQL réutilisable.</p>
+    <p class="lab__note" id="sql2-c6-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>À partir de la table <code>employes(id, nom, departement, salaire)</code>, créez une vue nommée <code>vue_cadres</code> qui expose <code>id</code>, <code>nom</code> et <code>departement</code> des employés dont <code>salaire &gt;= 300000</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE employes (id INT, nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES (1, 'Amina', 'IT', 350000), (2, 'Koffi', 'Support', 200000), (3, 'Yao', 'Securite', 420000);
@@ -207,6 +207,7 @@ SELECT id, nom, departement FROM vue_cadres ORDER BY id;
 
 <div class="lab" id="sql2-c6-e2" data-lab
      data-exercise="sql2-c6-e2"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE comptes (id INT, solde INT); CREATE TABLE journal_audit (compte_id INT, ancien_solde INT, nouveau_solde INT); INSERT INTO comptes VALUES (1, 10000), (2, 50000);&#10;-- VERIFY:&#10;UPDATE comptes SET solde = 15000 WHERE id = 1; SELECT compte_id, ancien_solde, nouveau_solde FROM journal_audit ORDER BY compte_id;&#10;-- exemple">
@@ -216,12 +217,14 @@ SELECT * FROM comptes;</script>
     <h3 class="lab__title">Exercice 2 — Déclencheur d’audit automatique (CREATE TRIGGER AFTER UPDATE)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Écrire un trigger enregistrant l’ancienne et la nouvelle valeur lors d’une mise à jour.</p>
-    <div class="lab__brief"><p>Soient <code>comptes(id INT, solde INT)</code> et <code>journal_audit(compte_id INT, ancien_solde INT, nouveau_solde INT)</code>. Créez un déclencheur <code>trg_audit_solde</code> qui, <code>AFTER UPDATE ON comptes</code>, insère dans <code>journal_audit</code> les valeurs <code>(OLD.id, OLD.solde, NEW.solde)</code>.</p></div>
+    <p class="lab__note" id="sql2-c6-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans cet atelier SQLite, soient <code>comptes(id INT, solde INT)</code> et <code>journal_audit(compte_id INT, ancien_solde INT, nouveau_solde INT)</code>. Créez un déclencheur <code>trg_audit_solde</code> qui, <code>AFTER UPDATE ON comptes</code>, insère dans <code>journal_audit</code> les valeurs <code>(OLD.id, OLD.solde, NEW.solde)</code>. Le journal participe à la même transaction : un ROLLBACK annule aussi son insertion.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE comptes (id INT, solde INT); CREATE TABLE journal_audit (compte_id INT, ancien_solde INT, nouveau_solde INT); INSERT INTO comptes VALUES (1, 10000), (2, 50000);
 -- VERIFY:
@@ -251,6 +254,7 @@ Instruction exécutée avec succès (1 ligne modifiée).
 
 <div class="lab" id="sql2-c6-e3" data-lab
      data-exercise="sql2-c6-e3"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE journaux (id INT, service TEXT, niveau TEXT, message TEXT); INSERT INTO journaux VALUES (1, 'auth', 'ERROR', 'Echec MFA'), (2, 'auth', 'INFO', 'Login OK'), (3, 'db', 'ERROR', 'Timeout');&#10;-- exemple">
@@ -260,11 +264,13 @@ SELECT id, message FROM journaux;</script>
     <h3 class="lab__title">Exercice 3 — Créer un index composite pour accélérer les recherches (CREATE INDEX)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Créer un index B-Tree multi-colonnes et interroger la table indexée.</p>
+    <p class="lab__note" id="sql2-c6-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Sur la table <code>journaux(id INT, service TEXT, niveau TEXT, message TEXT)</code>, créez un index nommé <code>idx_journaux_service_niveau</code> sur les colonnes <code>(service, niveau)</code>, puis sélectionnez <code>id</code> et <code>message</code> pour <code>service = 'auth' AND niveau = 'ERROR'</code> triés par <code>id</code> croissant.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE journaux (id INT, service TEXT, niveau TEXT, message TEXT); INSERT INTO journaux VALUES (1, 'auth', 'ERROR', 'Echec MFA'), (2, 'auth', 'INFO', 'Login OK'), (3, 'db', 'ERROR', 'Timeout');
@@ -288,6 +294,7 @@ SELECT id, message FROM journaux;</script>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -303,14 +310,14 @@ SELECT id, message FROM journaux;</script>
       <div class="q__exp">Une vue standard est une simple définition de requête qui n’occupe aucun espace de stockage. Une vue matérialisée enregistre physiquement les données calculées sur disque pour accélérer les consultations massives au prix d’un rafraîchissement (REFRESH) périodique.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Dans un déclencheur SQL de type BEFORE INSERT, que représente la pseudo-variable NEW ?</p>
+      <p class="q__stem">Dans une fonction déclencheur PostgreSQL de type BEFORE INSERT, que représente la pseudo-variable NEW ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Le nouvel enregistrement en cours d’insertion dont les valeurs peuvent être lues et modifiées avant écriture</button>
         <button class="opt">L’état précédent de la ligne qui va être écrasée</button>
         <button class="opt">Le nom de l’utilisateur ayant initié la connexion</button>
         <button class="opt">L’identifiant de la transaction courante</button>
       </div>
-      <div class="q__exp">Dans un trigger BEFORE/AFTER INSERT ou UPDATE, NEW contient les données de la ligne candidate. En mode BEFORE, le trigger peut valider ou même rectifier directement les attributs de NEW (ex: forcer un stock négatif à 0) avant l’écriture sur disque.</div>
+      <div class="q__exp">Dans une fonction PostgreSQL BEFORE INSERT ou UPDATE FOR EACH ROW, NEW contient la ligne candidate ; la fonction peut modifier NEW puis le retourner. La syntaxe et les possibilités diffèrent dans SQLite.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi une condition telle que WHERE YEAR(date_commande) = 2026 peut-elle transformer un Index Scan rapide en un Seq Scan très lent sur une table de 5 millions de lignes ?</p>
@@ -320,7 +327,7 @@ SELECT id, message FROM journaux;</script>
         <button class="opt">Parce que les dates ne peuvent pas être indexées</button>
         <button class="opt">Parce que la fonction YEAR() verrouille la table</button>
       </div>
-      <div class="q__exp">Enveloppe la colonne dans une fonction (YEAR(col)) oblige le SGBD à évaluer la fonction pour chaque ligne de la table au lieu de naviguer dans l’arbre d’index. Il vaut mieux écrire 'WHERE date_commande >= '2026-01-01' AND date_commande < '2027-01-01'' pour préserver l’index.</div>
+      <div class="q__exp">Enveloppe la colonne dans une fonction (YEAR(col)) oblige le SGBD à évaluer la fonction pour chaque ligne de la table au lieu de naviguer dans l’arbre d’index. Il vaut mieux écrire 'WHERE date_commande &gt;= '2026-01-01' AND date_commande &lt; '2027-01-01'' pour préserver l’index.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel type de structure d’indexation est utilisé par défaut dans la grande majorité des SGBD relationnels (PostgreSQL, MySQL InnoDB, Oracle) pour les clés primaires et colonnes uniques ?</p>
@@ -330,7 +337,7 @@ SELECT id, message FROM journaux;</script>
         <button class="opt">Index Bitmap</button>
         <button class="opt">Index Full-Text</button>
       </div>
-      <div class="q__exp">L’arbre B-Tree équilibré est le standard universel des bases relationnelles car il optimise à la fois les recherches d’égalité stricte (=) et les requêtes par plage de valeurs (<, >, BETWEEN).</div>
+      <div class="q__exp">L’arbre B-Tree équilibré est le standard universel des bases relationnelles car il optimise à la fois les recherches d’égalité stricte (=) et les requêtes par plage de valeurs (&lt;, &gt;, BETWEEN).</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans un plan d’exécution obtenu par la commande EXPLAIN ANALYZE, quelle information supplémentaire essentielle est fournie par rapport à un simple EXPLAIN ?</p>
@@ -390,7 +397,7 @@ SELECT id, message FROM journaux;</script>
     </ul>
     <h3>Les 9 notions à connaître absolument</h3>
     <ol>
-      <li>Vues relationnelles (CREATE VIEW)</li><li>Vues matérialisées & REFRESH MATERIALIZED VIEW</li><li>Procédures stockées & Fonctions définies par l’utilisateur</li><li>Déclencheurs (Triggers) BEFORE et AFTER</li><li>Pseudo-lignes de transition NEW et OLD</li><li>Index physique B-Tree (Arbre équilibré)</li><li>Règle du préfixe le plus à gauche sur index composite</li><li>Planificateur de requêtes (Query Optimizer)</li><li>Analyse de plan d’exécution (EXPLAIN / EXPLAIN ANALYZE)</li>
+      <li>Vues relationnelles (CREATE VIEW)</li><li>Vues matérialisées &amp; REFRESH MATERIALIZED VIEW</li><li>Procédures stockées &amp; Fonctions définies par l’utilisateur</li><li>Déclencheurs (Triggers) BEFORE et AFTER</li><li>Pseudo-lignes de transition NEW et OLD</li><li>Index physique B-Tree (Arbre équilibré)</li><li>Règle du préfixe le plus à gauche sur index composite</li><li>Planificateur de requêtes (Query Optimizer)</li><li>Analyse de plan d’exécution (EXPLAIN / EXPLAIN ANALYZE)</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -402,7 +409,7 @@ SELECT id, message FROM journaux;</script>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Révise la différence entre Seq Scan et Index Scan, et le rôle des vues.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Révisez la différence entre Seq Scan et Index Scan, et le rôle des vues.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur la syntaxe des triggers et l’usage de NEW et OLD.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous maîtrisez la programmabilité serveur et les techniques d’indexation.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise d’expert : félicitations, vous dominez l’ensemble des compétences de SQL niveau B2 !</div>

@@ -19,7 +19,7 @@ module.exports = {
     'différencier les nœuds d’accès aux relations : Seq Scan, Index Scan, Index Only Scan et Bitmap Index Scan ;',
     'comparer en profondeur les trois algorithmes de jointure : Nested Loop, Hash Join et Merge Join ;',
     'auditer la mémoire de travail (work_mem) et identifier les écritures temporaires sur disque (Hash Batches / Sort Spill) ;',
-    'développer en Python 3 des parseurs de plans EXPLAIN, des simulateurs d’algorithmes de jointure et des détecteurs d’écarts de cardinalité.'
+    'développer en requêtes SQL avancées et scripts d’analyse des parseurs de plans EXPLAIN, des simulateurs d’algorithmes de jointure et des détecteurs d’écarts de cardinalité.'
   ],
   sections: [
     {
@@ -31,7 +31,7 @@ module.exports = {
         '    <h4>Les Options Cruciales de la Commande EXPLAIN</h4>',
         '    <ul>',
         '      <li><code>EXPLAIN &lt;sql&gt;</code> : Affiche uniquement les estimations théoriques calculées par le planificateur, sans exécuter la requête.</li>',
-        '      <li><code>EXPLAIN (ANALYZE)</code> : <strong>Exécutez réellement la requête</strong> et mesure les temps réels d’exécution (actual time en ms) et le nombre de lignes produites (actual rows).</li>',
+        '      <li><code>EXPLAIN (ANALYZE)</code> : <strong>Exécute réellement la requête</strong> et mesure les temps réels d’exécution (actual time en ms) et le nombre de lignes produites (actual rows).</li>',
         '      <li><code>EXPLAIN (ANALYZE, BUFFERS)</code> : Affiche en plus les blocs mémoire manipulés dans le buffer pool (<code>shared hit</code> = blocs en RAM, <code>read</code> = blocs lus sur disque, <code>dirtied</code> = blocs modifiés).</li>',
         '    </ul>',
         '  </div>',
@@ -60,7 +60,7 @@ module.exports = {
         '      <li><strong>Seq Scan (Sequential Scan) :</strong> Balaye séquentiellement chaque bloc de la table. Privilégié si la table est petite ou si la requête sélectionne plus de 15 à 20 % des enregistrements.</li>',
         '      <li><strong>Index Scan :</strong> Parcourt l’arbre B-Tree puis lit directement le bloc de données correspondant sur la table. Optimal pour une sélectivité très forte (quelques lignes).</li>',
         '      <li><strong>Bitmap Heap Scan :</strong> Construit un vecteur de bits des blocs contenant les résultats (Bitmap Index Scan) puis les lit dans l’ordre physique séquentiel du disque.</li>',
-        '      <li><strong>Index Only Scan :</strong> Toutes les colonnes nécessaires sont stockées dans l’index couvrant : la table n’est jamais lue.</li>',
+        '      <li><strong>Index Only Scan :</strong> Toutes les colonnes nécessaires sont dans l’index. PostgreSQL évite la lecture du tas lorsque la carte de visibilité (<em>visibility map</em>) le permet ; sinon, le plan peut afficher des <em>Heap Fetches</em>. L’optimiseur peut aussi choisir un autre plan.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',

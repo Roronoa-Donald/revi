@@ -7,67 +7,72 @@ module.exports = [
     "title": "Simulateur de Signature Numérique et Vérification (RSA Sign & Verify)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Implémenter la signature numérique RSA d'un message haché et sa vérification avec la clé publique.",
-    "brief": "<p>Une signature numérique lie cryptographiquement l'empreinte d'un message à la clé privée de l'émetteur :<br>\n- Empreinte : <code>h = int(sha256(M), 16) mod n</code>.<br>\n- Signature : <code>sig = pow(h, d, n)</code>.<br>\n- Vérification : <code>h_recupere = pow(sig, e, n)</code>.<br>\n- Si <code>h == h_recupere</code>, la signature est valide.<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>SIGN n=&lt;n&gt; d=&lt;d&gt; text=&lt;texte&gt;</code> : produit <code>SIGN: n=&lt;n&gt; digest_mod=&lt;h&gt; sig=&lt;sig&gt;</code>.<br>\n2. <code>VERIFY n=&lt;n&gt; e=&lt;e&gt; sig=&lt;sig&gt; text=&lt;texte&gt;</code> :<br>\n   - Si valide : <code>VERIFY: status=VALID_SIGNATURE (authentic & untampered)</code><br>\n   - Si invalide : <code>VERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)</code></p>",
-    "starter": "# Grille d'analyse (cr3-c5-e1) — Simulateur de Signature Numérique et Vérification (RSA Sign & Verify)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Vérification signature valide]\n# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_OFFICIEL\nA_COMPLETER\n\n[Cas 2 — Détection d altération de message sous signature]\n# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_FALSIFIE\nA_COMPLETER\n\n[Cas 3 — Rejet signature numérique corrompue]\n# Données : VERIFY n=3233 e=17 sig=9999 text=CONTRAT_OFFICIEL\nA_COMPLETER\n",
+    "goal": "Effectuer un calcul RSA brut jouet, reconnaître ses limites et distinguer une signature RSA-PSS réelle.",
+    "brief": "<p>Ce calcul jouet de RSA brut avec un très petit module ne fournit aucune garantie de sécurité. La réduction de SHA-256 modulo <code>n</code> crée facilement des collisions : une égalité ne prouve ni l’authenticité ni l’absence d’altération. En pratique, utiliser une bibliothèque et un schéma standard comme RSA-PSS (RFC 8017).<br><br>\nDans ce modèle pédagogique : <code>h = int(sha256(M), 16) mod n</code>, <code>sig = pow(h, d, n)</code> et <code>h_recupere = pow(sig, e, n)</code>.<br>\n1. <code>SIGN n=&lt;n&gt; d=&lt;d&gt; text=&lt;texte&gt;</code> produit <code>SIGN: n=&lt;n&gt; digest_mod=&lt;h&gt; sig=&lt;sig&gt;</code>.<br>\n2. <code>VERIFY n=&lt;n&gt; e=&lt;e&gt; sig=&lt;sig&gt; text=&lt;texte&gt;</code> :<br>\n   - Si <code>sig &lt; 0</code> ou <code>sig &gt;= n</code> : <code>VERIFY: status=SIGNATURE_OUT_OF_RANGE</code>.<br>\n   - Si les valeurs réduites coïncident : <code>VERIFY: status=TOY_MATCH (no_security_guarantee)</code>.<br>\n   - Sinon : <code>VERIFY: status=TOY_MISMATCH</code>.<br>\nComparer notamment deux messages distincts avec la même signature dans les cas 1 et 4.</p>",
+    "starter": "# Grille d'analyse (cr3-c5-e1) — Simulateur de Signature Numérique et Vérification (RSA Sign & Verify)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Égalité des valeurs pour le premier message]\n# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_OFFICIEL\nA_COMPLETER\n\n[Cas 2 — Valeurs réduites différentes]\n# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_FALSIFIE\nA_COMPLETER\n\n[Cas 3 — Signature hors de la plage du module]\n# Données : VERIFY n=3233 e=17 sig=9999 text=CONTRAT_OFFICIEL\nA_COMPLETER\n\n[Cas 4 — Collision avec un autre message]\n# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_COLLISION_13147\nA_COMPLETER\n",
     "hints": [
       "Calculez h = int(hashlib.sha256(text.encode(\"utf-8\")).hexdigest(), 16) % n.",
-      "Pour vérifier, calculez pow(sig, e, n) et comparez directement avec h."
+      "Vérifiez d’abord 0 <= sig < n, puis comparez pow(sig, e, n) à h : une égalité ne prouve pas la sécurité."
     ],
     "examples": [
       {
         "stdin": "SIGN n=3233 d=2753 text=CONTRAT_OFFICIEL",
         "expected": "SIGN: n=3233 digest_mod=566 sig=1706",
-        "note": "Signature calculée avec la clé privée (d=2753) sur le condensé modulo 3233."
+        "note": "Calcul jouet avec un petit module, sans garantie de sécurité."
       }
     ],
     "tests": [
       {
-        "label": "Vérification signature valide",
+        "label": "Égalité des valeurs pour le premier message",
         "stdin": "cas:1",
-        "expected": "VERIFY: status=VALID_SIGNATURE (authentic & untampered)"
+        "expected": "VERIFY: status=TOY_MATCH (no_security_guarantee)"
       },
       {
-        "label": "Détection d altération de message sous signature",
+        "label": "Valeurs réduites différentes",
         "stdin": "cas:2",
-        "expected": "VERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)"
+        "expected": "VERIFY: status=TOY_MISMATCH"
       },
       {
-        "label": "Rejet signature numérique corrompue",
+        "label": "Signature hors de la plage du module",
         "stdin": "cas:3",
-        "expected": "VERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)"
+        "expected": "VERIFY: status=SIGNATURE_OUT_OF_RANGE"
+      },
+      {
+        "label": "Collision avec un autre message",
+        "stdin": "cas:4",
+        "expected": "VERIFY: status=TOY_MATCH (no_security_guarantee)"
       }
     ],
-    "solution": "[Exemple]\nSIGN: n=3233 digest_mod=566 sig=1706\n\n[Cas 1 — Vérification signature valide]\nVERIFY: status=VALID_SIGNATURE (authentic & untampered)\n\n[Cas 2 — Détection d altération de message sous signature]\nVERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)\n\n[Cas 3 — Rejet signature numérique corrompue]\nVERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)"
+    "solution": "[Exemple]\nSIGN: n=3233 digest_mod=566 sig=1706\n\n[Cas 1 — Égalité des valeurs pour le premier message]\nVERIFY: status=TOY_MATCH (no_security_guarantee)\n\n[Cas 2 — Valeurs réduites différentes]\nVERIFY: status=TOY_MISMATCH\n\n[Cas 3 — Signature hors de la plage du module]\nVERIFY: status=SIGNATURE_OUT_OF_RANGE\n\n[Cas 4 — Collision avec un autre message]\nVERIFY: status=TOY_MATCH (no_security_guarantee)"
   },
   {
     "id": "cr3-c5-e2",
     "chapter": 5,
-    "title": "Validateur de Structure et de Validité Temporelle de Certificat X.509",
+    "title": "Contrôle Partiel d’un Nom DNS SAN et des Dates d’un Certificat X.509",
     "level": "n2",
     "language": "analyse",
-    "goal": "Valider la conformité temporelle et l'admissibilité du nom de domaine (Common Name et SAN avec wildcards) d'un certificat X.509.",
-    "brief": "<p>Un certificat X.509 lie une identité à une clé publique.<br>\nCritères de validation :<br>\n1. Validité temporelle :<br>\n   - Si <code>date &lt; not_before</code> : <code>STATUS=INVALID reason=NOT_YET_VALID</code><br>\n   - Si <code>date &gt; not_after</code> : <code>STATUS=INVALID reason=CERTIFICATE_EXPIRED</code><br>\n2. Correspondance du nom d'hôte :<br>\n   - Le FQDN doit correspondre à <code>cn</code> ou à un nom dans <code>san</code>.<br>\n   - Un wildcard <code>*.domaine.corp</code> couvre tout sous-domaine de niveau 1 (ex: <code>web.domaine.corp</code>).<br>\n   - Si aucune correspondance : <code>STATUS=INVALID reason=HOSTNAME_MISMATCH</code>.<br>\n3. Si conforme : <code>STATUS=VALID fqdn=&lt;fqdn&gt; valid_until=&lt;not_after&gt; ca=&lt;is_ca&gt;</code>.<br><br>\nParamètres soumis à l’analyse : <code>CERT_VALIDATE fqdn=&lt;fqdn&gt; date=&lt;date&gt; cn=&lt;cn&gt; san=&lt;san&gt; not_before=&lt;date&gt; not_after=&lt;date&gt; is_ca=&lt;bool&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (cr3-c5-e2) — Validateur de Structure et de Validité Temporelle de Certificat X.509\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Validation FQDN par wildcard SAN]\n# Données : CERT_VALIDATE fqdn=web.cloud.corp date=2026-10-15 cn=cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 2 — Rejet FQDN ne figurant ni dans CN ni dans SAN]\n# Données : CERT_VALIDATE fqdn=hacker.net date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 3 — Rejet certificat expiré]\n# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2028-05-01 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 4 — Rejet certificat pas encore valide]\n# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2025-11-01 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n",
+    "goal": "Contrôler les dates et un nom DNS dans le SAN sans prétendre valider complètement le certificat.",
+    "brief": "<p>Ce modèle vérifie uniquement des dates ISO et un nom DNS dans des entrées dNSName du SAN. Selon la RFC 9525, le CN est ignoré pour identifier le service, même s’il correspond au nom demandé. Le SAN contient ici une liste de noms séparés par des virgules, comparés sans tenir compte de la casse ; <code>san=-</code> indique un SAN absent.<br>\nUne entrée <code>*.cloud.corp</code> ne couvre qu’un seul label à gauche : <code>web.cloud.corp</code>, mais ni <code>cloud.corp</code> ni <code>api.dev.cloud.corp</code>.<br>\nContrôle partiel seulement : chaîne : non contrôlée ; les signatures, l’ancre de confiance, les contraintes et usages, ainsi que la révocation restent à vérifier. Le champ <code>is_ca</code> est seulement recopié et n’est pas validé.<br><br>\nRègles :<br>\n1. Si <code>date &lt; not_before</code> : <code>STATUS=INVALID reason=NOT_YET_VALID</code>.<br>\n2. Si <code>date &gt; not_after</code> : <code>STATUS=INVALID reason=CERTIFICATE_EXPIRED</code> ; les deux bornes sont incluses.<br>\n3. Si aucun DNS-ID du SAN ne correspond : <code>STATUS=INVALID reason=HOSTNAME_MISMATCH</code>.<br>\n4. Si ces deux contrôles passent : <code>STATUS=PARTIAL fqdn=&lt;fqdn&gt; valid_until=&lt;not_after&gt; ca=&lt;is_ca&gt; chain=NOT_CHECKED</code>.<br><br>\nParamètres : <code>CERT_VALIDATE fqdn=&lt;fqdn&gt; date=&lt;date&gt; cn=&lt;cn&gt; san=&lt;san&gt; not_before=&lt;date&gt; not_after=&lt;date&gt; is_ca=&lt;bool&gt;</code>.</p>",
+    "starter": "# Grille d'analyse (cr3-c5-e2) — Contrôle Partiel d’un Nom DNS SAN et des Dates d’un Certificat X.509\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Correspondance partielle par wildcard SAN]\n# Données : CERT_VALIDATE fqdn=web.cloud.corp date=2026-10-15 cn=cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 2 — CN correspondant mais SAN absent]\n# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=- not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 3 — Rejet certificat expiré]\n# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2028-05-01 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 4 — Rejet certificat pas encore valide]\n# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2025-11-01 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 5 — CN correspondant mais SAN différent]\n# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=www.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 6 — Wildcard ne couvrant pas deux labels]\n# Données : CERT_VALIDATE fqdn=api.dev.cloud.corp date=2026-10-15 cn=api.dev.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 7 — Wildcard ne couvrant pas le domaine racine]\n# Données : CERT_VALIDATE fqdn=cloud.corp date=2026-10-15 cn=cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n",
     "hints": [
-      "Comparez lexicographiquement les dates au format ISO YYYY-MM-DD.",
-      "Pour les wildcards, vérifiez si le motif commence par \"*.\" et découpez le nom pour tester qu il s agit d un sous-domaine direct sans point supplémentaire."
+      "Comparez les dates ISO YYYY-MM-DD avec bornes incluses, puis ignorez le CN pour la correspondance du nom.",
+      "Un wildcard complet dans le label le plus à gauche couvre exactement un label ; même si les contrôles passent, la chaîne reste non contrôlée."
     ],
     "examples": [
       {
         "stdin": "CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp,cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false",
-        "expected": "STATUS=VALID fqdn=api.cloud.corp valid_until=2027-01-01 ca=false",
-        "note": "Certificat en cours de validité avec correspondance exacte FQDN."
+        "expected": "STATUS=PARTIAL fqdn=api.cloud.corp valid_until=2027-01-01 ca=false chain=NOT_CHECKED",
+        "note": "Dates et wildcard SAN correspondent ; la chaîne n’est pas vérifiée."
       }
     ],
     "tests": [
       {
-        "label": "Validation FQDN par wildcard SAN",
+        "label": "Correspondance partielle par wildcard SAN",
         "stdin": "cas:1",
-        "expected": "STATUS=VALID fqdn=web.cloud.corp valid_until=2027-01-01 ca=false"
+        "expected": "STATUS=PARTIAL fqdn=web.cloud.corp valid_until=2027-01-01 ca=false chain=NOT_CHECKED"
       },
       {
-        "label": "Rejet FQDN ne figurant ni dans CN ni dans SAN",
+        "label": "CN correspondant mais SAN absent",
         "stdin": "cas:2",
         "expected": "STATUS=INVALID reason=HOSTNAME_MISMATCH"
       },
@@ -80,47 +85,72 @@ module.exports = [
         "label": "Rejet certificat pas encore valide",
         "stdin": "cas:4",
         "expected": "STATUS=INVALID reason=NOT_YET_VALID"
+      },
+      {
+        "label": "CN correspondant mais SAN différent",
+        "stdin": "cas:5",
+        "expected": "STATUS=INVALID reason=HOSTNAME_MISMATCH"
+      },
+      {
+        "label": "Wildcard ne couvrant pas deux labels",
+        "stdin": "cas:6",
+        "expected": "STATUS=INVALID reason=HOSTNAME_MISMATCH"
+      },
+      {
+        "label": "Wildcard ne couvrant pas le domaine racine",
+        "stdin": "cas:7",
+        "expected": "STATUS=INVALID reason=HOSTNAME_MISMATCH"
       }
     ],
-    "solution": "[Exemple]\nSTATUS=VALID fqdn=api.cloud.corp valid_until=2027-01-01 ca=false\n\n[Cas 1 — Validation FQDN par wildcard SAN]\nSTATUS=VALID fqdn=web.cloud.corp valid_until=2027-01-01 ca=false\n\n[Cas 2 — Rejet FQDN ne figurant ni dans CN ni dans SAN]\nSTATUS=INVALID reason=HOSTNAME_MISMATCH\n\n[Cas 3 — Rejet certificat expiré]\nSTATUS=INVALID reason=CERTIFICATE_EXPIRED\n\n[Cas 4 — Rejet certificat pas encore valide]\nSTATUS=INVALID reason=NOT_YET_VALID"
+    "solution": "[Exemple]\nSTATUS=PARTIAL fqdn=api.cloud.corp valid_until=2027-01-01 ca=false chain=NOT_CHECKED\n\n[Cas 1 — Correspondance partielle par wildcard SAN]\nSTATUS=PARTIAL fqdn=web.cloud.corp valid_until=2027-01-01 ca=false chain=NOT_CHECKED\n\n[Cas 2 — CN correspondant mais SAN absent]\nSTATUS=INVALID reason=HOSTNAME_MISMATCH\n\n[Cas 3 — Rejet certificat expiré]\nSTATUS=INVALID reason=CERTIFICATE_EXPIRED\n\n[Cas 4 — Rejet certificat pas encore valide]\nSTATUS=INVALID reason=NOT_YET_VALID\n\n[Cas 5 — CN correspondant mais SAN différent]\nSTATUS=INVALID reason=HOSTNAME_MISMATCH\n\n[Cas 6 — Wildcard ne couvrant pas deux labels]\nSTATUS=INVALID reason=HOSTNAME_MISMATCH\n\n[Cas 7 — Wildcard ne couvrant pas le domaine racine]\nSTATUS=INVALID reason=HOSTNAME_MISMATCH"
   },
   {
     "id": "cr3-c5-e3",
     "chapter": 5,
-    "title": "Contrôleur de Chaîne de Certification PKI et Révocation (CRL/OCSP)",
+    "title": "Contrôle Partiel de Chaîne PKI et de Liste de Révocation Fictive",
     "level": "n3",
     "language": "analyse",
-    "goal": "Vérifier la validité d'une chaîne de confiance PKI complète et contrôler l'absence de certificats révoqués dans la liste CRL.",
-    "brief": "<p>Contrôle de conformité d'une chaîne PKI :<br>\n- Ligne d'en-tête : <code>PKI_CHAIN trust_root=&lt;root&gt; crl_revoked=&lt;s1,s2,...&gt;</code>.<br>\n- Certificats (de la feuille à la racine) : <code>CERT subject=&lt;s&gt; issuer=&lt;i&gt; serial=&lt;ser&gt; is_ca=&lt;bool&gt;</code>.<br><br>\nRègles :<br>\n1. Révocation : si un serial est dans <code>crl_revoked</code> : <code>CHAIN: INVALID reason=REVOKED_CERTIFICATE serial=&lt;ser&gt; subject=&lt;s&gt;</code>.<br>\n2. Liaison : pour tout certificat i &lt; N-1, <code>cert[i].issuer == cert[i+1].subject</code>. Sinon <code>CHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=&lt;cert[i].subject&gt;</code>.<br>\n3. Émetteur : <code>cert[i+1].is_ca == True</code>. Sinon <code>CHAIN: INVALID reason=INTERMEDIATE_NOT_CA subject=&lt;cert[i+1].subject&gt;</code>.<br>\n4. Racine : le dernier certificat doit être auto-signé (<code>issuer == subject</code>) et égal à <code>trust_root</code>. Sinon <code>CHAIN: INVALID reason=UNTRUSTED_ROOT root=&lt;root&gt;</code>.<br>\n5. Succès : <code>CHAIN: VALID depth=&lt;N&gt; root=&lt;root&gt; leaf=&lt;leaf&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (cr3-c5-e3) — Contrôleur de Chaîne de Certification PKI et Révocation (CRL/OCSP)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Rejet certificat révoqué dans la CRL]\n# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-1001\n# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n\n[Cas 2 — Rupture de liaison d émetteur dans la chaîne]\n# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999\n# Données : CERT subject=api.bank.com issuer=Rogue_Intermediate serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n\n[Cas 3 — Racine non présente dans le magasin de confiance]\n# Données : PKI_CHAIN trust_root=Official_Root_CA crl_revoked=none\n# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=Fake_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=Fake_Root_CA issuer=Fake_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n",
+    "goal": "Effectuer un contrôle partiel des noms et d’une liste de révocation fictive, sans valider une chaîne PKI réelle.",
+    "brief": "<p>Ce modèle contrôle uniquement des chaînes de noms et des numéros de série dans une liste fictive. Les signatures des certificats et de la liste sont non vérifiées ; les dates, contraintes complètes, usages, identité du service, authenticité de l’ancre et fraîcheur de révocation ne sont pas vérifiés non plus. Il ne valide pas une chaîne PKI réelle et n’interroge pas OCSP. Tous les diagnostics, même négatifs, ne concernent que les données fictives et ne certifient pas le statut réel.<br>\nUn sujet égal à l’émetteur indique ici un certificat auto-émis, pas la preuve qu’il est auto-signé. <code>trust_root</code> est seulement un nom attendu, non une ancre cryptographique vérifiée.<br><br>\nLigne d’en-tête : <code>PKI_CHAIN trust_root=&lt;root&gt; crl_revoked=&lt;s1,s2,...&gt;</code>.<br>\nCertificats de la feuille à la racine : <code>CERT subject=&lt;s&gt; issuer=&lt;i&gt; serial=&lt;ser&gt; is_ca=&lt;bool&gt;</code>.<br><br>\nRègles de ce modèle :<br>\n1. Si un numéro de série figure dans la liste : <code>CHAIN: INVALID reason=REVOKED_CERTIFICATE serial=&lt;ser&gt; subject=&lt;s&gt;</code>.<br>\n2. Pour tout certificat i &lt; N-1, comparer <code>cert[i].issuer == cert[i+1].subject</code> ; sinon <code>CHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=&lt;cert[i].subject&gt;</code>.<br>\n3. Vérifier l’indicateur déclaré <code>cert[i+1].is_ca == true</code> ; sinon <code>CHAIN: INVALID reason=INTERMEDIATE_NOT_CA subject=&lt;cert[i+1].subject&gt;</code>.<br>\n4. Le dernier sujet doit égaler son émetteur et <code>trust_root</code> ; sinon <code>CHAIN: INVALID reason=UNTRUSTED_ROOT root=&lt;root&gt;</code>.<br>\n5. Si ces seuls contrôles passent : <code>CHAIN: PARTIAL depth=&lt;N&gt; root=&lt;root&gt; leaf=&lt;leaf&gt; signatures=NOT_CHECKED</code>.</p>",
+    "starter": "# Grille d'analyse (cr3-c5-e3) — Contrôle Partiel de Chaîne PKI et de Liste de Révocation Fictive\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Numéro de série présent dans la liste fictive]\n# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-1001\n# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n\n[Cas 2 — Rupture de liaison des noms d’émetteur]\n# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999\n# Données : CERT subject=api.bank.com issuer=Rogue_Intermediate serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n\n[Cas 3 — Nom de racine différent du nom attendu]\n# Données : PKI_CHAIN trust_root=Official_Root_CA crl_revoked=none\n# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=Fake_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=Fake_Root_CA issuer=Fake_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n\n[Cas 4 — Noms cohérents mais signatures non contrôlées]\n# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999\n# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n\n[Cas 5 — Émetteur intermédiaire sans indicateur CA]\n# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999\n# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=false\n# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n",
     "hints": [
-      "Contrôlez en premier lieu l’état de révocation du certificat en consultant la liste de révocation (CRL) ou le protocole OCSP.",
-      "Validez l’ensemble de la chaîne de confiance en vérifiant que chaque certificat intermédiaire est signé par l’autorité supérieure."
+      "Comparez les numéros de série à la liste fictive avant de vérifier les noms et les indicateurs CA.",
+      "Des noms cohérents ne vérifient pas les signatures ni l’ancre de confiance : le verdict positif reste partiel."
     ],
     "examples": [
       {
         "stdin": "PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999\nCERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\nCERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true\nCERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true",
-        "expected": "CHAIN: VALID depth=3 root=DigiTrust_Root_CA leaf=api.bank.com",
-        "note": "Chaîne PKI 3 niveaux intacte liée à la racine de confiance."
+        "expected": "CHAIN: PARTIAL depth=3 root=DigiTrust_Root_CA leaf=api.bank.com signatures=NOT_CHECKED",
+        "note": "Contrôles de noms et liste fictive seulement ; les signatures et la confiance réelle ne sont pas vérifiées."
       }
     ],
     "tests": [
       {
-        "label": "Rejet certificat révoqué dans la CRL",
+        "label": "Numéro de série présent dans la liste fictive",
         "stdin": "cas:1",
         "expected": "CHAIN: INVALID reason=REVOKED_CERTIFICATE serial=SN-1001 subject=api.bank.com"
       },
       {
-        "label": "Rupture de liaison d émetteur dans la chaîne",
+        "label": "Rupture de liaison des noms d’émetteur",
         "stdin": "cas:2",
         "expected": "CHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=api.bank.com"
       },
       {
-        "label": "Racine non présente dans le magasin de confiance",
+        "label": "Nom de racine différent du nom attendu",
         "stdin": "cas:3",
         "expected": "CHAIN: INVALID reason=UNTRUSTED_ROOT root=Fake_Root_CA"
+      },
+      {
+        "label": "Noms cohérents mais signatures non contrôlées",
+        "stdin": "cas:4",
+        "expected": "CHAIN: PARTIAL depth=3 root=DigiTrust_Root_CA leaf=api.bank.com signatures=NOT_CHECKED"
+      },
+      {
+        "label": "Émetteur intermédiaire sans indicateur CA",
+        "stdin": "cas:5",
+        "expected": "CHAIN: INVALID reason=INTERMEDIATE_NOT_CA subject=DigiTrust_Intermediate_CA"
       }
     ],
-    "solution": "[Exemple]\nCHAIN: VALID depth=3 root=DigiTrust_Root_CA leaf=api.bank.com\n\n[Cas 1 — Rejet certificat révoqué dans la CRL]\nCHAIN: INVALID reason=REVOKED_CERTIFICATE serial=SN-1001 subject=api.bank.com\n\n[Cas 2 — Rupture de liaison d émetteur dans la chaîne]\nCHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=api.bank.com\n\n[Cas 3 — Racine non présente dans le magasin de confiance]\nCHAIN: INVALID reason=UNTRUSTED_ROOT root=Fake_Root_CA"
+    "solution": "[Exemple]\nCHAIN: PARTIAL depth=3 root=DigiTrust_Root_CA leaf=api.bank.com signatures=NOT_CHECKED\n\n[Cas 1 — Numéro de série présent dans la liste fictive]\nCHAIN: INVALID reason=REVOKED_CERTIFICATE serial=SN-1001 subject=api.bank.com\n\n[Cas 2 — Rupture de liaison des noms d’émetteur]\nCHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=api.bank.com\n\n[Cas 3 — Nom de racine différent du nom attendu]\nCHAIN: INVALID reason=UNTRUSTED_ROOT root=Fake_Root_CA\n\n[Cas 4 — Noms cohérents mais signatures non contrôlées]\nCHAIN: PARTIAL depth=3 root=DigiTrust_Root_CA leaf=api.bank.com signatures=NOT_CHECKED\n\n[Cas 5 — Émetteur intermédiaire sans indicateur CA]\nCHAIN: INVALID reason=INTERMEDIATE_NOT_CA subject=DigiTrust_Intermediate_CA"
   }
 ];

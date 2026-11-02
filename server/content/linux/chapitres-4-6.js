@@ -27,7 +27,7 @@ module.exports = [
     objectives: [
       'valider et classer une adresse IPv4 (privée ou publique) ;',
       'lire et décrire une configuration réseau statique ;',
-      'décoder une cible SSH utilisateur@hôte:port ;',
+      'utiliser une cible SSH utilisateur@hôte et préciser un port avec -p ;',
       'expliquer le rôle des clés SSH face au mot de passe.'
     ],
 
@@ -69,11 +69,11 @@ module.exports = [
       {
         title: 'Se connecter en SSH',
         html: [
-          '<p>SSH chiffre la session d’administration. Une cible se lit ' +
-          '<code>utilisateur@hote:port</code> ; le port par défaut est 22, souvent changé pour limiter les ' +
-          'scans automatisés.</p>',
+          '<p>SSH chiffre la session d’administration. Une cible usuelle se lit ' +
+          '<code>utilisateur@hote</code> ; pour préciser le port, utilisez <code>-p</code>. Sans autre ' +
+          'configuration, le port par défaut est 22.</p>',
           '<pre><code>ssh rd@192.168.1.10              # port 22 par défaut\n' +
-          'ssh sam@serveur:2222             # port personnalisé\n' +
+          'ssh -p 2222 sam@serveur          # port personnalisé\n' +
           'ssh-keygen -t ed25519            # générer une paire de clés\n' +
           'ssh-copy-id rd@192.168.1.10      # installer la clé publique\n' +
           'scp fichier rd@serveur:/tmp/     # copier via SSH</code></pre>',
@@ -91,7 +91,7 @@ module.exports = [
       { stem: '172.32.1.1 est-elle privée ?', opts: ['oui', 'non', 'seulement en IPv6'], correct: 1, exp: 'Seules les plages 172.16 à 172.31 sont privées ; 172.32 est publique.' },
       { stem: 'À quoi sert la passerelle ?', opts: ['à traduire les noms', 'à sortir du réseau local', 'à chiffrer'], correct: 1, exp: 'La passerelle (default via) est la sortie vers les réseaux extérieurs.' },
       { stem: 'Port SSH par défaut ?', opts: ['21', '22', '443'], correct: 1, exp: 'SSH écoute sur le port 22 par défaut ; 21 est FTP et 443 HTTPS.' },
-      { stem: 'Que lit ssh sam@serveur:2222 ?', opts: ['utilisateur sam, serveur serveur, port 2222', 'serveur sam sur le port 2222', 'un fichier'], correct: 0, exp: 'Le format est utilisateur@hote:port.' },
+      { stem: 'Quelle commande SSH utilise le port 2222 pour sam@serveur ?', opts: ['ssh -p 2222 sam@serveur', 'ssh sam@serveur:2222', 'ssh -p sam 2222@serveur'], correct: 0, exp: 'L’option -p indique le port ; sans préfixe ssh://, le suffixe :2222 n’est pas interprété comme le port de la cible.' },
       { stem: 'Que fait ssh-copy-id ?', opts: ['copie un fichier', 'installe la clé publique sur le serveur', 'génère une clé'], correct: 1, exp: 'Il dépose la clé publique dans le fichier authorized_keys du serveur.' },
       { stem: 'Pourquoi un serveur en IP fixe ?', opts: ['pour économiser', 'pour rester joignable à la même adresse', 'c’est obligatoire'], correct: 1, exp: 'Les clients doivent retrouver le serveur à une adresse stable.' }
     ],
@@ -117,14 +117,14 @@ module.exports = [
       'IPv4 = quatre octets de 0 à 255 ; une adresse doit être validée avant d’être posée.',
       'Plages privées : 10.0.0.0/8, 172.16–172.31, 192.168.0.0/16 ; le reste est public.',
       'La configuration statique réunit adresse, masque, passerelle et DNS.',
-      'SSH se lit utilisateur@hote:port ; le port par défaut est 22.',
+      'SSH utilise utilisateur@hote ; un port explicite se précise avec ssh -p PORT utilisateur@hote.',
       'La clé privée reste secrète, la clé publique est déposée sur le serveur.'
     ],
 
     checklist: [
       'Je valide une adresse IPv4 octet par octet.',
       'Je classe une adresse en privée ou publique, même dans la plage 172.',
-      'Je décode une cible SSH utilisateur@hote:port.',
+      'Je lis une cible SSH utilisateur@hote et précise le port avec -p.',
       'J’explique la différence entre clé publique et clé privée.'
     ],
 
@@ -140,7 +140,7 @@ module.exports = [
     flashcards: [
       { q: 'Les trois plages privées IPv4 ?', a: '10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16.' },
       { q: 'Rôle de la passerelle ?', a: 'La sortie du réseau local vers les réseaux extérieurs (default via).' },
-      { q: 'Format d’une cible SSH ?', a: 'utilisateur@hote:port — port 22 par défaut.' },
+      { q: 'Format d’une cible SSH ?', a: 'ssh -p PORT utilisateur@hote pour préciser le port ; sans configuration particulière, le port est 22.' },
       { q: 'Différence clé publique / privée ?', a: 'La publique se dépose sur le serveur, la privée reste secrète.' },
       { q: 'Commande pour voir la passerelle ?', a: 'ip route, ligne « default via … ».' },
       { q: 'Pourquoi changer le port SSH ?', a: 'Pour limiter les tentatives automatisées de connexion.' }
@@ -177,7 +177,7 @@ module.exports = [
           '<code>$1</code>, <code>$2</code>… les arguments, <code>$#</code> leur nombre, <code>$@</code> la ' +
           'liste complète.</p>',
           '<pre><code>#!/bin/bash\n' +
-          'compteur=0            # PAS de$compteur=0 (espace interdit)\n' +
+          'compteur=0            # Pas d’espace autour du signe =\n' +
           'echo "arguments : $#"\n' +
           'for argument in "$@"; do echo "$argument"; done\n' +
           'total=$((a + b))       # arithmétique entière</code></pre>',
@@ -197,9 +197,10 @@ module.exports = [
           '  # … traiter\n' +
           'done</code></pre>',
           box('pitfall', 'Piège — la dernière ligne sans retour à la ligne', 'warning',
-            '    <p>Si l’entrée ne se termine pas par un retour à la ligne, le dernier <code>read</code> ' +
-            'touche la fin de fichier et échoue : la dernière donnée est perdue. Toujours terminer l’entrée ' +
-            'par une ligne vide finale.</p>')
+            '    <p>Sans retour à la ligne final, <code>read</code> atteint la fin du fichier et renvoie ' +
+            'un statut non nul, mais affecte les caractères déjà lus à la variable. Une boucle ' +
+            '<code>while IFS= read -r ligne || [ -n "$ligne" ]</code> traite aussi ce dernier fragment. ' +
+            'Pour préparer un fichier texte, un retour à la ligne à la fin de chaque ligne suffit.</p>')
         ].join('\n')
       },
       {
@@ -239,8 +240,8 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que vaut $# dans un script ?', opts: ['le nom du script', 'le nombre d’arguments', 'le premier argument'], correct: 1, exp: '$# contient le nombre de paramètres positionnels ; $0 est le nom du script.' },
-      { stem: 'Quel paramètre est le premier argument ?', opts: ['$0', '$1', '$#'], correct: 1, exp: '$1 est le premier argument ; $0 est le nom du script.' },
+      { stem: 'Que vaut $# dans un script ?', opts: ['le nom du script', 'le nombre d’arguments', 'le premier argument'], correct: 1, exp: '<code>$#</code> contient le nombre de paramètres positionnels ; <code>$0</code> est le nom du script.' },
+      { stem: 'Quel paramètre est le premier argument ?', opts: ['$0', '$1', '$#'], correct: 1, exp: '<code>$1</code> est le premier argument ; <code>$0</code> est le nom du script.' },
       { stem: 'Une boucle for ((i=0; i<n; i++)) est de…', opts: ['style C', 'style shell simple', 'non valide'], correct: 0, exp: 'bash supporte la syntaxe arithmétique dite « style C ».' },
       { stem: 'Comparaison numérique pour « supérieur ou égal » ?', opts: ['-gt', '-ge', '-eq'], correct: 1, exp: '-ge = greater or equal ; -gt = strictement supérieur.' },
       { stem: 'Que signifie un code de retour 0 ?', opts: ['échec', 'succès', 'avertissement'], correct: 1, exp: 'En shell, 0 = succès, toute autre valeur = échec.' },
@@ -263,11 +264,12 @@ module.exports = [
       '<strong>Initialiser</strong> les compteurs et le maximum avant la boucle.',
       '<strong>Décider</strong> avec <code>if</code> ou <code>case</code> selon la nature de la donnée.',
       '<strong>Rapporter</strong> une seule fois, après la boucle.',
-      '<strong>Tester</strong> sur trois jeux : cas courant, cas limite, cas vide (n = 0).'
+      '<strong>Tester</strong> un cas courant et les limites autorisées par l’énoncé ; ' +
+      'essayez aussi le cas vide (n = 0) lorsqu’il appartient au domaine demandé.'
     ],
 
     summary: [
-      'Variables sans espaces autour du = ; $1… les arguments, $# leur nombre, $@ la liste.',
+      'Variables sans espaces autour du = ; <code>$1</code>… les arguments, <code>$#</code> leur nombre, <code>$@</code> la liste.',
       'read lit une ligne ; le compteur n se lit avant la boucle.',
       'if/test compare, case aiguille selon un motif (*.sh, type…).',
       'Une fonction renvoie un code : 0 succès, non nul échec.',
@@ -362,7 +364,7 @@ module.exports = [
           '  0      6     *    *    *             /root/backup.sh\n' +
           ' 30     23     *    *    *             /root/nettoyage.sh</code></pre>',
           box('tech', 'Classer une tâche', 'compass',
-            '    <p>On distingue les tâches du <strong>matin</strong> (heure &lt; 12) de celles de ' +
+            '    <p>On distinguez les tâches du <strong>matin</strong> (heure &lt; 12) de celles de ' +
             'l’<strong>après-midi</strong>. Cette règle simple structure l’exercice 3 : lire heure, minute et ' +
             'nom de tâche, classer, puis compter.</p>')
         ].join('\n')

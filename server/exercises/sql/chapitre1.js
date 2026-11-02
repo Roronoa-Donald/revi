@@ -8,7 +8,7 @@ module.exports = [
     "language": "sql",
     "title": "Création de table avec contraintes PRIMARY KEY, UNIQUE et CHECK",
     "goal": "Définir une table relationnelle avec contraintes d’unicité et de domaine.",
-    "brief": "<p>Créez la table <code>collaborateurs(id INT PRIMARY KEY, email TEXT UNIQUE NOT NULL, salaire INT CHECK (salaire &gt;= 100000))</code>.</p>",
+    "brief": "<p>Créez la table <code>collaborateurs(id INT PRIMARY KEY, email TEXT UNIQUE NOT NULL, salaire INT CHECK (salaire &gt;= 100000))</code>. Dans ce schéma, le salaire peut être NULL : CHECK seul n’impose pas sa présence.</p>",
     "starter": "-- Créez la table collaborateurs avec ses contraintes\nSELECT 'A_COMPLETER';",
     "hints": [
       "Ajoutez UNIQUE NOT NULL sur la colonne email.",

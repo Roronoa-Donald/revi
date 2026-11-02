@@ -167,10 +167,10 @@ module.exports = {
     }
   ],
   "flashcards": [
-    { "q": 'Qu’est-ce que « Parcours infixe (In-Order) strictement croissant » ?', "a": 'Parcours infixe (In-Order) strictement croissant' },
-    { "q": 'Qu’est-ce que « Parcours préfixe (Pre-Order) et postfixe (Post-Order) » ?', "a": 'Parcours préfixe (Pre-Order) et postfixe (Post-Order)' },
-    { "q": 'Qu’est-ce que « Insertion ordonnée dans un ABR » ?', "a": 'Insertion ordonnée dans un ABR' },
-    { "q": 'Qu’est-ce que « Arbres auto-équilibrés (AVL et Rouge-Noir) » ?', "a": 'Arbres auto-équilibrés (AVL et Rouge-Noir)' },
+    { "q": 'Qu’est-ce que « Parcours infixe (In-Order) strictement croissant » ?', "a": 'Parcours gauche → racine → droite ; dans un ABR à clés distinctes, il énumère les clés par ordre strictement croissant.' },
+    { "q": 'Qu’est-ce que « Parcours préfixe (Pre-Order) et postfixe (Post-Order) » ?', "a": 'Préfixe : racine → gauche → droite ; postfixe : gauche → droite → racine.' },
+    { "q": 'Qu’est-ce que « Insertion ordonnée dans un ABR » ?', "a": 'Depuis la racine, descendre à gauche si la clé est plus petite et à droite si elle est plus grande, puis insérer à une place vide ; une clé égale est déjà présente.' },
+    { "q": 'Qu’est-ce que « Arbres auto-équilibrés (AVL et Rouge-Noir) » ?', "a": 'ABR qui maintiennent une hauteur O(log n) par rééquilibrage après mise à jour, notamment par rotations et, pour les rouge-noir, recoloration.' },
     {
       "q": "Qu’est-ce qui caractérise l’invariant d’un Arbre Binaire de Recherche (ABR) ?",
       "a": "Pour chaque nœud X, toutes les clés du sous-arbre gauche sont strictement inférieures à X, et toutes celles du sous-arbre droit sont strictement supérieures."

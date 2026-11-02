@@ -1,0 +1,136 @@
+{
+  "exercices": [
+    {
+      "id": "csb2-c1-e2", "source": "csharp.js", "oracle": "csb2-c1-e2", "codec": "lignes",
+      "cas": [
+        {"entree": "INIT alpha=-17, beta=4, quotient=0, reste=0\nMETHOD DivRef(val nombre, ref diviseur, out q, out r)\nBODY q=nombre/diviseur; r=nombre%diviseur; diviseur=diviseur+3\nCALL DivRef(alpha, ref beta, out quotient, out reste)", "attendu": "ETAT_INITIAL: alpha=-17, beta=4, quotient=0, reste=0\nMETHODE: DivRef\nETAT_FINAL: alpha=-17, beta=7, quotient=-4, reste=-1", "raison": "-17 = (-4)×4 + (-1) ; la division tronque vers zéro et seul beta est modifié par ref."},
+        {"entree": "INIT a=3, b=11\nMETHOD Relais(ref gauche, out droite, val copie)\nBODY droite=gauche+copie; gauche=gauche+1; copie=copie*10\nCALL Relais(ref a, out a, b)", "attendu": "ETAT_INITIAL: a=3, b=11\nMETHODE: Relais\nETAT_FINAL: a=15, b=11", "raison": "Les deux références désignent a : 3+11 donne 14, puis la lecture par gauche voit 14 et ajoute 1 ; b est passé par valeur."}
+      ]
+    },
+    {
+      "id": "csb2-c1-e3", "source": "csharp.js", "oracle": "csb2-c1-e3", "codec": "lignes",
+      "cas": [
+        {"entree": "Circle Radius=10\nCircle Radius=10.01\nRectangle Width=6 Height=4\nHexagon Side=5", "attendu": "Circle (r=10) => PetitCercle | Aire=314.00\nCircle (r=10.01) => GrandCercle | Aire=314.63\nRectangle (6x4) => Rectangle | Aire=24.00\nHexagon => FormeNonSupportee | Aire=0.00", "raison": "10 n'est pas strictement supérieur à 10 ; 3,14×10,01²=314,628314, arrondi à 314,63 ; 6×4=24."},
+        {"entree": "Circle Radius=0.2\nRectangle Width=2.5 Height=2.50\nCircle Radius=20\nOval R=7", "attendu": "Circle (r=0.2) => PetitCercle | Aire=0.13\nRectangle (2.5x2.50) => Carre | Aire=6.25\nCircle (r=20) => GrandCercle | Aire=1256.00\nOval => FormeNonSupportee | Aire=0.00", "raison": "3,14×0,04=0,1256, arrondi à 0,13 ; 2,5 et 2,50 sont numériquement égaux ; 3,14×400=1256."}
+      ]
+    },
+    {
+      "id": "csb2-c2-e1", "source": "csharp.js", "oracle": "csb2-c2-e1", "codec": "lignes",
+      "cas": [
+        {"entree": "INIT Titulaire=\"Aminata\" Solde=40.50\nRETRAIT 41\nDEPOT 2.25\nRETRAIT 42.75\nDEPOT -1\nDEPOT 0.10", "attendu": "Compte: Aminata | Solde initial: 40.50\nRETRAIT 41.00 => Rejet: InvalidOperationException (Solde insuffisant)\nDEPOT 2.25 => Succes | Nouveau solde: 42.75\nRETRAIT 42.75 => Succes | Nouveau solde: 0.00\nDEPOT -1.00 => Rejet: ArgumentException (Montant invalide)\nDEPOT 0.10 => Succes | Nouveau solde: 0.10\nSOLDE_FINAL: 0.10", "raison": "Un rejet ne change pas le solde ; 40,50+2,25=42,75, retrait exact à zéro, puis dépôt de 0,10."},
+        {"entree": "INIT Titulaire=\"Malia\" Solde=0\nRETRAIT 0\nRETRAIT 0.01\nDEPOT 1.50\nRETRAIT 0.50\nDEPOT 2.00", "attendu": "Compte: Malia | Solde initial: 0.00\nRETRAIT 0.00 => Rejet: ArgumentException (Montant invalide)\nRETRAIT 0.01 => Rejet: InvalidOperationException (Solde insuffisant)\nDEPOT 1.50 => Succes | Nouveau solde: 1.50\nRETRAIT 0.50 => Succes | Nouveau solde: 1.00\nDEPOT 2.00 => Succes | Nouveau solde: 3.00\nSOLDE_FINAL: 3.00", "raison": "Zéro est invalide avant le contrôle du solde ; après les deux rejets, 1,50-0,50+2=3."}
+      ]
+    },
+    {
+      "id": "csb2-c2-e2", "source": "csharp.js", "oracle": "csb2-c2-e2", "codec": "lignes",
+      "precision": "Le format de prix n'est pas borné dans l'énoncé. .75 est un littéral réel C# valide, mais son admissibilité au format de simulation reste une hypothèse explicitée.",
+      "cas": [
+        {"entree": "NEW Article(\"R-8\")\nNEW Article(\"S-5\", \"Sac, bleu\")\nNEW Article(\"P-4\", \"Disque\", 18.25)", "attendu": "Article(\"R-8\") => Chaine: ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=R-8, Nom=Sans nom, Prix=0.00]\nArticle(\"S-5\", \"Sac, bleu\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=S-5, Nom=Sac, bleu, Prix=0.00]\nArticle(\"P-4\", \"Disque\", 18.25) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-4, Nom=Disque, Prix=18.25]", "raison": "Les trois signatures imposent respectivement deux délégations, une délégation et aucune ; la virgule dans le nom n'est pas un séparateur."},
+        {"entree": "NEW Article(\"L-2\", \"Carte\", 0.75)\nNEW Article(\"Z-9\", \"Stylo\", 2.50)", "attendu": "Article(\"L-2\", \"Carte\", 0.75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=L-2, Nom=Carte, Prix=0.75]\nArticle(\"Z-9\", \"Stylo\", 2.50) => Chaine: ctor(r, nom, prix) | Objet: [Ref=Z-9, Nom=Stylo, Prix=2.50]", "raison": "Les deux prix décimaux ordinaires valent respectivement 75 et 250 centièmes ; les deux appels utilisent directement le constructeur complet."}
+      ],
+      "sondes_conditionnelles": [
+        {"entree": "NEW Article(\"L-2\", \"Carte\", .75)\nNEW Article(\"Z-9\", \"Stylo\", 2.50)", "attendu": "Article(\"L-2\", \"Carte\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=L-2, Nom=Carte, Prix=0.75]\nArticle(\"Z-9\", \"Stylo\", 2.50) => Chaine: ctor(r, nom, prix) | Objet: [Ref=Z-9, Nom=Stylo, Prix=2.50]", "raison": "Le prix .75 représente 75 centièmes, non 75 unités ; l'autre prix vaut deux unités et cinquante centièmes.", "hypothese": "Initialement non précisé, le format actuel accepte un prix décimal sans zéro initial."}
+      ]
+    },
+    {
+      "id": "csb2-c2-e3", "source": "csharp.js", "oracle": "csb2-c2-e3", "codec": "lignes",
+      "cas": [
+        {"entree": "RECORD base Nom=Ada Role=Lecteur Actif=Oui\nWITH admin FROM base Role=Admin\nWITH copie FROM admin Role=Lecteur\nCOMPARE base admin\nCOMPARE base copie\nCOMPARE admin admin\nRECORD inverse Actif=Oui Role=Lecteur Nom=Ada\nCOMPARE inverse base", "attendu": "CREATE: base => Record { Nom = Ada, Role = Lecteur, Actif = Oui }\nWITH: admin => Record { Nom = Ada, Role = Admin, Actif = Oui }\nWITH: copie => Record { Nom = Ada, Role = Lecteur, Actif = Oui }\nEQUALS: base == admin => False\nEQUALS: base == copie => True (Egalite structurelle)\nEQUALS: admin == admin => True\nCREATE: inverse => Record { Actif = Oui, Role = Lecteur, Nom = Ada }\nEQUALS: inverse == base => True (Egalite structurelle)", "raison": "Les copies ne changent pas la source ; les trois propriétés de copie et inverse sont celles de base, quel que soit leur ordre."},
+        {"entree": "RECORD src A=1 B=2\nWITH copie FROM src A=1\nWITH finale FROM copie B=5\nCOMPARE src copie\nCOMPARE src finale\nCOMPARE finale finale", "attendu": "CREATE: src => Record { A = 1, B = 2 }\nWITH: copie => Record { A = 1, B = 2 }\nWITH: finale => Record { A = 1, B = 5 }\nEQUALS: src == copie => True (Egalite structurelle)\nEQUALS: src == finale => False\nEQUALS: finale == finale => True", "raison": "Une affectation de la même valeur conserve l'égalité ; la seconde copie change uniquement B."}
+      ]
+    },
+    {
+      "id": "csb2-c3-e1", "source": "csharp.js", "oracle": "csb2-c3-e1", "codec": "lignes",
+      "precision": "Domaine atomique fini déjà couvert : nouvelles séquences seulement, sans nouvelles règles de dispatch indépendantes.",
+      "cas": [
+        {"entree": "REF Base OBJ Derived CALL Afficher\nREF Base OBJ Derived CALL Identifier\nREF Derived OBJ Derived CALL Afficher\nREF Base OBJ Base CALL Identifier", "attendu": "Base->Derived: Afficher() => Derived.Afficher [virtual/override dynamique]\nBase->Derived: Identifier() => Base.Identifier [new masqueur statique]\nDerived->Derived: Afficher() => Derived.Afficher [override]\nBase->Base: Identifier() => Base.Identifier [direct]", "raison": "Afficher suit le type d'instance ; Identifier suit le type de référence. Les libellés sont ceux du barème déjà publié."},
+        {"entree": "REF Derived OBJ Derived CALL Identifier\nREF Base OBJ Base CALL Afficher\nREF Base OBJ Derived CALL Identifier\nREF Base OBJ Derived CALL Afficher", "attendu": "Derived->Derived: Identifier() => Derived.Identifier [new]\nBase->Base: Afficher() => Base.Afficher [virtual]\nBase->Derived: Identifier() => Base.Identifier [new masqueur statique]\nBase->Derived: Afficher() => Derived.Afficher [virtual/override dynamique]", "raison": "Les quatre appels recombinent des couples de type et des méthodes déjà présents dans le domaine et les anciens tests."}
+      ]
+    },
+    {
+      "id": "csb2-c3-e2", "source": "csharp.js", "oracle": "csb2-c3-e2", "codec": "lignes",
+      "precision": "Les trois commandes atomiques et leurs libellés sont déjà publiés ; seules leurs séquences sont inédites.",
+      "cas": [
+        {"entree": "DIRECT CALL Traiter\nCAST IExportable CALL Traiter\nCAST IAuditable CALL Traiter\nCAST IExportable CALL Traiter", "attendu": "DIRECT Traiter => ERREUR_COMPILATION CS1061 (Implementation explicite requiert un cast)\nIExportable.Traiter => Export JSON genere avec succes\nIAuditable.Traiter => Audit journalise dans le registre de conformite\nIExportable.Traiter => Export JSON genere avec succes", "raison": "L'accès direct est rejeté ; les casts choisissent l'implémentation de leur interface, dans l'ordre des lignes."},
+        {"entree": "CAST IAuditable CALL Traiter\nCAST IAuditable CALL Traiter\nDIRECT CALL Traiter\nCAST IExportable CALL Traiter\nDIRECT CALL Traiter", "attendu": "IAuditable.Traiter => Audit journalise dans le registre de conformite\nIAuditable.Traiter => Audit journalise dans le registre de conformite\nDIRECT Traiter => ERREUR_COMPILATION CS1061 (Implementation explicite requiert un cast)\nIExportable.Traiter => Export JSON genere avec succes\nDIRECT Traiter => ERREUR_COMPILATION CS1061 (Implementation explicite requiert un cast)", "raison": "La répétition conserve une sortie par commande ; aucun quatrième comportement atomique n'est inventé."}
+      ]
+    },
+    {
+      "id": "csb2-c3-e3", "source": "csharp.js", "oracle": "csb2-c3-e3", "codec": "lignes",
+      "precision": "Les trois pipelines et toutes leurs étapes sont donnés et déjà testés ; il s'agit uniquement de séquences recombinées.",
+      "cas": [
+        {"entree": "PIPELINE Inscription\nPIPELINE Virement\nPIPELINE Facture\nPIPELINE Virement\nPIPELINE Inscription", "attendu": "Pipeline Inscription: [1. Valider unicite email] -> [2. Creer compte utilisateur en base] -> [3. Notification globale envoyee]\nPipeline Virement: [1. Valider IBAN et solde] -> [2. Debiter compte et crediter tiers] -> [3. Notification globale envoyee]\nPipeline Facture: [1. Valider TVA et lignes] -> [2. Calculer totaux et generer PDF] -> [3. Notification globale envoyee]\nPipeline Virement: [1. Valider IBAN et solde] -> [2. Debiter compte et crediter tiers] -> [3. Notification globale envoyee]\nPipeline Inscription: [1. Valider unicite email] -> [2. Creer compte utilisateur en base] -> [3. Notification globale envoyee]", "raison": "Chaque ligne restitue les deux étapes spécifiées pour son type, puis la notification commune."},
+        {"entree": "PIPELINE Facture\nPIPELINE Facture\nPIPELINE Inscription\nPIPELINE Virement", "attendu": "Pipeline Facture: [1. Valider TVA et lignes] -> [2. Calculer totaux et generer PDF] -> [3. Notification globale envoyee]\nPipeline Facture: [1. Valider TVA et lignes] -> [2. Calculer totaux et generer PDF] -> [3. Notification globale envoyee]\nPipeline Inscription: [1. Valider unicite email] -> [2. Creer compte utilisateur en base] -> [3. Notification globale envoyee]\nPipeline Virement: [1. Valider IBAN et solde] -> [2. Debiter compte et crediter tiers] -> [3. Notification globale envoyee]", "raison": "Les répétitions ne sont pas supprimées et conservent l'ordre d'entrée ; les étapes atomiques ne sont pas nouvelles."}
+      ]
+    },
+    {
+      "id": "csb2-c4-e1", "source": "csharp.js", "oracle": "csb2-c4-e1", "codec": "lignes",
+      "cas": [
+        {"entree": "ADD Cle 9\nADD Cle -2\nADD cle 0\nTRYGET Cle\nGET cle\nTRYGET CLE\nGET absent\nADD Retard 99", "attendu": "ADD: Cle => 9 (Taille=1)\nADD: Cle => -2 (Taille=1)\nADD: cle => 0 (Taille=2)\nTRYGET: Cle => Trouve: -2\nGET: cle => 0\nTRYGET: CLE => NonTrouve (out val=0)\nGET: absent => CRASH KeyNotFoundException (Cle absente du dictionnaire)", "raison": "La mise à jour ne grossit pas le dictionnaire, Cle et cle sont distinctes, et GET absent arrête avant ADD Retard."},
+        {"entree": "TRYGET Zero\nADD Zero 0\nGET Zero\nTRYGET Zero\nGET autre", "attendu": "TRYGET: Zero => NonTrouve (out val=0)\nADD: Zero => 0 (Taille=1)\nGET: Zero => 0\nTRYGET: Zero => Trouve: 0\nGET: autre => CRASH KeyNotFoundException (Cle absente du dictionnaire)", "raison": "Une valeur zéro présente n'est pas une absence ; le premier TRYGET absent ne bloque pas les opérations suivantes."}
+      ]
+    },
+    {
+      "id": "csb2-c4-e2", "source": "csharp.js", "oracle": "csb2-c4-e2", "codec": "lignes",
+      "cas": [
+        {"entree": "THROW HttpException StatusCode=404\nTHROW HttpException StatusCode=500\nTHROW TimeoutException StatusCode=404\nTHROW AutreException StatusCode=500", "attendu": "Exception: HttpException (404) => Intercepte par: catch when (StatusCode == 404) [ClientError] | FINALLY execute\nException: HttpException (500) => Intercepte par: catch when (StatusCode >= 500) [ServerError] | FINALLY execute\nException: TimeoutException (404) => Intercepte par: catch (TimeoutException) [DelaiDepasse] | FINALLY execute\nException: AutreException (500) => Intercepte par: catch (Exception) [FallbackGlobal] | FINALLY execute", "raison": "404 et >=500 filtrent uniquement HttpException ; les autres types suivent leur catch puis finally."},
+        {"entree": "THROW HttpException StatusCode=499\nTHROW HttpException StatusCode=501\nTHROW TimeoutException StatusCode=500\nTHROW AutreException StatusCode=404", "attendu": "Exception: HttpException (499) => Intercepte par: catch (Exception) [FallbackGlobal] | FINALLY execute\nException: HttpException (501) => Intercepte par: catch when (StatusCode >= 500) [ServerError] | FINALLY execute\nException: TimeoutException (500) => Intercepte par: catch (TimeoutException) [DelaiDepasse] | FINALLY execute\nException: AutreException (404) => Intercepte par: catch (Exception) [FallbackGlobal] | FINALLY execute", "raison": "499 reste sous le seuil, 501 le dépasse ; les codes des exceptions non HTTP ne changent pas leur filtre."}
+      ]
+    },
+    {
+      "id": "csb2-c4-e3", "source": "csharp.js", "oracle": "csb2-c4-e3", "codec": "lignes",
+      "precision": "Les combinaisons utilisent l'ordre C# légal, notamment new() en dernier ; les booléens du modèle forment un domaine fini.",
+      "cas": [
+        {"entree": "CONSTRAINT where T : class, IComparable, new()\nCandidate Nom=Fenetre IsClass=True HasDefaultCtor=False ImplementsComparable=False\nCandidate Nom=Point IsClass=False HasDefaultCtor=True ImplementsComparable=False\nCandidate Nom=Client IsClass=True HasDefaultCtor=True ImplementsComparable=True", "attendu": "Type Fenetre: REJETE [Violation: pas de constructeur sans argument new(), n implemente pas IComparable]\nType Point: REJETE [Violation: non-class (struct), n implemente pas IComparable]\nType Client: VALIDE (Toutes contraintes respectees)", "raison": "Les motifs sont rendus dans l'ordre imposé class, struct, new(), IComparable, même si new() figure en dernier dans la contrainte légale."},
+        {"entree": "CONSTRAINT where T : struct, IComparable\nCandidate Nom=Classe IsClass=True HasDefaultCtor=False ImplementsComparable=False\nCandidate Nom=Valeur IsClass=False HasDefaultCtor=True ImplementsComparable=False\nCandidate Nom=Point IsClass=False HasDefaultCtor=True ImplementsComparable=True", "attendu": "Type Classe: REJETE [Violation: non-struct (class), n implemente pas IComparable]\nType Valeur: REJETE [Violation: n implemente pas IComparable]\nType Point: VALIDE (Toutes contraintes respectees)", "raison": "Une classe viole struct ; les deux premiers candidats ne satisfont pas IComparable ; le type valeur comparable est valide."}
+      ]
+    },
+    {
+      "id": "csb2-c5-e1", "source": "csharp.js", "oracle": "csb2-c5-e1", "codec": "lignes",
+      "cas": [
+        {"entree": "FILTER Prix >= 5.50\nArticle Nom=Beta Prix=5.50\nArticle Nom=Orange Prix=9.25\nArticle Nom=Olive Prix=9.25\nArticle Nom=Filtree Prix=5.49\nArticle Nom=Lune Prix=10", "attendu": "LINQ: Declenchement ToList() (Evaluation differee terminee)\nResultat: Lune - 10.00\nResultat: Orange - 9.25\nResultat: Olive - 9.25\nResultat: Beta - 5.50\nTOTAL_ELEMENTS: 4", "raison": "5,50 est inclus, 5,49 exclu ; 10 > 9,25 > 5,50 et Orange précède Olive à égalité."},
+        {"entree": "FILTER Prix >= 100\nArticle Nom=N1 Prix=99.99\nArticle Nom=N2 Prix=0\nArticle Nom=N3 Prix=75", "attendu": "LINQ: Declenchement ToList() (Evaluation differee terminee)\nTOTAL_ELEMENTS: 0", "raison": "Les trois prix sont strictement inférieurs au seuil : aucune ligne Resultat et un compte nul."}
+      ]
+    },
+    {
+      "id": "csb2-c5-e2", "source": "csharp.js", "oracle": "csb2-c5-e2", "codec": "lignes",
+      "precision": "Les catégories choisies sont ASCII, avec initiales majuscules distinctes ; aucun ordre culturel général n'est inféré.",
+      "cas": [
+        {"entree": "A Atlas 10.00\nB Zenith 3.00\nC Atlas 5.00\nD Atlas 7.00\nE Zenith 2.00", "attendu": "Groupe: Atlas | NbAchats: 3 | Total: 22.00 | Moyenne: 7.33\nGroupe: Zenith | NbAchats: 2 | Total: 5.00 | Moyenne: 2.50", "raison": "Atlas : 10+5+7=22, 22/3 arrondi à 7,33 ; Zenith : 3+2=5, 5/2=2,50."},
+        {"entree": "X Bauxite 0.00\nY Amande 2.00\nZ Bauxite 6.00\nW Amande 4.00", "attendu": "Groupe: Amande | NbAchats: 2 | Total: 6.00 | Moyenne: 3.00\nGroupe: Bauxite | NbAchats: 2 | Total: 6.00 | Moyenne: 3.00", "raison": "Chaque groupe compte deux achats et totalise six ; Amande précède Bauxite dans la culture du banc."}
+      ]
+    },
+    {
+      "id": "csb2-c5-e3", "source": "csharp.js", "oracle": "csb2-c5-e3", "codec": "lignes",
+      "cas": [
+        {"entree": "SUBSCRIBE Lea\nSUBSCRIBE Lina\nSUBSCRIBE Lea\nUNSUBSCRIBE Lea\nEMIT \"un\"\nSUBSCRIBE LeaSuite\nUNSUBSCRIBE Lea\nEMIT \"deux\"", "attendu": "EVENT \"un\" => Lea recoit la notification\nEVENT \"un\" => Lina recoit la notification\nEVENT \"deux\" => Lina recoit la notification\nEVENT \"deux\" => LeaSuite recoit la notification", "raison": "Le premier retrait supprime la dernière Lea ; le second retire Lea, pas LeaSuite dont le nom a seulement le même préfixe."},
+        {"entree": "EMIT \"aucun\"\nSUBSCRIBE Nia\nSUBSCRIBE Omar\nUNSUBSCRIBE Absente\nEMIT \"ensemble\"\nUNSUBSCRIBE Omar\nEMIT \"final\"", "attendu": "EVENT \"ensemble\" => Nia recoit la notification\nEVENT \"ensemble\" => Omar recoit la notification\nEVENT \"final\" => Nia recoit la notification", "raison": "L'émission sans abonné est silencieuse ; retirer un nom absent ne change rien ; Omar seul est ensuite retiré."}
+      ]
+    },
+    {
+      "id": "csb2-c6-e1", "source": "csharp.js", "oracle": "csb2-c6-e1", "codec": "lignes",
+      "precision": "L'énoncé ne fixe aucune borne à la durée totale. Une sonde complémentaire dépasse Int64 tout en utilisant des durées individuelles représentables ; sa validité dépend de la clarification de cette borne.",
+      "cas": [
+        {"entree": "TASK Ouvrir Duree=7ms\nTASK Attendre Duree=0ms\nTASK Verifier Duree=11ms\nTASK Publier Duree=3ms", "attendu": "[T=0ms] Demarrage Ouvrir -> Await (trace simulee)\n[T=7ms] Reprise contexte -> Demarrage Attendre -> Await\n[T=7ms] Reprise contexte -> Demarrage Verifier -> Await\n[T=18ms] Reprise contexte -> Demarrage Publier -> Await\n[T=21ms] Tache completee avec succes. Duree totale=21ms", "raison": "Les sommes partielles sont 7, 7, 18, puis 21 millisecondes."},
+        {"entree": "TASK Validation Duree=13ms", "attendu": "[T=0ms] Demarrage Validation -> Await (trace simulee)\n[T=13ms] Tache completee avec succes. Duree totale=13ms", "raison": "Une seule tâche de 13 ms démarre à zéro et se termine après 13 ms."}
+      ],
+      "sondes_conditionnelles": [
+        {"entree": "TASK Longue Duree=9223372036854775807ms\nTASK Courte Duree=1ms", "attendu": "[T=0ms] Demarrage Longue -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Courte -> Await\n[T=9223372036854775808ms] Tache completee avec succes. Duree totale=9223372036854775808ms", "raison": "Somme mathématique : 9 223 372 036 854 775 807 + 1 = 9 223 372 036 854 775 808.", "hypothese": "Initialement non précisé, le cumul est désormais mathématique sans borne Int64 dans la simulation ; les durées de cette sonde restent individuellement dans Int64."}
+      ]
+    },
+    {
+      "id": "csb2-c6-e2", "source": "csharp.js", "oracle": "csb2-c6-e2", "codec": "lignes",
+      "cas": [
+        {"entree": "TASK A Status=FAIL Error=\"alpha\"\nTASK B Status=OK\nTASK C Status=FAIL Error=\"omega\"\nTASK D Status=OK", "attendu": "WHENALL: 2 succes, 2 echecs\nAggregateException observee (2 erreurs):\n- Erreur 1: alpha\n- Erreur 2: omega", "raison": "Deux OK, deux FAIL ; les erreurs sont alpha puis omega, dans l'ordre de lecture."},
+        {"entree": "TASK Est Status=OK\nTASK Ouest Status=OK\nTASK Centre Status=OK", "attendu": "WHENALL: 3 succes, 0 echecs\nExecution terminee sans exception", "raison": "Les trois tâches réussissent : aucun agrégat ne doit être affiché."}
+      ]
+    },
+    {
+      "id": "csb2-c6-e3", "source": "csharp.js", "oracle": "csb2-c6-e3", "codec": "lignes",
+      "cas": [
+        {"entree": "RESOURCE Canal ALLOCATE=H42\nOP Lire page=3\nOP Ecrire \"message\"\nTHROW IOException\nOP Effacer page=3", "attendu": "[ALLOC] Canal alloue (Handle=H42)\n[EXEC] Op Lire page=3\n[EXEC] Op Ecrire \"message\"\n[CRASH] Exception IOException intercepte\n[DISPOSE] Canal libere via IDisposable", "raison": "Les deux opérations précèdent l'exception ; Effacer n'est pas exécutée et la ressource est libérée."},
+        {"entree": "RESOURCE Cache ALLOCATE=H80\nOP Ouvrir dossier=tmp\nEXIT\nOP Effacer dossier=tmp\nTHROW Exception", "attendu": "[ALLOC] Cache alloue (Handle=H80)\n[EXEC] Op Ouvrir dossier=tmp\n[DISPOSE] Cache libere via IDisposable", "raison": "EXIT termine le bloc avant Effacer et THROW, puis Dispose s'exécute sans message de crash."}
+      ]
+    }
+  ]
+}

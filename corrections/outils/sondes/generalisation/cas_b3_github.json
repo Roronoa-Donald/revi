@@ -1,0 +1,262 @@
+{
+  "schema": "revi.generalisation.b3-github.lot1-partie3.v1",
+  "exercices": [
+    {
+      "id": "gh3-c1-e1", "source": "b3-github.js", "oracle": "gh3-c1-e1", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "OBJECT type=blob content=été\\nfin\nOBJECT type=tag content=Ω",
+          "attendu": "GIT_HASH type=blob size=9 sha1=e09326820a39e1b92fca94e9498a4999d228e5f1\nGIT_HASH type=tag size=2 sha1=c4b1d75da34bdbf011077b871df29ed513a02254",
+          "justification": "été, saut de ligne, fin : 9 octets ; Ω : 2. Les condensats proviennent aussi de git hash-object et sha1sum."
+        },
+        {
+          "entree": "OBJECT type=commit content=branch test\\néclair\nOBJECT type=tree content=A\\nB",
+          "attendu": "GIT_HASH type=commit size=19 sha1=86ff9b829efe7498a9f804a8b9864ee8aad1618e\nGIT_HASH type=tree size=3 sha1=2aa4ceac252f96c6455c89fa4292efc86bf93507",
+          "justification": "11 + 1 + 7 = 19 octets pour le commit ; A, saut de ligne, B font 3 octets."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c1-e2", "source": "b3-github.js", "oracle": "gh3-c1-e2", "codec": "lignes",
+      "cas": [
+        {
+          "mode": "exact",
+          "entree": "ENTRY mode=100644 type=blob sha1=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa name=notes z\nENTRY mode=100755 type=blob sha1=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb name=alpha\nENTRY mode=040000 type=tree sha1=cccccccccccccccccccccccccccccccccccccccc name=src\nENTRY mode=120000 type=blob sha1=dddddddddddddddddddddddddddddddddddddddd name=link",
+          "attendu": "100755 blob bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\talpha\n120000 blob dddddddddddddddddddddddddddddddddddddddd\tlink\n100644 blob aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\tnotes z\n040000 tree cccccccccccccccccccccccccccccccccccccccc\tsrc\nTREE_SUMMARY total=4 blobs=3 subtrees=1 executables=1\n",
+          "justification": "Ordre octet alpha, link, notes z, src ; trois blobs dont un exécutable et un sous-arbre."
+        },
+        {
+          "mode": "exact",
+          "entree": "ENTRY mode=100644 type=blob sha1=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa name=Équipe\nENTRY mode=100755 type=blob sha1=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb name=alpine\nENTRY mode=100644 type=blob sha1=cccccccccccccccccccccccccccccccccccccccc name=alpha \nENTRY mode=040000 type=tree sha1=dddddddddddddddddddddddddddddddddddddddd name=beta",
+          "attendu": "100644 blob cccccccccccccccccccccccccccccccccccccccc\talpha \n100755 blob bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\talpine\n040000 tree dddddddddddddddddddddddddddddddddddddddd\tbeta\n100644 blob aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\tÉquipe\nTREE_SUMMARY total=4 blobs=3 subtrees=1 executables=1\n",
+          "justification": "L'espace final de alpha est significatif ; É suit les noms ASCII en ordre des octets."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c2-e1", "source": "b3-github.js", "oracle": "gh3-c2-e1", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "COMMIT id=root parents=NONE\nCOMMIT id=base parents=root\nCOMMIT id=left parents=base\nCOMMIT id=right parents=base\nBRANCH name=stable commit=left\nBRANCH name=alias commit=left\nBRANCH name=feature commit=right\nMERGE_REQUEST current=stable incoming=alias\nMERGE_REQUEST current=stable incoming=feature",
+          "attendu": "MERGE_STRATEGY from=alias into=stable type=ALREADY_UP_TO_DATE lca=left\nMERGE_STRATEGY from=feature into=stable type=THREE_WAY_MERGE lca=base",
+          "justification": "Deux têtes égales donnent left ; les branches divergentes ont base comme meilleure base, pas root."
+        },
+        {
+          "entree": "COMMIT id=origin parents=NONE\nCOMMIT id=alpha parents=origin\nCOMMIT id=beta parents=origin\nCOMMIT id=mx parents=alpha,beta\nCOMMIT id=my parents=beta,alpha\nCOMMIT id=tip parents=my\nBRANCH name=main commit=mx\nBRANCH name=patch commit=my\nBRANCH name=future commit=tip\nMERGE_REQUEST current=main incoming=patch\nMERGE_REQUEST current=patch incoming=future\nMERGE_REQUEST current=future incoming=patch",
+          "attendu": "MERGE_STRATEGY from=patch into=main type=THREE_WAY_MERGE lca=alpha,beta\nMERGE_STRATEGY from=future into=patch type=FAST_FORWARD lca=my\nMERGE_STRATEGY from=patch into=future type=ALREADY_UP_TO_DATE lca=my",
+          "justification": "Les deux bases alpha et beta sont incomparables ; my est l'ancêtre direct de tip."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c2-e2", "source": "b3-github.js", "oracle": "gh3-c2-e2", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "TODO action=pick commit=R1 msg=Plan initial\nTODO action=drop commit=R2\nTODO action=squash commit=R3 msg=Correction urgente\nTODO action=reword commit=R4 msg=Livraison finale",
+          "attendu": "REBASED_COMMIT id=R1 msg=\"Plan initial + Correction urgente\"\nREBASED_COMMIT id=R4 msg=\"Livraison finale\"\nREBASE_SUMMARY total_commits=2",
+          "justification": "R2 disparaît, R3 complète R1 et R4 reste distinct."
+        },
+        {
+          "entree": "TODO action=drop commit=K1\nTODO action=squash commit=K2 msg=Sans base\nTODO action=pick commit=K3 msg=Apres erreur",
+          "attendu": "REBASE_ERROR reason=SQUASH_WITHOUT_PREVIOUS",
+          "justification": "Le drop initial ne crée aucun commit à combiner ; l'erreur est la seule sortie."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c2-e3", "source": "b3-github.js", "oracle": "gh3-c2-e3", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "LINE idx=a base=rouge ours=bleu theirs=bleu\nLINE idx=b base=ancien ours=ancien theirs=neuf\nLINE idx=c base=base ours=local theirs=distant",
+          "attendu": "MERGE idx=a status=RESOLVED_SAME val=\"bleu\"\nMERGE idx=b status=RESOLVED_THEIRS val=\"neuf\"\nMERGE idx=c status=CONFLICT ours=\"local\" theirs=\"distant\"",
+          "justification": "Modifications identiques, modification de theirs seule, puis modifications incompatibles."
+        },
+        {
+          "entree": "LINE idx=d base=nonvide ours= theirs=\nLINE idx=e base= ours= theirs=valeur ajoutee\nLINE idx=f base=initial ours=local theirs=initial\nLINE idx=g base=stable ours=stable theirs=stable",
+          "attendu": "MERGE idx=d status=RESOLVED_SAME val=\"\"\nMERGE idx=e status=RESOLVED_THEIRS val=\"valeur ajoutee\"\nMERGE idx=f status=RESOLVED_OURS val=\"local\"\nMERGE idx=g status=CLEAN val=\"stable\"",
+          "justification": "Deux suppressions identiques, ajout côté theirs, changement côté ours et identité."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c3-e1", "source": "b3-github.js", "oracle": "gh3-c3-e1", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "ACTIVE_BRANCH name=main tip=T1 ancestors=A1,R1\nACTIVE_BRANCH name=release tip=T2 ancestors=A1,R1\nREFLOG_ENTRY id=HEAD@{0} commit=T1 action=checkout desc=tete active\nREFLOG_ENTRY id=HEAD@{1} commit=A1 action=reset desc=ancetre partage\nREFLOG_ENTRY id=HEAD@{2} commit=Z1 action=commit desc=travail perdu\nREFLOG_ENTRY id=HEAD@{3} commit=Z1 action=checkout desc=autre passage",
+          "attendu": "RESCUE_CANDIDATE reflog=HEAD@{2} commit=Z1 action=\"commit\" desc=\"travail perdu\" status=DANGLING\nRESCUE_CANDIDATE reflog=HEAD@{3} commit=Z1 action=\"checkout\" desc=\"autre passage\" status=DANGLING",
+          "justification": "T1 et A1 sont accessibles ; les deux entrées distinctes de Z1 sont conservées."
+        },
+        {
+          "entree": "ACTIVE_BRANCH name=prod tip=P9 ancestors=G9\nREFLOG_ENTRY id=HEAD@{4} commit=P9 action=checkout desc=tete conservee\nREFLOG_ENTRY id=HEAD@{5} commit=G9 action=reset desc=ancetre conserve",
+          "attendu": "RESCUE_SUMMARY: ALL_COMMITS_REFERENCED",
+          "justification": "Les deux entrées désignent respectivement la tête et son ancêtre."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c3-e2", "source": "b3-github.js", "oracle": "gh3-c3-e2", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "HISTORY commits=H0,H1,H2,H3,H4,H5\nSTATUSES H0=GOOD H1=BAD H2=GOOD H3=BAD H4=BAD H5=BAD",
+          "attendu": "BISECT_ERROR reason=INVALID_STATUSES",
+          "justification": "Le retour à GOOD après H1 viole l'unicité de la transition."
+        },
+        {
+          "entree": "HISTORY commits=J0,J1,J2,J3,J4,J5,J6\nSTATUSES J0=GOOD J1=GOOD J2=GOOD J3=GOOD J4=GOOD J5=BAD J6=BAD",
+          "attendu": "BISECT_STEP step=1 testing=J3 verdict=GOOD remaining=3\nBISECT_STEP step=2 testing=J5 verdict=BAD remaining=2\nBISECT_STEP step=3 testing=J4 verdict=GOOD remaining=1\nFIRST_BAD_COMMIT id=J5",
+          "justification": "Les intervalles deviennent [4,6], [4,5], puis [5,5]."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c3-e3", "source": "b3-github.js", "oracle": "gh3-c3-e3", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "STASH_CMD action=push arg=premier\nSTASH_CMD action=push arg=second\nSTASH_CMD action=apply arg=1\nSTASH_CMD action=drop arg=2\nSTASH_CMD action=pop",
+          "attendu": "STASH_OP action=push result=OK current_size=1 top=\"premier\"\nSTASH_OP action=push result=OK current_size=2 top=\"second\"\nSTASH_OP action=apply result=OK current_size=2 top=\"second\"\nSTASH_OP action=drop result=INDEX_OUT_OF_BOUNDS current_size=2 top=\"second\"\nSTASH_OP action=pop result=OK current_size=1 top=\"premier\"",
+          "justification": "apply ne dépile pas ; l'indice égal à la taille est hors limites."
+        },
+        {
+          "entree": "STASH_CMD action=push arg=\nSTASH_CMD action=push arg=dernier\nSTASH_CMD action=drop arg=1\nSTASH_CMD action=apply arg=1\nSTASH_CMD action=pop\nSTASH_CMD action=pop",
+          "attendu": "STASH_OP action=push result=OK current_size=1 top=\"\"\nSTASH_OP action=push result=OK current_size=2 top=\"dernier\"\nSTASH_OP action=drop result=OK current_size=1 top=\"dernier\"\nSTASH_OP action=apply result=INDEX_OUT_OF_BOUNDS current_size=1 top=\"dernier\"\nSTASH_OP action=pop result=OK current_size=0 top=\"EMPTY\"\nSTASH_OP action=pop result=STACK_EMPTY current_size=0 top=\"EMPTY\"",
+          "justification": "Un message vide reste une remise ; après drop, l'indice 1 est hors limites."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c4-e1", "source": "b3-github.js", "oracle": "gh3-c4-e1", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "BRANCH_EVENT wf=GIT_FLOW branch=develop base=origine direct_push=OUI\nBRANCH_EVENT wf=GIT_FLOW branch=hotfix/urgent base=main direct_push=NON\nBRANCH_EVENT wf=GIT_FLOW branch=hotfix/tardif base=develop direct_push=NON",
+          "attendu": "AUDIT branch=develop status=VIOLATION_DIRECT_PUSH_PROTECTED_BRANCH\nAUDIT branch=hotfix/urgent status=CONFORME\nAUDIT branch=hotfix/tardif status=BRANCHE_BASE_INVALIDE_ATTENDU_MAIN",
+          "justification": "develop est protégée et les hotfix Git Flow partent de main."
+        },
+        {
+          "entree": "BRANCH_EVENT wf=GITHUB_FLOW branch=main base=autre direct_push=NON\nBRANCH_EVENT wf=GITHUB_FLOW branch=topic/refonte base=develop direct_push=NON\nBRANCH_EVENT wf=GIT_FLOW branch=feature/vue base=develop direct_push=NON\nBRANCH_EVENT wf=GIT_FLOW branch=release/v2 base=main direct_push=NON",
+          "attendu": "AUDIT branch=main status=CONFORME\nAUDIT branch=topic/refonte status=BRANCHE_BASE_INVALIDE_ATTENDU_MAIN\nAUDIT branch=feature/vue status=CONFORME\nAUDIT branch=release/v2 status=BRANCHE_BASE_INVALIDE_ATTENDU_DEVELOP",
+          "justification": "La branche principale sans push est exemptée ; les bases des branches de travail sont contrôlées."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c4-e2", "source": "b3-github.js", "oracle": "gh3-c4-e2", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "CONFIG min_approvals=2 require_signed=OUI linear_history=OUI\nMERGE_REQ pr=A approvals=2 ci_status=PASS gpg_signed=OUI merge_type=SQUASH\nMERGE_REQ pr=B approvals=3 ci_status=PASS gpg_signed=OUI merge_type=MERGE_COMMIT\nMERGE_REQ pr=C approvals=1 ci_status=FAIL gpg_signed=NON merge_type=MERGE_COMMIT",
+          "attendu": "PR_MERGE pr=A status=AUTHORIZED reason=OK\nPR_MERGE pr=B status=BLOCKED reason=HISTORIQUE_LINEAIRE_EXIGE\nPR_MERGE pr=C status=BLOCKED reason=APPROVALS_INSUFFISANTS",
+          "justification": "L'égalité au minimum suffit ; le merge commit viole la linéarité ; les approbations sont prioritaires."
+        },
+        {
+          "entree": "CONFIG min_approvals=0 require_signed=NON linear_history=NON\nMERGE_REQ pr=P approvals=0 ci_status=PASS gpg_signed=NON merge_type=MERGE_COMMIT\nMERGE_REQ pr=Q approvals=1 ci_status=PENDING gpg_signed=NON merge_type=REBASE",
+          "attendu": "PR_MERGE pr=P status=AUTHORIZED reason=OK\nPR_MERGE pr=Q status=BLOCKED reason=CI_CHECKS_FAILED",
+          "justification": "Un minimum nul accepte zéro approbation ; PENDING ne vaut pas PASS."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c4-e3", "source": "b3-github.js", "oracle": "gh3-c4-e3", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "COMMIT_MSG id=a msg=feat(api)!: retirer endpoint\nCOMMIT_MSG id=b msg=style(ui): polir\nCOMMIT_MSG id=c msg=docs:   ",
+          "attendu": "CONVENTIONAL_AUDIT id=a valid=OUI type=feat scope=api breaking=OUI\nCONVENTIONAL_AUDIT id=b valid=NON error=TYPE_INCONNU\nCONVENTIONAL_AUDIT id=c valid=NON error=DESCRIPTION_VIDE",
+          "justification": "Le marqueur ! signale la rupture ; style est hors profil et une description blanche est vide."
+        },
+        {
+          "entree": "COMMIT_MSG id=d msg=test: BREAKING CHANGE migration\nCOMMIT_MSG id=e msg=ci(build_2): activer\nCOMMIT_MSG id=f msg=FEAT: titre",
+          "attendu": "CONVENTIONAL_AUDIT id=d valid=OUI type=test scope=NONE breaking=OUI\nCONVENTIONAL_AUDIT id=e valid=OUI type=ci scope=build_2 breaking=NON\nCONVENTIONAL_AUDIT id=f valid=NON error=FORMAT_INVALIDE",
+          "justification": "La mention littérale signale la rupture dans ce profil ; les majuscules rendent le format invalide."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c5-e1", "source": "b3-github.js", "oracle": "gh3-c5-e1", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "NAME=\nTRIGGERS=push,schedule\nJOB id=manquant runs_on=NONE steps_count=1",
+          "attendu": "WORKFLOW_AUDIT name=\"\" status=MISSING_NAME triggers_count=2 jobs_count=1",
+          "justification": "Le nom manquant est prioritaire sur le runner absent."
+        },
+        {
+          "entree": "NAME=Pipeline Demo\nTRIGGERS=release,pull_request\nJOB id=build runs_on=NONE steps_count=3\nJOB id=lint runs_on=linux steps_count=0",
+          "attendu": "WORKFLOW_AUDIT name=\"Pipeline Demo\" status=JOB_MISSING_RUNS_ON triggers_count=1 jobs_count=2",
+          "justification": "Seul pull_request est reconnu ; le premier job sans runner précède le job sans étape."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c5-e2", "source": "b3-github.js", "oracle": "gh3-c5-e2", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "MATRIX_DEF os=zeta,alpha,omega version=v2,v1\nEXCLUDE os=zeta version=v1\nEXCLUDE os=alpha version=v2\nEXCLUDE os=zeta version=v1\nEXCLUDE os=absent version=v2",
+          "attendu": "JOB_INSTANCE os=zeta version=v2 tag=\"zeta-v2\"\nJOB_INSTANCE os=alpha version=v1 tag=\"alpha-v1\"\nJOB_INSTANCE os=omega version=v2 tag=\"omega-v2\"\nJOB_INSTANCE os=omega version=v1 tag=\"omega-v1\"\nMATRIX_TOTAL instances=4 excluded=2",
+          "justification": "Deux paires distinctes sont retirées ; le doublon et la paire hors matrice ne comptent pas."
+        },
+        {
+          "entree": "MATRIX_DEF os= version=3,1\nEXCLUDE os=phantom version=3",
+          "attendu": "MATRIX_TOTAL instances=0 excluded=0",
+          "justification": "Le produit cartésien avec un axe vide est vide ; l'exclusion hors matrice ne compte pas."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c5-e3", "source": "b3-github.js", "oracle": "gh3-c5-e3", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "STEP_INSPECT id=A cmd=echo ${{ github.head_ref }} ${{ secrets.TEST }}\nSTEP_INSPECT id=B cmd=echo ${{ github.event.issue.body }}\nSTEP_INSPECT id=C cmd=run --safe",
+          "attendu": "ACTION_AUDIT step=A status=VULN_EXPOSED_SECRET\nACTION_AUDIT step=B status=VULN_COMMAND_INJECTION\nACTION_AUDIT step=C status=SECURE",
+          "justification": "L'exposition est prioritaire sur l'interpolation directe ; la seconde commande ne montre que l'injection."
+        },
+        {
+          "entree": "STEP_INSPECT id=D cmd=deploy ${{github.head_ref}}\nSTEP_INSPECT id=E cmd=run VALUE\nSTEP_INSPECT id=F cmd=print GITHUB_TOKEN",
+          "attendu": "ACTION_AUDIT step=D status=VULN_COMMAND_INJECTION\nACTION_AUDIT step=E status=SECURE\nACTION_AUDIT step=F status=VULN_EXPOSED_SECRET",
+          "justification": "head_ref sans espaces reste une interpolation ; print plus GITHUB_TOKEN déclenche l'exposition."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c6-e1", "source": "b3-github.js", "oracle": "gh3-c6-e1", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "FILE path=docs/manual.bin size_bytes=104857600 sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\nFILE path=archive.tar.gz size_bytes=1 sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\nFILE path=archive.TAR.GZ size_bytes=2 sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+          "attendu": "LFS_DECISION file=\"docs/manual.bin\" mode=LFS_POINTER oid=\"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\" size=104857600\nversion https://git-lfs.github.com/spec/v1\noid sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\nsize 104857600\nLFS_DECISION file=\"archive.tar.gz\" mode=LFS_POINTER oid=\"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\" size=1\nversion https://git-lfs.github.com/spec/v1\noid sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\nsize 1\nLFS_DECISION file=\"archive.TAR.GZ\" mode=GIT_BLOB",
+          "justification": "Le seuil est inclusif ; .tar.gz impose LFS mais .TAR.GZ ne correspond pas."
+        },
+        {
+          "entree": "FILE path=notes.txt size_bytes=104857599 sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\nFILE path=images/disque.iso size_bytes=0 sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+          "attendu": "LFS_DECISION file=\"notes.txt\" mode=GIT_BLOB\nLFS_DECISION file=\"images/disque.iso\" mode=LFS_POINTER oid=\"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\" size=0\nversion https://git-lfs.github.com/spec/v1\noid sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\nsize 0",
+          "justification": "Une taille juste inférieure reste un blob ; l'extension .iso impose LFS même à zéro octet."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c6-e2", "source": "b3-github.js", "oracle": "gh3-c6-e2", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "INSPECT_FILE file=exemple aws.txt content=demo AKIA0000000000000000\nINSPECT_FILE file=exemple token.txt content=demo ghp_00000000000000000000",
+          "attendu": "HOOK_RESULT file=\"exemple aws.txt\" verdict=COMMIT_REJECTED reason=HARDCODED_AWS_KEY\nHOOK_RESULT file=\"exemple token.txt\" verdict=COMMIT_REJECTED reason=HARDCODED_GITHUB_TOKEN",
+          "justification": "Motifs fictifs composés de zéros : 16 caractères après AKIA et 20 après ghp_."
+        },
+        {
+          "entree": "INSPECT_FILE file=conflit.txt content=ghp_00000000000000000000 puis <<<<<<<\nINSPECT_FILE file=courts.txt content=AKIA000000000000000 ghp_0000000000000000000",
+          "attendu": "HOOK_RESULT file=\"conflit.txt\" verdict=COMMIT_REJECTED reason=MERGE_CONFLICT_MARKERS\nHOOK_RESULT file=\"courts.txt\" verdict=COMMIT_ACCEPTED reason=CLEAN",
+          "justification": "Le conflit est prioritaire ; les deux motifs fictifs du second fichier sont sous les seuils."
+        }
+      ]
+    },
+    {
+      "id": "gh3-c6-e3", "source": "b3-github.js", "oracle": "gh3-c6-e3", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "COMMIT id=clean files=a parents=NONE\nCOMMIT id=leak files=cle,b parents=NONE\nCOMMIT id=bridge files=x parents=clean,leak\nCOMMIT id=desc files=x,y parents=bridge\nPURGE_FILE target=cle",
+          "attendu": "PURGE_RESULT target=\"cle\" impacted_count=3 new_tip_hash=\"r_desc\"\nREWRITTEN_COMMIT old=\"leak\" new=\"r_leak\" remaining_files=[b]\nREWRITTEN_COMMIT old=\"bridge\" new=\"r_bridge\" remaining_files=[x]\nREWRITTEN_COMMIT old=\"desc\" new=\"r_desc\" remaining_files=[x,y]",
+          "justification": "leak contient la cible ; bridge hérite par son deuxième parent, puis desc par bridge."
+        },
+        {
+          "entree": "COMMIT id=R files=alpha,secret,beta parents=NONE\nCOMMIT id=S files=alpha parents=R\nCOMMIT id=T files=untouched parents=NONE\nPURGE_FILE target=secret",
+          "attendu": "PURGE_RESULT target=\"secret\" impacted_count=2 new_tip_hash=\"T\"\nREWRITTEN_COMMIT old=\"R\" new=\"r_R\" remaining_files=[alpha,beta]\nREWRITTEN_COMMIT old=\"S\" new=\"r_S\" remaining_files=[alpha]",
+          "justification": "R et son descendant S sont réécrits, mais la dernière tête indépendante T reste inchangée."
+        }
+      ]
+    }
+  ]
+}

@@ -95,17 +95,16 @@ function formules(course) {
       '4. Parcourir mentalement le trajet dans les deux sens pour consolider l’accès associatif.</code></pre>'
     ].join('\n')),
 
-    bloc('5. Pratique Délibérée (Ericsson) &amp; Règle des 85 %', [
+    bloc('5. Pratique Délibérée (Ericsson) &amp; Modèle des 85 %', [
       '<pre><code>// Piliers de la Pratique Délibérée (K. Anders Ericsson)\n' +
       '- Sortie délibérée de la zone de confort (Zone Proximale de Développement).\n' +
       '- Objectif micro-spécifique mesurable (découpage atomique d’un geste technique).\n' +
       '- Concentration totale sans distraction (Deep Work en mode focus).\n' +
       '- Boucle de rétroaction (feedback) corrective immédiate.\n\n' +
-      '// Règle des 85 % (Wilson et al., Nature Communications, 2019)\n' +
-      'Taux d’erreur optimal pour maximiser la vitesse d’apprentissage = 15 % &plusmn; 2 %.\n' +
-      'Taux de succès cible = 85 %.\n' +
-      '- Taux &gt; 90 % : tâche trop facile, plateau d’apprentissage, temps sous-optimal.\n' +
-      '- Taux &lt; 75 % : surcharge cognitive, découragement, bruit d’encodage.</code></pre>'
+      '// Modèle de Wilson et al. (Nature Communications, 2019)\n' +
+      'Environ 85 % de réponses correctes dans des modèles de classification binaire, sous leurs hypothèses.\n' +
+      'Ce résultat ne fixe pas un optimum universel pour les étudiants.\n' +
+      'Examiner les erreurs, les objectifs et le retour de l’apprenant avant d’ajuster la difficulté.</code></pre>'
     ].join('\n')),
 
     bloc('6. Métacognition, Score de Brier &amp; Chronobiologie', [

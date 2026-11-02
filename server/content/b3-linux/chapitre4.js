@@ -20,7 +20,7 @@ module.exports = {
     'comprendre l’architecture unifiée de Cgroups v2 (/sys/fs/cgroup/) par rapport aux limitations historiques de Cgroups v1 ;',
     'configurer des quotas processeur stricts (cpu.max) et des plafonds de mémoire vive (memory.max) dans Cgroups v2 ;',
     'analyser le fonctionnement interne de l’OOM (Out Of Memory) Killer et maîtriser la pondération via oom_score_adj ;',
-    'développer en Python 3 des auditeurs de namespaces, des contrôleurs de quotas cgroups et des calculateurs de sacrifice OOM.'
+    'développer en scripts Bash et commandes système des auditeurs de namespaces, des contrôleurs de quotas cgroups et des calculateurs de sacrifice OOM.'
   ],
   sections: [
     {

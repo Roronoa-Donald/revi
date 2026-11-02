@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -85,11 +85,11 @@
   <div class="card">
     <h4>Les Verbes d’Action HTTP &amp; Idempotence</h4>
     <ul>
-      <li><strong>GET (Read) :</strong> récupération de ressources sans effet de bord. Sûr et idempotent.</li>
-      <li><strong>POST (Create) :</strong> création d’une nouvelle ressource ou déclenchement d’un traitement. Non idempotent (deux appels créent deux ressources distinctes).</li>
-      <li><strong>PUT (Replace) :</strong> remplacement intégral d’une ressource existante à l’URI spécifiée. Idempotent.</li>
-      <li><strong>PATCH (Update) :</strong> modification partielle des attributs d’une ressource existante. Généralement non idempotent.</li>
-      <li><strong>DELETE (Remove) :</strong> suppression définitive de la ressource. Idempotent.</li>
+      <li><strong>GET (Read) :</strong> récupération d’une représentation. Méthode sûre et idempotente pour l’effet demandé ; des journaux peuvent néanmoins être produits.</li>
+      <li><strong>POST (Create) :</strong> soumission à un traitement. HTTP ne la définit pas comme idempotente : des répétitions peuvent produire plusieurs effets ; consulter le contrat de l’API.</li>
+      <li><strong>PUT (Replace) :</strong> création ou remplacement de l’état de la ressource ciblée. Idempotent.</li>
+      <li><strong>PATCH (Update) :</strong> modification partielle. L’idempotence n’est pas garantie par la méthode et dépend de l’opération.</li>
+      <li><strong>DELETE (Remove) :</strong> demande de suppression de la ressource ciblée. Idempotent pour l’effet demandé.</li>
     </ul>
   </div>
   <div class="card">
@@ -97,10 +97,13 @@
     <ul>
       <li><strong>2xx Success :</strong> <code>200 OK</code> (succès avec contenu), <code>201 Created</code> (ressource créée), <code>204 No Content</code> (succès sans corps renvoyé, typique sur DELETE).</li>
       <li><strong>4xx Client Error :</strong> <code>400 Bad Request</code> (syntaxe JSON invalide), <code>401 Unauthorized</code> (token manquant ou invalide), <code>403 Forbidden</code> (droits insuffisants), <code>404 Not Found</code>.</li>
-      <li><strong>5xx Server Error :</strong> <code>500 Internal Server Error</code> (exception non gérée), <code>502 Bad Gateway</code> (serveur amont injoignable), <code>503 Service Unavailable</code> (surcharge temporaire), <code>504 Gateway Timeout</code>.</li>
+      <li><strong>5xx Server Error :</strong> <code>500 Internal Server Error</code> (erreur interne), <code>502 Bad Gateway</code> (réponse invalide reçue par une passerelle depuis l’amont), <code>503 Service Unavailable</code> (service indisponible), <code>504 Gateway Timeout</code>.</li>
     </ul>
   </div>
 </div>
+<p><strong>Reading practice — extrait pédagogique adapté de la RFC 9110 :</strong> <span lang="en">“When identical idempotent requests are sent more than once, their intended effect is the same as for one request. The responses may differ.”</span></p>
+<p>Repérez <em lang="en">intended effect</em> (effet visé) et <em lang="en">may differ</em> (peuvent différer) : une seconde suppression peut répondre 404 après une première réponse 204. Les journaux peuvent aussi être différents.</p>
+<p>Référence : <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.2">RFC 9110, section 9.2.2 — méthodes idempotentes</a> (consultée le 30 octobre 2026).</p>
 
 <h2>2. La Norme RFC 2119 : Mots-clés Normatifs d’Exigence Technique</h2>
 
@@ -146,9 +149,11 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="an3-c2-e1" data-lab
      data-exercise="an3-c2-e1"
      data-language="analyse"
@@ -180,10 +185,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Analyseur et auditeur de conformité RFC 2119</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="an3-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Analyser les mots-clés normatifs d’une spécification technique en anglais (RFC 2119) pour déterminer le niveau d’exigence contractuel.</p>
     <div class="lab__brief"><p>La norme <b>RFC 2119</b> définit avec rigueur les mots-clés indiquant les exigences impératives, recommandées ou optionnelles dans les standards de l'Internet.<br>
 Pour chaque cas d’application des clauses techniques au format :<br>
@@ -205,9 +212,7 @@ Afficher :<br>
 <code>RFC_AUDIT: &lt;ID&gt; -&gt; LEVEL=&lt;LEVEL&gt; | PRIORITY=&lt;PRIORITY&gt;</code></p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RFC_CLAUSE id=REQ-101 text=The client MUST validate the TLS certificate chain before sending data.</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RFC_AUDIT: REQ-101 -&gt; LEVEL=ABSOLUTE_REQUIREMENT | PRIORITY=P1_CRITICAL</pre></div>
     </div>
-    <p class="lab__note">Le mot-clé MUST impose une exigence absolue de niveau P1.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -246,10 +251,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Linter de documentation d’endpoints REST &amp; OpenAPI</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="an3-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité et la complétude de la documentation d’une route d’API REST (méthode HTTP, format de chemin, authentification et codes de retour).</p>
     <div class="lab__brief"><p>Dans la documentation d'API (type Swagger/OpenAPI ou Stripe/Twilio), chaque endpoint doit respecter des conventions strictes.<br>
 Pour chaque cas d’application des définitions d'endpoints au format :<br>
@@ -266,9 +273,7 @@ Afficher :<br>
   <code>ENDPOINT_STATUS: &lt;METHOD&gt; &lt;PATH&gt; -&gt; INVALID | ISSUES=&lt;issue1,issue2,...&gt;</code> (anomalies triées par ordre alphabétique).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>API_ENDPOINT method=GET path=/api/v1/users auth=true status_codes=200,401,500</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ENDPOINT_STATUS: GET /api/v1/users -&gt; VALID</pre></div>
     </div>
-    <p class="lab__note">Méthode GET valide, chemin conforme, code 200 présent et code 401 présent pour auth=true.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -316,10 +321,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Générateur de sommaire technique Markdown et slugification</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="an3-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Analyser une documentation technique en Markdown, extraire les titres h1, h2, h3 et générer une table des matières indentée avec ancres de liens conformes.</p>
     <div class="lab__brief"><p>Une documentation technique de qualité professionnelle (fichier <code>README.md</code> ou spécification d'architecture) comporte une table des matières (<i>Table of Contents</i>) structurée permettant une navigation rapide.<br>
 Pour chaque cas d’application des lignes d'un document Markdown.<br><br>
@@ -342,13 +349,7 @@ Afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre># Introduction to Cloud API
 ## Getting Started
 ### Installation Guide</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TABLE_OF_CONTENTS_START
-- [Introduction to Cloud API](#introduction-to-cloud-api)
-  - [Getting Started](#getting-started)
-    - [Installation Guide](#installation-guide)
-TABLE_OF_CONTENTS_END | COUNT=3</pre></div>
     </div>
-    <p class="lab__note">Génération de la table des matières avec trois niveaux d'indentation et slugs conformes.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -358,6 +359,7 @@ TABLE_OF_CONTENTS_END | COUNT=3</pre></div>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -383,14 +385,14 @@ TABLE_OF_CONTENTS_END | COUNT=3</pre></div>
       <div class="q__exp">Le code 401 signale une absence d’authentification valide, tandis que 403 Forbidden indique que l’identité est connue mais que les droits sont insuffisants.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Que garantit la propriété d’idempotence d’une méthode HTTP comme PUT ou DELETE ?</p>
+      <p class="q__stem">Read the excerpt: “Repeated identical idempotent requests have the same intended effect, even when responses differ.” What does it mean?</p>
       <div class="opts">
-        <button class="opt">La méthode s’exécute deux fois plus vite qu’une méthode non idempotente.</button>
-        <button class="opt" data-correct="1">Exécuter la requête une ou plusieurs fois consécutives produit exactement le même effet sur l’état du serveur.</button>
-        <button class="opt">La méthode ne nécessite aucun token d’authentification.</button>
-        <button class="opt">Le résultat est automatiquement mis en cache par tous les proxys réseau.</button>
+        <button class="opt" data-correct="1">Repeating the same request has the same intended effect as sending it once.</button>
+        <button class="opt">Every response and every log entry must be identical.</button>
+        <button class="opt">All payment POST requests can always be retried without precautions.</button>
+        <button class="opt">No authentication is required for an idempotent request.</button>
       </div>
-      <div class="q__exp">Une opération est dite idempotente si la répéter plusieurs fois avec les mêmes paramètres aboutit au même état final sur le serveur.</div>
+      <div class="q__exp">« Intended effect » signifie effet visé : il reste le même pour des requêtes identiques, même si les réponses et les journaux diffèrent. Cela ne rend pas tout paiement POST automatiquement sûr à répéter.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans la documentation d’une API REST, quelle est la méthode HTTP recommandée pour créer une nouvelle commande d’achat ?</p>
@@ -425,7 +427,7 @@ TABLE_OF_CONTENTS_END | COUNT=3</pre></div>
     <div class="q">
       <p class="q__stem">Dans un fichier README.md de qualité professionnelle, quelle section doit obligatoirement détailler les versions de Node.js, Python ou Docker nécessaires ?</p>
       <div class="opts">
-        <button class="opt">License & Copyright</button>
+        <button class="opt">License &amp; Copyright</button>
         <button class="opt" data-correct="1">Prerequisites (Prérequis)</button>
         <button class="opt">Contributing Guide</button>
         <button class="opt">Changelog</button>
@@ -478,7 +480,7 @@ TABLE_OF_CONTENTS_END | COUNT=3</pre></div>
       <li>La norme RFC 2119 élimine l’ambiguïté avec MUST (obligatoire), SHOULD (recommandé) et MAY (optionnel).</li>
       <li>La différence entre 401 (non authentifié) et 403 (non autorisé) est cruciale dans la gestion des permissions.</li>
       <li>Un README.md professionnel fournit prérequis, installation, variables d’environnement et guide de dépannage.</li>
-      <li>L’idempotence (GET, PUT, DELETE) permet de répéter une requête en cas d’échec réseau sans effet de bord imprévu.</li>
+      <li>Pour GET, PUT et DELETE, des requêtes identiques répétées ont le même effet visé ; les réponses et les journaux peuvent différer.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
@@ -490,7 +492,7 @@ TABLE_OF_CONTENTS_END | COUNT=3</pre></div>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>Spécification OpenAPI & Swagger</li><li>Verbes HTTP (GET, POST, PUT, DELETE, PATCH)</li><li>Codes de statut HTTP (2xx, 4xx, 5xx)</li><li>Idempotence des requêtes réseau</li><li>Norme RFC 2119 (MUST, SHOULD, MAY)</li><li>Structure canonique d’un README.md</li><li>Matrice de variables d’environnement</li><li>Slugification et ancres Markdown</li>
+      <li>Spécification OpenAPI &amp; Swagger</li><li>Verbes HTTP (GET, POST, PUT, DELETE, PATCH)</li><li>Codes de statut HTTP (2xx, 4xx, 5xx)</li><li>Idempotence des requêtes réseau</li><li>Norme RFC 2119 (MUST, SHOULD, MAY)</li><li>Structure canonique d’un README.md</li><li>Matrice de variables d’environnement</li><li>Slugification et ancres Markdown</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -502,7 +504,7 @@ TABLE_OF_CONTENTS_END | COUNT=3</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Confusion entre verbes normatifs RFC 2119 ou omission des codes d’erreur dans la documentation d’API.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Confusion entre verbes normatifs RFC 2119 ou omission des codes d’erreur dans la documentation d’API.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne maîtrise d’OpenAPI, distinction claire entre 401 et 403, et structuration correcte d’un fichier README.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Excellence technique : audit rigoureux de spécifications RFC 2119, conception de documentations industrielles et maîtrise complète des statuts HTTP.</div>

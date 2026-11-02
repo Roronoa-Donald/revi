@@ -69,6 +69,12 @@ test('catalogue : chaque exercice a des tests cachés distincts de l’exemple',
   }
 });
 
+test('catalogue : tous les tests déclarés tiennent dans le plafond de correction', () => {
+  for (const exercise of exercises.listExercises()) {
+    assert.ok(exercise.tests.length <= MAX_TESTS, `${exercise.id} : des tests seraient ignorés`);
+  }
+});
+
 test('catalogue : les identifiants sont cohérents avec leur module', () => {
   for (const ex of exercises.listExercises()) {
     const config = courseConfig[ex.course];
@@ -286,6 +292,25 @@ test('correction : nombre d’appels borné par MAX_TESTS', async () => {
     execute: async () => { calls++; return { ok: true, status: 'success', stdout: 'oui', stderr: '' }; }
   });
   assert.strictEqual(calls, MAX_TESTS);
+});
+
+test('correction : l’exemple explicitement noté ajoute au plus un appel', async () => {
+  const ex = {
+    ...exercises.getExercise('py-c3-e3'),
+    tests: new Array(10).fill({ stdin: '', expected: 'oui' }),
+    examples: [{ stdin: 'visible', expected: 'oui' }],
+    verifyFirstExample: true
+  };
+  const inputs = [];
+  const report = await runTests(ex, 'code', {
+    execute: async ({ stdin }) => {
+      inputs.push(stdin);
+      return { ok: true, status: 'success', stdout: 'oui', stderr: '' };
+    }
+  });
+  assert.strictEqual(report.passed, MAX_TESTS + 1);
+  assert.strictEqual(report.total, MAX_TESTS + 1);
+  assert.deepStrictEqual(inputs, [...new Array(MAX_TESTS).fill(''), 'visible']);
 });
 
 test('correction : panne du service → pas d’échec imputé à l’élève', async () => {

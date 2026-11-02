@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -88,7 +88,7 @@ FROM Marque;
 
 SELECT *                       -- toutes les colonnes
 FROM Voiture;</code></pre>
-<p>Le mot-clé <code>AS</code> <strong>renomme une colonne du résultat</strong> — pas la table : <code>SELECT pxachat AS prix</code> affiche « prix » en tête de colonne. Un alias de lisibilité, sans effet sur les données.</p>
+<p>Le mot-clé <code>AS</code> <strong>renomme une colonne du résultat</strong> — pas la table : <code>SELECT pxachat AS prix FROM Voiture;</code> affiche « prix » en tête de colonne. Un alias de lisibilité, sans effet sur les données.</p>
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Les commentaires en SQL</div>
     <pre><code>-- ce commentaire tient sur une ligne
@@ -113,7 +113,7 @@ SELECT * FROM Voiture WHERE moteur = 'DIESEL' OR moteur = 'HYBRIDE';</code></pre
     <tr><td>LIKE</td><td>motif : % = n’importe quoi, _ = un caractère</td></tr>
     <tr><td>IS NULL / IS NOT NULL</td><td>absence d’information</td></tr>
   </table>
-<p>Deux pièges de la clause : les chaînes se quotent avec des <strong>apostrophes simples</strong> (<code>'DIESEL'</code>, jamais "DIESEL" en MySQL strict), et la comparaison avec NULL se fait uniquement par <code>IS NULL</code> — <code>= NULL</code> ne renvoie jamais vrai.</p>
+<p>Deux pièges de la clause : utilisez des <strong>apostrophes simples</strong> pour les chaînes (<code>'DIESEL'</code>). Le SQLite fourni accepte aussi certains textes entre guillemets doubles par compatibilité lorsqu’ils ne désignent pas une colonne : ne comptez pas sur ce comportement. Pour tester une valeur absente, utilisez <code>IS NULL</code> : <code>= NULL</code> ne renvoie pas vrai.</p>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — les immatriculations en AK</div>
     <p>« Toutes les voitures immatriculées en AK » s’écrit <code>WHERE immat LIKE '%AK'</code> : le <code>%</code> remplace n’importe quel préfixe. Écrire <code>= '%AK'</code> chercherait une immatriculation qui s’appellerait littéralement « %AK » — et ne trouverait rien.</p>
@@ -129,16 +129,16 @@ SELECT COUNT(DISTINCT marque) FROM Voiture;   -- directement le nombre</code></p
 <pre><code>SELECT immat, marque, datecirc FROM Voiture ORDER BY datecirc;
 SELECT immat FROM Voiture ORDER BY immat DESC;      -- décroissant
 SELECT * FROM Voiture ORDER BY marque, datecirc;    -- tri à deux niveaux</code></pre>
-<p>Le second exemple trie par marque puis, <strong>à l’intérieur de chaque marque</strong>, par date : c’est la lecture des tris multi-colonnes. Sans précision, l’ordre est croissant (ASC).</p>
+<p>Le troisième exemple trie par marque puis, <strong>à l’intérieur de chaque marque</strong>, par date : c’est la lecture des tris multi-colonnes. Sans précision, l’ordre est croissant (ASC).</p>
 
 <h2>4. LIMIT : restreindre le nombre de lignes</h2>
 
 <p>Une requête peut ramener des milliers de lignes quand on n’en veut que cinq. La clause <code>LIMIT</code> borne le résultat :</p>
 <pre><code>SELECT immat, pxachat FROM Voiture
-ORDER BY pxachat DESC
+ORDER BY pxachat DESC, immat ASC
 LIMIT 3;                    -- les 3 voitures les plus chères
 
-SELECT * FROM Voiture LIMIT 5 OFFSET 10;   -- 5 lignes à partir de la 11e</code></pre>
+SELECT * FROM Voiture ORDER BY immat LIMIT 5 OFFSET 10;   -- 5 lignes à partir de la 11e</code></pre>
 <p>L’ordre complet d’une requête de lecture se mémorise une fois pour toutes :</p>
 <pre><code>SELECT   colonnes
 FROM     tables
@@ -153,46 +153,91 @@ LIMIT    nombre de lignes</code></pre>
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="sq-c3-e1" data-lab
      data-exercise="sq-c3-e1"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
-     data-stdin="CREATE TABLE notes (etudiant TEXT, matiere TEXT, note INT); INSERT INTO notes VALUES ('Amina', 'SQL', 16), ('Koffi', 'SQL', 9), ('Yao', 'SQL', 14);&#10;-- exemple">
-  <script type="text/plain" data-lab-starter>-- Sélectionnez etudiant et note lorsque note >= 12
-SELECT etudiant, note FROM notes;</script>
+     data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');">
+  <script type="text/plain" data-lab-starter>SELECT immat, km FROM Voiture;</script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Filtrer les lignes avec WHERE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Sélectionner les enregistrements vérifiant une condition numérique avec WHERE.</p>
-    <div class="lab__brief"><p>La table <code>notes(etudiant, matiere, note)</code> contient les résultats du semestre. Écrivez une requête SQL affichant <code>etudiant</code> et <code>note</code> pour les lignes où <code>note &gt;= 12</code>, triées par <code>note</code> décroissante puis <code>etudiant</code> croissant.</p></div>
+    <p class="lab__note" id="sq-c3-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans <code>Voiture</code>, affichez <code>immat</code> et <code>km</code> lorsque le kilométrage est supérieur ou égal à <code>5</code>. Triez par <code>km</code> décroissant, puis par <code>immat</code> croissante en cas d’égalité.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE notes (etudiant TEXT, matiere TEXT, note INT); INSERT INTO notes VALUES ('Amina', 'SQL', 16), ('Koffi', 'SQL', 9), ('Yao', 'SQL', 14);
--- exemple</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+----------+------+
-| etudiant | note |
-+----------+------+
-| Amina    | 16   |
-| Yao      | 14   |
-+----------+------+
-(2 lignes retournées)</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
+CREATE TABLE Marque (
+  codemarque TEXT NOT NULL PRIMARY KEY,
+  nommarque TEXT NOT NULL UNIQUE,
+  paysmarque TEXT NOT NULL,
+  UNIQUE (codemarque, nommarque)
+);
+CREATE TABLE Voiture (
+  immat TEXT NOT NULL PRIMARY KEY,
+  marque TEXT NOT NULL,
+  codemarque TEXT NOT NULL,
+  moteur TEXT NOT NULL,
+  datecirc TEXT,
+  km INTEGER NOT NULL,
+  pxachat INTEGER NOT NULL,
+  nbreplace INTEGER NOT NULL,
+  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)
+);
+CREATE TABLE Equipement (
+  codeequipement TEXT NOT NULL PRIMARY KEY,
+  nomequipement TEXT NOT NULL UNIQUE,
+  prix INTEGER DEFAULT 0
+);
+CREATE TABLE VoitureEquipement (
+  immat TEXT NOT NULL,
+  codeequipement TEXT NOT NULL,
+  PRIMARY KEY (immat, codeequipement),
+  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,
+  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE
+);
+INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
+  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),
+  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),
+  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');
+INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES
+  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),
+  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),
+  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),
+  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),
+  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),
+  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);
+INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES
+  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),
+  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);
+INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
+  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),
+  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+------------+-----+
+| immat      | km  |
++------------+-----+
+| TG-7854-Z  | 500 |
+| TG-0020-AV | 30  |
+| TG-4444-AL | 5   |
++------------+-----+
+(3 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
+    <p class="lab__note">Le véhicule à 5 km satisfait la condition.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Ajoutez la clause WHERE note &gt;= 12 après FROM notes.</li>
-        <li>Triez avec ORDER BY note DESC, etudiant ASC.</li>
+        <li>Une clause WHERE permet de conserver les kilométrages à partir de 5 inclus.</li>
+        <li>Utilisez deux critères dans ORDER BY : km décroissant, puis immat croissante.</li>
       </ol>
     </details>
   </div>
@@ -200,38 +245,85 @@ SELECT etudiant, note FROM notes;</script>
 
 <div class="lab" id="sq-c3-e2" data-lab
      data-exercise="sq-c3-e2"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
-     data-stdin="CREATE TABLE produits (id INT, nom TEXT, prix INT); INSERT INTO produits VALUES (1, 'Cable RJ45', 2500), (2, 'Cable HDMI', 5000), (3, 'Switch Pro', 15000), (4, 'Cable Fibre Bobine', 85000);&#10;-- exemple">
-  <script type="text/plain" data-lab-starter>-- Filtrez avec BETWEEN et LIKE
-SELECT nom, prix FROM produits;</script>
+     data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');">
+  <script type="text/plain" data-lab-starter>SELECT immat, marque, pxachat FROM Voiture;</script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Recherche par motif avec LIKE et intervalle BETWEEN</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Combiner les opérateurs BETWEEN et LIKE dans une clause WHERE.</p>
-    <div class="lab__brief"><p>Dans la table <code>produits(id, nom, prix)</code>, sélectionnez <code>nom</code> et <code>prix</code> des produits dont le <code>prix</code> est compris entre <code>1000</code> et <code>50000</code> inclus (<code>BETWEEN 1000 AND 50000</code>) et dont le <code>nom</code> commence par <code>'Cable'</code> (<code>LIKE 'Cable%'</code>), triés par <code>prix</code> croissant.</p></div>
+    <p class="lab__note" id="sq-c3-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans <code>Voiture</code>, affichez <code>immat</code>, <code>marque</code> et <code>pxachat</code> pour les voitures dont le prix d’achat est compris entre <code>6000000</code> et <code>50000000</code> inclus et dont la marque commence par <code>M</code>. Triez par prix croissant, puis par immatriculation croissante.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE produits (id INT, nom TEXT, prix INT); INSERT INTO produits VALUES (1, 'Cable RJ45', 2500), (2, 'Cable HDMI', 5000), (3, 'Switch Pro', 15000), (4, 'Cable Fibre Bobine', 85000);
--- exemple</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+------------+------+
-| nom        | prix |
-+------------+------+
-| Cable RJ45 | 2500 |
-| Cable HDMI | 5000 |
-+------------+------+
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
+CREATE TABLE Marque (
+  codemarque TEXT NOT NULL PRIMARY KEY,
+  nommarque TEXT NOT NULL UNIQUE,
+  paysmarque TEXT NOT NULL,
+  UNIQUE (codemarque, nommarque)
+);
+CREATE TABLE Voiture (
+  immat TEXT NOT NULL PRIMARY KEY,
+  marque TEXT NOT NULL,
+  codemarque TEXT NOT NULL,
+  moteur TEXT NOT NULL,
+  datecirc TEXT,
+  km INTEGER NOT NULL,
+  pxachat INTEGER NOT NULL,
+  nbreplace INTEGER NOT NULL,
+  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)
+);
+CREATE TABLE Equipement (
+  codeequipement TEXT NOT NULL PRIMARY KEY,
+  nomequipement TEXT NOT NULL UNIQUE,
+  prix INTEGER DEFAULT 0
+);
+CREATE TABLE VoitureEquipement (
+  immat TEXT NOT NULL,
+  codeequipement TEXT NOT NULL,
+  PRIMARY KEY (immat, codeequipement),
+  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,
+  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE
+);
+INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
+  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),
+  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),
+  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');
+INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES
+  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),
+  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),
+  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),
+  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),
+  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),
+  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);
+INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES
+  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),
+  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);
+INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
+  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),
+  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+------------+---------------+----------+
+| immat      | marque        | pxachat  |
++------------+---------------+----------+
+| TG-7854-Z  | MERCEDES BENZ | 6000000  |
+| TG-0020-AV | MITSUBISHI    | 50000000 |
++------------+---------------+----------+
 (2 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
+    <p class="lab__note">Les deux bornes du prix sont comprises dans le résultat.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Utilisez WHERE prix BETWEEN 1000 AND 50000 AND nom LIKE 'Cable%'.</li>
-        <li>Terminez par ORDER BY prix ASC;</li>
+        <li>BETWEEN inclut ses deux bornes ; combinez cette condition avec LIKE et AND.</li>
+        <li>Avec LIKE, le caractère % représente une suite quelconque de caractères.</li>
       </ol>
     </details>
   </div>
@@ -239,42 +331,91 @@ SELECT nom, prix FROM produits;</script>
 
 <div class="lab" id="sq-c3-e3" data-lab
      data-exercise="sq-c3-e3"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
-     data-stdin="CREATE TABLE livraisons (id_commande INT, client TEXT, date_livraison TEXT); INSERT INTO livraisons VALUES (101, 'Amina', '2026-03-01'), (102, 'Koffi', NULL), (103, 'Yao', NULL);&#10;-- exemple">
-  <script type="text/plain" data-lab-starter>-- Sélectionnez les commandes dont date_livraison est NULL
-SELECT id_commande, client FROM livraisons;</script>
+     data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');&#10;UPDATE Voiture SET datecirc = NULL WHERE immat IN ('TG-3733-AC', 'TG-9420-AF');">
+  <script type="text/plain" data-lab-starter>SELECT immat, marque FROM Voiture;</script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Valeurs absentes IS NULL et pagination LIMIT</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Identifier les enregistrements dont une colonne vaut NULL avec IS NULL.</p>
-    <div class="lab__brief"><p>Dans la table <code>livraisons(id_commande, client, date_livraison)</code>, les commandes non encore livrées ont <code>date_livraison</code> à <code>NULL</code>. Affichez <code>id_commande</code> et <code>client</code> des commandes non livrées, triées par <code>id_commande</code> croissant.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier les enregistrements dont une colonne vaut NULL avec IS NULL et limiter le résultat.</p>
+    <p class="lab__note" id="sq-c3-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans <code>Voiture</code>, la date de mise en circulation <code>datecirc</code> peut être <code>NULL</code>. Affichez <code>immat</code> et <code>marque</code> des trois premières voitures dont la date est absente au maximum, triées par <code>immat</code> croissante. Le parc initial du simulateur ne contient pas de date absente ; les jeux ci-dessous en ajoutent pour illustrer le cas.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE livraisons (id_commande INT, client TEXT, date_livraison TEXT); INSERT INTO livraisons VALUES (101, 'Amina', '2026-03-01'), (102, 'Koffi', NULL), (103, 'Yao', NULL);
--- exemple</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+-------------+--------+
-| id_commande | client |
-+-------------+--------+
-| 102         | Koffi  |
-| 103         | Yao    |
-+-------------+--------+
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
+CREATE TABLE Marque (
+  codemarque TEXT NOT NULL PRIMARY KEY,
+  nommarque TEXT NOT NULL UNIQUE,
+  paysmarque TEXT NOT NULL,
+  UNIQUE (codemarque, nommarque)
+);
+CREATE TABLE Voiture (
+  immat TEXT NOT NULL PRIMARY KEY,
+  marque TEXT NOT NULL,
+  codemarque TEXT NOT NULL,
+  moteur TEXT NOT NULL,
+  datecirc TEXT,
+  km INTEGER NOT NULL,
+  pxachat INTEGER NOT NULL,
+  nbreplace INTEGER NOT NULL,
+  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)
+);
+CREATE TABLE Equipement (
+  codeequipement TEXT NOT NULL PRIMARY KEY,
+  nomequipement TEXT NOT NULL UNIQUE,
+  prix INTEGER DEFAULT 0
+);
+CREATE TABLE VoitureEquipement (
+  immat TEXT NOT NULL,
+  codeequipement TEXT NOT NULL,
+  PRIMARY KEY (immat, codeequipement),
+  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,
+  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE
+);
+INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
+  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),
+  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),
+  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');
+INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES
+  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),
+  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),
+  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),
+  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),
+  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),
+  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);
+INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES
+  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),
+  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);
+INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
+  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),
+  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');
+UPDATE Voiture SET datecirc = NULL WHERE immat IN ('TG-3733-AC', 'TG-9420-AF');</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+------------+--------+
+| immat      | marque |
++------------+--------+
+| TG-3733-AC | TOYOTA |
+| TG-9420-AF | TOYOTA |
++------------+--------+
 (2 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
+    <p class="lab__note">Dans ce jeu adapté, deux dates ont été remplacées par NULL.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>En SQL, on teste l’absence de valeur avec IS NULL (et jamais avec = NULL).</li>
-        <li>Ajoutez ORDER BY id_commande ASC.</li>
+        <li>L’absence de valeur se teste avec IS NULL et non avec = NULL.</li>
+        <li>Triez par immat, puis limitez le nombre de lignes.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -284,7 +425,7 @@ SELECT id_commande, client FROM livraisons;</script>
       <div class="opts">
         <button class="opt">Compte les marques</button>
         <button class="opt" data-correct="1">Renvoie chaque marque une seule fois</button>
-        <button class="opt">Triez les marques</button>
+        <button class="opt">Trie les marques</button>
       </div>
       <div class="q__exp">DISTINCT élimine les lignes dupliquées du résultat.</div>
     </div>
@@ -295,7 +436,7 @@ SELECT id_commande, client FROM livraisons;</script>
         <button class="opt" data-correct="1">IS NULL</button>
         <button class="opt">== NULL</button>
       </div>
-      <div class="q__exp">= NULL ne renvoie jamais vrai : seule la forme IS NULL fonctionne.</div>
+      <div class="q__exp">Parmi ces propositions, IS NULL teste l’absence de valeur ; les comparaisons = NULL et == NULL ne renvoient pas vrai.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans LIKE '%AK', que remplace % ?</p>
@@ -316,22 +457,22 @@ SELECT id_commande, client FROM livraisons;</script>
       <div class="q__exp">Les tris multi-colonnes s’appliquent de gauche à droite, par niveaux.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Où place-t-on LIMIT dans une requête ?</p>
+      <p class="q__stem">Dans SQLite, où place-t-on LIMIT si la requête contient ORDER BY ?</p>
       <div class="opts">
         <button class="opt">Juste après SELECT</button>
         <button class="opt" data-correct="1">Après ORDER BY, en dernière clause</button>
         <button class="opt">Avant WHERE</button>
       </div>
-      <div class="q__exp">LIMIT clôt la requête : SELECT FROM WHERE (GROUP HAVING) ORDER LIMIT.</div>
+      <div class="q__exp">Dans cette forme, LIMIT suit ORDER BY et clôt la requête.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Comment quotent-on une chaîne en SQL ?</p>
+      <p class="q__stem">Quelle écriture standard est recommandée pour une chaîne SQL ?</p>
       <div class="opts">
         <button class="opt">"DIESEL"</button>
         <button class="opt" data-correct="1">'DIESEL'</button>
         <button class="opt">`DIESEL`</button>
       </div>
-      <div class="q__exp">Apostrophes simples pour les valeurs textuelles.</div>
+      <div class="q__exp">Les apostrophes simples délimitent une chaîne. SQLite peut aussi accepter les guillemets doubles par compatibilité, mais ce n’est pas la forme standard.</div>
     </div>
   </div>
 
@@ -393,9 +534,9 @@ SELECT id_commande, client FROM livraisons;</script>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Refaites les requêvos du support dans le simulateur, une par une.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Refaites les requêtes du support dans le simulateur, une par une.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Écrivez « diesels avant 2015, du plus ancien au plus récent » sans aide.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : ajoute le classement des 3 voitures les plus chères.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : ajoutez le classement des 3 voitures les plus chères.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : passez au chapitre 4, les jointures.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
@@ -407,7 +548,7 @@ SELECT id_commande, client FROM livraisons;</script>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : le support B1 « Base de données & SQL » (IT-B1) et le jeu de données parc_auto du support (Marque, Voiture).</p>
+  Sources : le support B1 « Base de données &amp; SQL » (IT-B1), le jeu de données parc_auto du support et la <a href="https://sqlite.org/docs.html">documentation officielle SQLite</a> (consultée le 29 octobre 2026 ; SELECT revérifié le 30 octobre 2026).</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

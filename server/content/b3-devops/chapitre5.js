@@ -9,14 +9,14 @@ module.exports = {
   n: 5,
   title: 'Métriques DORA, Fiabilité Opérationnelle &amp; Gestion des Incidents',
   short: 'Métriques DORA &amp; Incidents',
-  toc: 'Les 4 métriques DORA d’Accelerate, analyse mathématique MTBF/MTTF/MTTR, rayon d’impact (Blast Radius) et post-mortem sans blâme.',
+  toc: 'Les cinq métriques DORA actuelles, analyse MTBF/MTTF/MTTR, rayon d’impact et post-mortem sans blâme.',
   time: '≈ 2 h 45 de travail',
   free: false,
   lockLabel: 'Réservé B3 et plus',
-  situation: 'Pendant des décennies, le management informatique a cru à un faux dilemme : pour augmenter la stabilité d’un système, il faudrait ralentir la cadence de livraison ; inversement, aller vite impliquerait nécessairement de casser la production. Les recherches scientifiques du programme DORA (DevOps Research and Assessment), synthétisées dans l’ouvrage de référence Accelerate par Nicole Forsgren, Jez Humble et Gene Kim, ont rigoureusement prouvé le contraire : les équipes d’élite qui déploient plusieurs fois par jour sont également celles dont le taux d’échec est le plus faible et le temps de réparation le plus court. Pour piloter rationnellement une organisation d’ingénierie moderne, l’ingénieur B3 doit instrumenter les 4 métriques DORA clés, modéliser la fiabilité du système (MTBF, MTTR, MTTF), mesurer le rayon d’impact (Blast Radius) de chaque composant et instaurer des protocoles d’incident irréprochables.',
+  situation: 'Les recherches DORA étudient la performance de livraison et ses facteurs. Leur modèle a évolué : au 30 octobre 2026, il présente cinq métriques. Elles se lisent dans le contexte de l’équipe et ne constituent ni une note individuelle ni une échelle universelle de maturité. Ce chapitre aborde aussi la fiabilité, le rayon d’impact et la gestion des incidents.',
   objectives: [
     'maîtriser les conclusions scientifiques du programme de recherche DORA et du livre Accelerate ;',
-    'calculer, interpréter et classifier les 4 métriques DORA : Deployment Frequency, Lead Time for Changes, Change Failure Rate et MTTR ;',
+    'décrire les cinq métriques actuelles DORA et les interpréter dans leur contexte ;',
     'établir les équations formelles de fiabilité matérielle et logicielle : MTBF, MTTF, MTTR et disponibilité intrinsèque ;',
     'modéliser le rayon d’impact (Blast Radius) et les dépendances en cascade d’une architecture distribuée ;',
     'structurer un protocole de gestion d’incident critique et rédiger un post-mortem sans blâme (Blameless Post-Mortem) ;',
@@ -26,52 +26,24 @@ module.exports = {
     {
       title: 'Le Programme DORA &amp; La Démonstration Scientifique d’Accelerate',
       html: [
-        '<p>Fondé par les chercheurs Nicole Forsgren, Jez Humble et Gene Kim (puis racheté par Google Cloud), le programme <strong>DORA (DevOps Research and Assessment)</strong> a interrogé plus de 32 000 professionnels dans le monde pendant une décennie. Ses analyses statistiques rigoureuses réfutent définitivement le mythe de l’arbitrage entre vitesse et stabilité :</p>',
+        '<p>Le programme <strong>DORA (DevOps Research and Assessment)</strong> étudie les pratiques et la performance de livraison logicielle. Les résultats d’enquête sont à interpréter selon leur période et leur population :</p>',
         box('standard', 'L’Enseignement Majeur de DORA', [
-          '<p><strong>La vitesse et la stabilité sont corrélées positivement.</strong> Les équipes qui livrent le plus fréquemment et le plus rapidement sont aussi celles qui connaissent le moins d’incidents majeurs et qui rétablissent le service le plus vite en cas de panne imprévue. La performance logicielle est un catalyseur direct de la performance économique globale de l’entreprise.</p>'
+          '<p>Les recherches montrent que rapidité et stabilité peuvent coexister. Une corrélation observée ne garantit pas ce résultat pour toute équipe et ne démontre pas à elle seule une causalité.</p>'
         ].join('\n'))
       ].join('\n')
     },
     {
-      title: 'Les 4 Métriques Clés de Performance DORA',
+      title: 'Les cinq métriques de performance DORA',
       html: [
-        '<p>DORA a isolé 4 indicateurs universels permettant d’évaluer la santé et la maturité d’une chaîne de livraison logicielle :</p>',
-        '<table class="table">',
-        '  <thead>',
-        '    <tr>',
-        '      <th style="width:20%">Métrique</th>',
-        '      <th style="width:20%">Axe mesuré</th>',
-        '      <th style="width:30%">Performance Élite (Elite)</th>',
-        '      <th style="width:30%">Performance Faible (Low)</th>',
-        '    </tr>',
-        '  </thead>',
-        '  <tbody>',
-        '    <tr>',
-        '      <td><strong>Deployment Frequency (DF)</strong></td>',
-        '      <td>Débit / Vélocité</td>',
-        '      <td>Multiples déploiements par jour à la demande.</td>',
-        '      <td>Moins d’un déploiement tous les six mois.</td>',
-        '    </tr>',
-        '    <tr>',
-        '      <td><strong>Lead Time for Changes (LTTC)</strong></td>',
-        '      <td>Débit / Vélocité</td>',
-        '      <td>Moins d’une heure entre le commit Git et la prod.</td>',
-        '      <td>Entre 1 et 6 mois de latence calendaire.</td>',
-        '    </tr>',
-        '    <tr>',
-        '      <td><strong>Change Failure Rate (CFR)</strong></td>',
-        '      <td>Qualité / Stabilité</td>',
-        '      <td>Entre 0% et 5% des déploiements causent une panne.</td>',
-        '      <td>Supérieur à 15% (jusqu’à 45% d’échecs).</td>',
-        '    </tr>',
-        '    <tr>',
-        '      <td><strong>Time to Restore Service (MTTR)</strong></td>',
-        '      <td>Résilience / Stabilité</td>',
-        '      <td>Moins d’une heure pour réparer un incident en prod.</td>',
-        '      <td>Plusieurs jours ou semaines de résolution.</td>',
-        '    </tr>',
-        '  </tbody>',
-        '</table>'
+        '<p>Le guide DORA consulté le 30 octobre 2026 présente cinq métriques pour observer la livraison dans son contexte :</p>',
+        '<ul>',
+        '  <li><strong>Deployment frequency :</strong> fréquence des déploiements.</li>',
+        '  <li><strong>Change lead time :</strong> délai entre commit et production.</li>',
+        '  <li><strong>Failed deployment recovery time :</strong> temps de rétablissement après un déploiement nécessitant une intervention immédiate.</li>',
+        '  <li><strong>Change fail rate :</strong> proportion de déploiements nécessitant une intervention immédiate.</li>',
+        '  <li><strong>Deployment rework rate :</strong> proportion de déploiements non planifiés à la suite d’un incident.</li>',
+        '</ul>',
+        '<p>Les profils de recherche et les définitions ont évolué. Ne pas appliquer des seuils fixes à toutes les équipes ; un MTTR général d’incident n’est pas nécessairement le temps de rétablissement d’un déploiement échoué.</p>'
       ].join('\n')
     },
     {
@@ -133,23 +105,23 @@ module.exports = {
   method: [
     'Instrumenter les dépôts Git et les plateformes de production pour collecter les horodatages de livraison et d’incident.',
     'Calculer la fréquence de déploiement (DF) et le Lead Time for Changes (LTTC) pour caractériser le débit.',
-    'Calculer le Change Failure Rate (CFR) et le Mean Time to Restore (MTTR) pour caractériser la stabilité.',
-    'Positionner l’organisation sur l’échelle de maturité officielle DORA (Low, Medium, High, Elite).',
+    'Définir le périmètre des déploiements et incidents, puis mesurer les taux d’échec et de reprise ainsi que le temps de rétablissement après déploiement échoué.',
+    'Interpréter les tendances dans leur contexte, sans attribuer de rang universel ni comparer directement les équipes.',
     'Modéliser les équations de fiabilité du système (MTBF, MTTF, MTTR et disponibilité opérationnelle A).',
     'Conduire un post-mortem sans blâme (Blameless) et cartographier le rayon d’impact (Blast Radius).'
   ],
   summary: [
-    'L’enquête DORA (Accelerate) prouve que la vélocité et la stabilité se renforcent mutuellement.',
-    'Les 4 métriques DORA fournissent un tableau de bord équilibré entre débit (DF, LTTC) et stabilité (CFR, MTTR).',
-    'Les équipes d’élite déploient plusieurs fois par jour, ont un délai < 1h, un CFR < 5% et un MTTR < 1h.',
+    'Les recherches DORA étudient les liens entre performance de livraison et conditions de travail ; corrélation ne signifie pas causalité automatique.',
+    'Le modèle consulté en octobre 2026 utilise cinq métriques : fréquence, délai de changement, rétablissement après déploiement échoué, taux d’échec et taux de reprise.',
+    'Les seuils d’un exercice ou d’une enquête ne sont pas un classement universel.',
     'La disponibilité A vaut MTTF / (MTTF + MTTR) : réduire le MTTR est plus rentable que chercher un MTTF infini.',
     'Le cloisonnement en cloisons étanches (Bulkheads) et disjoncteurs limite le rayon d’impact (Blast Radius).',
     'Le post-mortem sans blâme traite l’erreur humaine comme un symptôme pour corriger les défaillances de conception.'
   ],
   checklist: [
     'Je connais les auteurs et la méthodologie scientifique du programme de recherche DORA.',
-    'Je sais calculer et interpréter chacune des 4 métriques DORA.',
-    'Je connais les critères caractérisant une équipe de niveau Élite.',
+    'Je sais décrire les cinq métriques DORA et leur périmètre.',
+    'Je sais expliquer pourquoi un seuil générique ne suffit pas à classer une équipe.',
     'Je sais calculer le MTBF, le MTTF, le MTTR et le taux de disponibilité global d’un composant.',
     'Je sais définir et compartimenter le Blast Radius d’un microservice.',
     'Je sais animer un post-mortem sans blâme et formaliser des actions préventives robustes.'
@@ -159,14 +131,14 @@ module.exports = {
     'Deployment Frequency (DF)',
     'Lead Time for Changes (LTTC)',
     'Change Failure Rate (CFR)',
-    'Mean Time to Restore (MTTR)',
+    'Failed Deployment Recovery Time et Deployment Rework Rate',
     'Équations de fiabilité MTBF, MTTF, MTTR',
     'Rayon d’impact (Blast Radius) &amp; Bulkheads',
     'Post-mortem sans blâme (Blameless)'
   ],
   pitfalls: [
     'Croire que ralentir la cadence de livraison logicielle permet d’augmenter la stabilité des systèmes de production.',
-    'Mesurer la performance des ingénieurs au nombre de lignes de code ou au nombre de commits plutôt qu’aux 4 métriques d’impact DORA.',
+    'Utiliser des indicateurs de livraison comme une note individuelle ou une compétition entre équipes.',
     'Investir des budgets disproportionnés dans un MTTF infini au détriment de l’observabilité et de la réduction drastique du MTTR.',
     'Considérer l’erreur humaine comme la cause racine d’un incident majeur plutôt que comme le symptôme d’un manque de garde-fous systémiques.'
   ],
@@ -175,23 +147,23 @@ module.exports = {
       stem: 'Quelle conclusion scientifique majeure ressort des recherches DORA (DevOps Research and Assessment) publiées dans Accelerate ?',
       opts: [
         'Pour éviter les pannes, il est scientifiquement prouvé qu’il faut réduire les déploiements à un par trimestre',
-        'La vélocité de livraison et la stabilité de production sont corrélées positivement : les équipes les plus rapides ont aussi les systèmes les plus fiables',
+        'Rapidité de livraison et stabilité peuvent coexister, sans garantie automatique pour chaque équipe',
         'L’automatisation des tests augmente les coûts de développement sans aucun gain mesurable',
         'Le langage de programmation est le seul facteur expliquant la réussite d’un projet'
       ],
       correct: 1,
-      exp: 'DORA a démontré que les équipes d’élite concilient vitesse et fiabilité : déployer souvent par petits incréments réduit le risque unitaire de chaque mise en production.'
+      exp: 'Les recherches rapportent que rapidité et stabilité peuvent coexister ; il faut examiner le contexte et éviter de déduire une causalité automatique.'
     },
     {
-      stem: 'Quelles sont les 4 métriques universelles définies par DORA pour évaluer la performance de livraison logicielle ?',
+      stem: 'Selon le guide DORA consulté en octobre 2026, quel ensemble présente les cinq métriques de livraison ?',
       opts: [
         'Nombre de lignes de code, Nombre de bugs, Heures supplémentaires, Coût des serveurs',
-        'Deployment Frequency, Lead Time for Changes, Change Failure Rate, Mean Time to Restore (MTTR)',
+        'Deployment Frequency, Change Lead Time, Failed Deployment Recovery Time, Change Fail Rate et Deployment Rework Rate',
         'Vitesse CPU, Bande passante réseau, Taux de mémoire vive, Taille du disque dur',
         'Nombre de réunions, Points de vélocité Scrum, Nombre de commits, Salaire moyen'
       ],
       correct: 1,
-      exp: 'Les 4 métriques DORA mesurent deux axes : le débit (Deployment Frequency et Lead Time for Changes) et la stabilité (Change Failure Rate et MTTR).'
+      exp: 'Le guide actuel décrit cinq métriques ; un MTTR général ne correspond pas nécessairement au rétablissement après un déploiement échoué.'
     },
     {
       stem: 'Une équipe réalise 200 déploiements en production sur une année. Parmi ceux-ci, 10 déploiements ont provoqué un incident nécessitant un retour arrière immédiat. Quel est le Change Failure Rate (CFR) ?',
@@ -202,7 +174,7 @@ module.exports = {
         '2%'
       ],
       correct: 2,
-      exp: 'CFR = (Nombre de déploiements en échec / Nombre total de déploiements) * 100 = (10 / 200) * 100 = 5% (ce qui correspond au seuil supérieur du profil Elite selon DORA).'
+      exp: 'CFR = (Nombre de déploiements nécessitant une intervention / Nombre total de déploiements) × 100 = (10 / 200) × 100 = 5 %. Ce chiffre ne classe pas universellement l’équipe.'
     },
     {
       stem: 'Dans la modélisation de fiabilité d’un système réparable, que vaut le MTBF (Mean Time Between Failures) ?',
@@ -263,11 +235,11 @@ module.exports = {
   flashcards: [
     {
       q: 'Qu’est-ce que le programme de recherche DORA et que démontre le livre Accelerate ?',
-      a: 'Une décennie d’études montrant scientifiquement que la vitesse de livraison et la stabilité de production sont corrélées positivement : les équipes rapides sont les plus fiables.'
+      a: 'Un programme d’études sur les pratiques et la livraison logicielle ; ses résultats montrent que rapidité et stabilité peuvent coexister sans le garantir pour chaque équipe.'
     },
     {
-      q: 'Quelles sont les 4 métriques DORA universelles ?',
-      a: 'Deployment Frequency (débit), Lead Time for Changes (vitesse), Change Failure Rate (qualité) et Mean Time to Restore (résilience).'
+      q: 'Quelles sont les cinq métriques DORA actuelles ?',
+      a: 'Deployment Frequency, Change Lead Time, Failed Deployment Recovery Time, Change Fail Rate et Deployment Rework Rate (guide consulté le 30 octobre 2026).'
     },
     {
       q: 'Quelle est la relation mathématique entre MTBF, MTTF et MTTR ?',
@@ -289,7 +261,7 @@ module.exports = {
   mastery: [
     {
       cls: 'low',
-      text: 'Moins de 4/8 : Révisez les 4 métriques DORA et les définitions de base de MTBF, MTTF et MTTR.'
+      text: 'Moins de 4/8 : Révisez les cinq métriques DORA et les définitions de base de MTBF, MTTF et MTTR.'
     },
     {
       cls: 'medium',

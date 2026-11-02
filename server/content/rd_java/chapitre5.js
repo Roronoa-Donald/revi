@@ -77,7 +77,7 @@ module.exports = {
     { stem: 'Quelle collection associe clés et valeurs ?', opts: ['List', 'Set', 'Map'], correct: 2, exp: 'Map associe chaque clé à une valeur.' },
     { stem: 'Que fait extends ?', opts: ['Hériter d’une classe', 'Créer un objet', 'Comparer'], correct: 0, exp: 'extends établit la relation classe fille → classe mère.' },
     { stem: 'À quoi sert super(...) ?', opts: ['Appeler le constructeur de la mère', 'Copier l’objet', 'Comparer'], correct: 0, exp: 'super transmet l’initialisation à la classe mère.' },
-    { stem: 'Que fait @Override ?', opts: ['Redéfinit une méthode héritée', 'Supprimez', 'Rend privé'], correct: 0, exp: 'Il redéfinit la version de la classe mère.' },
+    { stem: 'Que fait @Override ?', opts: ['Redéfinit une méthode héritée', 'Supprime', 'Rend privé'], correct: 0, exp: 'Il redéfinit la version de la classe mère.' },
     { stem: 'Le polymorphisme permet…', opts: ['d’appeler la version du type réel', 'de copier un objet', 'de trier'], correct: 0, exp: 'La méthode exécutée est celle du type réel de l’objet.' },
     { stem: 'Peut-on instancier une classe abstraite ?', opts: ['Non', 'Oui', 'Seulement à midi'], correct: 0, exp: 'Une classe abstraite ne peut pas être instanciée directement.' },
     { stem: 'Que doit fournir une classe fille d’une méthode abstraite ?', opts: ['Son implémentation', 'Rien', 'Un constructeur'], correct: 0, exp: 'La fille doit implémenter toute méthode abstraite.' }

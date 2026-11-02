@@ -4,21 +4,85 @@ module.exports = [
   {
     "id": "pf3-c5-e1",
     "chapter": 5,
-    "title": "Validateur de certificat X.509 et chaîne de confiance PKI OpenVPN",
+    "title": "Analyse pédagogique de certificats et de CRL OpenVPN",
     "level": "n1",
     "language": "analyse",
-    "goal": "Vérifier la validité cryptographique et l'état de révocation des certificats clients pour le serveur OpenVPN.",
-    "brief": "<p>Dans pfSense (<em>System &gt; Cert. Manager</em>), l'authentification des clients <strong>OpenVPN</strong> repose sur une Autorité de Certification (CA) interne et une liste de révocation (CRL). Un certificat n'est accepté que s'il est valide temporellement, signé par la CA racine, non révoqué et basé sur une cryptographie robuste.<br><br>\nAnalysez les paramètres du problème pour chaque cas...|NONE&gt;</code><br>\n- L'horodatage courant d'audit :<br>\n  <code>TIMESTAMP current=&lt;int&gt;</code><br>\n- Les certificats présentés par les clients VPN :<br>\n  <code>CERT id=&lt;nom&gt; cn=&lt;nom_client&gt; issuer=&lt;nom_ca&gt; serial=&lt;int&gt; algo=&lt;RSA|ECDSA|DSA&gt; key_len=&lt;int&gt; valid_from=&lt;int&gt; valid_to=&lt;int&gt;</code><br><br>\nRègles de validation (ordre de priorité des rejets) :<br>\n1. Si <code>issuer != CA.cn</code> : <code>status=REJECTED reason=UNTRUSTED_ISSUER</code>.<br>\n2. Si <code>serial</code> est dans la liste <code>revoked</code> : <code>status=REJECTED reason=REVOKED_CERTIFICATE</code>.<br>\n3. Si <code>current &lt; valid_from</code> : <code>status=REJECTED reason=NOT_YET_VALID</code>.<br>\n4. Si <code>current &gt; valid_to</code> : <code>status=REJECTED reason=EXPIRED_CERTIFICATE</code>.<br>\n5. Si <code>algo == 'DSA'</code> : <code>status=REJECTED reason=INSECURE_ALGORITHM</code>.<br>\n6. Si <code>algo == 'RSA' et key_len &lt; 2048</code> : <code>status=REJECTED reason=WEAK_KEY_LENGTH</code>.<br>\n7. Sinon : <code>status=ACCEPTED reason=VALID_CREDENTIALS</code>.<br><br>\nPour chaque certificat, afficher :<br>\n<code>OPENVPN_PKI id={id} status={status} reason={reason} client={cn} serial={serial}</code></p>",
-    "starter": "# Grille d'analyse (pf3-c5-e1) — Validateur de certificat X.509 et chaîne de confiance PKI OpenVPN\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Certificat expiré ou pas encore valide]\n# Données : CA cn=ROOT_CA\n# Données : CRL revoked=NONE\n# Données : TIMESTAMP current=1700000000\n# Données : CERT id=EXP cn=charlie issuer=ROOT_CA serial=110 algo=RSA key_len=2048 valid_from=1600000000 valid_to=1650000000\n# Données : CERT id=FUT cn=david issuer=ROOT_CA serial=111 algo=RSA key_len=2048 valid_from=1750000000 valid_to=1800000000\nA_COMPLETER\n\n[Cas 2 — Clé RSA faible ou algorithme DSA obsolète]\n# Données : CA cn=COMPANY_CA\n# Données : CRL revoked=NONE\n# Données : TIMESTAMP current=1700000000\n# Données : CERT id=WEAK cn=legit issuer=COMPANY_CA serial=120 algo=RSA key_len=1024 valid_from=1690000000 valid_to=1710000000\n# Données : CERT id=DSA_LEGACY cn=oldgw issuer=COMPANY_CA serial=121 algo=DSA key_len=1024 valid_from=1690000000 valid_to=1710000000\n# Données : CERT id=ECDSA_OK cn=modern issuer=COMPANY_CA serial=122 algo=ECDSA key_len=256 valid_from=1690000000 valid_to=1710000000\nA_COMPLETER\n\n[Cas 3 — CRL vide avec certificat valide]\n# Données : CA cn=TEST_CA\n# Données : CRL revoked=NONE\n# Données : TIMESTAMP current=1700000000\n# Données : CERT id=TEST cn=testuser issuer=TEST_CA serial=999 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000\nA_COMPLETER\n",
+    "goal": "Analyser les certificats et l'état d'une CRL dans un modèle pédagogique OpenVPN.",
+    "brief": [
+      "<p>Cette grille est un <strong>modèle pédagogique</strong>, pas une validation de PKI ni une prédiction du comportement d'un serveur OpenVPN réel. L'égalité entre noms d'émetteurs ne vérifie aucune signature, chaîne de confiance ou authentification supplémentaire. Une CRL est facultative et sa publication peut être retardée ; une session déjà établie n'est pas traitée ici.</p>",
+      "<p>Chaque cas fournit une autorité <code>CA cn=&lt;nom&gt;</code>, une liste <code>CRL selected=&lt;YES|NO&gt; state=&lt;CURRENT|STALE|MISSING&gt; revoked=&lt;numéros|NONE&gt;</code>, un instant <code>TIMESTAMP current=&lt;int&gt;</code> et des lignes <code>CERT id=&lt;nom&gt; cn=&lt;client&gt; issuer=&lt;nom_ca&gt; serial=&lt;int&gt; algo=&lt;RSA|ECDSA|DSA&gt; key_len=&lt;int&gt; valid_from=&lt;int&gt; valid_to=&lt;int&gt;</code>. Les numéros révoqués sont séparés par des virgules ; <code>NONE</code> signifie qu'aucun numéro n'est fourni, et ne prouve pas qu'une CRL absente ou obsolète est vide.</p>",
+      "<p>Dans ce modèle, <code>CURRENT</code> signifie que la CRL pertinente est supposée valide et appliquée ; <code>STALE</code> désigne une liste obsolète ou périmée et <code>MISSING</code> une liste indisponible. Même une liste valide ne renseigne que sur les révocations qui y ont déjà été publiées. <code>INDETERMINATE</code> indique un état de révocation non établi, et non un refus réel : OpenVPN peut se comporter différemment selon sa configuration et sa version.</p>",
+      "<p>Appliquer la première règle correspondante, dans cet ordre :</p>",
+      "<ol>",
+      "<li>Si <code>issuer != CA.cn</code> : <code>status=REJECTED reason=UNTRUSTED_ISSUER</code>.</li>",
+      "<li>Si <code>current &lt; valid_from</code> : <code>status=REJECTED reason=NOT_YET_VALID</code> ; si <code>current &gt; valid_to</code> : <code>status=REJECTED reason=EXPIRED_CERTIFICATE</code>.</li>",
+      "<li>Si <code>algo == DSA</code> : <code>status=REJECTED reason=INSECURE_ALGORITHM</code> ; si <code>algo == RSA</code> et <code>key_len &lt; 2048</code> : <code>status=REJECTED reason=WEAK_KEY_LENGTH</code>.</li>",
+      "<li>Si <code>selected == NO</code> : <code>status=INDETERMINATE reason=CRL_NOT_CONFIGURED</code>.</li>",
+      "<li>Si la CRL sélectionnée a l'état <code>MISSING</code> : <code>status=INDETERMINATE reason=CRL_UNAVAILABLE</code> ; si elle a l'état <code>STALE</code> : <code>status=INDETERMINATE reason=CRL_STALE</code>.</li>",
+      "<li>Avec une CRL <code>CURRENT</code>, si <code>serial</code> figure dans <code>revoked</code> : <code>status=REJECTED reason=REVOKED_CERTIFICATE</code>. Sinon : <code>status=ACCEPTED reason=VALID_CREDENTIALS</code>, uniquement au regard des données du modèle.</li>",
+      "</ol>",
+      "<p>Pour chaque certificat, saisir une ligne : <code>OPENVPN_PKI id={id} status={status} reason={reason} client={cn} serial={serial}</code>.</p>"
+    ].join("\n"),
+    "starter": [
+      "# Grille d'analyse (pf3-c5-e1) — Analyse pédagogique de certificats et de CRL OpenVPN",
+      "# Complétez la résolution demandée sous chaque cas ci-dessous :",
+      "",
+      "[Cas 1 — Certificat expiré ou pas encore valide]",
+      "# Données : CA cn=ROOT_CA",
+      "# Données : CRL selected=YES state=CURRENT revoked=NONE",
+      "# Données : TIMESTAMP current=1700000000",
+      "# Données : CERT id=EXP cn=charlie issuer=ROOT_CA serial=110 algo=RSA key_len=2048 valid_from=1600000000 valid_to=1650000000",
+      "# Données : CERT id=FUT cn=david issuer=ROOT_CA serial=111 algo=RSA key_len=2048 valid_from=1750000000 valid_to=1800000000",
+      "A_COMPLETER",
+      "",
+      "[Cas 2 — Clé RSA faible ou algorithme DSA obsolète]",
+      "# Données : CA cn=COMPANY_CA",
+      "# Données : CRL selected=YES state=CURRENT revoked=NONE",
+      "# Données : TIMESTAMP current=1700000000",
+      "# Données : CERT id=WEAK cn=legit issuer=COMPANY_CA serial=120 algo=RSA key_len=1024 valid_from=1690000000 valid_to=1710000000",
+      "# Données : CERT id=DSA_LEGACY cn=oldgw issuer=COMPANY_CA serial=121 algo=DSA key_len=1024 valid_from=1690000000 valid_to=1710000000",
+      "# Données : CERT id=ECDSA_OK cn=modern issuer=COMPANY_CA serial=122 algo=ECDSA key_len=256 valid_from=1690000000 valid_to=1710000000",
+      "A_COMPLETER",
+      "",
+      "[Cas 3 — CRL appliquée avec certificat révoqué et témoin]",
+      "# Données : CA cn=TEST_CA",
+      "# Données : CRL selected=YES state=CURRENT revoked=999",
+      "# Données : TIMESTAMP current=1700000000",
+      "# Données : CERT id=REVOKED cn=testuser issuer=TEST_CA serial=999 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000",
+      "# Données : CERT id=GOOD cn=control issuer=TEST_CA serial=1000 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000",
+      "A_COMPLETER",
+      "",
+      "[Cas 4 — CRL non sélectionnée]",
+      "# Données : CA cn=TEST_CA",
+      "# Données : CRL selected=NO state=MISSING revoked=NONE",
+      "# Données : TIMESTAMP current=1700000000",
+      "# Données : CERT id=NO_CRL cn=testuser issuer=TEST_CA serial=999 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000",
+      "A_COMPLETER",
+      "",
+      "[Cas 5 — CRL sélectionnée mais obsolète]",
+      "# Données : CA cn=TEST_CA",
+      "# Données : CRL selected=YES state=STALE revoked=NONE",
+      "# Données : TIMESTAMP current=1700000000",
+      "# Données : CERT id=STALE_CRL cn=testuser issuer=TEST_CA serial=999 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000",
+      "A_COMPLETER",
+      "",
+      "[Cas 6 — CRL sélectionnée mais indisponible]",
+      "# Données : CA cn=TEST_CA",
+      "# Données : CRL selected=YES state=MISSING revoked=NONE",
+      "# Données : TIMESTAMP current=1700000000",
+      "# Données : CERT id=MISSING_CRL cn=testuser issuer=TEST_CA serial=999 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000",
+      "A_COMPLETER",
+      ""
+    ].join("\n"),
     "hints": [
-      "Stocker les numéros de série révoqués dans un set.",
-      "Suivre précisément l'ordre des vérifications de sécurité."
+      "Appliquer les rejets connus, puis vérifier la sélection, l'état et le contenu de la CRL.",
+      "INDETERMINATE signale une information insuffisante : il ne prédit pas la décision réelle d'OpenVPN."
     ],
     "examples": [
       {
-        "stdin": "CA cn=PFSENSE_INTERNAL_CA\nCRL revoked=104,109\nTIMESTAMP current=1700000000\nCERT id=C1 cn=alice issuer=PFSENSE_INTERNAL_CA serial=101 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000\nCERT id=C2 cn=bob issuer=PFSENSE_INTERNAL_CA serial=104 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000\nCERT id=C3 cn=eve issuer=ROGUE_CA serial=200 algo=RSA key_len=4096 valid_from=1690000000 valid_to=1720000000",
+        "stdin": "CA cn=PFSENSE_INTERNAL_CA\nCRL selected=YES state=CURRENT revoked=104,109\nTIMESTAMP current=1700000000\nCERT id=C1 cn=alice issuer=PFSENSE_INTERNAL_CA serial=101 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000\nCERT id=C2 cn=bob issuer=PFSENSE_INTERNAL_CA serial=104 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000\nCERT id=C3 cn=eve issuer=ROGUE_CA serial=200 algo=RSA key_len=4096 valid_from=1690000000 valid_to=1720000000",
         "expected": "OPENVPN_PKI id=C1 status=ACCEPTED reason=VALID_CREDENTIALS client=alice serial=101\nOPENVPN_PKI id=C2 status=REJECTED reason=REVOKED_CERTIFICATE client=bob serial=104\nOPENVPN_PKI id=C3 status=REJECTED reason=UNTRUSTED_ISSUER client=eve serial=200",
-        "note": "C1 est accepté, C2 est révoqué dans la CRL, C3 est signé par une autorité non reconnue."
+        "note": "Dans le modèle, C1 est accepté, C2 figure dans la CRL appliquée et C3 a un nom d'émetteur différent."
       }
     ],
     "tests": [
@@ -33,51 +97,169 @@ module.exports = [
         "expected": "OPENVPN_PKI id=WEAK status=REJECTED reason=WEAK_KEY_LENGTH client=legit serial=120\nOPENVPN_PKI id=DSA_LEGACY status=REJECTED reason=INSECURE_ALGORITHM client=oldgw serial=121\nOPENVPN_PKI id=ECDSA_OK status=ACCEPTED reason=VALID_CREDENTIALS client=modern serial=122"
       },
       {
-        "label": "CRL vide avec certificat valide",
+        "label": "CRL appliquée avec certificat révoqué et témoin",
         "stdin": "cas:3",
-        "expected": "OPENVPN_PKI id=TEST status=ACCEPTED reason=VALID_CREDENTIALS client=testuser serial=999"
+        "expected": "OPENVPN_PKI id=REVOKED status=REJECTED reason=REVOKED_CERTIFICATE client=testuser serial=999\nOPENVPN_PKI id=GOOD status=ACCEPTED reason=VALID_CREDENTIALS client=control serial=1000"
+      },
+      {
+        "label": "CRL non sélectionnée",
+        "stdin": "cas:4",
+        "expected": "OPENVPN_PKI id=NO_CRL status=INDETERMINATE reason=CRL_NOT_CONFIGURED client=testuser serial=999"
+      },
+      {
+        "label": "CRL sélectionnée mais obsolète",
+        "stdin": "cas:5",
+        "expected": "OPENVPN_PKI id=STALE_CRL status=INDETERMINATE reason=CRL_STALE client=testuser serial=999"
+      },
+      {
+        "label": "CRL sélectionnée mais indisponible",
+        "stdin": "cas:6",
+        "expected": "OPENVPN_PKI id=MISSING_CRL status=INDETERMINATE reason=CRL_UNAVAILABLE client=testuser serial=999"
       }
     ],
-    "solution": "[Exemple]\nOPENVPN_PKI id=C1 status=ACCEPTED reason=VALID_CREDENTIALS client=alice serial=101\nOPENVPN_PKI id=C2 status=REJECTED reason=REVOKED_CERTIFICATE client=bob serial=104\nOPENVPN_PKI id=C3 status=REJECTED reason=UNTRUSTED_ISSUER client=eve serial=200\n\n[Cas 1 — Certificat expiré ou pas encore valide]\nOPENVPN_PKI id=EXP status=REJECTED reason=EXPIRED_CERTIFICATE client=charlie serial=110\nOPENVPN_PKI id=FUT status=REJECTED reason=NOT_YET_VALID client=david serial=111\n\n[Cas 2 — Clé RSA faible ou algorithme DSA obsolète]\nOPENVPN_PKI id=WEAK status=REJECTED reason=WEAK_KEY_LENGTH client=legit serial=120\nOPENVPN_PKI id=DSA_LEGACY status=REJECTED reason=INSECURE_ALGORITHM client=oldgw serial=121\nOPENVPN_PKI id=ECDSA_OK status=ACCEPTED reason=VALID_CREDENTIALS client=modern serial=122\n\n[Cas 3 — CRL vide avec certificat valide]\nOPENVPN_PKI id=TEST status=ACCEPTED reason=VALID_CREDENTIALS client=testuser serial=999"
+    "solution": [
+      "[Exemple]",
+      "OPENVPN_PKI id=C1 status=ACCEPTED reason=VALID_CREDENTIALS client=alice serial=101",
+      "OPENVPN_PKI id=C2 status=REJECTED reason=REVOKED_CERTIFICATE client=bob serial=104",
+      "OPENVPN_PKI id=C3 status=REJECTED reason=UNTRUSTED_ISSUER client=eve serial=200",
+      "",
+      "[Cas 1 — Certificat expiré ou pas encore valide]",
+      "OPENVPN_PKI id=EXP status=REJECTED reason=EXPIRED_CERTIFICATE client=charlie serial=110",
+      "OPENVPN_PKI id=FUT status=REJECTED reason=NOT_YET_VALID client=david serial=111",
+      "",
+      "[Cas 2 — Clé RSA faible ou algorithme DSA obsolète]",
+      "OPENVPN_PKI id=WEAK status=REJECTED reason=WEAK_KEY_LENGTH client=legit serial=120",
+      "OPENVPN_PKI id=DSA_LEGACY status=REJECTED reason=INSECURE_ALGORITHM client=oldgw serial=121",
+      "OPENVPN_PKI id=ECDSA_OK status=ACCEPTED reason=VALID_CREDENTIALS client=modern serial=122",
+      "",
+      "[Cas 3 — CRL appliquée avec certificat révoqué et témoin]",
+      "OPENVPN_PKI id=REVOKED status=REJECTED reason=REVOKED_CERTIFICATE client=testuser serial=999",
+      "OPENVPN_PKI id=GOOD status=ACCEPTED reason=VALID_CREDENTIALS client=control serial=1000",
+      "",
+      "[Cas 4 — CRL non sélectionnée]",
+      "OPENVPN_PKI id=NO_CRL status=INDETERMINATE reason=CRL_NOT_CONFIGURED client=testuser serial=999",
+      "",
+      "[Cas 5 — CRL sélectionnée mais obsolète]",
+      "OPENVPN_PKI id=STALE_CRL status=INDETERMINATE reason=CRL_STALE client=testuser serial=999",
+      "",
+      "[Cas 6 — CRL sélectionnée mais indisponible]",
+      "OPENVPN_PKI id=MISSING_CRL status=INDETERMINATE reason=CRL_UNAVAILABLE client=testuser serial=999"
+    ].join("\n")
   },
   {
     "id": "pf3-c5-e2",
     "chapter": 5,
-    "title": "Validateur de proposition cryptographique IPsec (IKEv2 & ESP)",
+    "title": "Classement pédagogique de propositions IKEv2 (IPsec)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Auditer la conformité ANSSI/NIST des propositions IKEv2 Phase 1 et Phase 2 dans pfSense.",
-    "brief": "<p>Lors de l'établissement d'un tunnel VPN <strong>IPsec Site-à-Site</strong>, pfSense négocie les paramètres de chiffrement (IKE Phase 1 et ESP Phase 2). Les algorithmes obsolètes ou cassés (DES, 3DES, MD5, groupes Diffie-Hellman faibles) doivent impérativement être rejetés.<br><br>\nAnalysez les paramètres du problème pour chaque cas. Si <code>enc</code> figure parmi <code>DES, 3DES, RC4</code> :<br>\n   <code>status=REJECTED reason=INSECURE_CIPHER level=NONE</code>.<br>\n2. Si <code>hash</code> figure parmi <code>MD5, SHA1</code> :<br>\n   <code>status=REJECTED reason=WEAK_HASH level=NONE</code>.<br>\n3. Si <code>dh_group &lt; 14</code> (groupes 1, 2, 5 modp obsolètes) :<br>\n   <code>status=REJECTED reason=WEAK_DH_GROUP level=NONE</code>.<br>\n4. Si <code>enc in ['AES-CBC', 'AES-GCM'] et key_len &lt; 128</code> :<br>\n   <code>status=REJECTED reason=WEAK_KEY_LENGTH level=NONE</code>.<br>\n5. Si tous les critères sont satisfaits :<br>\n   <code>status=APPROVED reason=NONE</code>.<br>\n   Le niveau de sécurité est évalué :<br>\n   - Si <code>dh_group &gt;= 19</code> (courbes elliptiques NIST P-256 ou plus) et <code>key_len &gt;= 256</code> : <code>level=HIGH</code>.<br>\n   - Sinon : <code>level=STANDARD</code>.<br><br>\nPour chaque proposition, afficher :<br>\n<code>IPSEC_AUDIT id={id} phase={phase} status={status} reason={reason} level={level}</code></p>",
-    "starter": "# Grille d'analyse (pf3-c5-e2) — Validateur de proposition cryptographique IPsec (IKEv2 & ESP)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Rejet du groupe DH 2 obsolète]\n# Données : IKE_PROPOSAL id=WEAK_DH phase=1 enc=AES-CBC key_len=256 hash=SHA256 dh_group=2\nA_COMPLETER\n\n[Cas 2 — Rejet de clé AES trop courte (< 128)]\n# Données : IKE_PROPOSAL id=SHORT_KEY phase=2 enc=AES-CBC key_len=64 hash=SHA256 dh_group=14\nA_COMPLETER\n\n[Cas 3 — Validation proposition Phase 2 moderne ChaCha20]\n# Données : IKE_PROPOSAL id=CHACHA_MODERN phase=2 enc=CHACHA20-POLY1305 key_len=256 hash=SHA512 dh_group=20\nA_COMPLETER\n",
+    "goal": "Classer des propositions IKEv2 selon une politique pédagogique datée, sans présumer de leur compatibilité.",
+    "brief": [
+      "<p>Cette grille applique une <strong>politique pédagogique version 2026-10-30</strong>, non exhaustive : elle ne démontre ni une conformité ANSSI/NIST ni la sécurité ou la compatibilité d'une configuration réelle. Les identifiants IANA ne sont pas ordonnés par force : 14 est MODP 2048 bits, 19 est P-256, 20 est P-384 et 22 est MODP 1024 bits déprécié. Le groupe 31 (Curve25519) est connu mais hors de cette politique, sans être qualifié de faible.</p>",
+      "<p>Pour chaque ligne <code>IKE_PROPOSAL id=&lt;nom&gt; phase=&lt;1|2&gt; enc=&lt;algorithme&gt; key_len=&lt;int&gt; hash=&lt;algorithme&gt; dh_group=&lt;numéro&gt;</code>, <code>phase=1</code> représente l'échange IKE ; <code>phase=2</code> suppose un échange DH supplémentaire configuré pour PFS lors du renouvellement d'un Child SA. Une phase 2 sans PFS est hors de ce modèle. Le premier Child SA IKEv2 utilise le groupe de phase 1. Vérifier dans la réalité les versions et propositions des deux pairs ; le champ <code>hash</code> est un repère simplifié et ne représente pas nécessairement une intégrité ESP distincte pour un mode AEAD.</p>",
+      "<p>Appliquer la première règle correspondante :</p>",
+      "<ol>",
+      "<li>Si <code>enc</code> appartient à <code>DES, 3DES, RC4</code> : <code>status=REJECTED reason=INSECURE_CIPHER level=NONE</code>.</li>",
+      "<li>Si <code>hash</code> appartient à <code>MD5, SHA1</code> : <code>status=REJECTED reason=WEAK_HASH level=NONE</code>.</li>",
+      "<li>Si <code>dh_group</code> appartient à <code>1, 2, 5, 22, 23, 24</code> : <code>status=REJECTED reason=WEAK_DH_GROUP level=NONE</code>.</li>",
+      "<li>Si <code>dh_group</code> n'appartient pas à la liste retenue <code>14, 19, 20</code> : <code>status=REJECTED reason=NOT_IN_POLICY_GROUP level=NONE</code>. Cela signifie seulement que le groupe est hors de cette politique, pas qu'il est faible ou interdit partout.</li>",
+      "<li>Si <code>enc</code> est <code>AES-CBC</code> ou <code>AES-GCM</code> et <code>key_len &lt; 128</code> : <code>status=REJECTED reason=WEAK_KEY_LENGTH level=NONE</code>.</li>",
+      "<li>Sinon : <code>status=APPROVED reason=NONE</code> ; attribuer <code>level=HIGH</code> uniquement si <code>dh_group</code> vaut 19 ou 20 et <code>key_len &gt;= 256</code>, sinon <code>level=STANDARD</code>. Ces niveaux sont des étiquettes du modèle, pas une mesure de force ni une garantie réelle.</li>",
+      "</ol>",
+      "<p>Pour chaque proposition, saisir une ligne : <code>IPSEC_AUDIT id={id} phase={phase} status={status} reason={reason} level={level}</code>.</p>"
+    ].join("\n"),
+    "starter": [
+      "# Grille d'analyse (pf3-c5-e2) — Classement pédagogique de propositions IKEv2 (IPsec)",
+      "# Complétez la résolution demandée sous chaque cas ci-dessous :",
+      "",
+      "[Cas 1 — Groupes déconseillés ou dépréciés]",
+      "# Données : IKE_PROPOSAL id=WEAK_DH2 phase=1 enc=AES-CBC key_len=256 hash=SHA256 dh_group=2",
+      "# Données : IKE_PROPOSAL id=WEAK_DH22 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=22",
+      "# Données : IKE_PROPOSAL id=WEAK_DH23 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=23",
+      "# Données : IKE_PROPOSAL id=WEAK_DH24 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=24",
+      "A_COMPLETER",
+      "",
+      "[Cas 2 — Groupes hors de cette politique]",
+      "# Données : IKE_PROPOSAL id=GROUP15 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=15",
+      "# Données : IKE_PROPOSAL id=GROUP21 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=21",
+      "# Données : IKE_PROPOSAL id=GROUP31 phase=2 enc=AES-GCM key_len=256 hash=SHA256 dh_group=31",
+      "A_COMPLETER",
+      "",
+      "[Cas 3 — Limites de clé et niveau standard]",
+      "# Données : IKE_PROPOSAL id=SHORT_KEY phase=2 enc=AES-CBC key_len=64 hash=SHA256 dh_group=14",
+      "# Données : IKE_PROPOSAL id=MODP14 phase=1 enc=AES-CBC key_len=256 hash=SHA256 dh_group=14",
+      "# Données : IKE_PROPOSAL id=ECP19_128 phase=1 enc=AES-GCM key_len=128 hash=SHA256 dh_group=19",
+      "A_COMPLETER",
+      "",
+      "[Cas 4 — Niveau pédagogique HIGH sur groupes retenus]",
+      "# Données : IKE_PROPOSAL id=ECP19_256 phase=1 enc=AES-GCM key_len=256 hash=SHA384 dh_group=19",
+      "# Données : IKE_PROPOSAL id=ECP20_256 phase=1 enc=AES-CBC key_len=256 hash=SHA384 dh_group=20",
+      "# Données : IKE_PROPOSAL id=CHACHA_MODERN phase=2 enc=CHACHA20-POLY1305 key_len=256 hash=SHA512 dh_group=20",
+      "A_COMPLETER",
+      ""
+    ].join("\n"),
     "hints": [
-      "Rejeter en priorité les chiffrements cassés (DES, 3DES, RC4).",
-      "Vérifier le groupe DH >= 14 (DH 14 = 2048-bit MODP)."
+      "Appliquer les règles dans l'ordre, puis comparer le groupe à la liste explicite.",
+      "Un groupe hors politique, comme 31, n'est pas automatiquement faible ; HIGH est une étiquette pédagogique."
     ],
     "examples": [
       {
-        "stdin": "IKE_PROPOSAL id=PROP1 phase=1 enc=AES-GCM key_len=256 hash=SHA384 dh_group=19\nIKE_PROPOSAL id=PROP2 phase=1 enc=3DES key_len=168 hash=SHA256 dh_group=14\nIKE_PROPOSAL id=PROP3 phase=2 enc=AES-CBC key_len=128 hash=MD5 dh_group=14\nIKE_PROPOSAL id=PROP4 phase=1 enc=AES-CBC key_len=128 hash=SHA256 dh_group=14",
-        "expected": "IPSEC_AUDIT id=PROP1 phase=1 status=APPROVED reason=NONE level=HIGH\nIPSEC_AUDIT id=PROP2 phase=1 status=REJECTED reason=INSECURE_CIPHER level=NONE\nIPSEC_AUDIT id=PROP3 phase=2 status=REJECTED reason=WEAK_HASH level=NONE\nIPSEC_AUDIT id=PROP4 phase=1 status=APPROVED reason=NONE level=STANDARD",
-        "note": "PROP1 est approuvé en niveau HIGH (ECDH 19 + AES 256) ; PROP2 rejette 3DES ; PROP3 rejette MD5 ; PROP4 est standard."
+        "stdin": "IKE_PROPOSAL id=PROP1 phase=1 enc=AES-GCM key_len=256 hash=SHA384 dh_group=19\nIKE_PROPOSAL id=PROP2 phase=1 enc=3DES key_len=168 hash=SHA256 dh_group=14\nIKE_PROPOSAL id=PROP3 phase=2 enc=AES-CBC key_len=128 hash=MD5 dh_group=14\nIKE_PROPOSAL id=PROP4 phase=1 enc=AES-CBC key_len=128 hash=SHA256 dh_group=14\nIKE_PROPOSAL id=PROP5 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=22\nIKE_PROPOSAL id=PROP6 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=31",
+        "expected": "IPSEC_AUDIT id=PROP1 phase=1 status=APPROVED reason=NONE level=HIGH\nIPSEC_AUDIT id=PROP2 phase=1 status=REJECTED reason=INSECURE_CIPHER level=NONE\nIPSEC_AUDIT id=PROP3 phase=2 status=REJECTED reason=WEAK_HASH level=NONE\nIPSEC_AUDIT id=PROP4 phase=1 status=APPROVED reason=NONE level=STANDARD\nIPSEC_AUDIT id=PROP5 phase=1 status=REJECTED reason=WEAK_DH_GROUP level=NONE\nIPSEC_AUDIT id=PROP6 phase=1 status=REJECTED reason=NOT_IN_POLICY_GROUP level=NONE",
+        "note": "PROP1 et PROP4 sont classés selon le modèle ; PROP2 et PROP3 utilisent des algorithmes écartés ; PROP5 utilise le groupe 22 déprécié et PROP6 est seulement hors de la politique retenue."
       }
     ],
     "tests": [
       {
-        "label": "Rejet du groupe DH 2 obsolète",
+        "label": "Groupes déconseillés ou dépréciés",
         "stdin": "cas:1",
-        "expected": "IPSEC_AUDIT id=WEAK_DH phase=1 status=REJECTED reason=WEAK_DH_GROUP level=NONE"
+        "expected": "IPSEC_AUDIT id=WEAK_DH2 phase=1 status=REJECTED reason=WEAK_DH_GROUP level=NONE\nIPSEC_AUDIT id=WEAK_DH22 phase=1 status=REJECTED reason=WEAK_DH_GROUP level=NONE\nIPSEC_AUDIT id=WEAK_DH23 phase=1 status=REJECTED reason=WEAK_DH_GROUP level=NONE\nIPSEC_AUDIT id=WEAK_DH24 phase=1 status=REJECTED reason=WEAK_DH_GROUP level=NONE"
       },
       {
-        "label": "Rejet de clé AES trop courte (< 128)",
+        "label": "Groupes hors de cette politique",
         "stdin": "cas:2",
-        "expected": "IPSEC_AUDIT id=SHORT_KEY phase=2 status=REJECTED reason=WEAK_KEY_LENGTH level=NONE"
+        "expected": "IPSEC_AUDIT id=GROUP15 phase=1 status=REJECTED reason=NOT_IN_POLICY_GROUP level=NONE\nIPSEC_AUDIT id=GROUP21 phase=1 status=REJECTED reason=NOT_IN_POLICY_GROUP level=NONE\nIPSEC_AUDIT id=GROUP31 phase=2 status=REJECTED reason=NOT_IN_POLICY_GROUP level=NONE"
       },
       {
-        "label": "Validation proposition Phase 2 moderne ChaCha20",
+        "label": "Limites de clé et niveau standard",
         "stdin": "cas:3",
-        "expected": "IPSEC_AUDIT id=CHACHA_MODERN phase=2 status=APPROVED reason=NONE level=HIGH"
+        "expected": "IPSEC_AUDIT id=SHORT_KEY phase=2 status=REJECTED reason=WEAK_KEY_LENGTH level=NONE\nIPSEC_AUDIT id=MODP14 phase=1 status=APPROVED reason=NONE level=STANDARD\nIPSEC_AUDIT id=ECP19_128 phase=1 status=APPROVED reason=NONE level=STANDARD"
+      },
+      {
+        "label": "Niveau pédagogique HIGH sur groupes retenus",
+        "stdin": "cas:4",
+        "expected": "IPSEC_AUDIT id=ECP19_256 phase=1 status=APPROVED reason=NONE level=HIGH\nIPSEC_AUDIT id=ECP20_256 phase=1 status=APPROVED reason=NONE level=HIGH\nIPSEC_AUDIT id=CHACHA_MODERN phase=2 status=APPROVED reason=NONE level=HIGH"
       }
     ],
-    "solution": "[Exemple]\nIPSEC_AUDIT id=PROP1 phase=1 status=APPROVED reason=NONE level=HIGH\nIPSEC_AUDIT id=PROP2 phase=1 status=REJECTED reason=INSECURE_CIPHER level=NONE\nIPSEC_AUDIT id=PROP3 phase=2 status=REJECTED reason=WEAK_HASH level=NONE\nIPSEC_AUDIT id=PROP4 phase=1 status=APPROVED reason=NONE level=STANDARD\n\n[Cas 1 — Rejet du groupe DH 2 obsolète]\nIPSEC_AUDIT id=WEAK_DH phase=1 status=REJECTED reason=WEAK_DH_GROUP level=NONE\n\n[Cas 2 — Rejet de clé AES trop courte (< 128)]\nIPSEC_AUDIT id=SHORT_KEY phase=2 status=REJECTED reason=WEAK_KEY_LENGTH level=NONE\n\n[Cas 3 — Validation proposition Phase 2 moderne ChaCha20]\nIPSEC_AUDIT id=CHACHA_MODERN phase=2 status=APPROVED reason=NONE level=HIGH"
+    "solution": [
+      "[Exemple]",
+      "IPSEC_AUDIT id=PROP1 phase=1 status=APPROVED reason=NONE level=HIGH",
+      "IPSEC_AUDIT id=PROP2 phase=1 status=REJECTED reason=INSECURE_CIPHER level=NONE",
+      "IPSEC_AUDIT id=PROP3 phase=2 status=REJECTED reason=WEAK_HASH level=NONE",
+      "IPSEC_AUDIT id=PROP4 phase=1 status=APPROVED reason=NONE level=STANDARD",
+      "IPSEC_AUDIT id=PROP5 phase=1 status=REJECTED reason=WEAK_DH_GROUP level=NONE",
+      "IPSEC_AUDIT id=PROP6 phase=1 status=REJECTED reason=NOT_IN_POLICY_GROUP level=NONE",
+      "",
+      "[Cas 1 — Groupes déconseillés ou dépréciés]",
+      "IPSEC_AUDIT id=WEAK_DH2 phase=1 status=REJECTED reason=WEAK_DH_GROUP level=NONE",
+      "IPSEC_AUDIT id=WEAK_DH22 phase=1 status=REJECTED reason=WEAK_DH_GROUP level=NONE",
+      "IPSEC_AUDIT id=WEAK_DH23 phase=1 status=REJECTED reason=WEAK_DH_GROUP level=NONE",
+      "IPSEC_AUDIT id=WEAK_DH24 phase=1 status=REJECTED reason=WEAK_DH_GROUP level=NONE",
+      "",
+      "[Cas 2 — Groupes hors de cette politique]",
+      "IPSEC_AUDIT id=GROUP15 phase=1 status=REJECTED reason=NOT_IN_POLICY_GROUP level=NONE",
+      "IPSEC_AUDIT id=GROUP21 phase=1 status=REJECTED reason=NOT_IN_POLICY_GROUP level=NONE",
+      "IPSEC_AUDIT id=GROUP31 phase=2 status=REJECTED reason=NOT_IN_POLICY_GROUP level=NONE",
+      "",
+      "[Cas 3 — Limites de clé et niveau standard]",
+      "IPSEC_AUDIT id=SHORT_KEY phase=2 status=REJECTED reason=WEAK_KEY_LENGTH level=NONE",
+      "IPSEC_AUDIT id=MODP14 phase=1 status=APPROVED reason=NONE level=STANDARD",
+      "IPSEC_AUDIT id=ECP19_128 phase=1 status=APPROVED reason=NONE level=STANDARD",
+      "",
+      "[Cas 4 — Niveau pédagogique HIGH sur groupes retenus]",
+      "IPSEC_AUDIT id=ECP19_256 phase=1 status=APPROVED reason=NONE level=HIGH",
+      "IPSEC_AUDIT id=ECP20_256 phase=1 status=APPROVED reason=NONE level=HIGH",
+      "IPSEC_AUDIT id=CHACHA_MODERN phase=2 status=APPROVED reason=NONE level=HIGH"
+    ].join("\n")
   },
   {
     "id": "pf3-c5-e3",

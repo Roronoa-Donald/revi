@@ -45,8 +45,8 @@ $y = (int) trim(fgets(STDIN));
 // À compléter : créer le point et afficher ses coordonnées.
 `,
     hints: [
-      'Le constructeur s’écrit __construct(int $x, int $y) et affecte $this->x et $this->y.',
-      'Deux valeurs se concatènent avec le point : \'(\' . $this->x . \', \' . $this->y . \')\'.'
+      'Le constructeur s’écrit `__construct(int $x, int $y)` et affecte `$this->x` et `$this->y`.',
+      'Deux valeurs se concatènent avec le point : `\'(\' . $this->x . \', \' . $this->y . \')\'`.'
     ],
     examples: [
       { stdin: '3\n4', expected: '(3, 4)', note: 'Deux entiers lus, un couple affiché.' }
@@ -100,7 +100,7 @@ $n = (int) trim(fgets(STDIN));
 // À compléter : lire n prix, les ajouter, afficher "total : X".
 `,
     hints: [
-      'Une méthode qui renvoie $this permet d’enchaîner : $panier->ajouter(10)->ajouter(20).',
+      'Une méthode qui renvoie `$this` permet d’enchaîner : `$panier->ajouter(10)->ajouter(20)`.',
       'Le type de retour d’une méthode renvoyant l’objet courant s’écrit : self.'
     ],
     examples: [
@@ -155,7 +155,7 @@ $age = (int) trim(fgets(STDIN));
 // À compléter : créer l'objet et afficher "age : X".
 `,
     hints: [
-      'Une expression ternaire choisit la valeur : $age < 0 ? 0 : $age.',
+      'Une expression ternaire choisit la valeur : `$age < 0 ? 0 : $age`.',
       'L’objet s’instancie directement dans l’affichage : (new Age($age))->valeur().'
     ],
     examples: [
@@ -212,7 +212,8 @@ $n = (int) trim(fgets(STDIN));
     tests: [
       { label: 'Zéro ignoré', stdin: '2\n0\n100', expected: 'solde : 100' },
       { label: 'Dépôt négatif', stdin: '1\n-30', expected: 'solde : 0' },
-      { label: 'Série régulière', stdin: '4\n10\n20\n30\n40', expected: 'solde : 100' }
+      { label: 'Série régulière', stdin: '4\n10\n20\n30\n40', expected: 'solde : 100' },
+      { label: 'Dépôt unitaire borne', stdin: '1\n1', expected: 'solde : 1' }
     ],
     solution: `<?php
 class Compte {
@@ -654,7 +655,7 @@ $b = (int) trim(fgets(STDIN));
 `,
     hints: [
       'On lève une erreur avec throw new Exception(\'division par zéro\');.',
-      'Le résultat se calcule avec intdiv($a, $b) ; le bloc catch (Exception $e) récupère le message via $e->getMessage().'
+      'Le résultat se calcule avec `intdiv($a, $b)` ; le bloc `catch (Exception $e)` récupère le message via `$e->getMessage()`.'
     ],
     examples: [
       { stdin: '10\n2', expected: 'resultat : 5', note: 'Cas nominal.' }
@@ -792,8 +793,8 @@ try {
     title: 'Insérer avec une requête préparée',
     goal: 'Ouvrir une base sqlite en mémoire, créer une table et insérer sans concaténation.',
     brief: '<p>Le programme reçoit un nom. Ouvrez une connexion <code>sqlite::memory:</code> (mode erreur par ' +
-      'exception), crée la table <code>contacts(id, nom)</code>, insère le nom avec une ' +
-      '<strong>requête préparée</strong>, puis relis-le et affiche <code>contact : nom</code>.</p>',
+      'exception), créez la table <code>contacts(id, nom)</code>, insérez le nom avec une ' +
+      '<strong>requête préparée</strong>, puis relisez-le et affichez <code>contact : nom</code>.</p>',
     starter: `<?php
 // À compléter : ouvrir la base sqlite en mémoire (new PDO) et activer PDO::ERRMODE_EXCEPTION.
 // À compléter : créer la table contacts.
@@ -802,7 +803,7 @@ $nom = trim(fgets(STDIN));
 // À compléter : insérer puis relire avec une requête préparée et afficher "contact : X".
 `,
     hints: [
-      'On prépare le modèle une fois : $stmt = $pdo->prepare(\'INSERT INTO contacts (nom) VALUES (:nom)\'); puis $stmt->execute([\':nom\' => $nom]);.',
+      'On prépare le modèle une fois : `$stmt = $pdo->prepare(\'INSERT INTO contacts (nom) VALUES (:nom)\');` puis `$stmt->execute([\':nom\' => $nom]);`.',
       'La lecture se fait simplement : $pdo->query(\'SELECT nom FROM contacts LIMIT 1\')->fetchColumn().'
     ],
     examples: [
@@ -852,7 +853,7 @@ for ($i = 0; $i < $n; $i++) {
 // À compléter : afficher "somme : X".
 `,
     hints: [
-      'ajouter() empile dans le tableau privé : $this->valeurs[] = $valeur;.',
+      'ajouter() empile dans le tableau privé : `$this->valeurs[] = $valeur;`.',
       'somme() peut utiliser array_sum($this->valeurs).'
     ],
     examples: [
@@ -912,7 +913,7 @@ for ($i = 0; $i < $n; $i++) {
 // À compléter : numéroter et afficher chaque tâche.
 `,
     hints: [
-      'Pour numéroter, parcours le tableau avec foreach ($todo->lister() as $i => $tache) et affiche ($i + 1) . \'. \' . $tache.',
+      'Pour numéroter, parcours le tableau avec `foreach ($todo->lister() as $i => $tache)` et affiche `($i + 1) . \'. \' . $tache`.',
       'La concaténation se termine par un retour à la ligne pour éviter que tout s’affiche sur une seule ligne.'
     ],
     examples: [

@@ -54,8 +54,8 @@ function index(course, chapterList) {
       'dictionnaire de données, le MCD, le MLD et le relationnel, la normalisation, le MCT. Ce cours en ' +
       'garde l\'ordre et fait appliquer chaque mécanisme <strong>dans des études de cas</strong> : une grille d’analyse qui reproduit ' +
       'l\'analyse exacte de l\'analyste, exécuté dans la page.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
-      'script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique écrite ' +
+      '    <p>Chaque chapitre se termine par <strong>trois études de cas</strong> : vous remplissez vraiment votre ' +
+      'grille d’analyse, elle est vérifiée par des critères que vous ne voyez pas. La logique écrite ' +
       'ici se rejoue telle quelle sur les applications du support (facture TogoMall, contre-exemples des formes normales).</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -67,7 +67,7 @@ function index(course, chapterList) {
       '      <a class="btn" href="chapitres/chapitre1.html">' + ic('rocket') + ' Commencer le chapitre 1</a>',
       '      <a class="btn" href="chapitres/cartes.html">' + ic('cards') + ' Flashcards</a>',
       '      <a class="btn" href="chapitres/formules.html">' + ic('file') + ' Mémo MERISE</a>',
-      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier de scripts</a>',
+      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier d’analyse</a>',
       '      <a class="btn" href="exercices/exercices.html">' + ic('blocks') + ' Exercices &amp; projet</a>',
       '      <a class="btn" href="chapitres/simulateur-examen.html">' + ic('clipboard') + ' Examens blancs</a>',
       '    </p>'
@@ -103,9 +103,9 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du vocabulaire du système d\'information ' +
     'jusqu\'aux formes normales. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de ' +
     'niveau B1 ou supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
-    'dans la page : votre script est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
-    'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à analyser ' +
+    'dans la page : vous remplissez votre grille d’analyse, puis elle est vérifiée par des critères que vous ne voyez pas. ' +
+    'L\'<a href="atelier.html">atelier d’analyse</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
     '  </div>',
@@ -114,7 +114,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s\'auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo MERISE</span><br><span class="toc__d">La chaîne donnée-information, les six modèles, les règles de passage MCD vers MLD, les formes normales.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Scripts gradués et projet final : la chaîne complète d\'analyse d\'un système de facturation.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier d’analyse</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l\'épreuve, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -137,14 +137,13 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier d’analyse &amp; Bac à sable</h1>',
-    '  <p class="lead">Un éditeur interactif dans la page pour résoudre les études de cas. Complétez la grille d’analyse, validez-la et observez le résultat : c\'est ici qu\'une règle de gestion devient un programme.</p>',
+    '  <p class="lead">Complétez les grilles d’analyse pour étudier des cas. Le retour est formatif : il compare les réponses prévues sans noter ni valider à lui seul vos acquis.</p>',
     box('objectifs', 'Comment fonctionne l\'atelier', 'target', [
       '    <ul>',
-      '      <li><strong>Valider</strong> vérifie la conformité de vos réponses dans la grille d’analyse.</li>',
+      '      <li><strong>Vérifier mes réponses</strong> compare la grille aux réponses prévues pour les cas associés.</li>',
       '      <li><strong>Données du cas</strong> contient les paramètres soumis à l’étude.</li>',
-      '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n\'écrit jamais de code à votre place.</li>',
-      '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l\'éditeur.</li>',
-      '      <li>Votre code est conservé dans ce navigateur, par exercice et par cours.</li>',
+      '      <li>Les justifications libres et les autres formulations peuvent nécessiter une relecture humaine.</li>',
+      '      <li>Vos réponses sont conservées dans ce navigateur, par exercice et par cours.</li>',
       '    </ul>'
     ].join('\n')),
     '  <h2>Zone libre</h2>',
@@ -163,62 +162,50 @@ function atelier(course) {
       '  </div>',
       '  <div class="lab__body">',
       '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez un mécanisme de ' +
-      'MERISE (cardinalités, règles de passage, formes normales), programmez-le et testez-le sur des cas limites.</p>',
+      'MERISE (cardinalités, règles de passage, formes normales), décrivez-le et étudiez des cas limites.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le script proposé classe les associations : réflexive, hiérarchique (sans données) ou ' +
-      'porteuse, puis compte les tables à créer au MLD. Ajoutez les cardinalités, une vérification ' +
-      'd\'identifiant, ou remplace tout le script par le mécanisme que vous voulez vérifier.</p>',
-      '      <p>Dans l\'outil AnalyseSI, ce seront des rectangles et des patates : la structure du script — ' +
-      'lire, décider, rapporter — reste exactement la même.</p>',
+      '      <p>Décrivez les entités, les cardinalités et les éventuelles propriétés des associations ; ' +
+      'justifiez ensuite le passage au MLD. La présence de propriétés ne détermine pas à elle seule les tables.</p>',
+      '      <p>Dans l\'outil AnalyseSI, ces éléments peuvent être représentés graphiquement.</p>',
       '    </div>',
       '    <div class="lab__sample">',
-      '      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4',
-      'CLIENT CLIENT 0',
-      'CLIENT PRODUIT Qté',
-      'CLIENT FACTURE 0',
-      'PRODUIT CATEGORIE 0</pre></div>',
-      '      <div class="lab__sample-part"><b>Résolution attendue</b><pre>reflexive : CLIENT sur elle-meme',
-      'portuese : CLIENT - PRODUIT (Qté)',
-      'hierarchique : CLIENT - FACTURE',
-      'hierarchique : PRODUIT - CATEGORIE',
-      'tables a creer au MLD : 1</pre></div>',
+      '      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>',
+      'ETUDIANT 0,n — SUIVRE — 0,n COURS',
+      'SUIVRE ne porte aucune propriété.</pre></div>',
+      '      <div class="lab__sample-part"><b>À déterminer</b><pre>Quelles tables et quelles clés représentent cette association ?</pre></div>',
       '    </div>',
-      '    <p class="lab__note">Cinq lignes attendues : déplie « Entrée du programme » et saisis-les avant d’exécuter.</p>',
+      '    <p class="lab__note">Cette zone libre est destinée à une réflexion personnelle ; faites relire votre justification.</p>',
       '  </div>',
       '</div>'
     ].join('\n'),
     '  <h2>De la page au vrai outil</h2>',
-    '  <p>La simulation a une limite assumée : aucun schéma graphique n\'est dessiné — le MCD reste du texte ' +
-    'structuré. Elle a une force : <strong>toute la logique se vérifie sans risque</strong> — on peut rejouer ' +
-    'une analyse autant de fois que nécessaire. Quand le script reproduit les bons trajets — lire la règle de ' +
-    'gestion, la traduire en dépendance ou en cardinalité, rapporter — le passage à l\'outil de dessin est mécanique.</p>',
-    box('pitfall', 'Les trois erreurs que l\'atelier révèle immédiatement', 'warning', [
+    '  <p>La grille ne dessine pas de schéma graphique. Elle aide à organiser une analyse textuelle, mais ' +
+    'ne remplace ni la vérification des règles métier ni la relecture d\'un MCD complet.</p>',
+    box('pitfall', 'Trois points à vérifier', 'warning', [
       '    <ul>',
-      '      <li><strong>Compteur dans la boucle</strong> : le bilan des tables s\'affiche à chaque ligne au lieu d\'une seule fois, après.</li>',
-      '      <li><strong>Cas partiels</strong> : le test ne couvre qu\'un type d\'association et juge les autres par un défaut silencieux.</li>',
-      '      <li><strong>Clé oubliée</strong> : le tableau associatif est utilisé sans <code>declare -A</code>, et les cumuls s\'écrasent.</li>',
+      '      <li><strong>Cardinalités</strong> : les justifier depuis chaque entité.</li>',
+      '      <li><strong>Cas partiels</strong> : les exemples ne couvrent pas toutes les situations.</li>',
+      '      <li><strong>Clés</strong> : contrôler identifiants et références dans le schéma.</li>',
       '    </ul>'
     ].join('\n')),
     box('tech', 'Ce que fait l\'atelier, côté technique', 'terminal', [
       '    <ul>',
-      '      <li>Votre code est envoyé à ce serveur, qui le transmet à un service d\'exécution isolé : rien ne tourne sur votre machine, et aucun accès au système n\'est possible.</li>',
-      '      <li>La clé du service reste sur le serveur ; le navigateur ne la voit jamais.</li>',
-      '      <li>Le nombre d\'exécutions est limité par jour, pour tout le monde. L\'atelier n\'exécute donc que sur un clic.</li>',
+      '      <li>Les grilles d’analyse soumises sont comparées aux réponses attendues par le serveur.</li>',
+      '      <li>La vérification d\'une grille est limitée aux cas et aux formats prévus.</li>',
+      '      <li>Une réflexion libre ou une justification ne bénéficie pas nécessairement d\'une vérification automatique.</li>',
       '    </ul>'
     ].join('\n')),
     '  <h2>Ensuite</h2>',
     '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois études de cas corrigées ' +
-    'automatiquement dans la page. Une fois l\'atelier apprivoisé, ils sont la meilleure façon de vérifier ' +
-    'que le mécanisme de modélisation est vraiment acquis.</p>',
+    'par une aide formative dans la page. Pour apprécier les acquis, complétez-les par une justification et une relecture.</p>',
     chnav({ href: 'sommaire.html', label: 'Sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Chapitre 1 — Système d\'information' }),
-    disclaimer(course, 'L\'exécution repose sur un service distant : en cas d\'indisponibilité, l\'atelier le ' +
-      'signale et les exercices papier restent utilisables.')
+    disclaimer(course, 'En cas d\'indisponibilité de la vérification, les exercices papier restent utilisables.')
   ].join('\n\n');
 
   return {
     'atelier.html': {
-      title: 'Atelier de scripts — simuler MERISE | ' + course.brand,
-      description: 'Atelier de scripts du cours de Modélisation (MERISE) B1 : éditeur dans le navigateur, ' +
+      title: 'Atelier d’analyse — simuler MERISE | ' + course.brand,
+      description: 'Atelier d’analyse du cours de Modélisation (MERISE) B1 : éditeur dans le navigateur, ' +
         'validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
       active: 'atelier',
       body
@@ -304,27 +291,28 @@ function formules(course) {
     bloc('Le MCD : entités, associations, cardinalités', [
       '<pre><code>identifiant : stable + minimal + univalue (simple ou compose)\n',
       '\n',
-      'CLIENT 1,1 ---- emettre ---- 1,n FACTURE\n',
+      'CLIENT 1,n ---- emettre ---- 1,1 FACTURE\n',
       'CLIENT 0,n --- commander -- 1,n PRODUIT   (QteCdee : porteuse)\n',
       '\n',
       '(0,1) au plus une     (1,1) exactement une\n',
       '(0,n) zero ou plusieurs   (1,n) au moins une\n',
       '\n',
-      'association porteuse     : des donnees → future table\n',
-      'association hierarchique : rien a porter</code></pre>',
+      'association porteuse     : possede des proprietes\n',
+      'association hierarchique : maximum 1 sur un cote ; peut porter des proprietes</code></pre>',
       '<p>La cardinalité se lit depuis l\'entité qu\'elle orne ; chacune se justifie par une phrase du métier.</p>'
     ].join('\n')),
 
     bloc('Le MLD relationnel et les intégrités', [
       '<pre><code>regle 1 : entite                    → table (identifiant = cle primaire)\n',
-      'regle 2 : association porteuse      → table (cle = concatenation des identifiants)\n',
-      'regle 3 : association (0,1) ou (1,1) → cle etrangere migree, pas de table\n',
+      'regle 2 : association n–n → table de liaison, meme sans propriete\n',
+      'regle 3 : association 1–n → cle et propriétés migrées cote maximum 1\n',
+      'association 1–1 : choisir le cote et imposer l’unicite necessaire\n',
       '\n',
       'CLIENT (NumClt, NomClt, AdrClt)\n',
       'COMMANDE (NumCde, DateCde, #NumClt)\n',
       'LIGNE_CDE (#NumCde, #RefPdt, Quantite)\n',
       '\n',
-      'integrites : domaine / relation (pk unique, non nulle) / referentielle (fk → pk)</code></pre>',
+      'integrites : domaine / relation (pk unique, non nulle) / referentielle (fk → cle primaire ou unique, sous reserve de NULL)</code></pre>',
       '<p>Le # marque la clé étrangère : chaque # est un lien à contrôler par le SGBD.</p>'
     ].join('\n')),
 
@@ -349,7 +337,7 @@ function formules(course) {
       '    <li>Coder le taux de TVA dans le programme : c\'est une donnée.</li>',
       '    <li>Mémoriser une propriété calculée (TTC) : elle se recalcule.</li>',
       '    <li>Poser une cardinalité du mauvais côté, ou oublier le min.</li>',
-      '    <li>Créer une table pour une association (0,1)/(1,1) : sa clé migre en #.</li>',
+      '    <li>Oublier une table de liaison n–n parce que l’association ne porte aucune propriété.</li>',
       '    <li>Oublier le # des clés étrangères dans le schéma relationnel.</li>',
       '    <li>Vérifier la 2FN sur une clé simple : la 1FN la donne déjà.</li>',
       '  </ul>'
@@ -411,13 +399,13 @@ function examens(course) {
           num: 'Exercice 1',
           badge: '/5 — MCD',
           text: 'Traduire en MCD : « un fournisseur fournit au moins un produit ; un produit est fourni par un ou plusieurs fournisseurs, à un prix qui peut varier selon le fournisseur » ; puis « un employé dirige au plus un service, et un service est dirigé par exactement un employé ».',
-          sol: 'FOURNISSEUR <strong>1,n — Fournir — 1,n</strong> PRODUIT, association porteuse : Prix (il dépend du couple). EMPLOYE <strong>0,1 — Diriger — 1,1</strong> SERVICE : côté employé 0,1 (dirige au plus un service), côté service 1,1 (exactement un dirigeant). Diriger est hiérarchique : sa clé migrera en # côté SERVICE.'
+          sol: 'FOURNISSEUR <strong>1,n — Fournir — 1,n</strong> PRODUIT, association porteuse : Prix (il dépend du couple). EMPLOYE <strong>0,1 — Diriger — 1,1</strong> SERVICE : côté employé 0,1 (dirige au plus un service), côté service 1,1 (exactement un dirigeant). Pour cette association 1–1, on peut placer la clé de l’employé côté SERVICE, obligatoire et unique.'
         },
         {
           num: 'Exercice 2',
           badge: '/5 — Passage',
           text: 'Passer au MLD : CLIENT (identifiant NumClt) ; COMMANDE (identifiant NumCde) ; Commander (porteuse : QteCdee) entre CLIENT 0,n et COMMANDE 1,1 ; Appartenir (hiérarchique, 0,1 côté CLIENT) vers CATEGORIE (identifiant CodeCateg).',
-          sol: 'CLIENT (NumClt, ..., #CodeCateg) — la règle 3 migre la clé d\'Appartenir. COMMANDE (NumCde, ..., NumClt comme <strong>clé étrangère obligatoire</strong> : cardinalité 1,1 côté commande, soit directement #NumClt). COMMANDER (#NumClt, #NumCde, QteCdee) — règle 2, clé = concaténation. CATEGORIE (CodeCateg, ...).'
+          sol: 'CLIENT (NumClt, ..., #CodeCateg) — la clé d\'Appartenir migre côté CLIENT. COMMANDE (NumCde, ..., #NumClt, QteCdee) — Commander est 1–n : la clé étrangère obligatoire et la propriété migrent côté COMMANDE. CATEGORIE (CodeCateg, ...). Aucune table de liaison supplémentaire n’est requise pour ces deux associations.'
         },
         {
           num: 'Exercice 3',
@@ -449,9 +437,9 @@ function examens(course) {
     { stem: 'Le taux de TVA est…', opts: ['un traitement', 'une donnée', 'une cardinalité'], correct: 1, exp: 'Mémorisé comme donnée, il change sans réécrire les programmes.' },
     { stem: 'MontantTTC dans le dictionnaire est…', opts: ['élémentaire', 'composée', 'calculée, à écarter'], correct: 2, exp: 'Il se déduit du HT et du taux : le MCD ne le mémorise pas.' },
     { stem: '(1,n) côté Client sur Commander signifie…', opts: ['un client commande au moins un produit', 'un produit a au moins un client', 'exactement une commande'], correct: 0, exp: 'La cardinalité se lit depuis l\'entité qu\'elle orne.' },
-    { stem: 'Une association porteuse devient au MLD…', opts: ['une table, clé concaténée', 'un attribut', 'rien'], correct: 0, exp: 'Règle 2 : table dont la clé primaire est la concaténation des identifiants.' },
+    { stem: 'Une association binaire n–n sans propriété devient au MLD…', opts: ['une table de liaison', 'un attribut', 'rien'], correct: 0, exp: 'Une relation n–n nécessite une table de liaison, même sans propriété portée.' },
     { stem: 'Le symbole # dans un schéma marque…', opts: ['la clé primaire', 'la clé étrangère', 'un index'], correct: 1, exp: 'COMMANDE (NumCde, DateCde, #NumClt).' },
-    { stem: 'L\'intégrité référentielle impose…', opts: ['fk → pk existante', 'pk unique', 'valeurs dans le domaine'], correct: 0, exp: 'Une clé étrangère référence une clé primaire existante.' },
+    { stem: 'L\'intégrité référentielle impose…', opts: ['fk → clé primaire ou unique existante, sous réserve des règles NULL', 'pk unique', 'valeurs dans le domaine'], correct: 0, exp: 'Une clé étrangère peut référencer une clé primaire ou unique admissible ; les règles NULL dépendent de la contrainte.' },
     { stem: 'DesignationPdt dépend de RefPdt seul (clé composée) : 2FN…', opts: ['respectée', 'violée : dépendance partielle', 'violée : transitive'], correct: 1, exp: 'L\'attribut dépend d\'une partie de la clé, pas de toute la clé.' },
     { stem: 'Num → code_categ → nom_categ : 3FN…', opts: ['respectée', 'violée : dépendance transitive', 'sans rapport'], correct: 1, exp: 'nom_categ dépend d\'un attribut non clé : décomposer en CATEGORIE.' }
   ];
@@ -587,7 +575,7 @@ function render(kit, course, chapterList) {
     return Object.assign({}, chapitre, {
       next: next
         ? { href: 'chapitre' + next.n + '.html', label: 'Chapitre ' + next.n + ' — ' + next.title }
-        : { href: '../atelier.html', label: 'Atelier de scripts' }
+        : { href: '../atelier.html', label: 'Atelier d’analyse' }
     });
   });
 

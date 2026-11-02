@@ -1,0 +1,92 @@
+{
+  "dk2-c1-e1": {
+    "stdin": "mNt\nio_throttle\nmystere",
+    "expected": "mNt -> PRIMITIVE: NAMESPACE | Points de montage de systeme de fichiers et arborescence racine\nio_throttle -> PRIMITIVE: CGROUP | Debit maximal en lecture et ecriture sur les disques blocs\nmystere -> INCONNU",
+    "raison": "MNT et IO_THROTTLE sont reconnus sans tenir compte de la casse, qui reste visible ; le dernier code est inconnu."
+  },
+  "dk2-c1-e2": {
+    "stdin": "3 17 9\n1200 40",
+    "expected": "ARCHITECTURE VM: Disque 3651 Mo | RAM 147 Mo\nARCHITECTURE DOCKER: Disque 51 Mo | RAM 27 Mo\nECONOMIE DOCKER: Disque -3600 Mo | RAM -120 Mo",
+    "raison": "Trois fois (17+1200, 9+40) pour les VM, contre trois fois (17, 9) pour Docker ; les différences valent 3600 et 120."
+  },
+  "dk2-c1-e3": {
+    "stdin": "SHIM\nCONTAINERD\nSURPRISE",
+    "expected": "SHIM -> containerd-shim | Processus leger maintenant les E/S et l'etat sans dependre du daemon\nCONTAINERD -> containerd | Superviseur de conteneurs (cycle de vie, distribution d'images et snapshots)\nSURPRISE -> INCONNU",
+    "raison": "Les deux rôles figurent explicitement dans le barème ; SURPRISE n'y figure pas."
+  },
+  "dk2-c2-e1": {
+    "stdin": "Zen : commun:12 , a:5\nMuse : commun:12 , b:9",
+    "expected": "IMAGE: Zen -> TAILLE_APPARENTE: 17 Mo\nIMAGE: Muse -> TAILLE_APPARENTE: 21 Mo\nTOTAL_BRUT: 38 Mo | TOTAL_REEL: 26 Mo | ECONOMIE_DEDUPLICATION: -12 Mo",
+    "raison": "Tailles apparentes 12+5 et 12+9 ; trois couches uniques 12+5+9, donc économie de 12."
+  },
+  "dk2-c2-e2": {
+    "stdin": "localhost:6161/equipe/banc:beta@sha256:deadbeef\noutil",
+    "expected": "REF: localhost:6161/equipe/banc:beta@sha256:deadbeef -> REGISTRE: localhost:6161 | IMAGE: equipe/banc | TAG: beta | DIGEST: sha256:deadbeef\nREF: outil -> REGISTRE: docker.io/library | IMAGE: outil | TAG: latest | DIGEST: NONE",
+    "raison": "Le port appartient au registre localhost, beta au dernier segment et le digest suit @ ; une image simple utilise les valeurs par défaut."
+  },
+  "dk2-c2-e3": {
+    "stdin": "/opt/base\nCREATE /tmp/lot\nWRITE /tmp/lot\nDELETE /tmp/lot\nREAD /tmp/lot\nWRITE /opt/base",
+    "expected": "CREATE /tmp/lot -> MECANISME: Creation directe dans Container Layer\nWRITE /tmp/lot -> MECANISME: Ecriture directe dans Container Layer\nDELETE /tmp/lot -> MECANISME: Suppression directe de Container Layer\nREAD /tmp/lot -> ERREUR: Fichier introuvable (404 ENOENT)\nWRITE /opt/base -> MECANISME: Copy-On-Write (Copie du fichier vers la Container Layer puis ecriture)",
+    "raison": "Le fichier créé n'existe que dans le conteneur : écriture et suppression directes, puis absence ; /opt/base exige une copie à l'écriture."
+  },
+  "dk2-c3-e1": {
+    "stdin": "FROM alpine:3.18\nADD inventaire.txt /srv/\nRUN apt-get update",
+    "expected": "AVERTISSEMENT [Ligne 2]: Preferer COPY a ADD pour les fichiers locaux\nAVERTISSEMENT [Ligne 3]: RUN apt-get update isole (fusionner avec install et rm -rf /var/lib/apt/lists/*)\nAUDIT_DOCKERFILE: NON_CONFORME (2 avertissement(s))",
+    "raison": "Le premier ADD vise un fichier local ordinaire ; l'unique RUN ne contient pas apt-get install."
+  },
+  "dk2-c3-e2": {
+    "stdin": "ENTRYPOINT: /bin/outil, --mode\nCMD: ancien\nCLI_ARGS: neuf, --clair",
+    "expected": "COMMANDE_FINALE: /bin/outil --mode neuf --clair",
+    "raison": "Les arguments CLI remplacent CMD et suivent l'ENTRYPOINT sous forme exec."
+  },
+  "dk2-c3-e3": {
+    "stdin": "MONOLITHIC: rust 80 + 20 + 5 + 5\nSTAGE_BUILD: rust 110 -> EXPORT: 5\nSTAGE_FINAL: mini 6 + IMPORT: 5",
+    "expected": "IMAGE_MONOLITHIQUE: 110 Mo\nIMAGE_MULTI_STAGE: 11 Mo\nGAIN_SECURITE_ET_TAILLE: -99 Mo (90.0% economises)",
+    "raison": "80+20+5+5=110, 6+5=11, gain 99/110=90.0 %."
+  },
+  "dk2-c4-e1": {
+    "stdin": "run\nrm\npause\nstop\nunpause\nunpause\nkill\nrm",
+    "expected": "run -> NOUVEL_ETAT: RUNNING\nTRANSITION_INVALIDE: Impossible de supprimer un conteneur actif sans --force (Etat: RUNNING)\npause -> NOUVEL_ETAT: PAUSED\nTRANSITION_INVALIDE: Action stop impossible depuis l'etat PAUSED\nunpause -> NOUVEL_ETAT: RUNNING\nTRANSITION_INVALIDE: Action unpause impossible depuis l'etat RUNNING\nkill -> NOUVEL_ETAT: STOPPED\nrm -> NOUVEL_ETAT: ABSENT",
+    "raison": "Les actions invalides ne changent pas l'état ; rm actif a un message particulier, puis PAUSED ne permet que unpause."
+  },
+  "dk2-c4-e2": {
+    "stdin": "muse 127.0.0.1:4567:99\nare 10.9.0.4:4567:80\nnouveau 4567:22",
+    "expected": "PUBLICATION: muse -> NAT: 127.0.0.1:4567 => 99/tcp (SUCCES)\nPUBLICATION: are -> NAT: 10.9.0.4:4567 => 80/tcp (SUCCES)\nCONFLIT_PORT: nouveau -> Port hote 4567 deja reserve par muse (ECHEC)",
+    "raison": "Deux IP spécifiques différentes peuvent partager le port ; l'adresse générique entre en conflit avec les deux et cite la première réservation."
+  },
+  "dk2-c4-e3": {
+    "stdin": "-v ../donnees:/srv:ro,z\n--mount target=/run/cache,type=tmpfs\n--mount target=/app,source=atlas,type=volume,readonly",
+    "expected": "STOCKAGE: -v ../donnees:/srv:ro,z -> TYPE: BIND_MOUNT | Repertoire specifique de la machine hote | PERSISTANT (survit a docker rm) | LECTURE_SEULE\nSTOCKAGE: --mount target=/run/cache,type=tmpfs -> TYPE: TMPFS | Memoire vive RAM de l'hote | VOLATILE (detruit a l'arret du conteneur) | LECTURE_ECRITURE\nSTOCKAGE: --mount target=/app,source=atlas,type=volume,readonly -> TYPE: VOLUME_NOMME | Espace reserve du daemon (/var/lib/docker/volumes/) | PERSISTANT (survit a docker rm) | LECTURE_SEULE",
+    "raison": "../ désigne un bind et ro fait partie des options ; le type tmpfs et le volume readonly sont reconnus malgré les champs réordonnés."
+  },
+  "dk2-c5-e1": {
+    "stdin": "restart: etrange | ports: 4200:42 | build: ./fab | service: pollen\nservice: abri | build: ./x | image: atelier:v7\nservice: vide | image:  | restart: no",
+    "expected": "SERVICE: pollen -> VALIDE [Origine: build:./fab | Ports: 4200:42 | Restart: no]\nSERVICE: abri -> VALIDE [Origine: image:atelier:v7 | Ports: aucun | Restart: no]\nSERVICE: vide -> INVALIDE (Directive image ou build obligatoire)",
+    "raison": "Une politique inconnue devient no ; image l'emporte sur build ; une image vide ne remplit pas l'obligation."
+  },
+  "dk2-c5-e2": {
+    "stdin": "pollen -> onde, onde\nonde -> graine\nabri -> NONE",
+    "expected": "ORDRE_DEMARRAGE: abri -> graine -> onde -> pollen",
+    "raison": "graine est un service implicite ; parmi les deux sources disponibles abri précède graine, puis onde et pollen. La répétition ne compte qu'une fois."
+  },
+  "dk2-c5-e3": {
+    "stdin": "COULEUR=bleu nuit\nVIDE=\n---\na=${COULEUR}; b=${VIDE:-rempli}; c=${INCONNU}\n${VIDE:-sec}-${COULEUR}",
+    "expected": "RESOLU: a=bleu nuit; b=rempli; c=\nRESOLU: sec-bleu nuit",
+    "raison": "La variable définie garde son espace, la variable vide déclenche les deux défauts, et la variable absente sans défaut est vide."
+  },
+  "dk2-c6-e1": {
+    "stdin": "FROM alpine:3.19\nUSER 1202:ops\nUSER 0:wheel\nCMD [\"/bin/app\"]",
+    "expected": "AUDIT_SECURITE: CRITIQUE (Le conteneur s'execute avec les privileges root - UID 0)",
+    "raison": "La dernière directive USER prévaut et sa partie utilisateur est 0, quel que soit le groupe."
+  },
+  "dk2-c6-e2": {
+    "stdin": "MEM=2g SWAP=1g CPUS=0.75\nMEM=128m SWAP=3g CPUS=0.25",
+    "expected": "CGROUPS: RAM: 2048 Mo | SWAP_ADDITIONNEL: 0 Mo | CPU_QUOTA: 75000 us / 100000 us (0.75 cœurs)\nCGROUPS: RAM: 128 Mo | SWAP_ADDITIONNEL: 2944 Mo | CPU_QUOTA: 25000 us / 100000 us (0.25 cœurs)",
+    "raison": "Le modèle borne à zéro 1024-2048 ; pour l'autre ligne 3072-128=2944. Les quotas sont 0.75 et 0.25 fois 100000."
+  },
+  "dk2-c6-e3": {
+    "stdin": "POLITIQUE=unless-stopped EXIT_CODE=0 MANUEL=NON\nPOLITIQUE=no EXIT_CODE=19 MANUEL=NON\nPOLITIQUE=on-failure EXIT_CODE=23 MANUEL=NON\nPOLITIQUE=unless-stopped EXIT_CODE=7 MANUEL=OUI",
+    "expected": "EVENEMENT: POLITIQUE=unless-stopped EXIT_CODE=0 MANUEL=NON -> DECISION: REDEMARRER (Relance automatique du conteneur)\nEVENEMENT: POLITIQUE=no EXIT_CODE=19 MANUEL=NON -> DECISION: ARRET_DEFINITIF (Politique \"no\")\nEVENEMENT: POLITIQUE=on-failure EXIT_CODE=23 MANUEL=NON -> DECISION: REDEMARRER (Echec detecte: code 23)\nEVENEMENT: POLITIQUE=unless-stopped EXIT_CODE=7 MANUEL=OUI -> DECISION: ARRET_DEFINITIF (Arret volontaire par l'administrateur)",
+    "raison": "unless-stopped relance si l'arrêt n'est pas manuel, no ne relance pas, on-failure relance sur 23 ; le cas manuel prime."
+  }
+}

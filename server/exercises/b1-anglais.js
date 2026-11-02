@@ -14,8 +14,8 @@ module.exports = [
     "brief": "<p>Pour chaque situation proposée : type vaut <code>b</code> (business) ou <code>c</code> (casual). Pour chaque situation, indiquez <code>mot : categorie</code>, où categorie vaut <code>professionnel</code> (business) ou <code>familier</code> (casual). Enfin Indiquez <code>bilan : X business / Y casual</code>.</p>",
     "starter": "# Grille d'analyse (en-c1-e1) — Business or not\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Un seul mot familier]\n# Données : c hey\nA_COMPLETER\n\n[Cas 2 — Deux mots business]\n# Données : b stakeholder\n# Données : b deadline\nA_COMPLETER\n\n[Cas 3 — Cinq mots mixtes]\n# Données : b budget\n# Données : c yo\n# Données : b quarterly\n# Données : c gotta\n# Données : b sprint\nA_COMPLETER\n",
     "hints": [
-      "Deux compteurs posés à 0 avant la boucle : b et c incrémentent chacun le sien.",
-      "Le bilan sort après la boucle, selon la syntaxe attendue « X business / Y casual »."
+      "Quel registre correspond au code de chaque mot ?",
+      "Comptez séparément les deux registres pour le bilan."
     ],
     "examples": [
       {
@@ -52,8 +52,8 @@ module.exports = [
     "brief": "<p>Pour chaque situation proposée : relation vaut <code>long</code> (relation suivie) ou <code>once</code> (achat ponctuel). Pour chaque situation, indiquez <code>personne : statut</code>, où statut vaut <code>client</code> (long) ou <code>customer</code> (once). Concluez par <code>clients fideles : X/n</code>.</p>",
     "starter": "# Grille d'analyse (en-c1-e2) — Client or customer\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Un seul achat]\n# Données : Smith once\nA_COMPLETER\n\n[Cas 2 — Deux relations longues]\n# Données : Dialou long\n# Données : Kossi long\nA_COMPLETER\n\n[Cas 3 — Cinq personnes mixtes]\n# Données : A long\n# Données : B once\n# Données : C long\n# Données : D once\n# Données : E long\nA_COMPLETER\n",
     "hints": [
-      "Un if sur la relation suffit : long et once sont les deux seules valeurs.",
-      "Le compteur suit exactement les statuts « client »."
+      "La relation décrite est-elle suivie ou ponctuelle ?",
+      "Associez le terme demandé au type de relation, puis comptez les relations suivies."
     ],
     "examples": [
       {
@@ -683,9 +683,9 @@ module.exports = [
       {
         "label": "Cinq competences",
         "stdin": "cas:3",
-        "expected": "a : score 80\nb : score 70\nc : score 90\nd : score 65≠ : score 75\nmoyenne : 76\nverdict : admis"
+        "expected": "a : score 80\nb : score 70\nc : score 90\nd : score 65\ne : score 75\nmoyenne : 76\nverdict : admis"
       }
     ],
-    "solution": "[Exemple]\nvocabulaire : score 80\nemails : score 90\npresentations : score 60\nprononciation : score 75\nmoyenne : 76\nverdict : admis\n\n[Cas 1 — Sous le seuil]\nvocabulaire : score 70\nemails : score 75\nmoyenne : 72\nverdict : entrainement\n\n[Cas 2 — Aucune competence]\nmoyenne : 0\nverdict : entrainement\n\n[Cas 3 — Cinq competences]\na : score 80\nb : score 70\nc : score 90\nd : score 65≠ : score 75\nmoyenne : 76\nverdict : admis\n"
+    "solution": "[Exemple]\nvocabulaire : score 80\nemails : score 90\npresentations : score 60\nprononciation : score 75\nmoyenne : 76\nverdict : admis\n\n[Cas 1 — Sous le seuil]\nvocabulaire : score 70\nemails : score 75\nmoyenne : 72\nverdict : entrainement\n\n[Cas 2 — Aucune competence]\nmoyenne : 0\nverdict : entrainement\n\n[Cas 3 — Cinq competences]\na : score 80\nb : score 70\nc : score 90\nd : score 65\ne : score 75\nmoyenne : 76\nverdict : admis\n"
   }
 ];

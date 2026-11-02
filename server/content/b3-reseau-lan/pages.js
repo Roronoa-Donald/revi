@@ -13,6 +13,7 @@ function render(kit, course, chapterList) {
   const chaptersWithNav = chapterList.map((chapitre, index) => {
     const next = chapterList[index + 1];
     return Object.assign({}, chapitre, {
+      lockLabel: 'Réservé B3 et plus',
       next: next
         ? { href: 'chapitre' + next.n + '.html', label: 'Chapitre ' + next.n + ' — ' + next.title }
         : { href: '../atelier.html', label: 'Atelier de code' }

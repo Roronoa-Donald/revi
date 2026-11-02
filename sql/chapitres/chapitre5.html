@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -88,7 +88,7 @@
       <li><strong>A - Atomicité (Tout ou rien) :</strong> Soit toutes les opérations de la transaction sont enregistrées, soit aucune ne l’est. En cas d’erreur au milieu, le SGBD annule tout (ROLLBACK).</li>
       <li><strong>C - Cohérence (Consistency) :</strong> La transaction fait passer la base d’un état valide à un autre état valide, en respectant l’intégralité des contraintes d’intégrité (clés, CHECK, triggers).</li>
       <li><strong>I - Isolation :</strong> Les transactions concurrentes s’exécutent sans interférences mutuelles néfastes, comme si elles étaient séquentielles.</li>
-      <li><strong>D - Durabilité :</strong> Une fois le COMMIT confirmé, les modifications sont écrites de façon permanente dans le journal non volatil (WAL), résistant même à une coupure électrique immédiate.</li>
+      <li><strong>D - Durabilité :</strong> Les transactions validées doivent survivre à un crash lorsque la configuration et le stockage assurent la synchronisation durable du journal. Dans PostgreSQL, <code>synchronous_commit = off</code> peut acquitter avant cette synchronisation. Les sauvegardes indépendantes restent nécessaires si le stockage est détruit.</li>
     </ul>
   </div>
   <div class="card">
@@ -129,7 +129,7 @@ COMMIT;    </div>
     <h4 class="card-title">Types de verrous</h4>
     <ul>
       <li><strong>Verrou Partagé (Shared Lock - S) :</strong> Posé en lecture (<code>SELECT ... FOR SHARE</code>). Plusieurs transactions peuvent lire la même ressource en parallèle.</li>
-      <li><strong>Verrou Exclusif (Exclusive Lock - X) :</strong> Posé en écriture (<code>UPDATE</code>, <code>DELETE</code>, <code>SELECT ... FOR UPDATE</code>). Une seule transaction peut détenir ce verrou ; tout autre accès est suspendu.</li>
+      <li><strong>Verrou de ligne exclusif :</strong> Dans PostgreSQL, <code>SELECT ... FOR UPDATE</code> et les écritures posent des verrous de ligne qui bloquent les écritures ou verrous conflictuels. Un <code>SELECT</code> ordinaire peut lire une version visible grâce à MVCC ; un verrou <code>ACCESS EXCLUSIVE</code> de table peut, lui, bloquer cette lecture.</li>
     </ul>
   </div>
   <div class="card">
@@ -145,14 +145,12 @@ COMMIT;    </div>
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="sql2-c5-e1" data-lab
      data-exercise="sql2-c5-e1"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE comptes (id INT PRIMARY KEY, titulaire TEXT, solde INT); INSERT INTO comptes VALUES (1, 'Amina', 50000), (2, 'Koffi', 20000);&#10;-- VERIFY:&#10;SELECT id, titulaire, solde FROM comptes ORDER BY id;&#10;-- exemple">
@@ -162,11 +160,13 @@ UPDATE comptes SET solde = solde WHERE id = 1;</script>
     <h3 class="lab__title">Exercice 1 — Virement bancaire atomique entre deux comptes</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Exécuter le débit et le crédit d’un virement bancaire en conservant l’invariant de somme.</p>
+    <p class="lab__note" id="sql2-c5-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans la table <code>comptes(id, titulaire, solde)</code>, effectuez un virement de <code>15000</code> du compte <code>id = 1</code> (débit : <code>solde = solde - 15000</code>) vers le compte <code>id = 2</code> (crédit : <code>solde = solde + 15000</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE comptes (id INT PRIMARY KEY, titulaire TEXT, solde INT); INSERT INTO comptes VALUES (1, 'Amina', 50000), (2, 'Koffi', 20000);
@@ -198,6 +198,7 @@ Instruction exécutée avec succès (1 ligne modifiée).
 
 <div class="lab" id="sql2-c5-e2" data-lab
      data-exercise="sql2-c5-e2"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE articles (id INT, stock INT); CREATE TABLE commandes (id INT, statut TEXT); INSERT INTO articles VALUES (1, 10); INSERT INTO commandes VALUES (10, 'EN_ATTENTE');&#10;-- VERIFY:&#10;SELECT c.id, c.statut, a.stock FROM commandes c CROSS JOIN articles a WHERE c.id = 10 AND a.id = 1;&#10;-- exemple">
@@ -207,11 +208,13 @@ UPDATE commandes SET statut = statut WHERE id = 10;</script>
     <h3 class="lab__title">Exercice 2 — Validation atomique d’une commande et décrémentation de stock</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Mettre à jour simultanément le statut d’une commande et le stock disponible.</p>
+    <p class="lab__note" id="sql2-c5-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Lors de la validation de la commande <code>id = 10</code> portant sur <code>3</code> unités de l’article <code>id = 1</code>, mettez à jour <code>commandes</code> (<code>SET statut = 'VALIDEE' WHERE id = 10</code>) et décrémentez <code>articles</code> (<code>SET stock = stock - 3 WHERE id = 1</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE articles (id INT, stock INT); CREATE TABLE commandes (id INT, statut TEXT); INSERT INTO articles VALUES (1, 10); INSERT INTO commandes VALUES (10, 'EN_ATTENTE');
@@ -242,6 +245,7 @@ Instruction exécutée avec succès (1 ligne modifiée).
 
 <div class="lab" id="sql2-c5-e3" data-lab
      data-exercise="sql2-c5-e3"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE ecritures (tx_id INT, sens TEXT, montant INT); INSERT INTO ecritures VALUES (1, 'DEBIT', 10000), (1, 'CREDIT', 10000), (2, 'DEBIT', 5000), (2, 'CREDIT', 3000);&#10;-- exemple">
@@ -251,11 +255,13 @@ SELECT tx_id FROM ecritures GROUP BY tx_id;</script>
     <h3 class="lab__title">Exercice 3 — Audit de cohérence comptable (Écriture débit / crédit équilibrée)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier par agrégation SQL qu’une transaction respecte l’équilibre débit = crédit.</p>
+    <p class="lab__note" id="sql2-c5-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans la table <code>ecritures(tx_id, sens, montant)</code> où <code>sens</code> vaut <code>'DEBIT'</code> ou <code>'CREDIT'</code>, affichez pour chaque <code>tx_id</code> le total débit (<code>SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit</code>) et le total crédit (<code>SUM(CASE WHEN sens = 'CREDIT' THEN montant ELSE 0 END) AS total_credit</code>), triés par <code>tx_id</code> croissant.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE ecritures (tx_id INT, sens TEXT, montant INT); INSERT INTO ecritures VALUES (1, 'DEBIT', 10000), (1, 'CREDIT', 10000), (2, 'DEBIT', 5000), (2, 'CREDIT', 3000);
@@ -278,6 +284,7 @@ SELECT tx_id FROM ecritures GROUP BY tx_id;</script>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -380,7 +387,7 @@ SELECT tx_id FROM ecritures GROUP BY tx_id;</script>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>Transactions relationnelles & Contrat ACID</li><li>Atomicité, Cohérence, Isolation, Durabilité</li><li>Commandes TCL (BEGIN, COMMIT, ROLLBACK)</li><li>Points de reprise SAVEPOINT & ROLLBACK TO</li><li>Anomalies de concurrence (Dirty, Non-repeatable, Phantom Read)</li><li>Niveaux d’isolation ANSI/ISO (Read Committed, Repeatable Read, Serializable)</li><li>Verrous partagés (S) et exclusifs (X)</li><li>Interblocages (Deadlocks) & Graphe d’attente (Wait-For Graph)</li>
+      <li>Transactions relationnelles &amp; Contrat ACID</li><li>Atomicité, Cohérence, Isolation, Durabilité</li><li>Commandes TCL (BEGIN, COMMIT, ROLLBACK)</li><li>Points de reprise SAVEPOINT &amp; ROLLBACK TO</li><li>Anomalies de concurrence (Dirty, Non-repeatable, Phantom Read)</li><li>Niveaux d’isolation ANSI/ISO (Read Committed, Repeatable Read, Serializable)</li><li>Verrous partagés (S) et exclusifs (X)</li><li>Interblocages (Deadlocks) &amp; Graphe d’attente (Wait-For Graph)</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -392,10 +399,10 @@ SELECT tx_id FROM ecritures GROUP BY tx_id;</script>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Révise impérativement la signification des 4 lettres d’ACID et le rôle du ROLLBACK.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Révisez impérativement la signification des 4 lettres d’ACID et le rôle du ROLLBACK.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur les anomalies de concurrence et les 4 niveaux d’isolation ANSI.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous maîtrisez les transactions et les mécanismes de verrouillage concurrentiel.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise totale : passe aux vues, procédures stockées, déclencheurs et optimisation au module 6.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise totale : passez aux vues, procédures stockées, déclencheurs et optimisation au module 6.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

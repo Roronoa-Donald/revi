@@ -57,7 +57,7 @@ function index(course, chapterList) {
       '    <p>Les exercices ne manipulent pas le DOM — il n’existe pas hors du navigateur. Ils portent sur ce ' +
       'qui se <em>calcule</em> : décomposer une URL, classer un code HTTP, lire un extrait HTML, valider et ' +
       'échapper une saisie, calculer une spécificité ou une largeur de boîte, placer une cellule de grille. ' +
-      'C’est exactement la logique que vous réutiliseras ensuite dans la page.</p>'
+      'C’est exactement la logique que vous réutiliserez ensuite dans la page.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
     '  <div class="toc">',
@@ -194,7 +194,7 @@ function atelier(course) {
       'des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé lit une liste d’élèves et affiche chaque note comparée à la moyenne. Modifiez ' +
-      'les données, change la règle de comparaison, ou remplace tout le script par le calcul que vous voulez ' +
+      'les données, change la règle de comparaison, ou remplacez tout le script par le calcul que vous voulez ' +
       'vérifier.</p>',
       '      <p>Le navigateur n’est jamais montré ici : on travaille sur des données, pas sur une page. C’est ' +
       'volontaire — la logique s’isole, puis se réutilise dans le DOM.</p>',
@@ -674,13 +674,13 @@ function exercices(course) {
       'const familles = { 1: "information", 2: "succès", 3: "redirection", 4: "erreur client", 5: "erreur serveur" };',
       'for (const code of [200, 404, 503]) console.log(code + " " + familles[Math.floor(code / 100)]);',
       '',
-      'const html = "<h1>Titre</h1><p>Texte</p><h2>Suite</h2>";',
-      'console.log((html.match(/<h[1-6]>/g) || []).length + " titres");',
+      'const html = "&lt;h1&gt;Titre&lt;/h1&gt;&lt;p&gt;Texte&lt;/p&gt;&lt;h2&gt;Suite&lt;/h2&gt;";',
+      'console.log((html.match(/&lt;h[1-6]&gt;/g) || []).length + " titres");',
       '',
       'const echapper = texte => texte',
-      '  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")',
-      '  .replace(/"/g, "&quot;").replace(/\'/g, "&#39;");',
-      'console.log(echapper(\'<b>Coucou & "vous"</b>\'));'
+      '  .replace(/&amp;/g, "&amp;amp;").replace(/&lt;/g, "&amp;lt;").replace(/&gt;/g, "&amp;gt;")',
+      '  .replace(/"/g, "&amp;quot;").replace(/\'/g, "&amp;#39;");',
+      'console.log(echapper(\'&lt;b&gt;Coucou &amp; "vous"&lt;/b&gt;\'));'
     ].join('\n')),
 
     '  <h2>Consolidation (maîtrise)</h2>',

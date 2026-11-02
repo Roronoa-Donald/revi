@@ -145,13 +145,14 @@ module.exports = {
     {
       title: 'Gestion des Variables d’Environnement et Fichiers .env',
       html: [
-        '<p>Docker Compose lit automatiquement le fichier <code>.env</code> présent dans le même répertoire ' +
-        'et remplace les variables selon des syntaxes d’interpolation normalisées :</p>',
+        '<p>Pour interpoler le fichier Compose, la valeur définie dans l’environnement du shell est prioritaire. ' +
+        'Sinon, Compose utilise le fichier fourni par <code>--env-file</code> ou, sans cette option, un fichier <code>.env</code> du projet ; le répertoire de travail et la configuration du projet peuvent influer sur le fichier chargé. ' +
+        'Ces sources d’interpolation ne sont pas nécessairement les variables transmises au conteneur.</p>',
 
         '<ul>',
-        '  <li><code>${VARIABLE}</code> : insère la valeur définie dans <code>.env</code>. Si la variable n’existe pas, renvoie une chaîne vide.</li>',
+        '  <li><code>${VARIABLE}</code> : insère la valeur issue des sources d’interpolation ; si la variable n’est pas définie et n’a pas de valeur de repli, Compose avertit et utilise une chaîne vide.</li>',
         '  <li><code>${VARIABLE:-valeur_par_defaut}</code> : utilise la variable si elle existe et n’est pas vide, sinon applique <code>valeur_par_defaut</code>.</li>',
-        '  <li><code>${VARIABLE:?message_erreur}</code> : bloque immédiatement le lancement avec une erreur si la variable obligatoire est manquante.</li>',
+        '  <li><code>${VARIABLE:?message_erreur}</code> : signale une erreur si la variable obligatoire est absente ou vide.</li>',
         '</ul>',
 
         box(
@@ -191,7 +192,7 @@ module.exports = {
     'Je sais pourquoi depends_on classique peut conduire à un plantage d’application au démarrage.',
     'Je sais configurer une directive healthcheck avec interval, timeout et retries.',
     'Je maîtrise la syntaxe d’interpolation ${VAR:-default} dans les fichiers YAML Compose.',
-    'Je sais pourquoi le fichier .env ne doit jamais être versionné dans git.'
+    'Je sais pourquoi un fichier .env contenant des secrets ne doit pas être versionné dans git.'
   ],
 
   notions: [
@@ -266,7 +267,7 @@ module.exports = {
         'Le port 80 est attribué automatiquement'
       ],
       correct: 1,
-      exp: 'La syntaxe ${VAR:-defaut} permet de fournir une valeur de repli robuste lorsque la variable d’environnement n’est pas renseignée.'
+      exp: 'La syntaxe ${VAR:-defaut} utilise la valeur de repli si la variable est absente ou vide ; une variable définie et non vide est conservée.'
     },
     {
       stem: 'Pourquoi est-il impératif d’ajouter le fichier « .env » dans le fichier « .gitignore » du projet ?',
@@ -322,7 +323,7 @@ module.exports = {
     },
     {
       q: 'À quoi sert la syntaxe ${VAR:-default} ?',
-      a: 'À interpoler la variable VAR si elle existe dans .env, sinon utiliser la valeur de repli default.'
+      a: 'À utiliser VAR si elle est définie et non vide, sinon default. Le shell est prioritaire sur le fichier --env-file ou, sans cette option, le .env du projet.'
     },
     {
       q: 'Comment deux services Compose communiquent-ils entre eux ?',

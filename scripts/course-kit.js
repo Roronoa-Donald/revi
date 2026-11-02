@@ -8,6 +8,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const parse5 = require('parse5');
 
 const SPRITE = '/assets/img/ui-icons.svg';
 const TEMPLATES = path.join(__dirname, 'templates');
@@ -21,6 +22,73 @@ function esc(value) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+const INLINE_TAGS = new Set(['b', 'code', 'em', 'i', 'kbd', 'mark', 's', 'strong', 'sub', 'sup', 'u']);
+const RICH_TAGS = new Set([...INLINE_TAGS, 'a', 'div', 'li', 'ol', 'p', 'pre', 'ul']);
+
+function markupHtml(value, allowedTags) {
+  const text = String(value === undefined || value === null ? '' : value);
+  const tokens = [];
+  const stack = [];
+
+  for (let offset = 0; offset < text.length; offset++) {
+    if (text[offset] !== '<') continue;
+    const end = text.indexOf('>', offset + 1);
+    if (end === -1) continue;
+    const nextOpen = text.indexOf('<', offset + 1);
+    if (nextOpen !== -1 && nextOpen < end) continue;
+    const raw = text.slice(offset + 1, end);
+    const closing = raw.startsWith('/');
+    const tag = closing ? raw.slice(1) : raw;
+    const parts = tag.split(' ');
+    const name = parts[0];
+    const validAttributes = name === 'a'
+      ? (closing && parts.length === 1) || (!closing && /^a href="https:\/\/[a-z0-9.-]+(?:\/[a-z0-9._~%/-]*)?"$/i.test(tag))
+      : parts.length === 1 || (!closing && name === 'div' && /^div class="[a-z0-9 _-]+"$/.test(tag));
+    if (name === 'br' && !closing && parts.length === 1) {
+      tokens.push({ start: offset, end, valid: true });
+    } else if (allowedTags.has(name) && validAttributes) {
+      const token = { start: offset, end, valid: false, name };
+      tokens.push(token);
+      if (!closing) stack.push(token);
+      else {
+        let match = stack.length - 1;
+        while (match >= 0 && stack[match].name !== name) match--;
+        if (match >= 0) {
+          stack[match].valid = true;
+          stack.splice(match);
+          token.valid = true;
+        }
+      }
+    }
+    offset = end;
+  }
+
+  const validTokens = new Map(tokens.filter(token => token.valid).map(token => [token.start, token]));
+  let result = '';
+  for (let offset = 0; offset < text.length; offset++) {
+    const token = validTokens.get(offset);
+    if (token) {
+      result += text.slice(offset, token.end + 1);
+      offset = token.end;
+    } else if (text[offset] === '<') {
+      result += '&lt;';
+    } else if (text[offset] === '>') {
+      result += '&gt;';
+    } else {
+      result += text[offset];
+    }
+  }
+  return result;
+}
+
+function inlineHtml(value) {
+  return markupHtml(value, INLINE_TAGS);
+}
+
+function richHtml(value) {
+  return markupHtml(value, RICH_TAGS);
 }
 
 /** Icône du sprite SVG commun (voir /assets/img/ui-icons.svg). */
@@ -64,7 +132,7 @@ function renderJs(course) {
 const FONTS = [
   '<link rel="preconnect" href="https://fonts.googleapis.com">',
   '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
-  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">'
+  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">'
 ];
 
 /** Entrées de navigation, dans l'ordre, pour un cours donné. */
@@ -140,7 +208,7 @@ function normalizePageBody(course, pagePath, rawBody) {
     .replace(/Comment t['’]auto-évaluer/gi, 'Grille d’auto-évaluation')
     .replace(/ton QCM de compréhension et ta checklist sont combinés/gi, 'le QCM de compréhension et la checklist sont combinés')
     .replace(/Lis ton pourcentage/gi, 'Interprétation du score obtenu')
-    .replace(/ta note réelle dépend aussi de ton travail/gi, 'la maîtrise réelle dépend de la régularité du travail personnel')
+    .replace(/ta note réelle dépend aussi de votre travail/gi, 'la maîtrise réelle dépend de la régularité du travail personnel')
     .replace(/(<div class="bandrow[^>]*>[\s\S]*?)\btu\s+(?:maîtrises|distingues|résous|choisis|conditionnes|traites|standardises|lis et affiches|factorises et tu utilises|cycles|cloisonnes|qualifies|analyses|évalues|gères|possèdes|as acquis|peux)\b/gi, '$1maîtrise confirmée :')
     .replace(/(<div class="bandrow[^>]*>[\s\S]*?)\btes classes ont\b/gi, '$1les classes ont')
     .replace(/(<div class="bandrow[^>]*>[\s\S]*?)\btraque les barbarismes dans tes mails\b/gi, '$1chasser les barbarismes dans les courriels')
@@ -306,21 +374,22 @@ function qcm(questions, opts) {
     const rawOpts = q.opts || q.choices || q.options || [];
     const correctIdx = typeof q.correct === 'number' ? q.correct : q.answer;
     const options = rawOpts.map((label, index) =>
-      '        <button class="opt"' + (index === correctIdx ? ' data-correct="1"' : '') + '>' + label + '</button>'
+      '        <button class="opt"' + (index === correctIdx ? ' data-correct="1"' : '') + '>' + inlineHtml(label) + '</button>'
     ).join('\n');
     return [
       '    <div class="q">',
-      '      <p class="q__stem">' + (q.stem || q.q || '') + '</p>',
+      '      <p class="q__stem">' + inlineHtml(q.stem || q.q || '') + '</p>',
       '      <div class="opts">',
       options,
       '      </div>',
-      '      <div class="q__exp">' + (q.exp || q.explanation || '') + '</div>',
+      '      <div class="q__exp">' + inlineHtml(q.exp || q.explanation || '') + '</div>',
       '    </div>'
     ].join('\n');
   }).join('\n');
 
   return '<div class="qcm"' + (opts && opts.mastery ? ' data-mastery="1"' : '') + '>\n' + rows + '\n  </div>';
 }
+
 
 /**
  * Cartes de révision. `modules` = [{ title, items: [{ q, a }] }].
@@ -332,16 +401,10 @@ function cards(modules) {
     const rawItems = Array.isArray(module.items) ? module.items : (Array.isArray(module.cards) ? module.cards : []);
     const items = [];
     for (const c of rawItems) {
-      let normQ = String(c.q || '').replace(/^(Synthèse|Approfondissement)\s*[—–-]\s*/i, '').trim();
-      if (!normQ) continue;
-      let key = normQ.replace(/\s+/g, ' ').toLowerCase();
-      if (globalSeenQuestions.has(key)) {
-        normQ = normQ.replace(/\s*\?$/, '') + ' (Ch. ' + (modIdx + 1) + ') ?';
-        key = normQ.replace(/\s+/g, ' ').toLowerCase();
-        if (globalSeenQuestions.has(key)) continue;
-      }
+      const normQ = String(c.q || '');
+      const key = normQ.replace(/\s+/g, ' ').trim().toLowerCase();
       globalSeenQuestions.add(key);
-      items.push({ q: normQ, a: c.a });
+      items.push({ q: normQ, a: String(c.a || '') });
     }
     const chExtra = courseExtra[String(modIdx + 1)] || [];
     const blob = items.map(it => (it.q + ' ' + it.a).toLowerCase()).join(' ');
@@ -356,11 +419,11 @@ function cards(modules) {
       items.push({ q, a: ec.a });
     }
     return [
-      '  <h2>' + module.title + '</h2>',
+      '  <h2>' + inlineHtml(module.title) + '</h2>',
       '  <div class="cards">',
       items.map(card =>
-        '    <div class="fc"><div class="fc__in"><div class="fc__face"><b>Question</b>' + card.q +
-        '</div><div class="fc__face fc__back"><b>Réponse</b>' + card.a + '</div></div></div>'
+        '    <div class="fc"><div class="fc__in"><div class="fc__face"><b>Question</b>' + inlineHtml(card.q) +
+        '</div><div class="fc__face fc__back"><b>Réponse</b>' + inlineHtml(card.a) + '</div></div></div>'
       ).join('\n'),
       '  </div>',
       ''
@@ -371,9 +434,148 @@ function cards(modules) {
 /** Bandeau de paliers de maîtrise normalisé sur l'échelle unique 4 paliers (< 50 % | 50–69 % | 70–94 % | ≥ 95 %). */
 function stripBandPrefix(rawText) {
   let t = String(rawText || '').trim();
-  t = t.replace(/^<strong>\s*(?:Score\s*)?(?:<\s*\d+\s*%|\d+\s*[–-]\s*\d+\s*%|≥\s*\d+\s*%|Moins de \d+\/\d+|De \d+ à \d+\/\d+|Entre \d+\/\d+ et \d+\/\d+|\d+\/\d+|Niveau initial|Niveau opérationnel|Maîtrise B3)(?:\s*\([^)]*\))?\s*(?:—|:)\s*<\/strong>\s*/i, '');
-  t = t.replace(/^(?:Score\s*)?(?:<\s*\d+\s*%|\d+\s*[–-]\s*\d+\s*%|≥\s*\d+\s*%|Moins de \d+\/\d+|De \d+ à \d+\/\d+|Entre \d+\/\d+ et \d+\/\d+|\d+\/\d+|Niveau initial|Niveau opérationnel|Maîtrise B3)(?:\s*\([^)]*\))?\s*(?:—|:)\s*/i, '');
+  t = t.replace(/^<strong>\s*(?:Score\s*)?(?:(?:<|&lt;)\s*\d+\s*%|\d+\s*[–-]\s*\d+\s*%|≥\s*\d+\s*%|Moins de \d+\/\d+|De \d+ à \d+\/\d+|Entre \d+\/\d+ et \d+\/\d+|\d+\/\d+|Niveau initial|Niveau opérationnel|Maîtrise B3)(?:\s*\([^)]*\))?\s*(?:—|:)\s*<\/strong>\s*/i, '');
+  t = t.replace(/^(?:Score\s*)?(?:(?:<|&lt;)\s*\d+\s*%|\d+\s*[–-]\s*\d+\s*%|≥\s*\d+\s*%|Moins de \d+\/\d+|De \d+ à \d+\/\d+|Entre \d+\/\d+ et \d+\/\d+|\d+\/\d+|Niveau initial|Niveau opérationnel|Maîtrise B3)(?:\s*\([^)]*\))?\s*(?:—|:)\s*/i, '');
   return t.trim();
+}
+
+
+/**
+ * Conversion tu → vous des textes de paliers (auto-évaluation).
+ * ATTENTION : en JavaScript, \b ne reconnaît que les lettres ASCII ; « requê|tes » y contient donc une
+ * frontière et /\btes\b/ produisait « requêvos ». On utilise des frontières Unicode explicites.
+ * Le mot « cible » (nom) n'est volontairement pas converti ; « ton » n'est converti que s'il est possessif.
+ */
+function toVousBandText(text) {
+  const B = (w) => new RegExp('(?<![\\p{L}\\p{N}_-])' + w + '(?![\\p{L}\\p{N}_])', 'gu');
+  const pairs = [
+    ['reprends', 'reprenez'], ['Reprends', 'Reprenez'], ['refais', 'refaites'], ['Refais', 'Refaites'],
+    ['relis', 'relisez'], ['Relis', 'Relisez'], ['revois', 'revoyez'], ['Revois', 'Revoyez'],
+    ['passe au', 'passez au'], ['Passe au', 'Passez au'], ['tu peux', 'vous pouvez'], ['tu es prêt', 'vous êtes prêt']
+  ];
+  let out = text;
+  for (const [a, b] of pairs) out = out.replace(B(a), b);
+  out = out.replace(B('ton'), (m, offset, whole) => (/(?:^|\s)(?:le|un|du|au|ce)\s$/i.test(whole.slice(0, offset)) ? m : 'votre'));
+  out = out.replace(B('ta'), 'votre').replace(B('tes'), 'vos');
+  return imperativesToVous(out);
+}
+
+/**
+ * Impératifs au tutoiement en début de proposition (après « — », « : », « ; », « , », « puis », « et », « ou »)
+ * convertis au vouvoiement. Liste fermée de verbes : on ne devine pas la grammaire (un nom comme « place » ou
+ * « structure » reste inchangé hors contexte verbal).
+ */
+const IMPERATIVES_TU_VOUS = {
+  'révise': 'révisez', 'enchaîne': 'enchaînez', 'rejoue': 'rejouez', 'déroule': 'déroulez', 'réécris': 'réécrivez',
+  'affine': 'affinez', 'explique': 'expliquez', 'travaille': 'travaillez', 'simule': 'simulez', 'ajoute': 'ajoutez',
+  'écris': 'écrivez', 'rédige': 'rédigez', 'vérifie': 'vérifiez', 'prédis': 'prédisez', 'attaque': 'attaquez',
+  'construis': 'construisez', 'produis': 'produisez', 'corrige': 'corrigez', 'refais': 'refaites', 'reprends': 'reprenez',
+  'relis': 'relisez', 'calcule': 'calculez', 'trace': 'tracez', 'applique': 'appliquez', 'utilise': 'utilisez',
+  'lis': 'lisez', 'fais': 'faites', 'complète': 'complétez', 'teste': 'testez', 'mémorise': 'mémorisez',
+  'identifie': 'identifiez', 'dessine': 'dessinez', 'classe': 'classez', 'résous': 'résolvez', 'traduis': 'traduisez',
+  'décris': 'décrivez', 'définis': 'définissez', 'justifie': 'justifiez', 'compare': 'comparez', 'retiens': 'retenez',
+  'cherche': 'cherchez', 'trouve': 'trouvez', 'donne': 'donnez', 'montre': 'montrez', 'crée': 'créez',
+  'observe': 'observez', 'analyse': 'analysez', 'étudie': 'étudiez', 'entraîne': 'entraînez', 'lance': 'lancez',
+  'ouvre': 'ouvrez', 'prends': 'prenez', 'mets': 'mettez', 'cible': 'ciblez', 'travaille': 'travaillez', 'pratique': 'pratiquez'
+};
+// verbes ambigus (noms ou autres emplois) : convertis seulement devant un complément typique
+const IMPERATIVES_AMBIGUS = [
+  [/passe(?= (?:aux?|à|en|directement|ensuite|le|la|les|un|une)(?![\\p{L}\\p{N}_]))/i, 'passez'],
+  [/cible(?= (?:la|le|les|l['’]|un|une|des)(?![\\p{L}\\p{N}_]))/i, 'ciblez'],
+  [/pratique(?= (?:les?|la|l['’]|ces|des)(?![\\p{L}\\p{N}_]))/i, 'pratiquez'],
+  [/compte(?= (?:aussi|les?|la|chaque|combien|le)(?![\\p{L}\\p{N}_]))/i, 'comptez'],
+  [/structure(?= (?:un|une|le|la|les|l['’])(?![\\p{L}\\p{N}_]))/i, 'structurez'],
+  [/chiffre(?= (?:votre|le|la|les|un|une)(?![\\p{L}\\p{N}_]))/i, 'chiffrez']
+];
+function imperativesToVous(text) {
+  const head = '(^|>\\s*|[—:;,]\\s*|\\s(?:puis|et|ou)\\s|\\.\\s+)';
+  const cap = (src, rep) => (src[0] === src[0].toUpperCase() ? rep[0].toUpperCase() + rep.slice(1) : rep);
+  let out = text;
+  for (const [tu, vous] of Object.entries(IMPERATIVES_TU_VOUS)) {
+    const rx = new RegExp(head + '(' + tu + ')(?![\\p{L}\\p{N}_-])', 'giu');
+    out = out.replace(rx, (m, pre, word) => pre + cap(word, vous));
+  }
+  for (const [rx0, vous] of IMPERATIVES_AMBIGUS) {
+    const rx = new RegExp(head + '(' + rx0.source + ')', 'giu');
+    out = out.replace(rx, (m, pre, word) => pre + cap(word, vous));
+  }
+  return out;
+}
+
+
+/**
+ * Paramètres entre chevrons (<iface>, <nom>, <id>…) : le navigateur les prend pour des balises HTML inconnues et
+ * ne les affiche pas (« pass in on <iface> proto <p> » devenait « pass in on proto »). On les échappe, sauf dans
+ * les blocs <script> et <style>.
+ */
+const KNOWN_TAGS = new Set(('a abbr article aside audio b bdi bdo blockquote body br button canvas caption circle cite clippath code col colgroup ' +
+  'data dd defs del desc details dfn dialog div dl dt ellipse em fieldset figcaption figure foreignobject footer form g h1 h2 h3 h4 h5 h6 head header hr ' +
+  'html i iframe image img input ins kbd label legend li line lineargradient link main mark marker mask math menu meta meter mfrac mi mn mo mrow msub msup ' +
+  'nav noscript ol optgroup option output p path pattern picture polygon polyline pre progress q radialgradient rect rp rt ruby s samp script section ' +
+  'select slot small source span stop strong style sub summary sup svg symbol table tbody td template text textarea tfoot th thead time title tr track ' +
+  'tspan u ul use var video wbr animate animatetransform').split(' '));
+
+const characterReferences = new Map();
+
+function escapeAmpersand(value, offset, inTag) {
+  const match = /^&(?:#[xX][0-9a-fA-F]+;?|#[0-9]+;?|[A-Za-z][A-Za-z0-9]*;?)/.exec(value.slice(offset));
+  if (!match) return '&amp;';
+  const token = match[0] + (value[offset + match[0].length] === '=' ? '=' : '');
+  const key = (inTag ? 'attribute:' : 'text:') + token;
+  if (!characterReferences.has(key)) {
+    const fragment = inTag
+      ? parse5.parseFragment('<a data-value="' + token + '"></a>')
+      : parse5.parseFragment(token);
+    const decoded = inTag
+      ? fragment.childNodes[0].attrs[0].value
+      : (fragment.childNodes[0] && fragment.childNodes[0].value) || '';
+    characterReferences.set(key, decoded !== token);
+  }
+  return characterReferences.get(key) ? '&' : '&amp;';
+}
+
+function escapeTextAngles(value) {
+  let result = '';
+  let inTag = false;
+  let quote = '';
+  for (let offset = 0; offset < value.length; offset++) {
+    const character = value[offset];
+    if (inTag) {
+      result += character === '&' ? escapeAmpersand(value, offset, true) : character;
+      if (quote && character === quote) quote = '';
+      else if (!quote && (character === '"' || character === "'")) quote = character;
+      else if (!quote && character === '>') inTag = false;
+    } else if (character === '<') {
+      const remainder = value.slice(offset);
+      const match = /^<\/?([A-Za-z][A-Za-z0-9:-]*)(?=[\s/>])/.exec(remainder);
+      const nextOpen = remainder.indexOf('<', 1);
+      const end = remainder.indexOf('>');
+      const closed = end !== -1 && (nextOpen === -1 || end < nextOpen);
+      if (closed && ((match && KNOWN_TAGS.has(match[1].toLowerCase())) || /^<!doctype\b/i.test(remainder))) {
+        result += character;
+        inTag = true;
+      } else {
+        result += '&lt;';
+      }
+    } else if (character === '>') {
+      result += '&gt;';
+    } else if (character === '&') {
+      result += escapeAmpersand(value, offset, false);
+    } else {
+      result += character;
+    }
+  }
+  return result;
+}
+
+function escapeUnknownTags(html) {
+  return String(html).split(/(<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<!--[\s\S]*?-->)/i).map((part, i) => {
+    if (i % 2 === 1) return part;
+    return escapeTextAngles(part.replace(/<(\/?)([\p{L}][\p{L}\p{N}_:-]*)((?:\s[^<>]*)?)(\/?)>/gu, (m, slash, name, rest, selfClose) => {
+      if (KNOWN_TAGS.has(name.toLowerCase())) return m;
+      return '&lt;' + slash + name + rest + selfClose + '&gt;';
+    }));
+  }).join('');
 }
 
 function bands(rows, usesVous = true) {
@@ -422,29 +624,13 @@ function bands(rows, usesVous = true) {
     ];
   }
 
-  const PREFIXES_4 = ['< 50 % — ', '50–69 % — ', '70–94 % — ', '≥ 95 % — '];
+  const PREFIXES_4 = ['&lt; 50 % — ', '50–69 % — ', '70–94 % — ', '≥ 95 % — '];
   const CLASSES_4 = [' bandrow--low', ' bandrow--mid', ' bandrow--good', ' bandrow--top'];
 
   return '<div class="bands">\n' + fourDescs.map((desc, idx) => {
     let text = '<strong>' + PREFIXES_4[idx] + '</strong>' + desc;
     if (usesVous) {
-      text = text
-        .replace(/\breprends\b/g, 'reprenez')
-        .replace(/\bReprends\b/g, 'Reprenez')
-        .replace(/\brefais\b/g, 'refaites')
-        .replace(/\bRefais\b/g, 'Refaites')
-        .replace(/\brelis\b/g, 'relisez')
-        .replace(/\bRelis\b/g, 'Relisez')
-        .replace(/\brevois\b/g, 'revoyez')
-        .replace(/\bRevois\b/g, 'Revoyez')
-        .replace(/\bpasse au\b/g, 'passez au')
-        .replace(/\bPasse au\b/g, 'Passez au')
-        .replace(/\bcible\b/g, 'ciblez')
-        .replace(/\btu peux\b/g, 'vous pouvez')
-        .replace(/\btu es prêt\b/g, 'vous êtes prêt')
-        .replace(/\bton\b/g, 'votre')
-        .replace(/\bta\b/g, 'votre')
-        .replace(/\btes\b/g, 'vos');
+      text = toVousBandText(text);
     }
     return '      <div class="bandrow' + CLASSES_4[idx] + '">' + text + '</div>';
   }).join('\n') + '\n    </div>';
@@ -583,7 +769,7 @@ function chapter(course, ch) {
   out.push(nav.join('\n'));
 
   out.push('  <p class="disclaimer">Objectif de maîtrise 19/20 — ' +
-    (usesVous ? 'votre note réelle dépend aussi de votre travail.' : 'ta note réelle dépend aussi de ton travail.') +
+    (usesVous ? 'votre note réelle dépend aussi de votre travail.' : 'ta note réelle dépend aussi de votre travail.') +
     '\n  Sources : ' + course.sources + '.</p>');
 
   return out.join('\n\n');
@@ -599,7 +785,9 @@ function math(tex, isBlock = true) {
 
 module.exports = {
   SPRITE,
+  escapeUnknownTags,
   esc,
+  richHtml,
   ic,
   prefix,
   resolveCoursePath,

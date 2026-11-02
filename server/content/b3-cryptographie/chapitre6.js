@@ -9,7 +9,7 @@ module.exports = {
   n: 6,
   title: 'Protocoles Cryptographiques Sécurisés (TLS, SSH, IPsec) & Post-Quantique',
   short: 'Protocoles Sécurisés &amp; Post-Quantique',
-  toc: 'Protocole TLS 1.3 (RFC 8446) et refonte architecturale par rapport à TLS 1.2, optimisation du handshake (1-RTT et 0-RTT Early Data), confidentialité persistante (Perfect Forward Secrecy - PFS), anatomie et audit des suites cryptographiques (Cipher Suites), protocoles d\'infrastructure SSHv2 et IPsec (AH/ESP, IKEv2, modes Transport et Tunnel), impact de l\'ordinateur quantique (algorithmes de Shor et Grover), et standards post-quantiques du NIST (FIPS 203 ML-KEM, FIPS 204 ML-DSA, cryptographie hybride).',
+  toc: 'Protocole TLS 1.3 (RFC 9846 ; RFC 8446 historique) et refonte architecturale par rapport à TLS 1.2, handshake 1-RTT et données 0-RTT, confidentialité persistante (PFS) selon la phase et le mode négocié, anatomie des suites cryptographiques, protocoles SSHv2 et IPsec (AH/ESP, IKEv2, modes Transport et Tunnel), et standards post-quantiques du NIST.',
   time: '≈ 2 h 45 de travail',
   free: false,
   situation: 'Dans un contexte géopolitique où les cyberattaques étatiques et les interceptions massives de flux de données s\'intensifient (« Store Now, Decrypt Later »), la sécurité des communications réseau ne peut plus reposer sur des protocoles vieillissants ou des configurations laxistes autorisant des suites cryptographiques dépréciées. De surcroît, l\'avènement imminent des ordinateurs quantiques cryptographiquement pertinents menace de réduire à néant l\'ensemble des algorithmes asymétriques actuels (RSA, Diffie-Hellman, courbes elliptiques). En tant qu\'architecte en cybersécurité B3, vous devez maîtriser le durcissement des protocoles TLS 1.3, SSH et IPsec, auditer les suites cryptographiques d\'infrastructure et orchestrer la transition vers les nouveaux standards post-quantiques du NIST.',
@@ -23,24 +23,24 @@ module.exports = {
   ],
   sections: [
     {
-      title: 'Protocole TLS 1.3 (RFC 8446) &amp; Confidentialité Persistante (PFS)',
+      title: 'Protocole TLS 1.3 (RFC 9846) &amp; Confidentialité Persistante (PFS)',
       html: [
-        '<p>Le protocole TLS (Transport Layer Security) sécurise l\'écrasante majorité du trafic Internet moderne (HTTPS, SMTPS, DNS-over-TLS). Publié en août 2018 (RFC 8446), TLS 1.3 représente la plus importante refonte de sécurité et de performance de l\'histoire du protocole :</p>',
+        '<p>Le protocole TLS (Transport Layer Security) sécurise notamment HTTPS, SMTPS et DNS-over-TLS. TLS 1.3 a été publié initialement dans la RFC 8446 en août 2018 ; la RFC 9846 de juillet 2026 la remplace et constitue le standard actuel. Cette mise à jour ne rend pas caduques toutes les explications historiques.</p>',
         '<div class="grid grid-2">',
         '  <div class="card">',
         '    <h4>Ruptures Fondamentales de TLS 1.3</h4>',
         '    <ul>',
         '      <li><strong>Suppression radicale de l\'obsolescence :</strong> exclusion totale de RSA pour l\'échange de clés, des modes CBC (vulnérables aux attaques par oracle), de RC4, de 3DES, de MD5 et de SHA-1.</li>',
         '      <li><strong>Chiffrement AEAD exclusif :</strong> seuls les chiffrements authentifiés (AES-GCM, AES-CCM, ChaCha20-Poly1305) sont autorisés.</li>',
-        '      <li><strong>PFS obligatoire (Perfect Forward Secrecy) :</strong> l\'échange de clés doit impérativement utiliser Diffie-Hellman éphémère (DHE ou ECDHE). Même si la clé privée du serveur est volée plus tard, les sessions passées interceptées restent indéchiffrables.</li>',
+        '      <li><strong>Confidentialité persistante (PFS) conditionnelle :</strong> un échange éphémère authentifié, par exemple ECDHE, peut protéger les données 1-RTT si les secrets éphémères sont effacés. Une reprise en mode PSK seul (<code>psk_ke</code>) ne fournit pas cette propriété par son échange de clés ; avec <code>psk_dhe_ke</code>, un échange asymétrique est ajouté.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
         '    <h4>Optimisation de la Poignée de Mains (Handshake)</h4>',
         '    <ul>',
-        '      <li><strong>TLS 1.2 (2-RTT) :</strong> nécessitait 2 allers-retours réseau complets avant que les données applicatives ne puissent transiter en sécurité.</li>',
-        '      <li><strong>TLS 1.3 (1-RTT) :</strong> le client envoie dès son <code>ClientHello</code> ses propositions de groupes de clés éphémères (<em>key shares</em>). La connexion sécurisée est établie en un seul aller-retour.</li>',
-        '      <li><strong>Mode 0-RTT (Early Data) :</strong> lors d\'une reconnexion avec un serveur déjà visité (PSK), le client peut envoyer des données applicatives chiffrées dès le tout premier paquet (attention au risque de rejeu).</li>',
+        '      <li><strong>TLS 1.2 :</strong> une poignée de mains initiale classique nécessite généralement 2 allers-retours ; les reprises et les configurations particulières peuvent différer.</li>',
+        '      <li><strong>TLS 1.3 (1-RTT) :</strong> une poignée de mains initiale peut s\'achever en un aller-retour lorsque les paramètres proposés conviennent ; un échange supplémentaire peut être nécessaire.</li>',
+        '      <li><strong>Données 0-RTT (Early Data) :</strong> avec un PSK utilisable pour une reprise, le client peut envoyer des données avant la fin de la poignée de mains. Leur confidentialité persistante n\'est pas garantie par le protocole et elles présentent un risque de rejeu ; le serveur peut les refuser.</li>',
         '    </ul>',
         '  </div>',
         '</div>'
@@ -55,7 +55,7 @@ module.exports = {
         '    <h4>Syntaxe TLS 1.2 (Complexe)</h4>',
         '    <pre><code>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</code></pre>',
         '    <ul>',
-        '      <li><strong>Échange de clés :</strong> <code>ECDHE</code> (éphémère sur courbe elliptique, garantit le PFS).</li>',
+        '      <li><strong>Échange de clés :</strong> <code>ECDHE</code> (éphémère sur courbe elliptique, peut fournir la PFS si les secrets éphémères sont effacés).</li>',
         '      <li><strong>Authentification :</strong> <code>RSA</code> (signature du certificat serveur).</li>',
         '      <li><strong>Chiffrement symétrique :</strong> <code>AES_128_GCM</code> (bloc 128 bits, mode AEAD).</li>',
         '      <li><strong>Fonction de hachage :</strong> <code>SHA256</code> (PRF et dérivation des clés).</li>',
@@ -65,9 +65,9 @@ module.exports = {
         '    <h4>Syntaxe TLS 1.3 (Compacte &amp; Sécurisée)</h4>',
         '    <pre><code>TLS_AES_256_GCM_SHA384</code></pre>',
         '    <ul>',
-        '      <li>TLS 1.3 dissocie totalement l\'échange de clés et les certificats de la suite cryptographique.</li>',
+        '      <li>En TLS 1.3, le mode et le groupe d\'échange de clés ainsi que l\'authentification sont négociés séparément de la suite ; son nom seul ne détermine pas la PFS.</li>',
         '      <li>La suite ne spécifie que le chiffrement symétrique et la fonction de hachage de dérivation.</li>',
-        '      <li>Seulement 5 suites standardisées : <code>TLS_AES_128_GCM_SHA256</code>, <code>TLS_AES_256_GCM_SHA384</code>, <code>TLS_CHACHA20_POLY1305_SHA256</code>, <code>TLS_AES_128_CCM_SHA256</code>, <code>TLS_AES_128_CCM_8_SHA256</code>.</li>',
+        '      <li>La RFC 9846 définit cinq suites : <code>TLS_AES_128_GCM_SHA256</code>, <code>TLS_AES_256_GCM_SHA384</code>, <code>TLS_CHACHA20_POLY1305_SHA256</code>, <code>TLS_AES_128_CCM_SHA256</code>, <code>TLS_AES_128_CCM_8_SHA256</code>. Le registre IANA référence aussi d\'autres suites.</li>',
         '    </ul>',
         '  </div>',
         '</div>',
@@ -99,8 +99,8 @@ module.exports = {
         '    <ul>',
         '      <li>Opère au niveau de la couche réseau IP (couche 3 du modèle OSI), rendant le chiffrement transparent pour les applications.</li>',
         '      <li><strong>AH (Authentication Header - protocole IP 51) :</strong> garantit l\'intégrité et l\'authentification de l\'en-tête IP et des données, mais <em>sans aucun chiffrement</em> (obsolète en pratique).</li>',
-        '      <li><strong>ESP (Encapsulating Security Payload - protocole IP 50) :</strong> fournit confidentialité, intégrité et authentification des données.</li>',
-        '      <li><strong>Mode Transport :</strong> ne chiffre que la charge utile (payload) IP (communication hôte à hôte).</li>',
+        '      <li><strong>ESP (Encapsulating Security Payload - protocole IP 50) :</strong> selon l\'association de sécurité (SA), il peut fournir la confidentialité seule, l\'intégrité seule avec authentification de l\'origine, ou les deux. Au moins un des deux services doit être sélectionné (RFC 4303).</li>',
+        '      <li><strong>Mode Transport :</strong> protège la charge utile IP selon les services ESP sélectionnés (communication hôte à hôte).</li>',
         '      <li><strong>Mode Tunnel :</strong> encapsule le paquet IP d\'origine entier dans un nouvel en-tête IP externe (interconnexion de réseaux VPN passerelle à passerelle).</li>',
         '      <li><strong>IKEv2 (Internet Key Exchange v2) :</strong> négocie automatiquement les associations de sécurité (SA) et les clés.</li>',
         '    </ul>',
@@ -138,34 +138,34 @@ module.exports = {
   ],
   method: [
     'Audit de configuration des protocoles réseau : vérifier l\'exclusion définitive de SSL v3, TLS 1.0 et TLS 1.1 sur les répartiteurs de charge et serveurs web, et imposer TLS 1.3 comme protocole privilégié.',
-    'Analyse rigoureuse des suites cryptographiques : inspecter les paramètres d\'échange de clés, vérifier la garantie de confidentialité persistante (PFS avec ECDHE) et valider l\'utilisation de chiffrements AEAD (AES-GCM ou ChaCha20-Poly1305).',
+    'Analyse rigoureuse des suites cryptographiques : inspecter le mode et le groupe négociés, la phase des données et les hypothèses de PFS, puis vérifier les chiffrements AEAD.',
     'Sécurisation des accès d\'infrastructure SSH et VPN IPsec : configurer des clés d\'hôtes et d\'utilisateurs Ed25519 pour SSH, et déployer des tunnels IPsec ESP en mode Tunnel avec IKEv2 et groupes Diffie-Hellman modernes.',
     'Planification de la feuille de route post-quantique : inventorier les actifs cryptographiques asymétriques, migrer les clés symétriques vers AES-256 pour contrer Grover, et tester les suites hybrides (X25519 + ML-KEM-768).'
   ],
   summary: [
-    'TLS 1.3 (RFC 8446) accélère le handshake à 1-RTT (voire 0-RTT), supprime les algorithmes vulnérables et rend la confidentialité persistante (PFS) obligatoire.',
+    'TLS 1.3 (RFC 9846 ; RFC 8446 historique) permet une poignée de mains initiale en 1-RTT et des données anticipées 0-RTT ; la PFS dépend de la phase et du mode de négociation.',
     'Les suites TLS 1.3 se limitent à la définition de l\'AEAD et de la fonction de hachage, isolant l\'échange de clés et les certificats.',
-    'SSHv2 sécurise l\'administration système via des clés publiques (Ed25519 recommandée), tandis qu\'IPsec ESP chiffre la couche réseau en mode Transport ou Tunnel.',
+    'SSHv2 sécurise l\'administration système ; IPsec ESP protège les paquets en mode Transport ou Tunnel selon les services choisis pour la SA.',
     'L\'algorithme de Shor brise théoriquement tous les cryptosystèmes asymétriques actuels (RSA, ECC), tandis que Grover exige le passage à AES-256.',
     'Le NIST a standardisé en août 2024 les premiers algorithmes post-quantiques (FIPS 203 ML-KEM et FIPS 204 ML-DSA), préconisés en mode hybride.'
   ],
   checklist: [
-    'Savez-vous expliquer pourquoi TLS 1.3 impose la confidentialité persistante (PFS) et interdit les échanges de clés RSA statiques ?',
-    'Comprenez-vous la différence de durée de handshake entre TLS 1.2 (2-RTT) et TLS 1.3 (1-RTT) ?',
+    'Savez-vous distinguer la PFS avec échange éphémère, le mode PSK seul et les données 0-RTT en TLS 1.3 ?',
+    'Comprenez-vous les durées habituelles des handshakes TLS et l’effet éventuel d’un HelloRetryRequest ?',
     'Pouvez-vous décortiquer une suite cryptographique TLS 1.2 et déterminer si elle procure ou non le PFS ?',
     'Connaissez-vous la différence entre les protocoles AH et ESP d\'IPsec et entre le mode Transport et le mode Tunnel ?',
     'Savez-vous citer les impacts respectifs de l\'algorithme de Shor (ruine d\'asymétrique) et de Grover (racine carrée sur le symétrique) ?'
   ],
   notions: [
-    { term: 'Confidentialité Persistante (PFS)', def: 'Propriété d\'un protocole garantissant que la compromission ultérieure de la clé privée à long terme du serveur ne permettra pas de déchiffrer les sessions passées.' },
+    { term: 'Confidentialité Persistante (PFS)', def: 'Propriété protégeant les données passées contre la compromission ultérieure des secrets à long terme, sous les hypothèses du mode négocié et de l\'effacement des secrets éphémères.' },
     { term: 'Chiffrement Authentifié (AEAD)', def: 'Mode de chiffrement symétrique (ex: GCM) fournissant simultanément la confidentialité des données et la preuve formelle de leur intégrité.' },
-    { term: 'IPsec ESP (Encapsulating Security Payload)', def: 'Protocole IPsec fournissant l\'authentification, l\'intégrité et le chiffrement des paquets réseau en mode Transport ou Tunnel.' },
+    { term: 'IPsec ESP (Encapsulating Security Payload)', def: 'Protocole IPsec offrant confidentialité seule, intégrité seule ou les deux selon l\'association de sécurité, en mode Transport ou Tunnel.' },
     { term: 'Algorithme de Shor', def: 'Algorithme quantique résolvant la factorisation et le logarithme discret en temps polynomial, cassant RSA et les courbes elliptiques.' },
     { term: 'ML-KEM (FIPS 203)', def: 'Standard post-quantique du NIST pour l\'encapsulation de clés basé sur les réseaux euclidiens (anciennement Crystals-Kyber).' }
   ],
   pitfalls: [
     'Conserver des suites cryptographiques TLS sans Forward Secrecy (comme TLS_RSA_WITH_AES_256_CBC_SHA) : l\'interception du trafic permet son déchiffrement rétroactif si la clé privée fuite.',
-    'Activer le mode 0-RTT dans TLS 1.3 pour des requêtes HTTP non idempotentes (ex: POST de virement bancaire) : un attaquant peut rejouer la requête à volonté.',
+    'Activer les données 0-RTT pour des requêtes HTTP non idempotentes (ex: POST de virement bancaire) : elles présentent un risque de rejeu entre connexions.',
     'Utiliser le protocole IPsec AH en croyant chiffrer le trafic : AH n\'assure que l\'intégrité et laisse l\'intégralité des données en clair sur le réseau.',
     'Croire que doubler la taille d\'une clé RSA (passer de 2048 à 4096 bits) suffira face à l\'ordinateur quantique : Shor casse RSA en temps polynomial quelle que soit sa taille.'
   ],
@@ -174,19 +174,19 @@ module.exports = {
       stem: 'Pourquoi le protocole TLS 1.3 a-t-il totalement interdit l\'échange de clés basé sur le chiffrement RSA statique ?',
       opts: ['Parce que RSA ne fonctionne pas avec le protocole TCP', 'Parce que RSA statique ne fournit pas la confidentialité persistante (PFS)', 'Parce que RSA consomme trop d\'électricité', 'Parce que RSA a été racheté par une entreprise privée'],
       correct: 1,
-      exp: 'Avec RSA statique, le client chiffre le secret pré-maître avec la clé publique du serveur. Si la clé privée du serveur est volée des années plus tard, tous les enregistrements passés peuvent être déchiffrés. TLS 1.3 impose le PFS avec ECDHE/DHE éphémère.'
+      exp: 'Avec RSA statique, une fuite ultérieure de la clé privée peut exposer les sessions enregistrées. TLS 1.3 retire cet échange ; sa PFS reste conditionnée au mode négocié et à la phase des données.'
     },
     {
-      stem: 'Combien d\'allers-retours réseau (RTT) sont nécessaires pour établir une connexion complète et sécurisée en TLS 1.3 lors d\'une première visite ?',
+      stem: 'Lors d\'une connexion TLS 1.3 initiale, combien d\'allers-retours réseau (RTT) sont nécessaires si les paramètres proposés conviennent dès le départ, sans HelloRetryRequest ?',
       opts: ['0-RTT', '1-RTT', '2-RTT', '3-RTT'],
       correct: 1,
-      exp: 'En TLS 1.3, le client envoie ses parts de clés éphémères dès le premier paquet ClientHello, permettant au serveur de répondre et de finaliser la clé en 1-RTT (contre 2-RTT en TLS 1.2).'
+      exp: 'Dans ce cas, la poignée de mains initiale prend 1-RTT. Un HelloRetryRequest ajoute un aller-retour : elle peut alors nécessiter 2-RTT.'
     },
     {
       stem: 'Dans le protocole IPsec, quel mode d\'encapsulation permet de créer un tunnel VPN reliant deux réseaux distants en encapsulant le paquet IP complet ?',
       opts: ['Mode Transport avec AH', 'Mode Tunnel avec ESP', 'Mode Loopback avec ICMP', 'Mode Broadcast avec ARP'],
       correct: 1,
-      exp: 'Le mode Tunnel encapsule l\'intégralité du paquet IP d\'origine (en-tête IP d\'origine + données) dans un nouvel en-tête IP routable entre les deux passerelles VPN, et le protocole ESP assure le chiffrement et l\'intégrité.'
+      exp: 'Le mode Tunnel encapsule le paquet IP d\'origine dans un nouvel en-tête IP. ESP peut fournir le chiffrement, l\'intégrité ou les deux selon la configuration de l\'association de sécurité.'
     },
     {
       stem: 'Quel algorithme quantique constitue une menace existentielle pour RSA et les courbes elliptiques (ECC) en résolvant la factorisation et le logarithme discret en temps polynomial ?',
@@ -204,15 +204,15 @@ module.exports = {
   flashcards: [
     {
       q: 'Qu\'est-ce que la confidentialité persistante (Perfect Forward Secrecy - PFS) ?',
-      a: 'Une propriété garantissant que la compromission ultérieure de la clé privée d\'un serveur ne permettra jamais de déchiffrer les sessions de communication passées enregistrées.'
+      a: 'Une protection des données passées contre la compromission ultérieure des secrets à long terme, sous les hypothèses du mode négocié et de l\'effacement des secrets éphémères.'
     },
     {
       q: 'Combien d\'allers-retours réseau (RTT) sont nécessaires pour le handshake en TLS 1.3 ?',
-      a: '1-RTT pour une nouvelle connexion, et 0-RTT pour une reprise de session (Early Data).'
+      a: 'Une connexion initiale peut s\'établir en 1-RTT ; en reprise, les données anticipées 0-RTT précèdent la fin du handshake, présentent un risque de rejeu et n\'ont pas de PFS garantie par le protocole.'
     },
     {
       q: 'Quelle est la différence fondamentale entre les protocoles IPsec AH et ESP ?',
-      a: 'AH assure l\'intégrité et l\'authentification sans aucun chiffrement. ESP assure l\'intégrité, l\'authentification ET le chiffrement des données.'
+      a: 'AH assure l\'intégrité et l\'authentification sans chiffrement. Selon la configuration de la SA, ESP peut fournir la confidentialité seule, l\'intégrité seule ou les deux.'
     },
     {
       q: 'Pourquoi l\'algorithme de Grover oblige-t-il à passer à AES-256 pour la sécurité post-quantique ?',

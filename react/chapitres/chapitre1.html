@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -53,7 +53,7 @@
 <main id="content" class="reactwrap">
 <p class="crumb"><a href="../index.html">React B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
 
-<h1>Chapitre 1 — Penser en composants & l’écosystème JSX / Vite</h1>
+<h1>Chapitre 1 — Penser en composants &amp; l’écosystème JSX / Vite</h1>
 
 <div class="chapmeta">
     <span class="tag">Module 1</span>
@@ -74,15 +74,11 @@
       <li>décomposer une interface graphique en une arborescence de composants autonomes ;</li>
       <li>maîtriser l’outillage Vite et la structure d’un projet frontend moderne ;</li>
       <li>écrire du code JSX valide (Fragments, balises auto-fermantes, className) ;</li>
-      <li>comprendre le rôle de React.createElement et de createRoot (react-dom).</li>
+      <li>distinguer les transformations JSX classique et automatique et utiliser createRoot (react-dom).</li>
     </ol>
   </div>
 
-<h2>1. Prérequis intégré : Rappels JavaScript ES6+ indispensables pour React</h2>
-
-<div class="box box--intuition"><div class="box__title">Les 5 constructions modernes de JavaScript (ES6+) utilisées dans chaque composant React</div><ul><li><strong>Modules (<code>import</code> / <code>export</code>) :</strong> <code>import { useState } from "react"</code> importe une fonction, et <code>export default App</code> expose un composant ;</li><li><strong>Fonctions fléchées (Arrow Functions) :</strong> <code>const doubler = (x) =&gt; x * 2</code> est l’écriture courte de <code>function(x) { return x * 2; }</code> ;</li><li><strong>Déstructuration (Destructuring) :</strong> <code>const { nom, age } = utilisateur</code> (ou <code>function Carte({ titre })</code>) extrait directement les propriétés d’un objet, et <code>const [compteur, setCompteur] = useState(0)</code> extrait les éléments d’un tableau ;</li><li><strong>Méthodes de tableaux <code>.map()</code> et <code>.filter()</code> :</strong> <code>liste.map(item =&gt; &lt;li key={item.id}&gt;{item.nom}&lt;/li&gt;)</code> transforme chaque donnée en élément JSX sans modifier le tableau d’origine ;</li><li><strong>Appels asynchrones (<code>fetch</code> &amp; <code>async/await</code>) :</strong> permettent d’interroger une API JSON sans bloquer l’interface.</li></ul></div>
-
-<h2>2. Le paradigme déclaratif et le modèle mental de React</h2>
+<h2>1. Le paradigme déclaratif et le modèle mental de React</h2>
 
 <p>Dans le développement web classique (impératif avec JavaScript pur), le développeur indique au navigateur <em>comment</em> modifier l’interface pas à pas : sélectionner un élément avec <code>document.querySelector</code>, changer sa classe, ajouter un écouteur, modifier son texte. Dès que l’application grandit, maintenir la cohérence entre l’état des données et l’affichage devient complexe.</p>
 <p><strong>React</strong> adopte une approche <strong>déclarative</strong> : on décrit à quoi l’interface doit ressembler pour un état de données donné (<em>ce que l’on veut</em>). Lorsque les données changent, React recalcule le rendu et met à jour efficacement le DOM réel grâce à son algorithme de réconciliation.</p>
@@ -91,14 +87,17 @@
     <p>La formule fondamentale de React est : <code>UI = f(state)</code>. L’interface est le reflet direct et prédictible des données en mémoire à un instant T.</p>
   </div>
 
-<h2>3. L’outillage moderne avec Vite</h2>
+<h2>2. L’outillage moderne avec Vite</h2>
 
 <p>Pour développer en React, les navigateurs ne comprenant pas directement le JSX, un environnement de compilation est nécessaire. Autrefois dominé par Create React App et Webpack, l’écosystème moderne utilise <strong>Vite</strong>.</p>
-<p>Vite tire parti des modules ES natifs (ESM) du navigateur en phase de développement et du bundler Rollup / esbuild pour offrir un rechargement à chaud (Hot Module Replacement - HMR) quasi instantané.</p>
-<pre><code>npm create vite@latest mon-app -- --template react
+<p>Pour cet exemple, <strong>Vite 8.3.5</strong> utilise les modules ES natifs (ESM) en développement, avec un rechargement à chaud (Hot Module Replacement - HMR). Cette version s’appuie sur <strong>Rolldown</strong> pour le bundling et sur <strong>Oxc</strong> pour les transformations ; les versions antérieures pouvaient utiliser Rollup et esbuild.</p>
+<p>Prérequis : Node.js 20.19.0 ou plus dans la branche 20, ou 22.12.0 ou plus. Node.js 21 et les versions 22 antérieures à 22.12.0 ne satisfont pas ce prérequis.</p>
+<p>La version <code>9.3.3</code> ci-dessous est celle du générateur <code>create-vite</code>, pas celle de Vite. La commande <code>npm install</code> fixe explicitement Vite à <code>8.3.5</code>. Les autres dépendances restent soumises aux plages du modèle : conservez le fichier <code>package-lock.json</code> et utilisez ensuite <code>npm ci</code> pour les réinstaller à l’identique.</p>
+<pre><code>npm create vite@9.3.3 mon-app -- --template react
 cd mon-app
-npm install
+npm install --save-dev --save-exact vite@8.3.5
 npm run dev</code></pre>
+<p>Références : <a href="https://vite.dev/blog/announcing-vite8">annonce officielle de Vite 8</a> et <a href="https://vite.dev/guide/">guide de démarrage Vite</a>.</p>
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Structure d’un projet Vite + React</div>
     <ul>
@@ -109,15 +108,20 @@ npm run dev</code></pre>
     </ul>
   </div>
 
-<h2>4. La syntaxe JSX (JavaScript XML)</h2>
+<h2>3. La syntaxe JSX (JavaScript XML)</h2>
 
 <p>Le <strong>JSX</strong> est une extension syntaxique de JavaScript qui permet d’écrire une structure semblable à du HTML directement dans le code JavaScript des composants.</p>
-<p>Sous le capot, le compilateur (Babel ou SWC) transforme chaque balise JSX en un appel à <code>React.createElement(type, props, ...children)</code>. Par exemple :</p>
-<pre><code>// Ce que vous écrivez en JSX :
-const bouton = &lt;button className="btn"&gt;Valider&lt;/button&gt;;
-
-// Ce qui est exécuté sous le capot :
+<p>Le compilateur transforme le JSX en appels JavaScript. Le résultat dépend de sa configuration. Prenons cet exemple :</p>
+<pre><code>const bouton = &lt;button className="btn"&gt;Valider&lt;/button&gt;;</code></pre>
+<p>Avec la transformation <strong>classique</strong>, une forme possible utilise <code>React.createElement</code> et nécessite ici un import de <code>React</code> :</p>
+<pre><code>import React from 'react';
 const bouton = React.createElement('button', { className: 'btn' }, 'Valider');</code></pre>
+<p>Avec la transformation <strong>automatique</strong>, le compilateur peut produire un appel au runtime <code>react/jsx-runtime</code>. Exemple simplifié pour la production :</p>
+<pre><code>import { jsx as _jsx } from 'react/jsx-runtime';
+const bouton = _jsx('button', { className: 'btn', children: 'Valider' });</code></pre>
+<p>Le compilateur insère ces imports et peut utiliser d’autres fonctions selon le contexte, notamment <code>react/jsx-dev-runtime</code> en développement. On n’appelle généralement pas ces fonctions à la main. La transformation automatique évite d’importer React uniquement pour le JSX ; les Hooks et les autres API utilisés doivent toujours être importés.</p>
+<p>Le modèle React de <code>create-vite 9.3.3</code> utilise par défaut la transformation automatique. React 19 requiert cette transformation moderne pour certaines améliorations et avertit si l’ancienne est utilisée. La forme classique reste utile pour comprendre <code>createElement</code>.</p>
+<p>Références : <a href="https://legacy.reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html">présentation officielle des transformations JSX</a> et <a href="https://react.dev/blog/2024/04/25/react-19-upgrade-guide">guide de migration React 19</a>.</p>
   <div class="box box--warn">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Les 3 règles strictes du JSX</div>
     <ol>
@@ -127,9 +131,9 @@ const bouton = React.createElement('button', { className: 'btn' }, 'Valider');</
     </ol>
   </div>
 
-<h2>5. Montage dans le DOM : createRoot</h2>
+<h2>4. Montage dans le DOM : createRoot</h2>
 
-<p>Depuis React 18, le montage d’une application s’effectue avec l’API concurrente de <code>react-dom/client</code> :</p>
+<p>Depuis React 18, le montage d’une application s’effectue avec l’API concurrente de <code>react-dom/client</code>. Le code s’appuie sur les modules JavaScript ES6 (<code>import</code> / <code>export</code>, détaillés ci-dessous) pour charger la bibliothèque et le composant racine :</p>
 <pre><code>import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -142,15 +146,17 @@ root.render(
 );</code></pre>
 <p>Le mode strict (<code>React.StrictMode</code>) aide à détecter les effets secondaires indésirables en exécutant deux fois certains cycles en mode développement.</p>
 
+<h2>5. Pour aller plus loin : Rappels JavaScript ES6+ indispensables pour React</h2>
+
+<div class="box box--intuition"><div class="box__title">Les 5 constructions modernes de JavaScript (ES6+) utilisées dans chaque composant React</div><ul><li><strong>Modules (<code>import</code> / <code>export</code>) :</strong> <code>import { useState } from "react"</code> importe une fonction, et <code>export default App</code> expose un composant ;</li><li><strong>Fonctions fléchées (Arrow Functions) :</strong> <code>const doubler = (x) =&gt; x * 2</code> est l’écriture courte de <code>function(x) { return x * 2; }</code> ;</li><li><strong>Déstructuration (Destructuring) :</strong> <code>const { nom, age } = utilisateur</code> (ou <code>function Carte({ titre })</code>) extrait directement les propriétés d’un objet, et <code>const [compteur, setCompteur] = useState(0)</code> extrait les éléments d’un tableau ;</li><li><strong>Méthodes de tableaux <code>.map()</code> et <code>.filter()</code> :</strong> <code>liste.map(item =&gt; &lt;li key={item.id}&gt;{item.nom}&lt;/li&gt;)</code> transforme chaque donnée en élément JSX sans modifier le tableau d’origine ;</li><li><strong>Appels asynchrones (<code>fetch</code> &amp; <code>async/await</code>) :</strong> permettent d’interroger une API JSON sans bloquer l’interface.</li></ul></div>
+
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>6. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="rx2-c1-e1" data-lab
      data-exercise="rx2-c1-e1"
+     data-grading-suspended="1"
      data-language="javascript"
      data-height="300"
      data-stdin="button Valider&#10;">
@@ -166,12 +172,14 @@ const texte = reste.join(' ');
     <h3 class="lab__title">Exercice 1 — Créer un React Element (createElement)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler React.createElement en produisant l'objet virtuel correspondant à une balise et son texte.</p>
-    <div class="lab__brief"><p>En React, <code>React.createElement(type, props, children)</code> génère un objet décrivant un nœud virtuel. Le programme lit une ligne au format <code>type texte</code> (ex. <code>button Valider</code>). Produisez et affichez l'objet JSON correspondant sous la forme <code>{"type":"button","props":{"children":"Valider"}}</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler une représentation simplifiée d'un élément créé avec React.createElement.</p>
+    <p class="lab__note" id="rx2-c1-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
+    <div class="lab__brief"><p>La transformation JSX classique peut appeler <code>React.createElement(type, props, children)</code> ; la transformation automatique peut utiliser <code>react/jsx-runtime</code>. Ici, nous simulons seulement un modèle pédagogique simplifié, et non l'objet React complet. Le programme lit une ligne au format <code>type texte</code> (ex. <code>button Valider</code>). Affichez ce modèle JSON sous la forme <code>{"type":"button","props":{"children":"Valider"}}</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>button Valider
 </pre></div>
@@ -190,6 +198,7 @@ const texte = reste.join(' ');
 
 <div class="lab" id="rx2-c1-e2" data-lab
      data-exercise="rx2-c1-e2"
+     data-grading-suspended="1"
      data-language="javascript"
      data-height="300"
      data-stdin="1 Alice&#10;">
@@ -204,11 +213,13 @@ const [statut, identifiant] = lignes[0].split(' ');
     <h3 class="lab__title">Exercice 2 — Rendu conditionnel JSX</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Générer la représentation JSX d'une vue selon l'état de connexion de l'utilisateur.</p>
+    <p class="lab__note" id="rx2-c1-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Dans une application React, une interface s'adapte à l'état. Le script reçoit une ligne : <code>statut identifiant</code> où statut vaut <code>1</code> (connecté) ou <code>0</code> (anonyme). Si connecté, affichez <code>&lt;Dashboard user="identifiant" /&gt;</code> ; sinon, affichez <code>&lt;LoginForm redirect="/login" /&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>1 Alice
@@ -228,6 +239,7 @@ const [statut, identifiant] = lignes[0].split(' ');
 
 <div class="lab" id="rx2-c1-e3" data-lab
      data-exercise="rx2-c1-e3"
+     data-grading-suspended="1"
      data-language="javascript"
      data-height="300"
      data-stdin="Accueil&#10;Bienvenue en B2&#10;Equipe Peda&#10;">
@@ -244,11 +256,13 @@ const auteur = lignes[2] || '';
     <h3 class="lab__title">Exercice 3 — Décomposition en arbre de composants</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Décomposer une maquette en une hiérarchie de composants App, Header, Content et Footer.</p>
+    <p class="lab__note" id="rx2-c1-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Penser en React consiste à découper l'UI en composants indépendants. Le programme lit 3 lignes : le <strong>titre</strong> (ligne 1), le <strong>message</strong> (ligne 2) et l'<strong>auteur</strong> (ligne 3). Affichez l'arborescence textuelle suivante avec 2 espaces d'indentation par niveau :<br><code>&lt;App&gt;<br>&nbsp;&nbsp;&lt;Header title="TITRE" /&gt;<br>&nbsp;&nbsp;&lt;Content message="MESSAGE" /&gt;<br>&nbsp;&nbsp;&lt;Footer author="AUTEUR" /&gt;<br>&lt;/App&gt;</code></p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>Accueil
@@ -271,6 +285,7 @@ Equipe Peda
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>7. QCM — niveau examen</h2>
 
@@ -294,13 +309,13 @@ Equipe Peda
       <div class="q__exp">On déclare l’état visuel et React synchronise le DOM.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Le compilateur transforme le JSX en…</p>
+      <p class="q__stem">Selon la configuration, le compilateur transforme le JSX en…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Appels à React.createElement()</button>
+        <button class="opt" data-correct="1">Appels à React.createElement (classique) ou au runtime react/jsx-runtime (automatique)</button>
         <button class="opt">Chaînes de texte injectées avec innerHTML</button>
         <button class="opt">Code binaire machine assembleur</button>
       </div>
-      <div class="q__exp">JSX est du sucre syntaxique compilé en React.createElement.</div>
+      <div class="q__exp">La transformation classique peut appeler React.createElement ; la transformation automatique peut utiliser react/jsx-runtime.</div>
     </div>
     <div class="q">
       <p class="q__stem">En JSX, l’attribut de classe CSS s’écrit…</p>
@@ -347,6 +362,15 @@ Equipe Peda
       </div>
       <div class="q__exp">En JSX, la fermeture des balises est obligatoire et stricte.</div>
     </div>
+    <div class="q">
+      <p class="q__stem">Quels outils sont utilisés par Vite 8.3.5 pour le bundling et les transformations ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Rolldown et Oxc</button>
+        <button class="opt">Uniquement Rollup et esbuild</button>
+        <button class="opt">React Router et Redux</button>
+      </div>
+      <div class="q__exp">Vite 8 utilise Rolldown pour le bundling et Oxc pour les transformations.</div>
+    </div>
   </div>
 
 <h2>8. Erreurs classiques — récapitulatif</h2>
@@ -383,7 +407,7 @@ Equipe Peda
       <li>React est une bibliothèque déclarative : l’UI est une fonction directe de l’état (UI = f(state)).</li>
       <li>Vite est l’environnement de développement moderne recommandé (rapide, ESM natif).</li>
       <li>Le JSX combine la puissance de JavaScript et la clarté du HTML sous forme d’arborescence.</li>
-      <li>Chaque balise JSX est compilée sous le capot en un appel à React.createElement.</li>
+      <li>Le JSX peut être transformé en appels à React.createElement (classique) ou au runtime react/jsx-runtime (automatique).</li>
       <li>createRoot permet de monter l’application React sur un élément racine du DOM.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
@@ -408,17 +432,17 @@ Equipe Peda
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Révise les bases du JSX et la différence déclaratif/impératif.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Révisez les bases du JSX et la différence déclaratif/impératif.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur la structure d’un projet Vite et les règles de balisage.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous maîtrisez la décomposition et le modèle mental React.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Parfait : passe aux composants et aux props dans le chapitre 2.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Parfait : passez aux composants et aux props dans le chapitre 2.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Composants fonctionnels & transmission de props <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Composants fonctionnels &amp; transmission de props <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.

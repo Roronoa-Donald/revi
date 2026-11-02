@@ -23,7 +23,7 @@ $enLigne = [int][Console]::In.ReadLine()
 # puis afficher "quorum : atteint" ou "quorum : perdu".
 `,
     hints: [
-      'La condition « plus de la moitié » s’écrit ($enLigne * 2 -gt $total).',
+      'La condition « plus de la moitié » s’écrit `($enLigne * 2 -gt $total)`.',
       'Évitez la division : multiplier par 2 garde des entiers exacts.'
     ],
     examples: [
@@ -66,7 +66,7 @@ for ($i = 0; $i -lt $n; $i++) {
 `,
     hints: [
       'Le test d’égalité de chaînes s’écrit ($etat -eq "actif").',
-      'Tous les nœuds sont actifs si $actifs -eq $n.'
+      'Tous les nœuds sont actifs si `$actifs -eq $n`.'
     ],
     examples: [
       { stdin: '3\nactif\nactif\nactif', expected: 'actifs : 3\ntype : active-active', note: 'Trois nœuds actifs.' }
@@ -108,7 +108,7 @@ $serveurs = [int][Console]::In.ReadLine()
 # À compléter : calculer la part entière et le reste, puis les afficher.
 `,
     hints: [
-      'La part entière vaut [int]([math]::Floor($requetes / $serveurs)).',
+      'La part entière vaut `[int]([math]::Floor($requetes / $serveurs))`.',
       'Le reste se calcule avec l’opérateur modulo % ou par soustraction.'
     ],
     examples: [

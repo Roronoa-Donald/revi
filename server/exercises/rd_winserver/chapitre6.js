@@ -106,7 +106,7 @@ for ($i = 0; $i -lt $n; $i++) {
 `,
     hints: [
       'Lisez chaque taille avec [int][Console]::In.ReadLine().',
-      'La sauvegarde tient si ($total -le $capacite).'
+      'La sauvegarde tient si `($total -le $capacite)`.'
     ],
     examples: [
       { stdin: '1000\n2\n300\n400', expected: 'total : 700 Go\nsauvegarde : planifiee', note: '700 Go sur une cible de 1000 Go.' }

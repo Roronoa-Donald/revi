@@ -32,7 +32,8 @@ const url = (lignes[1] || '').trim().split('/').filter(Boolean);
     tests: [
       { label: 'Deux paramètres dynamiques slug et numéro', stdin: '/courses/:slug/chapitre/:n\n/courses/react/chapitre/3\n', expected: '{"slug":"react","n":"3"}' },
       { label: 'Paramètre unique dans une sous-section', stdin: '/admin/:section\n/admin/settings\n', expected: '{"section":"settings"}' },
-      { label: 'Nombre de segments incompatible', stdin: '/items/:id\n/items/12/extra\n', expected: '{}' }
+      { label: 'Nombre de segments incompatible', stdin: '/items/:id\n/items/12/extra\n', expected: '{}' },
+      { label: 'Paramètre premier segment', stdin: '/:page\n/accueil\n', expected: '{"page":"accueil"}' }
     ],
     solution: `const fs = require('fs');
 const lignes = fs.readFileSync(0, 'utf8').trim().split('\\n');
@@ -57,27 +58,27 @@ console.log(JSON.stringify(params));
     chapter: 6,
     level: 'n1',
     language: 'javascript',
-    title: 'Route protégée et composant Navigate',
-    goal: 'Rediriger un utilisateur non connecté avec le composant Navigate de React Router.',
-    brief: '<p>Pour sécuriser une route privée, on teste l\'authentification : si l\'utilisateur est connecté, le composant enfant s\'affiche ; sinon, une redirection s\'opère. Le script lit une ligne <code>auth composant</code> où auth vaut <code>1</code> ou <code>0</code>. Si 1, affichez <code>&lt;COMPOSANT /&gt;</code> ; si 0, affichez <code>&lt;Navigate to="/login" replace /&gt;</code>.</p>',
+    title: 'Garde de navigation côté client et composant Navigate',
+    goal: 'Simuler l\'affichage ou la redirection côté client avec Navigate de React Router.',
+    brief: '<p>Une garde React choisit le composant à afficher ou redirige l\'utilisateur : c\'est une simulation de navigation côté client, pas une protection des données. Le serveur doit vérifier l\'identité et les droits sur la ressource à chaque requête sensible, y compris une requête directe. Le script lit une ligne <code>auth composant</code> où auth vaut <code>1</code> ou <code>0</code>. Si 1, affichez <code>&lt;COMPOSANT /&gt;</code> ; si 0, affichez <code>&lt;Navigate to="/login" replace /&gt;</code>.</p>',
     starter: `const fs = require('fs');
 const lignes = fs.readFileSync(0, 'utf8').trim().split('\\n');
 
 const [auth, composant] = lignes[0].split(' ');
 
-// À compléter : autoriser ou rediriger vers /login
+// À compléter : afficher le composant ou rediriger vers /login
 `,
     hints: [
       'Si auth === "1", affichez le composant cible avec des balises auto-fermantes.',
       'Si auth === "0", affichez la balise Navigate avec to="/login" et replace.'
     ],
     examples: [
-      { stdin: '1 Dashboard\n', expected: '<Dashboard />', note: 'Accès autorisé au tableau de bord.' }
+      { stdin: '1 Dashboard\n', expected: '<Dashboard />', note: 'Composant affiché côté client ; aucun droit serveur n\'est démontré.' }
     ],
     tests: [
-      { label: 'Accès profil non connecté', stdin: '0 Profile\n', expected: '<Navigate to="/login" replace />' },
-      { label: 'Accès panneau d administration connecté', stdin: '1 AdminPanel\n', expected: '<AdminPanel />' },
-      { label: 'Accès paramètres non connecté', stdin: '0 Settings\n', expected: '<Navigate to="/login" replace />' }
+      { label: 'Redirection du profil non connecté', stdin: '0 Profile\n', expected: '<Navigate to="/login" replace />' },
+      { label: 'Affichage client du panneau pour une session présente', stdin: '1 AdminPanel\n', expected: '<AdminPanel />' },
+      { label: 'Redirection des paramètres non connectés', stdin: '0 Settings\n', expected: '<Navigate to="/login" replace />' }
     ],
     solution: `const fs = require('fs');
 const lignes = fs.readFileSync(0, 'utf8').trim().split('\\n');

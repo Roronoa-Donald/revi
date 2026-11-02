@@ -167,7 +167,7 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Refaites le tableau des cinq modèles de mémoire.' },
-      { cls: 'mid', text: '50–69 % — Classe dix politiques d\'accès dans le bon modèle.' },
+      { cls: 'mid', text: '50–69 % — Classez dix politiques d\'accès dans le bon modèle.' },
       { cls: 'good', text: '70–94 % — Solide : rédige le plan de correctifs d\'un parc de 20 machines.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 5, la gestion des incidents.' }
     ],

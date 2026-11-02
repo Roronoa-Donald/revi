@@ -40,8 +40,8 @@ int main(void) {
 }
 `,
     hints: [
-      'Le message de sortie est affiché par une fonction de la bibliothèque d’entrées/sorties : elle reçoit un texte à trous et les valeurs à y insérer.',
-      'Un texte se place dans un tableau de caractères et se désigne sans le symbole d’adresse : c’est la seule variable que l’on ne fait pas précéder d’un « & ».'
+      'Quelle fonction du cours permet d’afficher un texte et d’y insérer une valeur ?',
+      'Quel spécificateur de printf permet d’insérer le mot lu dans la phrase ?'
     ],
     examples: [
       { stdin: 'Monde', expected: 'Bonjour, Monde !', note: 'Le prénom lu est inséré dans la phrase.' }
@@ -49,7 +49,8 @@ int main(void) {
     tests: [
       { label: 'Prénom court', stdin: 'Ali', expected: 'Bonjour, Ali !' },
       { label: 'Autre prénom', stdin: 'Sara', expected: 'Bonjour, Sara !' },
-      { label: 'Prénom composé d’une majuscule', stdin: 'Z', expected: 'Bonjour, Z !' }
+      { label: 'Prénom composé d’une majuscule', stdin: 'Z', expected: 'Bonjour, Z !' },
+      { label: 'Entrée vide EOF', stdin: '', expected: '' }
     ],
     solution: `#include <stdio.h>
 
@@ -83,7 +84,7 @@ int main(void) {
 }
 `,
     hints: [
-      'Le calcul se fait entre la lecture et l’affichage : rangez le résultat dans une variable avant de l’afficher, ou calculez-le directement dans l’appel d’affichage.',
+      'Quelles étapes séparent la lecture des données de l’affichage du résultat ?',
       'Le format d’affichage d’un entier est « %d » dans les deux cas — lecture comme écriture.'
     ],
     examples: [
@@ -125,7 +126,7 @@ int main(void) {
 }
 `,
     hints: [
-      'L’ordre des valeurs passées à l’affichage doit suivre l’ordre des trous du texte : d’abord le texte du nom, puis l’entier.',
+      'Dans quel ordre les valeurs doivent-elles correspondre aux éléments du format d’affichage ?',
       'Deux trous de types différents cohabitent dans une même phrase : « %s » pour le nom, « %d » pour l’âge.'
     ],
     examples: [
@@ -455,7 +456,8 @@ int main(void) {
     tests: [
       { label: 'Trois éléments croissants', stdin: '3\n1 2 3', expected: 'Somme : 6\nMax : 3' },
       { label: 'Un seul élément', stdin: '1\n7', expected: 'Somme : 7\nMax : 7' },
-      { label: 'Tous négatifs', stdin: '4\n-1 -2 -3 -4', expected: 'Somme : -10\nMax : -1' }
+      { label: 'Tous négatifs', stdin: '4\n-1 -2 -3 -4', expected: 'Somme : -10\nMax : -1' },
+      { label: 'Un seul élément négatif', stdin: '1\n-5', expected: 'Somme : -5\nMax : -5' }
     ],
     solution: `#include <stdio.h>
 
@@ -510,7 +512,8 @@ int main(void) {
     tests: [
       { label: 'Mot courant', stdin: 'bonjour', expected: 'Voyelles : 3' },
       { label: 'Suite de voyelles', stdin: 'eau', expected: 'Voyelles : 3' },
-      { label: 'Majuscules', stdin: 'BONJOUR', expected: 'Voyelles : 3' }
+      { label: 'Majuscules', stdin: 'BONJOUR', expected: 'Voyelles : 3' },
+      { label: 'Entrée vide EOF', stdin: '', expected: '' }
     ],
     solution: `#include <stdio.h>
 #include <ctype.h>

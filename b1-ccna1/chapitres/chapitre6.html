@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -81,7 +81,8 @@
 <h2>1. Sécuriser la CLI</h2>
 
 <p>Les <strong>mots de passe simples</strong> : en mode de ligne, <em>password</em> + <em>login</em> — pour la console (<em>line con 0</em>) et pour Telnet (<em>line vty 0 15</em>, le mot de passe vty). Le <strong>mode enable</strong> se protège par la commande de configuration globale <em>enable secret</em> — obligatoire dès qu'on gère à distance, car depuis le mode enable un attaquant rechargerait le commutateur ou modifierait la configuration.</p>
-<p>Les <strong>utilisateurs locaux</strong> : créer les couples avec <em>username nom secret motdepasse</em>, puis activer avec <em>login local</em> (et nettoyer avec <em>no password</em>). Pour <strong>SSH</strong> — le seul accès chiffré, qui exige un couple utilisateur/mot de passe : hostname + <em>ip domain-name</em> (le FQDN sert à générer la clé), puis <em>crypto key generate rsa</em> (au moins 768 bits pour SSHv2), <em>ip ssh version 2</em>, et <em>transport input ssh</em> en vty pour interdire Telnet.</p>
+<p>Les <strong>utilisateurs locaux</strong> : créer les couples avec <em>username nom secret motdepasse</em>, puis activer avec <em>login local</em> (et nettoyer avec <em>no password</em>). Pour <strong>SSH</strong>, <em>login local</em> est une configuration possible avec un compte et un mot de passe ; l'authentification peut aussi utiliser une clé publique lorsque la plateforme est configurée pour cela. Cette clé de l'utilisateur est distincte de la clé du serveur SSH. Dans cet exemple Cisco : hostname et <em>ip domain-name</em>, puis <em>crypto key generate rsa</em>, <em>ip ssh version 2</em> et <em>transport input ssh</em> en vty. Depuis <strong>IOS XE 17.10</strong>, Cisco indique un minimum de <strong>2048 bits</strong> pour la paire RSA ; vérifiez la version et la politique de votre équipement.</p>
+<p>Référence : <a href="https://www.cisco.com/c/en/us/td/docs/routers/ios/config/17-x/sec-vpn/b-security-vpn/m_sec-secure-shell-v2-0.html">Cisco IOS XE, SSH version 2</a>, consultée le 30 octobre 2026.</p>
   <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « secret pour enable, local pour user, crypto pour SSH »</div>
     <p>Trois protections, trois commandes-clés : enable secret, login local, crypto key generate rsa.</p>
@@ -90,21 +91,23 @@
 <h2>2. IPv4 de gestion et confort de console</h2>
 
 <p>L'adresse IP du commutateur ne concerne pas la commutation des trames — elle sert au <strong>trafic de gestion</strong> (Telnet, SSH, SNMP). Elle se pose sur l'<strong>interface virtuelle (SVI)</strong> : <em>interface vlan 1</em> (tous les ports y sont par défaut), <em>ip address adresse masque</em>, <em>no shutdown</em>, puis <em>ip default-gateway</em> en configuration globale — indispensable pour parler hors du sous-réseau, comme pour un hôte. Alternative : <em>ip address dhcp</em> pour apprendre les paramètres dynamiquement.</p>
-<p>Trois commandes de <strong>confort</strong> : <em>logging synchronous</em> — les messages syslog attendent la fin de la commande en cours au lieu de s'inviter en pleine saisie ; <em>exec-timeout minutes secondes</em> — délai de déconnexion d'inactivité (5 min par défaut, 0 0 = jamais, pour le laboratoire) ; <em>no ip domain-lookup</em> — plus d'attente d'une minute après une commande mal tapée qu'IOS essaie de résoudre en nom d'hôte.</p>
+<p>Trois commandes de <strong>confort</strong> : <em>logging synchronous</em> — les messages non sollicités s'affichent sur une ligne séparée, puis l'invite est réaffichée ; <em>exec-timeout minutes secondes</em> — délai de déconnexion d'inactivité (10 minutes par défaut dans la documentation Cisco IOS, mise à jour en 2019 ; vérifier la plateforme et la configuration ; 0 0 : délai EXEC d'inactivité désactivé, pour le laboratoire ; d'autres causes peuvent terminer la session) ; <em>no ip domain-lookup</em> — évite une attente de résolution DNS après une commande mal tapée. Sources : <a href="https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/fundamentals/command/cf_command_ref/D_through_E.html">exec-timeout</a> et <a href="https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/fundamentals/command/cf_command_ref/L_through_mode.html">logging synchronous</a>, consultées le 30 octobre 2026.</p>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
     <ul>
-      <li>SSH ne fonctionne pas avec un simple mot de passe : il exige un couple utilisateur/mot de passe.</li>
+      <li>SSH ne se limite pas au mot de passe : une clé publique utilisateur est possible selon la configuration.</li>
       <li>Le crypto key a besoin du FQDN : hostname + ip domain-name avant.</li>
       <li>Sans ip default-gateway, le commutateur ne parle pas hors de son sous-réseau.</li>
-      <li>exec-timeout 0 0 = jamais déconnecté : pour le labo, pas la production.</li>
+      <li>exec-timeout 0 0 : délai EXEC d'inactivité désactivé ; pour le labo, pas la production.</li>
     </ul>
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>3. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="cc-c6-e1" data-lab
      data-exercise="cc-c6-e1"
      data-language="analyse"
@@ -138,20 +141,19 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Sécuriser les accès</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="cc-c6-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Associer chaque protection de la CLI à sa commande de configuration.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « protection commande » : commande est un code parmi <code>passwordlogin</code> (mot de passe simple + login), <code>loginlocal</code> (noms d'utilisateurs locaux), <code>enablesecret</code> ou <code>transportinput</code>. Protections du support : <code>passwordlogin</code> protège console et vty avec un mot de passe partagé ; <code>loginlocal</code> exige un couple utilisateur/mot de passe local ; <code>enablesecret</code> protège le mode enable ; <code>transportinput</code> choisit les protocoles vty (ssh, telnet, all). Pour chaque ligne il Indiquez <code>protection : OK</code> ou <code>protection : ERREUR</code>, puis <code>conformes : X/n</code>.</p></div>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « protection commande » : commande est un code parmi <code>passwordlogin</code> (mot de passe simple + login), <code>loginlocal</code> (noms d'utilisateurs locaux), <code>enablesecret</code> ou <code>transportinput</code>. Protections du support : <code>passwordlogin</code> protège console et vty avec un mot de passe partagé ; <code>loginlocal</code> exige un couple utilisateur/mot de passe local ; <code>enablesecret</code> protège le mode enable ; <code>transportinput</code> choisit les protocoles vty (ssh, telnet, all). Pour chaque ligne, indiquez <code>protection : OK</code> ou <code>protection : ERREUR</code>, puis <code>conformes : X/n</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2
 passwordlogin passwordlogin
 transportinput enablesecret
 </pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>passwordlogin : OK
-transportinput : ERREUR
-conformes : 1/2</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
@@ -167,14 +169,14 @@ conformes : 1/2</pre></div>
      data-exercise="cc-c6-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;1 svi&#10;2 ip-address&#10;4 gateway&#10;">
+     data-stdin="3&#10;1 svi&#10;2 ipaddress&#10;4 gateway&#10;">
   <script type="text/plain" data-lab-starter># Grille d'analyse (cc-c6-e2) — IPv4 sur le commutateur
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
 [Cas 1 — Ordre parfait]
 # Données : 5
 # Données : 1 svi
-# Données : 2 ip-address
+# Données : 2 ipaddress
 # Données : 3 noshutdown
 # Données : 4 gateway
 # Données : 5 nameserver
@@ -189,7 +191,7 @@ A_COMPLETER
 
 [Cas 3 — Cœur de config]
 # Données : 3
-# Données : 2 ip-address
+# Données : 2 ipaddress
 # Données : 3 noshutdown
 # Données : 4 gateway
 A_COMPLETER
@@ -198,22 +200,20 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — IPv4 sur le commutateur</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="cc-c6-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Dérouler la configuration IPv4 de gestion : SVI, adresse/masque, no shutdown, passerelle.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « etape commande » : etape est un numéro de 1 à 5 et commande un code parmi <code>svi</code>, <code>ipaddress</code>, <code>noshutdown</code>, <code>gateway</code> ou <code>nameserver</code>. Étapes du support : 1 <code>interface vlan 1</code> (la SVI), 2 <code>ip address</code> (adresse + masque), 3 <code>no shutdown</code>, 4 <code>ip default-gateway</code> (obligatoire pour parler hors du sous-réseau), 5 <code>ip name-server</code> (facultatif, DNS). Pour chaque ligne il Indiquez <code>etape N : OK</code> ou <code>etape N : NON</code>, puis <code>justes : X/n</code>.</p></div>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « etape commande » : etape est un numéro de 1 à 5 et commande un code parmi <code>svi</code>, <code>ipaddress</code>, <code>noshutdown</code>, <code>gateway</code> ou <code>nameserver</code>. Étapes du support : 1 <code>interface vlan 1</code> (la SVI), 2 <code>ip address</code> (adresse + masque), 3 <code>no shutdown</code>, 4 <code>ip default-gateway</code> (obligatoire pour parler hors du sous-réseau), 5 <code>ip name-server</code> (facultatif, DNS). Pour chaque ligne, indiquez <code>etape N : OK</code> ou <code>etape N : NON</code>, puis <code>justes : X/n</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 1 svi
-2 ip-address
+2 ipaddress
 4 gateway
 </pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>etape 1 : OK
-etape 2 : OK
-etape 4 : OK
-justes : 3/3</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
@@ -256,22 +256,20 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Le confort du laboratoire</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="cc-c6-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Simuler les trois commandes de confort : logging synchronous, exec-timeout, no ip domain-lookup.</p>
-    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Effets du support : sans <code>s</code>, les messages syslog s'invitent en pleine saisie ; sans <code>t</code>, la session expire après 5 minutes ; sans <code>d</code>, une commande mal tapée bloque une minute sur une résolution DNS. Pour chaque session il Indiquez <code>session : fluide</code> si les trois réglages sont présents, sinon <code>session : gene (motif X)</code> où X vaut <code>syslog</code>, <code>timeout</code> ou <code>dns</code> (premier motif manquant dans l'ordre s, t, d). Il termine par <code>sessions fluides : X/n</code>.</p></div>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Dans ce modèle fictif : sans <code>s</code>, les messages syslog perturbent la saisie ; sans <code>t</code>, la session inactive expire après 10 minutes ; sans <code>d</code>, une commande mal tapée entraîne une minute d'attente DNS. Ces durées sont des hypothèses : elles dépendent de la configuration et de la plateforme, et la grille ne simule pas un commutateur réel. Pour chaque session, indiquez <code>session : fluide</code> si les trois réglages sont présents, sinon <code>session : gene (motif X)</code> où X vaut <code>syslog</code>, <code>timeout</code> ou <code>dns</code> (premier motif manquant dans l'ordre s, t, d). Terminez par <code>sessions fluides : X/n</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 s1 std
 s2 st
 s3 -
 </pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>s1 : fluide
-s2 : gene (motif dns)
-s3 : gene (motif syslog)
-sessions fluides : 1/3</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
@@ -282,6 +280,7 @@ sessions fluides : 1/3</pre></div>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>4. QCM — niveau examen</h2>
 
@@ -323,13 +322,13 @@ sessions fluides : 1/3</pre></div>
       <div class="q__exp">Couple nom/mot de passe par utilisateur, créé par username nom secret motdepasse.</div>
     </div>
     <div class="q">
-      <p class="q__stem">La clé SSH se génère par…</p>
+      <p class="q__stem">Dans cet exemple Cisco, la clé du serveur SSH se génère par…</p>
       <div class="opts">
         <button class="opt" data-correct="1">crypto key generate rsa</button>
         <button class="opt">ssh keygen</button>
         <button class="opt">ip ssh key</button>
       </div>
-      <div class="q__exp">Avec au moins 768 bits pour SSHv2 ; le FQDN (hostname + ip domain-name) sert d'entrée.</div>
+      <div class="q__exp">Le FQDN est configuré avant ; IOS XE 17.10 indique au moins 2048 bits pour la paire RSA.</div>
     </div>
     <div class="q">
       <p class="q__stem">L'adresse IP de gestion se pose sur…</p>
@@ -356,7 +355,7 @@ sessions fluides : 1/3</pre></div>
         <button class="opt" data-correct="1">synchroniser l'affichage des messages syslog</button>
         <button class="opt">déconnecter</button>
       </div>
-      <div class="q__exp">Les syslog attendent la fin de la sortie en cours.</div>
+      <div class="q__exp">Les messages non sollicités apparaissent sur une ligne séparée, puis l'invite est réaffichée.</div>
     </div>
   </div>
 
@@ -368,7 +367,7 @@ sessions fluides : 1/3</pre></div>
       <li>Activer SSH sans crypto key generate rsa : pas de clés, pas de SSH.</li>
       <li>Oublier ip default-gateway après l'ip address : gestion locale seulement.</li>
       <li>Laisser transport input all en production : Telnet en clair reste ouvert.</li>
-      <li>Mettre exec-timeout 0 0 en production : sessions jamais expirées.</li>
+      <li>Mettre exec-timeout 0 0 en production : délai EXEC d'inactivité désactivé.</li>
     </ul>
   </div>
 
@@ -402,7 +401,7 @@ sessions fluides : 1/3</pre></div>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li><strong>line con 0</strong> : contexte de configuration de la console.</li><li><strong>line vty 0 15</strong> : contexte des lignes distantes (Telnet/SSH).</li><li><strong>enable secret</strong> : mot de passe du mode enable, en global.</li><li><strong>username nom secret motdepasse</strong> : création d'un utilisateur local.</li><li><strong>crypto key generate rsa</strong> : génération des clés SSH.</li><li><strong>transport input ssh</strong> : SSH seul sur les lignes vty.</li><li><strong>SVI / interface vlan 1</strong> : interface virtuelle de gestion.</li><li><strong>exec-timeout 0 0</strong> : jamais déconnecté (laboratoire).</li>
+      <li><strong>line con 0</strong> : contexte de configuration de la console.</li><li><strong>line vty 0 15</strong> : contexte des lignes distantes (Telnet/SSH).</li><li><strong>enable secret</strong> : mot de passe du mode enable, en global.</li><li><strong>username nom secret motdepasse</strong> : création d'un utilisateur local.</li><li><strong>crypto key generate rsa</strong> : génération des clés SSH.</li><li><strong>transport input ssh</strong> : SSH seul sur les lignes vty.</li><li><strong>SVI / interface vlan 1</strong> : interface virtuelle de gestion.</li><li><strong>exec-timeout 0 0</strong> : délai EXEC d'inactivité désactivé (laboratoire).</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -414,7 +413,7 @@ sessions fluides : 1/3</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — relisez la sécurisation et les cinq étapes IPv4.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>relisez la sécurisation et les cinq étapes IPv4.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>refaites la configuration SSH étape par étape.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>bon niveau, ciblez SVI et default-gateway.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>niveau de maîtrise recherché.</div>
@@ -424,7 +423,7 @@ sessions fluides : 1/3</pre></div>
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="../atelier.html">Atelier de scripts <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier d’analyse <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.

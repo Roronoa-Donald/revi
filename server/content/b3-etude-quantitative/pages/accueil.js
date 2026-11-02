@@ -121,7 +121,7 @@ function sommaire(course, chapterList) {
     '    </div>',
     '    <div class="card">',
     '      <h4>' + ic('chart') + ' Formules &amp; Mémento</h4>',
-    '      <p>Toutes les équations statistiques indispensables : Cochran, stratification, Chi-deux, Pearson, Likert et accord de Miles &amp; Huberman.</p>',
+    '      <p>Toutes les équations statistiques indispensables : Cochran, stratification, Chi-deux, Pearson, Likert, accord brut et kappa de Cohen.</p>',
     '      <a class="btn" href="chapitres/formules.html">Consulter le mémento</a>',
     '    </div>',
     '  </div>',
@@ -166,7 +166,7 @@ function atelier(course) {
     '  <div class="grid grid-2">',
     '    <div class="card">',
     '      <h4>Simulateur d’Échantillonnage Stratifié</h4>',
-    '      <p>Modélisez un algorithme de tirage au sort stratifié proportionnel calculant la taille requise par catégorie d’utilisateurs avec arrondi intelligent.</p>',
+    '      <p>Répartissez un échantillon stratifié proportionnel en conservant sa taille cible par la règle des plus forts restes.</p>',
     '    </div>',
     '    <div class="card">',
     '      <h4>Moteur de Test d’Indépendance du Chi-deux</h4>',
@@ -182,7 +182,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Atelier de code libre — ' + course.brand,
-      description: 'Bac à sable interactif de manière méthodiquepour tester vos calculs d’échantillonnage, tests statistiques et analyses qualitatives.',
+      description: 'Bac à sable interactif pour tester vos calculs d’échantillonnage, tests statistiques et analyses qualitatives.',
       active: 'atelier',
       body
     }

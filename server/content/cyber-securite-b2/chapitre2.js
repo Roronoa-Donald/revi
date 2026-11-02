@@ -91,42 +91,50 @@ module.exports = {
       title: 'Hachage cryptographique &amp; Code d’authentification HMAC',
       html: [
         '<p>Une fonction de hachage transforme un message de taille quelconque en une empreinte de taille fixe ' +
-        '(ex. 256 bits pour <strong>SHA-256</strong>). Une fonction cryptographique robuste doit garantir trois propriétés absolues :</p>',
+        '(ex. 256 bits pour <strong>SHA-256</strong>). Une fonction cryptographique robuste vise trois propriétés de résistance calculatoire, et non des impossibilités absolues :</p>',
 
         '<ol>',
-        '  <li><strong>Résistance à la préimage (sens unique) :</strong> Étant donné une empreinte <i>H</i>, il est calculatoirement impossible de retrouver le message original <i>m</i> tel que <i>hash(m) = H</i>.</li>',
-        '  <li><strong>Résistance à la seconde préimage :</strong> Étant donné <i>m1</i>, impossible de trouver <i>m2 &ne; m1</i> tel que <i>hash(m1) = hash(m2)</i>.</li>',
-        '  <li><strong>Résistance aux collisions :</strong> Impossible de trouver deux messages distincts quelconques produisant la même empreinte. ' +
+        '  <li><strong>Résistance à la préimage (sens unique) :</strong> Étant donné une empreinte <i>H</i>, trouver un message <i>m</i> tel que <i>hash(m) = H</i> est pratiquement infaisable.</li>',
+        '  <li><strong>Résistance à la seconde préimage :</strong> Étant donné <i>m1</i>, il est pratiquement infaisable de trouver <i>m2 &ne; m1</i> tel que <i>hash(m1) = hash(m2)</i>.</li>',
+        '  <li><strong>Résistance aux collisions :</strong> Trouver deux messages distincts quelconques produisant la même empreinte est pratiquement infaisable. ' +
         '  (C’est l’écroulement de cette résistance qui a rendu MD5 et SHA-1 totalement obsolètes).</li>',
         '</ol>',
 
         box('info', 'Code d’authentification de message : HMAC (RFC 2104)', [
-          '<p>Le simple hachage <code>hash(message)</code> garantit l’intégrité contre les erreurs de transmission, ' +
-          'mais pas contre un pirate qui modifie le message et recalcule son hash. ' +
-          'Le <strong>HMAC</strong> (Hash-based Message Authentication Code) combine le message avec une clé secrète partagée <i>K</i> :</p>' +
-          '<pre><code>HMAC(K, m) = hash((K ^ opad) || hash((K ^ ipad) || m))</code></pre>' +
-          '<p>Seul celui qui détient la clé secrète <i>K</i> peut forger un HMAC valide.</p>'
-        ].join('\n'))
+          '<p>Comparer <code>hash(message)</code> à une empreinte de référence fiable permet de détecter une différence, ' +
+          'avec un risque résiduel de collision. Un adversaire qui modifie le message et remplace aussi l’empreinte peut recalculer un hachage cohérent : la comparaison seule ne l’authentifie pas.</p>' +
+          '<p>Protéger la référence, par exemple en l’obtenant par un canal authentifié. Sinon, utiliser un <strong>HMAC</strong> avec une clé secrète partagée ou une signature numérique vérifiée avec la clé publique authentifiée de l’émetteur. ' +
+          'Le HMAC (Hash-based Message Authentication Code) combine le message avec une clé secrète <i>K</i>, normalisée en <i>K0</i> à la taille du bloc de hachage :</p>' +
+          '<pre><code>HMAC(K, m) = hash((K0 XOR opad) || hash((K0 XOR ipad) || m))</code></pre>' +
+          '<p>Si la clé reste secrète et la mise en œuvre est sûre, un tiers ne peut pas fabriquer un HMAC valide en pratique. Le MAC authentifie le message entre les détenteurs de la clé, sans distinguer lequel l’a créé.</p>'
+        ].join('\n')),
+        '<p>Sources : <a href="https://csrc.nist.gov/pubs/fips/180-4/upd1/final">NIST FIPS 180-4 : hachage</a>, ' +
+        '<a href="https://csrc.nist.gov/pubs/fips/198-1/final">NIST FIPS 198-1 : HMAC</a> (retrait proposé, remplacement en projet par ' +
+        '<a href="https://csrc.nist.gov/pubs/sp/800/224/ipd">NIST SP 800-224</a>) et ' +
+        '<a href="https://csrc.nist.gov/pubs/fips/186-5/final">NIST FIPS 186-5 : signature numérique</a> (consultés le 30/10/2026).</p>'
       ].join('\n')
     },
     {
       title: 'Signature numérique &amp; Infrastructure à clés publiques (PKI)',
       html: [
-        '<p>La signature numérique est l’équivalent informatique de la signature manuscrite notariée : ' +
-        'elle prouve l’authenticité de l’émetteur, garantit l’intégrité du document et empêche la répudiation.</p>',
+        '<p>Une signature numérique permet de vérifier l’intégrité d’un document et de le relier à la clé du signataire. ' +
+        'Pour attribuer la signature à une personne ou une organisation, il faut authentifier sa clé publique et protéger sa clé privée ; la vérification n’est pas une preuve absolue en cas de compromission.</p>',
+        '<p>Le calcul RSA ci-dessous est un modèle arithmétique simplifié, non sûr contre les falsifications. ' +
+        'En pratique, utiliser un schéma de signature normalisé tel que RSA-PSS et une clé publique authentifiée.</p>',
 
         '<table class="table">',
         '  <thead><tr><th>Étape</th><th>Acteur</th><th>Opération mathématique</th><th>Objectif</th></tr></thead>',
         '  <tbody>',
-        '    <tr><td><strong>1. Condensation</strong></td><td>Émetteur (Alice)</td><td><code>h = SHA-256(document)</code></td><td>Créer une empreinte unique de taille fixe.</td></tr>',
-        '    <tr><td><strong>2. Signature</strong></td><td>Émetteur (Alice)</td><td><code>s = h^d (mod n)</code> avec sa <strong>clé privée</strong></td><td>Sceller l’empreinte de façon infalsifiable.</td></tr>',
+        '    <tr><td><strong>1. Condensation</strong></td><td>Émetteur (Alice)</td><td><code>h = SHA-256(document) mod n</code></td><td>Construire un entier pour ce modèle.</td></tr>',
+        '    <tr><td><strong>2. Signature</strong></td><td>Émetteur (Alice)</td><td><code>s = h^d (mod n)</code> avec sa <strong>clé privée</strong></td><td>Illustrer l’opération RSA brute, sans protection pratique.</td></tr>',
         '    <tr><td><strong>3. Transmission</strong></td><td>Réseau public</td><td>Envoi du document en clair + de la signature <code>s</code></td><td>Transport sans secret nécessaire.</td></tr>',
-        '    <tr><td><strong>4. Vérification</strong></td><td>Récepteur (Bob)</td><td><code>h_verif = s^e (mod n)</code> avec la <strong>clé publique</strong> d’Alice</td><td>Vérifier que <code>h_verif == SHA-256(document)</code>.</td></tr>',
+        '    <tr><td><strong>4. Vérification</strong></td><td>Récepteur (Bob)</td><td><code>h_verif = s^e (mod n)</code> avec la <strong>clé publique</strong> d’Alice</td><td>Comparer <code>h_verif</code> à <code>SHA-256(document) mod n</code>, sans en déduire une sécurité réelle.</td></tr>',
         '  </tbody>',
         '</table>',
 
         '<p>Pour s’assurer que la clé publique appartient réellement à Alice et non à un usurpateur (attaque Man-in-the-Middle), ' +
-        'une Autorité de Certification (CA) signe un <strong>certificat numérique X.509</strong> liant l’identité d’Alice à sa clé publique.</p>'
+        'une Autorité de Certification (CA) peut signer un <strong>certificat numérique X.509</strong> liant l’identité d’Alice à sa clé publique. ' +
+        'Le récepteur doit notamment vérifier la chaîne de confiance, l’identité et la validité du certificat.</p>'
       ].join('\n')
     }
   ],
@@ -152,10 +160,10 @@ module.exports = {
         'Avec une clé symétrique temporaire négociée par Diffie-Hellman'
       ],
       correct: 0,
-      exp: 'La signature est générée avec la clé privée de l’émetteur (que lui seul possède). Tout le monde peut ensuite vérifier la validité de la signature grâce à sa clé publique.'
+      exp: 'La signature est générée avec la clé privée de l’émetteur. La vérification utilise sa clé publique, dont l’appartenance au signataire doit être authentifiée ; la clé privée doit rester protégée.'
     },
     {
-      stem: 'Quelle propriété d’une fonction de hachage cryptographique garantit qu’un pirate ne peut pas trouver deux fichiers différents produisant la même empreinte SHA-256 ?',
+      stem: 'Quelle propriété d’une fonction de hachage cryptographique rend pratiquement infaisable la recherche de deux fichiers différents de même empreinte SHA-256 ?',
       opts: [
         'La résistance aux collisions',
         'La résistance à la première préimage',
@@ -163,7 +171,18 @@ module.exports = {
         'La réversibilité polynomiale'
       ],
       correct: 0,
-      exp: 'La résistance aux collisions garantit qu’il est calculatoirement impossible de trouver deux entrées x et y distinctes telles que H(x) = H(y).'
+      exp: 'La résistance aux collisions rend pratiquement infaisable la recherche de deux entrées x et y distinctes telles que H(x) = H(y) ; elle ne rend pas les collisions mathématiquement impossibles.'
+    },
+    {
+      stem: 'Une empreinte accompagne un fichier et un attaquant peut modifier les deux. Comment détecter une modification malveillante ?',
+      opts: [
+        'Vérifier un HMAC avec la clé secrète partagée ou une signature avec une clé publique authentifiée',
+        'Recalculer le hachage du fichier et le comparer à l’empreinte fournie par le même attaquant',
+        'Vérifier uniquement que l’empreinte contient 64 caractères hexadécimaux',
+        'Compresser le fichier avant de calculer son hachage'
+      ],
+      correct: 0,
+      exp: 'Une comparaison avec une empreinte de référence fiable peut détecter une différence ; si l’attaquant modifie aussi cette référence, un MAC ou une signature avec clés protégées permet d’authentifier le message.'
     },
     {
       stem: 'Dans un échange de clés Diffie-Hellman, que représente le secret final K calculé par Alice et Bob ?',
@@ -182,7 +201,7 @@ module.exports = {
     'Utiliser le mode AES-ECB pour chiffrer des données volumineuses ou structurées.',
     'Réutiliser le même vecteur d’initialisation (IV) ou le même masque de Vernam avec la même clé.',
     'Confondre chiffrement asymétrique (clé publique du destinataire pour chiffrer) et signature numérique (clé privée de l’émetteur pour signer).',
-    'Considérer une fonction de hachage simple (SHA-256) comme suffisante pour authentifier un message sans associer de clé secrète (HMAC).',
+    'Considérer un hachage simple (SHA-256) comme suffisant pour authentifier un message sans référence fiable, MAC ou signature.',
     'Faire confiance à une clé publique sans vérifier la chaîne de certification X.509 remontant à une autorité racine (Root CA).'
   ],
 
@@ -198,8 +217,8 @@ module.exports = {
     'Le chiffrement symétrique (AES) assure le débit et la confidentialité en masse ; le mode GCM apporte en plus l’authenticité.',
     'Le masque jetable de Vernam est théoriquement inviolable si la clé est aléatoire, unique et de même taille que le clair.',
     'La cryptographie asymétrique (RSA, Diffie-Hellman) résout la distribution des clés sans canal sécurisé préalable.',
-    'Les fonctions de hachage (SHA-256) et les codes HMAC scellent l’intégrité des messages.',
-    'La signature numérique combinée aux certificats X.509 garantit l’authenticité et la non-répudiation des échanges.'
+    'Une empreinte SHA-256 se compare à une référence fiable ; un HMAC ou une signature protège l’intégrité contre une modification adversariale si les clés sont protégées.',
+    'Une signature vérifiée avec une clé publique authentifiée relie le message à la clé du signataire ; son attribution dépend notamment de la protection de la clé privée.'
   ],
 
   checklist: [
@@ -231,18 +250,18 @@ module.exports = {
   ],
 
   flashcards: [
-    { "q": 'Qu’est-ce que « Chiffrement symétrique vs asymétrique » ?', "a": 'Chiffrement symétrique vs asymétrique' },
-    { "q": 'Qu’est-ce que « Standard AES (Rijndael) » ?', "a": 'Standard AES (Rijndael) : Le théorème de Shannon prouve que si la clé est parfaitement aléatoire, aussi longue que le texte et utilisée une seule fois, le cryptogramme ne contient aucune information sur le clair (sécurité inconditionnelle). En pratique, l’industrie utilise l’ AES (Advanced Encryption Stan' },
-    { "q": 'Qu’est-ce que « Modes de bloc » ?', "a": 'Modes de bloc : ECB, CBC, GCM' },
-    { "q": 'Qu’est-ce que « Vecteur d’initialisation (IV) » ?', "a": 'Réutiliser le même vecteur d’initialisation (IV) ou le même masque de Vernam avec la même clé.' },
-    { "q": 'Qu’est-ce que « Algorithme RSA (factorisation) » ?', "a": 'Algorithme RSA (factorisation)' },
-    { "q": 'Qu’est-ce que « Échange de clés Diffie-Hellman » ?', "a": 'Dans un échange de clés Diffie-Hellman, que représente le secret final K calculé par Alice et Bob ?' },
-    { "q": 'Qu’est-ce que « Hachage cryptographique (SHA-256) » ?', "a": 'Hachage cryptographique (SHA-256)' },
+    { "q": 'Qu’est-ce que « Chiffrement symétrique vs asymétrique » ?', "a": 'Le chiffrement symétrique utilise la même clé secrète pour chiffrer et déchiffrer ; le chiffrement asymétrique utilise une paire de clés publique et privée.' },
+    { "q": 'Qu’est-ce que « Standard AES (Rijndael) » ?', "a": 'AES est un chiffrement symétrique par blocs de 128 bits, issu de Rijndael, avec des clés de 128, 192 ou 256 bits.' },
+    { "q": 'Qu’est-ce que « Modes de bloc » ?', "a": 'ECB chiffre chaque bloc séparément et révèle les motifs ; CBC chaîne les blocs ; GCM fournit chiffrement et authentification.' },
+    { "q": 'Qu’est-ce que « Vecteur d’initialisation (IV) » ?', "a": 'Valeur d’initialisation généralement publique : elle doit être imprévisible en CBC et unique pour chaque chiffrement avec une même clé en GCM.' },
+    { "q": 'Qu’est-ce que « Algorithme RSA (factorisation) » ?', "a": 'RSA utilise une paire de clés pour chiffrer ou signer ; sa sécurité dépend notamment de la difficulté de factoriser n = p × q.' },
+    { "q": 'Qu’est-ce que « Échange de clés Diffie-Hellman » ?', "a": 'Protocole permettant à deux parties de calculer un secret partagé (K = g^(ab) mod p) via un canal public sans transmettre leurs secrets privés ; sans authentification préalable (signatures ou certificats), l’échange est vulnérable à une attaque de l’homme du milieu (MitM) (RFC 2631).' },
+    { "q": 'Qu’est-ce que « Hachage cryptographique (SHA-256) » ?', "a": 'SHA-256 produit une empreinte de 256 bits ; la comparaison à une empreinte de confiance détecte une différence. Un HMAC ou une signature protège contre une modification adversariale, sous réserve de clés fiables.' },
     { q: 'Pourquoi le masque jetable de Vernam est-il inviolable ?', a: 'Parce que si la clé est parfaitement aléatoire, utilisée une seule fois et aussi longue que le texte, le cryptogramme ne fournit aucune information mathématique sur le clair.' },
     { q: 'Que signifie l’acronyme AES ?', a: 'Advanced Encryption Standard (standard de chiffrement symétrique par blocs de 128 bits).' },
     { q: 'Quelle est la vulnérabilité majeure du mode de chiffrement ECB ?', a: 'Des blocs de clair identiques produisent des blocs chiffrés identiques, révélant la structure des données.' },
     { q: 'Sur quelle difficulté mathématique repose la sécurité de RSA ?', a: 'Sur la difficulté de factoriser en nombres premiers un très grand entier n = p * q.' },
-    { q: 'Quelle est la différence entre SHA-256 et HMAC-SHA256 ?', a: 'SHA-256 est une empreinte publique sans clé ; HMAC-SHA256 intègre une clé secrète partagée pour authentifier l’auteur.' },
-    { q: 'À quoi sert un certificat numérique X.509 ?', a: 'À attester de manière infalsifiable qu’une clé publique appartient bien à une entité donnée, grâce à la signature d’une autorité de certification.' }
+    { q: 'Quelle est la différence entre SHA-256 et HMAC-SHA256 ?', a: 'SHA-256 est une empreinte sans clé ; HMAC-SHA256 utilise une clé secrète partagée pour authentifier le message entre les détenteurs de cette clé, sans identifier lequel l’a créé.' },
+    { q: 'À quoi sert un certificat numérique X.509 ?', a: 'À lier une identité à une clé publique par une signature ; il faut vérifier notamment la chaîne de confiance, l’identité et la validité, sans supposer la clé privée à l’abri d’une compromission.' }
   ]
 };

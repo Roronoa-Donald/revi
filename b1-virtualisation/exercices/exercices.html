@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -69,7 +69,7 @@
     </ol>
     <details><summary>Corrections &amp; dimensionnements de virtualisation</summary><div class="sol"><p><strong>1. Hyperviseurs :</strong> Le Type 1 s’exécute directement sur le matériel physique pour des performances optimales ; le Type 2 s’exécute au-dessus d’un système d’exploitation hôte.</p>
 <p><strong>2. Composants VM :</strong> L’hyperviseur intercepte et planifie l’accès aux ressources matérielles réelles de manière totalement isolée pour chaque VM.</p>
-<p><strong>3. Provisioning disque :</strong> Thin provisioning n’alloue que l’espace réellement écrit par le système invité ; Thick réserve immédiatement la taille totale sur le stockage.</p>
+<p><strong>3. Provisioning disque :</strong> Thin alloue des blocs à la demande ; thick réserve l’espace sur la couche concernée. L’occupation physique dépend des couches, des écritures et de la récupération des blocs.</p>
 <p><strong>4. Outils invités :</strong> Permettent la paravirtualisation (accès direct sans émulation lourde), la synchronisation horaire et l’arrêt propre de l’OS invité.</p></div></details>
   </div>
 
@@ -80,13 +80,13 @@
     <ol>
       <li>Calculer les ratios de surallocation (overcommit) de vCPU et de RAM recommandés en production.</li>
       <li>Comparer les modes de réseau virtuel : Accès par pont (Bridge), NAT et Réseau privé hôte (Host-Only).</li>
-      <li>Distinguer un instantané de machine virtuelle (snapshot - mémoire et delta de disques) d’une véritable sauvegarde.</li>
-      <li>Analyser le fonctionnement de la migration à chaud de machines virtuelles (vMotion / Live Migration sans interruption).</li>
+      <li>Distinguer un instantané de machine virtuelle d’une véritable sauvegarde, selon le type d’instantané.</li>
+      <li>Analyser la migration à chaud de machines virtuelles et ses possibles pauses de bascule.</li>
     </ol>
     <details><summary>Corrections &amp; dimensionnements de virtualisation</summary><div class="sol"><p><strong>1. Surallocation :</strong> Ratio vCPU:pCPU usuel de 3:1 à 5:1 selon la charge ; overcommit RAM déconseillé ou très limité pour éviter le swap de l’hyperviseur.</p>
 <p><strong>2. Réseau VM :</strong> Le Bridge intègre la VM directement au LAN physique avec sa propre IP ; le NAT partage l’adresse de l’hôte physique.</p>
-<p><strong>3. Snapshots :</strong> Un snapshot fige l’état pour un retour arrière rapide avant mise à jour mais dégrade les performances disque et ne protège pas contre une panne matérielle.</p>
-<p><strong>4. Migration à chaud :</strong> Pré-copie itérative de la RAM de la VM vers l’hôte cible pendant que la VM tourne, bascule finale en quelques millisecondes.</p></div></details>
+<p><strong>3. Snapshots :</strong> Le contenu dépend du type : le checkpoint Hyper-V standard capture la mémoire, celui de production non. Un checkpoint ne remplace pas une sauvegarde indépendante.</p>
+<p><strong>4. Migration à chaud :</strong> Une copie de mémoire peut précéder la bascule, qui comporte une courte pause ; la durée et l’impact dépendent de la charge et des applications.</p></div></details>
   </div>
 
   <h2>Raisonnement</h2>

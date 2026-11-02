@@ -8,22 +8,22 @@ module.exports = {
   n: 5,
   title: 'Haute Disponibilité, Clustering & Mobilité (HA, DRS & vMotion)',
   short: 'Clustering HA, DRS & vMotion',
-  toc: 'Architecture vSphere HA (agents FDM, élection maître/esclave, heartbeats réseau & datastore, contrôle d\'admission), équilibrage dynamique vSphere DRS (métriques de charge, seuils 1-5, règles d\'affinité et anti-affinité), mobilité à chaud vMotion (pré-copie, dirty rate, convergence, bascule sub-seconde) et Storage vMotion.',
+  toc: 'Architecture vSphere HA (agents FDM, élection maître/esclave, heartbeats réseau & datastore, contrôle d\'admission), équilibrage dynamique vSphere DRS (métriques de charge, seuils 1-5, règles d\'affinité et anti-affinité), mobilité à chaud vMotion (pré-copie, dirty rate, convergence et pause de bascule) et Storage vMotion.',
   time: '≈ 2 h 45',
   free: false,
 
   situation:
     'Vous êtes l\'architecte système en charge de concevoir un cluster Datacenter critique à tolérance de panne pour les services financiers d\'une banque en ligne. ' +
-    'Vous devez déployer et configurer vSphere HA pour assurer le redémarrage automatique immédiat des machines virtuelles en cas de sinistre matériel sur un serveur hôte, ' +
+    'Vous devez déployer et configurer vSphere HA pour permettre le redémarrage automatique des machines virtuelles après détection d\'un sinistre matériel sur un serveur hôte, ' +
     'dimensionner le contrôle d\'admission pour garantir la réserve de calcul nécessaire, ' +
     'mettre en place l\'équilibrage automatisé vSphere DRS avec règles d\'anti-affinité pour séparer les contrôleurs de domaine et les nœuds de cluster SQL, ' +
-    'et modéliser les opérations de migration à chaud vMotion pour réaliser la maintenance des hyperviseurs sans aucune seconde d\'interruption de service.',
+    'et modéliser les opérations de migration à chaud vMotion pour limiter les interruptions pendant la maintenance des hyperviseurs, puis mesurer leur impact éventuel.',
 
   objectives: [
     'Comprendre l\'architecture interne de vSphere HA : élection FDM (Master/Slave), surveillance par double heartbeat (réseau & datastore) et détection de pannes d\'hôte vs isolement.',
     'Configurer et dimensionner le contrôle d\'admission vSphere HA (Admission Control) pour réserver la capacité de failover sans gaspiller de ressources.',
     'Modéliser l\'ordonnancement automatisé vSphere DRS, ajuster les seuils de migration (1 à 5) et créer des règles d\'affinité et d\'anti-affinité strictes (VM-VM et VM-Hôte).',
-    'Maîtriser les étapes de la migration à chaud vMotion (phases de pré-copie, Dirty Rate, convergence et bascule sub-seconde) et du Storage vMotion.'
+    'Comprendre les étapes de la migration à chaud vMotion (phases de pré-copie, Dirty Rate, convergence et pause de bascule) et du Storage vMotion.'
   ],
 
   sections: [
@@ -93,7 +93,7 @@ module.exports = {
     {
       title: 'Mobilité à Chaud vMotion : Algorithme de Pré-Copie & Convergence',
       html: [
-        '<p>La technologie <strong>vSphere vMotion</strong> transfère une machine virtuelle en cours de fonctionnement d\'un serveur ESXi source vers un serveur ESXi cible sans coupure de service pour les utilisateurs :</p>',
+        '<p>La technologie <strong>vSphere vMotion</strong> transfère une machine virtuelle en cours de fonctionnement d\'un serveur ESXi source vers un serveur ESXi cible. Elle vise à limiter l\'interruption, mais une pause de bascule est possible et son impact dépend notamment de la charge et des applications :</p>',
         '<div class="grid grid-2">',
         '  <div class="card">',
         '    <h4>Phases de l\'Algorithme vMotion</h4>',
@@ -101,15 +101,15 @@ module.exports = {
         '      <li><strong>Initialisation :</strong> Création d\'une VM squelette sur l\'hôte cible et réservation des ressources.</li>',
         '      <li><strong>Pré-copie itérative (Pre-Copy) :</strong> Copie initiale de l\'intégralité des pages de mémoire vive sur le réseau vMotion. Durant ce transfert, les pages modifiées par la VM sont tracées par un filtre mémoire (<em>Dirty Pages</em>).</li>',
         '      <li><strong>Passes successives :</strong> L\'hyperviseur ne renvoie que les pages modifiées lors de la passe précédente.</li>',
-        '      <li><strong>Bascule sub-seconde (Switchover) :</strong> Dès que le volume restant peut être envoyé en moins d\'une seconde, la VM source est brièvement suspendue (&lt; 0.5s), l\'état des registres CPU est transféré, et la VM cible reprend l\'exécution.</li>',
+        '      <li><strong>Bascule (Switchover) :</strong> Après la pré-copie, l\'exécution de la VM est suspendue pour transférer l\'état restant ; elle reprend ensuite sur l\'hôte cible. La <a href="https://knowledge.broadcom.com/external/article/436882/how-to-identify-vmotion-stun-time.html">documentation Broadcom pour vSphere 8.x</a> (consultée le 30 octobre 2026) indique un objectif de 500 ms, pas une durée garantie.</li>',
         '      <li><strong>Annonce RARP :</strong> L\'hôte cible émet une trame RARP pour mettre à jour les tables CAM des commutateurs physiques.</li>',
         '    </ol>',
         '  </div>',
         '  <div class="card">',
         '    <h4>Équation de Convergence &amp; SDPS</h4>',
-        '    <p>Pour que la migration converge, le débit réseau effectif doit être strictement supérieur au rythme d\'écriture mémoire de la VM (Dirty Rate) :</p>',
+        '    <p>Dans un modèle simplifié à débits constants, sans compression ni ralentissement de la VM, la pré-copie converge si le débit réseau effectif est strictement supérieur au rythme de modification des pages mémoire distinctes (Dirty Rate) :</p>',
         '    <pre><code>Dirty_Rate_Mo_s &lt; Debit_Reseau_Mo_s</code></pre>',
-        '    <p>Si la VM modifie sa mémoire plus vite que le réseau ne peut la transmettre, vSphere active le mécanisme <strong>SDPS (Stun During Page Send)</strong> : le VMkernel ralentit temporairement les cycles d\'horloge de la VM pour brider son écriture et forcer la convergence.</p>',
+        '    <p>En pratique, des mécanismes tels que <strong>SDPS (Stun During Page Send)</strong> peuvent ralentir temporairement l\'exécution de la VM pour favoriser la convergence. Ils ne garantissent pas le succès de toute migration et peuvent affecter les applications sensibles.</p>',
         '  </div>',
         '</div>'
       ].join('\n')
@@ -121,22 +121,22 @@ module.exports = {
     'Activer vSphere HA sur le cluster et vérifier que chaque hôte dispose de connexions redondantes au réseau de management et à au moins deux datastores de heartbeat.',
     'Configurer le contrôle d\'admission en définissant une réserve de ressources en pourcentage calquée sur la formule 100% / N_hôtes (ex: 25% pour 4 hôtes).',
     'Activer vSphere DRS en mode Fully Automated (Niveau 3) et créer les règles d\'anti-affinité indispensables pour séparer les serveurs redondants critiques.',
-    'Valider les performances du réseau vMotion (interfaces 10 Gbps dédiées) et tester la migration à chaud sans perte de ping (ICMP &le; 1 paquet perdu).'
+    'Mesurer les performances du réseau vMotion et l\'impact de la migration sur le ping et les applications, puis les comparer aux objectifs du service.'
   ],
 
   summary: [
     'vSphere HA redémarre automatiquement les VM sinistrées grâce aux agents FDM autonomes et à la détection par double heartbeat réseau/datastore.',
     'Le contrôle d\'admission garantit qu\'une réserve de ressources suffisante reste toujours disponible pour absorber la défaillance d\'un ou plusieurs serveurs.',
     'vSphere DRS optimise dynamiquement l\'allocation CPU/RAM et applique des règles d\'anti-affinité pour éviter qu\'un crash unique ne détruise deux serveurs redondants.',
-    'vMotion transfère la mémoire vive à chaud par un processus itératif de pré-copie avant d\'effectuer une bascule imperceptible en moins d\'une demi-seconde.',
-    'Le mécanisme SDPS garantit la convergence finale de vMotion sur les machines virtuelles très actives en bridant temporairement le Dirty Rate.'
+    'vMotion transfère la mémoire vive à chaud par pré-copie ; une pause de bascule est possible et sa durée varie selon le contexte.',
+    'Le mécanisme SDPS peut ralentir temporairement la VM pour favoriser la convergence, sans garantir le succès de la migration.'
   ],
 
   checklist: [
     'Chaque hôte ESXi du cluster dispose-t-il d\'accès redondants à au moins deux datastores partagés pour le heartbeat HA ?',
     'Le contrôle d\'admission HA est-il configuré pour empêcher le démarrage de VM non garanties en cas de sinistre ?',
     'Des règles d\'anti-affinité VM-VM séparent-elles systématiquement les binômes de serveurs critiques (AD, SQL, Web) ?',
-    'Le réseau VMkernel vMotion dispose-t-il d\'une bande passante minimale de 10 Gbps pour garantir des durées de transfert réduites ?',
+    'La bande passante du réseau VMkernel vMotion est-elle adaptée à la charge et aux objectifs mesurés du service ?',
     'Une passerelle d\'isolement valide (Isolation Address) est-elle configurée pour permettre aux hôtes de diagnostiquer un isolement réseau ?'
   ],
 
@@ -147,7 +147,7 @@ module.exports = {
     { term: 'Admission Control', def: 'Politique de réservation de capacité CPU et mémoire garantissant que le cluster peut honorer les redémarrages en cas de sinistre.' },
     { term: 'vSphere DRS', def: 'Ordonnanceur distribué équilibrant la charge CPU et mémoire du cluster en migrant les VM via vMotion.' },
     { term: 'Règle d\'anti-affinité', def: 'Contrainte logique vSphere interdisant formellement le placement de deux machines virtuelles désignées sur le même serveur physique.' },
-    { term: 'vMotion', def: 'Technologie de migration à chaud transférant l\'état d\'exécution et la mémoire vive d\'une VM sans rupture de service.' },
+    { term: 'vMotion', def: 'Technologie de migration à chaud transférant l\'état d\'exécution et la mémoire vive d\'une VM ; une pause de bascule reste possible.' },
     { term: 'Dirty Rate', def: 'Rythme en Mo/s auquel le système d\'exploitation d\'une VM modifie ses pages de mémoire vive pendant une migration vMotion.' }
   ],
 
@@ -220,7 +220,7 @@ module.exports = {
       exp: 'Une règle d\'anti-affinité VM-VM garantit que deux machines virtuelles assurant le même rôle applicatif ne résident jamais sur le même serveur physique, éliminant tout point de défaillance unique (SPOF).'
     },
     {
-      q: 'Quelle condition mathématique est indispensable pour qu\'une migration à chaud vMotion puisse converger sans blocage ?',
+      q: 'Dans le modèle simplifié de pré-copie à débits constants, sans compression ni ralentissement de la VM, quelle condition permet de réduire les données restantes ?',
       opts: [
         'Le débit réseau effectif vMotion doit être supérieur au rythme de modification mémoire (Dirty Rate) de la VM.',
         'La taille de la RAM de la VM doit être strictement inférieure à 4 Go.',
@@ -228,18 +228,18 @@ module.exports = {
         'L\'hôte source et l\'hôte cible doivent posséder le même numéro de série constructeur.'
       ],
       correct: 0,
-      exp: 'Si le système invité écrit dans sa mémoire (Dirty Rate) plus rapidement que le réseau ne peut transmettre les blocs modifiés, le volume restant à copier ne diminue jamais et la migration ne peut pas converger.'
+      exp: 'Dans ce modèle, les pages distinctes modifiées à chaque passe doivent représenter moins de données que le réseau ne peut transférer. Une migration réelle dépend aussi de mécanismes et de contraintes que ce modèle ne représente pas.'
     },
     {
       q: 'Que fait le mécanisme SDPS (Stun During Page Send) lors d\'une migration vMotion difficile ?',
       opts: [
-        'Il ralentit temporairement les cycles d\'exécution de la VM pour réduire son rythme d\'écriture et forcer la convergence.',
+        'Il ralentit temporairement l\'exécution de la VM pour réduire son rythme d\'écriture et favoriser la convergence.',
         'Il éteint brusquement la machine virtuelle sans sauvegarder les données.',
         'Il bascule la liaison réseau en Wi-Fi pour contourner le commutateur physique.',
         'Il duplique le fichier .vmx sur l\'ensemble des datastores du datacenter.'
       ],
       correct: 0,
-      exp: 'SDPS injecte de micro-ralentissements sur les processeurs de la machine virtuelle pour brider artificiellement son taux d\'écriture mémoire (Dirty Rate), permettant à la phase de pré-copie de terminer le transfert.'
+      exp: 'SDPS peut imposer de courtes pauses aux processeurs virtuels pour limiter le rythme de modification mémoire ; cela peut aider la pré-copie sans garantir son succès ni l\'absence d\'impact applicatif.'
     },
     {
       q: 'Quelle opération réseau termine la bascule finale d\'une migration vMotion sur le nouvel hôte physique ?',
@@ -261,7 +261,7 @@ module.exports = {
         'Storage vMotion exige de remplacer physiquement les disques durs dans la baie.'
       ],
       correct: 0,
-      exp: 'vMotion déplace le traitement (calcul CPU et mémoire vive) entre serveurs physiques sans toucher aux disques partagés, tandis que Storage vMotion déplace les fichiers disques VMDK d\'un datastore à un autre sans couper la VM.'
+      exp: 'vMotion déplace le traitement (calcul CPU et mémoire vive) entre serveurs physiques, tandis que Storage vMotion déplace les fichiers disques VMDK d\'un datastore à un autre. Dans les deux cas, l\'impact sur les applications doit être mesuré.'
     }
   ],
 
@@ -283,8 +283,8 @@ module.exports = {
       a: 'Pour séparer physiquement deux VM redondantes sur des hôtes distincts et éliminer tout point unique de défaillance matérielle.'
     },
     {
-      q: 'Comment s\'assure-t-on de la convergence d\'une migration vMotion ?',
-      a: 'En garantissant un débit réseau dédié supérieur au rythme de modification des pages mémoire (Dirty Rate) de la VM.'
+      q: 'Quelle condition favorise la convergence dans le modèle simplifié de pré-copie ?',
+      a: 'À débits constants, le débit réseau effectif doit dépasser le rythme de modification des pages mémoire distinctes. La migration réelle dépend aussi d\'autres mécanismes et contraintes.'
     },
     {
       q: 'Quelle trame réseau est émise à la fin d\'un vMotion pour rediriger les paquets ?',
@@ -296,7 +296,7 @@ module.exports = {
     'Déployer et dépanner un cluster vSphere HA avec validation des agents FDM et des doubles heartbeats.',
     'Calculer et dimensionner la politique de contrôle d\'admission HA en pourcentage de ressources réservées.',
     'Configurer l\'ordonnancement dynamique vSphere DRS et poser des règles strictes d\'anti-affinité VM-VM.',
-    'Estimer la durée et le volume de transfert d\'une migration vMotion en fonction du Dirty Rate et du débit réseau.',
-    'Exécuter des opérations de Storage vMotion pour rééquilibrer les datastores et réaliser des maintenances sans interruption.'
+    'Estimer, dans un modèle simplifié, le volume et la durée de deux passes de pré-copie selon le Dirty Rate et le débit réseau.',
+    'Exécuter des opérations de Storage vMotion pour rééquilibrer les datastores et préparer les maintenances en cherchant à limiter les interruptions.'
   ]
 };

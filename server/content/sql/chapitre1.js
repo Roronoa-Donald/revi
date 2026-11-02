@@ -49,7 +49,7 @@ module.exports = {
         '  <div class="card">',
         '    <h4 class="card-title">Types textuels &amp; Temporels</h4>',
         '    <ul>',
-        '      <li><strong>CHAR(n) vs VARCHAR(n) :</strong> <code>CHAR</code> réserve une longueur fixe complétée par des espaces (ex: code ISO pays à 2 lettres). <code>VARCHAR</code> n’occupe que la taille réelle du texte plus un préfixe de longueur.</li>',
+        '      <li><strong>CHAR(n) vs VARCHAR(n) :</strong> Dans PostgreSQL, <code>CHAR(n)</code> est complété par des espaces et <code>VARCHAR(n)</code> limite la longueur en caractères, pas en octets. La représentation et le nombre d’octets dépendent notamment de l’encodage. Dans SQLite, <code>VARCHAR(n)</code> ne fait pas respecter la limite n : ajoutez une contrainte explicite si nécessaire.</li>',
         '      <li><strong>TIMESTAMP WITH TIME ZONE :</strong> Horodatage universel stocké en UTC et restitué selon le fuseau du client.</li>',
         '    </ul>',
         '  </div>',
@@ -108,7 +108,7 @@ module.exports = {
         '    <p>Une clé étrangère garantit que la valeur d’une colonne fait référence à une clé primaire existante dans la table parent :</p>',
         '    <ul>',
         '      <li><strong>ON DELETE RESTRICT (défaut) :</strong> Empêche la suppression du parent tant que des enfants y sont rattachés.</li>',
-        '      <li><strong>ON DELETE CASCADE :</strong> Supprimez automatiquement tous les enregistrements enfants dépendants lors de la suppression du parent.</li>',
+        '      <li><strong>ON DELETE CASCADE :</strong> Supprime automatiquement tous les enregistrements enfants dépendants lors de la suppression du parent.</li>',
         '      <li><strong>ON DELETE SET NULL :</strong> Affecte la valeur NULL à la clé étrangère des enfants si la colonne est nullable.</li>',
         '    </ul>',
         '  </div>',
@@ -163,15 +163,15 @@ module.exports = {
       exp: 'La clé primaire composite PRIMARY KEY (id_commande, id_produit) impose l’unicité stricte du couple (id_commande, id_produit) au niveau du moteur relationnel.'
     },
     {
-      stem: 'Quelle contrainte SQL permet de s’assurer qu’une colonne numérique stocke exclusivement des valeurs strictement positives (> 0) ?',
+      stem: 'Dans PostgreSQL, quelle définition accepte uniquement des valeurs strictement positives, finies et non NULL ?',
       opts: [
-        'CHECK (colonne > 0)',
-        'NOT NULL (colonne > 0)',
-        'UNIQUE (colonne > 0)',
-        'CONSTRAINT POSITIVE (colonne)'
+        'colonne NUMERIC NOT NULL CHECK (colonne > 0 AND colonne < \'Infinity\'::numeric)',
+        'colonne NUMERIC CHECK (colonne > 0)',
+        'colonne NUMERIC NOT NULL CHECK (colonne > 0)',
+        'colonne NUMERIC UNIQUE'
       ],
       correct: 0,
-      exp: 'La contrainte CHECK évalue une expression booléenne sur chaque ligne insérée ou modifiée et rejette l’opération si l’expression vaut FALSE.'
+      exp: 'CHECK rejette FALSE mais accepte NULL (UNKNOWN) : NOT NULL impose la présence. PostgreSQL classe NaN et Infinity au-dessus de zéro ; la borne colonne < \'Infinity\'::numeric exclut ces deux valeurs si un prix fini est exigé.'
     }
   ],
 
@@ -227,55 +227,11 @@ module.exports = {
   ],
 
   flashcards: [
-      { q: 'Qu’est-ce que « Modèle Relationnel & Schéma de table » ?', a: 'Modèle Relationnel & Schéma de table' },
-      { q: 'Qu’est-ce que « Types de données SQL (INT, DECIMAL, VARCHAR, TIMESTAMP) » ?', a: 'Types de données SQL (INT, DECIMAL, VARCHAR, TIMESTAMP)' },
-      { q: 'Qu’est-ce que « Data Definition Language (DDL) » ?', a: 'Data Definition Language (DDL) : Une jeune pousse de la FinTech lance une application de gestion de portefeuilles financiers. Lors de la phase de test initiale, des ordres d’achat sont enregistrés sans identifiant client valide, des transactions orphelines subsistent après la suppression d’un compte et des monta' },
-      { q: 'Qu’est-ce que « Commandes CREATE TABLE, ALTER TABLE, DROP TABLE » ?', a: 'Commandes CREATE TABLE, ALTER TABLE, DROP TABLE' },
-      { q: 'Qu’est-ce que « Commande TRUNCATE TABLE vs DELETE » ?', a: 'Commande TRUNCATE TABLE vs DELETE' },
-      { q: 'Qu’est-ce que « Intégrité d’Entité (PRIMARY KEY simple et composite) » ?', a: 'Intégrité d’Entité (PRIMARY KEY simple et composite)' },
-      { q: 'Qu’est-ce que « Intégrité Référentielle (FOREIGN KEY) » ?', a: 'configurer l’intégrité référentielle (FOREIGN KEY) et maîtriser les comportements ON DELETE / ON UPDATE (RESTRICT, CASCADE, SET NULL) ;' },
-      { q: 'Qu’est-ce que « Actions de suppression (ON DELETE CASCADE, RESTRICT, SET NULL) » ?', a: 'Actions de suppression (ON DELETE CASCADE, RESTRICT, SET NULL)' },
-      { q: 'Qu’est-ce que « Data Manipulation Language (DML) » ?', a: 'Data Manipulation Language (DML) : Un rapport financier mensuel génère des chiffres d’affaires erronés dans une application SaaS. Après inspection, plusieurs clients bénéficient d’une remise de 10 % calculée sur des factures dont le montant est pourtant nul, et des lignes contenant des adresses emails non renseign' },
-      { q: 'Qu’est-ce que « INSERT multi-lignes (Bulk Insert) » ?', a: 'INSERT multi-lignes (Bulk Insert)' },
-      { q: 'Qu’est-ce que « Mises à jour calculées (UPDATE ... SET) » ?', a: 'Mises à jour calculées (UPDATE ... SET)' },
-      { q: 'Qu’est-ce que « Suppression ciblée (DELETE FROM ... WHERE) » ?', a: 'Suppression ciblée (DELETE FROM ... WHERE)' },
-      { q: 'Qu’est-ce que « Logique tri-valuée (True, False, Unknown) » ?', a: 'Logique tri-valuée (True, False, Unknown)' },
-      { q: 'Qu’est-ce que « Sémantique de la valeur NULL en base relationnelle » ?', a: 'Sémantique de la valeur NULL en base relationnelle' },
-      { q: 'Qu’est-ce que « Prédicats IS NULL et IS NOT NULL » ?', a: 'Prédicats IS NULL et IS NOT NULL' },
-      { q: 'Qu’est-ce que « Fonction de substitution COALESCE() » ?', a: 'Fonction de substitution COALESCE()' },
-      { q: 'Qu’est-ce que « Algèbre relationnelle des jointures » ?', a: 'Algèbre relationnelle des jointures' },
-      { q: 'Qu’est-ce que « Jointure interne (INNER JOIN) » ?', a: 'Jointure interne (INNER JOIN)' },
-      { q: 'Qu’est-ce que « Jointure externe gauche (LEFT OUTER JOIN) » ?', a: 'Jointure externe gauche (LEFT OUTER JOIN)' },
-      { q: 'Qu’est-ce que « Auto-jointure (SELF JOIN) et modélisation hiérarchique » ?', a: 'Auto-jointure (SELF JOIN) et modélisation hiérarchique' },
-      { q: 'Qu’est-ce que « Produit cartésien (CROSS JOIN) » ?', a: 'Produit cartésien (CROSS JOIN)' },
-      { q: 'Qu’est-ce que « Sous-requêtes indépendantes vs corrélées » ?', a: 'Sous-requêtes indépendantes vs corrélées' },
-      { q: 'Qu’est-ce que « Prédicats EXISTS et NOT EXISTS » ?', a: 'Prédicats EXISTS et NOT EXISTS' },
-      { q: 'Qu’est-ce que « Clause GROUP BY multi-attributs » ?', a: 'Clause GROUP BY multi-attributs' },
-      { q: 'Qu’est-ce que « Clause de filtrage d’agrégats HAVING » ?', a: 'Clause de filtrage d’agrégats HAVING' },
-      { q: 'Qu’est-ce que « Fonction de numérotation séquentielle ROW_NUMBER() » ?', a: 'Fonction de numérotation séquentielle ROW_NUMBER()' },
-      { q: 'Qu’est-ce que « Fonctions de classement RANK() et DENSE_RANK() » ?', a: 'Fonctions de classement RANK() et DENSE_RANK()' },
-      { q: 'Qu’est-ce que « Fonctions de décalage temporel LAG() et LEAD() » ?', a: 'Fonctions de décalage temporel LAG() et LEAD()' },
-      { q: 'Qu’est-ce que « Transactions relationnelles & Contrat ACID » ?', a: 'Transactions relationnelles & Contrat ACID' },
-      { q: 'Qu’est-ce que « Atomicité, Cohérence, Isolation, Durabilité » ?', a: 'définir rigoureusement les quatre propriétés ACID (Atomicité, Cohérence, Isolation, Durabilité) d’un SGBD relationnel ;' },
-      { q: 'Qu’est-ce que « Commandes TCL (BEGIN, COMMIT, ROLLBACK) » ?', a: 'Les commandes TCL (BEGIN, COMMIT, ROLLBACK, SAVEPOINT) définissent et contrôlent le périmètre de la transaction.' },
-      { q: 'Qu’est-ce que « Points de reprise SAVEPOINT & ROLLBACK TO » ?', a: 'Points de reprise SAVEPOINT & ROLLBACK TO' },
-      { q: 'Qu’est-ce que « Anomalies de concurrence (Dirty, Non-repeatable, Phantom Read) » ?', a: 'Anomalies de concurrence (Dirty, Non-repeatable, Phantom Read)' },
-      { q: 'Qu’est-ce que « Niveaux d’isolation ANSI/ISO (Read Committed, Repeatable Read, Serializable) » ?', a: 'Niveaux d’isolation ANSI/ISO (Read Committed, Repeatable Read, Serializable)' },
-      { q: 'Qu’est-ce que « Verrous partagés (S) et exclusifs (X) » ?', a: 'analyser les mécanismes de verrous partagés (S) et exclusifs (X) et détecter les cycles d’interblocage (Deadlocks).' },
-      { q: 'Qu’est-ce que « Interblocages (Deadlocks) & Graphe d’attente (Wait-For Graph) » ?', a: 'Interblocages (Deadlocks) & Graphe d’attente (Wait-For Graph)' },
-      { q: 'Qu’est-ce que « Vues relationnelles (CREATE VIEW) » ?', a: 'Vues relationnelles (CREATE VIEW)' },
-      { q: 'Qu’est-ce que « Vues matérialisées & REFRESH MATERIALIZED VIEW » ?', a: 'Vues matérialisées & REFRESH MATERIALIZED VIEW' },
-      { q: 'Qu’est-ce que « Procédures stockées & Fonctions définies par l’utilisateur » ?', a: 'Procédures stockées & Fonctions définies par l’utilisateur' },
-      { q: 'Qu’est-ce que « Déclencheurs (Triggers) BEFORE et AFTER » ?', a: 'écrire des déclencheurs (Triggers) BEFORE et AFTER manipulant les pseudo-enregistrements NEW et OLD à des fins de validation et d’audit ;' },
-      { q: 'Qu’est-ce que « Pseudo-lignes de transition NEW et OLD » ?', a: 'Pseudo-lignes de transition NEW et OLD' },
-      { q: 'Qu’est-ce que « Index physique B-Tree (Arbre équilibré) » ?', a: 'Index physique B-Tree (Arbre équilibré)' },
-      { q: 'Qu’est-ce que « Règle du préfixe le plus à gauche sur index composite » ?', a: 'Règle du préfixe le plus à gauche sur index composite' },
-      { q: 'Qu’est-ce que « Planificateur de requêtes (Query Optimizer) » ?', a: 'Planificateur de requêtes (Query Optimizer)' },
     { q: 'Pourquoi ne faut-il jamais utiliser FLOAT pour stocker un prix en base de données ?', a: 'Parce que FLOAT utilise un codage binaire approché (IEEE 754) produisant des erreurs d’arrondi. Il faut utiliser DECIMAL(p,s) qui est un format décimal exact.' },
     { q: 'Quelle est la différence entre ON DELETE CASCADE et ON DELETE RESTRICT ?', a: 'CASCADE supprime automatiquement les enregistrements enfants liés, tandis que RESTRICT bloque immédiatement la suppression du parent si des enfants existent.' },
     { q: 'Dans quelle situation utilise-t-on une clé primaire composite ?', a: 'Dans les tables d’association ou de décomposition n:m (ex: commande_id + produit_id) pour garantir l’unicité de la combinaison sans clé synthétique.' },
     { q: 'Quelle est la différence entre DELETE et TRUNCATE ?', a: 'DELETE est une commande DML journalisée ligne par ligne pouvant être annulée par ROLLBACK, alors que TRUNCATE est une commande DDL rapide qui désalloue les blocs de stockage.' },
-    { q: 'Que fait la contrainte CHECK (prix > 0) ?', a: 'Elle valide que toute valeur insérée ou modifiée dans la colonne prix est strictement supérieure à zéro, rejetant l’opération dans le cas contraire.' },
-    { q: 'Quelle différence y a-t-il entre CHAR(10) et VARCHAR(10) ?', a: 'CHAR(10) réserve toujours 10 octets en complétant par des espaces, alors que VARCHAR(10) n’occupe que la taille réelle des caractères plus 1 à 2 octets d’en-tête.' }
+    { q: 'Que fait la contrainte CHECK (prix > 0) ?', a: 'Elle rejette une condition fausse mais accepte NULL, car la condition vaut alors UNKNOWN : ajouter NOT NULL impose une valeur présente. Pour un prix PostgreSQL NUMERIC fini, exclure aussi NaN et Infinity, par exemple avec prix < \'Infinity\'::numeric.' },
+    { q: 'Quelle différence y a-t-il entre CHAR(10) et VARCHAR(10) ?', a: 'Dans PostgreSQL, CHAR(10) complète avec des espaces jusqu’à 10 caractères ; VARCHAR(10) limite à 10 caractères. Leur taille en octets dépend notamment de l’encodage et de la représentation. Dans SQLite, VARCHAR(10) n’impose pas cette limite.' }
   ]
 };

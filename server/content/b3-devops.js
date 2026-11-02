@@ -40,8 +40,8 @@ const course = {
     'ordonnancement optimal du cache Dockerfile, Multi-Stage Builds, durcissement de sécurité non-root et ' +
     'idempotence d’Infrastructure as Code (IaC, gestion du drift), architectures de déploiement continu ' +
     'sans interruption (Zero-Downtime : Rolling Updates, Blue/Green, Canary Releases avec circuit breaker), ' +
-    'découplage Deploy vs Release par Feature Flags, pilotage scientifique de la performance par les 4 métriques DORA ' +
-    '(Deployment Frequency, Lead Time for Changes, Change Failure Rate, MTTR) et fiabilité matérielle/logicielle ' +
+    'découplage Deploy vs Release par Feature Flags, interprétation contextualisée des cinq métriques DORA ' +
+    'et fiabilité matérielle/logicielle ' +
     '(MTBF, MTTF, MTTR, disponibilité opérationnelle, Blast Radius, post-mortem sans blâme), et doctrine ' +
     'Site Reliability Engineering (SRE) de Google (gestion du Toil, dialèctique SLI/SLO/SLA, gouvernance par Error Budgets, ' +
     'analyse de Burn Rate, les 4 signaux dorés d’observabilité et éradication de l’Alert Flapping Prometheus).',

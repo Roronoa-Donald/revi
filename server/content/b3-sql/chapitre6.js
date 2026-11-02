@@ -17,9 +17,9 @@ module.exports = {
     'concevoir une architecture de partitionnement déclaratif horizontal (RANGE, LIST, HASH) avec table mère et sous-partitions ;',
     'comprendre et activer l’élagage de partitions (Partition Pruning) au niveau de l’optimiseur CBO et au runtime ;',
     'analyser la mécanique interne du journal des transactions WAL (Write-Ahead Logging) et le rôle des Checkpoints ;',
-    'différencier la réplication physique en streaming asynchrone (performance) et synchrone (zéro perte RPO=0) ;',
+    'différencier la réplication physique asynchrone et synchrone, leurs attentes et leurs limites selon la configuration et le stockage ;',
     'calculer et auditer le retard de réplication (Replication Lag) à partir des Log Sequence Numbers (LSN en base 16) ;',
-    'développer en Python 3 des routeurs de partitionnement, des optimiseurs de pruning et des calculateurs de décalage WAL LSN.'
+    'développer en requêtes SQL avancées et scripts d’analyse des routeurs de partitionnement, des optimiseurs de pruning et des calculateurs de décalage WAL LSN.'
   ],
   sections: [
     {
@@ -66,15 +66,15 @@ module.exports = {
         '  <div class="card">',
         '    <h4>Le Principe Fondamental du WAL</h4>',
         '    <ol>',
-        '      <li>Toute modification physique d’un tuple est d’abord consignée séquentiellement dans le journal WAL avant d’être répercutée dans les pages de données du buffer pool.</li>',
+        '      <li>Les enregistrements WAL nécessaires sont synchronisés avant l’écriture sur disque des pages de données correspondantes, qui peuvent déjà être modifiées dans le buffer pool.</li>',
         '      <li>L’écriture dans le WAL est strictement séquentielle (débit disque maximal, append-only).</li>',
-        '      <li>Lors d’un <code>COMMIT</code>, seul le segment WAL nécessaire est synchronisé sur disque (<code>fsync</code>). Les blocs de données de table restent temporairement en mémoire (pages dites « sales » ou <em>dirty buffers</em>).</li>',
+        '      <li>Avec <code>fsync = on</code> et <code>synchronous_commit = on</code>, le <code>COMMIT</code> attend la synchronisation locale du WAL nécessaire ; les pages de table peuvent rester sales en mémoire. Avec <code>synchronous_commit = off</code>, il peut être acquitté avant cette synchronisation.</li>',
         '    </ol>',
         '  </div>',
         '  <div class="card">',
         '    <h4>Checkpoints & Reprise sur Panne (Crash Recovery)</h4>',
         '    <p>À intervalles réguliers (déclenchés par <code>checkpoint_timeout</code> ou <code>max_wal_size</code>), le processus d’arrière-plan <em>Checkpointer</em> synchronise l’intégralité des blocs sales de la RAM vers les fichiers de table sur disque.</p>',
-        '    <p>En cas de coupure de courant ou de crash serveur, le moteur redémarre au dernier <em>checkpoint</em> réussi et rejoue (<em>REDO log</em>) les enregistrements WAL postérieurs pour restaurer une consistance parfaite en quelques secondes.</p>',
+        '    <p>Après un crash, PostgreSQL rejoue les enregistrements WAL nécessaires, y compris ceux de transactions non validées ; leur statut et MVCC déterminent ensuite la visibilité. Le délai de reprise dépend notamment du volume à rejouer.</p>',
         '  </div>',
         '</div>'
       ].join('\n')
@@ -87,8 +87,8 @@ module.exports = {
         '  <div class="card">',
         '    <h4>Réplication Asynchrone vs Synchrone</h4>',
         '    <ul>',
-        '      <li><strong>Asynchrone :</strong> Le primaire valide le commit dès que le WAL local est écrit. Débit maximal, mais risque de perte de données en cas de crash brutal du primaire (RPO &gt; 0).</li>',
-        '      <li><strong>Synchrone :</strong> Le primaire attend la confirmation qu’au moins une réplique standby a reçu et écrit le WAL (<code>synchronous_commit = on</code>). Zéro perte de données (RPO = 0), mais latence réseau accrue sur chaque commit.</li>',
+        '      <li><strong>Réplication asynchrone :</strong> Le primaire n’attend pas les répliques. Avec <code>synchronous_commit = on</code>, il attend la synchronisation locale du WAL ; avec <code>off</code>, même cette attente locale est omise. Une réplique en retard peut perdre des transactions au basculement.</li>',
+        '      <li><strong>Réplication synchrone :</strong> Si <code>synchronous_standby_names</code> désigne des standbys synchrones, <code>synchronous_commit = on</code> attend leur confirmation de synchronisation WAL selon le nombre ou quorum configuré ; <code>remote_apply</code> attend aussi le rejeu. La garantie dépend du stockage et du choix d’une réplique ayant confirmé le WAL, pas de toutes les pannes possibles.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
@@ -100,6 +100,7 @@ module.exports = {
         '    </ul>',
         '  </div>',
         '</div>',
+        '<p>La réplication ne remplace pas des sauvegardes indépendantes et vérifiées : elle peut propager une suppression et ne protège pas de la destruction simultanée des seules copies.</p>',
         box('tip', '<strong>Orchestration Haute Disponibilité :</strong> En production, la gestion automatique du basculement (Failover) et de l’élection d’un nouveau primaire est déléguée à des orchestrateurs spécialisés comme <strong>Patroni</strong> (utilisant un consensus distribué Raft/Etcd) ou <strong>repmgr</strong>, garantissant une reprise de service sous 10 à 30 secondes.')
       ].join('\n')
     }
@@ -115,7 +116,7 @@ module.exports = {
   summary: [
     'Le partitionnement déclaratif découpe physiquement une table logique en fragments autonomes sans altérer le code SQL.',
     'Le Partition Pruning permet à l’optimiseur d’ignorer totalement la lecture des partitions dont les bornes ne satisfont pas la clause WHERE.',
-    'Le Write-Ahead Log (WAL) garantit la durabilité ACID et la vitesse d’écriture en journalisant séquentiellement chaque mutation.',
+    'Le WAL permet la récupération après crash si les enregistrements nécessaires ont été synchronisés sur un stockage fiable ; synchronous_commit = off peut acquitter avant cette synchronisation.',
     'Les Checkpoints vident régulièrement les pages modifiées de la mémoire vers le stockage de données définitif.',
     'La réplication physique transmet le flux WAL du primaire vers les standbys en mode asynchrone ou synchrone.',
     'Le lag de réplication se mesure par la différence numérique entre le LSN courant du primaire et le LSN rejoué par la standby.'
@@ -176,7 +177,7 @@ module.exports = {
         'Pour chiffrer les données à la volée'
       ],
       correct: 1,
-      exp: 'Le WAL garantit la persistance immédiate par écriture séquentielle append-only, permettant de repousser les écritures aléatoires au Checkpoint.'
+      exp: 'Le WAL doit être synchronisé avant l’écriture des pages de données correspondantes. Avec fsync et synchronous_commit activés, le COMMIT attend la synchronisation locale ; avec synchronous_commit = off, il peut être acquitté avant.'
     },
     {
       stem: 'Que se passe-t-il lors d’un Checkpoint dans PostgreSQL ?',
@@ -201,15 +202,15 @@ module.exports = {
       exp: 'pg_wal_lsn_diff() calcule la différence numérique exacte en octets entre deux positions LSN fournies au format hexadécimal.'
     },
     {
-      stem: 'En réplication en streaming synchrone (synchronous_commit = on), quand le primaire valide-t-il un COMMIT ?',
+      stem: 'Avec synchronous_standby_names configuré et synchronous_commit = on, quand PostgreSQL acquitte-t-il un COMMIT synchrone ?',
       opts: [
         'Immédiatement après le calcul en RAM',
-        'Après confirmation qu’au moins une réplique standby configurée a écrit le WAL sur son propre stockage',
+        'Après synchronisation locale du WAL et confirmation durable du nombre ou quorum de standbys synchrones configuré',
         'Exactement 5 minutes après la requête',
         'Une fois par heure lors du checkpoint'
       ],
       correct: 1,
-      exp: 'Le mode synchrone garantit un RPO de 0 en attendant l’acquittement physique de la réplique avant de confirmer la transaction au client.'
+      exp: 'PostgreSQL attend la synchronisation locale puis la confirmation des standbys synchrones configurés. La protection au basculement dépend notamment de la survie et du choix d’une réplique ayant confirmé le WAL ; ce n’est pas une sauvegarde.'
     },
     {
       stem: 'Quel risque majeur présente un physical replication slot laissé actif alors que le serveur standby associé est éteint ?',
@@ -253,7 +254,7 @@ module.exports = {
     },
     {
       q: 'Quelle est la différence entre réplication synchrone et asynchrone ?',
-      a: 'Synchrone attend l’écriture sur la réplique (zéro perte, plus lent) ; asynchrone n’attend pas (rapide, risque de perte au crash).'
+      a: 'La réplication synchrone attend les standbys configurés par synchronous_standby_names selon synchronous_commit ; l’asynchrone ne les attend pas et peut perdre des transactions au basculement. Le stockage, la réplique choisie et les sauvegardes restent essentiels.'
     },
     {
       q: 'Quel est le rôle d’un Replication Slot ?',

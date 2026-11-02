@@ -52,38 +52,58 @@ module.exports = [
     "title": "Sélecteur de Région et Répartition Multi-Zones GCP",
     "level": "n2",
     "language": "analyse",
-    "goal": "Interroger le référentiel des régions Google Cloud et calculer la répartition équilibrée de machines virtuelles sur les zones de disponibilité.",
-    "brief": "<p>Google Cloud déploie son infrastructure en régions géographiques composées d'au moins 3 zones de disponibilité isolées :<br>\nRéférentiel des régions enregistrées :<br>\n- <code>europe-west1</code> : Belgique, 3 zones (a, b, c), empreinte carbone faible (low_carbon=YES)<br>\n- <code>europe-west9</code> : Paris, 3 zones (a, b, c), empreinte carbone faible (low_carbon=YES)<br>\n- <code>us-central1</code> : Iowa, 4 zones (a, b, c, f), empreinte standard (low_carbon=NO)<br>\n- <code>asia-east1</code> : Taïwan, 3 zones (a, b, c), empreinte standard (low_carbon=NO)<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>REGION_INFO region=&lt;nom&gt;</code> :<br>\n   <code>REGION: name=&lt;nom&gt; location=&lt;loc&gt; zones_count=&lt;nb&gt; low_carbon=&lt;YES|NO&gt;</code> (ou <code>REGION: name=&lt;nom&gt; status=UNKNOWN</code> si non répertoriée).<br>\n2. <code>MULTI_ZONE_DEPLOY region=&lt;nom&gt; instance_count=&lt;N&gt;</code> :<br>\n   Répartit les N instances équitablement sur les zones dans l'ordre alphabétique (division entière + reste attribué de gauche à droite) :<br>\n   <code>DEPLOY: region=&lt;nom&gt; total=&lt;N&gt; allocation=&lt;zone1:k1,zone2:k2,...&gt; status=HA_RESILIENT</code>.</p>",
-    "starter": "# Grille d'analyse (gcp3-c1-e2) — Sélecteur de Région et Répartition Multi-Zones GCP\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Région us-central1 avec 4 zones]\n# Données : MULTI_ZONE_DEPLOY region=us-central1 instance_count=6\nA_COMPLETER\n\n[Cas 2 — Région inconnue]\n# Données : REGION_INFO region=mars-west1\nA_COMPLETER\n\n[Cas 3 — Répartition exacte multiple du nombre de zones]\n# Données : MULTI_ZONE_DEPLOY region=europe-west1 instance_count=9\nA_COMPLETER\n",
+    "goal": "Répartir fictivement des instances entre zones et distinguer répartition et résilience démontrée.",
+    "brief": "<p>Utilisez ce référentiel figé pour la grille : il ne constitue ni un inventaire officiel à jour ni une mesure actuelle de l’empreinte carbone.<br>\n- <code>europe-west1</code> : Belgique, zones a, b, c, low_carbon=YES<br>\n- <code>europe-west9</code> : Paris, zones a, b, c, low_carbon=YES<br>\n- <code>us-central1</code> : Iowa, zones a, b, c, f, low_carbon=NO<br>\n- <code>asia-east1</code> : Taïwan, zones a, b, c, low_carbon=NO<br><br>\n<code>REGION_INFO region=&lt;nom&gt;</code> retourne <code>REGION: name=&lt;nom&gt; location=&lt;lieu&gt; zones_count=&lt;N&gt; low_carbon=&lt;YES|NO&gt;</code>, ou <code>REGION: name=&lt;nom&gt; status=UNKNOWN</code> si elle est absente du référentiel.<br><br>\n<code>MULTI_ZONE_DEPLOY region=&lt;nom&gt; instance_count=&lt;N&gt;</code> simule une répartition dans une région connue. Si N est inférieur à 1, retourner <code>DEPLOY: region=&lt;nom&gt; total=&lt;N&gt; status=INVALID_INSTANCE_COUNT</code>.<br>\nSinon, répartir les instances sur les zones dans l’ordre donné : division entière, puis reste attribué de gauche à droite. Afficher chaque zone, y compris celles qui reçoivent zéro instance, et le statut :<br>\n- <code>SINGLE_ZONE_NO_REDUNDANCY</code> si une seule zone reçoit des instances ;<br>\n- <code>MULTI_ZONE_NO_GUARANTEE</code> si plusieurs zones en reçoivent.<br>\nFormat : <code>DEPLOY: region=&lt;nom&gt; total=&lt;N&gt; allocation=&lt;zone1:n1,zone2:n2,...&gt; status=&lt;statut&gt;</code>.<br><br>\nLa répartition ne crée aucune ressource et ne démontre pas la haute disponibilité. Il faut notamment vérifier capacité et quotas, dépendances, contrôles de santé, charge et basculement. Voir les <a href=\"https://docs.cloud.google.com/architecture/framework/reliability\">principes de conception pour la disponibilité</a>.</p>",
+    "starter": "# Grille d'analyse (gcp3-c1-e2) — Sélecteur de Région et Répartition Multi-Zones GCP\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Répartition dans quatre zones]\n# Données : MULTI_ZONE_DEPLOY region=us-central1 instance_count=6\nA_COMPLETER\n\n[Cas 2 — Région absente du référentiel]\n# Données : REGION_INFO region=mars-west1\nA_COMPLETER\n\n[Cas 3 — Une seule instance ne crée pas de redondance]\n# Données : MULTI_ZONE_DEPLOY region=europe-west9 instance_count=1\nA_COMPLETER\n\n[Cas 4 — Zéro instance est invalide]\n# Données : MULTI_ZONE_DEPLOY region=europe-west9 instance_count=0\nA_COMPLETER\n\n[Cas 5 — Deux zones occupées ne garantissent pas la résilience]\n# Données : MULTI_ZONE_DEPLOY region=europe-west9 instance_count=2\nA_COMPLETER\n\n[Cas 6 — Répartition exacte sur trois zones]\n# Données : MULTI_ZONE_DEPLOY region=europe-west1 instance_count=9\nA_COMPLETER\n\n[Cas 7 — Nombre négatif invalide]\n# Données : MULTI_ZONE_DEPLOY region=europe-west1 instance_count=-2\nA_COMPLETER\n",
     "hints": [
-      "Structurez un dictionnaire avec le nom, la localisation, les zones et le statut low_carbon.",
-      "Pour répartir N instances sur M zones : base = N // M, reste = N % M. Les reste premières zones reçoivent base + 1."
+      "Pour N instances et M zones, calculez le quotient et le reste ; les premières zones reçoivent une instance supplémentaire.",
+      "Comptez les zones réellement occupées et ne déduisez jamais un basculement fonctionnel de la seule répartition."
     ],
     "examples": [
       {
         "stdin": "REGION_INFO region=europe-west9\nMULTI_ZONE_DEPLOY region=europe-west9 instance_count=5",
-        "expected": "REGION: name=europe-west9 location=Paris zones_count=3 low_carbon=YES\nDEPLOY: region=europe-west9 total=5 allocation=europe-west9-a:2,europe-west9-b:2,europe-west9-c:1 status=HA_RESILIENT",
-        "note": "Répartition de 5 VMs sur 3 zones : 2 en zone a, 2 en zone b et 1 en zone c."
+        "expected": "REGION: name=europe-west9 location=Paris zones_count=3 low_carbon=YES\nDEPLOY: region=europe-west9 total=5 allocation=europe-west9-a:2,europe-west9-b:2,europe-west9-c:1 status=MULTI_ZONE_NO_GUARANTEE",
+        "note": "Les cinq instances sont réparties sur trois zones ; la résilience reste à vérifier séparément."
       }
     ],
     "tests": [
       {
-        "label": "Région us-central1 avec 4 zones",
+        "label": "Répartition dans quatre zones",
         "stdin": "cas:1",
-        "expected": "DEPLOY: region=us-central1 total=6 allocation=us-central1-a:2,us-central1-b:2,us-central1-c:1,us-central1-f:1 status=HA_RESILIENT"
+        "expected": "DEPLOY: region=us-central1 total=6 allocation=us-central1-a:2,us-central1-b:2,us-central1-c:1,us-central1-f:1 status=MULTI_ZONE_NO_GUARANTEE"
       },
       {
-        "label": "Région inconnue",
+        "label": "Région absente du référentiel",
         "stdin": "cas:2",
         "expected": "REGION: name=mars-west1 status=UNKNOWN"
       },
       {
-        "label": "Répartition exacte multiple du nombre de zones",
+        "label": "Une seule instance ne crée pas de redondance",
         "stdin": "cas:3",
-        "expected": "DEPLOY: region=europe-west1 total=9 allocation=europe-west1-a:3,europe-west1-b:3,europe-west1-c:3 status=HA_RESILIENT"
+        "expected": "DEPLOY: region=europe-west9 total=1 allocation=europe-west9-a:1,europe-west9-b:0,europe-west9-c:0 status=SINGLE_ZONE_NO_REDUNDANCY"
+      },
+      {
+        "label": "Zéro instance est invalide",
+        "stdin": "cas:4",
+        "expected": "DEPLOY: region=europe-west9 total=0 status=INVALID_INSTANCE_COUNT"
+      },
+      {
+        "label": "Deux zones occupées ne garantissent pas la résilience",
+        "stdin": "cas:5",
+        "expected": "DEPLOY: region=europe-west9 total=2 allocation=europe-west9-a:1,europe-west9-b:1,europe-west9-c:0 status=MULTI_ZONE_NO_GUARANTEE"
+      },
+      {
+        "label": "Répartition exacte sur trois zones",
+        "stdin": "cas:6",
+        "expected": "DEPLOY: region=europe-west1 total=9 allocation=europe-west1-a:3,europe-west1-b:3,europe-west1-c:3 status=MULTI_ZONE_NO_GUARANTEE"
+      },
+      {
+        "label": "Nombre négatif invalide",
+        "stdin": "cas:7",
+        "expected": "DEPLOY: region=europe-west1 total=-2 status=INVALID_INSTANCE_COUNT"
       }
     ],
-    "solution": "[Exemple]\nREGION: name=europe-west9 location=Paris zones_count=3 low_carbon=YES\nDEPLOY: region=europe-west9 total=5 allocation=europe-west9-a:2,europe-west9-b:2,europe-west9-c:1 status=HA_RESILIENT\n\n[Cas 1 — Région us-central1 avec 4 zones]\nDEPLOY: region=us-central1 total=6 allocation=us-central1-a:2,us-central1-b:2,us-central1-c:1,us-central1-f:1 status=HA_RESILIENT\n\n[Cas 2 — Région inconnue]\nREGION: name=mars-west1 status=UNKNOWN\n\n[Cas 3 — Répartition exacte multiple du nombre de zones]\nDEPLOY: region=europe-west1 total=9 allocation=europe-west1-a:3,europe-west1-b:3,europe-west1-c:3 status=HA_RESILIENT"
+    "solution": "[Exemple]\nREGION: name=europe-west9 location=Paris zones_count=3 low_carbon=YES\nDEPLOY: region=europe-west9 total=5 allocation=europe-west9-a:2,europe-west9-b:2,europe-west9-c:1 status=MULTI_ZONE_NO_GUARANTEE\n\n[Cas 1 — Répartition dans quatre zones]\nDEPLOY: region=us-central1 total=6 allocation=us-central1-a:2,us-central1-b:2,us-central1-c:1,us-central1-f:1 status=MULTI_ZONE_NO_GUARANTEE\n\n[Cas 2 — Région absente du référentiel]\nREGION: name=mars-west1 status=UNKNOWN\n\n[Cas 3 — Une seule instance ne crée pas de redondance]\nDEPLOY: region=europe-west9 total=1 allocation=europe-west9-a:1,europe-west9-b:0,europe-west9-c:0 status=SINGLE_ZONE_NO_REDUNDANCY\n\n[Cas 4 — Zéro instance est invalide]\nDEPLOY: region=europe-west9 total=0 status=INVALID_INSTANCE_COUNT\n\n[Cas 5 — Deux zones occupées ne garantissent pas la résilience]\nDEPLOY: region=europe-west9 total=2 allocation=europe-west9-a:1,europe-west9-b:1,europe-west9-c:0 status=MULTI_ZONE_NO_GUARANTEE\n\n[Cas 6 — Répartition exacte sur trois zones]\nDEPLOY: region=europe-west1 total=9 allocation=europe-west1-a:3,europe-west1-b:3,europe-west1-c:3 status=MULTI_ZONE_NO_GUARANTEE\n\n[Cas 7 — Nombre négatif invalide]\nDEPLOY: region=europe-west1 total=-2 status=INVALID_INSTANCE_COUNT"
   },
   {
     "id": "gcp3-c1-e3",
@@ -128,37 +148,41 @@ module.exports = [
   {
     "id": "gcp3-c2-e1",
     "chapter": 2,
-    "title": "Évaluateur de Politiques et Liaisons IAM (Bindings & Least Privilege)",
+    "title": "Analyse de liaisons IAM et audit des rôles de base",
     "level": "n1",
     "language": "analyse",
-    "goal": "Analyser les liaisons de rôles IAM Google Cloud, vérifier les droits des membres et auditer la présence de rôles primitifs déconseillés.",
-    "brief": "<p>Google Cloud IAM associe des membres (principals) à des rôles selon des liaisons (bindings) :<br>\nClassification des rôles :<br>\n- Rôles primitifs historiques : <code>roles/viewer</code>, <code>roles/editor</code>, <code>roles/owner</code> (statut : <code>PRIMITIVE_DEPRECATED_FOR_PROD</code>).<br>\n- Rôles prédéfinis : débutent par <code>roles/</code> et comportent un point (ex: <code>roles/storage.objectViewer</code>, <code>roles/compute.instanceAdmin.v1</code>) (statut : <code>PREDEFINED_RECOMMENDED</code>).<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>BIND role=&lt;role&gt; member=&lt;type:id&gt;</code> :<br>\n   Associe le membre au rôle et Indiquez :<br>\n   <code>BIND_OK: role=&lt;role&gt; member=&lt;member&gt; type=&lt;status&gt;</code>.<br>\n2. <code>CHECK_ROLE member=&lt;member&gt; role=&lt;role&gt;</code> :<br>\n   - Si le membre possède le rôle : <code>ACCESS: GRANTED member=&lt;member&gt; role=&lt;role&gt;</code>.<br>\n   - Sinon : <code>ACCESS: DENIED member=&lt;member&gt; role=&lt;role&gt;</code>.<br>\n3. <code>AUDIT_PRIMITIVE_ROLES</code> :<br>\n   - Si aucun membre n'a de rôle primitif : <code>AUDIT: OK (zero primitive roles in use)</code>.<br>\n   - Sinon : <code>AUDIT: WARNING primitive_count=&lt;N&gt; members=&lt;m1,m2,...&gt;</code> (liste ordonnée).</p>",
-    "starter": "# Grille d'analyse (gcp3-c2-e1) — Évaluateur de Politiques et Liaisons IAM (Bindings & Least Privilege)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Détection d accès refusé pour rôle non attribué]\n# Données : BIND role=roles/compute.viewer member=user:bob@corp.com\n# Données : CHECK_ROLE member=user:bob@corp.com role=roles/compute.admin\nA_COMPLETER\n\n[Cas 2 — Audit signalant des rôles primitifs dangereux en production]\n# Données : BIND role=roles/editor member=user:dev@corp.com\n# Données : BIND role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com\n# Données : AUDIT_PRIMITIVE_ROLES\nA_COMPLETER\n",
+    "goal": "Examiner des liaisons locales sans confondre leur présence avec un accès IAM effectif.",
+    "brief": "<p>Cette grille maintient uniquement un registre fictif de liaisons locales entre membres et rôles. Elle ne calcule pas l’accès effectif à une ressource : celui-ci dépend de la permission demandée, des autres liaisons et de leur héritage, des conditions ainsi que des règles IAM <em>deny</em> applicables et de leurs exceptions.<br>\nLa présence d’une liaison ne prouve donc pas l’accès ; son absence du registre local ne prouve pas un refus. Les rôles de base <code>roles/viewer</code>, <code>roles/editor</code> et <code>roles/owner</code> sont très larges et déconseillés en production ; ils ne sont pas déclarés obsolètes par cette grille.<br><br>\n<code>BIND role=&lt;role&gt; member=&lt;type:id&gt;</code> enregistre une liaison et retourne <code>BIND_OK: role=&lt;role&gt; member=&lt;member&gt; type=&lt;BASIC_CAUTION_PROD|PREDEFINED&gt;</code>. Les autres rôles cités dans les cas sont prédéfinis.<br>\n<code>CHECK_ROLE member=&lt;member&gt; role=&lt;role&gt;</code> cherche seulement la paire exacte dans le registre et retourne <code>LIAISON: PRESENT member=&lt;member&gt; role=&lt;role&gt;</code> ou <code>LIAISON: ABSENTE member=&lt;member&gt; role=&lt;role&gt;</code>.<br>\n<code>AUDIT_PRIMITIVE_ROLES</code> retourne <code>AUDIT: OK (zero basic roles in use)</code> ou <code>AUDIT: WARNING basic_count=&lt;N&gt; members=&lt;m1,m2,...&gt;</code>, membres triés lexicalement.<br>\nUn contexte indiquant qu’un deny peut s’appliquer ne modifie pas le constat de liaison : l’évaluation du deny sort du périmètre. Voir les <a href=\"https://docs.cloud.google.com/iam/docs/deny-overview\">politiques IAM deny</a>.</p>",
+    "starter": "# Grille d'analyse (gcp3-c2-e1) — Analyse de liaisons IAM et audit des rôles de base\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Liaison recherchée absente du registre local]\n# Données : BIND role=roles/compute.viewer member=user:bob@corp.com\n# Données : CHECK_ROLE member=user:bob@corp.com role=roles/compute.admin\nA_COMPLETER\n\n[Cas 2 — Audit de deux rôles de base]\n# Données : BIND role=roles/editor member=user:dev@corp.com\n# Données : BIND role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com\n# Données : AUDIT_PRIMITIVE_ROLES\nA_COMPLETER\n\n[Cas 3 — Liaison présente malgré un deny éventuellement applicable]\n# Données : BIND role=roles/storage.objectViewer member=user:lea@corp.com\n# Données : CONTEXTE deny_applicable=POSSIBLE\n# Données : CHECK_ROLE member=user:lea@corp.com role=roles/storage.objectViewer\nA_COMPLETER\n",
     "hints": [
-      "Stockez les liaisons dans un ensemble ou un dictionnaire (role, member).",
-      "Un rôle est primitif s il est exactement \"roles/viewer\", \"roles/editor\" ou \"roles/owner\".",
-      "Triez la liste des membres dans l audit pour garantir une sortie déterministe."
+      "Cherchez uniquement la paire membre-rôle dans le registre local ; ne déduisez aucune décision d’accès.",
+      "Pour l’audit, comptez les liaisons aux trois rôles de base et triez les membres concernés."
     ],
     "examples": [
       {
         "stdin": "BIND role=roles/storage.objectViewer member=user:alice@cloud.corp\nCHECK_ROLE member=user:alice@cloud.corp role=roles/storage.objectViewer\nAUDIT_PRIMITIVE_ROLES",
-        "expected": "BIND_OK: role=roles/storage.objectViewer member=user:alice@cloud.corp type=PREDEFINED_RECOMMENDED\nACCESS: GRANTED member=user:alice@cloud.corp role=roles/storage.objectViewer\nAUDIT: OK (zero primitive roles in use)",
-        "note": "Attribution conforme d un rôle prédéterminé respectant le moindre privilège."
+        "expected": "BIND_OK: role=roles/storage.objectViewer member=user:alice@cloud.corp type=PREDEFINED\nLIAISON: PRESENT member=user:alice@cloud.corp role=roles/storage.objectViewer\nAUDIT: OK (zero basic roles in use)",
+        "note": "La liaison locale est présente ; les conditions et refus éventuels ne sont pas évalués."
       }
     ],
     "tests": [
       {
-        "label": "Détection d accès refusé pour rôle non attribué",
+        "label": "Liaison recherchée absente du registre local",
         "stdin": "cas:1",
-        "expected": "BIND_OK: role=roles/compute.viewer member=user:bob@corp.com type=PREDEFINED_RECOMMENDED\nACCESS: DENIED member=user:bob@corp.com role=roles/compute.admin"
+        "expected": "BIND_OK: role=roles/compute.viewer member=user:bob@corp.com type=PREDEFINED\nLIAISON: ABSENTE member=user:bob@corp.com role=roles/compute.admin"
       },
       {
-        "label": "Audit signalant des rôles primitifs dangereux en production",
+        "label": "Audit de deux rôles de base",
         "stdin": "cas:2",
-        "expected": "BIND_OK: role=roles/editor member=user:dev@corp.com type=PRIMITIVE_DEPRECATED_FOR_PROD\nBIND_OK: role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com type=PRIMITIVE_DEPRECATED_FOR_PROD\nAUDIT: WARNING primitive_count=2 members=serviceAccount:ci@proj.iam.gserviceaccount.com,user:dev@corp.com"
+        "expected": "BIND_OK: role=roles/editor member=user:dev@corp.com type=BASIC_CAUTION_PROD\nBIND_OK: role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com type=BASIC_CAUTION_PROD\nAUDIT: WARNING basic_count=2 members=serviceAccount:ci@proj.iam.gserviceaccount.com,user:dev@corp.com"
+      },
+      {
+        "label": "Liaison présente malgré un deny éventuellement applicable",
+        "stdin": "cas:3",
+        "expected": "BIND_OK: role=roles/storage.objectViewer member=user:lea@corp.com type=PREDEFINED\nLIAISON: PRESENT member=user:lea@corp.com role=roles/storage.objectViewer"
       }
     ],
-    "solution": "[Exemple]\nBIND_OK: role=roles/storage.objectViewer member=user:alice@cloud.corp type=PREDEFINED_RECOMMENDED\nACCESS: GRANTED member=user:alice@cloud.corp role=roles/storage.objectViewer\nAUDIT: OK (zero primitive roles in use)\n\n[Cas 1 — Détection d accès refusé pour rôle non attribué]\nBIND_OK: role=roles/compute.viewer member=user:bob@corp.com type=PREDEFINED_RECOMMENDED\nACCESS: DENIED member=user:bob@corp.com role=roles/compute.admin\n\n[Cas 2 — Audit signalant des rôles primitifs dangereux en production]\nBIND_OK: role=roles/editor member=user:dev@corp.com type=PRIMITIVE_DEPRECATED_FOR_PROD\nBIND_OK: role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com type=PRIMITIVE_DEPRECATED_FOR_PROD\nAUDIT: WARNING primitive_count=2 members=serviceAccount:ci@proj.iam.gserviceaccount.com,user:dev@corp.com"
+    "solution": "[Exemple]\nBIND_OK: role=roles/storage.objectViewer member=user:alice@cloud.corp type=PREDEFINED\nLIAISON: PRESENT member=user:alice@cloud.corp role=roles/storage.objectViewer\nAUDIT: OK (zero basic roles in use)\n\n[Cas 1 — Liaison recherchée absente du registre local]\nBIND_OK: role=roles/compute.viewer member=user:bob@corp.com type=PREDEFINED\nLIAISON: ABSENTE member=user:bob@corp.com role=roles/compute.admin\n\n[Cas 2 — Audit de deux rôles de base]\nBIND_OK: role=roles/editor member=user:dev@corp.com type=BASIC_CAUTION_PROD\nBIND_OK: role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com type=BASIC_CAUTION_PROD\nAUDIT: WARNING basic_count=2 members=serviceAccount:ci@proj.iam.gserviceaccount.com,user:dev@corp.com\n\n[Cas 3 — Liaison présente malgré un deny éventuellement applicable]\nBIND_OK: role=roles/storage.objectViewer member=user:lea@corp.com type=PREDEFINED\nLIAISON: PRESENT member=user:lea@corp.com role=roles/storage.objectViewer"
   },
   {
     "id": "gcp3-c2-e2",
@@ -456,21 +480,21 @@ module.exports = [
   {
     "id": "gcp3-c5-e1",
     "chapter": 5,
-    "title": "Moteur de Transition de Cycle de Vie Cloud Storage (Lifecycle Management)",
+    "title": "Analyse du cycle de vie et des classes Cloud Storage",
     "level": "n1",
     "language": "analyse",
-    "goal": "Simuler les règles d'archivage et de transition automatique de classes d'objets dans Google Cloud Storage.",
-    "brief": "<p>Google Cloud Storage propose 4 classes de stockage à coûts décroissants :<br>\n- <code>STANDARD</code> : accès chaud fréquent (durée minimale 0 jour)<br>\n- <code>NEARLINE</code> : consultation mensuelle (durée minimale 30 jours)<br>\n- <code>COLDLINE</code> : consultation trimestrielle (durée minimale 90 jours)<br>\n- <code>ARCHIVE</code> : archivage à long terme (durée minimale 365 jours)<br><br>\nParamètres soumis à l’analyse :<br>\n<code>LIFECYCLE_EVAL current_class=&lt;class&gt; age_days=&lt;N&gt; target_class=&lt;class&gt; min_age=&lt;M&gt;</code>.<br>\nRésultats d’analyse attendus :<br>\n- Si <code>age_days &gt;= min_age</code> :<br>\n  <code>LIFECYCLE: current=&lt;cur&gt; target=&lt;target&gt; age=&lt;N&gt; action=TRANSITION_APPLIED status=SUCCESS</code><br>\n- Sinon :<br>\n  <code>LIFECYCLE: current=&lt;cur&gt; target=&lt;target&gt; age=&lt;N&gt; action=NONE status=CONDITION_NOT_MET</code></p>",
-    "starter": "# Grille d'analyse (gcp3-c5-e1) — Moteur de Transition de Cycle de Vie Cloud Storage (Lifecycle Management)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Condition d âge non atteinte]\n# Données : LIFECYCLE_EVAL current_class=NEARLINE age_days=60 target_class=COLDLINE min_age=90\nA_COMPLETER\n\n[Cas 2 — Transition vers Archive pour objet ancien]\n# Données : LIFECYCLE_EVAL current_class=COLDLINE age_days=400 target_class=ARCHIVE min_age=365\nA_COMPLETER\n",
+    "goal": "Évaluer une condition de cycle de vie sans assimiler une simulation à une transition réelle.",
+    "brief": "<p>Pour cette grille, les quatre classes <code>STANDARD</code>, <code>NEARLINE</code>, <code>COLDLINE</code> et <code>ARCHIVE</code> sont utilisées dans des buckets non zonaux compatibles. Les durées minimales de facturation de Nearline, Coldline et Archive sont respectivement de 30, 90 et 365 jours ; ce ne sont pas automatiquement les seuils d’âge des règles.<br>\nLa classe <code>RAPID</code> est la cinquième classe : elle est réservée à Rapid Bucket zonal. L’action de cycle de vie <code>SetStorageClass</code> n’est pas prise en charge sur ces buckets et ne permet pas d’y faire transiter des objets depuis les autres classes via cette action.<br><br>\nPour <code>LIFECYCLE_EVAL bucket_type=&lt;NON_ZONAL|RAPID&gt; current_class=&lt;class&gt; age_days=&lt;N&gt; target_class=&lt;class&gt; min_age=&lt;M&gt;</code>, afficher <code>LIFECYCLE: current=&lt;cur&gt; target=&lt;target&gt; age=&lt;N&gt; action=&lt;action&gt; status=&lt;statut&gt;</code>.<br>\n- Si le bucket ou l’une des classes est Rapid : <code>action=NONE status=UNSUPPORTED_SET_STORAGE_CLASS</code>.<br>\n- Pour les transitions non zonales compatibles présentées ici, si <code>age_days &gt;= min_age</code> : <code>action=TRANSITION_ELIGIBLE status=CONDITION_MET</code> ; sinon : <code>action=NONE status=CONDITION_NOT_MET</code>.<br>\nCette grille ne vérifie ni les autres conditions ni les frais, et ne réalise pas de transition. Une règle de cycle de vie est exécutée de façon asynchrone ; une condition remplie ne prouve pas qu’une transition a déjà eu lieu. Sources : <a href=\"https://docs.cloud.google.com/storage/docs/storage-classes\">classes de stockage</a> et <a href=\"https://docs.cloud.google.com/storage/docs/rapid/rapid-bucket\">Rapid Bucket</a>.</p>",
+    "starter": "# Grille d'analyse (gcp3-c5-e1) — Analyse du cycle de vie et des classes Cloud Storage\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Condition d âge non atteinte]\n# Données : LIFECYCLE_EVAL bucket_type=NON_ZONAL current_class=NEARLINE age_days=60 target_class=COLDLINE min_age=90\nA_COMPLETER\n\n[Cas 2 — Objet ancien admissible à une transition vers Archive]\n# Données : LIFECYCLE_EVAL bucket_type=NON_ZONAL current_class=COLDLINE age_days=400 target_class=ARCHIVE min_age=365\nA_COMPLETER\n\n[Cas 3 — Transition impossible depuis un bucket Rapid]\n# Données : LIFECYCLE_EVAL bucket_type=RAPID current_class=RAPID age_days=100 target_class=NEARLINE min_age=30\nA_COMPLETER\n\n[Cas 4 — Rapid ne constitue pas une cible de transition non zonale]\n# Données : LIFECYCLE_EVAL bucket_type=NON_ZONAL current_class=STANDARD age_days=100 target_class=RAPID min_age=30\nA_COMPLETER\n\n[Cas 5 — Condition satisfaite exactement au seuil]\n# Données : LIFECYCLE_EVAL bucket_type=NON_ZONAL current_class=STANDARD age_days=30 target_class=NEARLINE min_age=30\nA_COMPLETER\n",
     "hints": [
-      "Comparez int(age_days) >= int(min_age).",
-      "Affichez les sorties formatées avec statut SUCCESS ou CONDITION_NOT_MET."
+      "Écartez d’abord les scénarios Rapid pour SetStorageClass, puis comparez l’âge de l’objet au seuil de la règle.",
+      "Une condition satisfaite indique une éligibilité dans la grille, pas une transition réellement exécutée."
     ],
     "examples": [
       {
-        "stdin": "LIFECYCLE_EVAL current_class=STANDARD age_days=35 target_class=NEARLINE min_age=30",
-        "expected": "LIFECYCLE: current=STANDARD target=NEARLINE age=35 action=TRANSITION_APPLIED status=SUCCESS",
-        "note": "Objet âgé de 35 jours dépassant le seuil de 30 jours pour transition vers Nearline."
+        "stdin": "LIFECYCLE_EVAL bucket_type=NON_ZONAL current_class=STANDARD age_days=35 target_class=NEARLINE min_age=30",
+        "expected": "LIFECYCLE: current=STANDARD target=NEARLINE age=35 action=TRANSITION_ELIGIBLE status=CONDITION_MET",
+        "note": "La condition simulée est satisfaite ; aucune transition réelle n’est observée."
       }
     ],
     "tests": [
@@ -480,90 +504,135 @@ module.exports = [
         "expected": "LIFECYCLE: current=NEARLINE target=COLDLINE age=60 action=NONE status=CONDITION_NOT_MET"
       },
       {
-        "label": "Transition vers Archive pour objet ancien",
+        "label": "Objet ancien admissible à une transition vers Archive",
         "stdin": "cas:2",
-        "expected": "LIFECYCLE: current=COLDLINE target=ARCHIVE age=400 action=TRANSITION_APPLIED status=SUCCESS"
+        "expected": "LIFECYCLE: current=COLDLINE target=ARCHIVE age=400 action=TRANSITION_ELIGIBLE status=CONDITION_MET"
+      },
+      {
+        "label": "Transition impossible depuis un bucket Rapid",
+        "stdin": "cas:3",
+        "expected": "LIFECYCLE: current=RAPID target=NEARLINE age=100 action=NONE status=UNSUPPORTED_SET_STORAGE_CLASS"
+      },
+      {
+        "label": "Rapid ne constitue pas une cible de transition non zonale",
+        "stdin": "cas:4",
+        "expected": "LIFECYCLE: current=STANDARD target=RAPID age=100 action=NONE status=UNSUPPORTED_SET_STORAGE_CLASS"
+      },
+      {
+        "label": "Condition satisfaite exactement au seuil",
+        "stdin": "cas:5",
+        "expected": "LIFECYCLE: current=STANDARD target=NEARLINE age=30 action=TRANSITION_ELIGIBLE status=CONDITION_MET"
       }
     ],
-    "solution": "[Exemple]\nLIFECYCLE: current=STANDARD target=NEARLINE age=35 action=TRANSITION_APPLIED status=SUCCESS\n\n[Cas 1 — Condition d âge non atteinte]\nLIFECYCLE: current=NEARLINE target=COLDLINE age=60 action=NONE status=CONDITION_NOT_MET\n\n[Cas 2 — Transition vers Archive pour objet ancien]\nLIFECYCLE: current=COLDLINE target=ARCHIVE age=400 action=TRANSITION_APPLIED status=SUCCESS"
+    "solution": "[Exemple]\nLIFECYCLE: current=STANDARD target=NEARLINE age=35 action=TRANSITION_ELIGIBLE status=CONDITION_MET\n\n[Cas 1 — Condition d âge non atteinte]\nLIFECYCLE: current=NEARLINE target=COLDLINE age=60 action=NONE status=CONDITION_NOT_MET\n\n[Cas 2 — Objet ancien admissible à une transition vers Archive]\nLIFECYCLE: current=COLDLINE target=ARCHIVE age=400 action=TRANSITION_ELIGIBLE status=CONDITION_MET\n\n[Cas 3 — Transition impossible depuis un bucket Rapid]\nLIFECYCLE: current=RAPID target=NEARLINE age=100 action=NONE status=UNSUPPORTED_SET_STORAGE_CLASS\n\n[Cas 4 — Rapid ne constitue pas une cible de transition non zonale]\nLIFECYCLE: current=STANDARD target=RAPID age=100 action=NONE status=UNSUPPORTED_SET_STORAGE_CLASS\n\n[Cas 5 — Condition satisfaite exactement au seuil]\nLIFECYCLE: current=STANDARD target=NEARLINE age=30 action=TRANSITION_ELIGIBLE status=CONDITION_MET"
   },
   {
     "id": "gcp3-c5-e2",
     "chapter": 5,
-    "title": "Sélecteur d'Architecture de Données GCP (Decision Matrix)",
+    "title": "Sélecteur de données GCP et objectifs de disponibilité",
     "level": "n2",
     "language": "analyse",
-    "goal": "Déterminer le service de stockage ou de base de données Google Cloud optimal selon le modèle de données, l'échelle et les contraintes de latence.",
-    "brief": "<p>Google Cloud propose une vaste gamme de moteurs de persistance de données :<br>\nMatrice de décision :<br>\n- <code>model=RELATIONAL scale=GLOBAL acid=STRICT</code> -&gt; <code>service=Cloud_Spanner type=NEW_SQL sla=99.999%</code><br>\n- <code>model=RELATIONAL scale=REGIONAL</code> -&gt; <code>service=Cloud_SQL type=RDBMS sla=99.95%</code><br>\n- <code>model=NOSQL_DOCUMENT</code> -&gt; <code>service=Firestore type=DOCUMENT_DB latency=LOW</code><br>\n- <code>model=NOSQL_WIDE_COLUMN latency=SUB_MILLISECOND</code> -&gt; <code>service=Cloud_Bigtable type=WIDE_COLUMN usecase=IOT_ANALYTICS</code><br>\n- <code>model=OBJECT_STORAGE</code> -&gt; <code>service=Cloud_Storage type=BLOB_STORE scale=EXABYTE</code><br><br>\nParamètres soumis à l’analyse :<br>\n<code>SELECT_DB model=&lt;model&gt; scale=&lt;scale&gt; latency=&lt;lat&gt; acid=&lt;acid&gt;</code>.<br>\nRésultat d’analyse attendu :<br>\n<code>RECOMMENDATION: service=&lt;name&gt; &lt;attributs...&gt;</code> (ou <code>RECOMMENDATION: status=UNKNOWN_COMBINATION</code>).</p>",
-    "starter": "# Grille d'analyse (gcp3-c5-e2) — Sélecteur d'Architecture de Données GCP (Decision Matrix)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Base relationnelle régionale Cloud SQL]\n# Données : SELECT_DB model=RELATIONAL scale=REGIONAL latency=STANDARD acid=STRICT\nA_COMPLETER\n\n[Cas 2 — Base NoSQL large-colonne ultra-faible latence Bigtable]\n# Données : SELECT_DB model=NOSQL_WIDE_COLUMN scale=REGIONAL latency=SUB_MILLISECOND acid=EVENTUAL\nA_COMPLETER\n\n[Cas 3 — Base documentaire NoSQL Firestore]\n# Données : SELECT_DB model=NOSQL_DOCUMENT scale=REGIONAL latency=LOW acid=STRICT\nA_COMPLETER\n\n[Cas 4 — Stockage d objets non structurés Cloud Storage]\n# Données : SELECT_DB model=OBJECT_STORAGE scale=GLOBAL latency=STANDARD acid=STRICT\nA_COMPLETER\n",
+    "goal": "Comparer des services candidats et conditionner les objectifs SLA à la configuration donnée.",
+    "brief": "<p>Cette matrice pédagogique propose un service à étudier ; elle ne démontre pas qu’il est le seul choix adapté. Un objectif mensuel de disponibilité (SLO du SLA) ne garantit pas l’absence de panne et reste soumis aux conditions du contrat.<br><br>\nPour les cas relationnels, <code>SELECT_DB model=RELATIONAL choice=&lt;SQL|SPANNER&gt; ... eligible=&lt;YES|NO|UNKNOWN&gt;</code> désigne le service étudié. <code>eligible=YES</code> suppose ici que les conditions de couverture du SLA sont réunies ; en cas de données insuffisantes ou de non-couverture, afficher <code>slo_mensuel=NON_DETERMINE</code> plutôt qu’inventer un objectif.<br>\nCloud SQL : pour une instance HA admissible à cœurs dédiés, <code>edition=ENTERPRISE</code> donne <code>99.95%</code> et <code>edition=ENTERPRISE_PLUS</code> donne <code>99.99%</code>. Le SLA exclut notamment les instances à cœurs partagés et mono-zone ; son calcul est par instance et mois calendaire. Vérifier aussi moteur, maintenance et autres exclusions.<br>\nSpanner : une configuration <code>MULTI_REGION</code> ou <code>DUAL_REGION</code> admissible a un objectif de <code>99.999%</code> ; une configuration <code>REGIONAL</code> a un objectif de <code>99.99%</code> hors Stockholm et <code>99.95%</code> à Stockholm. Si la configuration ou la région nécessaire manque, l’objectif est non déterminé. Le calcul est mensuel par projet et région.<br>\nPour les autres modèles de cette grille, proposer Firestore pour <code>NOSQL_DOCUMENT</code>, Bigtable pour <code>NOSQL_WIDE_COLUMN</code>, ou Cloud Storage pour <code>OBJECT_STORAGE</code>.<br>\nRetourner <code>RECOMMENDATION: service=&lt;nom&gt; &lt;attributs...&gt;</code>. Références consultées le 30 octobre 2026 : <a href=\"https://cloud.google.com/sql/sla\">SLA Cloud SQL</a> et <a href=\"https://cloud.google.com/spanner/sla\">SLA Spanner</a>.</p>",
+    "starter": "# Grille d'analyse (gcp3-c5-e2) — Sélecteur de données GCP et objectifs de disponibilité\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cloud SQL Enterprise en haute disponibilité]\n# Données : SELECT_DB model=RELATIONAL scale=REGIONAL choice=SQL edition=ENTERPRISE availability=HA instance=DEDICATED eligible=YES\nA_COMPLETER\n\n[Cas 2 — Cloud SQL Enterprise Plus en haute disponibilité]\n# Données : SELECT_DB model=RELATIONAL scale=REGIONAL choice=SQL edition=ENTERPRISE_PLUS availability=HA instance=DEDICATED eligible=YES\nA_COMPLETER\n\n[Cas 3 — Couverture Cloud SQL absente ou inconnue]\n# Données : SELECT_DB model=RELATIONAL scale=REGIONAL choice=SQL edition=ENTERPRISE availability=HA instance=SHARED_CORE eligible=NO\n# Données : SELECT_DB model=RELATIONAL scale=REGIONAL choice=SQL edition=ENTERPRISE availability=SINGLE_ZONE instance=DEDICATED eligible=NO\n# Données : SELECT_DB model=RELATIONAL scale=REGIONAL choice=SQL edition=ENTERPRISE availability=HA instance=DEDICATED eligible=UNKNOWN\nA_COMPLETER\n\n[Cas 4 — Spanner régional hors Stockholm et birégional]\n# Données : SELECT_DB model=RELATIONAL choice=SPANNER config=REGIONAL region=PARIS eligible=YES\n# Données : SELECT_DB model=RELATIONAL choice=SPANNER config=DUAL_REGION eligible=YES\nA_COMPLETER\n\n[Cas 5 — Spanner régional à Stockholm]\n# Données : SELECT_DB model=RELATIONAL choice=SPANNER config=REGIONAL region=STOCKHOLM eligible=YES\nA_COMPLETER\n\n[Cas 6 — Configuration Spanner non précisée]\n# Données : SELECT_DB model=RELATIONAL choice=SPANNER config=UNKNOWN eligible=UNKNOWN\n# Données : SELECT_DB model=RELATIONAL choice=SPANNER config=REGIONAL region=UNKNOWN eligible=YES\nA_COMPLETER\n\n[Cas 7 — Trois modèles non relationnels]\n# Données : SELECT_DB model=NOSQL_WIDE_COLUMN\n# Données : SELECT_DB model=NOSQL_DOCUMENT\n# Données : SELECT_DB model=OBJECT_STORAGE\nA_COMPLETER\n",
     "hints": [
-      "Vérifiez d abord si model == \"RELATIONAL\" : différenciez selon scale == \"GLOBAL\" et acid == \"STRICT\" vs scale == \"REGIONAL\".",
-      "Testez ensuite \"NOSQL_DOCUMENT\", \"NOSQL_WIDE_COLUMN\" et \"OBJECT_STORAGE\"."
+      "Ne déduisez pas le SLO de la seule échelle régionale ou mondiale : vérifiez l’édition, la haute disponibilité, la configuration et la couverture.",
+      "Distinguez l’objectif contractuel mensuel d’une garantie de fonctionnement continu."
     ],
     "examples": [
       {
-        "stdin": "SELECT_DB model=RELATIONAL scale=GLOBAL latency=STANDARD acid=STRICT",
-        "expected": "RECOMMENDATION: service=Cloud_Spanner type=NEW_SQL sla=99.999%",
-        "note": "Base NewSQL mondiale avec cohérence stricte ACID et haute disponibilité."
+        "stdin": "SELECT_DB model=RELATIONAL scale=GLOBAL choice=SPANNER config=MULTI_REGION eligible=YES",
+        "expected": "RECOMMENDATION: service=Cloud_Spanner type=NEW_SQL config=MULTI_REGION slo_mensuel=99.999%",
+        "note": "Objectif mensuel de la configuration indiquée, sous réserve des conditions du SLA."
       }
     ],
     "tests": [
       {
-        "label": "Base relationnelle régionale Cloud SQL",
+        "label": "Cloud SQL Enterprise en haute disponibilité",
         "stdin": "cas:1",
-        "expected": "RECOMMENDATION: service=Cloud_SQL type=RDBMS sla=99.95%"
+        "expected": "RECOMMENDATION: service=Cloud_SQL type=RDBMS edition=ENTERPRISE availability=HA slo_mensuel=99.95%"
       },
       {
-        "label": "Base NoSQL large-colonne ultra-faible latence Bigtable",
+        "label": "Cloud SQL Enterprise Plus en haute disponibilité",
         "stdin": "cas:2",
-        "expected": "RECOMMENDATION: service=Cloud_Bigtable type=WIDE_COLUMN usecase=IOT_ANALYTICS"
+        "expected": "RECOMMENDATION: service=Cloud_SQL type=RDBMS edition=ENTERPRISE_PLUS availability=HA slo_mensuel=99.99%"
       },
       {
-        "label": "Base documentaire NoSQL Firestore",
+        "label": "Couverture Cloud SQL absente ou inconnue",
         "stdin": "cas:3",
-        "expected": "RECOMMENDATION: service=Firestore type=DOCUMENT_DB latency=LOW"
+        "expected": "RECOMMENDATION: service=Cloud_SQL type=RDBMS edition=ENTERPRISE availability=HA slo_mensuel=NON_DETERMINE\nRECOMMENDATION: service=Cloud_SQL type=RDBMS edition=ENTERPRISE availability=SINGLE_ZONE slo_mensuel=NON_DETERMINE\nRECOMMENDATION: service=Cloud_SQL type=RDBMS edition=ENTERPRISE availability=HA slo_mensuel=NON_DETERMINE"
       },
       {
-        "label": "Stockage d objets non structurés Cloud Storage",
+        "label": "Spanner régional hors Stockholm et birégional",
         "stdin": "cas:4",
-        "expected": "RECOMMENDATION: service=Cloud_Storage type=BLOB_STORE scale=EXABYTE"
+        "expected": "RECOMMENDATION: service=Cloud_Spanner type=NEW_SQL config=REGIONAL region=PARIS slo_mensuel=99.99%\nRECOMMENDATION: service=Cloud_Spanner type=NEW_SQL config=DUAL_REGION slo_mensuel=99.999%"
+      },
+      {
+        "label": "Spanner régional à Stockholm",
+        "stdin": "cas:5",
+        "expected": "RECOMMENDATION: service=Cloud_Spanner type=NEW_SQL config=REGIONAL region=STOCKHOLM slo_mensuel=99.95%"
+      },
+      {
+        "label": "Configuration Spanner non précisée",
+        "stdin": "cas:6",
+        "expected": "RECOMMENDATION: service=Cloud_Spanner type=NEW_SQL config=UNKNOWN slo_mensuel=NON_DETERMINE\nRECOMMENDATION: service=Cloud_Spanner type=NEW_SQL config=REGIONAL region=UNKNOWN slo_mensuel=NON_DETERMINE"
+      },
+      {
+        "label": "Trois modèles non relationnels",
+        "stdin": "cas:7",
+        "expected": "RECOMMENDATION: service=Cloud_Bigtable type=WIDE_COLUMN usecase=IOT_ANALYTICS\nRECOMMENDATION: service=Firestore type=DOCUMENT_DB latency=LOW\nRECOMMENDATION: service=Cloud_Storage type=BLOB_STORE"
       }
     ],
-    "solution": "[Exemple]\nRECOMMENDATION: service=Cloud_Spanner type=NEW_SQL sla=99.999%\n\n[Cas 1 — Base relationnelle régionale Cloud SQL]\nRECOMMENDATION: service=Cloud_SQL type=RDBMS sla=99.95%\n\n[Cas 2 — Base NoSQL large-colonne ultra-faible latence Bigtable]\nRECOMMENDATION: service=Cloud_Bigtable type=WIDE_COLUMN usecase=IOT_ANALYTICS\n\n[Cas 3 — Base documentaire NoSQL Firestore]\nRECOMMENDATION: service=Firestore type=DOCUMENT_DB latency=LOW\n\n[Cas 4 — Stockage d objets non structurés Cloud Storage]\nRECOMMENDATION: service=Cloud_Storage type=BLOB_STORE scale=EXABYTE"
+    "solution": "[Exemple]\nRECOMMENDATION: service=Cloud_Spanner type=NEW_SQL config=MULTI_REGION slo_mensuel=99.999%\n\n[Cas 1 — Cloud SQL Enterprise en haute disponibilité]\nRECOMMENDATION: service=Cloud_SQL type=RDBMS edition=ENTERPRISE availability=HA slo_mensuel=99.95%\n\n[Cas 2 — Cloud SQL Enterprise Plus en haute disponibilité]\nRECOMMENDATION: service=Cloud_SQL type=RDBMS edition=ENTERPRISE_PLUS availability=HA slo_mensuel=99.99%\n\n[Cas 3 — Couverture Cloud SQL absente ou inconnue]\nRECOMMENDATION: service=Cloud_SQL type=RDBMS edition=ENTERPRISE availability=HA slo_mensuel=NON_DETERMINE\nRECOMMENDATION: service=Cloud_SQL type=RDBMS edition=ENTERPRISE availability=SINGLE_ZONE slo_mensuel=NON_DETERMINE\nRECOMMENDATION: service=Cloud_SQL type=RDBMS edition=ENTERPRISE availability=HA slo_mensuel=NON_DETERMINE\n\n[Cas 4 — Spanner régional hors Stockholm et birégional]\nRECOMMENDATION: service=Cloud_Spanner type=NEW_SQL config=REGIONAL region=PARIS slo_mensuel=99.99%\nRECOMMENDATION: service=Cloud_Spanner type=NEW_SQL config=DUAL_REGION slo_mensuel=99.999%\n\n[Cas 5 — Spanner régional à Stockholm]\nRECOMMENDATION: service=Cloud_Spanner type=NEW_SQL config=REGIONAL region=STOCKHOLM slo_mensuel=99.95%\n\n[Cas 6 — Configuration Spanner non précisée]\nRECOMMENDATION: service=Cloud_Spanner type=NEW_SQL config=UNKNOWN slo_mensuel=NON_DETERMINE\nRECOMMENDATION: service=Cloud_Spanner type=NEW_SQL config=REGIONAL region=UNKNOWN slo_mensuel=NON_DETERMINE\n\n[Cas 7 — Trois modèles non relationnels]\nRECOMMENDATION: service=Cloud_Bigtable type=WIDE_COLUMN usecase=IOT_ANALYTICS\nRECOMMENDATION: service=Firestore type=DOCUMENT_DB latency=LOW\nRECOMMENDATION: service=Cloud_Storage type=BLOB_STORE"
   },
   {
     "id": "gcp3-c5-e3",
     "chapter": 5,
-    "title": "Simulateur de Pipeline d'Ingestion Cloud Pub/Sub (Topics & Subscriptions)",
+    "title": "Analyse de messages et de relivraison Pub/Sub",
     "level": "n3",
     "language": "analyse",
-    "goal": "Simuler le cycle de publication, de délivrance et d'acquittement de messages dans Google Cloud Pub/Sub.",
-    "brief": "<p>Google Cloud Pub/Sub est le service d'ingestion et de messagerie asynchrone haute cadence mondial :<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>CREATE_SUB sub=&lt;nom&gt; ack_deadline=&lt;sec&gt;</code> :<br>\n   Enregistre un abonnement avec un délai maximal d'acquittement <code>ack_deadline</code> (ex: 10s).<br>\n   Indiquez <code>SUB_READY: name=&lt;nom&gt; ack_deadline=&lt;sec&gt;s</code>.<br>\n2. <code>DELIVER_MSG sub=&lt;nom&gt; msg_id=&lt;id&gt; elapsed_time=&lt;sec&gt;</code> :<br>\n   - Si <code>elapsed_time &lt;= ack_deadline</code> :<br>\n     <code>DELIVERY: sub=&lt;nom&gt; msg_id=&lt;id&gt; status=ACKNOWLEDGED action=REMOVED_FROM_QUEUE</code><br>\n   - Si <code>elapsed_time &gt; ack_deadline</code> :<br>\n     <code>DELIVERY: sub=&lt;nom&gt; msg_id=&lt;id&gt; status=DEADLINE_EXCEEDED action=REDELIVERED_TO_CONSUMER</code></p>",
-    "starter": "# Grille d'analyse (gcp3-c5-e3) — Simulateur de Pipeline d'Ingestion Cloud Pub/Sub (Topics & Subscriptions)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Acquittement exact à la limite de la deadline]\n# Données : CREATE_SUB sub=analytics-sink ack_deadline=30\n# Données : DELIVER_MSG sub=analytics-sink msg_id=LOG-1 elapsed_time=30\nA_COMPLETER\n\n[Cas 2 — Abonnement inconnu]\n# Données : DELIVER_MSG sub=unknown-sub msg_id=MSG-1 elapsed_time=5\nA_COMPLETER\n",
+    "goal": "Distinguer acquittement observé, délai en cours et possibilité de relivraison.",
+    "brief": "<p>Cette grille représente un abonnement Pub/Sub standard et un message encore retenu, sans simuler de file de lettres mortes ni de requête réelle.<br>\n<code>CREATE_SUB sub=&lt;nom&gt; ack_deadline=&lt;secondes&gt;</code> retourne <code>SUB_READY: name=&lt;nom&gt; ack_deadline=&lt;secondes&gt;s</code>.<br>\n<code>DELIVER_MSG sub=&lt;nom&gt; msg_id=&lt;id&gt; elapsed_time=&lt;secondes&gt; effective_deadline=&lt;secondes&gt; ack=&lt;YES|NO|NACK&gt;</code> décrit une observation. <code>effective_deadline</code> est le délai effectif fourni dans le cas, compte tenu d’une éventuelle prolongation ; <code>ack=YES</code> signifie qu’un acquittement a déjà été accepté, <code>ack=NO</code> qu’aucun n’est connu, et <code>ack=NACK</code> qu’un refus a été émis.<br>\nPour un abonnement connu, retourner <code>DELIVERY: sub=&lt;nom&gt; msg_id=&lt;id&gt; status=&lt;statut&gt; action=&lt;action&gt;</code> :<br>\n- acquittement accepté : <code>status=ACKNOWLEDGED action=NONE</code> ; cela ne prouve pas l’absence de doublons dans une livraison standard ;<br>\n- sans acquittement avant le délai effectif : <code>status=WAITING_FOR_ACK action=NONE</code> ;<br>\n- sans acquittement à partir du délai effectif : <code>status=DEADLINE_EXPIRED action=REDELIVERY_POSSIBLE</code> ;<br>\n- refus explicite : <code>status=NACKED action=REDELIVERY_POSSIBLE</code>.<br>\nSi l’abonnement est inconnu, retourner <code>DELIVERY: sub=&lt;nom&gt; status=ERROR_SUBSCRIPTION_NOT_FOUND</code>.<br><br>\nUne nouvelle tentative peut cibler le même client ou un autre ; elle n’est ni la preuve d’une panne ni une livraison immédiate garantie. La politique de retry, les prolongations, la rétention et une éventuelle file de lettres mortes influencent le parcours. Voir la <a href=\"https://docs.cloud.google.com/pubsub/docs/subscription-retry-policy\">politique de retry Pub/Sub</a>.</p>",
+    "starter": "# Grille d'analyse (gcp3-c5-e3) — Analyse de messages et de relivraison Pub/Sub\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Prolongation du délai encore en cours]\n# Données : CREATE_SUB sub=analytics-sink ack_deadline=10\n# Données : DELIVER_MSG sub=analytics-sink msg_id=LOG-1 elapsed_time=14 effective_deadline=30 ack=NO\nA_COMPLETER\n\n[Cas 2 — Abonnement inconnu]\n# Données : DELIVER_MSG sub=unknown-sub msg_id=MSG-1 elapsed_time=5 effective_deadline=10 ack=NO\nA_COMPLETER\n\n[Cas 3 — Délai atteint sans acquittement connu]\n# Données : CREATE_SUB sub=analytics-sink ack_deadline=30\n# Données : DELIVER_MSG sub=analytics-sink msg_id=LOG-2 elapsed_time=30 effective_deadline=30 ack=NO\nA_COMPLETER\n\n[Cas 4 — Refus explicite du message]\n# Données : CREATE_SUB sub=analytics-sink ack_deadline=30\n# Données : DELIVER_MSG sub=analytics-sink msg_id=LOG-3 elapsed_time=3 effective_deadline=30 ack=NACK\nA_COMPLETER\n\n[Cas 5 — Acquittement explicitement accepté]\n# Données : CREATE_SUB sub=analytics-sink ack_deadline=30\n# Données : DELIVER_MSG sub=analytics-sink msg_id=LOG-4 elapsed_time=6 effective_deadline=30 ack=YES\nA_COMPLETER\n",
     "hints": [
-      "Stockez les abonnements dans un dictionnaire sub_name -> int(ack_deadline).",
-      "Comparez int(elapsed_time) <= ack_deadline pour valider l acquittement."
+      "Ne supposez jamais qu’un message est acquitté à partir du seul temps écoulé : l’état ack est fourni.",
+      "Comparez elapsed_time au délai effectif, éventuellement prolongé ; une relivraison est possible, pas certaine."
     ],
     "examples": [
       {
-        "stdin": "CREATE_SUB sub=order-processor ack_deadline=10\nDELIVER_MSG sub=order-processor msg_id=ORD-999 elapsed_time=6\nDELIVER_MSG sub=order-processor msg_id=ORD-1000 elapsed_time=14",
-        "expected": "SUB_READY: name=order-processor ack_deadline=10s\nDELIVERY: sub=order-processor msg_id=ORD-999 status=ACKNOWLEDGED action=REMOVED_FROM_QUEUE\nDELIVERY: sub=order-processor msg_id=ORD-1000 status=DEADLINE_EXCEEDED action=REDELIVERED_TO_CONSUMER",
-        "note": "Le message 999 est acquitté en 6s (conforme) ; le message 1000 dépasse la deadline (réexpédié)."
+        "stdin": "CREATE_SUB sub=order-processor ack_deadline=10\nDELIVER_MSG sub=order-processor msg_id=ORD-999 elapsed_time=6 effective_deadline=10 ack=YES\nDELIVER_MSG sub=order-processor msg_id=ORD-1000 elapsed_time=14 effective_deadline=10 ack=NO",
+        "expected": "SUB_READY: name=order-processor ack_deadline=10s\nDELIVERY: sub=order-processor msg_id=ORD-999 status=ACKNOWLEDGED action=NONE\nDELIVERY: sub=order-processor msg_id=ORD-1000 status=DEADLINE_EXPIRED action=REDELIVERY_POSSIBLE",
+        "note": "Le premier acquittement est connu ; une nouvelle tentative est possible pour le second message."
       }
     ],
     "tests": [
       {
-        "label": "Acquittement exact à la limite de la deadline",
+        "label": "Prolongation du délai encore en cours",
         "stdin": "cas:1",
-        "expected": "SUB_READY: name=analytics-sink ack_deadline=30s\nDELIVERY: sub=analytics-sink msg_id=LOG-1 status=ACKNOWLEDGED action=REMOVED_FROM_QUEUE"
+        "expected": "SUB_READY: name=analytics-sink ack_deadline=10s\nDELIVERY: sub=analytics-sink msg_id=LOG-1 status=WAITING_FOR_ACK action=NONE"
       },
       {
         "label": "Abonnement inconnu",
         "stdin": "cas:2",
         "expected": "DELIVERY: sub=unknown-sub status=ERROR_SUBSCRIPTION_NOT_FOUND"
+      },
+      {
+        "label": "Délai atteint sans acquittement connu",
+        "stdin": "cas:3",
+        "expected": "SUB_READY: name=analytics-sink ack_deadline=30s\nDELIVERY: sub=analytics-sink msg_id=LOG-2 status=DEADLINE_EXPIRED action=REDELIVERY_POSSIBLE"
+      },
+      {
+        "label": "Refus explicite du message",
+        "stdin": "cas:4",
+        "expected": "SUB_READY: name=analytics-sink ack_deadline=30s\nDELIVERY: sub=analytics-sink msg_id=LOG-3 status=NACKED action=REDELIVERY_POSSIBLE"
+      },
+      {
+        "label": "Acquittement explicitement accepté",
+        "stdin": "cas:5",
+        "expected": "SUB_READY: name=analytics-sink ack_deadline=30s\nDELIVERY: sub=analytics-sink msg_id=LOG-4 status=ACKNOWLEDGED action=NONE"
       }
     ],
-    "solution": "[Exemple]\nSUB_READY: name=order-processor ack_deadline=10s\nDELIVERY: sub=order-processor msg_id=ORD-999 status=ACKNOWLEDGED action=REMOVED_FROM_QUEUE\nDELIVERY: sub=order-processor msg_id=ORD-1000 status=DEADLINE_EXCEEDED action=REDELIVERED_TO_CONSUMER\n\n[Cas 1 — Acquittement exact à la limite de la deadline]\nSUB_READY: name=analytics-sink ack_deadline=30s\nDELIVERY: sub=analytics-sink msg_id=LOG-1 status=ACKNOWLEDGED action=REMOVED_FROM_QUEUE\n\n[Cas 2 — Abonnement inconnu]\nDELIVERY: sub=unknown-sub status=ERROR_SUBSCRIPTION_NOT_FOUND"
+    "solution": "[Exemple]\nSUB_READY: name=order-processor ack_deadline=10s\nDELIVERY: sub=order-processor msg_id=ORD-999 status=ACKNOWLEDGED action=NONE\nDELIVERY: sub=order-processor msg_id=ORD-1000 status=DEADLINE_EXPIRED action=REDELIVERY_POSSIBLE\n\n[Cas 1 — Prolongation du délai encore en cours]\nSUB_READY: name=analytics-sink ack_deadline=10s\nDELIVERY: sub=analytics-sink msg_id=LOG-1 status=WAITING_FOR_ACK action=NONE\n\n[Cas 2 — Abonnement inconnu]\nDELIVERY: sub=unknown-sub status=ERROR_SUBSCRIPTION_NOT_FOUND\n\n[Cas 3 — Délai atteint sans acquittement connu]\nSUB_READY: name=analytics-sink ack_deadline=30s\nDELIVERY: sub=analytics-sink msg_id=LOG-2 status=DEADLINE_EXPIRED action=REDELIVERY_POSSIBLE\n\n[Cas 4 — Refus explicite du message]\nSUB_READY: name=analytics-sink ack_deadline=30s\nDELIVERY: sub=analytics-sink msg_id=LOG-3 status=NACKED action=REDELIVERY_POSSIBLE\n\n[Cas 5 — Acquittement explicitement accepté]\nSUB_READY: name=analytics-sink ack_deadline=30s\nDELIVERY: sub=analytics-sink msg_id=LOG-4 status=ACKNOWLEDGED action=NONE"
   },
   {
     "id": "gcp3-c6-e1",

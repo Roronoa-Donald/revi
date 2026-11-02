@@ -1,0 +1,966 @@
+Lot 2 — journal indépendant des deux bornes C#
+Date : 30 octobre 2026. Répertoire : /home/rd/Téléchargements/revi-cours-html /revi-cours-html
+F03 initial : les 18 corrigés mémorisaient les entrées cachées. Le suivi indique
+leur remplacement, sans preuve générale, et maintient la suspension. Les deux
+anciennes sondes conditionnelles sont documentées dans
+corrections/resultats/audit-generalisation-csharp-lot1-partie3.md, sections
+« Prix sans zéro initial » et « Dépassement de durée ».
+
+Portée : csb2-c2-e2 et csb2-c6-e1 uniquement. Aucune conclusion générale sur
+les 18 exercices C# ni sur un fournisseur externe. Les deux programmes et leurs
+mutants sont compilés par Roslyn puis exécutés dans un second bubblewrap sans
+réseau, sans HOME réel et sans montage du dépôt. Les fichiers temporaires sont
+dans un tmpfs jetable ; seuls ce journal et le rapport sont écrits durablement.
+
+Reproduction depuis la racine du dépôt (Node, SDK .NET, parse5 et bwrap requis) :
+
+  awk '/^===== DÉBUT HARNAIS JS =====$/ {on=1; next} /^===== FIN HARNAIS JS =====$/ {on=0; exit} on {print}' corrections/resultats/lot2-csharp-bornes-independant-journal.txt |
+  bwrap --unshare-all --die-with-parent --new-session --cap-drop ALL --ro-bind /usr /usr --ro-bind "$PWD" /repo --ro-bind "$(command -v node)" /node --symlink usr/bin /bin --symlink usr/lib /lib --symlink usr/lib /lib64 --dir /etc --ro-bind /etc/ld.so.cache /etc/ld.so.cache --ro-bind /etc/os-release /etc/os-release --size 134217728 --tmpfs /tmp --proc /proc --dev /dev --clearenv --setenv HOME /tmp --setenv DOTNET_CLI_HOME /tmp --setenv DOTNET_ROOT /usr/share/dotnet --setenv DOTNET_CLI_TELEMETRY_OPTOUT 1 --setenv DOTNET_SKIP_FIRST_TIME_EXPERIENCE 1 --setenv DOTNET_NOLOGO 1 --setenv DOTNET_EnableDiagnostics 0 --setenv LANG C.UTF-8 --setenv PATH /usr/bin:/bin --setenv AUDIT_HOST_NET "$(readlink /proc/self/ns/net)" --chdir /repo /node -
+
+Synchronisation des pages, sans écriture :
+
+  bwrap --unshare-all --die-with-parent --new-session --ro-bind /usr /usr --ro-bind "$PWD" /repo --ro-bind "$(command -v node)" /node --symlink usr/bin /bin --symlink usr/lib /lib --symlink usr/lib /lib64 --tmpfs /tmp --proc /proc --dev /dev --clearenv --setenv HOME /tmp --setenv PATH /usr/bin:/bin --chdir /repo /node scripts/generate-courses.js --check csharp
+
+Le banc calcule les attendus indépendants en entiers arbitraires, contrôle les
+deux nouveaux cas dans la tranche effective MAX_TESTS et vérifie la route
+suspendue. Pour les demi-centimes, il compare séparément les arrondis au pair
+et à l'écart de zéro, car l'énoncé ne précise pas le mode d'arrondi. La notation exponentielle est explicitement
+hors domaine dans la dernière version ; elle est explorée séparément et n'est
+pas comptée comme défaut. Le cumul est borné par l'environnement d'exécution.
+Les pages et le catalogue ont changé pendant le démarrage en parallèle ; les
+empreintes initiales du banc ci-dessous identifient la version effectivement
+testée après la précision de l'utilisateur, puis sont comparées en fin de banc.
+Le premier essai n'a pas pu être enregistré à cause de la variable spéciale
+en lecture seule « status » du shell zsh. Le banc enregistré ensuite était
+incomplet : il supposait à tort 7 tests pour les deux exercices, alors que le
+premier en a 6. Son oracle supposait aussi l'arrondi au pair. Ces deux erreurs
+de harnais sont conservées dans sa sortie brute ; le banc suivant les corrige.
+
+===== DÉBUT HARNAIS JS =====
+'use strict';
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+const parse5 = require('/repo/node_modules/parse5');
+const registry = require('/repo/server/exercises');
+const policy = require('/repo/server/exercises/grading-policy');
+const { runTests, MAX_TESTS } = require('/repo/server/exercises/runner');
+const execution = require('/repo/server/services/execution');
+const jwt = require('/repo/node_modules/jsonwebtoken');
+
+const files = ['server/exercises/csharp.js', 'server/exercises/grading-policy.js',
+  'server/exercises/runner.js', 'server/routes/exercises.js',
+  'csharp/chapitres/chapitre2.html', 'csharp/chapitres/chapitre6.html'];
+const hash = file => crypto.createHash('sha256').update(fs.readFileSync(`/repo/${file}`)).digest('hex');
+const before = new Map(files.map(file => [file, hash(file)]));
+assert.equal(fs.existsSync('/home'), false);
+assert.notEqual(fs.readlinkSync('/proc/self/ns/net'), process.env.AUDIT_HOST_NET);
+assert.equal(fs.readFileSync('/proc/1/comm', 'utf8').trim(), 'bwrap');
+console.log(`CONFINEMENT parent: pid1=bwrap; home_hôte=absent; réseau_hôte_distinct=true; /repo=lecture seule`);
+for (const [file, digest] of before) console.log(`SHA256 AVANT ${file}: ${digest}`);
+
+const selected = ['csb2-c2-e2', 'csb2-c6-e1'].map(id => registry.getExercise(id));
+assert.ok(selected.every(exercise => exercise && exercise.course === 'csharp'));
+assert.ok(selected.every(exercise => policy.isGradingSuspended(exercise.course, exercise.id)));
+
+function* nodes(node) {
+  yield node;
+  for (const child of node.childNodes || []) yield* nodes(child);
+}
+function attr(node, name) { return (node.attrs || []).find(item => item.name === name)?.value; }
+function text(node) {
+  return [...nodes(node)].filter(item => item.nodeName === '#text').map(item => item.value).join(' ').replace(/\s+/g, ' ').trim();
+}
+for (const exercise of selected) {
+  const page = `/repo/csharp/chapitres/chapitre${exercise.chapter}.html`;
+  const html = fs.readFileSync(page, 'utf8');
+  const document = parse5.parse(html);
+  const lab = [...nodes(document)].find(node => attr(node, 'data-exercise') === exercise.id);
+  assert.ok(lab, exercise.id);
+  assert.equal(attr(lab, 'data-grading-suspended'), '1');
+  const brief = [...nodes(lab)].find(node => (attr(node, 'class') || '').split(' ').includes('lab__brief'));
+  assert.ok(brief);
+  const sourceText = text(parse5.parseFragment(exercise.brief));
+  assert.equal(text(brief), sourceText);
+  if (exercise.id === 'csb2-c2-e2') {
+    assert.ok(sourceText.includes('notation décimale simple, sans exposant ni séparateur de milliers'));
+    assert.ok(sourceText.includes('le zéro initial est facultatif'));
+  } else {
+    assert.ok(sourceText.includes('sans limite Int64, dans les limites de l\'environnement d\'exécution'));
+    assert.ok(sourceText.includes('cela ne définit pas les valeurs acceptées par une API réelle'));
+  }
+  const notice = [...nodes(lab)].find(node => attr(node, 'id') === `${exercise.id}-grading-notice`);
+  assert.ok(notice && text(notice).includes('temporairement suspendue'));
+  const client = registry.toClient(exercise);
+  assert.equal(Object.hasOwn(client, 'tests'), false);
+  assert.equal(Object.hasOwn(client, 'solution'), false);
+  console.log(`DOM ${exercise.id}: source=page générée; suspension=1; tests/solution hors projection; énoncé=${JSON.stringify(sourceText)}`);
+}
+
+const prix = selected[0];
+const duree = selected[1];
+const targetPrice = prix.tests.find(test => test.label === 'Prix décimal sans zéro initial');
+const targetTime = duree.tests.find(test => test.label === 'Cumul supérieur à Int64');
+assert.ok(targetPrice && targetTime);
+for (const [exercise, target] of [[prix, targetPrice], [duree, targetTime]]) {
+  const index = exercise.tests.indexOf(target);
+  assert.ok(index >= 0 && index < MAX_TESTS);
+  assert.ok(!fs.readFileSync(`/repo/csharp/chapitres/chapitre${exercise.chapter}.html`, 'utf8').includes(target.stdin));
+  console.log(`TEST CACHÉ ${exercise.id}: index=${index + 1}/${exercise.tests.length}; MAX_TESTS=${MAX_TESTS}; données=${JSON.stringify(target)}`);
+}
+
+const dotnet = '/usr/share/dotnet/dotnet';
+const compiler = '/usr/share/dotnet/sdk/10.0.401/Roslyn/bincore/csc.dll';
+const referenceDir = '/usr/share/dotnet/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0';
+const tmp = '/tmp/contreverification';
+fs.mkdirSync(tmp);
+const runtimeConfig = JSON.stringify({ runtimeOptions: { tfm: 'net10.0', framework: { name: 'Microsoft.NETCore.App', version: '10.0.12' } } });
+const references = fs.readdirSync(referenceDir).filter(name => name.endsWith('.dll')).map(name => `-r:${referenceDir}/${name}`);
+
+function compile(name, source) {
+  const sourceFile = `${tmp}/${name}.cs`;
+  const binary = `${tmp}/${name}.dll`;
+  fs.writeFileSync(sourceFile, source);
+  fs.writeFileSync(`${tmp}/${name}.runtimeconfig.json`, runtimeConfig);
+  const result = spawnSync(dotnet, [compiler, '-nologo', '-nostdlib+', '-target:exe', `-out:${binary}`, ...references, sourceFile],
+    { encoding: 'utf8', timeout: 30000, maxBuffer: 1024 * 1024 });
+  if (result.status !== 0 || result.error) throw new Error(`COMPILATION ${name}: ${result.status} ${result.stdout} ${result.stderr} ${result.error || ''}`);
+  console.log(`COMPILATION ${name}: sortie=0; source_sha256=${crypto.createHash('sha256').update(source).digest('hex')}`);
+  return { binary, runtime: `${tmp}/${name}.runtimeconfig.json` };
+}
+function execute(program, stdin) {
+  const args = ['--unshare-all', '--die-with-parent', '--new-session', '--cap-drop', 'ALL', '--ro-bind', '/usr', '/usr',
+    '--symlink', 'usr/bin', '/bin', '--symlink', 'usr/lib', '/lib', '--symlink', 'usr/lib', '/lib64',
+    '--dir', '/etc', '--ro-bind', '/etc/ld.so.cache', '/etc/ld.so.cache', '--ro-bind', '/etc/os-release', '/etc/os-release',
+    '--dir', '/work', '--ro-bind', program.binary, '/work/program.dll', '--ro-bind', program.runtime, '/work/program.runtimeconfig.json',
+    '--size', '67108864', '--tmpfs', '/tmp', '--proc', '/proc', '--dev', '/dev', '--clearenv',
+    '--setenv', 'HOME', '/tmp', '--setenv', 'DOTNET_ROOT', '/usr/share/dotnet', '--setenv', 'DOTNET_CLI_HOME', '/tmp',
+    '--setenv', 'DOTNET_CLI_TELEMETRY_OPTOUT', '1', '--setenv', 'DOTNET_SKIP_FIRST_TIME_EXPERIENCE', '1',
+    '--setenv', 'DOTNET_EnableDiagnostics', '0', '--setenv', 'LANG', 'C.UTF-8', '--setenv', 'PATH', '/usr/bin:/bin',
+    '--setenv', 'AUDIT_OUTER_NET', fs.readlinkSync('/proc/self/ns/net'), '--chdir', '/tmp', '/bin/sh', '-eu', '-c',
+    'test ! -e /home && test ! -e /repo && test "$(cat /proc/1/comm)" = bwrap && test "$(readlink /proc/self/ns/net)" != "$AUDIT_OUTER_NET" && exec "$@"',
+    'relecture', '/usr/bin/prlimit', '--as=4294967296:4294967296', '--cpu=8:8', '--fsize=67108864:67108864',
+    '--nofile=1024:1024', '--core=0:0', '--nproc=256:256', '--', dotnet, '/work/program.dll'];
+  const result = spawnSync('/usr/bin/bwrap', args, { input: stdin, encoding: 'utf8', timeout: 12000, maxBuffer: 1024 * 1024 });
+  return { ok: result.status === 0 && !result.error, status: result.status === 0 && !result.error ? 'success' : 'runtime_error',
+    stdout: result.stdout || '', stderr: result.stderr || String(result.error || ''), exitCode: result.status };
+}
+function normalized(value) { return value.replace(/\r\n?/g, '\n').replace(/\n+$/, ''); }
+function priceFixed(raw, rounding = 'even') {
+  const negative = raw.startsWith('-');
+  const unsigned = /^[+-]/.test(raw) ? raw.slice(1) : raw;
+  const [integer = '', fraction = ''] = unsigned.split('.');
+  let cents = BigInt(integer || '0') * 100n + BigInt((fraction + '00').slice(0, 2));
+  const more = fraction.slice(2);
+  if (more && (more[0] > '5' || (more[0] === '5' && (/[1-9]/.test(more.slice(1)) || rounding === 'away' || cents % 2n === 1n)))) cents += 1n;
+  return (negative ? '-' : '') + String(cents / 100n) + '.' + String(cents % 100n).padStart(2, '0');
+}
+function articleLine(item, rounding = 'even') {
+  const call = item.raw !== undefined ? `Article("${item.ref}", "${item.name}", ${item.raw})`
+    : item.name !== undefined ? `Article("${item.ref}", "${item.name}")` : `Article("${item.ref}")`;
+  const chain = item.raw !== undefined ? 'ctor(r, nom, prix)' : item.name !== undefined
+    ? 'ctor(r, nom) -> ctor(r, nom, prix)' : 'ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix)';
+  const name = item.name === undefined ? 'Sans nom' : item.name;
+  const amount = item.raw === undefined ? '0.00' : priceFixed(item.raw, rounding);
+  return `${call} => Chaine: ${chain} | Objet: [Ref=${item.ref}, Nom=${name}, Prix=${amount}]`;
+}
+function timeLines(tasks) {
+  let time = 0n;
+  const lines = [];
+  tasks.forEach((task, index) => {
+    lines.push(index === 0 ? `[T=${time}ms] Demarrage ${task.name} -> Await (trace simulee)`
+      : `[T=${time}ms] Reprise contexte -> Demarrage ${task.name} -> Await`);
+    time += BigInt(task.duration);
+  });
+  lines.push(`[T=${time}ms] Tache completee avec succes. Duree totale=${time}ms`);
+  return lines.join('\n');
+}
+const expectedHiddenPrice = articleLine({ ref: 'DECI', name: 'Puce', raw: '.09' });
+const expectedHiddenTime = timeLines([{ name: 'Limite', duration: '9223372036854775807' }, { name: 'Plus', duration: '2' }]);
+assert.equal(targetPrice.expected, expectedHiddenPrice);
+assert.equal(targetTime.expected, expectedHiddenTime);
+console.log('ORACLES cachés: sorties calculées indépendamment et identiques aux deux attendus.');
+
+const pattern = String.raw`[-+]?(?:\d+(?:\.\d+)?|\.\d+)`;
+assert.equal(prix.solution.split(pattern).length, 2);
+const priceMutant = prix.solution.replace(pattern, String.raw`[-+]?\d+(?:\.\d+)?`);
+const priceFormat = 'price.ToString("F2", CultureInfo.InvariantCulture)';
+assert.equal(prix.solution.split(priceFormat).length, 2);
+const truncationMutant = prix.solution.replace(priceFormat, '(decimal.Truncate(price * 100m) / 100m).ToString("F2", CultureInfo.InvariantCulture)');
+assert.equal(duree.solution.split('BigInteger time = BigInteger.Zero;').length, 2);
+assert.equal(duree.solution.split('BigInteger duration = BigInteger.Parse(').length, 2);
+const timeMutant = duree.solution.replace('BigInteger time = BigInteger.Zero;', 'long time = 0;')
+  .replace('BigInteger duration = BigInteger.Parse(', 'long duration = long.Parse(');
+const binaries = {
+  price: compile('price', prix.solution), priceMutant: compile('price-mutant', priceMutant),
+  truncationMutant: compile('truncation-mutant', truncationMutant),
+  time: compile('time', duree.solution), timeMutant: compile('time-mutant', timeMutant)
+};
+
+const articles = [
+  { ref: 'P-75', name: 'Carte', raw: '.75' },
+  { ref: 'P-40', name: 'Quatre', raw: '.4' },
+  { ref: 'P-ZERO', name: 'Zero', raw: '000.09' },
+  { ref: 'P-NEG', name: 'Negatif', raw: '-.35' },
+  { ref: 'P-PLUS', name: 'Plus', raw: '+.25' },
+  { ref: 'P-POINT', name: 'Fin', raw: '1.' },
+  { ref: 'P-MIN', name: 'Precision', raw: '0.0000000000000000000000000001' },
+  { ref: 'P-MAX', name: 'Maximum', raw: '79228162514264337593543950335.00' },
+  { ref: 'P-NMAX', name: 'Minimum', raw: '-79228162514264337593543950335' },
+  { ref: 'P-NAME', name: 'USB, C' },
+  { ref: 'P-ONLY' }
+];
+const articleCalls = articles.map(item => 'NEW ' + articleLine(item).split(' => Chaine: ')[0]);
+for (const call of articleCalls) assert.ok(!prix.tests.some(test => test.stdin === call) && !prix.examples.some(example => example.stdin === call));
+const articleInput = articleCalls.join('\n');
+const expectedArticles = articles.map(item => articleLine(item)).join('\n');
+const observedArticles = execute(binaries.price, articleInput);
+console.log(`INDÉPENDANT PRIX: stdin=${JSON.stringify(articleInput)}; attendu=${JSON.stringify(expectedArticles)}; résultat=${JSON.stringify(observedArticles)}`);
+const anomalies = [];
+if (!observedArticles.ok || normalized(observedArticles.stdout) !== expectedArticles) anomalies.push('prix-simple');
+
+const halves = [
+  { ref: 'P-125', name: 'Milieu pair', raw: '0.125' },
+  { ref: 'P-135', name: 'Milieu impair', raw: '0.135' },
+  { ref: 'N-125', name: 'Milieu negatif pair', raw: '-0.125' },
+  { ref: 'N-135', name: 'Milieu negatif impair', raw: '-0.135' }
+];
+const halfInput = halves.map(item => 'NEW ' + articleLine(item).split(' => Chaine: ')[0]).join('\n');
+const halfEven = halves.map(item => articleLine(item, 'even')).join('\n');
+const halfAway = halves.map(item => articleLine(item, 'away')).join('\n');
+const halfResult = execute(binaries.price, halfInput);
+assert.ok(halfResult.ok);
+assert.equal(normalized(halfResult.stdout), halfAway);
+console.log(`AMBIGUÏTÉ ARRONDI: stdin=${JSON.stringify(halfInput)}; au_pair=${JSON.stringify(halfEven)}; écart_de_zéro=${JSON.stringify(halfAway)}; résultat=${JSON.stringify(halfResult)}; choix non spécifié par l'énoncé`);
+
+const timeCases = [
+  [{ name: 'Avant', duration: '9223372036854775806' }, { name: 'Franchit', duration: '2' }, { name: 'Suite', duration: '4' }],
+  [{ name: 'MaxA', duration: '9223372036854775807' }, { name: 'MaxB', duration: '9223372036854775807' }, { name: 'Nul', duration: '0' }],
+  [{ name: 'TresGrand', duration: '1000000000000000000000000000000000000000000000000000000000000' }, { name: 'Fin', duration: '0007' }],
+  [{ name: 'NulA', duration: '0' }, { name: 'InitialZero', duration: '00012' }, { name: 'NulB', duration: '0' }]
+];
+for (const [index, tasks] of timeCases.entries()) {
+  const input = tasks.map(task => `TASK ${task.name} Duree=${task.duration}ms`).join('\n');
+  assert.ok(!duree.tests.some(test => test.stdin === input) && !duree.examples.some(example => example.stdin === input));
+  const expected = timeLines(tasks);
+  const result = execute(binaries.time, input);
+  console.log(`INDÉPENDANT DURÉE ${index + 1}: stdin=${JSON.stringify(input)}; attendu=${JSON.stringify(expected)}; résultat=${JSON.stringify(result)}`);
+  if (!result.ok || normalized(result.stdout) !== expected) anomalies.push(`durée-${index + 1}`);
+}
+const extraInput = 'NEW Article("P-EXP", "Exponentiel", 1.0e-1)';
+const extraResult = execute(binaries.price, extraInput);
+console.log(`EXPLORATOIRE PRIX notation exponentielle, explicitement hors domaine: stdin=${JSON.stringify(extraInput)}; valeur mathématique=0.10; résultat=${JSON.stringify(extraResult)}`);
+
+async function verify() {
+  for (const [exercise, target, real, mutant] of [[prix, targetPrice, binaries.price, binaries.priceMutant], [duree, targetTime, binaries.time, binaries.timeMutant]]) {
+    const good = await runTests(exercise, exercise.solution, { execute: async request => execute(real, request.stdin) });
+    const bad = await runTests(exercise, 'variante synthétique', { execute: async request => execute(mutant, request.stdin) });
+    console.log(`RUNNER ${exercise.id} corrigé: ${JSON.stringify(good)}`);
+    console.log(`RUNNER ${exercise.id} mutant: ${JSON.stringify(bad)}`);
+    const expectedTotal = Math.min(exercise.tests.length, MAX_TESTS) + (exercise.verifyFirstExample === true ? 1 : 0);
+    assert.equal(good.passed, expectedTotal); assert.equal(good.total, expectedTotal); assert.equal(good.stop, null);
+    assert.ok(bad.stop && bad.stop.reason === 'wrong_output' && bad.stop.label === target.label);
+    assert.equal(bad.stop.testIndex, exercise.tests.indexOf(target));
+  }
+  const truncationReport = await runTests(prix, 'variante de troncature synthétique', { execute: async request => execute(binaries.truncationMutant, request.stdin) });
+  const truncationItem = { ref: 'TRONC', name: 'Millieme', raw: '0.126' };
+  const truncationInput = `NEW Article("${truncationItem.ref}", "${truncationItem.name}", ${truncationItem.raw})`;
+  const truncationExpected = articleLine(truncationItem);
+  const correctOnThousandth = execute(binaries.price, truncationInput);
+  const truncatedOnThousandth = execute(binaries.truncationMutant, truncationInput);
+  assert.equal(truncationReport.passed, 6); assert.equal(truncationReport.total, 6); assert.equal(truncationReport.stop, null);
+  assert.equal(normalized(correctOnThousandth.stdout), truncationExpected);
+  assert.ok(truncatedOnThousandth.ok && normalized(truncatedOnThousandth.stdout) !== truncationExpected);
+  console.log(`COUVERTURE PRIX millièmes: runner_mutant=${JSON.stringify(truncationReport)}; stdin=${JSON.stringify(truncationInput)}; attendu_oracle=${JSON.stringify(truncationExpected)}; corrigé=${JSON.stringify(correctOnThousandth)}; troncature=${JSON.stringify(truncatedOnThousandth)}`);
+  const maximumItem = { ref: 'TRONC-MAX', name: 'Borne', raw: '79228162514264337593543950335' };
+  const maximumInput = `NEW Article("${maximumItem.ref}", "${maximumItem.name}", ${maximumItem.raw})`;
+  const correctOnMaximum = execute(binaries.price, maximumInput);
+  const truncatedOnMaximum = execute(binaries.truncationMutant, maximumInput);
+  assert.ok(correctOnMaximum.ok && normalized(correctOnMaximum.stdout) === articleLine(maximumItem));
+  assert.ok(!truncatedOnMaximum.ok);
+  console.log(`COUVERTURE PRIX decimal.MaxValue: stdin=${JSON.stringify(maximumInput)}; attendu_oracle=${JSON.stringify(articleLine(maximumItem))}; corrigé=${JSON.stringify(correctOnMaximum)}; troncature=${JSON.stringify(truncatedOnMaximum)}`);
+  let providerCalls = 0;
+  const originalExecute = execution.execute;
+  execution.execute = async () => { providerCalls++; throw new Error('fournisseur interdit pendant la relecture'); };
+  process.env.JWT_SECRET = crypto.randomBytes(32).toString('hex');
+  const app = require('/repo/node_modules/fastify')({ logger: false });
+  app.register(require('/repo/node_modules/@fastify/cookie'));
+  app.register(require('/repo/server/routes/exercises'), { prefix: '/api' });
+  try {
+    await app.ready();
+    const token = jwt.sign({ userId: 'fictif', level: 'b2' }, process.env.JWT_SECRET);
+    for (const exercise of selected) {
+      const response = await app.inject({ method: 'POST', url: '/api/exercise/submit',
+        headers: { cookie: `auth_token=${token}` }, payload: { exerciseId: exercise.id, code: 'sentinelle non exécutable' } });
+      assert.equal(response.statusCode, 503);
+      assert.equal(response.json().status, 'grading_suspended');
+      console.log(`SUSPENSION API ${exercise.id}: HTTP=${response.statusCode}; corps=${JSON.stringify(response.json())}`);
+    }
+    assert.equal(providerCalls, 0);
+    console.log(`SUSPENSION: appels fournisseur=${providerCalls}; aucune politique modifiée.`);
+  } finally { execution.execute = originalExecute; await app.close(); }
+  for (const [file, digest] of before) assert.equal(hash(file), digest, `Modification concurrente détectée: ${file}`);
+  console.log(`INTÉGRITÉ: ${files.length} empreintes inchangées pendant le banc.`);
+  console.log(`ANOMALIES sur les entrées supposées ordinaires=${JSON.stringify(anomalies)}; incertitudes de grammaire et d'arrondi à interpréter séparément.`);
+  if (anomalies.length) process.exitCode = 2;
+}
+verify().catch(error => { console.error(error.stack || error); process.exitCode = 1; });
+===== FIN HARNAIS JS =====
+===== SORTIE BRUTE DU BANC ISOLÉ =====
+CONFINEMENT parent: pid1=bwrap; home_hôte=absent; réseau_hôte_distinct=true; /repo=lecture seule
+SHA256 AVANT server/exercises/csharp.js: 0d3bb2cd4578a57aac67665be4c7f000a46de0f1395a4b5aadb6987714e4ef16
+SHA256 AVANT server/exercises/grading-policy.js: 7685c530a183ddb55d20bba0ccaaefc2349582e41d87f778e4ce9d3752fcb9c4
+SHA256 AVANT server/exercises/runner.js: 11d629e4d17edc01eba6a50488f88a21c07e8af57edbd97459f8d8372dc5355e
+SHA256 AVANT server/routes/exercises.js: 6474a296e8eccb48f9ece3f74089b65edeebc2ba77f3230a6e3c351c70ba853c
+SHA256 AVANT csharp/chapitres/chapitre2.html: 8a2069ba37194d8d50080936c498178363b7c6759b21b9cecd84394a1dda36be
+SHA256 AVANT csharp/chapitres/chapitre6.html: 7f9071e273067a39559c1628b1d24be87c68fd585c1e3c0a2d9b98c098a2eb53
+DOM csb2-c2-e2: source=page générée; suspension=1; tests/solution hors projection; énoncé="Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne appelle un constructeur : - NEW Article(\"<Ref>\") délègue à this(r, \"Sans nom\") ; - NEW Article(\"<Ref>\", \"<Nom>\") délègue à this(r, nom, 0.0) ; - NEW Article(\"<Ref>\", \"<Nom>\", <Prix>) appelle le constructeur finalisant l'objet. Le prix est en notation décimale simple, sans exposant ni séparateur de milliers, et représentable par decimal . Le point sépare la partie fractionnaire éventuelle ; le zéro initial est facultatif, par exemple .75 . Pour chaque commande, indiquez la chaîne des constructeurs traversés et l'objet résultant. Format de sortie : Article(...) => Chaine: <Constructeur1> -> <Constructeur2>... | Objet: [Ref=<Ref>, Nom=<Nom>, Prix=<Prix2Dec>]"
+DOM csb2-c6-e1: source=page générée; suspension=1; tests/solution hors projection; énoncé="En C#, await suspend la méthode si l'opération attendue n'est pas encore terminée ; le thread peut alors effectuer d'autres travaux. La continuation ne reprend pas nécessairement sur le même contexte. Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne TASK <Nom> Duree=<Duree>ms décrit une étape séquentielle et sa durée. Dans cette simulation, les durées sont des entiers naturels en millisecondes et leur cumul est mathématique, sans limite Int64, dans les limites de l'environnement d'exécution ; cela ne définit pas les valeurs acceptées par une API réelle. Simulez la progression à partir de T=0ms , les démarrages et les reprises, puis affichez la durée cumulée. Les mentions « Await » et « Reprise contexte » sont des libellés de cette simulation ; elles ne prédisent pas les threads réellement utilisés. Format de sortie : [T=<T>ms] Demarrage <Nom> -> Await (trace simulee) [T=<T>ms] Reprise contexte -> Demarrage <NomSuivant> -> Await ... [T=<Total>ms] Tache completee avec succes. Duree totale=<Total>ms"
+TEST CACHÉ csb2-c2-e2: index=3/6; MAX_TESTS=7; données={"label":"Prix décimal sans zéro initial","stdin":"NEW Article(\"DECI\", \"Puce\", .09)","expected":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=0.09]"}
+TEST CACHÉ csb2-c6-e1: index=3/7; MAX_TESTS=7; données={"label":"Cumul supérieur à Int64","stdin":"TASK Limite Duree=9223372036854775807ms\nTASK Plus Duree=2ms","expected":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=9223372036854775809ms] Tache completee avec succes. Duree totale=9223372036854775809ms"}
+ORACLES cachés: sorties calculées indépendamment et identiques aux deux attendus.
+COMPILATION price: sortie=0; source_sha256=9081321ab39248c267450abb811daf733d9bb0a77b370ed6dc3d792eb538ec16
+COMPILATION price-mutant: sortie=0; source_sha256=625718cd8475dbdc54acad654c8669edf2b095ad82acd905f4053cd093f00551
+COMPILATION time: sortie=0; source_sha256=115a6edfbc752b50a0f9ade6823f8626577fd66f76650174862d8238b0c0954a
+COMPILATION time-mutant: sortie=0; source_sha256=1d9b1af41ff9959249e0a2d9e9782d7ecda4899a67d60d89a430df052052345f
+INDÉPENDANT PRIX: stdin="NEW Article(\"P-75\", \"Carte\", .75)\nNEW Article(\"P-40\", \"Quatre\", .4)\nNEW Article(\"P-ZERO\", \"Zero\", 000.09)\nNEW Article(\"P-NEG\", \"Negatif\", -.35)\nNEW Article(\"P-PLUS\", \"Plus\", +.25)\nNEW Article(\"P-POINT\", \"Fin\", 1.)\nNEW Article(\"P-125\", \"Milieu pair\", 0.125)\nNEW Article(\"P-135\", \"Milieu impair\", 0.135)\nNEW Article(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001)\nNEW Article(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00)\nNEW Article(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335)\nNEW Article(\"P-NAME\", \"USB, C\")\nNEW Article(\"P-ONLY\")"; attendu="Article(\"P-75\", \"Carte\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-75, Nom=Carte, Prix=0.75]\nArticle(\"P-40\", \"Quatre\", .4) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-40, Nom=Quatre, Prix=0.40]\nArticle(\"P-ZERO\", \"Zero\", 000.09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-ZERO, Nom=Zero, Prix=0.09]\nArticle(\"P-NEG\", \"Negatif\", -.35) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NEG, Nom=Negatif, Prix=-0.35]\nArticle(\"P-PLUS\", \"Plus\", +.25) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-PLUS, Nom=Plus, Prix=0.25]\nArticle(\"P-POINT\", \"Fin\", 1.) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-POINT, Nom=Fin, Prix=1.00]\nArticle(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.12]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]\nArticle(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MIN, Nom=Precision, Prix=0.00]\nArticle(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NMAX, Nom=Minimum, Prix=-79228162514264337593543950335.00]\nArticle(\"P-NAME\", \"USB, C\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-NAME, Nom=USB, C, Prix=0.00]\nArticle(\"P-ONLY\") => Chaine: ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-ONLY, Nom=Sans nom, Prix=0.00]"; résultat={"ok":true,"status":"success","stdout":"Article(\"P-75\", \"Carte\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-75, Nom=Carte, Prix=0.75]\nArticle(\"P-40\", \"Quatre\", .4) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-40, Nom=Quatre, Prix=0.40]\nArticle(\"P-ZERO\", \"Zero\", 000.09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-ZERO, Nom=Zero, Prix=0.09]\nArticle(\"P-NEG\", \"Negatif\", -.35) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NEG, Nom=Negatif, Prix=-0.35]\nArticle(\"P-PLUS\", \"Plus\", +.25) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-PLUS, Nom=Plus, Prix=0.25]\nArticle(\"P-POINT\", \"Fin\", 1.) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-POINT, Nom=Fin, Prix=1.00]\nArticle(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.13]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]\nArticle(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MIN, Nom=Precision, Prix=0.00]\nArticle(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NMAX, Nom=Minimum, Prix=-79228162514264337593543950335.00]\nArticle(\"P-NAME\", \"USB, C\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-NAME, Nom=USB, C, Prix=0.00]\nArticle(\"P-ONLY\") => Chaine: ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-ONLY, Nom=Sans nom, Prix=0.00]\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 1: stdin="TASK Avant Duree=9223372036854775806ms\nTASK Franchit Duree=2ms\nTASK Suite Duree=4ms"; attendu="[T=0ms] Demarrage Avant -> Await (trace simulee)\n[T=9223372036854775806ms] Reprise contexte -> Demarrage Franchit -> Await\n[T=9223372036854775808ms] Reprise contexte -> Demarrage Suite -> Await\n[T=9223372036854775812ms] Tache completee avec succes. Duree totale=9223372036854775812ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage Avant -> Await (trace simulee)\n[T=9223372036854775806ms] Reprise contexte -> Demarrage Franchit -> Await\n[T=9223372036854775808ms] Reprise contexte -> Demarrage Suite -> Await\n[T=9223372036854775812ms] Tache completee avec succes. Duree totale=9223372036854775812ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 2: stdin="TASK MaxA Duree=9223372036854775807ms\nTASK MaxB Duree=9223372036854775807ms\nTASK Nul Duree=0ms"; attendu="[T=0ms] Demarrage MaxA -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage MaxB -> Await\n[T=18446744073709551614ms] Reprise contexte -> Demarrage Nul -> Await\n[T=18446744073709551614ms] Tache completee avec succes. Duree totale=18446744073709551614ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage MaxA -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage MaxB -> Await\n[T=18446744073709551614ms] Reprise contexte -> Demarrage Nul -> Await\n[T=18446744073709551614ms] Tache completee avec succes. Duree totale=18446744073709551614ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 3: stdin="TASK TresGrand Duree=1000000000000000000000000000000000000000000000000000000000000ms\nTASK Fin Duree=0007ms"; attendu="[T=0ms] Demarrage TresGrand -> Await (trace simulee)\n[T=1000000000000000000000000000000000000000000000000000000000000ms] Reprise contexte -> Demarrage Fin -> Await\n[T=1000000000000000000000000000000000000000000000000000000000007ms] Tache completee avec succes. Duree totale=1000000000000000000000000000000000000000000000000000000000007ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage TresGrand -> Await (trace simulee)\n[T=1000000000000000000000000000000000000000000000000000000000000ms] Reprise contexte -> Demarrage Fin -> Await\n[T=1000000000000000000000000000000000000000000000000000000000007ms] Tache completee avec succes. Duree totale=1000000000000000000000000000000000000000000000000000000000007ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 4: stdin="TASK NulA Duree=0ms\nTASK InitialZero Duree=00012ms\nTASK NulB Duree=0ms"; attendu="[T=0ms] Demarrage NulA -> Await (trace simulee)\n[T=0ms] Reprise contexte -> Demarrage InitialZero -> Await\n[T=12ms] Reprise contexte -> Demarrage NulB -> Await\n[T=12ms] Tache completee avec succes. Duree totale=12ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage NulA -> Await (trace simulee)\n[T=0ms] Reprise contexte -> Demarrage InitialZero -> Await\n[T=12ms] Reprise contexte -> Demarrage NulB -> Await\n[T=12ms] Tache completee avec succes. Duree totale=12ms\n","stderr":"","exitCode":0}
+EXPLORATOIRE PRIX notation exponentielle, explicitement hors domaine: stdin="NEW Article(\"P-EXP\", \"Exponentiel\", 1.0e-1)"; valeur mathématique=0.10; résultat={"ok":true,"status":"success","stdout":"Article(\"P-EXP\", \"Exponentiel\", 1.0e-1) => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-EXP, Nom=Exponentiel, Prix=0.00]\n","stderr":"","exitCode":0}
+RUNNER csb2-c2-e2 corrigé: {"ok":true,"passed":6,"total":6,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Appels uniques avec valeurs par défaut","ok":true},{"label":"Constructeur complet direct","ok":true},{"label":"Constructeur intermédiaire avec nom personnalisé","ok":true}],"stop":null}
+RUNNER csb2-c2-e2 mutant: {"ok":true,"passed":2,"total":6,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":false}],"stop":{"reason":"wrong_output","testIndex":2,"label":"Prix décimal sans zéro initial","input":"NEW Article(\"DECI\", \"Puce\", .09)","expected":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=0.09]","actual":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=9.00]\n","stderr":"","compileError":"","exitCode":0,"userMessage":""}}
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+6 !== 7
+
+    at verify ([stdin]:207:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+CODE DE SORTIE DU BANC : 1
+===== SORTIE BRUTE DU BANC CORRIGÉ =====
+CONFINEMENT parent: pid1=bwrap; home_hôte=absent; réseau_hôte_distinct=true; /repo=lecture seule
+SHA256 AVANT server/exercises/csharp.js: 0d3bb2cd4578a57aac67665be4c7f000a46de0f1395a4b5aadb6987714e4ef16
+SHA256 AVANT server/exercises/grading-policy.js: 7685c530a183ddb55d20bba0ccaaefc2349582e41d87f778e4ce9d3752fcb9c4
+SHA256 AVANT server/exercises/runner.js: 11d629e4d17edc01eba6a50488f88a21c07e8af57edbd97459f8d8372dc5355e
+SHA256 AVANT server/routes/exercises.js: 6474a296e8eccb48f9ece3f74089b65edeebc2ba77f3230a6e3c351c70ba853c
+SHA256 AVANT csharp/chapitres/chapitre2.html: 8a2069ba37194d8d50080936c498178363b7c6759b21b9cecd84394a1dda36be
+SHA256 AVANT csharp/chapitres/chapitre6.html: 7f9071e273067a39559c1628b1d24be87c68fd585c1e3c0a2d9b98c098a2eb53
+DOM csb2-c2-e2: source=page générée; suspension=1; tests/solution hors projection; énoncé="Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne appelle un constructeur : - NEW Article(\"<Ref>\") délègue à this(r, \"Sans nom\") ; - NEW Article(\"<Ref>\", \"<Nom>\") délègue à this(r, nom, 0.0) ; - NEW Article(\"<Ref>\", \"<Nom>\", <Prix>) appelle le constructeur finalisant l'objet. Le prix est en notation décimale simple, sans exposant ni séparateur de milliers, et représentable par decimal . Le point sépare la partie fractionnaire éventuelle ; le zéro initial est facultatif, par exemple .75 . Pour chaque commande, indiquez la chaîne des constructeurs traversés et l'objet résultant. Format de sortie : Article(...) => Chaine: <Constructeur1> -> <Constructeur2>... | Objet: [Ref=<Ref>, Nom=<Nom>, Prix=<Prix2Dec>]"
+DOM csb2-c6-e1: source=page générée; suspension=1; tests/solution hors projection; énoncé="En C#, await suspend la méthode si l'opération attendue n'est pas encore terminée ; le thread peut alors effectuer d'autres travaux. La continuation ne reprend pas nécessairement sur le même contexte. Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne TASK <Nom> Duree=<Duree>ms décrit une étape séquentielle et sa durée. Dans cette simulation, les durées sont des entiers naturels en millisecondes et leur cumul est mathématique, sans limite Int64, dans les limites de l'environnement d'exécution ; cela ne définit pas les valeurs acceptées par une API réelle. Simulez la progression à partir de T=0ms , les démarrages et les reprises, puis affichez la durée cumulée. Les mentions « Await » et « Reprise contexte » sont des libellés de cette simulation ; elles ne prédisent pas les threads réellement utilisés. Format de sortie : [T=<T>ms] Demarrage <Nom> -> Await (trace simulee) [T=<T>ms] Reprise contexte -> Demarrage <NomSuivant> -> Await ... [T=<Total>ms] Tache completee avec succes. Duree totale=<Total>ms"
+TEST CACHÉ csb2-c2-e2: index=3/6; MAX_TESTS=7; données={"label":"Prix décimal sans zéro initial","stdin":"NEW Article(\"DECI\", \"Puce\", .09)","expected":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=0.09]"}
+TEST CACHÉ csb2-c6-e1: index=3/7; MAX_TESTS=7; données={"label":"Cumul supérieur à Int64","stdin":"TASK Limite Duree=9223372036854775807ms\nTASK Plus Duree=2ms","expected":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=9223372036854775809ms] Tache completee avec succes. Duree totale=9223372036854775809ms"}
+ORACLES cachés: sorties calculées indépendamment et identiques aux deux attendus.
+COMPILATION price: sortie=0; source_sha256=9081321ab39248c267450abb811daf733d9bb0a77b370ed6dc3d792eb538ec16
+COMPILATION price-mutant: sortie=0; source_sha256=625718cd8475dbdc54acad654c8669edf2b095ad82acd905f4053cd093f00551
+COMPILATION time: sortie=0; source_sha256=115a6edfbc752b50a0f9ade6823f8626577fd66f76650174862d8238b0c0954a
+COMPILATION time-mutant: sortie=0; source_sha256=1d9b1af41ff9959249e0a2d9e9782d7ecda4899a67d60d89a430df052052345f
+INDÉPENDANT PRIX: stdin="NEW Article(\"P-75\", \"Carte\", .75)\nNEW Article(\"P-40\", \"Quatre\", .4)\nNEW Article(\"P-ZERO\", \"Zero\", 000.09)\nNEW Article(\"P-NEG\", \"Negatif\", -.35)\nNEW Article(\"P-PLUS\", \"Plus\", +.25)\nNEW Article(\"P-POINT\", \"Fin\", 1.)\nNEW Article(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001)\nNEW Article(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00)\nNEW Article(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335)\nNEW Article(\"P-NAME\", \"USB, C\")\nNEW Article(\"P-ONLY\")"; attendu="Article(\"P-75\", \"Carte\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-75, Nom=Carte, Prix=0.75]\nArticle(\"P-40\", \"Quatre\", .4) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-40, Nom=Quatre, Prix=0.40]\nArticle(\"P-ZERO\", \"Zero\", 000.09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-ZERO, Nom=Zero, Prix=0.09]\nArticle(\"P-NEG\", \"Negatif\", -.35) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NEG, Nom=Negatif, Prix=-0.35]\nArticle(\"P-PLUS\", \"Plus\", +.25) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-PLUS, Nom=Plus, Prix=0.25]\nArticle(\"P-POINT\", \"Fin\", 1.) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-POINT, Nom=Fin, Prix=1.00]\nArticle(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MIN, Nom=Precision, Prix=0.00]\nArticle(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NMAX, Nom=Minimum, Prix=-79228162514264337593543950335.00]\nArticle(\"P-NAME\", \"USB, C\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-NAME, Nom=USB, C, Prix=0.00]\nArticle(\"P-ONLY\") => Chaine: ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-ONLY, Nom=Sans nom, Prix=0.00]"; résultat={"ok":true,"status":"success","stdout":"Article(\"P-75\", \"Carte\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-75, Nom=Carte, Prix=0.75]\nArticle(\"P-40\", \"Quatre\", .4) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-40, Nom=Quatre, Prix=0.40]\nArticle(\"P-ZERO\", \"Zero\", 000.09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-ZERO, Nom=Zero, Prix=0.09]\nArticle(\"P-NEG\", \"Negatif\", -.35) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NEG, Nom=Negatif, Prix=-0.35]\nArticle(\"P-PLUS\", \"Plus\", +.25) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-PLUS, Nom=Plus, Prix=0.25]\nArticle(\"P-POINT\", \"Fin\", 1.) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-POINT, Nom=Fin, Prix=1.00]\nArticle(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MIN, Nom=Precision, Prix=0.00]\nArticle(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NMAX, Nom=Minimum, Prix=-79228162514264337593543950335.00]\nArticle(\"P-NAME\", \"USB, C\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-NAME, Nom=USB, C, Prix=0.00]\nArticle(\"P-ONLY\") => Chaine: ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-ONLY, Nom=Sans nom, Prix=0.00]\n","stderr":"","exitCode":0}
+AMBIGUÏTÉ ARRONDI: stdin="NEW Article(\"P-125\", \"Milieu pair\", 0.125)\nNEW Article(\"P-135\", \"Milieu impair\", 0.135)"; au_pair="Article(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.12]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]"; écart_de_zéro="Article(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.13]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]"; résultat={"ok":true,"status":"success","stdout":"Article(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.13]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]\n","stderr":"","exitCode":0}; choix non spécifié par l'énoncé
+INDÉPENDANT DURÉE 1: stdin="TASK Avant Duree=9223372036854775806ms\nTASK Franchit Duree=2ms\nTASK Suite Duree=4ms"; attendu="[T=0ms] Demarrage Avant -> Await (trace simulee)\n[T=9223372036854775806ms] Reprise contexte -> Demarrage Franchit -> Await\n[T=9223372036854775808ms] Reprise contexte -> Demarrage Suite -> Await\n[T=9223372036854775812ms] Tache completee avec succes. Duree totale=9223372036854775812ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage Avant -> Await (trace simulee)\n[T=9223372036854775806ms] Reprise contexte -> Demarrage Franchit -> Await\n[T=9223372036854775808ms] Reprise contexte -> Demarrage Suite -> Await\n[T=9223372036854775812ms] Tache completee avec succes. Duree totale=9223372036854775812ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 2: stdin="TASK MaxA Duree=9223372036854775807ms\nTASK MaxB Duree=9223372036854775807ms\nTASK Nul Duree=0ms"; attendu="[T=0ms] Demarrage MaxA -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage MaxB -> Await\n[T=18446744073709551614ms] Reprise contexte -> Demarrage Nul -> Await\n[T=18446744073709551614ms] Tache completee avec succes. Duree totale=18446744073709551614ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage MaxA -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage MaxB -> Await\n[T=18446744073709551614ms] Reprise contexte -> Demarrage Nul -> Await\n[T=18446744073709551614ms] Tache completee avec succes. Duree totale=18446744073709551614ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 3: stdin="TASK TresGrand Duree=1000000000000000000000000000000000000000000000000000000000000ms\nTASK Fin Duree=0007ms"; attendu="[T=0ms] Demarrage TresGrand -> Await (trace simulee)\n[T=1000000000000000000000000000000000000000000000000000000000000ms] Reprise contexte -> Demarrage Fin -> Await\n[T=1000000000000000000000000000000000000000000000000000000000007ms] Tache completee avec succes. Duree totale=1000000000000000000000000000000000000000000000000000000000007ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage TresGrand -> Await (trace simulee)\n[T=1000000000000000000000000000000000000000000000000000000000000ms] Reprise contexte -> Demarrage Fin -> Await\n[T=1000000000000000000000000000000000000000000000000000000000007ms] Tache completee avec succes. Duree totale=1000000000000000000000000000000000000000000000000000000000007ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 4: stdin="TASK NulA Duree=0ms\nTASK InitialZero Duree=00012ms\nTASK NulB Duree=0ms"; attendu="[T=0ms] Demarrage NulA -> Await (trace simulee)\n[T=0ms] Reprise contexte -> Demarrage InitialZero -> Await\n[T=12ms] Reprise contexte -> Demarrage NulB -> Await\n[T=12ms] Tache completee avec succes. Duree totale=12ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage NulA -> Await (trace simulee)\n[T=0ms] Reprise contexte -> Demarrage InitialZero -> Await\n[T=12ms] Reprise contexte -> Demarrage NulB -> Await\n[T=12ms] Tache completee avec succes. Duree totale=12ms\n","stderr":"","exitCode":0}
+EXPLORATOIRE PRIX notation exponentielle, explicitement hors domaine: stdin="NEW Article(\"P-EXP\", \"Exponentiel\", 1.0e-1)"; valeur mathématique=0.10; résultat={"ok":true,"status":"success","stdout":"Article(\"P-EXP\", \"Exponentiel\", 1.0e-1) => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-EXP, Nom=Exponentiel, Prix=0.00]\n","stderr":"","exitCode":0}
+RUNNER csb2-c2-e2 corrigé: {"ok":true,"passed":6,"total":6,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Appels uniques avec valeurs par défaut","ok":true},{"label":"Constructeur complet direct","ok":true},{"label":"Constructeur intermédiaire avec nom personnalisé","ok":true}],"stop":null}
+RUNNER csb2-c2-e2 mutant: {"ok":true,"passed":2,"total":6,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":false}],"stop":{"reason":"wrong_output","testIndex":2,"label":"Prix décimal sans zéro initial","input":"NEW Article(\"DECI\", \"Puce\", .09)","expected":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=0.09]","actual":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=9.00]\n","stderr":"","compileError":"","exitCode":0,"userMessage":""}}
+RUNNER csb2-c6-e1 corrigé: {"ok":true,"passed":7,"total":7,"results":[{"label":"Durée nulle puis cumul sur plusieurs étapes","ok":true},{"label":"Une étape de durée nulle","ok":true},{"label":"Cumul supérieur à Int64","ok":true},{"label":"Tâche asynchrone unique","ok":true},{"label":"Deux tâches avec durées courtes","ok":true},{"label":"Chaîne de 4 tâches longues","ok":true},{"label":"Deux durées unitaires à cumuler","ok":true}],"stop":null}
+RUNNER csb2-c6-e1 mutant: {"ok":true,"passed":2,"total":7,"results":[{"label":"Durée nulle puis cumul sur plusieurs étapes","ok":true},{"label":"Une étape de durée nulle","ok":true},{"label":"Cumul supérieur à Int64","ok":false}],"stop":{"reason":"wrong_output","testIndex":2,"label":"Cumul supérieur à Int64","input":"TASK Limite Duree=9223372036854775807ms\nTASK Plus Duree=2ms","expected":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=9223372036854775809ms] Tache completee avec succes. Duree totale=9223372036854775809ms","actual":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=-9223372036854775807ms] Tache completee avec succes. Duree totale=-9223372036854775807ms\n","stderr":"","compileError":"","exitCode":0,"userMessage":""}}
+SUSPENSION API csb2-c2-e2: HTTP=503; corps={"status":"grading_suspended","error":"La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices."}
+SUSPENSION API csb2-c6-e1: HTTP=503; corps={"status":"grading_suspended","error":"La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices."}
+SUSPENSION: appels fournisseur=0; aucune politique modifiée.
+INTÉGRITÉ: 6 empreintes inchangées pendant le banc.
+ANOMALIES sur les entrées supposées ordinaires=[]; incertitudes de grammaire et d'arrondi à interpréter séparément.
+CODE DE SORTIE DU BANC CORRIGÉ : 0
+===== SORTIE BRUTE DU BANC FINAL AVEC DEMI-CENTIMES NÉGATIFS =====
+CONFINEMENT parent: pid1=bwrap; home_hôte=absent; réseau_hôte_distinct=true; /repo=lecture seule
+SHA256 AVANT server/exercises/csharp.js: 0d3bb2cd4578a57aac67665be4c7f000a46de0f1395a4b5aadb6987714e4ef16
+SHA256 AVANT server/exercises/grading-policy.js: 7685c530a183ddb55d20bba0ccaaefc2349582e41d87f778e4ce9d3752fcb9c4
+SHA256 AVANT server/exercises/runner.js: 11d629e4d17edc01eba6a50488f88a21c07e8af57edbd97459f8d8372dc5355e
+SHA256 AVANT server/routes/exercises.js: 6474a296e8eccb48f9ece3f74089b65edeebc2ba77f3230a6e3c351c70ba853c
+SHA256 AVANT csharp/chapitres/chapitre2.html: 8a2069ba37194d8d50080936c498178363b7c6759b21b9cecd84394a1dda36be
+SHA256 AVANT csharp/chapitres/chapitre6.html: 7f9071e273067a39559c1628b1d24be87c68fd585c1e3c0a2d9b98c098a2eb53
+DOM csb2-c2-e2: source=page générée; suspension=1; tests/solution hors projection; énoncé="Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne appelle un constructeur : - NEW Article(\"<Ref>\") délègue à this(r, \"Sans nom\") ; - NEW Article(\"<Ref>\", \"<Nom>\") délègue à this(r, nom, 0.0) ; - NEW Article(\"<Ref>\", \"<Nom>\", <Prix>) appelle le constructeur finalisant l'objet. Le prix est en notation décimale simple, sans exposant ni séparateur de milliers, et représentable par decimal . Le point sépare la partie fractionnaire éventuelle ; le zéro initial est facultatif, par exemple .75 . Pour chaque commande, indiquez la chaîne des constructeurs traversés et l'objet résultant. Format de sortie : Article(...) => Chaine: <Constructeur1> -> <Constructeur2>... | Objet: [Ref=<Ref>, Nom=<Nom>, Prix=<Prix2Dec>]"
+DOM csb2-c6-e1: source=page générée; suspension=1; tests/solution hors projection; énoncé="En C#, await suspend la méthode si l'opération attendue n'est pas encore terminée ; le thread peut alors effectuer d'autres travaux. La continuation ne reprend pas nécessairement sur le même contexte. Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne TASK <Nom> Duree=<Duree>ms décrit une étape séquentielle et sa durée. Dans cette simulation, les durées sont des entiers naturels en millisecondes et leur cumul est mathématique, sans limite Int64, dans les limites de l'environnement d'exécution ; cela ne définit pas les valeurs acceptées par une API réelle. Simulez la progression à partir de T=0ms , les démarrages et les reprises, puis affichez la durée cumulée. Les mentions « Await » et « Reprise contexte » sont des libellés de cette simulation ; elles ne prédisent pas les threads réellement utilisés. Format de sortie : [T=<T>ms] Demarrage <Nom> -> Await (trace simulee) [T=<T>ms] Reprise contexte -> Demarrage <NomSuivant> -> Await ... [T=<Total>ms] Tache completee avec succes. Duree totale=<Total>ms"
+TEST CACHÉ csb2-c2-e2: index=3/6; MAX_TESTS=7; données={"label":"Prix décimal sans zéro initial","stdin":"NEW Article(\"DECI\", \"Puce\", .09)","expected":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=0.09]"}
+TEST CACHÉ csb2-c6-e1: index=3/7; MAX_TESTS=7; données={"label":"Cumul supérieur à Int64","stdin":"TASK Limite Duree=9223372036854775807ms\nTASK Plus Duree=2ms","expected":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=9223372036854775809ms] Tache completee avec succes. Duree totale=9223372036854775809ms"}
+ORACLES cachés: sorties calculées indépendamment et identiques aux deux attendus.
+COMPILATION price: sortie=0; source_sha256=9081321ab39248c267450abb811daf733d9bb0a77b370ed6dc3d792eb538ec16
+COMPILATION price-mutant: sortie=0; source_sha256=625718cd8475dbdc54acad654c8669edf2b095ad82acd905f4053cd093f00551
+COMPILATION time: sortie=0; source_sha256=115a6edfbc752b50a0f9ade6823f8626577fd66f76650174862d8238b0c0954a
+COMPILATION time-mutant: sortie=0; source_sha256=1d9b1af41ff9959249e0a2d9e9782d7ecda4899a67d60d89a430df052052345f
+INDÉPENDANT PRIX: stdin="NEW Article(\"P-75\", \"Carte\", .75)\nNEW Article(\"P-40\", \"Quatre\", .4)\nNEW Article(\"P-ZERO\", \"Zero\", 000.09)\nNEW Article(\"P-NEG\", \"Negatif\", -.35)\nNEW Article(\"P-PLUS\", \"Plus\", +.25)\nNEW Article(\"P-POINT\", \"Fin\", 1.)\nNEW Article(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001)\nNEW Article(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00)\nNEW Article(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335)\nNEW Article(\"P-NAME\", \"USB, C\")\nNEW Article(\"P-ONLY\")"; attendu="Article(\"P-75\", \"Carte\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-75, Nom=Carte, Prix=0.75]\nArticle(\"P-40\", \"Quatre\", .4) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-40, Nom=Quatre, Prix=0.40]\nArticle(\"P-ZERO\", \"Zero\", 000.09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-ZERO, Nom=Zero, Prix=0.09]\nArticle(\"P-NEG\", \"Negatif\", -.35) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NEG, Nom=Negatif, Prix=-0.35]\nArticle(\"P-PLUS\", \"Plus\", +.25) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-PLUS, Nom=Plus, Prix=0.25]\nArticle(\"P-POINT\", \"Fin\", 1.) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-POINT, Nom=Fin, Prix=1.00]\nArticle(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MIN, Nom=Precision, Prix=0.00]\nArticle(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NMAX, Nom=Minimum, Prix=-79228162514264337593543950335.00]\nArticle(\"P-NAME\", \"USB, C\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-NAME, Nom=USB, C, Prix=0.00]\nArticle(\"P-ONLY\") => Chaine: ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-ONLY, Nom=Sans nom, Prix=0.00]"; résultat={"ok":true,"status":"success","stdout":"Article(\"P-75\", \"Carte\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-75, Nom=Carte, Prix=0.75]\nArticle(\"P-40\", \"Quatre\", .4) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-40, Nom=Quatre, Prix=0.40]\nArticle(\"P-ZERO\", \"Zero\", 000.09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-ZERO, Nom=Zero, Prix=0.09]\nArticle(\"P-NEG\", \"Negatif\", -.35) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NEG, Nom=Negatif, Prix=-0.35]\nArticle(\"P-PLUS\", \"Plus\", +.25) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-PLUS, Nom=Plus, Prix=0.25]\nArticle(\"P-POINT\", \"Fin\", 1.) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-POINT, Nom=Fin, Prix=1.00]\nArticle(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MIN, Nom=Precision, Prix=0.00]\nArticle(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NMAX, Nom=Minimum, Prix=-79228162514264337593543950335.00]\nArticle(\"P-NAME\", \"USB, C\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-NAME, Nom=USB, C, Prix=0.00]\nArticle(\"P-ONLY\") => Chaine: ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-ONLY, Nom=Sans nom, Prix=0.00]\n","stderr":"","exitCode":0}
+AMBIGUÏTÉ ARRONDI: stdin="NEW Article(\"P-125\", \"Milieu pair\", 0.125)\nNEW Article(\"P-135\", \"Milieu impair\", 0.135)\nNEW Article(\"N-125\", \"Milieu negatif pair\", -0.125)\nNEW Article(\"N-135\", \"Milieu negatif impair\", -0.135)"; au_pair="Article(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.12]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]\nArticle(\"N-125\", \"Milieu negatif pair\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-125, Nom=Milieu negatif pair, Prix=-0.12]\nArticle(\"N-135\", \"Milieu negatif impair\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-135, Nom=Milieu negatif impair, Prix=-0.14]"; écart_de_zéro="Article(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.13]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]\nArticle(\"N-125\", \"Milieu negatif pair\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-125, Nom=Milieu negatif pair, Prix=-0.13]\nArticle(\"N-135\", \"Milieu negatif impair\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-135, Nom=Milieu negatif impair, Prix=-0.14]"; résultat={"ok":true,"status":"success","stdout":"Article(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.13]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]\nArticle(\"N-125\", \"Milieu negatif pair\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-125, Nom=Milieu negatif pair, Prix=-0.13]\nArticle(\"N-135\", \"Milieu negatif impair\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-135, Nom=Milieu negatif impair, Prix=-0.14]\n","stderr":"","exitCode":0}; choix non spécifié par l'énoncé
+INDÉPENDANT DURÉE 1: stdin="TASK Avant Duree=9223372036854775806ms\nTASK Franchit Duree=2ms\nTASK Suite Duree=4ms"; attendu="[T=0ms] Demarrage Avant -> Await (trace simulee)\n[T=9223372036854775806ms] Reprise contexte -> Demarrage Franchit -> Await\n[T=9223372036854775808ms] Reprise contexte -> Demarrage Suite -> Await\n[T=9223372036854775812ms] Tache completee avec succes. Duree totale=9223372036854775812ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage Avant -> Await (trace simulee)\n[T=9223372036854775806ms] Reprise contexte -> Demarrage Franchit -> Await\n[T=9223372036854775808ms] Reprise contexte -> Demarrage Suite -> Await\n[T=9223372036854775812ms] Tache completee avec succes. Duree totale=9223372036854775812ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 2: stdin="TASK MaxA Duree=9223372036854775807ms\nTASK MaxB Duree=9223372036854775807ms\nTASK Nul Duree=0ms"; attendu="[T=0ms] Demarrage MaxA -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage MaxB -> Await\n[T=18446744073709551614ms] Reprise contexte -> Demarrage Nul -> Await\n[T=18446744073709551614ms] Tache completee avec succes. Duree totale=18446744073709551614ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage MaxA -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage MaxB -> Await\n[T=18446744073709551614ms] Reprise contexte -> Demarrage Nul -> Await\n[T=18446744073709551614ms] Tache completee avec succes. Duree totale=18446744073709551614ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 3: stdin="TASK TresGrand Duree=1000000000000000000000000000000000000000000000000000000000000ms\nTASK Fin Duree=0007ms"; attendu="[T=0ms] Demarrage TresGrand -> Await (trace simulee)\n[T=1000000000000000000000000000000000000000000000000000000000000ms] Reprise contexte -> Demarrage Fin -> Await\n[T=1000000000000000000000000000000000000000000000000000000000007ms] Tache completee avec succes. Duree totale=1000000000000000000000000000000000000000000000000000000000007ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage TresGrand -> Await (trace simulee)\n[T=1000000000000000000000000000000000000000000000000000000000000ms] Reprise contexte -> Demarrage Fin -> Await\n[T=1000000000000000000000000000000000000000000000000000000000007ms] Tache completee avec succes. Duree totale=1000000000000000000000000000000000000000000000000000000000007ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 4: stdin="TASK NulA Duree=0ms\nTASK InitialZero Duree=00012ms\nTASK NulB Duree=0ms"; attendu="[T=0ms] Demarrage NulA -> Await (trace simulee)\n[T=0ms] Reprise contexte -> Demarrage InitialZero -> Await\n[T=12ms] Reprise contexte -> Demarrage NulB -> Await\n[T=12ms] Tache completee avec succes. Duree totale=12ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage NulA -> Await (trace simulee)\n[T=0ms] Reprise contexte -> Demarrage InitialZero -> Await\n[T=12ms] Reprise contexte -> Demarrage NulB -> Await\n[T=12ms] Tache completee avec succes. Duree totale=12ms\n","stderr":"","exitCode":0}
+EXPLORATOIRE PRIX notation exponentielle, explicitement hors domaine: stdin="NEW Article(\"P-EXP\", \"Exponentiel\", 1.0e-1)"; valeur mathématique=0.10; résultat={"ok":true,"status":"success","stdout":"Article(\"P-EXP\", \"Exponentiel\", 1.0e-1) => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-EXP, Nom=Exponentiel, Prix=0.00]\n","stderr":"","exitCode":0}
+RUNNER csb2-c2-e2 corrigé: {"ok":true,"passed":6,"total":6,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Appels uniques avec valeurs par défaut","ok":true},{"label":"Constructeur complet direct","ok":true},{"label":"Constructeur intermédiaire avec nom personnalisé","ok":true}],"stop":null}
+RUNNER csb2-c2-e2 mutant: {"ok":true,"passed":2,"total":6,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":false}],"stop":{"reason":"wrong_output","testIndex":2,"label":"Prix décimal sans zéro initial","input":"NEW Article(\"DECI\", \"Puce\", .09)","expected":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=0.09]","actual":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=9.00]\n","stderr":"","compileError":"","exitCode":0,"userMessage":""}}
+RUNNER csb2-c6-e1 corrigé: {"ok":true,"passed":7,"total":7,"results":[{"label":"Durée nulle puis cumul sur plusieurs étapes","ok":true},{"label":"Une étape de durée nulle","ok":true},{"label":"Cumul supérieur à Int64","ok":true},{"label":"Tâche asynchrone unique","ok":true},{"label":"Deux tâches avec durées courtes","ok":true},{"label":"Chaîne de 4 tâches longues","ok":true},{"label":"Deux durées unitaires à cumuler","ok":true}],"stop":null}
+RUNNER csb2-c6-e1 mutant: {"ok":true,"passed":2,"total":7,"results":[{"label":"Durée nulle puis cumul sur plusieurs étapes","ok":true},{"label":"Une étape de durée nulle","ok":true},{"label":"Cumul supérieur à Int64","ok":false}],"stop":{"reason":"wrong_output","testIndex":2,"label":"Cumul supérieur à Int64","input":"TASK Limite Duree=9223372036854775807ms\nTASK Plus Duree=2ms","expected":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=9223372036854775809ms] Tache completee avec succes. Duree totale=9223372036854775809ms","actual":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=-9223372036854775807ms] Tache completee avec succes. Duree totale=-9223372036854775807ms\n","stderr":"","compileError":"","exitCode":0,"userMessage":""}}
+SUSPENSION API csb2-c2-e2: HTTP=503; corps={"status":"grading_suspended","error":"La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices."}
+SUSPENSION API csb2-c6-e1: HTTP=503; corps={"status":"grading_suspended","error":"La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices."}
+SUSPENSION: appels fournisseur=0; aucune politique modifiée.
+INTÉGRITÉ: 6 empreintes inchangées pendant le banc.
+ANOMALIES sur les entrées supposées ordinaires=[]; incertitudes de grammaire et d'arrondi à interpréter séparément.
+CODE DE SORTIE DU BANC FINAL : 0
+===== VÉRIFICATION FINALE DES PAGES ET EMPREINTES =====
+Génération --check csharp (statut 0) :
+[ok] cours à jour (13 pages, 1 cours)
+Empreintes relues après le banc (statut 0) :
+server/exercises/csharp.js: IDENTIQUE (0d3bb2cd4578a57aac67665be4c7f000a46de0f1395a4b5aadb6987714e4ef16)
+server/exercises/grading-policy.js: IDENTIQUE (7685c530a183ddb55d20bba0ccaaefc2349582e41d87f778e4ce9d3752fcb9c4)
+server/exercises/runner.js: IDENTIQUE (11d629e4d17edc01eba6a50488f88a21c07e8af57edbd97459f8d8372dc5355e)
+server/routes/exercises.js: IDENTIQUE (6474a296e8eccb48f9ece3f74089b65edeebc2ba77f3230a6e3c351c70ba853c)
+csharp/chapitres/chapitre2.html: IDENTIQUE (8a2069ba37194d8d50080936c498178363b7c6759b21b9cecd84394a1dda36be)
+csharp/chapitres/chapitre6.html: IDENTIQUE (7f9071e273067a39559c1628b1d24be87c68fd585c1e3c0a2d9b98c098a2eb53)
+===== BANC COMPLÉTÉ : VARIANTE DE TRONCATURE DES MILLIÈMES =====
+CONFINEMENT parent: pid1=bwrap; home_hôte=absent; réseau_hôte_distinct=true; /repo=lecture seule
+SHA256 AVANT server/exercises/csharp.js: 0d3bb2cd4578a57aac67665be4c7f000a46de0f1395a4b5aadb6987714e4ef16
+SHA256 AVANT server/exercises/grading-policy.js: 7685c530a183ddb55d20bba0ccaaefc2349582e41d87f778e4ce9d3752fcb9c4
+SHA256 AVANT server/exercises/runner.js: 11d629e4d17edc01eba6a50488f88a21c07e8af57edbd97459f8d8372dc5355e
+SHA256 AVANT server/routes/exercises.js: 6474a296e8eccb48f9ece3f74089b65edeebc2ba77f3230a6e3c351c70ba853c
+SHA256 AVANT csharp/chapitres/chapitre2.html: 8a2069ba37194d8d50080936c498178363b7c6759b21b9cecd84394a1dda36be
+SHA256 AVANT csharp/chapitres/chapitre6.html: 7f9071e273067a39559c1628b1d24be87c68fd585c1e3c0a2d9b98c098a2eb53
+DOM csb2-c2-e2: source=page générée; suspension=1; tests/solution hors projection; énoncé="Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne appelle un constructeur : - NEW Article(\"<Ref>\") délègue à this(r, \"Sans nom\") ; - NEW Article(\"<Ref>\", \"<Nom>\") délègue à this(r, nom, 0.0) ; - NEW Article(\"<Ref>\", \"<Nom>\", <Prix>) appelle le constructeur finalisant l'objet. Le prix est en notation décimale simple, sans exposant ni séparateur de milliers, et représentable par decimal . Le point sépare la partie fractionnaire éventuelle ; le zéro initial est facultatif, par exemple .75 . Pour chaque commande, indiquez la chaîne des constructeurs traversés et l'objet résultant. Format de sortie : Article(...) => Chaine: <Constructeur1> -> <Constructeur2>... | Objet: [Ref=<Ref>, Nom=<Nom>, Prix=<Prix2Dec>]"
+DOM csb2-c6-e1: source=page générée; suspension=1; tests/solution hors projection; énoncé="En C#, await suspend la méthode si l'opération attendue n'est pas encore terminée ; le thread peut alors effectuer d'autres travaux. La continuation ne reprend pas nécessairement sur le même contexte. Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne TASK <Nom> Duree=<Duree>ms décrit une étape séquentielle et sa durée. Dans cette simulation, les durées sont des entiers naturels en millisecondes et leur cumul est mathématique, sans limite Int64, dans les limites de l'environnement d'exécution ; cela ne définit pas les valeurs acceptées par une API réelle. Simulez la progression à partir de T=0ms , les démarrages et les reprises, puis affichez la durée cumulée. Les mentions « Await » et « Reprise contexte » sont des libellés de cette simulation ; elles ne prédisent pas les threads réellement utilisés. Format de sortie : [T=<T>ms] Demarrage <Nom> -> Await (trace simulee) [T=<T>ms] Reprise contexte -> Demarrage <NomSuivant> -> Await ... [T=<Total>ms] Tache completee avec succes. Duree totale=<Total>ms"
+TEST CACHÉ csb2-c2-e2: index=3/6; MAX_TESTS=7; données={"label":"Prix décimal sans zéro initial","stdin":"NEW Article(\"DECI\", \"Puce\", .09)","expected":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=0.09]"}
+TEST CACHÉ csb2-c6-e1: index=3/7; MAX_TESTS=7; données={"label":"Cumul supérieur à Int64","stdin":"TASK Limite Duree=9223372036854775807ms\nTASK Plus Duree=2ms","expected":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=9223372036854775809ms] Tache completee avec succes. Duree totale=9223372036854775809ms"}
+ORACLES cachés: sorties calculées indépendamment et identiques aux deux attendus.
+COMPILATION price: sortie=0; source_sha256=9081321ab39248c267450abb811daf733d9bb0a77b370ed6dc3d792eb538ec16
+COMPILATION price-mutant: sortie=0; source_sha256=625718cd8475dbdc54acad654c8669edf2b095ad82acd905f4053cd093f00551
+COMPILATION truncation-mutant: sortie=0; source_sha256=6a45046a6f1fa79277606f4827c6567c557e47ed1dde8b3c09a381642d8b550b
+COMPILATION time: sortie=0; source_sha256=115a6edfbc752b50a0f9ade6823f8626577fd66f76650174862d8238b0c0954a
+COMPILATION time-mutant: sortie=0; source_sha256=1d9b1af41ff9959249e0a2d9e9782d7ecda4899a67d60d89a430df052052345f
+INDÉPENDANT PRIX: stdin="NEW Article(\"P-75\", \"Carte\", .75)\nNEW Article(\"P-40\", \"Quatre\", .4)\nNEW Article(\"P-ZERO\", \"Zero\", 000.09)\nNEW Article(\"P-NEG\", \"Negatif\", -.35)\nNEW Article(\"P-PLUS\", \"Plus\", +.25)\nNEW Article(\"P-POINT\", \"Fin\", 1.)\nNEW Article(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001)\nNEW Article(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00)\nNEW Article(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335)\nNEW Article(\"P-NAME\", \"USB, C\")\nNEW Article(\"P-ONLY\")"; attendu="Article(\"P-75\", \"Carte\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-75, Nom=Carte, Prix=0.75]\nArticle(\"P-40\", \"Quatre\", .4) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-40, Nom=Quatre, Prix=0.40]\nArticle(\"P-ZERO\", \"Zero\", 000.09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-ZERO, Nom=Zero, Prix=0.09]\nArticle(\"P-NEG\", \"Negatif\", -.35) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NEG, Nom=Negatif, Prix=-0.35]\nArticle(\"P-PLUS\", \"Plus\", +.25) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-PLUS, Nom=Plus, Prix=0.25]\nArticle(\"P-POINT\", \"Fin\", 1.) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-POINT, Nom=Fin, Prix=1.00]\nArticle(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MIN, Nom=Precision, Prix=0.00]\nArticle(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NMAX, Nom=Minimum, Prix=-79228162514264337593543950335.00]\nArticle(\"P-NAME\", \"USB, C\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-NAME, Nom=USB, C, Prix=0.00]\nArticle(\"P-ONLY\") => Chaine: ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-ONLY, Nom=Sans nom, Prix=0.00]"; résultat={"ok":true,"status":"success","stdout":"Article(\"P-75\", \"Carte\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-75, Nom=Carte, Prix=0.75]\nArticle(\"P-40\", \"Quatre\", .4) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-40, Nom=Quatre, Prix=0.40]\nArticle(\"P-ZERO\", \"Zero\", 000.09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-ZERO, Nom=Zero, Prix=0.09]\nArticle(\"P-NEG\", \"Negatif\", -.35) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NEG, Nom=Negatif, Prix=-0.35]\nArticle(\"P-PLUS\", \"Plus\", +.25) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-PLUS, Nom=Plus, Prix=0.25]\nArticle(\"P-POINT\", \"Fin\", 1.) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-POINT, Nom=Fin, Prix=1.00]\nArticle(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MIN, Nom=Precision, Prix=0.00]\nArticle(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NMAX, Nom=Minimum, Prix=-79228162514264337593543950335.00]\nArticle(\"P-NAME\", \"USB, C\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-NAME, Nom=USB, C, Prix=0.00]\nArticle(\"P-ONLY\") => Chaine: ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-ONLY, Nom=Sans nom, Prix=0.00]\n","stderr":"","exitCode":0}
+AMBIGUÏTÉ ARRONDI: stdin="NEW Article(\"P-125\", \"Milieu pair\", 0.125)\nNEW Article(\"P-135\", \"Milieu impair\", 0.135)\nNEW Article(\"N-125\", \"Milieu negatif pair\", -0.125)\nNEW Article(\"N-135\", \"Milieu negatif impair\", -0.135)"; au_pair="Article(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.12]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]\nArticle(\"N-125\", \"Milieu negatif pair\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-125, Nom=Milieu negatif pair, Prix=-0.12]\nArticle(\"N-135\", \"Milieu negatif impair\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-135, Nom=Milieu negatif impair, Prix=-0.14]"; écart_de_zéro="Article(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.13]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]\nArticle(\"N-125\", \"Milieu negatif pair\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-125, Nom=Milieu negatif pair, Prix=-0.13]\nArticle(\"N-135\", \"Milieu negatif impair\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-135, Nom=Milieu negatif impair, Prix=-0.14]"; résultat={"ok":true,"status":"success","stdout":"Article(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.13]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]\nArticle(\"N-125\", \"Milieu negatif pair\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-125, Nom=Milieu negatif pair, Prix=-0.13]\nArticle(\"N-135\", \"Milieu negatif impair\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-135, Nom=Milieu negatif impair, Prix=-0.14]\n","stderr":"","exitCode":0}; choix non spécifié par l'énoncé
+INDÉPENDANT DURÉE 1: stdin="TASK Avant Duree=9223372036854775806ms\nTASK Franchit Duree=2ms\nTASK Suite Duree=4ms"; attendu="[T=0ms] Demarrage Avant -> Await (trace simulee)\n[T=9223372036854775806ms] Reprise contexte -> Demarrage Franchit -> Await\n[T=9223372036854775808ms] Reprise contexte -> Demarrage Suite -> Await\n[T=9223372036854775812ms] Tache completee avec succes. Duree totale=9223372036854775812ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage Avant -> Await (trace simulee)\n[T=9223372036854775806ms] Reprise contexte -> Demarrage Franchit -> Await\n[T=9223372036854775808ms] Reprise contexte -> Demarrage Suite -> Await\n[T=9223372036854775812ms] Tache completee avec succes. Duree totale=9223372036854775812ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 2: stdin="TASK MaxA Duree=9223372036854775807ms\nTASK MaxB Duree=9223372036854775807ms\nTASK Nul Duree=0ms"; attendu="[T=0ms] Demarrage MaxA -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage MaxB -> Await\n[T=18446744073709551614ms] Reprise contexte -> Demarrage Nul -> Await\n[T=18446744073709551614ms] Tache completee avec succes. Duree totale=18446744073709551614ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage MaxA -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage MaxB -> Await\n[T=18446744073709551614ms] Reprise contexte -> Demarrage Nul -> Await\n[T=18446744073709551614ms] Tache completee avec succes. Duree totale=18446744073709551614ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 3: stdin="TASK TresGrand Duree=1000000000000000000000000000000000000000000000000000000000000ms\nTASK Fin Duree=0007ms"; attendu="[T=0ms] Demarrage TresGrand -> Await (trace simulee)\n[T=1000000000000000000000000000000000000000000000000000000000000ms] Reprise contexte -> Demarrage Fin -> Await\n[T=1000000000000000000000000000000000000000000000000000000000007ms] Tache completee avec succes. Duree totale=1000000000000000000000000000000000000000000000000000000000007ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage TresGrand -> Await (trace simulee)\n[T=1000000000000000000000000000000000000000000000000000000000000ms] Reprise contexte -> Demarrage Fin -> Await\n[T=1000000000000000000000000000000000000000000000000000000000007ms] Tache completee avec succes. Duree totale=1000000000000000000000000000000000000000000000000000000000007ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 4: stdin="TASK NulA Duree=0ms\nTASK InitialZero Duree=00012ms\nTASK NulB Duree=0ms"; attendu="[T=0ms] Demarrage NulA -> Await (trace simulee)\n[T=0ms] Reprise contexte -> Demarrage InitialZero -> Await\n[T=12ms] Reprise contexte -> Demarrage NulB -> Await\n[T=12ms] Tache completee avec succes. Duree totale=12ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage NulA -> Await (trace simulee)\n[T=0ms] Reprise contexte -> Demarrage InitialZero -> Await\n[T=12ms] Reprise contexte -> Demarrage NulB -> Await\n[T=12ms] Tache completee avec succes. Duree totale=12ms\n","stderr":"","exitCode":0}
+EXPLORATOIRE PRIX notation exponentielle, explicitement hors domaine: stdin="NEW Article(\"P-EXP\", \"Exponentiel\", 1.0e-1)"; valeur mathématique=0.10; résultat={"ok":true,"status":"success","stdout":"Article(\"P-EXP\", \"Exponentiel\", 1.0e-1) => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-EXP, Nom=Exponentiel, Prix=0.00]\n","stderr":"","exitCode":0}
+RUNNER csb2-c2-e2 corrigé: {"ok":true,"passed":6,"total":6,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Appels uniques avec valeurs par défaut","ok":true},{"label":"Constructeur complet direct","ok":true},{"label":"Constructeur intermédiaire avec nom personnalisé","ok":true}],"stop":null}
+RUNNER csb2-c2-e2 mutant: {"ok":true,"passed":2,"total":6,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":false}],"stop":{"reason":"wrong_output","testIndex":2,"label":"Prix décimal sans zéro initial","input":"NEW Article(\"DECI\", \"Puce\", .09)","expected":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=0.09]","actual":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=9.00]\n","stderr":"","compileError":"","exitCode":0,"userMessage":""}}
+RUNNER csb2-c6-e1 corrigé: {"ok":true,"passed":7,"total":7,"results":[{"label":"Durée nulle puis cumul sur plusieurs étapes","ok":true},{"label":"Une étape de durée nulle","ok":true},{"label":"Cumul supérieur à Int64","ok":true},{"label":"Tâche asynchrone unique","ok":true},{"label":"Deux tâches avec durées courtes","ok":true},{"label":"Chaîne de 4 tâches longues","ok":true},{"label":"Deux durées unitaires à cumuler","ok":true}],"stop":null}
+RUNNER csb2-c6-e1 mutant: {"ok":true,"passed":2,"total":7,"results":[{"label":"Durée nulle puis cumul sur plusieurs étapes","ok":true},{"label":"Une étape de durée nulle","ok":true},{"label":"Cumul supérieur à Int64","ok":false}],"stop":{"reason":"wrong_output","testIndex":2,"label":"Cumul supérieur à Int64","input":"TASK Limite Duree=9223372036854775807ms\nTASK Plus Duree=2ms","expected":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=9223372036854775809ms] Tache completee avec succes. Duree totale=9223372036854775809ms","actual":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=-9223372036854775807ms] Tache completee avec succes. Duree totale=-9223372036854775807ms\n","stderr":"","compileError":"","exitCode":0,"userMessage":""}}
+COUVERTURE PRIX millièmes: runner_mutant={"ok":true,"passed":6,"total":6,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Appels uniques avec valeurs par défaut","ok":true},{"label":"Constructeur complet direct","ok":true},{"label":"Constructeur intermédiaire avec nom personnalisé","ok":true}],"stop":null}; stdin="NEW Article(\"TRONC\", \"Millieme\", 0.126)"; attendu_oracle="Article(\"TRONC\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=TRONC, Nom=Millieme, Prix=0.13]"; corrigé={"ok":true,"status":"success","stdout":"Article(\"TRONC\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=TRONC, Nom=Millieme, Prix=0.13]\n","stderr":"","exitCode":0}; troncature={"ok":true,"status":"success","stdout":"Article(\"TRONC\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=TRONC, Nom=Millieme, Prix=0.12]\n","stderr":"","exitCode":0}
+SUSPENSION API csb2-c2-e2: HTTP=503; corps={"status":"grading_suspended","error":"La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices."}
+SUSPENSION API csb2-c6-e1: HTTP=503; corps={"status":"grading_suspended","error":"La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices."}
+SUSPENSION: appels fournisseur=0; aucune politique modifiée.
+INTÉGRITÉ: 6 empreintes inchangées pendant le banc.
+ANOMALIES sur les entrées supposées ordinaires=[]; incertitudes de grammaire et d'arrondi à interpréter séparément.
+CODE DE SORTIE DU BANC COMPLÉTÉ : 0
+===== BANC AVEC CONTRÔLE DE LA BORNE DECIMAL.MAXVALUE =====
+CONFINEMENT parent: pid1=bwrap; home_hôte=absent; réseau_hôte_distinct=true; /repo=lecture seule
+SHA256 AVANT server/exercises/csharp.js: 0d3bb2cd4578a57aac67665be4c7f000a46de0f1395a4b5aadb6987714e4ef16
+SHA256 AVANT server/exercises/grading-policy.js: 7685c530a183ddb55d20bba0ccaaefc2349582e41d87f778e4ce9d3752fcb9c4
+SHA256 AVANT server/exercises/runner.js: 11d629e4d17edc01eba6a50488f88a21c07e8af57edbd97459f8d8372dc5355e
+SHA256 AVANT server/routes/exercises.js: 6474a296e8eccb48f9ece3f74089b65edeebc2ba77f3230a6e3c351c70ba853c
+SHA256 AVANT csharp/chapitres/chapitre2.html: 8a2069ba37194d8d50080936c498178363b7c6759b21b9cecd84394a1dda36be
+SHA256 AVANT csharp/chapitres/chapitre6.html: 7f9071e273067a39559c1628b1d24be87c68fd585c1e3c0a2d9b98c098a2eb53
+DOM csb2-c2-e2: source=page générée; suspension=1; tests/solution hors projection; énoncé="Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne appelle un constructeur : - NEW Article(\"<Ref>\") délègue à this(r, \"Sans nom\") ; - NEW Article(\"<Ref>\", \"<Nom>\") délègue à this(r, nom, 0.0) ; - NEW Article(\"<Ref>\", \"<Nom>\", <Prix>) appelle le constructeur finalisant l'objet. Le prix est en notation décimale simple, sans exposant ni séparateur de milliers, et représentable par decimal . Le point sépare la partie fractionnaire éventuelle ; le zéro initial est facultatif, par exemple .75 . Pour chaque commande, indiquez la chaîne des constructeurs traversés et l'objet résultant. Format de sortie : Article(...) => Chaine: <Constructeur1> -> <Constructeur2>... | Objet: [Ref=<Ref>, Nom=<Nom>, Prix=<Prix2Dec>]"
+DOM csb2-c6-e1: source=page générée; suspension=1; tests/solution hors projection; énoncé="En C#, await suspend la méthode si l'opération attendue n'est pas encore terminée ; le thread peut alors effectuer d'autres travaux. La continuation ne reprend pas nécessairement sur le même contexte. Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne TASK <Nom> Duree=<Duree>ms décrit une étape séquentielle et sa durée. Dans cette simulation, les durées sont des entiers naturels en millisecondes et leur cumul est mathématique, sans limite Int64, dans les limites de l'environnement d'exécution ; cela ne définit pas les valeurs acceptées par une API réelle. Simulez la progression à partir de T=0ms , les démarrages et les reprises, puis affichez la durée cumulée. Les mentions « Await » et « Reprise contexte » sont des libellés de cette simulation ; elles ne prédisent pas les threads réellement utilisés. Format de sortie : [T=<T>ms] Demarrage <Nom> -> Await (trace simulee) [T=<T>ms] Reprise contexte -> Demarrage <NomSuivant> -> Await ... [T=<Total>ms] Tache completee avec succes. Duree totale=<Total>ms"
+TEST CACHÉ csb2-c2-e2: index=3/6; MAX_TESTS=7; données={"label":"Prix décimal sans zéro initial","stdin":"NEW Article(\"DECI\", \"Puce\", .09)","expected":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=0.09]"}
+TEST CACHÉ csb2-c6-e1: index=3/7; MAX_TESTS=7; données={"label":"Cumul supérieur à Int64","stdin":"TASK Limite Duree=9223372036854775807ms\nTASK Plus Duree=2ms","expected":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=9223372036854775809ms] Tache completee avec succes. Duree totale=9223372036854775809ms"}
+ORACLES cachés: sorties calculées indépendamment et identiques aux deux attendus.
+COMPILATION price: sortie=0; source_sha256=9081321ab39248c267450abb811daf733d9bb0a77b370ed6dc3d792eb538ec16
+COMPILATION price-mutant: sortie=0; source_sha256=625718cd8475dbdc54acad654c8669edf2b095ad82acd905f4053cd093f00551
+COMPILATION truncation-mutant: sortie=0; source_sha256=6a45046a6f1fa79277606f4827c6567c557e47ed1dde8b3c09a381642d8b550b
+COMPILATION time: sortie=0; source_sha256=115a6edfbc752b50a0f9ade6823f8626577fd66f76650174862d8238b0c0954a
+COMPILATION time-mutant: sortie=0; source_sha256=1d9b1af41ff9959249e0a2d9e9782d7ecda4899a67d60d89a430df052052345f
+INDÉPENDANT PRIX: stdin="NEW Article(\"P-75\", \"Carte\", .75)\nNEW Article(\"P-40\", \"Quatre\", .4)\nNEW Article(\"P-ZERO\", \"Zero\", 000.09)\nNEW Article(\"P-NEG\", \"Negatif\", -.35)\nNEW Article(\"P-PLUS\", \"Plus\", +.25)\nNEW Article(\"P-POINT\", \"Fin\", 1.)\nNEW Article(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001)\nNEW Article(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00)\nNEW Article(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335)\nNEW Article(\"P-NAME\", \"USB, C\")\nNEW Article(\"P-ONLY\")"; attendu="Article(\"P-75\", \"Carte\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-75, Nom=Carte, Prix=0.75]\nArticle(\"P-40\", \"Quatre\", .4) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-40, Nom=Quatre, Prix=0.40]\nArticle(\"P-ZERO\", \"Zero\", 000.09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-ZERO, Nom=Zero, Prix=0.09]\nArticle(\"P-NEG\", \"Negatif\", -.35) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NEG, Nom=Negatif, Prix=-0.35]\nArticle(\"P-PLUS\", \"Plus\", +.25) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-PLUS, Nom=Plus, Prix=0.25]\nArticle(\"P-POINT\", \"Fin\", 1.) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-POINT, Nom=Fin, Prix=1.00]\nArticle(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MIN, Nom=Precision, Prix=0.00]\nArticle(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NMAX, Nom=Minimum, Prix=-79228162514264337593543950335.00]\nArticle(\"P-NAME\", \"USB, C\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-NAME, Nom=USB, C, Prix=0.00]\nArticle(\"P-ONLY\") => Chaine: ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-ONLY, Nom=Sans nom, Prix=0.00]"; résultat={"ok":true,"status":"success","stdout":"Article(\"P-75\", \"Carte\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-75, Nom=Carte, Prix=0.75]\nArticle(\"P-40\", \"Quatre\", .4) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-40, Nom=Quatre, Prix=0.40]\nArticle(\"P-ZERO\", \"Zero\", 000.09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-ZERO, Nom=Zero, Prix=0.09]\nArticle(\"P-NEG\", \"Negatif\", -.35) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NEG, Nom=Negatif, Prix=-0.35]\nArticle(\"P-PLUS\", \"Plus\", +.25) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-PLUS, Nom=Plus, Prix=0.25]\nArticle(\"P-POINT\", \"Fin\", 1.) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-POINT, Nom=Fin, Prix=1.00]\nArticle(\"P-MIN\", \"Precision\", 0.0000000000000000000000000001) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MIN, Nom=Precision, Prix=0.00]\nArticle(\"P-MAX\", \"Maximum\", 79228162514264337593543950335.00) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"P-NMAX\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-NMAX, Nom=Minimum, Prix=-79228162514264337593543950335.00]\nArticle(\"P-NAME\", \"USB, C\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-NAME, Nom=USB, C, Prix=0.00]\nArticle(\"P-ONLY\") => Chaine: ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-ONLY, Nom=Sans nom, Prix=0.00]\n","stderr":"","exitCode":0}
+AMBIGUÏTÉ ARRONDI: stdin="NEW Article(\"P-125\", \"Milieu pair\", 0.125)\nNEW Article(\"P-135\", \"Milieu impair\", 0.135)\nNEW Article(\"N-125\", \"Milieu negatif pair\", -0.125)\nNEW Article(\"N-135\", \"Milieu negatif impair\", -0.135)"; au_pair="Article(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.12]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]\nArticle(\"N-125\", \"Milieu negatif pair\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-125, Nom=Milieu negatif pair, Prix=-0.12]\nArticle(\"N-135\", \"Milieu negatif impair\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-135, Nom=Milieu negatif impair, Prix=-0.14]"; écart_de_zéro="Article(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.13]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]\nArticle(\"N-125\", \"Milieu negatif pair\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-125, Nom=Milieu negatif pair, Prix=-0.13]\nArticle(\"N-135\", \"Milieu negatif impair\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-135, Nom=Milieu negatif impair, Prix=-0.14]"; résultat={"ok":true,"status":"success","stdout":"Article(\"P-125\", \"Milieu pair\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-125, Nom=Milieu pair, Prix=0.13]\nArticle(\"P-135\", \"Milieu impair\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P-135, Nom=Milieu impair, Prix=0.14]\nArticle(\"N-125\", \"Milieu negatif pair\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-125, Nom=Milieu negatif pair, Prix=-0.13]\nArticle(\"N-135\", \"Milieu negatif impair\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N-135, Nom=Milieu negatif impair, Prix=-0.14]\n","stderr":"","exitCode":0}; choix non spécifié par l'énoncé
+INDÉPENDANT DURÉE 1: stdin="TASK Avant Duree=9223372036854775806ms\nTASK Franchit Duree=2ms\nTASK Suite Duree=4ms"; attendu="[T=0ms] Demarrage Avant -> Await (trace simulee)\n[T=9223372036854775806ms] Reprise contexte -> Demarrage Franchit -> Await\n[T=9223372036854775808ms] Reprise contexte -> Demarrage Suite -> Await\n[T=9223372036854775812ms] Tache completee avec succes. Duree totale=9223372036854775812ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage Avant -> Await (trace simulee)\n[T=9223372036854775806ms] Reprise contexte -> Demarrage Franchit -> Await\n[T=9223372036854775808ms] Reprise contexte -> Demarrage Suite -> Await\n[T=9223372036854775812ms] Tache completee avec succes. Duree totale=9223372036854775812ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 2: stdin="TASK MaxA Duree=9223372036854775807ms\nTASK MaxB Duree=9223372036854775807ms\nTASK Nul Duree=0ms"; attendu="[T=0ms] Demarrage MaxA -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage MaxB -> Await\n[T=18446744073709551614ms] Reprise contexte -> Demarrage Nul -> Await\n[T=18446744073709551614ms] Tache completee avec succes. Duree totale=18446744073709551614ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage MaxA -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage MaxB -> Await\n[T=18446744073709551614ms] Reprise contexte -> Demarrage Nul -> Await\n[T=18446744073709551614ms] Tache completee avec succes. Duree totale=18446744073709551614ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 3: stdin="TASK TresGrand Duree=1000000000000000000000000000000000000000000000000000000000000ms\nTASK Fin Duree=0007ms"; attendu="[T=0ms] Demarrage TresGrand -> Await (trace simulee)\n[T=1000000000000000000000000000000000000000000000000000000000000ms] Reprise contexte -> Demarrage Fin -> Await\n[T=1000000000000000000000000000000000000000000000000000000000007ms] Tache completee avec succes. Duree totale=1000000000000000000000000000000000000000000000000000000000007ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage TresGrand -> Await (trace simulee)\n[T=1000000000000000000000000000000000000000000000000000000000000ms] Reprise contexte -> Demarrage Fin -> Await\n[T=1000000000000000000000000000000000000000000000000000000000007ms] Tache completee avec succes. Duree totale=1000000000000000000000000000000000000000000000000000000000007ms\n","stderr":"","exitCode":0}
+INDÉPENDANT DURÉE 4: stdin="TASK NulA Duree=0ms\nTASK InitialZero Duree=00012ms\nTASK NulB Duree=0ms"; attendu="[T=0ms] Demarrage NulA -> Await (trace simulee)\n[T=0ms] Reprise contexte -> Demarrage InitialZero -> Await\n[T=12ms] Reprise contexte -> Demarrage NulB -> Await\n[T=12ms] Tache completee avec succes. Duree totale=12ms"; résultat={"ok":true,"status":"success","stdout":"[T=0ms] Demarrage NulA -> Await (trace simulee)\n[T=0ms] Reprise contexte -> Demarrage InitialZero -> Await\n[T=12ms] Reprise contexte -> Demarrage NulB -> Await\n[T=12ms] Tache completee avec succes. Duree totale=12ms\n","stderr":"","exitCode":0}
+EXPLORATOIRE PRIX notation exponentielle, explicitement hors domaine: stdin="NEW Article(\"P-EXP\", \"Exponentiel\", 1.0e-1)"; valeur mathématique=0.10; résultat={"ok":true,"status":"success","stdout":"Article(\"P-EXP\", \"Exponentiel\", 1.0e-1) => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=P-EXP, Nom=Exponentiel, Prix=0.00]\n","stderr":"","exitCode":0}
+RUNNER csb2-c2-e2 corrigé: {"ok":true,"passed":6,"total":6,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Appels uniques avec valeurs par défaut","ok":true},{"label":"Constructeur complet direct","ok":true},{"label":"Constructeur intermédiaire avec nom personnalisé","ok":true}],"stop":null}
+RUNNER csb2-c2-e2 mutant: {"ok":true,"passed":2,"total":6,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":false}],"stop":{"reason":"wrong_output","testIndex":2,"label":"Prix décimal sans zéro initial","input":"NEW Article(\"DECI\", \"Puce\", .09)","expected":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=0.09]","actual":"Article(\"DECI\", \"Puce\", .09) => Chaine: ctor(r, nom, prix) | Objet: [Ref=DECI, Nom=Puce, Prix=9.00]\n","stderr":"","compileError":"","exitCode":0,"userMessage":""}}
+RUNNER csb2-c6-e1 corrigé: {"ok":true,"passed":7,"total":7,"results":[{"label":"Durée nulle puis cumul sur plusieurs étapes","ok":true},{"label":"Une étape de durée nulle","ok":true},{"label":"Cumul supérieur à Int64","ok":true},{"label":"Tâche asynchrone unique","ok":true},{"label":"Deux tâches avec durées courtes","ok":true},{"label":"Chaîne de 4 tâches longues","ok":true},{"label":"Deux durées unitaires à cumuler","ok":true}],"stop":null}
+RUNNER csb2-c6-e1 mutant: {"ok":true,"passed":2,"total":7,"results":[{"label":"Durée nulle puis cumul sur plusieurs étapes","ok":true},{"label":"Une étape de durée nulle","ok":true},{"label":"Cumul supérieur à Int64","ok":false}],"stop":{"reason":"wrong_output","testIndex":2,"label":"Cumul supérieur à Int64","input":"TASK Limite Duree=9223372036854775807ms\nTASK Plus Duree=2ms","expected":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=9223372036854775809ms] Tache completee avec succes. Duree totale=9223372036854775809ms","actual":"[T=0ms] Demarrage Limite -> Await (trace simulee)\n[T=9223372036854775807ms] Reprise contexte -> Demarrage Plus -> Await\n[T=-9223372036854775807ms] Tache completee avec succes. Duree totale=-9223372036854775807ms\n","stderr":"","compileError":"","exitCode":0,"userMessage":""}}
+COUVERTURE PRIX millièmes: runner_mutant={"ok":true,"passed":6,"total":6,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Appels uniques avec valeurs par défaut","ok":true},{"label":"Constructeur complet direct","ok":true},{"label":"Constructeur intermédiaire avec nom personnalisé","ok":true}],"stop":null}; stdin="NEW Article(\"TRONC\", \"Millieme\", 0.126)"; attendu_oracle="Article(\"TRONC\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=TRONC, Nom=Millieme, Prix=0.13]"; corrigé={"ok":true,"status":"success","stdout":"Article(\"TRONC\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=TRONC, Nom=Millieme, Prix=0.13]\n","stderr":"","exitCode":0}; troncature={"ok":true,"status":"success","stdout":"Article(\"TRONC\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=TRONC, Nom=Millieme, Prix=0.12]\n","stderr":"","exitCode":0}
+COUVERTURE PRIX decimal.MaxValue: stdin="NEW Article(\"TRONC-MAX\", \"Borne\", 79228162514264337593543950335)"; attendu_oracle="Article(\"TRONC-MAX\", \"Borne\", 79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=TRONC-MAX, Nom=Borne, Prix=79228162514264337593543950335.00]"; corrigé={"ok":true,"status":"success","stdout":"Article(\"TRONC-MAX\", \"Borne\", 79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=TRONC-MAX, Nom=Borne, Prix=79228162514264337593543950335.00]\n","stderr":"","exitCode":0}; troncature={"ok":false,"status":"runtime_error","stdout":"","stderr":"Unhandled exception. System.OverflowException: Value was either too large or too small for a Decimal.\n   at System.Number.ThrowOverflowException(String message)\n   at System.Decimal.DecCalc.ScaleResult(Buf24* bufRes, UInt32 hiRes, Int32 scale)\n   at System.Decimal.DecCalc.VarDecMul(DecCalc& d1, DecCalc& d2)\n   at System.Decimal.op_Multiply(Decimal d1, Decimal d2)\n   at Program.Main()\n","exitCode":134}
+SUSPENSION API csb2-c2-e2: HTTP=503; corps={"status":"grading_suspended","error":"La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices."}
+SUSPENSION API csb2-c6-e1: HTTP=503; corps={"status":"grading_suspended","error":"La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices."}
+SUSPENSION: appels fournisseur=0; aucune politique modifiée.
+INTÉGRITÉ: 6 empreintes inchangées pendant le banc.
+ANOMALIES sur les entrées supposées ordinaires=[]; incertitudes de grammaire et d'arrondi à interpréter séparément.
+CODE DE SORTIE DU BANC AVEC BORNE : 0
+
+===== REPRISE DU 30 OCTOBRE 2026 — ARRONDI ET MUTANT HISTORIQUE =====
+Les sections précédentes décrivent la version antérieure ; elles sont conservées.
+Cette reprise cible exclusivement csb2-c2-e2. Le mutant est le même texte
+C# que précédemment (empreinte vérifiée), appliqué au corrigé actualisé.
+Une seconde exécution ajoute une variante qui arrondit après multiplication
+par 100 et sonde la couverture de decimal.MaxValue ; la première sortie brute,
+produite avant cet ajout au harnais, reste conservée comme historique.
+
+Reproduction depuis la racine du dépôt, sans réseau et avec le dépôt en lecture seule :
+
+  awk '/^===== DÉBUT HARNAIS REPRISE ARRONDI =====$/ {on=1; next} /^===== FIN HARNAIS REPRISE ARRONDI =====$/ {on=0; exit} on {print}' corrections/resultats/lot2-csharp-bornes-independant-journal.txt |
+  bwrap --unshare-all --die-with-parent --new-session --cap-drop ALL --ro-bind /usr /usr --ro-bind "$PWD" /repo --ro-bind "$(command -v node)" /node --symlink usr/bin /bin --symlink usr/lib /lib --symlink usr/lib /lib64 --dir /etc --ro-bind /etc/ld.so.cache /etc/ld.so.cache --ro-bind /etc/os-release /etc/os-release --size 134217728 --tmpfs /tmp --proc /proc --dev /dev --clearenv --setenv HOME /tmp --setenv DOTNET_CLI_HOME /tmp --setenv DOTNET_ROOT /usr/share/dotnet --setenv DOTNET_CLI_TELEMETRY_OPTOUT 1 --setenv DOTNET_SKIP_FIRST_TIME_EXPERIENCE 1 --setenv DOTNET_NOLOGO 1 --setenv DOTNET_EnableDiagnostics 0 --setenv LANG C.UTF-8 --setenv PATH /usr/bin:/bin --setenv AUDIT_HOST_NET "$(readlink /proc/self/ns/net)" --chdir /repo /node -
+
+===== DÉBUT HARNAIS REPRISE ARRONDI =====
+'use strict';
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const { spawnSync } = require('node:child_process');
+const parse5 = require('/repo/node_modules/parse5');
+const registry = require('/repo/server/exercises');
+const policy = require('/repo/server/exercises/grading-policy');
+const { runTests, MAX_TESTS } = require('/repo/server/exercises/runner');
+const execution = require('/repo/server/services/execution');
+const jwt = require('/repo/node_modules/jsonwebtoken');
+
+const files = ['server/exercises/csharp.js', 'server/exercises/index.js', 'server/exercises/runner.js',
+  'server/exercises/grading-policy.js', 'server/routes/exercises.js', 'scripts/generate-courses.js',
+  'scripts/course-kit.js', 'csharp/chapitres/chapitre2.html'];
+function hash(file) { return crypto.createHash('sha256').update(fs.readFileSync(`/repo/${file}`)).digest('hex'); }
+function sourceHash(source) { return crypto.createHash('sha256').update(source).digest('hex'); }
+const before = new Map(files.map(file => [file, hash(file)]));
+assert.equal(fs.existsSync('/home'), false);
+assert.notEqual(fs.readlinkSync('/proc/self/ns/net'), process.env.AUDIT_HOST_NET);
+assert.equal(fs.readFileSync('/proc/1/comm', 'utf8').trim(), 'bwrap');
+console.log(`ENVIRONNEMENT: node=${process.version}; parent=bwrap; dépôt=lecture seule; home_hôte=absent; réseau_hôte_distinct=true`);
+for (const [file, digest] of before) console.log(`SHA256 AVANT ${file}: ${digest}`);
+
+const exercise = registry.getExercise('csb2-c2-e2');
+assert.ok(exercise && exercise.course === 'csharp');
+assert.equal(policy.isGradingSuspended(exercise.course, exercise.id), true);
+function* nodes(node) { yield node; for (const child of node.childNodes || []) yield* nodes(child); }
+function attr(node, name) { return (node.attrs || []).find(item => item.name === name)?.value; }
+function text(node) {
+  return [...nodes(node)].filter(item => item.nodeName === '#text').map(item => item.value).join(' ').replace(/\s+/g, ' ').trim();
+}
+const document = parse5.parse(fs.readFileSync('/repo/csharp/chapitres/chapitre2.html', 'utf8'));
+const lab = [...nodes(document)].find(node => attr(node, 'data-exercise') === exercise.id);
+assert.ok(lab);
+assert.equal(attr(lab, 'data-grading-suspended'), '1');
+const brief = [...nodes(lab)].find(node => (attr(node, 'class') || '').split(' ').includes('lab__brief'));
+const sourceText = text(parse5.parseFragment(exercise.brief));
+assert.ok(brief); assert.equal(text(brief), sourceText);
+assert.ok(sourceText.includes('notation décimale simple, sans exposant ni séparateur de milliers'));
+assert.ok(sourceText.includes("en cas d'égalité, en s'éloignant de zéro"));
+const notice = [...nodes(lab)].find(node => attr(node, 'id') === `${exercise.id}-grading-notice`);
+assert.ok(notice && text(notice).includes('temporairement suspendue'));
+console.log(`PAGE: source=DOM généré; suspension=1; énoncé=${JSON.stringify(sourceText)}`);
+const sync = spawnSync('/node', ['/repo/scripts/generate-courses.js', '--check', 'csharp'],
+  { cwd: '/repo', encoding: 'utf8', timeout: 30000, maxBuffer: 1024 * 1024 });
+console.log(`SYNCHRONISATION: code=${sync.status}; stdout=${JSON.stringify(sync.stdout)}; stderr=${JSON.stringify(sync.stderr)}`);
+assert.equal(sync.status, 0); assert.ok(sync.stdout.includes('[ok] cours à jour'));
+
+const targetLabel = 'Arrondi au centime et demi-centimes signés';
+const target = exercise.tests.find(test => test.label === targetLabel);
+const targetIndex = exercise.tests.indexOf(target);
+assert.equal(MAX_TESTS, 7); assert.equal(exercise.tests.length, 7);
+assert.ok(target && targetIndex >= 0 && targetIndex < MAX_TESTS);
+console.log(`TESTS ACTIFS: MAX_TESTS=${MAX_TESTS}; total=${exercise.tests.length}; rang_cas=${targetIndex + 1}; labels=${JSON.stringify(exercise.tests.map(test => test.label))}`);
+console.log(`TEST ARRONDI: ${JSON.stringify(target)}`);
+
+function centsAway(raw) {
+  const negative = raw.startsWith('-');
+  const unsigned = raw.startsWith('-') || raw.startsWith('+') ? raw.slice(1) : raw;
+  const [integer, fraction = ''] = unsigned.split('.');
+  let cents = BigInt(integer || '0') * 100n + BigInt((fraction + '00').slice(0, 2));
+  if (fraction.length > 2 && fraction[2] >= '5') cents += 1n;
+  return `${negative && cents !== 0n ? '-' : ''}${cents / 100n}.${String(cents % 100n).padStart(2, '0')}`;
+}
+function inputLine(item) { return `NEW Article("${item.ref}", "${item.name}", ${item.raw})`; }
+function expectedLine(item) {
+  return `Article("${item.ref}", "${item.name}", ${item.raw}) => Chaine: ctor(r, nom, prix) | Objet: [Ref=${item.ref}, Nom=${item.name}, Prix=${centsAway(item.raw)}]`;
+}
+const targetItems = [{ ref: 'ARR-P', name: 'Millieme', raw: '0.126' },
+  { ref: 'ARR-E', name: 'Demi', raw: '0.125' }, { ref: 'ARR-N', name: 'Demi', raw: '-0.125' }];
+assert.equal(target.stdin, targetItems.map(inputLine).join('\n'));
+assert.equal(target.expected, targetItems.map(expectedLine).join('\n'));
+console.log('ORACLE TEST ARRONDI: les trois sorties attendues sont recalculées en centimes avec BigInt.');
+
+const dotnet = '/usr/share/dotnet/dotnet';
+const compiler = '/usr/share/dotnet/sdk/10.0.401/Roslyn/bincore/csc.dll';
+const referenceDir = '/usr/share/dotnet/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0';
+const tmp = '/tmp/reprise-arrondi';
+fs.mkdirSync(tmp);
+const references = fs.readdirSync(referenceDir).filter(name => name.endsWith('.dll')).map(name => `-r:${referenceDir}/${name}`);
+const runtimeConfig = JSON.stringify({ runtimeOptions: { tfm: 'net10.0', framework: { name: 'Microsoft.NETCore.App', version: '10.0.12' } } });
+function compile(name, source) {
+  const sourceFile = `${tmp}/${name}.cs`, binary = `${tmp}/${name}.dll`, runtime = `${tmp}/${name}.runtimeconfig.json`;
+  fs.writeFileSync(sourceFile, source); fs.writeFileSync(runtime, runtimeConfig);
+  const result = spawnSync(dotnet, [compiler, '-nologo', '-nostdlib+', '-target:exe', `-out:${binary}`, ...references, sourceFile],
+    { encoding: 'utf8', timeout: 30000, maxBuffer: 1024 * 1024 });
+  console.log(`COMPILATION ${name}: code=${result.status}; source_sha256=${sourceHash(source)}; stdout=${JSON.stringify(result.stdout)}; stderr=${JSON.stringify(result.stderr)}`);
+  assert.equal(result.status, 0); assert.ifError(result.error);
+  return { binary, runtime };
+}
+function execute(program, stdin) {
+  const args = ['--unshare-all', '--die-with-parent', '--new-session', '--cap-drop', 'ALL', '--ro-bind', '/usr', '/usr',
+    '--symlink', 'usr/bin', '/bin', '--symlink', 'usr/lib', '/lib', '--symlink', 'usr/lib', '/lib64',
+    '--dir', '/etc', '--ro-bind', '/etc/ld.so.cache', '/etc/ld.so.cache', '--ro-bind', '/etc/os-release', '/etc/os-release',
+    '--dir', '/work', '--ro-bind', program.binary, '/work/program.dll', '--ro-bind', program.runtime, '/work/program.runtimeconfig.json',
+    '--size', '67108864', '--tmpfs', '/tmp', '--proc', '/proc', '--dev', '/dev', '--clearenv',
+    '--setenv', 'HOME', '/tmp', '--setenv', 'DOTNET_ROOT', '/usr/share/dotnet', '--setenv', 'DOTNET_CLI_HOME', '/tmp',
+    '--setenv', 'DOTNET_CLI_TELEMETRY_OPTOUT', '1', '--setenv', 'DOTNET_SKIP_FIRST_TIME_EXPERIENCE', '1',
+    '--setenv', 'DOTNET_EnableDiagnostics', '0', '--setenv', 'LANG', 'C.UTF-8', '--setenv', 'PATH', '/usr/bin:/bin',
+    '--setenv', 'AUDIT_OUTER_NET', fs.readlinkSync('/proc/self/ns/net'), '--chdir', '/tmp', '/bin/sh', '-eu', '-c',
+    'test ! -e /home && test ! -e /repo && test "$(cat /proc/1/comm)" = bwrap && test "$(readlink /proc/self/ns/net)" != "$AUDIT_OUTER_NET" && exec "$@"',
+    'reprise', '/usr/bin/prlimit', '--as=4294967296:4294967296', '--cpu=8:8', '--fsize=67108864:67108864',
+    '--nofile=1024:1024', '--core=0:0', '--nproc=256:256', '--', dotnet, '/work/program.dll'];
+  const result = spawnSync('/usr/bin/bwrap', args, { input: stdin, encoding: 'utf8', timeout: 12000, maxBuffer: 1024 * 1024 });
+  return { ok: result.status === 0 && !result.error, status: result.status === 0 && !result.error ? 'success' : 'runtime_error',
+    stdout: result.stdout || '', stderr: result.stderr || String(result.error || ''), exitCode: result.status };
+}
+function normalized(value) { return value.replace(/\r\n?/g, '\n').replace(/\n+$/, ''); }
+const priceFormat = 'decimal.Round(price, 2, MidpointRounding.AwayFromZero).ToString("F2", CultureInfo.InvariantCulture)';
+const truncation = '(decimal.Truncate(price * 100m) / 100m).ToString("F2", CultureInfo.InvariantCulture)';
+assert.equal(exercise.solution.split(priceFormat).length, 2);
+const mutant = exercise.solution.replace(priceFormat, truncation);
+const boundaryFormat = '(decimal.Round(price * 100m, 0, MidpointRounding.AwayFromZero) / 100m).ToString("F2", CultureInfo.InvariantCulture)';
+const boundaryMutant = exercise.solution.replace(priceFormat, boundaryFormat);
+const oldMutantSha = '6a45046a6f1fa79277606f4827c6567c557e47ed1dde8b3c09a381642d8b550b';
+assert.equal(sourceHash(mutant), oldMutantSha);
+console.log(`MUTANT HISTORIQUE IDENTIQUE: sha256=${oldMutantSha}; expression=${truncation}`);
+const binaries = { correct: compile('correct', exercise.solution), mutant: compile('mutant', mutant),
+  boundaryMutant: compile('boundary-mutant', boundaryMutant) };
+
+const probes = [
+  { ref: 'P125', name: 'PairPos', raw: '0.125' }, { ref: 'N125', name: 'PairNeg', raw: '-0.125' },
+  { ref: 'P135', name: 'ImpairPos', raw: '0.135' }, { ref: 'N135', name: 'ImpairNeg', raw: '-0.135' },
+  { ref: 'P005', name: 'ZeroPos', raw: '0.005' }, { ref: 'N005', name: 'ZeroNeg', raw: '-0.005' },
+  { ref: 'P1005', name: 'UnPos', raw: '1.005' }, { ref: 'N1005', name: 'UnNeg', raw: '-1.005' },
+  { ref: 'P004', name: 'AvantPos', raw: '1.004' }, { ref: 'N004', name: 'AvantNeg', raw: '-1.004' },
+  { ref: 'P006', name: 'ApresPos', raw: '1.006' }, { ref: 'N006', name: 'ApresNeg', raw: '-1.006' },
+  { ref: 'FRACT', name: 'SansZero', raw: '.75' },
+  { ref: 'MAX', name: 'Maximum', raw: '79228162514264337593543950335' },
+  { ref: 'MIN', name: 'Minimum', raw: '-79228162514264337593543950335' }
+];
+const independentInput = probes.map(inputLine).join('\n');
+assert.ok(!exercise.tests.some(test => test.stdin === independentInput));
+const independentExpected = probes.map(expectedLine).join('\n');
+const independentResult = execute(binaries.correct, independentInput);
+console.log(`ENTRÉES INDÉPENDANTES: stdin=${JSON.stringify(independentInput)}; attendu_BigInt=${JSON.stringify(independentExpected)}; résultat=${JSON.stringify(independentResult)}`);
+assert.ok(independentResult.ok); assert.equal(normalized(independentResult.stdout), independentExpected);
+
+async function verify() {
+  for (const [name, code, binary] of [['corrigé', exercise.solution, binaries.correct], ['mutant', mutant, binaries.mutant],
+    ['mutant_borne', boundaryMutant, binaries.boundaryMutant]]) {
+    let calls = 0;
+    const report = await runTests(exercise, code, { maxTests: MAX_TESTS, execute: async request => {
+      calls++; assert.equal(request.language, 'csharp'); assert.equal(request.code, code); return execute(binary, request.stdin);
+    }});
+    console.log(`RUNNER ${name}: appels=${calls}; rapport=${JSON.stringify(report)}`);
+    if (name === 'corrigé' || name === 'mutant_borne') {
+      assert.equal(report.passed, 7); assert.equal(report.total, 7); assert.equal(report.stop, null); assert.equal(calls, 7);
+    } else {
+      assert.equal(report.passed, targetIndex); assert.equal(report.total, 7); assert.equal(calls, targetIndex + 1);
+      assert.equal(report.stop.reason, 'wrong_output'); assert.equal(report.stop.testIndex, targetIndex);
+      assert.equal(report.stop.label, targetLabel); assert.equal(report.stop.exitCode, 0);
+      assert.equal(report.stop.input, target.stdin); assert.equal(report.stop.expected, target.expected);
+    }
+  }
+  const maxProbe = { ref: 'MAX-BOUND', name: 'Maximum', raw: '79228162514264337593543950335' };
+  const maxInput = inputLine(maxProbe);
+  const maxExpected = expectedLine(maxProbe);
+  const correctMaximum = execute(binaries.correct, maxInput);
+  const mutantMaximum = execute(binaries.boundaryMutant, maxInput);
+  assert.ok(correctMaximum.ok); assert.equal(normalized(correctMaximum.stdout), maxExpected);
+  assert.equal(mutantMaximum.ok, false); assert.ok(mutantMaximum.stderr.includes('System.OverflowException'));
+  console.log(`COUVERTURE BORNE: expression=${boundaryFormat}; stdin=${JSON.stringify(maxInput)}; attendu=${JSON.stringify(maxExpected)}; corrigé=${JSON.stringify(correctMaximum)}; mutant_borne=${JSON.stringify(mutantMaximum)}`);
+  let providerCalls = 0;
+  const originalExecute = execution.execute;
+  execution.execute = async () => { providerCalls++; throw new Error('fournisseur interdit pendant la relecture'); };
+  process.env.JWT_SECRET = crypto.randomBytes(32).toString('hex');
+  const app = require('/repo/node_modules/fastify')({ logger: false });
+  app.register(require('/repo/node_modules/@fastify/cookie'));
+  app.register(require('/repo/server/routes/exercises'), { prefix: '/api' });
+  try {
+    await app.ready();
+    const token = jwt.sign({ userId: 'fictif', level: 'b2' }, process.env.JWT_SECRET);
+    const response = await app.inject({ method: 'POST', url: '/api/exercise/submit',
+      headers: { cookie: `auth_token=${token}` }, payload: { exerciseId: exercise.id, code: 'sentinelle non exécutable' } });
+    assert.equal(response.statusCode, 503); assert.equal(response.json().status, 'grading_suspended');
+    assert.equal(providerCalls, 0);
+    console.log(`SUSPENSION API: HTTP=${response.statusCode}; corps=${JSON.stringify(response.json())}; appels_fournisseur=${providerCalls}`);
+  } finally { execution.execute = originalExecute; await app.close(); }
+  for (const [file, digest] of before) { const after = hash(file); assert.equal(after, digest, `Modification concurrente: ${file}`); console.log(`SHA256 APRÈS ${file}: ${after}`); }
+  console.log('RÉSULTAT: tous les contrôles programmés sont passés; aucune politique modifiée.');
+}
+verify().catch(error => { console.error(error.stack || error); process.exitCode = 1; });
+===== FIN HARNAIS REPRISE ARRONDI =====
+===== SORTIE BRUTE REPRISE ARRONDI =====
+ENVIRONNEMENT: node=v22.23.2; parent=bwrap; dépôt=lecture seule; home_hôte=absent; réseau_hôte_distinct=true
+SHA256 AVANT server/exercises/csharp.js: 1d97a361e331d7c6290aaa59720ed105e08b73659ef0c74a25be0ab37bc6778a
+SHA256 AVANT server/exercises/index.js: e4290f63c6fb70d105fd7387a558e87e1cb0c43c18a29637b3a1d3c09db954de
+SHA256 AVANT server/exercises/runner.js: 11d629e4d17edc01eba6a50488f88a21c07e8af57edbd97459f8d8372dc5355e
+SHA256 AVANT server/exercises/grading-policy.js: 7685c530a183ddb55d20bba0ccaaefc2349582e41d87f778e4ce9d3752fcb9c4
+SHA256 AVANT server/routes/exercises.js: 6474a296e8eccb48f9ece3f74089b65edeebc2ba77f3230a6e3c351c70ba853c
+SHA256 AVANT scripts/generate-courses.js: 5f7c2dbd6089b9bb6052c135da790ccc4a7fd73e074cdbd5da3bd0442bc424bb
+SHA256 AVANT scripts/course-kit.js: 5b2400010e60b9f79c36c81829ed24ac55e5c0d87beee1121bc82507b4207a87
+SHA256 AVANT csharp/chapitres/chapitre2.html: fb2d226a62a9954167d0e57155ad8a63c9cb76299da7818761c9031f079683d9
+PAGE: source=DOM généré; suspension=1; énoncé="Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne appelle un constructeur : - NEW Article(\"<Ref>\") délègue à this(r, \"Sans nom\") ; - NEW Article(\"<Ref>\", \"<Nom>\") délègue à this(r, nom, 0.0) ; - NEW Article(\"<Ref>\", \"<Nom>\", <Prix>) appelle le constructeur finalisant l'objet. Le prix est en notation décimale simple, sans exposant ni séparateur de milliers, et représentable par decimal . Le point sépare la partie fractionnaire éventuelle ; le zéro initial est facultatif, par exemple .75 . Arrondissez le prix au centime le plus proche ; en cas d'égalité, en s'éloignant de zéro. Pour chaque commande, indiquez la chaîne des constructeurs traversés et l'objet résultant. Format de sortie : Article(...) => Chaine: <Constructeur1> -> <Constructeur2>... | Objet: [Ref=<Ref>, Nom=<Nom>, Prix=<Prix2Dec>]"
+SYNCHRONISATION: code=0; stdout="[ok] cours à jour (13 pages, 1 cours)\n"; stderr=""
+TESTS ACTIFS: MAX_TESTS=7; total=7; rang_cas=4; labels=["Valeurs par défaut pour les deux surcharges","Nom avec virgule et prix explicite nul","Prix décimal sans zéro initial","Arrondi au centime et demi-centimes signés","Appels uniques avec valeurs par défaut","Constructeur complet direct","Constructeur intermédiaire avec nom personnalisé"]
+TEST ARRONDI: {"label":"Arrondi au centime et demi-centimes signés","stdin":"NEW Article(\"ARR-P\", \"Millieme\", 0.126)\nNEW Article(\"ARR-E\", \"Demi\", 0.125)\nNEW Article(\"ARR-N\", \"Demi\", -0.125)","expected":"Article(\"ARR-P\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-P, Nom=Millieme, Prix=0.13]\nArticle(\"ARR-E\", \"Demi\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-E, Nom=Demi, Prix=0.13]\nArticle(\"ARR-N\", \"Demi\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-N, Nom=Demi, Prix=-0.13]"}
+ORACLE TEST ARRONDI: les trois sorties attendues sont recalculées en centimes avec BigInt.
+MUTANT HISTORIQUE IDENTIQUE: sha256=6a45046a6f1fa79277606f4827c6567c557e47ed1dde8b3c09a381642d8b550b; expression=(decimal.Truncate(price * 100m) / 100m).ToString("F2", CultureInfo.InvariantCulture)
+COMPILATION correct: code=0; source_sha256=8eaba90a1a753f106e8bb9a5e32c1d52edc734b7060ac8a0b4a12c279d61d7fc; stdout=""; stderr=""
+COMPILATION mutant: code=0; source_sha256=6a45046a6f1fa79277606f4827c6567c557e47ed1dde8b3c09a381642d8b550b; stdout=""; stderr=""
+ENTRÉES INDÉPENDANTES: stdin="NEW Article(\"P125\", \"PairPos\", 0.125)\nNEW Article(\"N125\", \"PairNeg\", -0.125)\nNEW Article(\"P135\", \"ImpairPos\", 0.135)\nNEW Article(\"N135\", \"ImpairNeg\", -0.135)\nNEW Article(\"P005\", \"ZeroPos\", 0.005)\nNEW Article(\"N005\", \"ZeroNeg\", -0.005)\nNEW Article(\"P1005\", \"UnPos\", 1.005)\nNEW Article(\"N1005\", \"UnNeg\", -1.005)\nNEW Article(\"P004\", \"AvantPos\", 1.004)\nNEW Article(\"N004\", \"AvantNeg\", -1.004)\nNEW Article(\"P006\", \"ApresPos\", 1.006)\nNEW Article(\"N006\", \"ApresNeg\", -1.006)\nNEW Article(\"FRACT\", \"SansZero\", .75)\nNEW Article(\"MAX\", \"Maximum\", 79228162514264337593543950335)\nNEW Article(\"MIN\", \"Minimum\", -79228162514264337593543950335)"; attendu_BigInt="Article(\"P125\", \"PairPos\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P125, Nom=PairPos, Prix=0.13]\nArticle(\"N125\", \"PairNeg\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N125, Nom=PairNeg, Prix=-0.13]\nArticle(\"P135\", \"ImpairPos\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P135, Nom=ImpairPos, Prix=0.14]\nArticle(\"N135\", \"ImpairNeg\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N135, Nom=ImpairNeg, Prix=-0.14]\nArticle(\"P005\", \"ZeroPos\", 0.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P005, Nom=ZeroPos, Prix=0.01]\nArticle(\"N005\", \"ZeroNeg\", -0.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N005, Nom=ZeroNeg, Prix=-0.01]\nArticle(\"P1005\", \"UnPos\", 1.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P1005, Nom=UnPos, Prix=1.01]\nArticle(\"N1005\", \"UnNeg\", -1.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N1005, Nom=UnNeg, Prix=-1.01]\nArticle(\"P004\", \"AvantPos\", 1.004) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P004, Nom=AvantPos, Prix=1.00]\nArticle(\"N004\", \"AvantNeg\", -1.004) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N004, Nom=AvantNeg, Prix=-1.00]\nArticle(\"P006\", \"ApresPos\", 1.006) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P006, Nom=ApresPos, Prix=1.01]\nArticle(\"N006\", \"ApresNeg\", -1.006) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N006, Nom=ApresNeg, Prix=-1.01]\nArticle(\"FRACT\", \"SansZero\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=FRACT, Nom=SansZero, Prix=0.75]\nArticle(\"MAX\", \"Maximum\", 79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"MIN\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MIN, Nom=Minimum, Prix=-79228162514264337593543950335.00]"; résultat={"ok":true,"status":"success","stdout":"Article(\"P125\", \"PairPos\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P125, Nom=PairPos, Prix=0.13]\nArticle(\"N125\", \"PairNeg\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N125, Nom=PairNeg, Prix=-0.13]\nArticle(\"P135\", \"ImpairPos\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P135, Nom=ImpairPos, Prix=0.14]\nArticle(\"N135\", \"ImpairNeg\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N135, Nom=ImpairNeg, Prix=-0.14]\nArticle(\"P005\", \"ZeroPos\", 0.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P005, Nom=ZeroPos, Prix=0.01]\nArticle(\"N005\", \"ZeroNeg\", -0.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N005, Nom=ZeroNeg, Prix=-0.01]\nArticle(\"P1005\", \"UnPos\", 1.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P1005, Nom=UnPos, Prix=1.01]\nArticle(\"N1005\", \"UnNeg\", -1.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N1005, Nom=UnNeg, Prix=-1.01]\nArticle(\"P004\", \"AvantPos\", 1.004) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P004, Nom=AvantPos, Prix=1.00]\nArticle(\"N004\", \"AvantNeg\", -1.004) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N004, Nom=AvantNeg, Prix=-1.00]\nArticle(\"P006\", \"ApresPos\", 1.006) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P006, Nom=ApresPos, Prix=1.01]\nArticle(\"N006\", \"ApresNeg\", -1.006) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N006, Nom=ApresNeg, Prix=-1.01]\nArticle(\"FRACT\", \"SansZero\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=FRACT, Nom=SansZero, Prix=0.75]\nArticle(\"MAX\", \"Maximum\", 79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"MIN\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MIN, Nom=Minimum, Prix=-79228162514264337593543950335.00]\n","stderr":"","exitCode":0}
+RUNNER corrigé: appels=7; rapport={"ok":true,"passed":7,"total":7,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Arrondi au centime et demi-centimes signés","ok":true},{"label":"Appels uniques avec valeurs par défaut","ok":true},{"label":"Constructeur complet direct","ok":true},{"label":"Constructeur intermédiaire avec nom personnalisé","ok":true}],"stop":null}
+RUNNER mutant: appels=4; rapport={"ok":true,"passed":3,"total":7,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Arrondi au centime et demi-centimes signés","ok":false}],"stop":{"reason":"wrong_output","testIndex":3,"label":"Arrondi au centime et demi-centimes signés","input":"NEW Article(\"ARR-P\", \"Millieme\", 0.126)\nNEW Article(\"ARR-E\", \"Demi\", 0.125)\nNEW Article(\"ARR-N\", \"Demi\", -0.125)","expected":"Article(\"ARR-P\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-P, Nom=Millieme, Prix=0.13]\nArticle(\"ARR-E\", \"Demi\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-E, Nom=Demi, Prix=0.13]\nArticle(\"ARR-N\", \"Demi\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-N, Nom=Demi, Prix=-0.13]","actual":"Article(\"ARR-P\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-P, Nom=Millieme, Prix=0.12]\nArticle(\"ARR-E\", \"Demi\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-E, Nom=Demi, Prix=0.12]\nArticle(\"ARR-N\", \"Demi\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-N, Nom=Demi, Prix=-0.12]\n","stderr":"","compileError":"","exitCode":0,"userMessage":""}}
+SUSPENSION API: HTTP=503; corps={"status":"grading_suspended","error":"La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices."}; appels_fournisseur=0
+SHA256 APRÈS server/exercises/csharp.js: 1d97a361e331d7c6290aaa59720ed105e08b73659ef0c74a25be0ab37bc6778a
+SHA256 APRÈS server/exercises/index.js: e4290f63c6fb70d105fd7387a558e87e1cb0c43c18a29637b3a1d3c09db954de
+SHA256 APRÈS server/exercises/runner.js: 11d629e4d17edc01eba6a50488f88a21c07e8af57edbd97459f8d8372dc5355e
+SHA256 APRÈS server/exercises/grading-policy.js: 7685c530a183ddb55d20bba0ccaaefc2349582e41d87f778e4ce9d3752fcb9c4
+SHA256 APRÈS server/routes/exercises.js: 6474a296e8eccb48f9ece3f74089b65edeebc2ba77f3230a6e3c351c70ba853c
+SHA256 APRÈS scripts/generate-courses.js: 5f7c2dbd6089b9bb6052c135da790ccc4a7fd73e074cdbd5da3bd0442bc424bb
+SHA256 APRÈS scripts/course-kit.js: 5b2400010e60b9f79c36c81829ed24ac55e5c0d87beee1121bc82507b4207a87
+SHA256 APRÈS csharp/chapitres/chapitre2.html: fb2d226a62a9954167d0e57155ad8a63c9cb76299da7818761c9031f079683d9
+RÉSULTAT: tous les contrôles programmés sont passés; aucune politique modifiée.
+CODE DE SORTIE REPRISE ARRONDI : 0
+===== SORTIE BRUTE REPRISE AVEC MUTANT DE BORNE =====
+ENVIRONNEMENT: node=v22.23.2; parent=bwrap; dépôt=lecture seule; home_hôte=absent; réseau_hôte_distinct=true
+SHA256 AVANT server/exercises/csharp.js: 1d97a361e331d7c6290aaa59720ed105e08b73659ef0c74a25be0ab37bc6778a
+SHA256 AVANT server/exercises/index.js: e4290f63c6fb70d105fd7387a558e87e1cb0c43c18a29637b3a1d3c09db954de
+SHA256 AVANT server/exercises/runner.js: 11d629e4d17edc01eba6a50488f88a21c07e8af57edbd97459f8d8372dc5355e
+SHA256 AVANT server/exercises/grading-policy.js: 7685c530a183ddb55d20bba0ccaaefc2349582e41d87f778e4ce9d3752fcb9c4
+SHA256 AVANT server/routes/exercises.js: 6474a296e8eccb48f9ece3f74089b65edeebc2ba77f3230a6e3c351c70ba853c
+SHA256 AVANT scripts/generate-courses.js: 5f7c2dbd6089b9bb6052c135da790ccc4a7fd73e074cdbd5da3bd0442bc424bb
+SHA256 AVANT scripts/course-kit.js: 5b2400010e60b9f79c36c81829ed24ac55e5c0d87beee1121bc82507b4207a87
+SHA256 AVANT csharp/chapitres/chapitre2.html: fb2d226a62a9954167d0e57155ad8a63c9cb76299da7818761c9031f079683d9
+PAGE: source=DOM généré; suspension=1; énoncé="Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne appelle un constructeur : - NEW Article(\"<Ref>\") délègue à this(r, \"Sans nom\") ; - NEW Article(\"<Ref>\", \"<Nom>\") délègue à this(r, nom, 0.0) ; - NEW Article(\"<Ref>\", \"<Nom>\", <Prix>) appelle le constructeur finalisant l'objet. Le prix est en notation décimale simple, sans exposant ni séparateur de milliers, et représentable par decimal . Le point sépare la partie fractionnaire éventuelle ; le zéro initial est facultatif, par exemple .75 . Arrondissez le prix au centime le plus proche ; en cas d'égalité, en s'éloignant de zéro. Pour chaque commande, indiquez la chaîne des constructeurs traversés et l'objet résultant. Format de sortie : Article(...) => Chaine: <Constructeur1> -> <Constructeur2>... | Objet: [Ref=<Ref>, Nom=<Nom>, Prix=<Prix2Dec>]"
+SYNCHRONISATION: code=0; stdout="[ok] cours à jour (13 pages, 1 cours)\n"; stderr=""
+TESTS ACTIFS: MAX_TESTS=7; total=7; rang_cas=4; labels=["Valeurs par défaut pour les deux surcharges","Nom avec virgule et prix explicite nul","Prix décimal sans zéro initial","Arrondi au centime et demi-centimes signés","Appels uniques avec valeurs par défaut","Constructeur complet direct","Constructeur intermédiaire avec nom personnalisé"]
+TEST ARRONDI: {"label":"Arrondi au centime et demi-centimes signés","stdin":"NEW Article(\"ARR-P\", \"Millieme\", 0.126)\nNEW Article(\"ARR-E\", \"Demi\", 0.125)\nNEW Article(\"ARR-N\", \"Demi\", -0.125)","expected":"Article(\"ARR-P\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-P, Nom=Millieme, Prix=0.13]\nArticle(\"ARR-E\", \"Demi\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-E, Nom=Demi, Prix=0.13]\nArticle(\"ARR-N\", \"Demi\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-N, Nom=Demi, Prix=-0.13]"}
+ORACLE TEST ARRONDI: les trois sorties attendues sont recalculées en centimes avec BigInt.
+MUTANT HISTORIQUE IDENTIQUE: sha256=6a45046a6f1fa79277606f4827c6567c557e47ed1dde8b3c09a381642d8b550b; expression=(decimal.Truncate(price * 100m) / 100m).ToString("F2", CultureInfo.InvariantCulture)
+COMPILATION correct: code=0; source_sha256=8eaba90a1a753f106e8bb9a5e32c1d52edc734b7060ac8a0b4a12c279d61d7fc; stdout=""; stderr=""
+COMPILATION mutant: code=0; source_sha256=6a45046a6f1fa79277606f4827c6567c557e47ed1dde8b3c09a381642d8b550b; stdout=""; stderr=""
+COMPILATION boundary-mutant: code=0; source_sha256=72743b76555e0b16002664160413e8e59718c566e2f08e5929583270f93b48e1; stdout=""; stderr=""
+ENTRÉES INDÉPENDANTES: stdin="NEW Article(\"P125\", \"PairPos\", 0.125)\nNEW Article(\"N125\", \"PairNeg\", -0.125)\nNEW Article(\"P135\", \"ImpairPos\", 0.135)\nNEW Article(\"N135\", \"ImpairNeg\", -0.135)\nNEW Article(\"P005\", \"ZeroPos\", 0.005)\nNEW Article(\"N005\", \"ZeroNeg\", -0.005)\nNEW Article(\"P1005\", \"UnPos\", 1.005)\nNEW Article(\"N1005\", \"UnNeg\", -1.005)\nNEW Article(\"P004\", \"AvantPos\", 1.004)\nNEW Article(\"N004\", \"AvantNeg\", -1.004)\nNEW Article(\"P006\", \"ApresPos\", 1.006)\nNEW Article(\"N006\", \"ApresNeg\", -1.006)\nNEW Article(\"FRACT\", \"SansZero\", .75)\nNEW Article(\"MAX\", \"Maximum\", 79228162514264337593543950335)\nNEW Article(\"MIN\", \"Minimum\", -79228162514264337593543950335)"; attendu_BigInt="Article(\"P125\", \"PairPos\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P125, Nom=PairPos, Prix=0.13]\nArticle(\"N125\", \"PairNeg\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N125, Nom=PairNeg, Prix=-0.13]\nArticle(\"P135\", \"ImpairPos\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P135, Nom=ImpairPos, Prix=0.14]\nArticle(\"N135\", \"ImpairNeg\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N135, Nom=ImpairNeg, Prix=-0.14]\nArticle(\"P005\", \"ZeroPos\", 0.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P005, Nom=ZeroPos, Prix=0.01]\nArticle(\"N005\", \"ZeroNeg\", -0.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N005, Nom=ZeroNeg, Prix=-0.01]\nArticle(\"P1005\", \"UnPos\", 1.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P1005, Nom=UnPos, Prix=1.01]\nArticle(\"N1005\", \"UnNeg\", -1.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N1005, Nom=UnNeg, Prix=-1.01]\nArticle(\"P004\", \"AvantPos\", 1.004) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P004, Nom=AvantPos, Prix=1.00]\nArticle(\"N004\", \"AvantNeg\", -1.004) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N004, Nom=AvantNeg, Prix=-1.00]\nArticle(\"P006\", \"ApresPos\", 1.006) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P006, Nom=ApresPos, Prix=1.01]\nArticle(\"N006\", \"ApresNeg\", -1.006) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N006, Nom=ApresNeg, Prix=-1.01]\nArticle(\"FRACT\", \"SansZero\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=FRACT, Nom=SansZero, Prix=0.75]\nArticle(\"MAX\", \"Maximum\", 79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"MIN\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MIN, Nom=Minimum, Prix=-79228162514264337593543950335.00]"; résultat={"ok":true,"status":"success","stdout":"Article(\"P125\", \"PairPos\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P125, Nom=PairPos, Prix=0.13]\nArticle(\"N125\", \"PairNeg\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N125, Nom=PairNeg, Prix=-0.13]\nArticle(\"P135\", \"ImpairPos\", 0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P135, Nom=ImpairPos, Prix=0.14]\nArticle(\"N135\", \"ImpairNeg\", -0.135) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N135, Nom=ImpairNeg, Prix=-0.14]\nArticle(\"P005\", \"ZeroPos\", 0.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P005, Nom=ZeroPos, Prix=0.01]\nArticle(\"N005\", \"ZeroNeg\", -0.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N005, Nom=ZeroNeg, Prix=-0.01]\nArticle(\"P1005\", \"UnPos\", 1.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P1005, Nom=UnPos, Prix=1.01]\nArticle(\"N1005\", \"UnNeg\", -1.005) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N1005, Nom=UnNeg, Prix=-1.01]\nArticle(\"P004\", \"AvantPos\", 1.004) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P004, Nom=AvantPos, Prix=1.00]\nArticle(\"N004\", \"AvantNeg\", -1.004) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N004, Nom=AvantNeg, Prix=-1.00]\nArticle(\"P006\", \"ApresPos\", 1.006) => Chaine: ctor(r, nom, prix) | Objet: [Ref=P006, Nom=ApresPos, Prix=1.01]\nArticle(\"N006\", \"ApresNeg\", -1.006) => Chaine: ctor(r, nom, prix) | Objet: [Ref=N006, Nom=ApresNeg, Prix=-1.01]\nArticle(\"FRACT\", \"SansZero\", .75) => Chaine: ctor(r, nom, prix) | Objet: [Ref=FRACT, Nom=SansZero, Prix=0.75]\nArticle(\"MAX\", \"Maximum\", 79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MAX, Nom=Maximum, Prix=79228162514264337593543950335.00]\nArticle(\"MIN\", \"Minimum\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MIN, Nom=Minimum, Prix=-79228162514264337593543950335.00]\n","stderr":"","exitCode":0}
+RUNNER corrigé: appels=7; rapport={"ok":true,"passed":7,"total":7,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Arrondi au centime et demi-centimes signés","ok":true},{"label":"Appels uniques avec valeurs par défaut","ok":true},{"label":"Constructeur complet direct","ok":true},{"label":"Constructeur intermédiaire avec nom personnalisé","ok":true}],"stop":null}
+RUNNER mutant: appels=4; rapport={"ok":true,"passed":3,"total":7,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Arrondi au centime et demi-centimes signés","ok":false}],"stop":{"reason":"wrong_output","testIndex":3,"label":"Arrondi au centime et demi-centimes signés","input":"NEW Article(\"ARR-P\", \"Millieme\", 0.126)\nNEW Article(\"ARR-E\", \"Demi\", 0.125)\nNEW Article(\"ARR-N\", \"Demi\", -0.125)","expected":"Article(\"ARR-P\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-P, Nom=Millieme, Prix=0.13]\nArticle(\"ARR-E\", \"Demi\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-E, Nom=Demi, Prix=0.13]\nArticle(\"ARR-N\", \"Demi\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-N, Nom=Demi, Prix=-0.13]","actual":"Article(\"ARR-P\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-P, Nom=Millieme, Prix=0.12]\nArticle(\"ARR-E\", \"Demi\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-E, Nom=Demi, Prix=0.12]\nArticle(\"ARR-N\", \"Demi\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-N, Nom=Demi, Prix=-0.12]\n","stderr":"","compileError":"","exitCode":0,"userMessage":""}}
+RUNNER mutant_borne: appels=7; rapport={"ok":true,"passed":7,"total":7,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Arrondi au centime et demi-centimes signés","ok":true},{"label":"Appels uniques avec valeurs par défaut","ok":true},{"label":"Constructeur complet direct","ok":true},{"label":"Constructeur intermédiaire avec nom personnalisé","ok":true}],"stop":null}
+COUVERTURE BORNE: expression=(decimal.Round(price * 100m, 0, MidpointRounding.AwayFromZero) / 100m).ToString("F2", CultureInfo.InvariantCulture); stdin="NEW Article(\"MAX-BOUND\", \"Maximum\", 79228162514264337593543950335)"; attendu="Article(\"MAX-BOUND\", \"Maximum\", 79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MAX-BOUND, Nom=Maximum, Prix=79228162514264337593543950335.00]"; corrigé={"ok":true,"status":"success","stdout":"Article(\"MAX-BOUND\", \"Maximum\", 79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MAX-BOUND, Nom=Maximum, Prix=79228162514264337593543950335.00]\n","stderr":"","exitCode":0}; mutant_borne={"ok":false,"status":"runtime_error","stdout":"","stderr":"Unhandled exception. System.OverflowException: Value was either too large or too small for a Decimal.\n   at System.Number.ThrowOverflowException(String message)\n   at System.Decimal.DecCalc.ScaleResult(Buf24* bufRes, UInt32 hiRes, Int32 scale)\n   at System.Decimal.DecCalc.VarDecMul(DecCalc& d1, DecCalc& d2)\n   at System.Decimal.op_Multiply(Decimal d1, Decimal d2)\n   at Program.Main()\n","exitCode":134}
+SUSPENSION API: HTTP=503; corps={"status":"grading_suspended","error":"La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices."}; appels_fournisseur=0
+SHA256 APRÈS server/exercises/csharp.js: 1d97a361e331d7c6290aaa59720ed105e08b73659ef0c74a25be0ab37bc6778a
+SHA256 APRÈS server/exercises/index.js: e4290f63c6fb70d105fd7387a558e87e1cb0c43c18a29637b3a1d3c09db954de
+SHA256 APRÈS server/exercises/runner.js: 11d629e4d17edc01eba6a50488f88a21c07e8af57edbd97459f8d8372dc5355e
+SHA256 APRÈS server/exercises/grading-policy.js: 7685c530a183ddb55d20bba0ccaaefc2349582e41d87f778e4ce9d3752fcb9c4
+SHA256 APRÈS server/routes/exercises.js: 6474a296e8eccb48f9ece3f74089b65edeebc2ba77f3230a6e3c351c70ba853c
+SHA256 APRÈS scripts/generate-courses.js: 5f7c2dbd6089b9bb6052c135da790ccc4a7fd73e074cdbd5da3bd0442bc424bb
+SHA256 APRÈS scripts/course-kit.js: 5b2400010e60b9f79c36c81829ed24ac55e5c0d87beee1121bc82507b4207a87
+SHA256 APRÈS csharp/chapitres/chapitre2.html: fb2d226a62a9954167d0e57155ad8a63c9cb76299da7818761c9031f079683d9
+RÉSULTAT: tous les contrôles programmés sont passés; aucune politique modifiée.
+CODE DE SORTIE REPRISE AVEC BORNE : 0
+
+===== REPRISE INDÉPENDANTE — DEUX MUTANTS ET BORNES ACTIVES =====
+Date : 30 octobre 2026. Seul csb2-c2-e2 est rejoué ; les sections
+précédentes restent des preuves historiques des versions antérieures.
+Le dépôt est monté en lecture seule ; compilation et exécution des deux
+mutants et du corrigé ont lieu sous bwrap, sans réseau ni HOME hôte.
+
+Reproduction depuis la racine du dépôt :
+
+  awk '/^===== DÉBUT HARNAIS DEUX MUTANTS =====$/ {on=1; next} /^===== FIN HARNAIS DEUX MUTANTS =====$/ {on=0; exit} on {print}' corrections/resultats/lot2-csharp-bornes-independant-journal.txt |
+  bwrap --unshare-all --die-with-parent --new-session --cap-drop ALL --ro-bind /usr /usr --ro-bind "$PWD" /repo --ro-bind "$(command -v node)" /node --symlink usr/bin /bin --symlink usr/lib /lib --symlink usr/lib /lib64 --dir /etc --ro-bind /etc/ld.so.cache /etc/ld.so.cache --ro-bind /etc/os-release /etc/os-release --size 134217728 --tmpfs /tmp --proc /proc --dev /dev --clearenv --setenv HOME /tmp --setenv DOTNET_CLI_HOME /tmp --setenv DOTNET_ROOT /usr/share/dotnet --setenv DOTNET_CLI_TELEMETRY_OPTOUT 1 --setenv DOTNET_SKIP_FIRST_TIME_EXPERIENCE 1 --setenv DOTNET_NOLOGO 1 --setenv DOTNET_EnableDiagnostics 0 --setenv LANG C.UTF-8 --setenv PATH /usr/bin:/bin --setenv AUDIT_HOST_NET "$(readlink /proc/self/ns/net)" --chdir /repo /node -
+
+===== DÉBUT HARNAIS DEUX MUTANTS =====
+'use strict';
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const { spawnSync } = require('node:child_process');
+const parse5 = require('/repo/node_modules/parse5');
+const registry = require('/repo/server/exercises');
+const policy = require('/repo/server/exercises/grading-policy');
+const { runTests, MAX_TESTS } = require('/repo/server/exercises/runner');
+const execution = require('/repo/server/services/execution');
+const jwt = require('/repo/node_modules/jsonwebtoken');
+const files = ['server/exercises/csharp.js', 'server/exercises/index.js', 'server/exercises/runner.js',
+  'server/exercises/grading-policy.js', 'server/routes/exercises.js', 'scripts/generate-courses.js',
+  'scripts/course-kit.js', 'csharp/chapitres/chapitre2.html'];
+const sourceHash = value => crypto.createHash('sha256').update(value).digest('hex');
+const hashFile = file => sourceHash(fs.readFileSync(`/repo/${file}`));
+const before = new Map(files.map(file => [file, hashFile(file)]));
+assert.equal(fs.existsSync('/home'), false);
+assert.notEqual(fs.readlinkSync('/proc/self/ns/net'), process.env.AUDIT_HOST_NET);
+assert.equal(fs.readFileSync('/proc/1/comm', 'utf8').trim(), 'bwrap');
+console.log(`ENVIRONNEMENT: node=${process.version}; dépôt=lecture seule; pid1=bwrap; home_hôte=absent; réseau_hôte_distinct=true`);
+for (const [file, digest] of before) console.log(`SHA256 AVANT ${file}: ${digest}`);
+
+const exercise = registry.getExercise('csb2-c2-e2');
+assert.ok(exercise && exercise.course === 'csharp');
+assert.equal(policy.isGradingSuspended(exercise.course, exercise.id), true);
+assert.equal(sourceHash(exercise.solution), '8eaba90a1a753f106e8bb9a5e32c1d52edc734b7060ac8a0b4a12c279d61d7fc');
+assert.equal(before.get('csharp/chapitres/chapitre2.html'), 'fb2d226a62a9954167d0e57155ad8a63c9cb76299da7818761c9031f079683d9');
+function* nodes(node) { yield node; for (const child of node.childNodes || []) yield* nodes(child); }
+function attr(node, name) { return (node.attrs || []).find(item => item.name === name)?.value; }
+function text(node) { return [...nodes(node)].filter(item => item.nodeName === '#text').map(item => item.value).join(' ').replace(/\s+/g, ' ').trim(); }
+const document = parse5.parse(fs.readFileSync('/repo/csharp/chapitres/chapitre2.html', 'utf8'));
+const lab = [...nodes(document)].find(node => attr(node, 'data-exercise') === exercise.id);
+assert.ok(lab); assert.equal(attr(lab, 'data-grading-suspended'), '1');
+const brief = [...nodes(lab)].find(node => (attr(node, 'class') || '').split(' ').includes('lab__brief'));
+assert.ok(brief); assert.equal(text(brief), text(parse5.parseFragment(exercise.brief)));
+assert.ok(text(brief).includes("en cas d'égalité, en s'éloignant de zéro"));
+const notice = [...nodes(lab)].find(node => attr(node, 'id') === `${exercise.id}-grading-notice`);
+assert.ok(notice && text(notice).includes('temporairement suspendue'));
+console.log(`PAGE: corrigé_et_page_mêmes_empreintes_que_la_reprise_précédente; source=DOM; suspension=1; énoncé=${JSON.stringify(text(brief))}`);
+const sync = spawnSync('/node', ['/repo/scripts/generate-courses.js', '--check', 'csharp'],
+  { cwd: '/repo', encoding: 'utf8', timeout: 30000, maxBuffer: 1024 * 1024 });
+console.log(`SYNCHRONISATION: code=${sync.status}; stdout=${JSON.stringify(sync.stdout)}; stderr=${JSON.stringify(sync.stderr)}`);
+assert.equal(sync.status, 0); assert.ok(sync.stdout.includes('[ok] cours à jour'));
+
+assert.equal(MAX_TESTS, 7); assert.equal(exercise.tests.length, 7); assert.notEqual(exercise.verifyFirstExample, true);
+const roundIndex = exercise.tests.findIndex(test => test.label === 'Arrondi au centime et demi-centimes signés');
+const boundaryIndex = exercise.tests.findIndex(test => test.label === 'Constructeur intermédiaire et bornes du prix');
+assert.equal(roundIndex, 3); assert.equal(boundaryIndex, 6);
+const roundTest = exercise.tests[roundIndex], boundaryTest = exercise.tests[boundaryIndex];
+const max = ((1n << 96n) - 1n).toString();
+const maxInput = `NEW Article("MAX-DEC", "Borne", ${max})`;
+const minInput = `NEW Article("MIN-DEC", "Borne", -${max})`;
+assert.deepEqual(boundaryTest.stdin.split('\n'), ['NEW Article("CASQ", "Casque Bluetooth")', maxInput, minInput]);
+const maxExpected = `Article("MAX-DEC", "Borne", ${max}) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MAX-DEC, Nom=Borne, Prix=${max}.00]`;
+const minExpected = `Article("MIN-DEC", "Borne", -${max}) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MIN-DEC, Nom=Borne, Prix=-${max}.00]`;
+assert.deepEqual(boundaryTest.expected.split('\n'), [
+  'Article("CASQ", "Casque Bluetooth") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=CASQ, Nom=Casque Bluetooth, Prix=0.00]', maxExpected, minExpected
+]);
+console.log(`TESTS ACTIFS: MAX_TESTS=${MAX_TESTS}; total=${exercise.tests.length}; arrondi_rang=${roundIndex + 1}; borne_rang=${boundaryIndex + 1}; labels=${JSON.stringify(exercise.tests.map(test => test.label))}; tests_sha256=${sourceHash(JSON.stringify(exercise.tests))}`);
+console.log(`TEST BORNES ET ORACLE BigInt (2^96-1): ${JSON.stringify(boundaryTest)}`);
+
+const dotnet = '/usr/share/dotnet/dotnet';
+const compiler = '/usr/share/dotnet/sdk/10.0.401/Roslyn/bincore/csc.dll';
+const referenceDir = '/usr/share/dotnet/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0';
+const tmp = '/tmp/reprise-deux-mutants';
+fs.mkdirSync(tmp);
+const references = fs.readdirSync(referenceDir).filter(name => name.endsWith('.dll')).map(name => `-r:${referenceDir}/${name}`);
+const runtimeConfig = JSON.stringify({ runtimeOptions: { tfm: 'net10.0', framework: { name: 'Microsoft.NETCore.App', version: '10.0.12' } } });
+function compile(name, source) {
+  const sourceFile = `${tmp}/${name}.cs`, binary = `${tmp}/${name}.dll`, runtime = `${tmp}/${name}.runtimeconfig.json`;
+  fs.writeFileSync(sourceFile, source); fs.writeFileSync(runtime, runtimeConfig);
+  const result = spawnSync(dotnet, [compiler, '-nologo', '-nostdlib+', '-target:exe', `-out:${binary}`, ...references, sourceFile],
+    { encoding: 'utf8', timeout: 30000, maxBuffer: 1024 * 1024 });
+  console.log(`COMPILATION ${name}: code=${result.status}; source_sha256=${sourceHash(source)}; stdout=${JSON.stringify(result.stdout)}; stderr=${JSON.stringify(result.stderr)}`);
+  assert.equal(result.status, 0); assert.ifError(result.error);
+  return { binary, runtime };
+}
+function execute(program, stdin) {
+  const args = ['--unshare-all', '--die-with-parent', '--new-session', '--cap-drop', 'ALL', '--ro-bind', '/usr', '/usr',
+    '--symlink', 'usr/bin', '/bin', '--symlink', 'usr/lib', '/lib', '--symlink', 'usr/lib', '/lib64',
+    '--dir', '/etc', '--ro-bind', '/etc/ld.so.cache', '/etc/ld.so.cache', '--ro-bind', '/etc/os-release', '/etc/os-release',
+    '--dir', '/work', '--ro-bind', program.binary, '/work/program.dll', '--ro-bind', program.runtime, '/work/program.runtimeconfig.json',
+    '--size', '67108864', '--tmpfs', '/tmp', '--proc', '/proc', '--dev', '/dev', '--clearenv',
+    '--setenv', 'HOME', '/tmp', '--setenv', 'DOTNET_ROOT', '/usr/share/dotnet', '--setenv', 'DOTNET_CLI_HOME', '/tmp',
+    '--setenv', 'DOTNET_CLI_TELEMETRY_OPTOUT', '1', '--setenv', 'DOTNET_SKIP_FIRST_TIME_EXPERIENCE', '1',
+    '--setenv', 'DOTNET_EnableDiagnostics', '0', '--setenv', 'LANG', 'C.UTF-8', '--setenv', 'PATH', '/usr/bin:/bin',
+    '--setenv', 'AUDIT_OUTER_NET', fs.readlinkSync('/proc/self/ns/net'), '--chdir', '/tmp', '/bin/sh', '-eu', '-c',
+    'test ! -e /home && test ! -e /repo && test "$(cat /proc/1/comm)" = bwrap && test "$(readlink /proc/self/ns/net)" != "$AUDIT_OUTER_NET" && exec "$@"',
+    'reprise', '/usr/bin/prlimit', '--as=4294967296:4294967296', '--cpu=8:8', '--fsize=67108864:67108864',
+    '--nofile=1024:1024', '--core=0:0', '--nproc=256:256', '--', dotnet, '/work/program.dll'];
+  const result = spawnSync('/usr/bin/bwrap', args, { input: stdin, encoding: 'utf8', timeout: 12000, maxBuffer: 1024 * 1024 });
+  return { ok: result.status === 0 && !result.error, status: result.status === 0 && !result.error ? 'success' : 'runtime_error',
+    stdout: result.stdout || '', stderr: result.stderr || String(result.error || ''), exitCode: result.status };
+}
+function normalized(value) { return value.replace(/\r\n?/g, '\n').replace(/\n+$/, ''); }
+const priceFormat = 'decimal.Round(price, 2, MidpointRounding.AwayFromZero).ToString("F2", CultureInfo.InvariantCulture)';
+const truncation = '(decimal.Truncate(price * 100m) / 100m).ToString("F2", CultureInfo.InvariantCulture)';
+const multiply = '(decimal.Round(price * 100m, 0, MidpointRounding.AwayFromZero) / 100m).ToString("F2", CultureInfo.InvariantCulture)';
+assert.equal(exercise.solution.split(priceFormat).length, 2);
+const truncationMutant = exercise.solution.replace(priceFormat, truncation);
+const multiplicationMutant = exercise.solution.replace(priceFormat, multiply);
+assert.equal(sourceHash(truncationMutant), '6a45046a6f1fa79277606f4827c6567c557e47ed1dde8b3c09a381642d8b550b');
+assert.equal(sourceHash(multiplicationMutant), '72743b76555e0b16002664160413e8e59718c566e2f08e5929583270f93b48e1');
+console.log('MUTANTS: empreintes des deux sources identiques à celles du rapport précédent.');
+const binaries = { correct: compile('correct', exercise.solution), truncation: compile('truncation', truncationMutant),
+  multiplication: compile('multiplication', multiplicationMutant) };
+
+for (const [sign, input, expected] of [['positive', maxInput, maxExpected], ['négative', minInput, minExpected]]) {
+  const good = execute(binaries.correct, input);
+  const bad = execute(binaries.multiplication, input);
+  console.log(`BORNE ${sign} INDIVIDUELLE: stdin=${JSON.stringify(input)}; attendu_BigInt=${JSON.stringify(expected)}; corrigé=${JSON.stringify(good)}; mutant_multiplication=${JSON.stringify(bad)}`);
+  assert.ok(good.ok); assert.equal(normalized(good.stdout), expected);
+  assert.equal(bad.ok, false); assert.ok(bad.stderr.includes('System.OverflowException'));
+}
+
+async function verify() {
+  const variants = [['corrigé', exercise.solution, binaries.correct], ['troncature', truncationMutant, binaries.truncation],
+    ['multiplication', multiplicationMutant, binaries.multiplication]];
+  for (const [name, code, binary] of variants) {
+    let calls = 0;
+    const report = await runTests(exercise, code, { maxTests: MAX_TESTS, execute: async request => {
+      calls++; assert.equal(request.language, 'csharp'); assert.equal(request.code, code); return execute(binary, request.stdin);
+    }});
+    console.log(`RUNNER ${name}: appels=${calls}; rapport=${JSON.stringify(report)}`);
+    assert.equal(report.total, 7);
+    if (name === 'corrigé') {
+      assert.equal(report.passed, 7); assert.equal(report.stop, null); assert.equal(calls, 7);
+    } else if (name === 'troncature') {
+      assert.equal(report.passed, 3); assert.equal(calls, 4); assert.equal(report.stop.reason, 'wrong_output');
+      assert.equal(report.stop.testIndex, roundIndex); assert.equal(report.stop.label, roundTest.label);
+      assert.equal(report.stop.input, roundTest.stdin); assert.equal(report.stop.expected, roundTest.expected);
+      assert.equal(report.stop.exitCode, 0);
+    } else {
+      assert.equal(report.passed, 6); assert.equal(calls, 7); assert.equal(report.stop.reason, 'runtime_error');
+      assert.equal(report.stop.testIndex, boundaryIndex); assert.equal(report.stop.label, boundaryTest.label);
+      assert.equal(report.stop.input, boundaryTest.stdin); assert.ok(report.stop.stderr.includes('System.OverflowException'));
+    }
+  }
+  let providerCalls = 0;
+  const originalExecute = execution.execute;
+  execution.execute = async () => { providerCalls++; throw new Error('fournisseur interdit pendant la relecture'); };
+  process.env.JWT_SECRET = crypto.randomBytes(32).toString('hex');
+  const app = require('/repo/node_modules/fastify')({ logger: false });
+  app.register(require('/repo/node_modules/@fastify/cookie'));
+  app.register(require('/repo/server/routes/exercises'), { prefix: '/api' });
+  try {
+    await app.ready();
+    const token = jwt.sign({ userId: 'fictif', level: 'b2' }, process.env.JWT_SECRET);
+    const response = await app.inject({ method: 'POST', url: '/api/exercise/submit',
+      headers: { cookie: `auth_token=${token}` }, payload: { exerciseId: exercise.id, code: 'sentinelle non exécutable' } });
+    assert.equal(response.statusCode, 503); assert.equal(response.json().status, 'grading_suspended'); assert.equal(providerCalls, 0);
+    console.log(`SUSPENSION API: HTTP=${response.statusCode}; corps=${JSON.stringify(response.json())}; appels_fournisseur=${providerCalls}`);
+  } finally { execution.execute = originalExecute; await app.close(); }
+  for (const [file, digest] of before) { const after = hashFile(file); assert.equal(after, digest, `Modification concurrente: ${file}`); console.log(`SHA256 APRÈS ${file}: ${after}`); }
+  console.log('RÉSULTAT: tous les contrôles programmés sont passés; aucune politique modifiée.');
+}
+verify().catch(error => { console.error(error.stack || error); process.exitCode = 1; });
+===== FIN HARNAIS DEUX MUTANTS =====
+===== SORTIE BRUTE REPRISE DEUX MUTANTS =====
+ENVIRONNEMENT: node=v22.23.2; dépôt=lecture seule; pid1=bwrap; home_hôte=absent; réseau_hôte_distinct=true
+SHA256 AVANT server/exercises/csharp.js: 7ffdea14511f60cf0e32fbad5b32a06e17e69899ac6ceeced4d198adb2fe8a7d
+SHA256 AVANT server/exercises/index.js: e4290f63c6fb70d105fd7387a558e87e1cb0c43c18a29637b3a1d3c09db954de
+SHA256 AVANT server/exercises/runner.js: 11d629e4d17edc01eba6a50488f88a21c07e8af57edbd97459f8d8372dc5355e
+SHA256 AVANT server/exercises/grading-policy.js: 7685c530a183ddb55d20bba0ccaaefc2349582e41d87f778e4ce9d3752fcb9c4
+SHA256 AVANT server/routes/exercises.js: 6474a296e8eccb48f9ece3f74089b65edeebc2ba77f3230a6e3c351c70ba853c
+SHA256 AVANT scripts/generate-courses.js: 5f7c2dbd6089b9bb6052c135da790ccc4a7fd73e074cdbd5da3bd0442bc424bb
+SHA256 AVANT scripts/course-kit.js: 5b2400010e60b9f79c36c81829ed24ac55e5c0d87beee1121bc82507b4207a87
+SHA256 AVANT csharp/chapitres/chapitre2.html: fb2d226a62a9954167d0e57155ad8a63c9cb76299da7818761c9031f079683d9
+PAGE: corrigé_et_page_mêmes_empreintes_que_la_reprise_précédente; source=DOM; suspension=1; énoncé="Votre programme C# lit les données sur l’entrée standard (Console.In). Chaque ligne appelle un constructeur : - NEW Article(\"<Ref>\") délègue à this(r, \"Sans nom\") ; - NEW Article(\"<Ref>\", \"<Nom>\") délègue à this(r, nom, 0.0) ; - NEW Article(\"<Ref>\", \"<Nom>\", <Prix>) appelle le constructeur finalisant l'objet. Le prix est en notation décimale simple, sans exposant ni séparateur de milliers, et représentable par decimal . Le point sépare la partie fractionnaire éventuelle ; le zéro initial est facultatif, par exemple .75 . Arrondissez le prix au centime le plus proche ; en cas d'égalité, en s'éloignant de zéro. Pour chaque commande, indiquez la chaîne des constructeurs traversés et l'objet résultant. Format de sortie : Article(...) => Chaine: <Constructeur1> -> <Constructeur2>... | Objet: [Ref=<Ref>, Nom=<Nom>, Prix=<Prix2Dec>]"
+SYNCHRONISATION: code=0; stdout="[ok] cours à jour (13 pages, 1 cours)\n"; stderr=""
+TESTS ACTIFS: MAX_TESTS=7; total=7; arrondi_rang=4; borne_rang=7; labels=["Valeurs par défaut pour les deux surcharges","Nom avec virgule et prix explicite nul","Prix décimal sans zéro initial","Arrondi au centime et demi-centimes signés","Appels uniques avec valeurs par défaut","Constructeur complet direct","Constructeur intermédiaire et bornes du prix"]; tests_sha256=922833177ab57c8315afeb18111993499611833e3db3334d7dd9d60ac4dbabd0
+TEST BORNES ET ORACLE BigInt (2^96-1): {"label":"Constructeur intermédiaire et bornes du prix","stdin":"NEW Article(\"CASQ\", \"Casque Bluetooth\")\nNEW Article(\"MAX-DEC\", \"Borne\", 79228162514264337593543950335)\nNEW Article(\"MIN-DEC\", \"Borne\", -79228162514264337593543950335)","expected":"Article(\"CASQ\", \"Casque Bluetooth\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=CASQ, Nom=Casque Bluetooth, Prix=0.00]\nArticle(\"MAX-DEC\", \"Borne\", 79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MAX-DEC, Nom=Borne, Prix=79228162514264337593543950335.00]\nArticle(\"MIN-DEC\", \"Borne\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MIN-DEC, Nom=Borne, Prix=-79228162514264337593543950335.00]"}
+MUTANTS: empreintes des deux sources identiques à celles du rapport précédent.
+COMPILATION correct: code=0; source_sha256=8eaba90a1a753f106e8bb9a5e32c1d52edc734b7060ac8a0b4a12c279d61d7fc; stdout=""; stderr=""
+COMPILATION truncation: code=0; source_sha256=6a45046a6f1fa79277606f4827c6567c557e47ed1dde8b3c09a381642d8b550b; stdout=""; stderr=""
+COMPILATION multiplication: code=0; source_sha256=72743b76555e0b16002664160413e8e59718c566e2f08e5929583270f93b48e1; stdout=""; stderr=""
+BORNE positive INDIVIDUELLE: stdin="NEW Article(\"MAX-DEC\", \"Borne\", 79228162514264337593543950335)"; attendu_BigInt="Article(\"MAX-DEC\", \"Borne\", 79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MAX-DEC, Nom=Borne, Prix=79228162514264337593543950335.00]"; corrigé={"ok":true,"status":"success","stdout":"Article(\"MAX-DEC\", \"Borne\", 79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MAX-DEC, Nom=Borne, Prix=79228162514264337593543950335.00]\n","stderr":"","exitCode":0}; mutant_multiplication={"ok":false,"status":"runtime_error","stdout":"","stderr":"Unhandled exception. System.OverflowException: Value was either too large or too small for a Decimal.\n   at System.Number.ThrowOverflowException(String message)\n   at System.Decimal.DecCalc.ScaleResult(Buf24* bufRes, UInt32 hiRes, Int32 scale)\n   at System.Decimal.DecCalc.VarDecMul(DecCalc& d1, DecCalc& d2)\n   at System.Decimal.op_Multiply(Decimal d1, Decimal d2)\n   at Program.Main()\n","exitCode":134}
+BORNE négative INDIVIDUELLE: stdin="NEW Article(\"MIN-DEC\", \"Borne\", -79228162514264337593543950335)"; attendu_BigInt="Article(\"MIN-DEC\", \"Borne\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MIN-DEC, Nom=Borne, Prix=-79228162514264337593543950335.00]"; corrigé={"ok":true,"status":"success","stdout":"Article(\"MIN-DEC\", \"Borne\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MIN-DEC, Nom=Borne, Prix=-79228162514264337593543950335.00]\n","stderr":"","exitCode":0}; mutant_multiplication={"ok":false,"status":"runtime_error","stdout":"","stderr":"Unhandled exception. System.OverflowException: Value was either too large or too small for a Decimal.\n   at System.Number.ThrowOverflowException(String message)\n   at System.Decimal.DecCalc.ScaleResult(Buf24* bufRes, UInt32 hiRes, Int32 scale)\n   at System.Decimal.DecCalc.VarDecMul(DecCalc& d1, DecCalc& d2)\n   at System.Decimal.op_Multiply(Decimal d1, Decimal d2)\n   at Program.Main()\n","exitCode":134}
+RUNNER corrigé: appels=7; rapport={"ok":true,"passed":7,"total":7,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Arrondi au centime et demi-centimes signés","ok":true},{"label":"Appels uniques avec valeurs par défaut","ok":true},{"label":"Constructeur complet direct","ok":true},{"label":"Constructeur intermédiaire et bornes du prix","ok":true}],"stop":null}
+RUNNER troncature: appels=4; rapport={"ok":true,"passed":3,"total":7,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Arrondi au centime et demi-centimes signés","ok":false}],"stop":{"reason":"wrong_output","testIndex":3,"label":"Arrondi au centime et demi-centimes signés","input":"NEW Article(\"ARR-P\", \"Millieme\", 0.126)\nNEW Article(\"ARR-E\", \"Demi\", 0.125)\nNEW Article(\"ARR-N\", \"Demi\", -0.125)","expected":"Article(\"ARR-P\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-P, Nom=Millieme, Prix=0.13]\nArticle(\"ARR-E\", \"Demi\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-E, Nom=Demi, Prix=0.13]\nArticle(\"ARR-N\", \"Demi\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-N, Nom=Demi, Prix=-0.13]","actual":"Article(\"ARR-P\", \"Millieme\", 0.126) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-P, Nom=Millieme, Prix=0.12]\nArticle(\"ARR-E\", \"Demi\", 0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-E, Nom=Demi, Prix=0.12]\nArticle(\"ARR-N\", \"Demi\", -0.125) => Chaine: ctor(r, nom, prix) | Objet: [Ref=ARR-N, Nom=Demi, Prix=-0.12]\n","stderr":"","compileError":"","exitCode":0,"userMessage":""}}
+RUNNER multiplication: appels=7; rapport={"ok":true,"passed":6,"total":7,"results":[{"label":"Valeurs par défaut pour les deux surcharges","ok":true},{"label":"Nom avec virgule et prix explicite nul","ok":true},{"label":"Prix décimal sans zéro initial","ok":true},{"label":"Arrondi au centime et demi-centimes signés","ok":true},{"label":"Appels uniques avec valeurs par défaut","ok":true},{"label":"Constructeur complet direct","ok":true}],"stop":{"reason":"runtime_error","testIndex":6,"label":"Constructeur intermédiaire et bornes du prix","input":"NEW Article(\"CASQ\", \"Casque Bluetooth\")\nNEW Article(\"MAX-DEC\", \"Borne\", 79228162514264337593543950335)\nNEW Article(\"MIN-DEC\", \"Borne\", -79228162514264337593543950335)","expected":null,"actual":"Article(\"CASQ\", \"Casque Bluetooth\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=CASQ, Nom=Casque Bluetooth, Prix=0.00]\n","stderr":"Unhandled exception. System.OverflowException: Value was either too large or too small for a Decimal.\n   at System.Number.ThrowOverflowException(String message)\n   at System.Decimal.DecCalc.ScaleResult(Buf24* bufRes, UInt32 hiRes, Int32 scale)\n   at System.Decimal.DecCalc.VarDecMul(DecCalc& d1, DecCalc& d2)\n   at System.Decimal.op_Multiply(Decimal d1, Decimal d2)\n   at Program.Main()\n","compileError":"","exitCode":134,"userMessage":""}}
+SUSPENSION API: HTTP=503; corps={"status":"grading_suspended","error":"La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices."}; appels_fournisseur=0
+SHA256 APRÈS server/exercises/csharp.js: 7ffdea14511f60cf0e32fbad5b32a06e17e69899ac6ceeced4d198adb2fe8a7d
+SHA256 APRÈS server/exercises/index.js: e4290f63c6fb70d105fd7387a558e87e1cb0c43c18a29637b3a1d3c09db954de
+SHA256 APRÈS server/exercises/runner.js: 11d629e4d17edc01eba6a50488f88a21c07e8af57edbd97459f8d8372dc5355e
+SHA256 APRÈS server/exercises/grading-policy.js: 7685c530a183ddb55d20bba0ccaaefc2349582e41d87f778e4ce9d3752fcb9c4
+SHA256 APRÈS server/routes/exercises.js: 6474a296e8eccb48f9ece3f74089b65edeebc2ba77f3230a6e3c351c70ba853c
+SHA256 APRÈS scripts/generate-courses.js: 5f7c2dbd6089b9bb6052c135da790ccc4a7fd73e074cdbd5da3bd0442bc424bb
+SHA256 APRÈS scripts/course-kit.js: 5b2400010e60b9f79c36c81829ed24ac55e5c0d87beee1121bc82507b4207a87
+SHA256 APRÈS csharp/chapitres/chapitre2.html: fb2d226a62a9954167d0e57155ad8a63c9cb76299da7818761c9031f079683d9
+RÉSULTAT: tous les contrôles programmés sont passés; aucune politique modifiée.
+CODE DE SORTIE REPRISE DEUX MUTANTS : 0

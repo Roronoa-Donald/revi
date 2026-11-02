@@ -74,8 +74,8 @@ module.exports = {
         '  <div class="card">',
         '    <h4 class="card-title">BEFORE vs AFTER</h4>',
         '    <ul>',
-        '      <li><strong>BEFORE :</strong> S’exécute <em>avant</em> la modification physique. Utilisé pour valider des données, forcer des valeurs par défaut ou lever une erreur bloquante.</li>',
-        '      <li><strong>AFTER :</strong> S’exécute <em>après</em> la validation de l’opération. Utilisé pour alimenter des tables de traçabilité (audit logs) ou synchroniser d’autres tables.</li>',
+        '      <li><strong>BEFORE :</strong> S’exécute <em>avant</em> l’opération sur la ligne. Dans PostgreSQL, une fonction déclencheur peut modifier <code>NEW</code> ; les possibilités et la syntaxe varient selon le SGBD.</li>',
+        '      <li><strong>AFTER :</strong> S’exécute <em>après</em> l’opération, mais avant le <code>COMMIT</code>. Dans PostgreSQL comme dans SQLite, un journal écrit dans la même transaction est annulé par <code>ROLLBACK</code> ; une contrainte différée peut encore faire échouer le COMMIT.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
@@ -87,15 +87,15 @@ module.exports = {
         '  </div>',
         '</div>',
 
+        '<p><strong>Exemple SQLite :</strong> le déclencheur journalise aussi les changements vers ou depuis NULL.</p>',
         '<div class="code-block">' +
         'CREATE TRIGGER trg_audit_prix\n' +
         'AFTER UPDATE ON Produits\n' +
         'FOR EACH ROW\n' +
+        'WHEN OLD.prix IS NOT NEW.prix\n' +
         'BEGIN\n' +
-        '    IF OLD.prix != NEW.prix THEN\n' +
-        '        INSERT INTO HistoriquePrix (produit_id, ancien_prix, nouveau_prix, modifie_le)\n' +
-        '        VALUES (OLD.id, OLD.prix, NEW.prix, CURRENT_TIMESTAMP);\n' +
-        '    END IF;\n' +
+        '    INSERT INTO HistoriquePrix (produit_id, ancien_prix, nouveau_prix, modifie_le)\n' +
+        '    VALUES (OLD.id, OLD.prix, NEW.prix, CURRENT_TIMESTAMP);\n' +
         'END;' +
         '</div>'
       ].join('\n')
@@ -151,7 +151,7 @@ module.exports = {
       exp: 'Une vue standard est une simple définition de requête qui n’occupe aucun espace de stockage. Une vue matérialisée enregistre physiquement les données calculées sur disque pour accélérer les consultations massives au prix d’un rafraîchissement (REFRESH) périodique.'
     },
     {
-      stem: 'Dans un déclencheur SQL de type BEFORE INSERT, que représente la pseudo-variable NEW ?',
+      stem: 'Dans une fonction déclencheur PostgreSQL de type BEFORE INSERT, que représente la pseudo-variable NEW ?',
       opts: [
         'Le nouvel enregistrement en cours d’insertion dont les valeurs peuvent être lues et modifiées avant écriture',
         'L’état précédent de la ligne qui va être écrasée',
@@ -159,7 +159,7 @@ module.exports = {
         'L’identifiant de la transaction courante'
       ],
       correct: 0,
-      exp: 'Dans un trigger BEFORE/AFTER INSERT ou UPDATE, NEW contient les données de la ligne candidate. En mode BEFORE, le trigger peut valider ou même rectifier directement les attributs de NEW (ex: forcer un stock négatif à 0) avant l’écriture sur disque.'
+      exp: 'Dans une fonction PostgreSQL BEFORE INSERT ou UPDATE FOR EACH ROW, NEW contient la ligne candidate ; la fonction peut modifier NEW puis le retourner. La syntaxe et les possibilités diffèrent dans SQLite.'
     },
     {
       stem: 'Pourquoi une condition telle que WHERE YEAR(date_commande) = 2026 peut-elle transformer un Index Scan rapide en un Seq Scan très lent sur une table de 5 millions de lignes ?',
@@ -249,7 +249,7 @@ module.exports = {
 
   flashcards: [
     { q: 'Quelle est la différence entre une vue simple et une vue matérialisée ?', a: 'Une vue simple exécute sa requête dynamiquement à chaque appel sans stocker de données, alors qu’une vue matérialisée stocke physiquement le résultat sur disque et doit être rafraîchie.' },
-    { q: 'Quelle est la différence entre un trigger BEFORE et un trigger AFTER ?', a: 'BEFORE s’exécute avant l’écriture pour valider ou ajuster les données (NEW), alors qu’AFTER s’exécute après l’opération physique pour alimenter un journal d’audit ou synchroniser d’autres tables.' },
+    { q: 'Quelle est la différence entre un trigger BEFORE et un trigger AFTER ?', a: 'BEFORE intervient avant l’opération sur la ligne et AFTER après. Dans PostgreSQL et SQLite, leurs écritures dans la même transaction sont annulées par ROLLBACK ; une contrainte différée peut encore faire échouer le COMMIT.' },
     { q: 'Quels sont les rôles des pseudo-enregistrements NEW et OLD ?', a: 'NEW contient les nouvelles données proposées (INSERT/UPDATE) et OLD contient les données existantes avant modification (UPDATE/DELETE).' },
     { q: 'Pourquoi WHERE UPPER(email) = \'test@domaine.com\' n’utilise-t-il pas un index B-Tree posé sur email ?', a: 'Parce que l’application d’une fonction sur la colonne empêche le parcours direct de l’arbre trié. Il faut créer un index fonctionnel sur UPPER(email).' },
     { q: 'Qu’indique la présence d’un Seq Scan dans un rapport EXPLAIN ?', a: 'Que le SGBD lit l’intégralité de la table ligne par ligne, ce qui signale souvent l’absence d’un index pertinent sur les colonnes de filtrage.' },

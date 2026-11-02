@@ -128,7 +128,7 @@ function atelier(course) {
       '<ul>',
       '  <li><strong>Vérifiez systématiquement la couche physique et liaison :</strong> Avant de déboguer le routage IP, assurez-vous que les interfaces sont <code>up/up</code> et que les câbles sont fonctionnels.</li>',
       '  <li><strong>Ordonnez toujours le plan VLSM du plus grand au plus petit :</strong> Commencer par les sous-réseaux les plus étendus évite tout risque de fragmentation ou de chevauchement d’adresses.</li>',
-      '  <li><strong>Sécurisez les accès d’administration dès l’initialisation :</strong> Activez <code>service password-encryption</code>, configurez <code>enable secret</code>, désactivez Telnet au profit de SSH (<code>transport input ssh</code>) et protégez la console.</li>',
+      '  <li><strong>Sécurisez les accès d’administration dès l’initialisation :</strong> Choisissez un type de secret adapté à l’équipement, désactivez Telnet au profit de SSH (<code>transport input ssh</code>) et protégez la console. <code>service password-encryption</code> ne fournit qu’un masquage de type 7 faible et réversible.</li>',
       '  <li><strong>Contrôlez les VLANs natifs sur chaque lien Trunk :</strong> Un désaccord de VLAN natif (Native VLAN Mismatch) entraîne des failles de sécurité majeures et des dysfonctionnements STP.</li>',
       '</ul>'
     ].join('\n')),

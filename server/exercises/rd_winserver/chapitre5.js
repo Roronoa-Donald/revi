@@ -93,7 +93,7 @@ switch ($mode) {
     brief: '<p>Le script lit le total de <strong>vCPU</strong> alloués aux VM, puis le nombre de ' +
       '<strong>cœurs physiques</strong> de l’hôte. S’il y a plus de vCPU que de cœurs, la surallocation ' +
       'est active : affichez <code>surallocation : oui</code> puis <code>vcpu en exces : X</code>. ' +
-      'Sinon, affichezz <code>surallocation : non</code> puis <code>vcpu en exces : 0</code>.</p>',
+      'Sinon, affichez <code>surallocation : non</code> puis <code>vcpu en exces : 0</code>.</p>',
     starter: `$vcpu = [int][Console]::In.ReadLine()
 $coeurs = [int][Console]::In.ReadLine()
 
@@ -101,8 +101,8 @@ $coeurs = [int][Console]::In.ReadLine()
 # "surallocation : oui/non" et "vcpu en exces : X".
 `,
     hints: [
-      'Surallocation active quand ($vcpu -gt $coeurs).',
-      'L’excédent vaut $vcpu - $coeurs ; il vaut 0 sinon.'
+      'Surallocation active quand `($vcpu -gt $coeurs)`.',
+      'L’excédent vaut `$vcpu - $coeurs` ; il vaut 0 sinon.'
     ],
     examples: [
       { stdin: '32\n16', expected: 'surallocation : oui\nvcpu en exces : 16', note: 'Deux fois plus de vCPU que de cœurs.' }

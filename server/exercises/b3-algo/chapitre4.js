@@ -53,6 +53,13 @@ ADJ: A -> [B(10)] | B -> [A(10)] | C -> []`
         expected: `GRAPHE: nom=vide | SOMMETS: 2 | ARETES: 0
 DEGRES: N1=0, N2=0
 ADJ: N1 -> [] | N2 -> []`
+      },
+      {
+        label: 'Voisins triés par étiquette alphabétique',
+        stdin: 'GRAPHE nom=tri TYPE=ORIENTE SOMMETS=A,B,C ARETES=A-C:1,A-B:5',
+        expected: `GRAPHE: nom=tri | SOMMETS: 3 | ARETES: 2
+DEGRES: A=0in/2out, B=1in/0out, C=1in/0out
+ADJ: A -> [B(5), C(1)] | B -> [] | C -> []`
       }
     ],
     solution: `import sys

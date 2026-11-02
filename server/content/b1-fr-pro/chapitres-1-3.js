@@ -155,24 +155,9 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Qu’est-ce que « Fonctions du langage » ?', a: 'Fonctions du langage : référentielle, expressive, conative, poétique, phatique, métalinguistique.' },
-      { q: 'Qu’est-ce que « Familier » ?', a: 'Familier : oral quotidien, argot, syntaxe relâchée (cailler, boulot, zyeuter).' },
-      { q: 'Qu’est-ce que « Soutenu » ?', a: 'Soutenu : lexique précis, figures, inversions (se sustenter, considérer, labeur).' },
-      { q: 'Qu’est-ce que « Ne supprimé » ?', a: 'Ne supprimé : « je sais pas » — marque grammaticale du familier.' },
-      { q: 'Qu’est-ce que « Prodiguer » ?', a: 'Prodiguer : remplacer « donner » (des conseils).' },
-      { q: 'Qu’est-ce que « Compter » ?', a: 'Compter : remplacer « avoir » (des habitants).' },
-      { q: 'Qu’est-ce que « De toute façon » ?', a: "De toute façon : singulier (quoi qu'il en soit)." },
-      { q: 'Qu’est-ce que « M. : abréviation française de Monsieur — « Mr » est anglais. » ?', a: 'M. : abréviation française de Monsieur — « Mr » est anglais.' },
-      { q: 'Qu’est-ce que « Périssologie » ?', a: 'Périssologie : nom didactique de la répétition inutile.' },
       { q: "Qu’est-ce que « Si d'hypothèse » ?", a: "Si d'hypothèse : pas de conditionnel derrière « si »." },
-      { q: 'Qu’est-ce que « Le sens de » ?', a: "Le sens de : l'organisation, le contact, l'écoute." },
       { q: "Qu’est-ce que « L'esprit de » ?", a: "L'esprit de : sans article — synthèse, groupe, entreprise." },
-      { q: 'Qu’est-ce que « Passé composé » ?', a: 'Passé composé : auxiliaire au présent + participe passé.' },
       { q: "Qu’est-ce que « Maison d'être » ?", a: "Maison d'être : aller, venir, partir, arriver, entrer, sortir, monter, descendre…" },
-      { q: 'Qu’est-ce que « Verbes douteux » ?', a: 'Verbes douteux : avoir avec COD, être sans COD (monter, sortir, descendre…).' },
-      { q: 'Qu’est-ce que « Pronominaux » ?', a: 'Pronominaux : toujours être (se coucher, se lever, se souvenir).' },
-      { q: 'Qu’est-ce que « Accord avec être » ?', a: "Accord avec être : genre et nombre du sujet, comme l'adjectif." },
-      { q: 'Qu’est-ce que « Vous masculin pluriel » ?', a: "Vous masculin pluriel : groupe d'hommes ou mixte — « vous êtes sortis »." },
       { q: 'Les trois canaux de Mehrabian ?', a: 'Verbal (les mots), para-verbal (la voix : intonation, rythme, volume), non-verbal (gestuelle, tenue, espace).' },
       { q: 'Les trois ressorts d\'Aristote ?', a: 'Logos (la raison), pathos (l\'émotion), éthos (la crédibilité de l\'orateur).' },
       { q: 'La fonction phatique ?', a: 'Établir et maintenir le contact : « allô ? », « m’entend-on bien ? » — elle ne transmet pas d\'information.' },
@@ -285,7 +270,7 @@ module.exports = [
       'Trois niveaux : familier (oral relâché), courant (standard de la presse), soutenu (précis, recherché).',
       'Les trios du support : cailler / avoir très froid / être mort de froid ; bouffer / manger / se sustenter.',
       'Marques du familier : argot, ruptures, suppression du « ne ».',
-      'Passez-partout à remplacer : prodiguer, commettre, détenir, éprouver, compter…'
+      'Passe-partout à remplacer : prodiguer, commettre, détenir, éprouver, compter…'
     ],
 
     checklist: [
@@ -340,7 +325,7 @@ module.exports = [
       'ponctuer etc. correctement (un point, jamais de points de suspension) ;',
       'accorder (ou non) ci-joint selon sa place dans la phrase ;',
       'distinguer veuillez et veillez, de toute façon et de toutes les façons ;',
-      'supprimer l\'article devant le nom de profession et abréger les titres à la française.'
+      'choisir l\'article devant un nom de profession selon le contexte et abréger les titres à la française.'
     ],
 
     sections: [
@@ -383,11 +368,14 @@ module.exports = [
         ].join('\n')
       },
       {
-        title: 'Profession sans article, titres abrégés',
+        title: 'Profession et article, titres abrégés',
         html: [
-          '<p>Devant un nom de <strong>profession, fonction, grade</strong> attribut, pas d\'article : « Je ' +
-          'suis chercheur en économie », « J\'aimerais devenir député », « Votre voisin est déjà colonel ». ' +
-          '« Je suis un chercheur » est une erreur courante.</p>',
+          '<p>Pour énoncer simplement une <strong>profession, fonction ou grade</strong>, le nom attribut ' +
+          's\'emploie couramment sans article : « Je suis chercheur en économie », « J\'aimerais devenir député ». ' +
+          'Un article peut aussi servir à identifier ou caractériser une personne : « C\'est un chercheur », ' +
+          '« Je suis un chercheur passionné ». Ne corrigez pas automatiquement « Je suis un chercheur » : ' +
+          'le sens et le contexte comptent.</p>',
+          '<p>Pour approfondir : <a href="https://research.jyu.fi/grfle/article-zero.html#0811">Université de Jyväskylä — article et noms de profession</a> (consulté le 30 octobre 2026).</p>',
           '<p>Les <strong>abréviations françaises</strong> : M. (Monsieur — pas « Mr », qui est l\'anglais ' +
           'Mister !), Mme, Mlle, M., MM., Mmes, Mlles, Dr, Pr, Me (Maître), S. E. (Son Excellence), S. M. ' +
           '(Sa Majesté), Mgr, He (Honorable).</p>',
@@ -403,11 +391,11 @@ module.exports = [
     questions: [
       { q: 'La date correcte s\'écrit…', opts: ['Mercredi 26 Juillet 2023', 'mercredi 26 juillet 2023', 'Mercredi 26 juillet 2023'], correct: 1, exp: 'Jours et mois : noms communs, minuscules.' },
       { q: 'Etc. se ponctue…', opts: ['etc…', 'etc', 'etc.'], correct: 2, exp: 'Un point, toujours — jamais de points de suspension.' },
-      { q: '« Veuillez trouver, ci-joint, les requêtes » : ci-joint est…', opts: ['accordé', 'invariable', 'pluriel'], correct: 1, exp: 'Entrez virgules : invariable.' },
+      { q: '« Veuillez trouver, ci-joint, les requêtes » : ci-joint est…', opts: ['accordé', 'invariable', 'pluriel'], correct: 1, exp: 'Entre virgules : invariable.' },
       { q: '« Les statistiques ci-annexées » : ci-annexées est…', opts: ['fautif', 'invariable', 'accordé'], correct: 2, exp: 'Après le nom : valeur d\'adjectif, accord.' },
       { q: '« Veillez croire, Monsieur… » : la correction est…', opts: ['Veillez bien croire', 'Veuillez croire', 'Veiller à croire'], correct: 1, exp: 'Veuillez vient de vouloir ; veillez, de veiller.' },
       { q: 'Au sens de « quoi qu\'il en soit », on écrit…', opts: ['de toutes les façons', 'de toute façon', 'de toutes façons'], correct: 1, exp: 'Singulier imposé ; le pluriel signifie « par tous les moyens ».' },
-      { q: 'La phrase correcte est…', opts: ['Je suis un chercheur en économie', 'Je suis chercheur en économie', 'Je suis une chercheuse en économie'], correct: 1, exp: 'Profession attribut : pas d\'article.' },
+      { q: 'Que dire de « Je suis chercheur » et « Je suis un chercheur passionné » ?', opts: ['Les deux sont possibles ; la seconde caractérise la personne.', 'La première est incorrecte : un article est toujours obligatoire.', 'La seconde est incorrecte : un article est toujours interdit.'], correct: 0, exp: 'Sans article, on énonce couramment le métier ; avec « un » et un qualificatif, on peut caractériser la personne.' },
       { q: 'Monsieur s\'abrège…', opts: ['Mr', 'Mr.', 'M.'], correct: 2, exp: 'M. en français ; Mr est l\'anglais Mister.' }
     ],
 
@@ -423,7 +411,7 @@ module.exports = [
       'Vérifier les dates : minuscules aux jours et mois, pluriels marqués.',
       'Contrôler ci-joint : tête de phrase ou virgules (invariable), après le nom (accord).',
       'Relire les formules : veuillez, de toute façon, sine die, bel et bien.',
-      'Chasser les articles : « je suis chercheur », pas « un chercheur ».',
+      'Pour une profession, choisir l\'article selon le sens : « je suis chercheur » ou « je suis un chercheur passionné ».',
       'Abréger à la française : M., Mme, Dr, Pr — jamais « Mr ».'
     ],
 
@@ -431,7 +419,7 @@ module.exports = [
       'Jours et mois : noms communs — minuscule et pluriel (« les jeudis »).',
       'Etc. : un point toujours, jamais de points de suspension.',
       'Ci-joint : invariable en tête et entre virgules ; accordé après le nom.',
-      'Veuillez (vouloir) ≠ veillez (veiller) ; de toute façon au singulier ; profession sans article ; M., pas Mr.'
+      'Veuillez (vouloir) ≠ veillez (veiller) ; de toute façon au singulier ; article de profession selon le contexte ; M., pas Mr.'
     ],
 
     checklist: [
@@ -448,7 +436,7 @@ module.exports = [
       '<strong>Ci-joint accordé</strong> : après le nom qu\'il détermine (ci-annexées).',
       '<strong>Veuillez</strong> : impératif de vouloir — formule de politesse.',
       '<strong>De toute façon</strong> : singulier (quoi qu\'il en soit).',
-      '<strong>Profession attribut</strong> : sans article (« devenir député »).',
+      '<strong>Profession attribut</strong> : souvent sans article pour nommer le métier ; article possible selon le sens.',
       '<strong>M.</strong> : abréviation française de Monsieur — « Mr » est anglais.'
     ],
 
@@ -464,7 +452,7 @@ module.exports = [
       { q: 'Etc. : quelle ponctuation ?', a: 'Un point, toujours, même en milieu de phrase ; jamais de points de suspension après.' },
       { q: 'Les trois règles de ci-joint ?', a: 'Invariable en tête de phrase ; invariable entre virgules ; accordé après le nom (adjectif).' },
       { q: 'Veuillez ou veillez ?', a: 'Veuillez (vouloir) pour la politesse ; veillez (veiller) pour la surveillance.' },
-      { q: 'Profession attribut : article ?', a: 'Aucun : « Je suis chercheur », « devenir député » — pas « un chercheur ».' }
+      { q: 'Profession attribut : article ?', a: 'Souvent sans article pour nommer le métier ; possible pour caractériser : « Je suis un chercheur passionné ».' }
     ]
   }
 ];

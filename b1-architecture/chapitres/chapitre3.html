@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -74,7 +74,7 @@
       <li>calculer le complément à 1 (inversion des bits) ;</li>
       <li>calculer le complément à 2 et expliquer pourquoi il domine ;</li>
       <li>poser addition, soustraction, multiplication et division binaires ;</li>
-      <li>reconnaître un débordement (carry sortant du mot).</li>
+      <li>distinguer retenue sortante et débordement selon que les nombres sont signés ou non.</li>
     </ol>
   </div>
 
@@ -102,8 +102,9 @@ Première convention : le <strong>bit de poids fort</strong> devient le bit de s
 
 <h2>3. Opérations arithmétiques</h2>
 
-<p><strong>Addition</strong> : 0+0=0, 0+1=1, 1+1=0 retenue 1, 1+1+1=1 retenue 1 — les retenues se propagent de droite à gauche. <strong>Soustraction</strong> : additionner le complément à 2 du second opérande ; une retenue finale sortant du mot signe un résultat positif, son absence un résultat négatif déjà en complément à 2.</p>
+<p><strong>Addition</strong> : 0+0=0, 0+1=1, 1+1=0 retenue 1, 1+1+1=1 retenue 1 — les retenues se propagent de droite à gauche. <strong>Soustraction</strong> : additionner le complément à 2 du second opérande, puis lire le résultat sur la largeur du mot. En complément à 2, le bit de poids fort indique le signe du résultat représenté ; la retenue sortante ne détermine pas ce signe.</p>
 <p><strong>Multiplication</strong> : comme en décimal, décalages et additions — multiplier par 2^k revient à décaler de k bits vers la gauche. <strong>Division</strong> : soustractions successives et décalages vers la droite. Un <strong>débordement</strong> survient quand le résultat dépasse la capacité du mot : sur 4 bits non signés, 1111 + 0001 donne 10000 — le 1 qui sort est le carry.</p>
+<p>Sur 4 bits <strong>signés</strong>, les valeurs vont de -8 à 7. Par exemple, <strong>1111 + 1111 = 1 1110</strong> représente (-1) + (-1) = -2 : il y a une retenue sortante mais pas de débordement signé. À l’inverse, <strong>0111 + 0001 = 1000</strong> : 7 + 1 = 8 dépasse l’intervalle, donc il y a débordement signé sans retenue sortante. Pour une addition, deux nombres de même signe donnant un résultat représenté de signe opposé signalent un débordement signé.</p>
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier dans l’atelier</div>
     <ul>
@@ -114,9 +115,11 @@ Première convention : le <strong>bit de poids fort</strong> devient le bit de s
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="ar-c3-e1" data-lab
      data-exercise="ar-c3-e1"
      data-language="analyse"
@@ -150,10 +153,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Complement a un</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="ar-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Inverser tous les bits d'un mot binaire pour obtenir son complément à 1.</p>
     <div class="lab__brief"><p>Analysez chaque ligne proposée contenant chacune un <strong>binaire de 4 bits</strong>. Pour chaque ligne il calcule le complément à 1 — chaque bit 0 devient 1 et chaque bit 1 devient 0, première représentation des nombres signés vue en cours — et Indiquez <code>binaire : c1=XXXX</code>, puis le bilan <code>complements : n</code>.</p></div>
     <div class="lab__sample">
@@ -162,16 +167,12 @@ A_COMPLETER
 0000
 1010
 </pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>0110 : c1=1001
-0000 : c1=1111
-1010 : c1=0101
-complements : 3</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
         <li>La commande tr '01' '10' inverse tous les bits d'un mot.</li>
-        <li>Passe par une variable : c1=$(printf '%s' "$binaire" | tr ...).</li>
+        <li>Passez par une variable : <code>c1=$(printf '%s' "$binaire" | tr ...)</code>.</li>
       </ol>
     </details>
   </div>
@@ -211,22 +212,20 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Complement a deux</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="ar-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Obtenir la représentation d'un nombre négatif : complément à 1 puis ajout de 1.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée contenant chacune un <strong>binaire de 4 bits</strong> représentant un nombre positif. Pour chaque ligne il calcule la représentation en complément à 2 de son opposé : on inverse les bits (complément à 1) puis on ajoute 1 — méthode officielle du support. Il Indiquez <code>binaire : c2=XXXX</code>, puis le bilan <code>complements : n</code>.</p></div>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée contenant chacune un <strong>binaire de 4 bits</strong> représentant un nombre positif. Pour chaque ligne il calcule la représentation en complément à 2 de son opposé : on inverse les bits (complément à 1) puis on ajoute 1 — méthode officielle du support. Indiquez <code>binaire : c2=XXXX</code>, puis le bilan <code>complements : n</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 0001
 0110
 1111
 </pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>0001 : c2=1111
-0110 : c2=1010
-1111 : c2=0001
-complements : 3</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
@@ -272,10 +271,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Addition binaire</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="ar-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Poser l'addition de deux binaires : retenues de proche en proche, débordement visible.</p>
     <div class="lab__brief"><p>Analysez chaque ligne proposée « a b » où a et b sont deux <strong>binaires de 4 bits</strong>. Pour chaque ligne il pose l'addition binaire — 0+0 donne 0, 1+0 donne 1, 1+1 donne 0 avec retenue 1, 1+1+1 donne 1 avec retenue 1 — et Indiquez le total sur 4 ou 5 bits : <code>a + b : somme=X</code>, puis le bilan <code>additions : n</code>. Le résultat dépasse parfois 4 bits : c'est le débordement à observer.</p></div>
     <div class="lab__sample">
@@ -284,10 +285,6 @@ A_COMPLETER
 0110 0011
 1111 1111
 </pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>1010 + 0101 : somme=1111
-0110 + 0011 : somme=1001
-1111 + 1111 : somme=11110
-additions : 3</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
@@ -298,6 +295,7 @@ additions : 3</pre></div>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -357,6 +355,15 @@ additions : 3</pre></div>
       <div class="q__exp">10000 : le bit qui sort du mot est le carry.</div>
     </div>
     <div class="q">
+      <p class="q__stem">Quelle addition déborde sur 4 bits signés en complément à 2 ?</p>
+      <div class="opts">
+        <button class="opt">(-1) + (-1)</button>
+        <button class="opt" data-correct="1">7 + 1</button>
+        <button class="opt">1 + (-1)</button>
+      </div>
+      <div class="q__exp">Les valeurs représentables vont de -8 à 7 : 7 + 1 = 8 dépasse la borne. Les deux autres résultats, -2 et 0, sont représentables.</div>
+    </div>
+    <div class="q">
       <p class="q__stem">Multiplier par 4 revient à…</p>
       <div class="opts">
         <button class="opt" data-correct="1">décaler de 2 bits à gauche</button>
@@ -383,7 +390,7 @@ additions : 3</pre></div>
     <ul>
       <li>Oublier le +1 du complément à 2 : c'est C1 puis addition de 1.</li>
       <li>Inverser avant le premier 1 dans la méthode directe : on recopie jusqu'à lui compris.</li>
-      <li>Ignorer une retenue sortante : c'est un débordement à signaler.</li>
+      <li>Confondre la retenue sortante avec le signe ou avec le débordement en arithmétique signée.</li>
       <li>Croire que la soustraction utilise un soustracteur dédié : elle additionne le complément à 2.</li>
     </ul>
   </div>
@@ -430,7 +437,7 @@ additions : 3</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — refaites C1 et C2 sur des mots de 4 bits.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>refaites C1 et C2 sur des mots de 4 bits.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>entraînez-vous aux additions avec retenues.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>ciblez la méthode directe et les débordements.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>niveau de maîtrise recherché.</div>
@@ -444,7 +451,7 @@ additions : 3</pre></div>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : le support « Circuit logique & architecture des ordinateurs » (Georges AYIVI-TOGBASSA, Novembre 2024, code B1COM0401).</p>
+  Sources : le support « Circuit logique &amp; architecture des ordinateurs » (Georges AYIVI-TOGBASSA, Novembre 2024, code B1COM0401).</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

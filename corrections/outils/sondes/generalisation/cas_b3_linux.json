@@ -1,0 +1,261 @@
+{
+  "schema": "generalisation-b3-linux-v1",
+  "origine_attendus": "Calculs manuels déduits des énoncés ; vérification séparée par linux_b3.py, sans lire les corrigés.",
+  "exercices": [
+    {
+      "id": "lx3-c1-e1", "source": "b3-linux.js", "oracle": "lx3-c1-e1", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "PROC_STAT pid=2181 comm=exporter state=D ppid=16 utime=23 stime=4 rss=7\nPROC_STAT pid=2182 comm=\"batch client\" state=Z ppid=3 utime=6 stime=14 rss=9\n",
+          "attendu": "STAT_AUDIT pid=2181 comm=exporter state_label=UNINTERRUPTIBLE_DISK total_ticks=27 mem_kb=28\nSTAT_AUDIT pid=2182 comm=batch client state_label=ZOMBIE total_ticks=20 mem_kb=36",
+          "justification": "D et Z désignent l'attente disque et le zombie ; 23+4=27, 6+14=20 et une page vaut 4 Ko."
+        },
+        {
+          "entree": "PROC_STAT pid=2183 comm=scheduler state=T ppid=18 utime=0 stime=11 rss=15\nPROC_STAT pid=2184 comm=listener state=R ppid=1 utime=5 stime=12 rss=1\n",
+          "attendu": "STAT_AUDIT pid=2183 comm=scheduler state_label=STOPPED total_ticks=11 mem_kb=60\nSTAT_AUDIT pid=2184 comm=listener state_label=RUNNING total_ticks=17 mem_kb=4",
+          "justification": "T et R valent STOPPED et RUNNING ; les sommes sont 11 et 17, les mémoires 60 et 4 Ko."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c1-e2", "source": "b3-linux.js", "oracle": "lx3-c1-e2", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "VMMAP pid=2201 start=0xfffffffffffff000 end=0xfffffffffffff7ff perms=rwxs pathname=/opt/shared\nVMMAP pid=2202 start=00000a00 end=00001201 perms=r-xp pathname=[text]\n",
+          "attendu": "MAP_AUDIT pid=2201 path=/opt/shared size_kb=1 wx_violation=OUI\nMAP_AUDIT pid=2202 path=[text] size_kb=2 wx_violation=NON",
+          "justification": "Les écarts hexadécimaux 0x7ff et 0x801 valent 2047 et 2049 octets, donc 1 et 2 Ko tronqués ; seul rwxs contient w et x."
+        },
+        {
+          "entree": "VMMAP pid=2203 start=0x100000 end=0x100fff perms=rw-p pathname=[heap-new]\nVMMAP pid=2204 start=0000 end=000400 perms=rwxp pathname=[jit-new]\n",
+          "attendu": "MAP_AUDIT pid=2203 path=[heap-new] size_kb=3 wx_violation=NON\nMAP_AUDIT pid=2204 path=[jit-new] size_kb=1 wx_violation=OUI",
+          "justification": "4095 octets donnent 3 Ko et 1024 octets donnent 1 Ko ; rw-p n'est pas exécutable, rwxp est à la fois inscriptible et exécutable."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c2-e1", "source": "b3-linux.js", "oracle": "lx3-c2-e1", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "SERVICE_DEF name=queue-batch.service desc=\"Queue worker\" exec_start=local/run wanted_by=multi-user.target\nSERVICE_DEF name=presence.service desc=\"\" exec_start=run wanted_by=NONE\n",
+          "attendu": "SERVICE_VALIDATION name=queue-batch.service valid=NON error=EXECSTART_RELATIF\nSERVICE_VALIDATION name=presence.service valid=NON error=DESCRIPTION_MANQUANTE",
+          "justification": "local/run reste relatif ; une description vide est la première erreur même lorsque les deux champs suivants sont incorrects."
+        },
+        {
+          "entree": "SERVICE_DEF name=timer-check.service desc=\"Timer worker\" exec_start=/opt/bin/task wanted_by=timers.target\nSERVICE_DEF name=dropin.service desc=Metrics exec_start=/usr/bin/metric wanted_by=\"\"\n",
+          "attendu": "SERVICE_VALIDATION name=timer-check.service valid=OUI error=OK\nSERVICE_VALIDATION name=dropin.service valid=NON error=WANTEDBY_MANQUANT",
+          "justification": "Une cible nommée non vide suffit, même si ce n'est pas multi-user.target ; le second WantedBy est vide."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c2-e2", "source": "b3-linux.js", "oracle": "lx3-c2-e2", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "UNIT_DEP name=isolated-a.service requires=NONE\nUNIT_DEP name=relay-a.service requires=backend-a.service\nUNIT_DEP name=backend-a.service requires=relay-a.service\nUNIT_DEP name=self-a.service requires=self-a.service\n",
+          "attendu": "DEP_CHECK unit=isolated-a.service cycle=NON reason=OK\nDEP_CHECK unit=relay-a.service cycle=OUI reason=CYCLE_DIRECT\nDEP_CHECK unit=backend-a.service cycle=OUI reason=CYCLE_DIRECT\nDEP_CHECK unit=self-a.service cycle=OUI reason=AUTO_DEPENDANCE",
+          "justification": "Les deux services intermédiaires se requièrent mutuellement ; le dernier se requiert lui-même et le premier n'a aucune dépendance."
+        },
+        {
+          "entree": "UNIT_DEP name=self-b.service requires=self-b.service\nUNIT_DEP name=front-b.service requires=worker-b.service\nUNIT_DEP name=worker-b.service requires=storage-b.service\nUNIT_DEP name=storage-b.service requires=NONE\n",
+          "attendu": "DEP_CHECK unit=self-b.service cycle=OUI reason=AUTO_DEPENDANCE\nDEP_CHECK unit=front-b.service cycle=NON reason=OK\nDEP_CHECK unit=worker-b.service cycle=NON reason=OK\nDEP_CHECK unit=storage-b.service cycle=NON reason=OK",
+          "justification": "Le premier service est auto-dépendant ; la chaîne front → worker → storage ne comporte ni auto-dépendance ni paire inverse."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c2-e3", "source": "b3-linux.js", "oracle": "lx3-c2-e3", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "JOURNAL id=2301 priority=3 unit=hydra.service msg=\"Severe event\"\nJOURNAL id=2302 priority=4 unit=hydra.service msg=\"Warning event\"\nJOURNAL id=2303 priority=5 unit=worker.service msg=\"Notice event\"\n",
+          "attendu": "JOURNAL_AUDIT id=2301 unit=hydra.service level=ERROR alert=OUI\nJOURNAL_AUDIT id=2302 unit=hydra.service level=WARNING alert=NON\nJOURNAL_AUDIT id=2303 unit=worker.service level=NOTICE alert=NON",
+          "justification": "3, 4 et 5 correspondent à ERROR, WARNING et NOTICE ; seule la priorité 3 est au plus égale à 3."
+        },
+        {
+          "entree": "JOURNAL id=2304 priority=0 unit=kernel msg=\"Emergency event\"\nJOURNAL id=2305 priority=7 unit=trace.service msg=\"Debug event\"\nJOURNAL id=2306 priority=5 unit=worker.service msg=\"Other notice\"\nJOURNAL id=2307 priority=4 unit=proxy.service msg=\"Other warning\"\n",
+          "attendu": "JOURNAL_AUDIT id=2304 unit=kernel level=EMERGENCY alert=OUI\nJOURNAL_AUDIT id=2305 unit=trace.service level=DEBUG alert=NON\nJOURNAL_AUDIT id=2306 unit=worker.service level=NOTICE alert=NON\nJOURNAL_AUDIT id=2307 unit=proxy.service level=WARNING alert=NON",
+          "justification": "0 correspond à EMERGENCY et est alerté ; 7, 5 et 4 correspondent à DEBUG, NOTICE et WARNING, sans alerte."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c3-e1", "source": "b3-linux.js", "oracle": "lx3-c3-e1", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "LVM_REQ vg=vg_prime pe_size_mb=7 total_pv_gb=3 lv_target_gb=2\nLVM_REQ vg=vg_exact7 pe_size_mb=8 total_pv_gb=2 lv_target_gb=2\n",
+          "attendu": "LVM_AUDIT vg=vg_prime status=ALLOCATED pe_used=293 pe_free_or_deficit=145\nLVM_AUDIT vg=vg_exact7 status=ALLOCATED pe_used=256 pe_free_or_deficit=0",
+          "justification": "3072//7=438 et ceil(2048/7)=293, soit 145 libres ; avec des PE de 8 Mo, 2048/8=256 et l'égalité reste allouable."
+        },
+        {
+          "entree": "LVM_REQ vg=vg_short pe_size_mb=6 total_pv_gb=1 lv_target_gb=2\nLVM_REQ vg=vg_spare pe_size_mb=16 total_pv_gb=5 lv_target_gb=1\n",
+          "attendu": "LVM_AUDIT vg=vg_short status=INSUFFICIENT_SPACE pe_used=342 pe_free_or_deficit=172\nLVM_AUDIT vg=vg_spare status=ALLOCATED pe_used=64 pe_free_or_deficit=256",
+          "justification": "1024//6=170 et ceil(2048/6)=342 donnent un déficit de 172 ; 5120/16=320 et 1024/16=64 laissent 256 PE."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c3-e2", "source": "b3-linux.js", "oracle": "lx3-c3-e2", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "RAID_CONF device=md31 level=RAID1 total=3 active=1 failed=2 spares=1\nRAID_CONF device=md32 level=RAID6 total=5 active=3 failed=2 spares=0\nRAID_CONF device=md33 level=RAID5 total=5 active=3 failed=2 spares=1\n",
+          "attendu": "RAID_DIAG dev=md31 level=RAID1 state=DEGRADED action=REBUILD_SPARE\nRAID_DIAG dev=md32 level=RAID6 state=DEGRADED action=WARNING_NO_SPARE\nRAID_DIAG dev=md33 level=RAID5 state=FAILED action=CRITICAL_DATA_LOSS",
+          "justification": "RAID1 survit avec un disque actif, RAID6 tolère deux pannes et RAID5 ne tolère qu'une panne ; les actions dépendent de l'état puis des spares."
+        },
+        {
+          "entree": "RAID_CONF device=md34 level=RAID1 total=4 active=1 failed=3 spares=0\nRAID_CONF device=md35 level=RAID6 total=7 active=5 failed=2 spares=2\nRAID_CONF device=md36 level=RAID1 total=3 active=0 failed=3 spares=1\n",
+          "attendu": "RAID_DIAG dev=md34 level=RAID1 state=DEGRADED action=WARNING_NO_SPARE\nRAID_DIAG dev=md35 level=RAID6 state=DEGRADED action=REBUILD_SPARE\nRAID_DIAG dev=md36 level=RAID1 state=FAILED action=CRITICAL_DATA_LOSS",
+          "justification": "Le miroir avec un survivant est dégradé, le RAID6 à deux pannes aussi ; un miroir sans disque actif a échoué."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c3-e3", "source": "b3-linux.js", "oracle": "lx3-c3-e3", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "FS_METRICS mount=/media/a blocks_total=1000 blocks_used=899 inodes_total=1000 inodes_used=901\nFS_METRICS mount=/media/b blocks_total=1000 blocks_used=599 inodes_total=1000 inodes_used=900\n",
+          "attendu": "FS_STATUS mount=/media/a block_pct=89% inode_pct=90% status=HEALTHY diag=NORMAL\nFS_STATUS mount=/media/b block_pct=59% inode_pct=90% status=ALERT diag=INODE_EXHAUSTION",
+          "justification": "La division entière donne 89/90 puis 59/90 ; l'alerte d'inodes exige strictement moins de 60 % de blocs."
+        },
+        {
+          "entree": "FS_METRICS mount=/media/c blocks_total=80 blocks_used=72 inodes_total=101 inodes_used=90\nFS_METRICS mount=/media/d blocks_total=1000 blocks_used=899 inodes_total=1000 inodes_used=101\nFS_METRICS mount=/media/e blocks_total=100 blocks_used=60 inodes_total=100 inodes_used=95\n",
+          "attendu": "FS_STATUS mount=/media/c block_pct=90% inode_pct=89% status=ALERT diag=DISK_SPACE_FULL\nFS_STATUS mount=/media/d block_pct=89% inode_pct=10% status=HEALTHY diag=NORMAL\nFS_STATUS mount=/media/e block_pct=60% inode_pct=95% status=HEALTHY diag=NORMAL",
+          "justification": "72/80 donne 90 %, 90/101 est tronqué à 89 % ; 899/1000 donne 89 %, et exactement 60 % ne satisfait pas le seuil strict des inodes."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c4-e1", "source": "b3-linux.js", "oracle": "lx3-c4-e1", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "NS_CHECK pid=2401 ns_pid=11 ns_net=21 ns_mnt=30 host_pid=11 host_net=20 host_mnt=30\nNS_CHECK pid=2402 ns_pid=44 ns_net=55 ns_mnt=66 host_pid=44 host_net=55 host_mnt=66\n",
+          "attendu": "NS_STATUS pid=2401 isolated=OUI isolated_count=1\nNS_STATUS pid=2402 isolated=NON isolated_count=0",
+          "justification": "Seul NET diffère pour le premier processus ; aucun namespace ne diffère pour le second."
+        },
+        {
+          "entree": "NS_CHECK pid=2403 ns_pid=901 ns_net=902 ns_mnt=904 host_pid=901 host_net=902 host_mnt=903\nNS_CHECK pid=2404 ns_pid=1001 ns_net=1002 ns_mnt=1003 host_pid=1 host_net=2 host_mnt=3\n",
+          "attendu": "NS_STATUS pid=2403 isolated=OUI isolated_count=1\nNS_STATUS pid=2404 isolated=OUI isolated_count=3",
+          "justification": "Le premier processus ne diffère que sur MNT ; le second diffère sur PID, NET et MNT."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c4-e2", "source": "b3-linux.js", "oracle": "lx3-c4-e2", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "CGROUP group=cpu_half045 cpu_quota=45 cpu_period=100 mem_curr_mb=101 mem_max_mb=100\nCGROUP group=cpu_unbound cpu_quota=max cpu_period=100 mem_curr_mb=77 mem_max_mb=78\n",
+          "attendu": "CGROUP_AUDIT group=cpu_half045 cpu_cores=0.5 mem_status=SATURATED\nCGROUP_AUDIT group=cpu_unbound cpu_cores=UNLIMITED mem_status=OK",
+          "justification": "45/100=0,45 s'arrondit à 0,5 ; 101 dépasse 100. Le quota max est illimité et 77 reste inférieur à 78."
+        },
+        {
+          "entree": "CGROUP group=cpu_half145 cpu_quota=290 cpu_period=200 mem_curr_mb=81 mem_max_mb=80\nCGROUP group=cpu_zero cpu_quota=0 cpu_period=150 mem_curr_mb=0 mem_max_mb=1\n",
+          "attendu": "CGROUP_AUDIT group=cpu_half145 cpu_cores=1.5 mem_status=SATURATED\nCGROUP_AUDIT group=cpu_zero cpu_cores=0.0 mem_status=OK",
+          "justification": "290/200=1,45 s'arrondit à 1,5, avec mémoire dépassée ; un quota nul donne 0,0 et 0 reste inférieur à 1."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c4-e3", "source": "b3-linux.js", "oracle": "lx3-c4-e3", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "OOM_PROC pid=2501 comm=border mem_mb=2000 oom_score_adj=-999\nOOM_PROC pid=2502 comm=immune mem_mb=5000 oom_score_adj=-1000\n",
+          "attendu": "OOM_TARGET pid=2501 comm=border score=1001 risk=HIGH\nOOM_TARGET pid=2502 comm=immune score=IMMUNE risk=NONE",
+          "justification": "-999 n'immunise pas : 2000-999=1001 est HIGH. Seule la valeur -1000 produit IMMUNE/NONE."
+        },
+        {
+          "entree": "OOM_PROC pid=2503 comm=exact mem_mb=800 oom_score_adj=200\nOOM_PROC pid=2504 comm=above mem_mb=400 oom_score_adj=601\nOOM_PROC pid=2505 comm=negative mem_mb=50 oom_score_adj=-999\n",
+          "attendu": "OOM_TARGET pid=2503 comm=exact score=1000 risk=LOW\nOOM_TARGET pid=2504 comm=above score=1001 risk=HIGH\nOOM_TARGET pid=2505 comm=negative score=-949 risk=LOW",
+          "justification": "Les scores sont 1000, 1001 et -949 ; seul un score strictement supérieur à 1000 est HIGH et -999 n'est pas une immunité."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c5-e1", "source": "b3-linux.js", "oracle": "lx3-c5-e1", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "NET_IFACE name=v_l1 type=veth master=br7 ip=NONE state=UP\nNET_IFACE name=bridge_l2 type=bridge master=NONE ip=NONE state=DOWN\nNET_IFACE name=v_l3 type=veth master=NONE ip=NONE state=UP\n",
+          "attendu": "NET_AUDIT iface=v_l1 valid=OUI error=OK\nNET_AUDIT iface=bridge_l2 valid=NON error=INTERFACE_DOWN\nNET_AUDIT iface=v_l3 valid=NON error=VETH_UNATTACHED",
+          "justification": "Le premier veth est rattaché, le pont est arrêté et le dernier veth n'a ni maître ni adresse."
+        },
+        {
+          "entree": "NET_IFACE name=v_addr type=veth master=NONE ip=192.0.2.17/30 state=UP\nNET_IFACE name=br_slave type=bridge master=br7 ip=NONE state=UP\nNET_IFACE name=br_off type=bridge master=NONE ip=NONE state=DOWN\n",
+          "attendu": "NET_AUDIT iface=v_addr valid=OUI error=OK\nNET_AUDIT iface=br_slave valid=NON error=BRIDGE_CANNOT_HAVE_MASTER\nNET_AUDIT iface=br_off valid=NON error=INTERFACE_DOWN",
+          "justification": "Une adresse suffit pour le veth ; un pont actif ne peut avoir de maître et un pont sans maître reste invalide s'il est arrêté."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c5-e2", "source": "b3-linux.js", "oracle": "lx3-c5-e2", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "RULE prio=10 src=192.0.2.10 dport=8443 table=secure\nRULE prio=20 src=ANY dport=443 table=standard\nRULE prio=30 src=ANY dport=ANY table=default\nPACKET id=alpha src=192.0.2.10 dport=443\nPACKET id=beta src=192.0.2.10 dport=8443\nPACKET id=gamma src=198.51.100.9 dport=25\n",
+          "attendu": "ROUTE_MATCH packet=alpha matched_prio=20 table=standard\nROUTE_MATCH packet=beta matched_prio=10 table=secure\nROUTE_MATCH packet=gamma matched_prio=30 table=default",
+          "justification": "Une règle correspond seulement si la source et le port correspondent ; les plus petites priorités applicables sont 20, 10 puis 30."
+        },
+        {
+          "entree": "RULE prio=20 src=198.51.100.42 dport=53 table=first\nRULE prio=20 src=198.51.100.42 dport=53 table=second\nRULE prio=200 src=ANY dport=ANY table=fallback\nPACKET id=tie src=198.51.100.42 dport=53\nPACKET id=other src=198.51.100.3 dport=22\n",
+          "attendu": "ROUTE_MATCH packet=tie matched_prio=20 table=first\nROUTE_MATCH packet=other matched_prio=200 table=fallback",
+          "justification": "À priorité égale la première règle correspondante gagne ; l'autre paquet ne correspond qu'à la règle générique."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c5-e3", "source": "b3-linux.js", "oracle": "lx3-c5-e3", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "CONF_NSSWITCH order=files,mdns,dns\nQUERY_HOST name=second.example in_files=NON in_dns=OUI in_mdns=NON\nQUERY_HOST name=first.example in_files=OUI in_dns=OUI in_mdns=OUI\nQUERY_HOST name=missing.lot1p3.example in_files=NON in_dns=NON in_mdns=NON\n",
+          "attendu": "RESOLV_RESULT host=second.example resolved_by=dns status=SUCCESS\nRESOLV_RESULT host=first.example resolved_by=files status=SUCCESS\nRESOLV_RESULT host=missing.lot1p3.example resolved_by=NONE status=NOT_FOUND",
+          "justification": "On continue après les échecs de files et mdns, on s'arrête au premier succès et l'absence de toute réponse donne NOT_FOUND."
+        },
+        {
+          "entree": "CONF_NSSWITCH order=dns,mdns,files\nQUERY_HOST name=hosts.lot1p3.example in_files=OUI in_dns=NON in_mdns=NON\nQUERY_HOST name=local.example in_files=OUI in_dns=NON in_mdns=OUI\nQUERY_HOST name=third.example in_files=NON in_dns=OUI in_mdns=OUI\n",
+          "attendu": "RESOLV_RESULT host=hosts.lot1p3.example resolved_by=files status=SUCCESS\nRESOLV_RESULT host=local.example resolved_by=mdns status=SUCCESS\nRESOLV_RESULT host=third.example resolved_by=dns status=SUCCESS",
+          "justification": "Dans cet ordre, les premiers succès sont respectivement files, mdns et dns, y compris après un ou deux échecs."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c6-e1", "source": "b3-linux.js", "oracle": "lx3-c6-e1", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "SYSCTL_CHECK key=kernel.novel current=0005 recommended=5\nSYSCTL_CHECK key=kernel.prefix current=on recommended=online\nSYSCTL_CHECK key=kernel.same current=lock recommended=lock\n",
+          "attendu": "SYSCTL_AUDIT key=kernel.novel current=0005 target=5 status=HARDENING_REQUIRED\nSYSCTL_AUDIT key=kernel.prefix current=on target=online status=HARDENING_REQUIRED\nSYSCTL_AUDIT key=kernel.same current=lock target=lock status=COMPLIANT",
+          "justification": "La comparaison est textuelle et complète : 0005 diffère de 5, on d'online, et lock est identique à lock."
+        },
+        {
+          "entree": "SYSCTL_CHECK key=security.level current=On recommended=on\nSYSCTL_CHECK key=security.zeros current=0 recommended=00\nSYSCTL_CHECK key=security.words current=enabled recommended=disabled\n",
+          "attendu": "SYSCTL_AUDIT key=security.level current=On target=on status=HARDENING_REQUIRED\nSYSCTL_AUDIT key=security.zeros current=0 target=00 status=HARDENING_REQUIRED\nSYSCTL_AUDIT key=security.words current=enabled target=disabled status=HARDENING_REQUIRED",
+          "justification": "La casse, les zéros initiaux et les chaînes complètes sont significatifs ; aucune des trois paires n'est identique."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c6-e2", "source": "b3-linux.js", "oracle": "lx3-c6-e2", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "PAM_STEP module=guard_req.so control=required res=FAIL\nPAM_STEP module=challenge_suf.so control=sufficient res=SUCCESS\nPAM_STEP module=audit_req.so control=required res=SUCCESS\n",
+          "attendu": "PAM_TRACE module=guard_req.so control=required res=FAIL action=CONTINUE\nPAM_TRACE module=challenge_suf.so control=sufficient res=SUCCESS action=CONTINUE\nPAM_TRACE module=audit_req.so control=required res=SUCCESS action=CONTINUE\nPAM_FINAL decision=DENIED",
+          "justification": "L'échec required est mémorisé ; le succès sufficient ne peut pas arrêter la chaîne ni annuler le refus final."
+        },
+        {
+          "entree": "PAM_STEP module=env_s.so control=required res=SUCCESS\nPAM_STEP module=block_r.so control=requisite res=FAIL\nPAM_STEP module=skipped.so control=sufficient res=SUCCESS\n",
+          "attendu": "PAM_TRACE module=env_s.so control=required res=SUCCESS action=CONTINUE\nPAM_TRACE module=block_r.so control=requisite res=FAIL action=ABORT_FAIL\nPAM_FINAL decision=DENIED",
+          "justification": "L'échec requisite interrompt immédiatement la chaîne avec refus : skipped.so ne doit pas être évalué."
+        }
+      ]
+    },
+    {
+      "id": "lx3-c6-e3", "source": "b3-linux.js", "oracle": "lx3-c6-e3", "codec": "lignes",
+      "cas": [
+        {
+          "entree": "AUDIT_LOG id=2611 uid=602 euid=0 exe=/usr/bin/su res=failed\nAUDIT_LOG id=2612 uid=0 euid=0 exe=/usr/bin/cron res=success\nAUDIT_LOG id=2613 uid=602 euid=602 exe=/usr/bin/date res=success\n",
+          "attendu": "AUDIT_REPORT id=2611 exe=/usr/bin/su uid=602 euid=0 alert=BLOCKED_PRIVILEGE_ATTEMPT\nAUDIT_REPORT id=2612 exe=/usr/bin/cron uid=0 euid=0 alert=ROOT_NATIVE\nAUDIT_REPORT id=2613 exe=/usr/bin/date uid=602 euid=602 alert=STANDARD_USER",
+          "justification": "La première élévation échoue, le deuxième événement vient de root natif et le troisième conserve un UID non root."
+        },
+        {
+          "entree": "AUDIT_LOG id=2614 uid=0 euid=700 exe=/usr/bin/drop res=success\nAUDIT_LOG id=2615 uid=700 euid=0 exe=/usr/bin/sudo res=success\nAUDIT_LOG id=2616 uid=700 euid=701 exe=/usr/bin/tool res=failed\n",
+          "attendu": "AUDIT_REPORT id=2614 exe=/usr/bin/drop uid=0 euid=700 alert=STANDARD_USER\nAUDIT_REPORT id=2615 exe=/usr/bin/sudo uid=700 euid=0 alert=CRITICAL_ROOT_ELEVATION\nAUDIT_REPORT id=2616 exe=/usr/bin/tool uid=700 euid=701 alert=STANDARD_USER",
+          "justification": "Root devenu non root n'est pas une élévation ; le passage de 700 à 0 réussi est critique ; les deux UID non root restants sont standards."
+        }
+      ]
+    }
+  ]
+}

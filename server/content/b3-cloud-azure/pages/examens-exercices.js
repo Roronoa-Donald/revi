@@ -34,7 +34,7 @@ function examens(course) {
       '</ol>',
       '<h4>Partie 3 : Calcul &amp; Haute Disponibilité (7 points)</h4>',
       '<ol>',
-      '  <li>Calculez le SLA composite d\'une application web reposant sur : un niveau Web (VM unique SSD Premium, SLA 99.9%), un niveau Métier (Availability Set, SLA 99.95%) et une base de données managée (Availability Zones, SLA 99.99%). Quelle est l\'indisponibilité annuelle maximale tolérée ? (4 pts)</li>',
+      '  <li>Dans un modèle fictif, une application nécessite en série un niveau Web disponible à 99.9%, un niveau Métier à 99.95% et une base de données à 99.99%. Ces disponibilités concernent la même période et les défaillances sont indépendantes. Calculez la disponibilité composée et l\'indisponibilité théorique sur une année de 8 760 heures. Le résultat constitue-t-il un SLA contractuel ? (4 pts)</li>',
       '  <li>Expliquez le fonctionnement du mécanisme de Cooldown (refroidissement) dans une règle d\'auto-scaling VMSS. Pourquoi son absence provoque-t-elle un phénomène de battement (flapping) ? (3 pts)</li>',
       '</ol>'
     ].join('\n')),
@@ -43,8 +43,8 @@ function examens(course) {
       '<h4>Corrigé Partie 1 (6 points)</h4>',
       '<ul>',
       '  <li><strong>Région, Zones et Paires (3 pts) :</strong> ' +
-      '  Une Région Azure est un ensemble de datacenters reliés par un réseau dédié à faible latence (ex: France Central). Une Zone de Disponibilité (AZ) est un datacenter physiquement distinct au sein d\'une région, doté d\'une alimentation, d\'un refroidissement et d\'un réseau indépendants. Une Paire Régionale regroupe deux régions d\'une même zone géographique distantes d\'au moins 480 km (ex: France Central &amp; France South, West Europe &amp; North Europe). ' +
-      '  Impact réplication : LRS réplique 3 fois dans un seul datacenter (vulnérable aux pannes de salle) ; ZRS réplique sur 3 AZ distinctes de la région (résiste à la destruction d\'un datacenter) ; GRS réplique 3 fois localement (LRS) puis de manière asynchrone 3 fois dans la région jumelée (résilience en cas de catastrophe régionale majeure).</li>',
+      '  Une Région Azure est un ensemble de datacenters reliés par un réseau dédié à faible latence (ex: France Central). Une Zone de Disponibilité (AZ) regroupe un ou plusieurs datacenters au sein d\'une région, avec une alimentation, un refroidissement et un réseau indépendants des autres zones. Le SLA dépend du service et des conditions applicables. Une Paire Régionale regroupe deux régions d\'une même zone géographique distantes d\'au moins 480 km (ex: France Central &amp; France South, West Europe &amp; North Europe). ' +
+      '  Impact réplication : LRS réplique 3 fois dans un seul datacenter (vulnérable aux pannes de salle) ; ZRS réplique sur 3 AZ distinctes de la région ; GRS réplique 3 fois localement (LRS) puis de manière asynchrone 3 fois dans la région jumelée (résilience en cas de catastrophe régionale majeure).</li>',
       '  <li><strong>Nomenclature CAF (3 pts) :</strong> ' +
       '  Format recommandé : <code>rg-billing-prod-fc-01</code>. ' +
       '  Segment 1 (<code>rg-</code>) : type de ressource (Resource Group). ' +
@@ -66,9 +66,9 @@ function examens(course) {
       '</ul>',
       '<h4>Corrigé Partie 3 (7 points)</h4>',
       '<ul>',
-      '  <li><strong>Calcul du SLA composite (4 pts) :</strong> ' +
-      '  SLA = 0.999 * 0.9995 * 0.9999 = 0.998400475, soit <strong>99.8400%</strong>. ' +
-      '  Indisponibilité annuelle = (1 - 0.998400475) * 8760 heures = <strong>14.01 heures</strong> par an (environ 14 h et 40 secondes).</li>',
+      '  <li><strong>Disponibilité composée théorique (4 pts) :</strong> ' +
+      '  Pour ces niveaux nécessaires en série, les défaillances indépendantes et la même période permettent de calculer : 0.999 * 0.9995 * 0.9999 = 0.99840064995, soit <strong>99.8401%</strong> après arrondi. ' +
+      '  Indisponibilité théorique = (1 - 0.99840064995) * 8760 heures = <strong>14.01 heures</strong> par an. Ce modèle ne constitue pas un SLA contractuel.</li>',
       '  <li><strong>Rôle du Cooldown dans VMSS (3 pts) :</strong> ' +
       '  Le Cooldown impose un délai d\'attente (ex: 5 à 10 minutes) après une opération de scale-out ou scale-in avant qu\'une nouvelle règle de mise à l\'échelle ne puisse être évaluée. ' +
       '  Sans Cooldown, les nouvelles instances en cours de boot ne traitent pas encore de charge, la métrique moyenne reste temporairement élevée, ce qui déclenche des ajouts en cascade superflus puis des suppressions brutales dès que les instances sont prêtes (battement destructeur / flapping).</li>',
@@ -87,7 +87,7 @@ function examens(course) {
       '<ol>',
       '  <li>Une plateforme de logs génère 20 To de données par mois. Les logs doivent être accessibles instantanément pendant 15 jours, puis conservés à moindre coût pendant 60 jours pour consultation mensuelle, puis archivés pendant 5 ans avant destruction. ' +
       '  Proposez la politique exacte de Lifecycle Management en précisant les paliers Azure Blob Storage et les gains financiers attendus. (3 pts)</li>',
-      '  <li>Expliquez comment fonctionne un jeton Shared Access Signature (SAS) au niveau d\'Azure Blob Storage. Quels sont les paramètres obligatoires d\'un jeton pour garantir qu\'une application cliente ne puisse que télécharger un fichier précis pendant une durée de 30 minutes sans compromettre la clé d\'accès du compte de stockage ? (3 pts)</li>',
+      '  <li>Expliquez comment fonctionne un jeton Shared Access Signature (SAS) au niveau d\'Azure Blob Storage. Pour un SAS de service visant un blob précis, sans politique d\'accès stockée, quels champs permettent la lecture pendant 30 minutes et comment limiter le protocole à HTTPS sans exposer la clé du compte ? (3 pts)</li>',
       '</ol>',
       '<h4>Partie 3 : Observabilité KQL &amp; Gestion des Coûts FinOps (7 points)</h4>',
       '<ol>',
@@ -107,9 +107,9 @@ function examens(course) {
       '  Dans <code>10.1.1.0/24</code>, les 5 IPs réservées sont : ' +
       '  - <code>10.1.1.0</code> : Network ID. ' +
       '  - <code>10.1.1.1</code> : Passerelle par défaut Azure (Default Gateway). ' +
-      '  - <code>10.1.1.2</code> : Résolveur DNS Azure principal. ' +
-      '  - <code>10.1.1.3</code> : Résolveur DNS Azure de secours. ' +
-      '  - <code>10.1.1.255</code> : Adresse de broadcast réservée. ' +
+      '  - <code>10.1.1.2</code> et <code>10.1.1.3</code> : adresses réservées pour la correspondance Azure DNS, et non résolveurs primaire et secondaire. ' +
+      '  - <code>10.1.1.255</code> : dernière adresse réservée ; le broadcast n\'est pas pris en charge dans le VNet. ' +
+      '  Le DNS fourni par Azure utilise <code>168.63.129.16</code> ; un DNS personnalisé peut être configuré à la place. ' +
       '  Priorités NSG : Les règles sont évaluées par ordre strictement croissant de priorité (100 à 4096). La règle 200 (Allow 443) est évaluée bien avant la règle par défaut 65500 (DenyAllInBound). Dès qu\'une règle matche le paquet, son action s\'applique immédiatement et l\'évaluation s\'arrête.</li>',
       '</ul>',
       '<h4>Corrigé Partie 2 (6 points)</h4>',
@@ -122,12 +122,10 @@ function examens(course) {
       '  - J1825 (5 ans) : Suppression automatique (<code>DeleteBlob</code>). ' +
       '  Cette politique réduit la facture de stockage de plus de 85% par rapport à une conservation continue en palier Hot.</li>',
       '  <li><strong>Sécurisation par Jeton SAS (3 pts) :</strong> ' +
-      '  Le jeton SAS est une URI signée avec la clé du compte ou une identité Entra ID, qui accorde des privilèges délimités dans le temps sans exposer les clés maîtresses. ' +
-      '  Paramètres obligatoires : ' +
-      '  - <code>sp=r</code> : permission restreinte à la lecture uniquement (pas d\'écriture ni suppression). ' +
-      '  - <code>st</code> et <code>se</code> : fenêtre de validité stricte (ex: début à T, expiration à T + 30 min). ' +
-      '  - <code>spr=https</code> : protocole HTTPS obligatoire pour empêcher l\'interception réseau. ' +
-      '  - Scope délimité au blob spécifique (pas au conteneur complet).</li>',
+      '  Pour ce scénario, utiliser un SAS de service visant le blob précis, signé avec une clé du compte et sans politique d\'accès stockée. ' +
+      '  Indiquer <code>sv</code> (version), <code>sr=b</code> (ressource blob), <code>sp=r</code> (lecture seule), <code>se</code> (expiration UTC à T + 30 minutes) et <code>sig</code> (signature). ' +
+      '  <code>st</code> est facultatif ; sans lui, le SAS est valide dès réception de la requête. <code>spr</code> est facultatif, mais <code>spr=https</code> restreint le jeton à HTTPS. ' +
+      '  Le jeton ne divulgue pas la clé, mais il reste un secret porteur à protéger. Un SAS de délégation utilisateur utilise quant à lui une clé de délégation obtenue au moyen de Microsoft Entra.</li>',
       '</ul>',
       '<h4>Corrigé Partie 3 (7 points)</h4>',
       '<ul>',
@@ -192,9 +190,9 @@ function exercices(course, chapterList) {
       chNum: 3,
       title: 'Calcul & Virtualisation Azure (Azure Compute, VMSS & PaaS)',
       items: [
-        { id: 'az3-c3-e1', title: 'Dimensionneur de VM Azure et calcul de SLA combiné', level: 'Niveau 1', goal: 'Sélectionner la série de VM optimale et calculer le SLA composite d’une architecture multi-tiers.' },
+        { id: 'az3-c3-e1', title: 'Dimensionneur de VM Azure et calcul de SLA combiné', level: 'Niveau 1', goal: 'Sélectionner une série de VM et estimer la disponibilité composée dans un modèle fictif.' },
         { id: 'az3-c3-e2', title: 'Simulateur d\'Auto-scaling VMSS', level: 'Niveau 2', goal: 'Simuler le comportement d’un Virtual Machine Scale Set sous charge variable avec cooldown.' },
-        { id: 'az3-c3-e3', title: 'Gestionnaire de déploiement Azure App Service & Slot Swap', level: 'Niveau 3', goal: 'Simuler le déploiement sur les slots de pré-production avec vérification de sonde de santé.' }
+        { id: 'az3-c3-e3', title: 'Gestionnaire de déploiement Azure App Service & Slot Swap', level: 'Niveau 3', goal: 'Étudier une simulation fictive de préchauffage et de bascule entre slots.' }
       ]
     },
     {

@@ -42,7 +42,7 @@ done
 `,
     hints: [
       'Un chemin est absolu exactement quand son premier caractère est « / » : test \${chemin:0:1} = "/".',
-      'Un chemin relatif se résout en le collant au répertoire courant : "$cwd/$chemin".'
+      'Un chemin relatif se résout en le collant au répertoire courant : `"$cwd/$chemin"`.'
     ],
     examples: [
       { stdin: '/home/user/docs\n3\n/etc/passwd\ncours/linux\n./notes.txt\n', expected: 'absolu\nrelatif → /home/user/docs/cours/linux\nrelatif → /home/user/docs/./notes.txt', note: 'Seul le premier caractère décide ; ./notes.txt reste relatif.' }
@@ -70,7 +70,7 @@ done
     level: 'n1',
     language: 'shell',
     title: 'Fonctions d\'une arborescence',
-    goal: 'Associater chaque répertoire standard à son rôle et retrouver le rôle d\'un chemin demandé.',
+    goal: 'Associer chaque répertoire standard à son rôle et retrouver le rôle d\'un chemin demandé.',
     brief: '<p>Le script lit <strong>une requête par ligne</strong> (jusqu\'à la fin de l\'entrée) : ' +
       'un chemin standard (<code>/home</code>, <code>/tmp</code>, <code>/etc</code>, <code>/var</code>, ' +
       '<code>/bin</code>, <code>/usr</code>, <code>/root</code>, <code>/dev</code>). Pour chacune il ' +
@@ -191,7 +191,7 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Les triplets se découpent par positions : \${droits:1:3}, \${droits:4:3}, \${droits:7:3}.',
+      'Les triplets se découpent par positions : `\${droits:1:3}`, `\${droits:4:3}`, `\${droits:7:3}`.',
       'Le type est \${droits:0:1} : traduire - en « fichier » et d en « repertoire ».'
     ],
     examples: [
@@ -261,53 +261,79 @@ done
     level: 'n3',
     language: 'shell',
     title: 'Liens symboliques simulés',
-    goal: 'Suivre une chaîne de liens symboliques jusqu\'au fichier réel, ou conclure à un lien cassé.',
-    brief: '<p>Le script lit <strong>n lignes</strong> <code>cible source</code> décrivant des liens : ' +
-      '<code>ln -s source cible</code> revient à « cible pointe vers source ». Puis il lit une dernière ' +
-      'ligne : un <strong>point de départ</strong>. Il suit les liens (au plus 100 sauts) et affiche le ' +
-      '<strong>fichier final</strong> — l\'entrée qui n\'est cible d\'aucun lien. Si l\'entrée finale ' +
-      'n\'est pas dans la table et n\'est cible d\'aucun lien, c\'est déjà le fichier final ; si la chaîne ' +
-      'boucle (dépassement des 100 sauts), il affiche <code>boucle</code>.</p>',
+    goal: 'Suivre une chaîne de liens symboliques vers un fichier, une destination absente ou un cycle.',
+    brief: '<p>Le script lit d\'abord <strong>n</strong>, puis <strong>n lignes</strong> ' +
+      '<code>lien destination</code> décrivant des liens : <code>ln -s destination lien</code> crée ' +
+      'un lien qui pointe vers sa destination. Il lit ensuite <strong>m</strong>, puis <strong>m lignes</strong> ' +
+      'contenant chacune le nom d\'un fichier existant, et enfin le <strong>point de départ</strong>. ' +
+      'Les noms sont des mots non vides sans espace ; les noms des liens sont distincts et ne figurent pas ' +
+      'parmi les fichiers existants. Ces tables simulent le système de fichiers.</p>' +
+      '<p>Suivre les liens et afficher le nom du fichier final s\'il existe dans la liste. Si le nom ' +
+      'final, y compris le point de départ, n\'est ni un lien ni un fichier existant, afficher ' +
+      '<code>casse</code>. Si un nom de lien est rencontré à nouveau, afficher <code>boucle</code>.</p>',
     starter: `read -r n
 declare -A liens
 for ((i=0; i<n; i++)); do
-  read -r cible source
-  liens[$cible]="$source"
+  read -r lien destination
+  liens["$lien"]="$destination"
+done
+read -r m
+declare -A fichiers
+for ((i=0; i<m; i++)); do
+  read -r fichier
+  fichiers[$fichier]=1
 done
 read -r depart
 # À compléter : suivre la chaîne jusqu'au fichier final.
 `,
     hints: [
-      'Tant que l\'entrée courante est une clé de liens[\${entree}], avancer vers la source, en comptant les sauts.',
-      'Au-delà de 100 sauts : boucle. Sinon, la première entrée qui n\'est pas clé est le fichier final.'
+      'Tant que le nom courant est une clé de liens[\${entree}], avancer vers sa destination.',
+      'Mémoriser les noms de liens déjà visités : une répétition signale un cycle. Sinon, vérifier si le nom final figure dans fichiers.',
+      'Pour afficher le nom final, printf évite que echo interprète un nom comme -n comme une option.'
     ],
     examples: [
-      { stdin: '3\ntexte texte.txt\ntexte.txt fichier\ndoc texte\ndoc\n', expected: 'fichier', note: 'doc → texte → texte.txt → fichier ; fichier n\'est cible d\'aucun lien.' }
+      { stdin: '3\ntexte texte.txt\ntexte.txt fichier\ndoc texte\n1\nfichier\ndoc\n', expected: 'fichier', note: 'doc → texte → texte.txt → fichier ; fichier figure dans la liste des fichiers existants.' },
+      { stdin: '1\nalias disparu\n0\nalias\n', expected: 'casse', note: 'Le nom disparu ne figure ni parmi les liens ni parmi les fichiers existants.' }
     ],
     tests: [
-      { label: 'Départ direct', stdin: '1\nb a\nb\n', expected: 'a' },
-      { label: 'Inconnu du graphe', stdin: '1\nb a\ninconnu\n', expected: 'inconnu' },
-      { label: 'Boucle', stdin: '2\na b\nb a\na\n', expected: 'boucle' }
+      { label: 'Chaîne vers un fichier', stdin: '2\nraccourci entree\nentree -n\n1\n-n\nraccourci\n', expected: '-n' },
+      { label: 'Lien cassé', stdin: '2\nalpha beta\nbeta disparition\n1\nphoto\nalpha\n', expected: 'casse' },
+      { label: 'Départ inconnu', stdin: '1\nb a\n1\na\ninconnu\n', expected: 'casse' },
+      { label: 'Boucle', stdin: '2\na b\nb a\n1\nc\na\n', expected: 'boucle' },
+      { label: 'Chaîne de 101 liens', stdin: `101\n${Array.from({ length: 101 }, (_, index) =>
+        `lien${index} ${index === 100 ? 'fichier' : `lien${index + 1}`}`).join('\n')}\n1\nfichier\nlien0\n`, expected: 'fichier' },
+      { label: 'Chaîne longue cassée', stdin: `101\n${Array.from({ length: 101 }, (_, index) =>
+        `lien${index} ${index === 100 ? 'absent' : `lien${index + 1}`}`).join('\n')}\n0\nlien0\n`, expected: 'casse' }
     ],
     solution: `read -r n
 declare -A liens
 for ((i=0; i<n; i++)); do
-  read -r cible source
-  liens[$cible]="$source"
+  read -r lien destination
+  liens["$lien"]="$destination"
+done
+read -r m
+declare -A fichiers
+for ((i=0; i<m; i++)); do
+  read -r fichier
+  fichiers[$fichier]=1
 done
 read -r depart
 
 courant="$depart"
-sauts=0
+declare -A visites
 while [ -n "\${liens[$courant]+x}" ]; do
-  courant="\${liens[$courant]}"
-  sauts=$((sauts + 1))
-  if [ "$sauts" -gt 100 ]; then
+  if [ -n "\${visites[$courant]+x}" ]; then
     echo "boucle"
     exit 0
   fi
+  visites["$courant"]=1
+  courant="\${liens[$courant]}"
 done
-echo "$courant"
+if [ -n "\${fichiers[$courant]+x}" ]; then
+  printf '%s\\n' "$courant"
+else
+  echo "casse"
+fi
 `
   },
 
@@ -337,7 +363,7 @@ read -r motif
 `,
     hints: [
       'Le nom de base s\'obtient avec \${chemin##*/} : tout supprimer jusqu\'au dernier /.',
-      'Trois formes de motif : \${base#"$X"} != "$base" (commence), \${base%"$X"} != "$base" (finit), ou un test de sous-chaîne.'
+      'Trois formes de motif : `\${base#"$X"} != "$base"` (commence), `\${base%"$X"} != "$base"` (finit), ou un test de sous-chaîne.'
     ],
     examples: [
       { stdin: '4\n/tmp/fichier1\n/tmp/fichier2\n/home/testfichier1\n/etc/passwd\nprefixe:fichier\n', expected: '/tmp/fichier1\n/tmp/fichier2\ntrouves : 2', note: 'Le /home/testfichier1 a « test » devant : pas de correspondance de préfixe.' }
@@ -345,7 +371,8 @@ read -r motif
     tests: [
       { label: 'Suffixe', stdin: '3\n/a/notes.txt\n/b/log\n/c/config.txt\nsuffixe:.txt\n', expected: '/a/notes.txt\n/c/config.txt\ntrouves : 2' },
       { label: 'Contient', stdin: '3\n/var/log/syslog\n/var/auth.log\n/etc/hosts\ncontient:log\n', expected: '/var/log/syslog\n/var/auth.log\ntrouves : 2' },
-      { label: 'Aucune correspondance', stdin: '2\n/a/x\n/b/y\ncontient:zzz\n', expected: 'trouves : 0' }
+      { label: 'Aucune correspondance', stdin: '2\n/a/x\n/b/y\ncontient:zzz\n', expected: 'trouves : 0' },
+      { label: 'Préfixe du nom, pas du dossier', stdin: '4\n/usr/log/catalogue\n/archives/log2026\n/log/prefixe\n/var/logfile\nprefixe:log\n', expected: '/archives/log2026\n/var/logfile\ntrouves : 2' }
     ],
     solution: `read -r n
 chemins=()
@@ -382,14 +409,20 @@ echo "trouves : $trouves"
     language: 'shell',
     title: 'find par taille',
     goal: 'Convertir des tailles en octets, filtrer par seuil et trier le résultat.',
-    brief: '<p>Le script lit <strong>n lignes</strong> <code>NOM TAILLE</code> où TAILLE s\'écrit ' +
-      '<code>123</code> (octets), <code>45K</code> (kilo-octets) ou <code>2M</code> (méga-octets). Puis ' +
-      'il lit <strong>un seuil</strong> au même format. Il affiche les fichiers dont la taille est ' +
+    brief: '<p>Le script lit d\'abord <strong>un seuil</strong>, puis <strong>n</strong> et ' +
+      '<strong>n lignes</strong> <code>NOM TAILLE</code>. Le seuil et TAILLE s\'écrivent ' +
+      '<code>123</code> (octets), <code>45K</code> ou <code>2M</code>. ' +
+      'Les nombres sont des entiers décimaux non négatifs ; les zéros initiaux sont autorisés, y compris pour n. ' +
+      'Dans cette simulation, K représente 1024 octets (1 Kio) et M représente 1048576 octets (1 Mio), ' +
+      'à distinguer des préfixes décimaux kilo et méga. Après conversion, les tailles ' +
+      'et le seuil ne dépassent pas <code>9223372036854775807</code> octets. ' +
+      'Il affiche les fichiers dont la taille est ' +
       '<strong>strictement supérieure</strong> au seuil, convertis en octets sous la forme ' +
       '<code>NOM OCTETS</code>, triés de la plus grosse taille à la plus petite (tailles égales : ordre ' +
       'd\'entrée). La dernière ligne : <code>total : K fichier(s)</code>.</p>',
     starter: `read -r seuil
 read -r n
+n=$((10#$n))
 for ((i=0; i<n; i++)); do
   read -r nom taille
   # À compléter : convertir, filtrer, mémoriser.
@@ -398,7 +431,7 @@ done
 `,
     hints: [
       'Le seuil arrive en première ligne : le lire avant n, sinon la boucle le prend pour un fichier.',
-      'Conversion : si la valeur finit par K, multiplier par 1024 ; par M, par 1024 × 1024 ; sinon octets bruts.',
+      'Conversion : retirer K ou M, lire le nombre en base 10 avec 10#, puis multiplier par 1024 ou 1024 × 1024.',
       'Un tri simple à la main : boucler en prenant à chaque tour le maximum restant, ou trier le tableau par insertion.'
     ],
     examples: [
@@ -407,27 +440,27 @@ done
     tests: [
       { label: 'Seuil en kilo-octets', stdin: '1K\n3\na 2K\nb 1K\nc 3K\n', expected: 'c 3072\na 2048\ntotal : 2 fichier(s)' },
       { label: 'Égalité exclue', stdin: '1M\n2\na 1M\nb 1M\n', expected: 'total : 0 fichier(s)' },
-      { label: 'Tailles égales', stdin: '1M\n3\na 2M\nb 2M\nc 3M\n', expected: 'c 3145728\na 2097152\nb 2097152\ntotal : 3 fichier(s)' }
+      { label: 'Tailles égales', stdin: '1M\n3\na 2M\nb 2M\nc 3M\n', expected: 'c 3145728\na 2097152\nb 2097152\ntotal : 3 fichier(s)' },
+      { label: 'Seuil en octets', stdin: '1023\n4\nk 1K\na 1023\nb 1024\nm 1M\n', expected: 'm 1048576\nk 1024\nb 1024\ntotal : 3 fichier(s)' },
+      { label: 'Zéros initiaux et égalité', stdin: '08K\n4\npetit 1K\negal 008K\ngrand 09K\naussi 9K\n', expected: 'grand 9216\naussi 9216\ntotal : 2 fichier(s)' },
+      { label: 'Compte et octets décimaux', stdin: '0008\n08\negal 0008\nneuf 0009\nzero 0\nautre 009\nhuit 08\npetit 1\ngrand 10\nneuf2 9\n', expected: 'grand 10\nneuf 9\nautre 9\nneuf2 9\ntotal : 4 fichier(s)' },
+      { label: 'Borne entière après conversion', stdin: '9223372036854774783\n2\nlimite 9007199254740991K\nmax 9223372036854775807\n', expected: 'max 9223372036854775807\nlimite 9223372036854774784\ntotal : 2 fichier(s)' }
     ],
-    solution: `read -r seuil
-seuil_octets=0
-case "$seuil" in
-  *K) seuil_octets=$(( \${seuil%K} * 1024 )) ;;
-  *M) seuil_octets=$(( \${seuil%M} * 1024 * 1024 )) ;;
-  *)  seuil_octets="$seuil" ;;
-esac
-
+    solution: `convertir() {
+  local valeur="$1"
+  local facteur=1
+  case "$valeur" in
+    *K) valeur="\${valeur%K}"; facteur=1024 ;;
+    *M) valeur="\${valeur%M}"; facteur=1048576 ;;
+  esac
+  printf '%s\\n' "$((10#$valeur * facteur))"
+}
+read -r seuil
+seuil_octets="$(convertir "$seuil")"
 noms=()
 tailles=()
-convertir() {
-  local valeur="$1"
-  case "$valeur" in
-    *K) echo $(( \${valeur%K} * 1024 )) ;;
-    *M) echo $(( \${valeur%M} * 1024 * 1024 )) ;;
-    *)  echo "$valeur" ;;
-  esac
-}
 read -r n
+n=$((10#$n))
 for ((i=0; i<n; i++)); do
   read -r nom taille
   noms+=("$nom")
@@ -471,7 +504,7 @@ echo "total : $total fichier(s)"
     language: 'shell',
     title: 'Squelette de /etc/passwd',
     goal: 'Analyser le format login:x:UID:GID:... du fichier passwd : filtrer, compter, retrouver.',
-    brief: '<p>Le script lit <strong>n lignes</strong> au format <code>/etc/passwd</code> réduit : ' +
+    brief: '<p>Dans cette simulation, la convention choisie classe comme système tout UID inférieur à 1000 et comme humain tout UID supérieur ou égal à 1000 ; les plages réelles sont configurables. Le script lit <strong>n lignes</strong> au format <code>/etc/passwd</code> réduit : ' +
       '<code>login:UID:GID:shell</code> (quatre champs séparés par <code>:</code>). Il affiche trois ' +
       'lignes : <code>utilisateurs : K</code> (total), <code>systeme : S</code> (UID &lt; 1000) et ' +
       '<code>humains : H</code> (UID ≥ 1000), puis la liste des logins humains, un par ligne, dans ' +
@@ -542,7 +575,7 @@ done
 `,
     hints: [
       'Pour un chiffre : le 4 vaut r, le 2 vaut w, le 1 vaut x — construire le triplet caractère par caractère.',
-      'Isoler chaque chiffre avec \${octal:0:1}, \${octal:1:1}, \${octal:2:1} et une petite fonction ou trois tests.'
+      'Isoler chaque chiffre avec `\${octal:0:1}`, `\${octal:1:1}`, `\${octal:2:1}` et une petite fonction ou trois tests.'
     ],
     examples: [
       { stdin: '2\n644 notes.txt\n755 run.sh\n', expected: 'notes.txt : -rw-r--r--\nrun.sh : -rwxr-xr-x', note: '6 = rw-, 4 = r--, 5 = r-x.' }
@@ -574,10 +607,11 @@ done
     level: 'n2',
     language: 'shell',
     title: 'chmod symbolique simple',
-    goal: 'Appliquer une modification symbolique (u/g/o suivi de + ou - et de rwx) à des droits existants.',
+    goal: 'Appliquer une modification symbolique (une ou plusieurs classes u/g/o/a, suivies de + ou - et de rwx) à des droits existants.',
     brief: '<p>Le script lit <strong>n lignes</strong> <code>DROITS MODIF</code> où DROITS est une chaîne ' +
-      'de neuf caractères (sans le type) et MODIF s\'écrit <code>classe action lettres</code> — classe vaut ' +
-      '<code>u</code>, <code>g</code>, <code>o</code> ou <code>a</code> (toutes), action vaut ' +
+      'de neuf caractères (sans le type) et MODIF s\'écrit <code>classe action lettres</code>, sans espaces : ' +
+      'classe est composée d\'une ou plusieurs lettres <code>u</code>, <code>g</code>, <code>o</code> ' +
+      'ou <code>a</code> (toutes), dans n\'importe quel ordre ; les répétitions sont sans effet. Action vaut ' +
       '<code>+</code> ou <code>-</code>, lettres valent une à trois lettres parmi r, w, x (ex. ' +
       '<code>o-r</code>, <code>ug+x</code>). Il applique la modification et affiche les neuf nouveaux ' +
       'caractères.</p>',
@@ -588,7 +622,7 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Positions des classes : u = 0-2, g = 3-5, o = 6-8. Construire un masque des positions touchées.',
+      'Positions des classes : u = 0-2, g = 3-5, o = 6-8 ; a désigne les trois. Combiner les positions de toutes les lettres de classe.',
       'Pour + : poser la lettre si la position correspond ; pour - : la remplacer par -. Parcourir les lettres demandées une à une.'
     ],
     examples: [
@@ -597,7 +631,8 @@ done
     tests: [
       { label: 'Retrait multiple', stdin: '1\nrwxrwxrwx a-w\n', expected: 'r-xr-xr-x' },
       { label: 'Ajout au propriétaire', stdin: '1\n--------- u+rwx\n', expected: 'rwx------' },
-      { label: 'Classe a', stdin: '2\nrw------- a+r\nrwx------ go-rwx\n', expected: 'rw-r--r--\nrwx------' }
+      { label: 'Classe a', stdin: '2\nrw------- a+r\nrwxrwxrwx go-rwx\n', expected: 'rw-r--r--\nrwx------' },
+      { label: 'Classes combinées', stdin: '5\n--------- ug+x\nrwxrwxrwx go-rw\n--------- ou+w\nrwx------ ga+w\n--------- uu+r\n', expected: '--x--x---\nrwx--x--x\n-w-----w-\nrwx-w--w-\nr--------' }
     ],
     solution: `read -r n
 for ((i=0; i<n; i++)); do
@@ -618,6 +653,7 @@ for ((i=0; i<n; i++)); do
           u) positions="$positions 0 1 2" ;;
           g) positions="$positions 3 4 5" ;;
           o) positions="$positions 6 7 8" ;;
+          a) positions="$positions 0 1 2 3 4 5 6 7 8" ;;
         esac
       done
       ;;
@@ -716,7 +752,7 @@ done
     language: 'shell',
     title: 'useradd et /etc/passwd simulés',
     goal: 'Générer les lignes /etc/passwd à partir d\'opérations useradd/userdel, avec UID automatique.',
-    brief: '<p>Le script simule la gestion des comptes. Il lit <strong>n opérations</strong> : ' +
+    brief: '<p>Le script simule la gestion des comptes, avec une convention propre à cet exercice : les plages réelles d’UID sont configurables. Il lit <strong>n opérations</strong> : ' +
       '<code>useradd login</code> (crée le compte avec le prochain UID libre à partir de 1000, ' +
       'GID = UID), <code>userdel login</code> (supprime), ou <code>ls</code>. À chaque <code>ls</code>, ' +
       'il affiche les lignes <code>passwd</code> des comptes courants, dans l\'ordre de création : ' +
@@ -814,7 +850,8 @@ done
     tests: [
       { label: 'Groupe inconnu', stdin: '1\nusermod fanclub toto\n', expected: 'groupe inconnu' },
       { label: 'Un seul groupe', stdin: '3\ngroupadd dev\ngroups zoe\nusermod dev zoe\n', expected: 'aucun' },
-      { label: 'Pas de doublon', stdin: '4\ngroupadd g\nusermod g a\nusermod g a\ngroups a\n', expected: 'g' }
+      { label: 'Pas de doublon', stdin: '4\ngroupadd g\nusermod g a\nusermod g a\ngroups a\n', expected: 'g' },
+      { label: 'Ordre de création des groupes', stdin: '5\ngroupadd alpha\ngroupadd beta\nusermod beta mimi\nusermod alpha mimi\ngroups mimi\n', expected: 'alpha,beta' }
     ],
     solution: `read -r n
 declare -A membres
@@ -853,57 +890,65 @@ done
     level: 'n4',
     language: 'shell',
     title: 'Audit des comptes',
-    goal: 'Confronter /etc/passwd et /etc/shadow simulés pour signaler les comptes à risque.',
-    brief: '<p>Le script lit <strong>n lignes</strong> <code>login:champ-mdp</code> représentant la ' +
-      'vue passwd/shadow fusionnée. Les valeurs du champ : <code>x</code> (mot de passe géré, compte ' +
-      'normal), <code>*</code> (authentification impossible), <code>!!</code> (compte désactivé), vide ' +
-      '(aucun mot de passe). Il affiche un audit : <code>total : K</code>, ' +
-      '<code>desactives : D</code> (* et !!), <code>risque : R</code> (champ vide), puis les logins à ' +
-      'risque, un par ligne, dans l\'ordre — ou <code>aucun</code> si R vaut 0.</p>',
+    goal: 'Examiner des champs de mot de passe shadow simulés sans conclure au statut global du compte.',
+    brief: '<p>Le script lit d\'abord <strong>n</strong>, puis <strong>n lignes</strong> ' +
+      '<code>login:champ-mdp</code> représentant deux ' +
+      'champs de /etc/shadow simulés. Dans ce modèle limité, un champ commençant par <code>!</code> ou ' +
+      'égal à <code>*</code> empêche l\'usage d\'un mot de passe Unix. Un champ vide ne contient pas de ' +
+      'mot de passe ; certaines applications peuvent néanmoins refuser cet accès. Les autres champs non ' +
+      'vides ne sont pas analysés et leur validité n\'est pas supposée. D\'autres méthodes de connexion ' +
+      'peuvent rester possibles selon la configuration : le script ne déduit pas le statut global du compte. ' +
+      'Le nombre n est décimal, non négatif et peut commencer par des zéros.</p>' +
+      '<p>Afficher <code>total : K</code>, <code>mdp_bloques : D</code> pour les marqueurs ! et *, ' +
+      '<code>champs_vides : R</code>, puis les logins dont le champ est vide, un par ligne et dans ' +
+      'l\'ordre — ou <code>aucun</code> si R vaut 0.</p>',
     starter: `read -r n
+n=$((10#$n))
 for ((i=0; i<n; i++)); do
   read -r ligne
-  # À compléter : classer chaque compte.
+  # À compléter : classer chaque champ.
 done
 # À compléter : afficher l'audit.
 `,
     hints: [
-      'Couper au premier deux-points : login="\${ligne%%:*}", champ="\${ligne#*:}".',
-      'Trois catégories se déduisent du champ : * et !! désactivent, le vide est le seul cas à risque.'
+      'Couper au premier deux-points : `login="\${ligne%%:*}"`, `champ="\${ligne#*:}"`.',
+      'Compter le champ * et les préfixes ! pour les mots de passe Unix ; relever séparément les champs vides.'
     ],
     examples: [
-      { stdin: '4\nroot:x\nsys:*\nancien:!!\nvide:\n', expected: 'total : 4\ndesactives : 2\nrisque : 1\nvide', note: 'Le compte sans mot de passe est le seul signalé.' }
+      { stdin: '4\nroot:$6$sel$hash\nsys:*\nancien:!!\nvide:\n', expected: 'total : 4\nmdp_bloques : 2\nchamps_vides : 1\nvide', note: 'Deux champs portent un marqueur de mot de passe bloqué ; le champ vide est signalé séparément.' }
     ],
     tests: [
-      { label: 'Tout va bien', stdin: '2\na:x\nb:x\n', expected: 'total : 2\ndesactives : 0\nrisque : 0\naucun' },
-      { label: 'Multiples risques', stdin: '3\na:\nb:\nc:x\n', expected: 'total : 3\ndesactives : 0\nrisque : 2\na\nb' },
-      { label: 'Tout désactivé', stdin: '2\na:*\nb:!!\n', expected: 'total : 2\ndesactives : 2\nrisque : 0\naucun' }
+      { label: 'Champs non analysés', stdin: '2\na:$6$sel$hash\nb:x\n', expected: 'total : 2\nmdp_bloques : 0\nchamps_vides : 0\naucun' },
+      { label: 'Multiples champs vides', stdin: '3\na:\nb:\nc:x\n', expected: 'total : 3\nmdp_bloques : 0\nchamps_vides : 2\na\nb' },
+      { label: 'Marqueurs et préfixes', stdin: '4\na:*\nb:!!\nc:!$6$sel$hash\nd:!\n', expected: 'total : 4\nmdp_bloques : 4\nchamps_vides : 0\naucun' },
+      { label: 'Aucun champ', stdin: '0\n', expected: 'total : 0\nmdp_bloques : 0\nchamps_vides : 0\naucun' },
+      { label: 'Autres valeurs non analysées', stdin: '3\na:*NP*\nb:x\nc:\n', expected: 'total : 3\nmdp_bloques : 0\nchamps_vides : 1\nc' },
+      { label: 'Compte décimal avec zéro initial', stdin: '08\na:!\nb:*\nc:\nd:x\ne:!!\nf:hash\ng:!hachage\nh:\n', expected: 'total : 8\nmdp_bloques : 4\nchamps_vides : 2\nc\nh' }
     ],
     solution: `read -r n
+n=$((10#$n))
 total=0
-desactives=0
-risques=0
-risque_logins=()
+mdp_bloques=0
+champs_vides=0
+logins_vides=()
 for ((i=0; i<n; i++)); do
   read -r ligne
   total=$((total + 1))
   login="\${ligne%%:*}"
   champ="\${ligne#*:}"
-  if [ "$champ" = "*" ] || [ "$champ" = "!!" ]; then
-    desactives=$((desactives + 1))
-  elif [ -z "$champ" ]; then
-    risques=$((risques + 1))
-    risque_logins+=("$login")
-  fi
+  case "$champ" in
+    '!'*|'*') mdp_bloques=$((mdp_bloques + 1)) ;;
+    '') champs_vides=$((champs_vides + 1)); logins_vides+=("$login") ;;
+  esac
 done
 echo "total : $total"
-echo "desactives : $desactives"
-echo "risque : $risques"
-if [ "$risques" = "0" ]; then
+echo "mdp_bloques : $mdp_bloques"
+echo "champs_vides : $champs_vides"
+if [ "$champs_vides" = "0" ]; then
   echo "aucun"
 else
-  for login in "\${risque_logins[@]}"; do
-    echo "$login"
+  for login in "\${logins_vides[@]}"; do
+    printf '%s\\n' "$login"
   done
 fi
 `
@@ -917,19 +962,21 @@ fi
     chapter: 6,
     level: 'n1',
     language: 'shell',
+    requiredShebang: '#!/bin/bash',
     title: 'Le shebang et la syntaxe',
-    goal: 'Écrire un script avec shebang correct, lire des arguments et répéter une sortie.',
+    goal: 'Écrire un script avec shebang correct et lire une ligne sur l’entrée standard.',
     brief: '<p>Le script lit <strong>une ligne</strong> : un mot. Il affiche trois lignes : ' +
       '<code>script : $0 est le nom du script</code> — littéralement, sans substituer — puis le mot ' +
-      'reçu, puis <code>fin</code>. Objectif : s\'assurer que le squelette, le shebang ' +
-      '<code>#!/bin/bash</code> et la lecture simple sont en place.</p>',
-    starter: `# Le shebang ci-dessus désigne l'interpréteur.
+      'reçu, puis <code>fin</code>. La première ligne du script doit être exactement le shebang ' +
+      '<code>#!/bin/bash</code>, sans caractère avant ni après.</p>',
+    starter: `#!/bin/bash
 read -r mot
 
 # À compléter : les trois lignes attendues.
 `,
     hints: [
-      'Trois echo suffisent ; le deuxième affiche la variable $mot.',
+      'Le shebang #!/bin/bash désigne l\'interpréteur : le placer sur la toute première ligne, sans caractère supplémentaire.',
+      'Afficher les trois lignes ; pour $mot, printf évite que echo interprète -n comme une option.',
       'La première ligne est un texte littéral : $0 s\'écrit tel quel dans une chaîne simple, non substituée.'
     ],
     examples: [
@@ -938,13 +985,15 @@ read -r mot
     tests: [
       { label: 'Autre mot', stdin: 'test\n', expected: 'script : $0 est le nom du script\ntest\nfin' },
       { label: 'Mot technique', stdin: 'if\n', expected: 'script : $0 est le nom du script\nif\nfin' },
-      { label: 'Mot composé', stdin: 'ma-variable_1\n', expected: 'script : $0 est le nom du script\nma-variable_1\nfin' }
+      { label: 'Mot composé', stdin: 'ma-variable_1\n', expected: 'script : $0 est le nom du script\nma-variable_1\nfin' },
+      { label: 'Mot ressemblant à une option', stdin: '-n\n', expected: 'script : $0 est le nom du script\n-n\nfin' },
+      { label: 'Casse à préserver', stdin: 'ReVi_5\n', expected: 'script : $0 est le nom du script\nReVi_5\nfin' }
     ],
-    solution: `# Le shebang ci-dessus désigne l'interpréteur.
+    solution: `#!/bin/bash
 read -r mot
 
 echo 'script : $0 est le nom du script'
-echo "$mot"
+printf '%s\\n' "$mot"
 echo "fin"
 `
   },
@@ -977,7 +1026,8 @@ done
     tests: [
       { label: 'Surveillance', stdin: '3\nOK\nWARN\nOK\n', expected: 'OK : 2\nWARN : 1\nCRIT : 0\nsurveillance' },
       { label: 'Nominal', stdin: '2\nOK\nOK\n', expected: 'OK : 2\nWARN : 0\nCRIT : 0\nnominal' },
-      { label: 'Tout critique', stdin: '2\nCRIT\nCRIT\n', expected: 'OK : 0\nWARN : 0\nCRIT : 2\nalarme' }
+      { label: 'Tout critique', stdin: '2\nCRIT\nCRIT\n', expected: 'OK : 0\nWARN : 0\nCRIT : 2\nalarme' },
+      { label: 'Une seule alerte critique', stdin: '3\nWARN\nOK\nCRIT\n', expected: 'OK : 1\nWARN : 1\nCRIT : 1\nalarme' }
     ],
     solution: `read -r n
 ok=0
@@ -1032,7 +1082,8 @@ done
     tests: [
       { label: 'Un seul moteur', stdin: '2\nA ELECTRIQUE 100\nB ELECTRIQUE 200\n', expected: 'ELECTRIQUE : 2\nbudget : 300\nmax : B 200' },
       { label: 'Max en premier', stdin: '3\nX DIESEL 90\nY ESSENCE 10\nZ ESSENCE 20\n', expected: 'DIESEL : 1\nESSENCE : 2\nbudget : 120\nmax : X 90' },
-      { label: 'Petits prix', stdin: '3\nA DIESEL 1\nB ESSENCE 2\nC HYBRIDE 3\n', expected: 'DIESEL : 1\nESSENCE : 1\nHYBRIDE : 1\nbudget : 6\nmax : C 3' }
+      { label: 'Petits prix', stdin: '3\nA DIESEL 1\nB ESSENCE 2\nC HYBRIDE 3\n', expected: 'DIESEL : 1\nESSENCE : 1\nHYBRIDE : 1\nbudget : 6\nmax : C 3' },
+      { label: 'Égalité du maximum', stdin: '3\nA ESSENCE 10\nB DIESEL 10\nC HYBRIDE 2\n', expected: 'DIESEL : 1\nESSENCE : 1\nHYBRIDE : 1\nbudget : 22\nmax : A 10' }
     ],
     solution: `read -r n
 diesel=0

@@ -6,9 +6,9 @@ module.exports = [
     "chapter": 1,
     "level": "n1",
     "language": "sql",
-    "title": "Audit des transactions non validées dans le journal WAL",
-    "goal": "Identifier par requête SQL les transactions ouvertes sans événement COMMIT ni ROLLBACK.",
-    "brief": "<p>La table <code>wal_journal(lsn INT, tx_id INT, op TEXT)</code> consigne les opérations du journal Write-Ahead Log (<code>BEGIN</code>, <code>UPDATE</code>, <code>COMMIT</code>, <code>ROLLBACK</code>). Écrivez une requête SQL qui retourne les <code>tx_id</code> distincts des transactions encore en vol (qui ne possèdent aucune ligne avec <code>op IN ('COMMIT', 'ROLLBACK')</code>), triés par <code>tx_id</code> croissant.</p>",
+    "title": "Audit d’un journal transactionnel fictif",
+    "goal": "Identifier dans un journal fictif les transactions sans événement COMMIT ni ROLLBACK.",
+    "brief": "<p>Dans ce journal fictif, la table pédagogique <code>wal_journal(lsn INT, tx_id INT, op TEXT)</code> consigne des événements <code>BEGIN</code>, <code>UPDATE</code>, <code>COMMIT</code> et <code>ROLLBACK</code> ; ce n’est pas le format du WAL réel de PostgreSQL ni une description de sa récupération. Écrivez une requête SQL qui retourne les <code>tx_id</code> distincts des transactions encore en vol (qui ne possèdent aucune ligne avec <code>op IN ('COMMIT', 'ROLLBACK')</code>), triés par <code>tx_id</code> croissant.</p>",
     "starter": "-- Sélectionnez les tx_id distincts n’ayant ni COMMIT ni ROLLBACK\nSELECT DISTINCT tx_id FROM wal_journal;",
     "hints": [
       "Utilisez une sous-requête : WHERE tx_id NOT IN (SELECT tx_id FROM wal_journal WHERE op IN ('COMMIT', 'ROLLBACK')).",
@@ -45,12 +45,12 @@ module.exports = [
     "chapter": 1,
     "level": "n2",
     "language": "sql",
-    "title": "Visibilité MVCC des tuples selon le snapshot xmin / xmax",
-    "goal": "Déterminer les versions de lignes visibles pour une transaction de snapshot donné.",
-    "brief": "<p>Dans PostgreSQL (MVCC), chaque version de ligne possède <code>xmin</code> (transaction créatrice) et <code>xmax</code> (transaction de suppression, <code>0</code> si toujours active). Pour une transaction courante <code>snapshot_tx = 50</code>, sélectionnez <code>tuple_id</code> et <code>valeur</code> de la table <code>mvcc_tuples(tuple_id, xmin, xmax, valeur)</code> qui ont été créés avant le snapshot (<code>xmin &lt; 50</code>) et qui ne sont pas supprimés avant le snapshot (<code>xmax = 0 OR xmax &gt;= 50</code>), triés par <code>tuple_id</code> croissant.</p>",
+    "title": "Visibilité dans un modèle MVCC fictif",
+    "goal": "Appliquer la règle de visibilité d’un modèle simplifié à un instantané fictif.",
+    "brief": "<p>Dans ce modèle simplifié inspiré de MVCC, la table <code>mvcc_tuples(tuple_id, xmin, xmax, valeur)</code> contient des identifiants fictifs de création et de suppression, avec <code>xmax = 0</code> pour une ligne non supprimée. Pour le snapshot fictif <code>50</code>, sélectionnez <code>tuple_id</code> et <code>valeur</code> lorsque <code>xmin &lt; 50</code> et <code>(xmax = 0 OR xmax &gt;= 50)</code>, triés par <code>tuple_id</code> croissant. Ce filtre est une convention de l’atelier : dans PostgreSQL, un snapshot tient compte des transactions en cours et la visibilité dépend aussi du statut validé ou annulé des transactions ; un <code>xmax</code> non nul ne prouve pas une suppression effective.</p>",
     "starter": "-- Filtrez les tuples visibles au snapshot_tx = 50\nSELECT tuple_id, valeur FROM mvcc_tuples;",
     "hints": [
-      "Un tuple est visible à tx=50 si xmin < 50 AND (xmax = 0 OR xmax >= 50).",
+      "Dans ce modèle fictif, un tuple est visible à tx=50 si xmin < 50 AND (xmax = 0 OR xmax >= 50).",
       "Triez par tuple_id ASC."
     ],
     "examples": [

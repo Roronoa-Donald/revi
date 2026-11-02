@@ -36,7 +36,7 @@ valeur = int(input())
 print(convertir_temperature(valeur))
 `,
     hints: [
-      'Une fonction qui n’a pas de return renvoie None : si None s’affiche, c’est qu’un print a remplacé le return.',
+      'Comment la fonction peut-elle transmettre la valeur calculée à l’instruction qui l’appelle ?',
       'Pour obtenir un résultat décimal, la division doit être décimale : en Python, 9 / 5 vaut 1.8 alors que 9 // 5 vaut 1.'
     ],
     examples: [
@@ -70,7 +70,7 @@ note3 = int(input())
 # À compléter : calculer puis afficher la moyenne avec deux décimales.
 `,
     hints: [
-      'La division entière // tronque le résultat : pour une moyenne, c’est la division décimale / qu’il faut.',
+      'Quel opérateur de division conserve une partie décimale lorsqu’elle est nécessaire ?',
       'L’arrondi se fait au moment de l’affichage, pas dans le calcul : le format d’un f-string permet de fixer le nombre de décimales.'
     ],
     examples: [
@@ -102,7 +102,7 @@ print(f"{moyenne:.2f}")
 # À compléter : découper la durée en heures, minutes et secondes.
 `,
     hints: [
-      'Une heure contient 3600 secondes : la division entière donne le nombre d’heures complètes, le reste ce qui reste à répartir.',
+      'Comment trouver le nombre d’heures complètes, puis les secondes qui restent à répartir ?',
       'Le même raisonnement s’applique une deuxième fois pour extraire les minutes du reste, et le reste final est la réponse en secondes.'
     ],
     examples: [
@@ -111,7 +111,8 @@ print(f"{moyenne:.2f}")
     tests: [
       { label: 'Moins d’une minute', stdin: '59', expected: '0 h 0 min 59 s' },
       { label: 'Pile une heure', stdin: '3600', expected: '1 h 0 min 0 s' },
-      { label: 'Plusieurs heures', stdin: '7325', expected: '2 h 2 min 5 s' }
+      { label: 'Plusieurs heures', stdin: '7325', expected: '2 h 2 min 5 s' },
+      { label: 'Pile une minute', stdin: '60', expected: '0 h 1 min 0 s' }
     ],
     solution: `total = int(input())
 
@@ -174,7 +175,7 @@ for i in range(n):
     # À compléter : choisir le bon message.
 `,
     hints: [
-      'L’ordre des conditions change le résultat : commencez toujours par tester le cas le plus exigeant.',
+      'L’ordre des conditions change le résultat : si vous testez les seuils par le haut, commencez par celui de 10.',
       'Un enchaînement de conditions s’écrit en cascade : la première branche satisfaite prend la main et les suivantes sont ignorées.'
     ],
     examples: [
@@ -502,7 +503,7 @@ for i in range(n):
 `,
     hints: [
       'Le mode d’ouverture décide de tout : l’un repart d’un fichier vide, l’autre exige que le fichier existe déjà.',
-      'Chaque ligne relue se termine par un saut de ligne : il faut le retirer avant d’exploiter le contenu.'
+      'Une ligne relue peut se terminer par un saut de ligne ; séparez les champs avant de convertir la note.'
     ],
     examples: [
       { stdin: '2\nJean 15\nMarie 18', expected: '2\n16.50', note: 'Deux lignes écrites, moyenne 16.50.' }
@@ -616,7 +617,8 @@ n = int(input())
     tests: [
       { label: 'Une entrée', stdin: '1\nPaul 12', expected: '1\n12' },
       { label: 'Trois entrées', stdin: '3\nA 1\nB 20\nC 3', expected: '3\n20' },
-      { label: 'Notes proches', stdin: '2\nP 11\nQ 12', expected: '2\n12' }
+      { label: 'Notes proches', stdin: '2\nP 11\nQ 12', expected: '2\n12' },
+      { label: 'Notes identiques distinctes', stdin: '2\nAlice 15\nBob 15', expected: '2\n15' }
     ],
     solution: `import json
 

@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -87,7 +87,7 @@
 ├── home               répertoires personnels des utilisateurs
 ├── proc               arborescence virtuelle du noyau (lecture seule, sauf /proc/sys)
 ├── root               répertoire personnel du super-utilisateur
-├── tmp                fichiers temporaires, effacés à chaque redémarrage
+├── tmp                fichiers temporaires, pouvant être supprimés selon la politique locale
 ├── usr                applications, documentation, manuels, librairies
 │   └── local          installation des logiciels supplémentaires
 ├── var                fichiers variables : journaux des démons, spools (mail, impression, cron)
@@ -95,13 +95,13 @@
 └── lib   et   usr/lib librairies nécessaires à ces commandes</code></pre>
   <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « etc = étagère de config »</div>
-    <p>Retenez par contrastes : <code>/etc</code> est <strong>l’étagère de configuration</strong> (celle qu’on sauvegarde pour restaurer une machine), <code>/home</code> <strong>les maisons</strong> des utilisateurs, <code>/tmp</code> <strong>la table qui se débarrasse</strong> au redémarrage, <code>/var</code> <strong>les journaux qui varient</strong>, <code>/root</code> la maison de root — qui n’est pas dans /home.</p>
+    <p>Retenez par contrastes : <code>/etc</code> est <strong>l’étagère de configuration</strong> (à sauvegarder pour restaurer la configuration, avec les données sauvegardées séparément), <code>/home</code> <strong>les maisons</strong> des utilisateurs, <code>/tmp</code> <strong>la table temporaire qui peut être débarrassée</strong>, <code>/var</code> <strong>les journaux qui varient</strong>, <code>/root</code> la maison de root — qui n’est pas dans /home.</p>
   </div>
 
 <h2>2. Tout est fichier</h2>
 
 <p>Dans les systèmes Linux, <strong>tout est fichier</strong> : contrairement à Windows, un fichier Linux peut être un fichier de données, un périphérique, une partition, un programme en cours d’exécution ou un répertoire. C’est pourquoi les disques vivent dans <code>/dev</code> (devices) : <code>sda</code> pour un disque SCSI, <code>hda</code> pour un disque IDE.</p>
-<p>Un fichier est décrit par des propriétés appelées <strong>métadonnées</strong> : sous Linux, l’<strong>inode</strong>. Les données, elles, sont placées dans d’autres blocs du support de stockage. Nom, droits, propriétaire, taille : tout cela vit dans l’inode, pas dans le contenu.</p>
+<p>Un fichier est décrit par des propriétés appelées <strong>métadonnées</strong> : sous Linux, l’<strong>inode</strong>. Les données, elles, sont placées dans d’autres blocs du support de stockage. Droits, propriétaire et taille figurent dans l’inode. Le nom est une entrée de répertoire associée à un inode : deux liens physiques de noms différents peuvent partager le même inode et désigner ainsi le même fichier.</p>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — /root n’est pas /</div>
     <p>La racine de l’arbre est <code>/</code> ; <code>/root</code> est le répertoire personnel du super-utilisateur. Les deux se prononcent presque pareil et se confondent en examen : la racine n’a pas de nom, /root a un habitant.</p>
@@ -124,13 +124,14 @@
 <h2>4. Partitions, montage et occupation</h2>
 
 <p>À l’installation, un disque n’est ni <strong>partitionné</strong> ni <strong>formaté</strong> : partitionner, c’est définir un ou plusieurs espaces sur le disque ; formater, c’est préparer une partition à recevoir des données avec un système de fichiers défini.</p>
-<p>Il existe trois sortes de partitions :</p>
+<p>Avec une table de partitions <strong>MBR</strong>, il existe quatre entrées au maximum. L’une d’elles peut désigner une partition étendue contenant des partitions logiques :</p>
 <table>
     <tr><th>Type</th><th>Règle</th></tr>
-    <tr><td>principale</td><td>au nombre de quatre maximum ; supporte tous types de FS</td></tr>
-    <tr><td>étendue</td><td>ne contient que des partitions logiques ; ne reçoit pas de FS ; suppose une principale</td></tr>
-    <tr><td>logique</td><td>contenue dans l’étendue ; sans limite en nombre ; tous types de FS</td></tr>
+    <tr><td>principale</td><td>occupe une entrée de la table MBR</td></tr>
+    <tr><td>étendue</td><td>occupe une entrée et contient des partitions logiques ; ne reçoit pas de FS directement</td></tr>
+    <tr><td>logique</td><td>contenue dans l’étendue ; son nombre dépend des limites du système</td></tr>
   </table>
+<p><strong>GPT</strong> utilise une autre organisation : la limite de quatre entrées MBR ne s’applique pas, et le nombre de partitions dépend de la table et du système utilisés.</p>
 <p>La commande <code>fdisk</code> configure une partition (ex. <code>fdisk /dev/hda</code> pour le premier disque IDE). Pour être utilisé, un système de fichiers doit être <strong>monté</strong> sur un point de l’arborescence : <code>mount /dev/sda1 /mnt/flashdisk</code>, démonter avec <code>umount</code>. Enfin <code>df -h</code> affiche l’occupation des partitions montées et <code>du -ks /usr/local</code> l’espace occupé par une arborescence.</p>
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Les descripteurs de disques</div>
@@ -138,6 +139,7 @@
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
   <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
   et la validation fait tourner des jeux de tests indépendants :
@@ -177,7 +179,7 @@ dossier : repertoire, u=rwx, g=r-x, o=---</pre></div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Les triplets se découpent par positions : ${droits:1:3}, ${droits:4:3}, ${droits:7:3}.</li>
+        <li>Les triplets se découpent par positions : <code>${droits:1:3}</code>, <code>${droits:4:3}</code>, <code>${droits:7:3}</code>.</li>
         <li>Le type est ${droits:0:1} : traduire - en « fichier » et d en « repertoire ».</li>
       </ol>
     </details>
@@ -230,12 +232,18 @@ vue : 550</pre></div>
      data-exercise="lx-c2-e3"
      data-language="shell"
      data-height="300"
-     data-stdin="3&#10;texte texte.txt&#10;texte.txt fichier&#10;doc texte&#10;doc&#10;">
+     data-stdin="3&#10;texte texte.txt&#10;texte.txt fichier&#10;doc texte&#10;1&#10;fichier&#10;doc&#10;">
   <script type="text/plain" data-lab-starter>read -r n
 declare -A liens
 for ((i=0; i<n; i++)); do
-  read -r cible source
-  liens[$cible]="$source"
+  read -r lien destination
+  liens["$lien"]="$destination"
+done
+read -r m
+declare -A fichiers
+for ((i=0; i<m; i++)); do
+  read -r fichier
+  fichiers[$fichier]=1
 done
 read -r depart
 # À compléter : suivre la chaîne jusqu'au fichier final.
@@ -248,27 +256,31 @@ read -r depart
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Suivre une chaîne de liens symboliques jusqu'au fichier réel, ou conclure à un lien cassé.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> <code>cible source</code> décrivant des liens : <code>ln -s source cible</code> revient à « cible pointe vers source ». Puis il lit une dernière ligne : un <strong>point de départ</strong>. Il suit les liens (au plus 100 sauts) et affiche le <strong>fichier final</strong> — l'entrée qui n'est cible d'aucun lien. Si l'entrée finale n'est pas dans la table et n'est cible d'aucun lien, c'est déjà le fichier final ; si la chaîne boucle (dépassement des 100 sauts), il affiche <code>boucle</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Suivre une chaîne de liens symboliques vers un fichier, une destination absente ou un cycle.</p>
+    <div class="lab__brief"><p>Le script lit d'abord <strong>n</strong>, puis <strong>n lignes</strong> <code>lien destination</code> décrivant des liens : <code>ln -s destination lien</code> crée un lien qui pointe vers sa destination. Il lit ensuite <strong>m</strong>, puis <strong>m lignes</strong> contenant chacune le nom d'un fichier existant, et enfin le <strong>point de départ</strong>. Les noms sont des mots non vides sans espace ; les noms des liens sont distincts et ne figurent pas parmi les fichiers existants. Ces tables simulent le système de fichiers.</p><p>Suivre les liens et afficher le nom du fichier final s'il existe dans la liste. Si le nom final, y compris le point de départ, n'est ni un lien ni un fichier existant, afficher <code>casse</code>. Si un nom de lien est rencontré à nouveau, afficher <code>boucle</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
 texte texte.txt
 texte.txt fichier
 doc texte
+1
+fichier
 doc
 </pre></div>
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>fichier</pre></div>
     </div>
-    <p class="lab__note">doc → texte → texte.txt → fichier ; fichier n'est cible d'aucun lien.</p>
+    <p class="lab__note">doc → texte → texte.txt → fichier ; fichier figure dans la liste des fichiers existants.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Tant que l'entrée courante est une clé de liens[${entree}], avancer vers la source, en comptant les sauts.</li>
-        <li>Au-delà de 100 sauts : boucle. Sinon, la première entrée qui n'est pas clé est le fichier final.</li>
+        <li>Tant que le nom courant est une clé de liens[${entree}], avancer vers sa destination.</li>
+        <li>Mémoriser les noms de liens déjà visités : une répétition signale un cycle. Sinon, vérifier si le nom final figure dans fichiers.</li>
+        <li>Pour afficher le nom final, printf évite que echo interprète un nom comme -n comme une option.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -289,16 +301,16 @@ doc
         <button class="opt" data-correct="1">/etc</button>
         <button class="opt">/usr</button>
       </div>
-      <div class="q__exp">/etc concentre les configurations système et des démons : c’est le répertoire à sauvegarder.</div>
+      <div class="q__exp">/etc concentre les configurations système et des démons : il est à inclure dans un plan avec les données.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que contient /tmp, et quelle est sa particularité ?</p>
       <div class="opts">
         <button class="opt">Les comptes utilisateurs ; il est chiffré</button>
-        <button class="opt" data-correct="1">Les fichiers temporaires ; il est effacé au redémarrage</button>
+        <button class="opt" data-correct="1">Des fichiers temporaires susceptibles d’être supprimés</button>
         <button class="opt">Les journaux ; il grandit sans limite</button>
       </div>
-      <div class="q__exp">Espace d’échange temporaire, vidé à chaque reboot.</div>
+      <div class="q__exp">La conservation des fichiers de /tmp n’est pas garantie ; leur suppression au démarrage est possible, mais pas obligatoire.</div>
     </div>
     <div class="q">
       <p class="q__stem">Où se trouve le répertoire personnel de root ?</p>
@@ -321,11 +333,11 @@ doc
     <div class="q">
       <p class="q__stem">Quel est le rôle de l’inode ?</p>
       <div class="opts">
-        <button class="opt">Stocker les données du fichier</button>
+        <button class="opt">Stocker le nom dans chaque répertoire</button>
         <button class="opt" data-correct="1">Décrire les métadonnées du fichier</button>
         <button class="opt">Journaliser les écritures</button>
       </div>
-      <div class="q__exp">L’inode porte les métadonnées (droits, propriétaire, taille…) ; les données vivent dans d’autres blocs.</div>
+      <div class="q__exp">L’inode porte les métadonnées (droits, propriétaire, taille…) ; le nom est associé à l’inode dans une entrée de répertoire.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la principale différence entre ext2 et ext3 ?</p>
@@ -337,13 +349,13 @@ doc
       <div class="q__exp">ext3 est la version journalisée d’ext2 ; les deux partagent commandes et manipulations.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Combien de partitions principales au maximum ?</p>
+      <p class="q__stem">Combien de partitions principales au maximum dans une table MBR ?</p>
       <div class="opts">
         <button class="opt">Deux</button>
         <button class="opt" data-correct="1">Quatre</button>
         <button class="opt">Seize</button>
       </div>
-      <div class="q__exp">Quatre principales ; au-delà, il faut une partition étendue contenant des logiques.</div>
+      <div class="q__exp">MBR possède quatre entrées au maximum ; une partition étendue occupe l’une d’elles. GPT suit d’autres limites.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que fait mount /dev/sda1 /mnt/flashdisk ?</p>
@@ -372,9 +384,9 @@ doc
     <ul>
       <li><strong>Confondre / et /root</strong> : la racine n’a pas de nom ; /root est la maison de root.</li>
       <li><strong>Mettre les journaux dans /etc</strong> : les journaux variables vivent dans /var ; /etc est la configuration.</li>
-      <li><strong>Oublier que /tmp se vide</strong> : rien de persistant ne doit y dormir.</li>
+      <li><strong>Supposer /tmp persistant</strong> : des fichiers peuvent y être supprimés selon la politique locale.</li>
       <li><strong>Ext2 dit journalisé</strong> : c’est ext3 qui apporte le journal ; ext2 est le FS historique.</li>
-      <li><strong>Cinq partitions principales</strong> : le plafond est quatre ; ensuite, étendue et logiques.</li>
+      <li><strong>Confondre MBR et GPT</strong> : le plafond de quatre entrées concerne MBR ; une étendue en occupe une.</li>
     </ul>
   </div>
 
@@ -397,10 +409,10 @@ doc
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
       <li>Un seul arbre part de / ; chaque répertoire standard a un rôle précis et opposable en examen.</li>
-      <li>/etc : configuration (à sauvegarder) ; /home : utilisateurs ; /tmp : temporaire vidé au reboot ; /var : journaux et spools.</li>
+      <li>/etc : configuration (à sauvegarder) ; /home : utilisateurs ; /tmp : temporaire sans garantie de conservation ; /var : journaux et spools.</li>
       <li>Tout est fichier : périphériques et partitions vivent dans /dev sous les noms hdX/sdX.</li>
-      <li>L’inode porte les métadonnées ; ext2 non journalisé, ext3 journalisé, ext4 optimisé ; vfat pour les clefs USB.</li>
-      <li>Quatre partitions principales max, étendue + logiques pour aller plus loin ; mount/umount pour greffer un FS, df/du pour l’occupation.</li>
+      <li>L’inode porte les métadonnées, le répertoire associe un nom à l’inode ; ext2 non journalisé, ext3 journalisé, ext4 optimisé.</li>
+      <li>MBR : quatre entrées au maximum, dont l’éventuelle étendue ; GPT a d’autres limites. mount/umount gèrent le montage.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
@@ -423,9 +435,9 @@ doc
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Recopie l’arborescence puis reproduis-la de mémoire trois fois.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Recopie l’arborescence puis reproduis-la de mémoire trois fois.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Refaites le tableau des répertoires standard avec une phrase par rôle.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : explique la journalisation et le trio principal/étendue/logique.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : expliquez la journalisation et le trio principal/étendue/logique.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : passez au chapitre 3, l’installation de Debian 12.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>

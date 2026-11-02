@@ -36,14 +36,10 @@ module.exports = [
       'situer les grandes étapes : Pascaline, cinq générations, jusqu\'au cloud ;',
       'décomposer le système informatique : hardware, software, données, utilisateurs ;',
       'classer les systèmes d\'exploitation selon le nombre d\'utilisateurs et de tâches ;',
-      'convertir Ko, Mo, Go et distinguer MBps (octets) et Mbps (bits).'
+      'convertir ko, Mo, Go et Kio, Mio, Gio ; distinguer MBps (octets) et Mbps (bits).'
     ],
 
     sections: [
-      {
-        "title": "Vue d’ensemble préalable : Le modèle d’architecture de Von Neumann (CPU, RAM, Bus, E/S)",
-        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Comprendre les composants matériels dès le Chapitre 1 (approfondis au Chapitre 6)</div><p>Avant de manipuler les bits et les octets, situons les quatre organes de l’architecture de <strong>Von Neumann</strong> que nous citerons dans les exemples :</p><ul><li><strong>Le processeur (CPU) :</strong> cerveau qui exécute les instructions grâce à son Unité de Commande (UCC) et son Unité Arithmétique et Logique (UAL) ;</li><li><strong>La mémoire vive (RAM) :</strong> mémoire de travail rapide mais volatile qui stocke les programmes et données en cours d’exécution ;</li><li><strong>Les bus de communication :</strong> pistes électroniques reliant le CPU, la RAM et les contrôleurs ;</li><li><strong>Les unités d’Entrée/Sortie (E/S) et de stockage :</strong> clavier, écran, disque SSD/NVMe et carte réseau.</li></ul></div>"
-      },
       {
         title: 'Définitions et histoire',
         html: [
@@ -99,9 +95,11 @@ module.exports = [
       {
         title: 'Les unités de mesure',
         html: [
-          '<p>Les capacités suivent les <strong>puissances de 2</strong> : 1 octet = 8 bits, ' +
-          '<strong>1 Ko = 1024 octets</strong>, 1 Mo = 1024 Ko, 1 Go = 1024 Mo, 1 To = 1024 Go. Le ' +
-          '<strong>quartet</strong> (4 bits) suffit à coder un chiffre hexadécimal.</p>',
+          '<p>Un octet vaut 8 bits. Les unités binaires suivent les <strong>puissances de 2</strong> : ' +
+          '<strong>1 Kio = 1024 octets</strong>, 1 Mio = 1024 Kio, 1 Gio = 1024 Mio et 1 Tio = 1024 Gio. ' +
+          'Les unités décimales suivent les puissances de 10 : 1 ko = 1000 octets et 1 Mo = 1000 ko. ' +
+          'Le <strong>quartet</strong> (4 bits) suffit à coder un chiffre hexadécimal. ' +
+          '<a href="https://physics.nist.gov/cuu/Units/binary.html">Source : préfixes binaires du NIST</a>, consultée le 30 octobre 2026.</p>',
           '<p>Les <strong>débits</strong> piègent : Mo/s (octets par seconde, stockage) et Mbps (bits par ' +
           'seconde, réseau) diffèrent d\'un facteur 8 — <strong>1 Mo/s = 8 Mbps</strong>. La ' +
           '<strong>fréquence</strong> du processeur se mesure en Hz (gigahertz : milliards de cycles par ' +
@@ -109,11 +107,15 @@ module.exports = [
           'disque, réseau) en millisecondes ou nanosecondes : plus elle est faible, mieux c\'est.</p>',
           box('tech', 'Repères de grandeur', 'terminal',
             '    <ul>\n' +
-            '      <li>Une RAM de 8 Go = 8 × 1024 = 8192 Mo.</li>\n' +
+            '      <li>Une RAM de 8 Gio = 8 × 1024 = 8192 Mio.</li>\n' +
             '      <li>Un lien « 100 Mbps » transfert au mieux 100 ÷ 8 = 12,5 Mo/s.</li>\n' +
             '      <li>Un CPU à 2 GHz exécute 2 milliards de cycles d\'horloge par seconde.</li>\n' +
             '    </ul>')
         ].join('\n')
+      },
+      {
+        "title": "Pour aller plus loin : Le modèle d’architecture de Von Neumann (CPU, RAM, Bus, E/S)",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Comprendre les composants matériels dès le Chapitre 1 (approfondis au Chapitre 6)</div><p>Avant de manipuler les bits et les octets, situons les quatre organes de l’architecture de <strong>Von Neumann</strong> que nous citerons dans les exemples :</p><ul><li><strong>Le processeur (CPU) :</strong> cerveau qui exécute les instructions grâce à son Unité de Commande (UCC) et son Unité Arithmétique et Logique (UAL) ;</li><li><strong>La mémoire vive (RAM) :</strong> mémoire de travail rapide mais volatile qui stocke les programmes et données en cours d’exécution ;</li><li><strong>Les bus de communication :</strong> pistes électroniques reliant le CPU, la RAM et les contrôleurs ;</li><li><strong>Les unités d’Entrée/Sortie (E/S) et de stockage :</strong> clavier, écran, disque SSD/NVMe et carte réseau.</li></ul></div>"
       }
     ],
 
@@ -123,13 +125,13 @@ module.exports = [
       { q: 'La génération du microprocesseur est la…', opts: ['3e', '4e', '5e'], correct: 1, exp: 'Lampe 1, transistor 2, circuit intégré 3, microprocesseur 4, réseau et cloud 5.' },
       { q: 'La RAM et le disque dur appartiennent au…', opts: ['software', 'hardware', 'kernel'], correct: 1, exp: 'Parties physiques : matériel.' },
       { q: 'MS-DOS est un OS…', opts: ['mono-utilisateur mono-tâche', 'multi-utilisateurs', 'temps réel'], correct: 0, exp: 'Un utilisateur, un programme à la fois.' },
-      { q: '1 Mo vaut…', opts: ['1000 Ko', '1024 Ko', '1024 octets'], correct: 1, exp: 'Puissances de 2 : 1 Mo = 1024 Ko = 1024 × 1024 octets.' },
+      { q: '1 Mio vaut…', opts: ['1000 Kio', '1024 Kio', '1024 octets'], correct: 1, exp: 'Puissances de 2 : 1 Mio = 1024 Kio = 1024 × 1024 octets.' },
       { q: 'Un lien de 80 Mbps transfert au plus…', opts: ['10 Mo/s', '80 Mo/s', '8 Mo/s'], correct: 0, exp: '1 Mo/s = 8 Mbps : 80 ÷ 8 = 10 Mo/s.' },
       { q: 'La latence mesure…', opts: ['la capacité', 'un délai', 'une puissance'], correct: 1, exp: 'Délai d\'accès — plus elle est faible, mieux c\'est.' }
     ],
 
     pitfalls: [
-      'Croire que 1 Ko = 1000 octets : en informatique c\'est 1024 (puissances de 2).',
+      'Confondre ko (1000 octets) et Kio (1024 octets), ou Mo et Mio.',
       'Confondre Mbps (bits) et Mo/s (octets) : facteur 8.',
       'Classer un antivirus ou Word dans le matériel : ce sont des logiciels.',
       'Placer la Pascaline dans la génération électronique : elle est mécanique.'
@@ -139,21 +141,21 @@ module.exports = [
     method: [
       'Se demander si l\'élément se touche (hardware) ou s\'exécute (software).',
       'Pour un OS : compter les utilisateurs ET les tâches simultanées.',
-      'Pour une mesure : repérer octets ou bits, capacité ou débit, puis convertir par 1024 ou par 8.'
+      'Pour une mesure : repérer octets ou bits, capacité ou débit, puis choisir le facteur 1000, 1024 ou 8 selon les unités.'
     ],
 
     summary: [
       'Ordinateur : machine électronique programmable de traitement de l\'information.',
       'Système informatique : hardware + software + données + utilisateurs.',
       'OS classés par utilisateurs et tâches : mono/multi, MS-DOS à Linux.',
-      '1 Ko = 1024 octets ; 1 Mo/s = 8 Mbps ; fréquence en Hz, latence en ms.'
+      '1 ko = 1000 octets ; 1 Kio = 1024 octets ; 1 Mo/s = 8 Mbps ; fréquence en Hz, latence en ms.'
     ],
 
     checklist: [
       'Je sais définir ordinateur, informatique, électronique, calculateur.',
       'Je sais dérouler l\'histoire et les cinq générations.',
       'Je sais classer un OS par utilisateurs et tâches.',
-      'Je convertis Ko, Mo, Go et MBps/Mbps sans erreur.'
+      'Je distingue ko/Mo/Go et Kio/Mio/Gio, puis je convertis les capacités et les débits.'
     ],
 
     notions: [
@@ -162,34 +164,23 @@ module.exports = [
       '<strong>Système informatique</strong> : hardware, software, données, utilisateurs.',
       '<strong>OS</strong> : logiciel qui gère le matériel et les programmes (mono/multi-utilisateurs, tâches).',
       '<strong>Générations</strong> : lampe, transistor, circuit intégré, microprocesseur, réseau et cloud.',
-      '<strong>Octet</strong> : 8 bits ; 1 Ko = 1024 octets, 1 Mo = 1024 Ko.',
+      '<strong>Octet</strong> : 8 bits ; 1 ko = 1000 octets et 1 Kio = 1024 octets.',
       '<strong>MBps / Mbps</strong> : octets par seconde / bits par seconde — facteur 8.',
       '<strong>Latence</strong> : délai d\'accès, en ms ou ns, à minimiser.'
     ],
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis les définitions et le tableau des unités.' },
-      { cls: 'mid', text: '50–69 % — refais les conversions Ko/Mo/Go et Mo/s/Mbps.' },
+      { cls: 'mid', text: '50–69 % — refaites les conversions d’unités et de débits.' },
       { cls: 'good', text: '70–94 % — bon niveau, cible les types d\'OS et l\'histoire.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],
 
     flashcards: [
-      { q: 'Qu’est-ce que « Latence » ?', a: "Latence : délai d'accès, en ms ou ns, à minimiser." },
-      { q: 'Qu’est-ce que « Groupement par 3 ou 4 bits » ?', a: 'Groupement par 3 ou 4 bits : binaire vers octal ou hexa.' },
-      { q: 'Qu’est-ce que « ASCII » ?', a: 'ASCII : code des caractères sur 7 bits (A = 65).' },
-      { q: 'Qu’est-ce que « Bit de signe » ?', a: 'Bit de signe : MSB valant 0 (positif) ou 1 (négatif).' },
-      { q: 'Qu’est-ce que « Débordement » ?', a: 'Débordement : résultat sortant de la capacité du mot.' },
-      { q: 'Qu’est-ce que « Minterme » ?', a: 'Minterme : produit des variables pour une ligne de table où la sortie vaut 1.' },
-      { q: 'Qu’est-ce que « Décodeur » ?', a: "Décodeur : active une sortie par combinaison des entrées d'adresse." },
-      { q: 'Qu’est-ce que « Circuit séquentiel » ?', a: "Circuit séquentiel : sortie dépendant des entrées et de l'état mémorisé." },
-      { q: 'Qu’est-ce que « Asynchrone » ?', a: 'Asynchrone : agit hors horloge (set/reset immédiats).' },
-      { q: 'Qu’est-ce que « BIOS/UEFI » ?', a: 'BIOS/UEFI : microprogramme qui initialise la machine au démarrage.' },
-      { q: 'Qu’est-ce que « SSD » ?', a: 'SSD : stockage permanent sans partie mécanique, plus rapide que le HDD.' },
       { q: 'Définition d\'un ordinateur ?', a: 'Machine électronique programmable qui traite automatiquement des informations.' },
       { q: 'Les quatre familles du système informatique ?', a: 'Hardware (matériel), software (logiciels), données, utilisateurs.' },
       { q: 'Les cinq générations d\'ordinateurs ?', a: 'Lampe, transistor, circuit intégré, microprocesseur, réseau et cloud.' },
-      { q: '1 Mo, 1 Go, 1 To en unités inférieures ?', a: '1 Mo = 1024 Ko ; 1 Go = 1024 Mo ; 1 To = 1024 Go (puissances de 2).' },
+      { q: '1 Mio, 1 Gio et 1 Tio en unités inférieures ?', a: '1 Mio = 1024 Kio ; 1 Gio = 1024 Mio ; 1 Tio = 1024 Gio. Les unités Mo, Go et To sont décimales.' },
       { q: 'Différence entre Mo/s et Mbps ?', a: 'Mo/s : octets par seconde (stockage). Mbps : bits par seconde (réseau). 1 Mo/s = 8 Mbps.' }
     ]
   },
@@ -219,7 +210,7 @@ module.exports = [
       {
         title: 'Bit, quartet, octet et bases',
         html: [
-          'Le <strong>bit</strong> (binary digit) vaut 0 ou 1 : l\'unité élémentaire. Quatre bits font un ' +
+          '<p>Le <strong>bit</strong> (binary digit) vaut 0 ou 1 : l\'unité élémentaire. Quatre bits font un ' +
           '<strong>quartet</strong>, huit bits font un <strong>octet</strong> (byte). Dans un mot binaire, le ' +
           '<strong>MSB</strong> (Most Significant Bit) est le bit de poids fort — à gauche — et le ' +
           '<strong>LSB</strong> (Least Significant Bit) le bit de poids faible — à droite.</p>',
@@ -280,7 +271,7 @@ module.exports = [
     pitfalls: [
       'Lire les restes des divisions successives de haut en bas : c\'est de bas en haut.',
       'Grouper depuis la gauche pour l\'octal ou l\'hexa : on groupe depuis la droite.',
-      'Oublier que 1 Mo = 1024 Ko quand on mélange bases et capacités.',
+      'Confondre 1 Mio = 1024 Kio avec 1 Mo = 1000 ko quand on mélange bases et capacités.',
       'Confondre BCD (quartet par chiffre décimal) et binaire pur (259 = 100000011).'
     ],
 
@@ -350,7 +341,7 @@ module.exports = [
       'calculer le complément à 1 (inversion des bits) ;',
       'calculer le complément à 2 et expliquer pourquoi il domine ;',
       'poser addition, soustraction, multiplication et division binaires ;',
-      'reconnaître un débordement (carry sortant du mot).'
+      'distinguer retenue sortante et débordement selon que les nombres sont signés ou non.'
     ],
 
     sections: [
@@ -389,12 +380,18 @@ module.exports = [
         html: [
           '<p><strong>Addition</strong> : 0+0=0, 0+1=1, 1+1=0 retenue 1, 1+1+1=1 retenue 1 — les retenues ' +
           'se propagent de droite à gauche. <strong>Soustraction</strong> : additionner le complément à 2 du ' +
-          'second opérande ; une retenue finale sortant du mot signe un résultat positif, son absence un ' +
-          'résultat négatif déjà en complément à 2.</p>',
+          'second opérande, puis lire le résultat sur la largeur du mot. En complément à 2, le bit de poids ' +
+          'fort indique le signe du résultat représenté ; la retenue sortante ne détermine pas ce signe.</p>',
           '<p><strong>Multiplication</strong> : comme en décimal, décalages et additions — multiplier par 2^k ' +
           'revient à décaler de k bits vers la gauche. <strong>Division</strong> : soustractions successives ' +
           'et décalages vers la droite. Un <strong>débordement</strong> survient quand le résultat dépasse la ' +
           'capacité du mot : sur 4 bits non signés, 1111 + 0001 donne 10000 — le 1 qui sort est le carry.</p>',
+          '<p>Sur 4 bits <strong>signés</strong>, les valeurs vont de -8 à 7. Par exemple, ' +
+          '<strong>1111 + 1111 = 1 1110</strong> représente (-1) + (-1) = -2 : il y a une retenue ' +
+          'sortante mais pas de débordement signé. À l’inverse, <strong>0111 + 0001 = 1000</strong> : ' +
+          '7 + 1 = 8 dépasse l’intervalle, donc il y a débordement signé sans retenue sortante. Pour une ' +
+          'addition, deux nombres de même signe donnant un résultat représenté de signe opposé signalent ' +
+          'un débordement signé.</p>',
           box('tech', 'Vérifier dans l’atelier', 'terminal',
             '    <ul>\n' +
             '      <li>L\'additionneur de l\'atelier pose 1+1 : observe la retenue se propager.</li>\n' +
@@ -412,6 +409,7 @@ module.exports = [
       { q: 'En complément à 2, -5 sur 4 bits vaut…', opts: ['1101', '1011', '1010'], correct: 1, exp: 'C1(0101)=1010, +1 → 1011.' },
       { q: '1 + 1 en binaire donne…', opts: ['1', '10', '11'], correct: 1, exp: 'Somme 0, retenue 1 : on écrit 10.' },
       { q: '1111 + 0001 sur 4 bits non signés provoque…', opts: ['rien', 'un débordement', 'une division'], correct: 1, exp: '10000 : le bit qui sort du mot est le carry.' },
+      { q: 'Quelle addition déborde sur 4 bits signés en complément à 2 ?', opts: ['(-1) + (-1)', '7 + 1', '1 + (-1)'], correct: 1, exp: 'Les valeurs représentables vont de -8 à 7 : 7 + 1 = 8 dépasse la borne. Les deux autres résultats, -2 et 0, sont représentables.' },
       { q: 'Multiplier par 4 revient à…', opts: ['décaler de 2 bits à gauche', 'décaler de 2 bits à droite', 'inverser les bits'], correct: 0, exp: 'Décalage gauche de k bits = multiplication par 2^k.' },
       { q: 'Soustraire revient à…', opts: ['ajouter le complément à 2', 'inverser le signe du mot', 'diviser'], correct: 0, exp: 'Le processeur additionne le complément à 2 : un seul additionneur.' }
     ],
@@ -419,7 +417,7 @@ module.exports = [
     pitfalls: [
       'Oublier le +1 du complément à 2 : c\'est C1 puis addition de 1.',
       'Inverser avant le premier 1 dans la méthode directe : on recopie jusqu\'à lui compris.',
-      'Ignorer une retenue sortante : c\'est un débordement à signaler.',
+      'Confondre la retenue sortante avec le signe ou avec le débordement en arithmétique signée.',
       'Croire que la soustraction utilise un soustracteur dédié : elle additionne le complément à 2.'
     ],
 
@@ -467,6 +465,7 @@ module.exports = [
       { q: 'Complément à 2 d\'un mot ?', a: 'Inverser tous les bits puis ajouter 1 — ou recopier jusqu\'au premier 1 puis inverser le reste.' },
       { q: 'Pourquoi le complément à 2 ?', a: 'Un seul zéro et la soustraction devient une addition : le processeur n\'a qu\'un additionneur.' },
       { q: 'La table de l\'addition binaire ?', a: '0+0=0 ; 0+1=1 ; 1+1=10 (0, retenue 1) ; 1+1+1=11 (1, retenue 1).' },
+      { q: 'La retenue sortante indique-t-elle le débordement signé ?', a: 'Non. En complément à 2, le débordement signé concerne un résultat hors de l’intervalle représentable ; il est distinct de la retenue.' },
       { q: 'Décalage de k bits à gauche ?', a: 'Multiplication par 2^k ; à droite, division entière par 2^k.' }
     ]
   }

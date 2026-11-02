@@ -341,7 +341,7 @@ WHERE O.OrderID = 1;</code></pre>
 
         <div class="exercise">
             <div class="exercise-title">Exercice 3.3 : RIGHT JOIN (Recherche d'orphelins) <span class="tag">JOINS</span></div>
-            <p>Trouve tous les produits qui n'ont <strong>jamais</strong> été commandés. Utilisez OrderItems et Products avec un RIGHT JOIN ou LEFT JOIN vérifiant la nullité.</p>
+            <p>Trouvez tous les produits qui n'ont <strong>jamais</strong> été commandés. Utilisez OrderItems et Products avec un RIGHT JOIN ou LEFT JOIN vérifiant la nullité.</p>
             <button class="btn-reveal" onclick="toggleSolution('sol33')">Réponse</button>
             <div id="sol33" class="solution">
 <pre><code class="language-sql">-- En LEFT JOIN :
@@ -363,11 +363,11 @@ WHERE OI.OrderItemID IS NULL;</code></pre>
             <p>Affichez le nom de chaque catégorie et le montant total des ventes (Quantité * UnitPrice) pour cette catégorie, en utilisant Categories, Products et OrderItems.</p>
             <button class="btn-reveal" onclick="toggleSolution('sol34')">Réponse</button>
             <div id="sol34" class="solution">
-<pre><code class="language-sql">SELECT C.CategoryName, SUM(OI.Quantity * OI.UnitPrice) AS ChiffreAffaires
+<pre><code class="language-sql">SELECT C.CategoryName, COALESCE(SUM(OI.Quantity * OI.UnitPrice), 0) AS ChiffreAffaires
 FROM Categories C
-INNER JOIN Products P ON C.CategoryID = P.CategoryID
-INNER JOIN OrderItems OI ON P.ProductID = OI.ProductID
-GROUP BY C.CategoryName;</code></pre>
+LEFT JOIN Products P ON C.CategoryID = P.CategoryID
+LEFT JOIN OrderItems OI ON P.ProductID = OI.ProductID
+GROUP BY C.CategoryID, C.CategoryName;</code></pre>
             </div>
         </div>
     </div>
@@ -389,7 +389,7 @@ SELECT DATEDIFF(DAY, OrderDate, GETDATE()) AS JoursDepuis FROM Orders WHERE Orde
 
         <div class="exercise">
             <div class="exercise-title">Exercice 4.2 : GROUP BY & HAVING <span class="tag">FUNCTIONS</span></div>
-            <p>Trouve l'email du client et son Chiffre d'Affaires total (Somme des TotalAmount). N'affiche que les clients ayant dépensé plus de 1000€.</p>
+            <p>Trouvez l'email du client et son Chiffre d'Affaires total (Somme des TotalAmount). N'affiche que les clients ayant dépensé plus de 1000€.</p>
             <button class="btn-reveal" onclick="toggleSolution('sol42')">Réponse</button>
             <div id="sol42" class="solution">
 <pre><code class="language-sql">SELECT C.Email, SUM(O.TotalAmount) AS TotalDepense
@@ -409,7 +409,7 @@ HAVING SUM(O.TotalAmount) > 1000;</code></pre>
     OrderID, 
     YEAR(OrderDate) AS AnneeCommande,
     CASE 
-        WHEN YEAR(OrderDate) < YEAR(GETDATE()) THEN 'Historique Ancien'
+                        WHEN YEAR(OrderDate) &lt; YEAR(GETDATE()) THEN 'Historique Ancien'
         ELSE 'Commande Récente'
     END AS IndicateurAge
 FROM Orders;</code></pre>
@@ -514,7 +514,7 @@ BEGIN
         INSERT INTO PriceHistory (ProductID, OldPrice, NewPrice)
         SELECT i.ProductID, d.Price, i.Price 
         FROM inserted i INNER JOIN deleted d ON i.ProductID = d.ProductID
-        WHERE i.Price <> d.Price;
+    WHERE i.Price &lt;&gt; d.Price;
     END
 END;
 GO</code></pre>
@@ -547,7 +547,7 @@ GO</code></pre>
 
         <div class="exercise">
             <div class="exercise-title">Exercice TR3 : Restitution de stock automatique <span class="tag">TRIGGER</span></div>
-            <p>Créez un trigger AFTER UPDATE sur <code>Orders</code>. Si le statut passe spécifiquement de n'importe quoi à 'Cancelled', va lire <code>OrderItems</code> et remets les quantités dans <code>Products</code> automatiquement.</p>
+            <p>Créez un trigger AFTER UPDATE sur <code>Orders</code>. Si le statut, même absent (<code>NULL</code>), devient 'Cancelled' alors qu’il ne l’était pas, restituez automatiquement dans <code>Products</code> les quantités figurant dans <code>OrderItems</code>.</p>
             <button class="btn-reveal" onclick="toggleSolution('solTR3')">Réponse</button>
             <div id="solTR3" class="solution">
 <pre><code class="language-sql">CREATE TRIGGER trg_UpdateStockOnOrderCancel
@@ -558,14 +558,17 @@ BEGIN
     -- On vérifie si la colonne OrderStatus a été modifiée
     IF UPDATE(OrderStatus)
     BEGIN
-        -- On boucle (via un join) sur les commandes qui Viennent de passer à "Cancelled"
         UPDATE P
-        SET P.StockQuantity = P.StockQuantity + OI.Quantity
+        SET P.StockQuantity = P.StockQuantity + Restitution.TotalQuantity
         FROM Products P
-        INNER JOIN OrderItems OI ON P.ProductID = OI.ProductID
-        INNER JOIN inserted i ON OI.OrderID = i.OrderID
-        INNER JOIN deleted d ON i.OrderID = d.OrderID
-        WHERE i.OrderStatus = 'Cancelled' AND d.OrderStatus <> 'Cancelled';
+        INNER JOIN (
+            SELECT OI.ProductID, SUM(OI.Quantity) AS TotalQuantity
+            FROM OrderItems OI
+            INNER JOIN inserted i ON OI.OrderID = i.OrderID
+            INNER JOIN deleted d ON i.OrderID = d.OrderID
+            WHERE i.OrderStatus = 'Cancelled' AND (d.OrderStatus &lt;&gt; 'Cancelled' OR d.OrderStatus IS NULL)
+            GROUP BY OI.ProductID
+        ) Restitution ON P.ProductID = Restitution.ProductID;
     END
 END;
 GO</code></pre>
@@ -579,7 +582,7 @@ GO</code></pre>
 
         <div class="exercise">
             <div class="exercise-title">Exercice TX1 : Transaction Classique TRY..CATCH <span class="tag">TRANSACTION</span></div>
-            <p>Créez une procédure <code>sp_Checkout</code> qui ouvre une transaction : elle insert une Order, insert son OrderItem, et diminue le stock. Si la Qté < Stock, THROW erreur et fait un ROLLBACK.</p>
+                <p>Créez une procédure <code>sp_Checkout</code> qui ouvre une transaction : elle réserve le stock, insère une commande et son détail. Si la quantité est NULL ou non positive, si le produit est introuvable ou si le stock est inférieur à la quantité, elle lève une erreur et fait un ROLLBACK.</p>
             <button class="btn-reveal" onclick="toggleSolution('solTX1')">Réponse</button>
             <div id="solTX1" class="solution">
 <pre><code class="language-sql">CREATE PROCEDURE sp_Checkout (@CustID INT, @ProdID INT, @Qty INT)
@@ -588,16 +591,21 @@ BEGIN
     BEGIN TRY
         BEGIN TRAN;
         
-        DECLARE @Stock INT; SELECT @Stock = StockQuantity FROM Products WHERE ProductID = @ProdID;
-        IF @Stock < @Qty THROW 50000, 'Stock insuffisant', 1;
+        IF @Qty IS NULL OR @Qty &lt;= 0
+            THROW 50000, 'Quantite invalide.', 1;
+
+        UPDATE Products
+        SET StockQuantity = StockQuantity - @Qty
+        WHERE ProductID = @ProdID AND StockQuantity &gt;= @Qty;
+
+        IF @@ROWCOUNT = 0
+            THROW 50000, 'Produit introuvable ou stock insuffisant.', 1;
 
         -- Insertion entete
         INSERT INTO Orders (CustomerID, TotalAmount) VALUES (@CustID, 0);
         DECLARE @OrdID INT = SCOPE_IDENTITY();
         
-        -- Detaille et MAJ Stock
         INSERT INTO OrderItems (OrderID, ProductID, Quantity, UnitPrice) VALUES (@OrdID, @ProdID, @Qty, 100);
-        UPDATE Products SET StockQuantity = StockQuantity - @Qty WHERE ProductID = @ProdID;
 
         COMMIT TRAN;
     END TRY
@@ -613,7 +621,7 @@ GO</code></pre>
         <div class="exercise">
             <div class="exercise-title">Exercice TX2 : Dirty Read (Read Uncommitted) <span class="tag">ISOLATION</span></div>
             <p><strong>Problème :</strong> Transaction A modifie un stock mais ne valide pas (WAITFOR). Transaction B vient faire un rapport financier rapide des stocks.</p>
-            <p>Montre quelles commandes tapées dans SSMS (Fenêtre 1 et Fenêtre 2) permettent à la Fenêtre 2 de lire le stock pendant la maj de la fenêtre 1 (permettant un "Dirty Read").</p>
+            <p>Montrez quelles commandes tapées dans SSMS (Fenêtre 1 et Fenêtre 2) permettent à la Fenêtre 2 de lire le stock pendant la maj de la fenêtre 1 (permettant un "Dirty Read").</p>
             <button class="btn-reveal" onclick="toggleSolution('solTX2')">Réponse</button>
             <div id="solTX2" class="solution">
 <pre><code class="language-sql">-- FENÊTRE 1 (SSMS):

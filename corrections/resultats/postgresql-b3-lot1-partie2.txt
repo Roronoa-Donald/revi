@@ -1,0 +1,64 @@
+Répertoire de résultats : /tmp/sondes-postgresql-b3-resultats.0p8nbmr3
+ISOLATION|HOME absent|/home et /root absents|namespace réseau distinct
+=== Extraction des sources effectives, sans patch ni empreintes figées ===
+  index.sql : server/content/b3-sql/chapitre2.js:66 — instruction extraite sans adaptation
+  virement.sql : server/content/b3-sql/chapitre5.js:32 — instruction extraite sans adaptation
+  audit.sql : server/content/b3-sql/chapitre5.js:91 — instruction extraite sans adaptation
+  ancre.sql : server/content/b3-sql/pages/examens-exercices.js:113 — instruction extraite sans adaptation
+  recursif.sql : server/content/b3-sql/pages/examens-exercices.js:114 — instruction extraite sans adaptation
+  politique.sql : server/content/b3-sql/pages/examens-exercices.js:120 — instruction extraite sans adaptation
+  contexte.sql : server/content/b3-sql/pages/examens-exercices.js:121 — instruction extraite sans adaptation
+  force.sql : server/content/b3-sql/chapitre5.js:143 — patron adapté : table_name remplacé par la table fictive demo_rls
+  contextes-after.txt : passages actuels copiés pour relecture humaine, sans verdict automatique
+POSTGRESQL|18.6|180006|t|t|/tmp/socket|sans TCP
+=== Contrôles des sources effectives ===
+INDEX|CREATE INDEX extrait : accepté
+VIREMENT|destination_absente|refus et soldes inchangés
+VIREMENT|fonds_insuffisants|refus et soldes inchangés
+VIREMENT|montant_negatif|refus et soldes inchangés
+VIREMENT|montant_null|refus et soldes inchangés
+VIREMENT|montant_zero|refus et soldes inchangés
+VIREMENT|nominal|80 et 30
+VIREMENT|solde_destination_null|refus et soldes inchangés
+VIREMENT|solde_source_null|refus et soldes inchangés
+VIREMENT|source_absente|refus et soldes inchangés
+AUDIT|UPDATE et DELETE journalisés dans la transaction puis annulés
+RLS_FORCE|propriétaire=0|superutilisateur=2|BYPASSRLS=2
+CTE|trois chemins attendus :
+1|A|1|{1}
+2|B|2|{1,2}
+3|C|2|{1,3}
+TENANT|politique et valeur extraites : première ligne visible
+CONTROLES_CORRECTIONS|OK
+=== Limites observées séparément ===
+PLAN_SANS_FORCAGE|Seq Scan on commandes
+PLAN_FORCE|Index Only Scan|Heap Fetches: 1
+COMPARAISON_NUMERIC|NaN=NaN:true|NaN>Infinity:true|100<NaN:true|NaN<30:false|NaN<=0:false
+NUMERIQUE|montant_NaN_source_finie|REFUSE|source=100|destination=10|sqlstate=P0001
+NUMERIQUE|montant_Infinity_source_finie|REFUSE|source=100|destination=10|sqlstate=P0001
+NUMERIQUE|montant_moins_Infinity_source_finie|REFUSE|source=100|destination=10|sqlstate=P0001
+NUMERIQUE|solde_source_NaN|REFUSE|source=NaN|destination=10|sqlstate=P0001
+NUMERIQUE|solde_destination_NaN|REFUSE|source=100|destination=NaN|sqlstate=P0001
+NUMERIQUE|solde_source_Infinity|REFUSE|source=Infinity|destination=10|sqlstate=P0001
+NUMERIQUE|montant_Infinity_source_Infinity|REFUSE|source=Infinity|destination=10|sqlstate=P0001
+NUMERIQUE|montant_NaN_source_NaN|REFUSE|source=NaN|destination=10|sqlstate=P0001
+NUMERIQUE|solde_destination_Infinity|REFUSE|source=100|destination=Infinity|sqlstate=P0001
+NUMERIQUE|solde_source_moins_Infinity|REFUSE|source=-Infinity|destination=10|sqlstate=P0001
+NON_FINIS_ACCEPTES|0
+NUMERIC_12_2|NaN=NaN|Infinity=REFUSE
+NUMERIC_12_2_VIREMENT|solde_source_NaN|REFUSE|source=NaN|destination=10.00
+NUMERIC_12_2_VIREMENT|solde_destination_NaN|REFUSE|source=100.00|destination=NaN
+NUMERIC_12_2_VIREMENT|montant_NaN_source_NaN|REFUSE|source=NaN|destination=10.00
+TYP12_NON_FINIS_ACCEPTES|0
+NUMERIQUE|aucun cas non fini de cette matrice accepté
+AVANT_ROLLBACK|1|101
+APRES_ROLLBACK|0|100
+AFTER_DIFFERE|trace présente avant COMMIT|COMMIT échoué : SQLSTATE 23503
+APRES_COMMIT_ECHOUE|0|IT
+APRES_COMMIT|1|101
+AUDIT|Le propriétaire ordinaire peut supprimer le journal fictif
+TENANT_INITIAL|1
+TENANT_AUTRE|2
+TENANT|risque conditionnel si le rôle peut exécuter du SQL arbitraire
+FIN|contrôles de base OK|code 0 (2 = valeurs non finies acceptées)
+Code de sortie : 0 ; résultats : /tmp/sondes-postgresql-b3-resultats.0p8nbmr3

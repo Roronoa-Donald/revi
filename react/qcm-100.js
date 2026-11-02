@@ -80,15 +80,15 @@ window.COURSE_QCM = [
   {
     "id": 7,
     "ch": 1,
-    "q": "Quelle version minimale de Node.js est requise pour créer un projet React moderne avec Vite ?",
+    "q": "Quelle version de Node.js convient à Vite 8.3.5 dans l'exemple du cours ?",
     "o": [
-      "Node.js 18 ou plus",
+      "Node.js 20.19.0 ou plus dans la branche 20, ou 22.12.0 ou plus",
+      "Node.js 18 ou plus, y compris Node.js 21",
       "Node.js 8",
-      "Toutes les versions de Node.js fonctionnent",
       "Node.js n'est pas nécessaire pour React"
     ],
     "a": 0,
-    "e": "Vite et l'écosystème React moderne nécessitent des fonctionnalités de Node.js 18+ pour le build et l'exploitation locale."
+    "e": "Vite 8.3.5 exige Node.js ^20.19.0 ou >=22.12.0 : Node.js 21 et les versions 22 antérieures à 22.12.0 ne conviennent pas."
   },
   {
     "id": 8,
@@ -1109,13 +1109,13 @@ window.COURSE_QCM = [
     "ch": 7,
     "q": "Pourquoi un serveur web classique (comme Nginx ou Apache) renvoie-t-il une erreur 404 lors du rafraîchissement d'une route React en production ?",
     "o": [
-      "Parce que le serveur cherche physiquement le fichier HTML de la route sur le disque dur ; il faut rediriger toutes les requêtes vers index.html.",
+      "Parce que le serveur cherche un fichier pour cette URL ; il faut servir index.html pour les routes de navigation de la SPA, sans intercepter les API.",
       "Parce que le build de production supprime le code source du routage.",
       "Parce que le protocole HTTPS bloque les routes côté client.",
       "Parce que l'application React n'a pas été compilée correctement."
     ],
     "a": 0,
-    "e": "En SPA, le routage est géré en JS. Le serveur doit renvoyer index.html pour n'importe quelle requête afin que React Router prenne le relais."
+    "e": "Le serveur sert index.html pour les routes de navigation de la SPA. Les API et fichiers sensibles conservent leur traitement et leurs contrôles d'autorisation côté serveur."
   },
   {
     "id": 87,

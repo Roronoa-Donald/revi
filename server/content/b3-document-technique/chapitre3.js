@@ -153,7 +153,7 @@ module.exports = {
         '45 minutes'
       ],
       correct: 1,
-      exp: 'Entrez minuit et 15h00, 15 heures de transactions se sont écoulées sans sauvegarde. Le RPO effectif subi par l’entreprise est donc de 15 heures.'
+      exp: 'Entre minuit et 15h00, 15 heures de transactions se sont écoulées sans sauvegarde. Le RPO effectif subi par l’entreprise est donc de 15 heures.'
     },
     {
       stem: 'Dans quelle séquence logique doit-on éteindre une architecture web 3-tiers (Base de données, API applicative, Passerelle Web NGINX) lors d’un arrêt planifié de production ?',

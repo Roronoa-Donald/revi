@@ -17,13 +17,13 @@ module.exports = {
     'Dans beaucoup d’entreprises en croissance, chaque département utilise ses propres logiciels isolés : ' +
     'la compta sur un outil, les commerciaux sur un fichier Excel, l’entrepôt sur un logiciel sur mesure. ' +
     'Cette fragmentation crée des ressaisies, des erreurs de stock et des retards critiques. ' +
-    'L’ERP unifie l’ensemble de ces flux au sein d’une base de données unique et cohérente.',
+    'Un ERP peut intégrer ces flux autour de données partagées, avec une qualité qui dépend aussi des processus et du paramétrage.',
 
   objectives: [
     'définir un Système d’Information (SI) et ses 5 composantes fondamentales ;',
     'comprendre le rôle stratégique et les caractéristiques d’un ERP (PGI) ;',
     'identifier les inconvénients majeurs des silos d’information applicatifs ;',
-    'analyser le principe de la base de données unique et de la traçabilité intégrée ;',
+    'analyser les données partagées et les possibilités de traçabilité intégrée ;',
     'calculer et évaluer le coût total de possession (TCO) d’un projet d’ERP.'
   ],
 
@@ -54,12 +54,12 @@ module.exports = {
         '<p>L’acronyme <strong>ERP</strong> (<em>Enterprise Resource Planning</em>), traduit en français par ' +
         '<strong>PGI</strong> (<em>Progiciel de Gestion Intégré</em>), désigne une solution logicielle ' +
         'qui gère et intègre l’ensemble des fonctions opérationnelles d’une entreprise.</p>',
-        '<p>Pour être qualifié d’ERP au sens strict, un logiciel doit présenter 4 caractéristiques fondamentales :</p>',
+        '<p>Un ERP présente généralement les caractéristiques suivantes, dont les modalités dépendent de la solution et du paramétrage :</p>',
         '<ol>\n' +
-        '  <li><strong>Base de données unique</strong> : toutes les applications partagent le même schéma relationnel. Une donnée modifiée à un endroit est immédiatement visible partout sans synchronisation différée.</li>\n' +
+        '  <li><strong>Données partagées</strong> : les modules utilisent des informations et définitions communes. Une base commune est fréquente, mais l’architecture et les délais de synchronisation peuvent varier.</li>\n' +
         '  <li><strong>Architecture modulaire</strong> : chaque grand domaine métier (Finance, Ventes, Achats, Stocks, RH) constitue un module interconnecté.</li>\n' +
-        '  <li><strong>Traçabilité et auditabilité totales</strong> : toute opération (qui, quoi, quand) est historisée, garantissant l’intégrité comptable et légale.</li>\n' +
-        '  <li><strong>Moteur de Workflow intégré</strong> : l’information circule automatiquement d’un service à l’autre selon les processus de l’entreprise.</li>\n' +
+        '  <li><strong>Traçabilité</strong> : des journaux peuvent enregistrer les opérations selon les fonctions et réglages. Ils ne garantissent pas à eux seuls la conformité ou l’intégrité.</li>\n' +
+        '  <li><strong>Workflows intégrés</strong> : l’information peut circuler entre services selon les processus et règles configurés.</li>\n' +
         '</ol>',
         box('tech', 'Les grands acteurs du marché ERP', 'code',
           '    <p>Sur le marché des ERP d’entreprise, on distingue les solutions propriétaires pour grands comptes ' +
@@ -78,16 +78,15 @@ module.exports = {
         '    <tr><th>Problématique des silos</th><th>Solution apportée par l’ERP</th></tr>\n' +
         '  </thead>\n' +
         '  <tbody>\n' +
-        '    <tr><td>Ressaisies manuelles multiples</td><td>Saisie unique à la source transmise automatiquement aux modules suivants.</td></tr>\n' +
+        '    <tr><td>Ressaisies manuelles multiples</td><td>Une saisie partagée peut réduire les ressaisies selon l’intégration configurée.</td></tr>\n' +
         '    <tr><td>Données contradictoires (ex. deux adresses clients différentes)</td><td>Référentiel unique (<em>Master Data</em> / Données de référence partagées).</td></tr>\n' +
-        '    <tr><td>Manque de visibilité globale pour la direction</td><td>Tableaux de bord unifiés et reporting consolidé en temps réel.</td></tr>\n' +
-        '    <tr><td>Lenteur de transmission entre départements</td><td>Workflows automatisés déclenchant les étapes suivantes sans délai.</td></tr>\n' +
+        '    <tr><td>Manque de visibilité globale pour la direction</td><td>Tableaux de bord consolidés, selon les données et leurs délais de mise à jour.</td></tr>\n' +
+        '    <tr><td>Lenteur de transmission entre départements</td><td>Workflows pouvant déclencher les étapes configurées.</td></tr>\n' +
         '  </tbody>\n' +
         '</table>',
         box('warn', 'Piège : Croire que l’ERP résout seul les problèmes d’organisation', 'shield',
           '    <p>Informatiser un mauvais processus produit simplement un mauvais processus automatisé plus rapide. ' +
-          'Le succès d’un ERP repose à 80% sur la clarification des processus métiers et la conduite du changement, ' +
-          'et seulement à 20% sur la technologie logicielle.</p>')
+          'La clarification des processus et la conduite du changement comptent, tout comme le choix et le paramétrage techniques.</p>')
       ].join('\n')
     },
     {
@@ -95,25 +94,25 @@ module.exports = {
       html: [
         '<p>Le coût d’un ERP ne se limite jamais au prix d’achat des licences logicielles. ' +
         'L’évaluation financière d’un SI s’effectue par le calcul du <strong>TCO</strong> (<em>Total Cost of Ownership</em>) ' +
-        'sur un horizon standard de 5 ans.</p>',
+        'sur un horizon défini par l’organisation ; les exercices utilisent cinq ans.</p>',
         '<p>Le TCO additionne deux grandes catégories de dépenses :</p>',
         '<ul>\n' +
         '  <li><strong>Investissement initial (CAPEX)</strong> : licences d’acquisition ou frais de setup, intégration et paramétrage par l’ESN, migration des données historiques, et formation initiale du personnel.</li>\n' +
-        '  <li><strong>Coûts récurrents d’exploitation (OPEX)</strong> : redevance de maintenance logicielle annuelle (généralement 18% à 22% du prix licence), hébergement cloud / serveurs, support technique et mises à jour de version.</li>\n' +
+        '  <li><strong>Coûts récurrents d’exploitation (OPEX)</strong> : maintenance, hébergement cloud / serveurs, support technique et mises à jour, selon les contrats.</li>\n' +
         '</ul>'
       ].join('\n')
     }
   ],
 
   questions: [
-    { stem: 'Quelles sont les 5 composantes fondamentales d’un Système d’Information ?', opts: ['Matériel, Logiciel, Données, Humain, Processus', 'CPU, RAM, Disque dur, Écran, Clavier', 'Ventes, Achats, Stocks, Factures, Clients'], correct: 0, exp: 'Le SI englobe les ressources techniques, les données, les acteurs humains et les processus métiers.' },
-    { stem: 'Quelle caractéristique distingue formellement un ERP d’un ensemble de logiciels séparés ?', opts: ['Une base de données unique partagée entre tous les modules', 'Une interface graphique obligatoirement en 3D', 'L’absence totale de mot de passe'], correct: 0, exp: 'L’unicité de la base de données est la caractéristique technique essentielle d’un ERP.' },
-    { stem: 'Qu’est-ce qu’un « silo d’information » dans une entreprise ?', opts: ['Un service ou logiciel fonctionnant en vase clos sans communiquer avec les autres', 'Une salle de serveurs blindée', 'Un entrepôt de stockage de matières premières'], correct: 0, exp: 'Les silos applicatifs isolent les données départementales et créent des incohérences.' },
-    { stem: 'Que signifie l’acronyme français PGI ?', opts: ['Progiciel de Gestion Intégré', 'Protocole Général Informatique', 'Processus Global d’Interconnexion'], correct: 0, exp: 'PGI est la traduction officielle française d’ERP (Enterprise Resource Planning).' },
-    { stem: 'Que représente le TCO (Total Cost of Ownership) d’un ERP ?', opts: ['L’ensemble des coûts d’acquisition et d’exploitation sur le cycle de vie du système', 'Uniquement le prix d’achat des licences logicielles', 'Le salaire du directeur des systèmes d’information'], correct: 0, exp: 'Le TCO englobe l’investissement initial (licences, intégration, formation) et les coûts récurrents sur 5 ans.' },
-    { stem: 'Lequel de ces progiciels est un ERP open source populaire ?', opts: ['Odoo', 'Photoshop', 'Google Chrome'], correct: 0, exp: 'Odoo (anciennement OpenERP) est l’un des ERP open source les plus déployés au monde.' },
-    { stem: 'Dans un ERP, que se passe-t-il lorsqu’un commercial valide une commande client ?', opts: ['Le stock est réservé et la comptabilité peut préparer la facturation sans ressaisie', 'Le commercial doit réécrire la commande dans un carnet papier', 'L’ERP s’éteint pour enregistrer'], correct: 0, exp: 'L’intégration automatique propage immédiatement l’événement aux modules logistique et financier.' },
-    { stem: 'Pourquoi la formation des utilisateurs représente-t-elle un poste budgétaire crucial ?', opts: ['Pour vaincre la résistance au changement et garantir la bonne utilisation du progiciel', 'Car les éditeurs refusent d’installer le logiciel sinon', 'Pour remplacer tous les ordinateurs portables'], correct: 0, exp: 'L’adhésion des équipes et la maîtrise des nouveaux processus conditionnent la réussite du projet.' }
+    { stem: 'Quelles sont les cinq composantes du SI dans le modèle du cours ?', opts: ['Matériel, Logiciel, Données, Humain, Processus', 'CPU, RAM, Disque dur, Écran, Clavier', 'Ventes, Achats, Stocks, Factures, Clients'], correct: 0, exp: 'Le modèle associe ressources techniques, données, personnes et processus. La deuxième liste ne décrit que du matériel ; la troisième rassemble des activités et données, pas les cinq composantes.' },
+    { stem: 'Quelle caractéristique décrit le mieux un ERP ?', opts: ['L’intégration de processus et de données entre plusieurs fonctions métier', 'Une interface graphique obligatoirement en 3D', 'L’absence totale de mot de passe'], correct: 0, exp: 'Un ERP relie des fonctions métier et des données ; ni la 3D ni l’absence de mot de passe ne sont nécessaires. L’architecture de stockage peut varier.' },
+    { stem: 'Qu’est-ce qu’un « silo d’information » dans une entreprise ?', opts: ['Un service ou logiciel fonctionnant en vase clos sans communiquer avec les autres', 'Une salle de serveurs blindée', 'Un entrepôt de stockage de matières premières'], correct: 0, exp: 'Un silo isole l’information et peut produire des incohérences ; une salle de serveurs et un entrepôt physique ne désignent pas cet isolement.' },
+    { stem: 'Que signifie l’acronyme français PGI ?', opts: ['Progiciel de Gestion Intégré', 'Protocole Général Informatique', 'Processus Global d’Interconnexion'], correct: 0, exp: 'PGI signifie progiciel de gestion intégré ; les deux autres expansions proposées ne correspondent pas à cet acronyme.' },
+    { stem: 'Que représente le TCO (Total Cost of Ownership) d’un ERP ?', opts: ['L’ensemble des coûts d’acquisition et d’exploitation sur le cycle de vie du système', 'Uniquement le prix d’achat des licences logicielles', 'Le salaire du directeur des systèmes d’information'], correct: 0, exp: 'Le TCO additionne les coûts pertinents sur l’horizon retenu. Le seul prix des licences ou un seul salaire ne représentent pas l’ensemble.' },
+    { stem: 'Lequel de ces progiciels est un ERP proposant une édition communautaire open source ?', opts: ['Odoo', 'Photoshop', 'Google Chrome'], correct: 0, exp: 'Odoo propose une édition communautaire open source ; Photoshop est un logiciel de création graphique et Chrome un navigateur.' },
+    { stem: 'Dans un ERP configuré pour partager les commandes entre ventes, stock et comptabilité, quel bénéfice peut-on attendre ?', opts: ['Les services peuvent exploiter la commande partagée sans ressaisie systématique', 'Le commercial doit réécrire chaque commande sur papier', 'L’ERP doit s’éteindre pour enregistrer'], correct: 0, exp: 'Le partage configuré peut réduire les ressaisies. Il ne nécessite ni recopie systématique sur papier ni arrêt du système ; les étapes exactes dépendent du paramétrage.' },
+    { stem: 'Pourquoi prévoir une formation des utilisateurs ?', opts: ['Pour accompagner le changement et la prise en main du progiciel', 'Car tous les éditeurs refusent sinon l’installation', 'Pour remplacer tous les ordinateurs portables'], correct: 0, exp: 'La formation aide à comprendre les nouveaux processus sans garantir à elle seule leur adoption. Les deux autres propositions ne décrivent pas son objectif.' }
   ],
 
   pitfalls: [
@@ -135,9 +134,9 @@ module.exports = {
 
   summary: [
     'Le SI articule 5 composantes : Matériel, Logiciel, Données, Humain et Processus.',
-    'L’ERP (PGI) intègre les processus clés de l’entreprise autour d’une base de données unique.',
-    'Il élimine les silos d’information, les doubles saisies et garantit une traçabilité totale.',
-    'Le calcul économique d’un ERP s’évalue par son TCO global sur 5 ans (CAPEX + OPEX).',
+    'L’ERP (PGI) intègre plusieurs processus et données métier.',
+    'Il peut réduire les silos et ressaisies ; la traçabilité dépend des fonctions et réglages.',
+    'Le TCO additionne les coûts pertinents sur un horizon choisi, ici cinq ans.',
     'La réussite d’un projet ERP repose avant tout sur l’alignement des processus et la conduite du changement.'
   ],
 
@@ -159,28 +158,12 @@ module.exports = {
   ],
 
   flashcards: [
-      { q: 'Qu’est-ce que « Silos d’information » ?', a: 'identifier les inconvénients majeurs des silos d’information applicatifs ;' },
-      { q: 'Qu’est-ce que « Master Data » ?', a: 'Référentiel unique ( Master Data / Données de référence partagées).' },
-      { q: 'Qu’est-ce que « Modularité » ?', a: 'Modularité : ERP & SI B2 › Sommaire › Chapitre 1' },
-      { q: 'Qu’est-ce que « Circuit d’approbation » ?', a: 'Circuit d’approbation : concevoir des circuits de workflow d’approbation avec règles d’aiguillage hiérarchiques ;' },
-      { q: 'Qu’est-ce que « EAI » ?', a: 'L’ERP ne vit jamais seul : il doit dialoguer avec les banques, les sites e-commerce, les applications logistiques des transporteurs et les logiciels RH. Concevoir ces passerelles de façon anarchique mène à une « architecture spaghetti » indémêlable. Les architectures EAI et ESB s' },
-      { q: 'Qu’est-ce que « iPaaS » ?', a: 'comparer les topologies d’intégration (Point-à-Point, Hub & Spoke, ESB, iPaaS) ;' },
-      { q: 'Qu’est-ce que « XML » ?', a: 'maîtriser le concept de format pivot pour la transformation des messages (EDI, XML, JSON) ;' },
-      { q: 'Qu’est-ce que « Chaîne de valeur » ?', a: 'analyser la chaîne de valeur de Michael Porter et distinguer activités principales et de soutien ;' },
-      { q: 'Qu’est-ce que « P2P » ?', a: 'maîtriser le déroulement complet du cycle Procure-to-Pay (P2P / Achats) ;' },
-      { q: 'Qu’est-ce que « O2C » ?', a: 'maîtriser le déroulement complet du cycle Order-to-Cash (O2C / Ventes) ;' },
-      { q: 'Qu’est-ce que « CBN » ?', a: 'CBN : ERP & SI B2 › Sommaire › Chapitre 4' },
-      { q: 'Qu’est-ce que « PMP » ?', a: 'comprendre les mécanismes de valorisation des stocks (CMUP / PMP et FIFO) ;' },
-      { q: 'Qu’est-ce que « LIFO » ?', a: 'LIFO (Last In, First Out / DEPS) : les derniers articles entrés sortent les premiers (interdit par les normes IFRS et la fiscalité française car sous-évaluant les stocks en période d’inflation).' },
-      { q: 'Qu’est-ce que « EOQ » ?', a: 'La formule de Wilson calcule la quantité économique de commande ( EOQ - Economic Order Quantity ) qui minimise la somme des coûts de commande et des coûts de possession du stock :' },
-      { q: 'Qu’est-ce que « SaaS » ?', a: 'Le choix d’un ERP et son implémentation constituent l’un des investissements les plus stratégiques et risqués pour une organisation. Du modèle d’hébergement (SaaS vs On-Premise) à la gestion des risques projet (conduite du changement, dépassements budgétaires), en passant par l’u' },
-      { q: 'Qu’est-ce que « Phasing » ?', a: 'Déploiement par étapes (Phasing / Pilote) : mise en production progressive par module (ex. d’abord la Finance, puis les Stocks) ou par entité géographique (filiale pilote). Risque opérationnel maîtrisé, mais gestion transitoire complexe d’interfaces temporaires entre l’ancien et ' },
     { q: 'Quelles sont les 5 composantes du SI ?', a: 'Matériel, Logiciel, Données, Humain et Processus.' },
-    { q: 'Quelle est la caractéristique technique centrale d’un ERP ?', a: 'Une base de données unique partagée entre tous les modules métiers.' },
+    { q: 'Quelle est une caractéristique centrale d’un ERP ?', a: 'L’intégration de processus et de données entre plusieurs fonctions métier ; une base commune est fréquente, sans être une garantie de synchronisation immédiate.' },
     { q: 'Qu’est-ce qu’un PGI ?', a: 'Progiciel de Gestion Intégré (traduction française d’ERP).' },
     { q: 'Qu’appelle-t-on silo d’information ?', a: 'Un système ou service fonctionnant de façon isolée, créant des données redondantes ou contradictoires.' },
     { q: 'Que comprend le TCO sur 5 ans d’un ERP ?', a: 'L’investissement initial (licences, intégration, formation) + les coûts récurrents sur 5 ans (maintenance, hébergement, support).' },
-    { q: 'Cite deux ERP open source d’entreprise.', a: 'Odoo et ERPNext (ou Dolibarr).' }
+    { q: 'Citez deux ERP open source d’entreprise.', a: 'Odoo et ERPNext (ou Dolibarr).' }
   ],
 
   next: {

@@ -64,7 +64,7 @@ module.exports = {
         '    <p>Pour un tableau $2 \\times 2$, le nombre de degrés de liberté est $ddl = (2-1)(2-1) = 1$.</p>',
         '    <p>La table du Chi-deux donne une <strong>valeur critique seuil de 3.84</strong> au risque d’erreur $\\alpha = 5\\%$ :</p>',
         '    <ul>',
-        '      <li><strong>Si $\\chi^2 > 3.84$ :</strong> La probabilité que l’écart soit dû au hasard est inférieure à 5% ($p < 0.05$). On <strong>rejette $H_0$</strong> : la liaison entre les deux variables est statistiquement significative.</li>',
+        '      <li><strong>Si $\\chi^2 > 3.84$ environ :</strong> Sous $H_0$ et les hypothèses du test, une statistique au moins aussi grande est rare ($p < 0.05$ environ). On <strong>rejette $H_0$</strong> au seuil choisi ; cela ne prouve pas une causalité.</li>',
         '      <li><strong>Si $\\chi^2 \\le 3.84$ :</strong> On ne peut pas rejeter l’indépendance.</li>',
         '    </ul>',
         '  </div>',
@@ -110,9 +110,10 @@ module.exports = {
         '  </div>',
         '  <div class="card">',
         '    <h4>La P-Valeur (Significativité p &lt; 0.05)</h4>',
-        '    <p>La <strong>p-valeur</strong> est la probabilité d’observer un résultat au moins aussi extrême que celui de l’échantillon si l’hypothèse nulle $H_0$ était vraie :</p>',
+        '    <p>Sous $H_0$ et les <strong>hypothèses du modèle</strong> et du plan d’échantillonnage, la <strong>p-valeur</strong> est la probabilité d’obtenir une statistique de test au moins aussi extrême que celle observée, dans le sens défini par le test et son alternative.</p>',
+        '    <p>Elle ne donne ni la probabilité que $H_0$ soit vraie, ni celle que l’écart observé soit « dû au hasard ». Sa validité dépend notamment du modèle et des conditions du test.</p>',
         '    <ul>',
-        '      <li>Si $p < 0.05$ (ou 5%) : L’observation est trop improbable sous $H_0$. On rejette $H_0$ au profit de $H_1$ avec un risque d’erreur inférieur à 5%.</li>',
+        '      <li>Si $p < 0.05$ : On rejette $H_0$ au seuil $\\alpha = 0.05$. Pour un test valide, ce seuil borne à 5% la fréquence des rejets à tort sur des répétitions sous $H_0$, et non la probabilité d’erreur de cette conclusion particulière.</li>',
         '      <li>Si $p \\ge 0.05$ : Données insuffisantes pour rejeter $H_0$.</li>',
         '    </ul>',
         '  </div>',
@@ -133,7 +134,8 @@ module.exports = {
     'La statistique descriptive résume les séries par leur tendance centrale (moyenne, médiane) et leur dispersion (écart-type, étendue).',
     'La médiane est un paramètre robuste indispensable lorsque la série contient des valeurs extrêmes ou asymétriques.',
     'Le test du Chi-deux (χ²) d’indépendance compare les effectifs observés aux effectifs théoriques sous hypothèse d’indépendance.',
-    'Pour un tableau 2x2 à 1 degré de liberté et au seuil α = 0.05, la valeur critique est 3.84 : si χ² > 3.84, le lien est statistiquement significatif.',
+    'Pour un tableau 2x2 à 1 degré de liberté et au seuil α = 0.05, la valeur critique est environ 3.84 ; la conclusion suppose que les conditions du test sont remplies.',
+    'La p-valeur concerne une statistique au moins aussi extrême sous H0 et le modèle ; elle ne donne pas la probabilité que H0 soit vraie.',
     'Le coefficient de corrélation linéaire de Pearson (r) mesure la force et le sens d’une relation entre deux variables quantitatives (-1 à +1).',
     'Une corrélation mathématique ne prouve jamais à elle seule une causalité réelle : elle nécessite une démonstration conceptuelle et qualitative.'
   ],
@@ -141,7 +143,7 @@ module.exports = {
     'Les moyennes et médianes ont-elles été calculées conjointement pour détecter d’éventuelles asymétries de distribution ?',
     'L’hypothèse nulle H0 et l’hypothèse alternative H1 sont-elles explicitement rédigées avant l’exécution des tests ?',
     'Les effectifs théoriques de chaque cellule du test du Chi-deux sont-ils tous supérieurs ou égaux à 5 (règle de Cochran) ?',
-    'La décision statistique compare-t-elle la statistique calculée au seuil critique théorique exact (3.84 pour 1 ddl à 5%) ?',
+    'La décision statistique tient-elle compte des conditions du test et du seuil critique (environ 3.84 pour 1 ddl à 5%) ?',
     'Le coefficient de Pearson r est-il interprété avec prudence en rappelant que corrélation ne vaut pas causalité ?',
     'Les conclusions sont-elles formulées avec rigueur probabiliste sans affirmation péremptoire absolue ?'
   ],
@@ -193,7 +195,7 @@ module.exports = {
         'On en déduit que l’une des deux variables est fausse'
       ],
       correct: 1,
-      exp: 'Un χ² supérieur à la valeur critique rejette l’hypothèse d’indépendance : l’écart observé entre les groupes a moins de 5% de chances d’être le fruit du hasard pur.'
+      exp: 'Sous H0 et les hypothèses du test, une statistique au moins aussi grande a une probabilité inférieure à 5% ; on rejette H0 au seuil choisi.'
     },
     {
       stem: 'Que signifie un coefficient de corrélation linéaire de Pearson r = -0.85 entre l’âge d’un serveur et sa disponibilité annuelle ?',
@@ -232,12 +234,12 @@ module.exports = {
       stem: 'Dans un test d’hypothèses statistiques, qu’indique formellement une « p-valeur » inférieure à 0.05 (p < 0.05) ?',
       opts: [
         'Que la probabilité d’erreur de calcul est de 100%',
-        'Que sous l’hypothèse nulle d’absence d’effet, la probabilité d’obtenir des résultats aussi extrêmes par simple hasard est inférieure à 5%, justifiant le rejet de H0',
+        'Que, sous H0 et les hypothèses du modèle, la probabilité d’obtenir une statistique au moins aussi extrême que celle observée est inférieure à 5%',
         'Que 5% des répondants ont refusé de répondre',
         'Que le projet coûte moins de 5 000 euros'
       ],
       correct: 1,
-      exp: 'La p-valeur mesure la probabilité d’observer les données si le hasard seul opérait. Inférieure à 0.05, l’hypothèse du hasard (H0) est écartée.'
+      exp: 'La p-valeur est conditionnée par H0 et le modèle ; elle ne mesure pas la probabilité que H0 soit vraie. Si p < 0.05, on rejette H0 au seuil de 5%.'
     },
     {
       stem: 'Quelle condition minimale sur les effectifs théoriques (règle de Cochran) doit être satisfaite pour que le test du Chi-deux soit valide ?',
@@ -274,7 +276,7 @@ module.exports = {
     },
     {
       q: 'Que signifie une p-valeur < 0.05 ?',
-      a: 'Que la probabilité que les résultats observés soient dus au pur hasard est inférieure à 5%, justifiant le rejet de l’hypothèse nulle H0.'
+      a: 'Sous H0 et les hypothèses du modèle, la probabilité d’obtenir une statistique au moins aussi extrême que celle observée est inférieure à 5%. Ce n’est ni la probabilité que H0 soit vraie, ni celle d’une cause attribuable au hasard.'
     }
   ],
   mastery: [

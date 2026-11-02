@@ -41,7 +41,7 @@ function index(course, chapterList) {
     '  <p class="lead">' + course.lead + '</p>',
     box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
-      '      <li>te déplacer dans l’arborescence FHS et bâtir des chemins absolus ou relatifs ;</li>',
+      '      <li>vous déplacer dans l’arborescence FHS et bâtir des chemins absolus ou relatifs ;</li>',
       '      <li>manipuler fichiers et liens, et retrouver une information avec find et grep ;</li>',
       '      <li>lire, calculer et poser des droits justes (chmod, chown, chgrp) ;</li>',
       '      <li>gérer les comptes et groupes en lisant /etc/passwd, /etc/shadow, /etc/group ;</li>',
@@ -187,7 +187,7 @@ function atelier(course) {
       'et testez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé lit l’état d’une liste de services et décide de l’action. Modifiez la règle, ' +
-      'ajoute un décompte par état, ou remplace tout le script par le mécanisme que vous voulez vérifier — un audit ' +
+      'ajoute un décompte par état, ou remplacez tout le script par le mécanisme que vous voulez vérifier — un audit ' +
       'de droits, un classement de tâches cron, une validation d’adresse.</p>',
       '      <p>Dans un vrai terminal, ce sera <code>systemctl</code>, <code>ps</code>, <code>cron</code> : ' +
       'la structure du script — lire, décider, rapporter — reste exactement la même.</p>',
@@ -287,11 +287,11 @@ function formules(course) {
     bloc('L’arborescence en une image', [
       '<pre><code>/          racine : origine de tout\n',
       'etc        configuration (à sauvegarder)      home   répertoires des utilisateurs\n',
-      'tmp        temporaires, vidés au reboot        var    journaux, spools, bases\n',
+      'tmp        temporaires, conservation non garantie   var    journaux, spools, bases\n',
       'root       maison du super-utilisateur         dev    fichiers des périphériques\n',
       'usr        programmes et bibliothèques         bin/sbin  binaires essentiels\n',
       'boot       noyau et démarrage                  proc   arborescence virtuelle du noyau</code></pre>',
-      '<p>Tout chemin absolu commence par / ; /root n’est pas /.</p>'
+      '<p>Tout chemin absolu commence par / ; /root n’est pas /. Sauvegardez aussi les données et testez la restauration.</p>'
     ].join('\n')),
 
     bloc('Commandes de base', [
@@ -301,7 +301,7 @@ function formules(course) {
       'renommer/déplacer mv             supprimer   rm [-r] (danger : -f)\n',
       'afficher          cat, head, tail            manuel      man cmd\n',
       'écrire            echo "x" &gt; f (écrase) ; echo "x" &gt;&gt; f (ajoute)</code></pre>',
-      '<p>Syntaxe immuable : COMMANDE OPTIONS ARGUMENTS — ls -l /home.</p>'
+      '<p>Forme fréquente : COMMANDE OPTIONS ARGUMENTS — ls -l /home. La syntaxe dépend de la commande.</p>'
     ].join('\n')),
 
     bloc('Chercher : find et grep', [
@@ -324,11 +324,12 @@ function formules(course) {
 
     bloc('Comptes et groupes', [
       '<pre><code>/etc/passwd  login:mot-de-passe:UID:GID:info:maison:shell\n',
-      '             x ou ! = mot de passe dans shadow ; * interdit ; !! désactive\n',
-      '/etc/shadow  mots de passe chiffrés (root seul)\n',
+      '             x = vérificateur dans shadow\n',
+      '/etc/shadow  vérificateurs hachés avec sel ; ! ou * bloquent le mot de passe\n',
+      '             d’autres moyens d’authentification peuvent rester disponibles\n',
       '/etc/group   groupe:*:GID:utilisateurs\n',
       'commandes    useradd, usermod, userdel -r, passwd, groupadd, groupdel\n',
-      'UID          root = 0 ; &lt; 1000 = système ; ≥ 1000 = humains</code></pre>',
+      'UID          root = 0 ; UID_MIN et les plages système sont configurables</code></pre>',
       '<p>id utilisateur affiche UID, GID et groupes secondaires.</p>'
     ].join('\n')),
 
@@ -336,7 +337,7 @@ function formules(course) {
       '<pre><code>ip a ; ip route          adresses et passerelle (default via)\n',
       'privées  10.0.0.0/8 ; 172.16–172.31 ; 192.168.0.0/16\n',
       'statique /etc/network/interfaces : address / gateway / dns-nameservers\n',
-      'ssh user@hote:port       port 22 par défaut\n',
+      'ssh -p PORT user@hote    port explicite ; 22 par défaut sans configuration\n',
       'ssh-keygen -t ed25519 ; ssh-copy-id user@hote ; scp f user@hote:/tmp/</code></pre>',
       '<p>Adresse IPv4 valide : exactement quatre octets de 0 à 255.</p>'
     ].join('\n')),
@@ -398,14 +399,14 @@ function examens(course) {
         {
           num: 'Exercice 1',
           badge: '/5 — Arborescence',
-          text: 'Où stocke-t-on les configurations système, les journaux des services, les répertoires personnels et les fichiers temporaires ? Justifier pourquoi /etc est le répertoire à sauvegarder, et dire ce que devient /tmp au redémarrage.',
-          sol: 'Configurations : <code>/etc</code>. Journaux et spools : <code>/var</code>. Répertoires personnels : <code>/home</code> (celui de root est <code>/root</code>). Temporaires : <code>/tmp</code>, <strong>effacé à chaque redémarrage</strong>.'
+          text: 'Où stocke-t-on les configurations système, les journaux des services, les répertoires personnels et les fichiers temporaires ? Que sauvegarder en plus de /etc et que peut-il arriver à /tmp ?',
+          sol: 'Configurations : <code>/etc</code>. Sauvegarder aussi <code>/home</code> et les données applicatives, avec une restauration testée. Journaux : <code>/var</code>. Répertoires personnels : <code>/home</code> (root : <code>/root</code>). Temporaires : <code>/tmp</code>, sans garantie de conservation.'
         },
         {
           num: 'Exercice 2',
           badge: '/5 — /etc/passwd',
-          text: 'Décomposer la ligne caroline:x:1002:1000:Caroline TP:/home/caroline:/bin/bash champ par champ. Que signifie le champ x ? Cette utilisatrice est-elle humaine ou système ?',
-          sol: 'login=caroline ; mot-de-passe=x (empreinte dans <code>/etc/shadow</code>) ; UID=1002 ; GID=1000 ; info=Caroline TP ; maison=/home/caroline ; shell=/bin/bash.<br><code>x</code> ou <code>!</code> renvoient au shadow ; UID 1002 ≥ 1000 : <strong>compte humain</strong>.'
+          text: 'Décomposer la ligne caroline:x:1002:1000:Caroline TP:/home/caroline:/bin/bash champ par champ. Que signifie x ? Dans une simulation classant comme humains les UID à partir de 1000, comment classer ce compte ?',
+          sol: 'login=caroline ; x renvoie au vérificateur dans <code>/etc/shadow</code> ; UID=1002 ; GID=1000 ; info=Caroline TP ; maison=/home/caroline ; shell=/bin/bash.<br>Dans cette simulation, 1002 est classé humain ; sur une machine réelle, les plages sont configurables et l’UID seul ne prouve pas la nature du compte.'
         },
         {
           num: 'Exercice 3',
@@ -434,8 +435,8 @@ function examens(course) {
         {
           num: 'Exercice 2',
           badge: '/5 — SSH',
-          text: 'Décoder la cible sam@serveur:2222 (utilisateur, hôte, port). Citer deux bonnes pratiques qui renforcent une connexion SSH.',
-          sol: 'utilisateur = sam ; hôte = serveur ; port = 2222.<br>Bonnes pratiques : authentification par <strong>clé</strong> plutôt que mot de passe ; changer le port par défaut et/ou restreindre les comptes autorisés.'
+          text: 'Décoder la commande ssh -p 2222 sam@serveur (utilisateur, hôte, port). Citer deux bonnes pratiques qui renforcent une connexion SSH.',
+          sol: 'utilisateur = sam ; hôte = serveur ; port = 2222 grâce à <code>-p</code>.<br>Bonnes pratiques : authentification par <strong>clé</strong> et restriction des comptes autorisés. Changer le port seul ne remplace pas ces protections.'
         },
         {
           num: 'Exercice 3',
@@ -463,10 +464,10 @@ function examens(course) {
 
   const mastery = [
     { stem: 'Que contient /var ?', opts: ['Les configurations', 'Les journaux et spools', 'Les binaires essentiels'], correct: 1, exp: '/var : données variables — journaux, spools de mail, d’impression et de cron.' },
-    { stem: 'root possède quel UID ?', opts: ['0', '1', '1000'], correct: 0, exp: 'root = UID 0 ; les comptes système sont en dessous de 1000.' },
+    { stem: 'root possède quel UID ?', opts: ['0', '1', '1000'], correct: 0, exp: 'root = UID 0 ; les autres plages dépendent de la configuration.' },
     { stem: 'rwxr-x--- en octal ?', opts: ['754', '750', '705'], correct: 1, exp: 'rwx=7, r-x=5, ---=0 : 750, triplet par triplet.' },
     { stem: 'Quelle adresse est privée ?', opts: ['172.32.1.1', '172.20.0.1', '203.0.113.7'], correct: 1, exp: 'Seules les plages 172.16 à 172.31 sont privées ; 172.32 est publique.' },
-    { stem: 'Format d’une cible SSH ?', opts: ['hote@user:port', 'user@hote:port', 'user:hote@port'], correct: 1, exp: 'utilisateur@hote:port ; port 22 par défaut.' },
+    { stem: 'Comment préciser un port SSH ?', opts: ['ssh user@hote:port', 'ssh -p port user@hote', 'ssh -p user port@hote'], correct: 1, exp: 'L’option -p indique le port ; sans configuration particulière, le port par défaut est 22.' },
     { stem: 'chmod u+w f…', opts: ['ajoute l’écriture au propriétaire', 'retire l’écriture au groupe', 'fixe tout à rwx'], correct: 0, exp: 'u désigne le propriétaire, + ajoute le droit.' },
     { stem: 'Un service en état inactive, quelle action ?', opts: ['restart', 'start', 'rien'], correct: 1, exp: 'inactive → start ; failed → restart ; active → rien.' },
     { stem: 'Que fait kill -9 ?', opts: ['arrête proprement', 'force l’arrêt immédiat', 'redémarre'], correct: 1, exp: '-9 envoie SIGKILL : arrêt forcé, sans nettoyage, en dernier recours.' },
@@ -671,7 +672,7 @@ function exercices(course) {
 
     '  <h2>Projet intégrateur — « administration d’un serveur »</h2>',
     box('situation', 'Cahier des charges', 'play', [
-      '    <p>On te confie l’inventaire d’un serveur. Le script lit <code>n</code>, puis <code>n</code> lignes au ' +
+      '    <p>On vous confie l’inventaire d’un serveur. Le script lit <code>n</code>, puis <code>n</code> lignes au ' +
       'format <code>type nom droits</code> — type vaut <code>fichier</code> ou <code>repertoire</code>, ' +
       'droits sont neuf caractères type <code>rwxr-x---</code>. Il produit un rapport : effectifs par type, ' +
       'liste des répertoires, la notation octale de chaque entrée, et une recommandation de sécurité (une ' +

@@ -54,8 +54,8 @@ function index(course, chapterList) {
       'fondamentaux, les topologies et supports, les modèles OSI et TCP/IP, puis l\'adressage et le ' +
       'sous-réseautage. Ce cours en garde l\'esprit et fait appliquer chaque mécanisme <strong>dans des études de cas</strong> : une grille d’analyse qui reproduit l\'analyse exacte du support — classement, panne, handshake, masque — exécuté ' +
       'dans la page.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
-      'script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique écrite ' +
+      '    <p>Chaque chapitre se termine par <strong>trois études de cas</strong> : vous remplissez vraiment votre ' +
+      'grille d’analyse, elle est vérifiée par des critères que vous ne voyez pas. La logique écrite ' +
       'ici se rejoue telle quelle sur les cas des supports (classes d\'adresses, emprunt de bits, VLSM).</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -67,7 +67,7 @@ function index(course, chapterList) {
       '      <a class="btn" href="chapitres/chapitre1.html">' + ic('rocket') + ' Commencer le chapitre 1</a>',
       '      <a class="btn" href="chapitres/cartes.html">' + ic('cards') + ' Flashcards</a>',
       '      <a class="btn" href="chapitres/formules.html">' + ic('file') + ' Mémo réseaux</a>',
-      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier de scripts</a>',
+      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier d’analyse</a>',
       '      <a class="btn" href="exercices/exercices.html">' + ic('blocks') + ' Exercices &amp; projet</a>',
       '      <a class="btn" href="chapitres/simulateur-examen.html">' + ic('clipboard') + ' Examens blancs</a>',
       '    </p>'
@@ -103,9 +103,9 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du premier câble jusqu\'au plan d\'adressage complet. ' +
     'Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou supérieur ' +
     '(et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
-    'dans la page : votre script est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
-    'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à analyser ' +
+    'dans la page : vous remplissez votre grille d’analyse, puis elle est vérifiée par des critères que vous ne voyez pas. ' +
+    'L\'<a href="atelier.html">atelier d’analyse</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
     '  </div>',
@@ -114,7 +114,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s\'auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo réseaux</span><br><span class="toc__d">Topologies, sept couches OSI, handshake TCP, classes d\'adresses, sous-réseaux.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Scripts gradués et projet final : le plan d\'adressage du campus.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier d’analyse</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l\'épreuve, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -166,8 +166,8 @@ function atelier(course) {
       'cours (classement de classe, masque, handshake, emprunt de bits), programmez-le et testez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé lit des couples « adresse classe » et rappelle le masque par défaut de la ' +
-      'classe annoncée. Transforme-le : déduis la classe vous-même à partir du premier octet, calcule le nombre ' +
-      'd\'hôtes valides, ou remplace tout le script par le mécanisme que vous voulez vérifier.</p>',
+      'classe annoncée. Transformez-le : déduisez la classe vous-même à partir du premier octet, calculez le nombre ' +
+      'd\'hôtes valides, ou remplacez tout le script par le mécanisme que vous voulez vérifier.</p>',
       '      <p>Dans un vrai réseau, ce contrôle se fera avec un calculateur d\'adressage : la structure du ' +
       'script — lire, décider, rapporter — reste exactement la même.</p>',
       '    </div>',
@@ -214,8 +214,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de scripts — simuler les réseaux | ' + course.brand,
-      description: 'Atelier de scripts du cours d\'Architecture des réseaux B1 : éditeur dans le navigateur, ' +
+      title: 'Atelier d’analyse — simuler les réseaux | ' + course.brand,
+      description: 'Atelier d’analyse du cours d\'Architecture des réseaux B1 : éditeur dans le navigateur, ' +
         'validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
       active: 'atelier',
       body
@@ -269,13 +269,13 @@ function formules(course) {
       '         client-serveur = serveur centralise comptes et services (organisation)\n',
       '\n',
       'specialises : CAN (campus) / SAN (stockage en mode bloc)</code></pre>',
-      '<p>Si le réseau tient dans des murs, c\'est un LAN ; s\'il emprunte des liaisons louées, c\'est un WAN.</p>'
+      '<p>Un LAN est local ; un WAN relie des réseaux de sites distants. Ni distance minimale ni location ne définissent à elles seules un WAN.</p>'
     ].join('\n')),
 
     bloc('Topologies et supports', [
       '<pre><code>bus    : un seul cable, 10Base2, UNE coupure = tout tombe\n',
-      'anneau : jeton (Token Ring, 16 Mbit/s), 2 chemins,\n',
-      '         double anneau = bascule sur le secondaire\n',
+      'anneau : jeton (Token Ring, 16 Mbit/s) ; pas toujours redondant\n',
+      '         double anneau compatible = reconfiguration possible\n',
       'etoile : noeud central, coupure = 1 poste isole, beaucoup de cables\n',
       '\n',
       'supports : UTP 100 m (cat 5 : 100 Mbit/s, cat 5e : 1 Gbit/s)\n',
@@ -301,7 +301,8 @@ function formules(course) {
       '<pre><code>4 couches : acces reseau (OSI 1+2) / internet (OSI 3) /\n',
       '            transport (OSI 4) / application (OSI 5+6+7)\n',
       '\n',
-      '802.3 Ethernet filaire : CSMA/CD     802.11 Wi-Fi : CSMA/CA\n',
+      'Ethernet half-duplex : CSMA/CD ; full-duplex : pas de detection de collisions\n',
+      '802.11 Wi-Fi : CSMA/CA\n',
       '\n',
       'three-way handshake :\n',
       '  1. SYN     client -> serveur, sequence aleatoire A\n',
@@ -313,7 +314,8 @@ function formules(course) {
     ].join('\n')),
 
     bloc('Adressage : MAC, IP, classes', [
-      '<pre><code>MAC   : 48 bits = 12 hexa ; 6 OUI fabricant + 6 serie ;\n',
+      '<pre><code>MAC   : souvent 48 bits ; adresse locale possible ;\n',
+      '        bloc MA-L : OUI 24 bits + suffixe ; autres préfixes possibles\n',
       '        couche 2, JAMAIS routee au-dela du LAN\n',
       'IPv4  : 32 bits, 4 octets ; partie reseau + partie hote\n',
       'IPv6  : 128 bits, 8 groupes hexa\n',
@@ -328,14 +330,14 @@ function formules(course) {
 
     bloc('Sous-réseautage : VLSM et CIDR', [
       '<pre><code>emprunt de bits (sur /24) :\n',
-      '  sous-reseaux = 2^emprunt        hotes valides = 2^restants - 2\n',
+      '  sous-reseaux = 2^emprunt ; jusqu a /30 : hotes = 2^restants - 2\n',
       '  dernier octet du masque : 1 bit=128  2=192  3=224  4=240\n',
       '  prefixe : /24 + emprunt   (3 bits empruntes -> /27)\n',
       '\n',
       'VLSM : masques differents dans un meme reseau\n',
-      '       /30 = 2 hotes = liaison point-a-point\n',
+      '       /30 = 2 hotes ; /31 point-à-point compatible = 2 adresses\n',
       'CIDR : notation /n, fin des classes A-B-C, standard actuel</code></pre>',
-      '<p>Les hôtes valides retirent deux adresses : réseau et diffusion — 2^k - 2, jamais 2^k.</p>'
+      '<p>Dans le cas ordinaire, on retire réseau et diffusion. Une liaison /31 point-à-point compatible RFC 3021 utilise ses deux adresses.</p>'
     ].join('\n')),
 
     bloc('Erreurs fréquentes à éviter', [
@@ -343,12 +345,12 @@ function formules(course) {
       '    <li>Appeler WAN un Wi-Fi de campus : le WLAN reste un réseau local.</li>',
       '    <li>Promettre la continuité de service en bus : une coupure arrête tout.</li>',
       '    <li>Placer le routeur en couche 2 ou le commutateur en couche 3.</li>',
-      '    <li>Chercher le chiffrement en couche 7 : il se fait en couche 6.</li>',
+      '    <li>Supposer que tout chiffrement se limite à la couche 6 : IPsec agit au niveau IP.</li>',
       '    <li>Router une adresse MAC : elle s\'arrête au premier routeur.</li>',
       '    <li>Ranger 127 en classe B : c\'est la boucle locale.</li>',
       '    <li>Démarrer un handshake par SYN-ACK : l\'ordre est SYN, SYN-ACK, ACK.</li>',
       '    <li>Choisir TCP pour la voix : le retard de réémission dégrade l\'appel.</li>',
-      '    <li>Oublier de retirer 2 aux hôtes : réseau et diffusion ne sont pas attribuables.</li>',
+      '    <li>Appliquer la règle réseau/diffusion à un /31 point-à-point sans tenir compte de son exception.</li>',
       '    <li>Appliquer le même masque partout quand le VLSM est demandé.</li>',
       '  </ul>'
     ].join('\n')),
@@ -379,19 +381,19 @@ function examens(course) {
           num: 'Exercice 1',
           badge: '/5 — Classer les réseaux',
           text: 'Classer : le réseau d\'une salle de TP ; l\'interconnexion des agences d\'une banque entre deux pays ; le Wi-Fi du campus ; l\'iPhone synchronisé au Mac d\'un étudiant. Puis : une entreprise de 40 postes peut-elle fonctionner efficacement en réseau poste-à-poste sans serveur dédié ? Justifier en comparant la gestion des comptes.',
-          sol: '<strong>Salle de TP : LAN</strong> (immeuble). <strong>Agences entre pays : WAN</strong> (plus de 100 km, liaisons d\'opérateur). <strong>Wi-Fi du campus : WLAN</strong> — réseau local sans fil, pas un WAN. <strong>iPhone + Mac : PAN</strong>. L\'entreprise de 40 postes : <strong>non</strong> — en poste-à-poste (ou workgroup), chaque machine doit gérer ses propres comptes et partages ; dès une dizaine de postes la gestion décentralisée devient chaotique et non sécurisée : il faut passer en architecture <strong>client-serveur</strong> où un serveur centralise l\'authentification et les partages.'
+          sol: '<strong>Salle de TP : LAN</strong> (immeuble). <strong>Agences entre pays : WAN</strong> (sites distants, éventuellement reliés par un opérateur). <strong>Wi-Fi du campus : WLAN</strong> — réseau local sans fil, pas un WAN. <strong>iPhone + Mac : PAN</strong>. L\'entreprise de 40 postes : <strong>non</strong> — en poste-à-poste (ou workgroup), chaque machine doit gérer ses propres comptes et partages ; dès une dizaine de postes la gestion décentralisée devient chaotique et non sécurisée : il faut passer en architecture <strong>client-serveur</strong> où un serveur centralise l\'authentification et les partages.'
         },
         {
           num: 'Exercice 2',
           badge: '/5 — Topologies et supports',
           text: 'Une coupure de câble survient : donner le comportement du réseau en bus, en double anneau, en étoile. Puis conseiller le support : entrepôt très perturbé électromagnétiquement ; liaison entre deux bâtiments distants de 3 km ; poste de comptable standard.',
-          sol: '<strong>Bus</strong> : tout le réseau est affecté — topologie fragile. <strong>Double anneau</strong> : les données basculent sur l\'anneau secondaire le temps de la réparation. <strong>Étoile</strong> : un seul poste s\'isole, le reste continue. Supports : <strong>STP blindé</strong> pour l\'entrepôt perturbé ; <strong>fibre optique</strong> pour les 3 km (hors norme UTP 100 m) ; <strong>UTP catégorie 5e</strong> pour le poste standard (1 Gbit/s, moins de 100 m).'
+          sol: '<strong>Bus</strong> : tout le réseau est affecté — topologie fragile. <strong>Double anneau compatible</strong> : après une coupure unique, les portions intactes peuvent être reconfigurées avec le secondaire. <strong>Étoile</strong> : un seul poste s\'isole, le reste continue. Supports possibles : <strong>STP blindé</strong> pour l\'entrepôt perturbé ; <strong>fibre optique</strong> pour les 3 km ; <strong>UTP catégorie 5e</strong> pour le poste standard, en vérifiant la norme et le canal. Le blindage seul ne garantit ni débit ni portée supérieurs.'
         },
         {
           num: 'Exercice 3',
           badge: '/5 — Modèle OSI',
-          text: 'Ranger : le chiffrement des données ; la table de routage ; les ports TCP ; le câble RJ45 ; la synchronisation du dialogue. Un utilisateur « n\'a plus de réseau » : donner les trois premières vérifications dans l\'ordre OSI.',
-          sol: '<strong>Chiffrement : couche 6</strong> (présentation). <strong>Table de routage : couche 3</strong> (réseau). <strong>Ports TCP : couche 4</strong> (transport). <strong>RJ45 : couche 1</strong> (physique). <strong>Synchronisation du dialogue : couche 5</strong> (session). Dépannage : <strong>1)</strong> câbles branchés et alimentation (couche 1) ; <strong>2)</strong> carte réseau et commutateur (couche 2) ; <strong>3)</strong> adresse IP et routage (couche 3) — puis seulement l\'application (7).'
+          text: 'Dans le modèle OSI, ranger : la fonction de présentation ; la table de routage ; les ports TCP ; le câble RJ45 ; la synchronisation du dialogue. Donner ensuite un exemple de chiffrement au niveau IP et trois vérifications de dépannage.',
+          sol: '<strong>Présentation : couche 6</strong>, routage : couche 3, ports TCP : couche 4, RJ45 : couche 1, dialogue : couche 5. <strong>IPsec</strong> peut protéger au niveau IP (couche 3) : le chiffrement n’est pas exclusif de la couche 6. Dépannage : câbles et alimentation, carte et commutateur, puis adresse IP et routage.'
         }
       ]
     },
@@ -440,7 +442,7 @@ function examens(course) {
     { stem: 'Dans une étoile, une coupure isole…', opts: ['tout le réseau', 'le nœud central', 'un seul poste'], correct: 2, exp: 'Liaisons point à point : le reste continue.' },
     { stem: 'La longueur maximale d\'un segment UTP est…', opts: ['10 m', '100 m', '1000 m'], correct: 1, exp: '100 mètres ; catégorie 5e pour le gigabit.' },
     { stem: 'Le commutateur travaille en couche…', opts: ['1', '2', '3'], correct: 1, exp: 'Liaison de données ; le routeur, lui, est en couche 3.' },
-    { stem: 'Le chiffrement OSI se fait en couche…', opts: ['5', '6', '7'], correct: 1, exp: 'Présentation : formater, chiffrer, compresser.' },
+    { stem: 'Quel exemple chiffre au niveau IP ?', opts: ['IPsec', 'Un câble seul', 'Un numéro de port seul'], correct: 0, exp: 'IPsec protège au niveau réseau ; le chiffrement n’est pas réservé à la couche présentation.' },
     { stem: 'Le SYN-ACK du handshake porte…', opts: ['ACK = A+1 et une séquence B', 'seulement A+1', 'seulement B'], correct: 0, exp: 'Acquittement du SYN et nouveau numéro de séquence.' },
     { stem: 'La voix sur IP utilise plutôt…', opts: ['TCP', 'UDP', 'ICMP'], correct: 1, exp: 'UDP : rapidité, pertes tolérables.' },
     { stem: 'Une adresse MAC est routée…', opts: ['sur Internet', 'jamais au-delà d\'un routeur', 'dans toute l\'entreprise'], correct: 1, exp: 'Portée : le segment local uniquement.' },
@@ -580,7 +582,7 @@ function render(kit, course, chapterList) {
     return Object.assign({}, chapitre, {
       next: next
         ? { href: 'chapitre' + next.n + '.html', label: 'Chapitre ' + next.n + ' — ' + next.title }
-        : { href: '../atelier.html', label: 'Atelier de scripts' }
+        : { href: '../atelier.html', label: 'Atelier d’analyse' }
     });
   });
 

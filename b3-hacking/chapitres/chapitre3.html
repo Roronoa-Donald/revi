@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Module 3 — Balayage Réseau, Énumération &amp; Cartographie des Vulnérabilités (Scanning) | Hacking Éthique &amp; Pentest B3</title>
-<meta name="description" content="Module 3 du cours Hacking Éthique &amp; Pentest B3 : Mécanismes réseau de transport TCP/IP et RFC 793, techniques de scan de ports avancées avec Nmap (TCP Connect, SYN Stealth, UDP, scans furtifs FIN/Null/Xmas, ACK mapping de pare-feu), détection d'OS par fingerprinting TCP et analyse des options de paquets, énumération précise des versions logicielles et bannières, énumération de protocoles d'infrastructure critiques (SMB, NetBIOS, SNMP v1/v2c et communautés MIB, LDAP, SSH), et cartographie des vulnérabilités via Nmap Scripting Engine (NSE) et scanners automatisés. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta name="description" content="Module 3 du cours Hacking Éthique &amp; Pentest B3 : Mécanismes réseau TCP/IP et RFC 9293 (août 2022, remplaçant la RFC 793), techniques de scan de ports avancées avec Nmap (TCP Connect, SYN Stealth, UDP, scans furtifs FIN/Null/Xmas, ACK mapping de pare-feu), détection d'OS par fingerprinting TCP et analyse des options de paquets, énumération de protocoles d'infrastructure (SMB, NetBIOS, SNMP v1/v2c, LDAP, SSH), et cartographie des vulnérabilités via Nmap Scripting Engine (NSE) et scanners automatisés. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b3-hacking/chapitres/chapitre3.html">
 <meta property="og:title" content="Module 3 — Balayage Réseau, Énumération &amp; Cartographie des Vulnérabilités (Scanning) | Hacking Éthique &amp; Pentest B3">
-<meta property="og:description" content="Module 3 du cours Hacking Éthique &amp; Pentest B3 : Mécanismes réseau de transport TCP/IP et RFC 793, techniques de scan de ports avancées avec Nmap (TCP Connect, SYN Stealth, UDP, scans furtifs FIN/Null/Xmas, ACK mapping de pare-feu), détection d'OS par fingerprinting TCP et analyse des options de paquets, énumération précise des versions logicielles et bannières, énumération de protocoles d'infrastructure critiques (SMB, NetBIOS, SNMP v1/v2c et communautés MIB, LDAP, SSH), et cartographie des vulnérabilités via Nmap Scripting Engine (NSE) et scanners automatisés. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:description" content="Module 3 du cours Hacking Éthique &amp; Pentest B3 : Mécanismes réseau TCP/IP et RFC 9293 (août 2022, remplaçant la RFC 793), techniques de scan de ports avancées avec Nmap (TCP Connect, SYN Stealth, UDP, scans furtifs FIN/Null/Xmas, ACK mapping de pare-feu), détection d'OS par fingerprinting TCP et analyse des options de paquets, énumération de protocoles d'infrastructure (SMB, NetBIOS, SNMP v1/v2c, LDAP, SSH), et cartographie des vulnérabilités via Nmap Scripting Engine (NSE) et scanners automatisés. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -51,9 +51,9 @@
 </div></nav>
 
 <main id="content" class="b3-hackingwrap">
-<p class="crumb"><a href="../index.html">Hacking Éthique & Pentest B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+<p class="crumb"><a href="../index.html">Hacking Éthique &amp; Pentest B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
 
-<h1>Chapitre 3 — Balayage Réseau, Énumération & Cartographie des Vulnérabilités (Scanning)</h1>
+<h1>Chapitre 3 — Balayage Réseau, Énumération &amp; Cartographie des Vulnérabilités (Scanning)</h1>
 
 <div class="chapmeta">
     <span class="tag">Module 3</span>
@@ -70,7 +70,7 @@
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
     <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
-      <li>maîtriser la RFC 793 et le cycle de vie des paquets TCP (SYN, ACK, RST, FIN, PSH, URG) pour le balayage de ports ;</li>
+      <li>expliquer les bases de TCP selon la RFC 9293 (2022) et les drapeaux SYN, ACK, RST, FIN, PSH et URG utilisés dans le balayage de ports ;</li>
       <li>différencier et exécuter les scans SYN (-sS), TCP Connect (-sT), UDP (-sU), ACK (-sA) et furtifs (-sF, -sN, -sX) ;</li>
       <li>analyser les techniques d'OS fingerprinting basées sur le TTL, la taille de fenêtre (Window Size) et les options TCP ;</li>
       <li>extraire et corréler les bannières réseau pour identifier les versions logicielles obsolètes et failles CVE associées ;</li>
@@ -79,7 +79,11 @@
     </ol>
   </div>
 
-<h2>1. Mécanismes Réseau TCP/IP et RFC 793 au Cœur du Balayage</h2>
+<h2>1. Référence TCP actuelle et portée des observations</h2>
+
+<p>La RFC 9293, publiée en août 2022, remplace la RFC 793 de 1981. Les mentions de la RFC 793 ci-dessous concernent la spécification historique ; les réponses observées lors d'un scan dépendent aussi des systèmes et des filtres réseau.</p>
+
+<h2>2. Mécanismes réseau TCP/IP au cœur du balayage</h2>
 
 <p>Comprendre le fonctionnement des scanners de ports comme Nmap nécessite de maîtriser la poignée de mains TCP 3-way handshake définie par la RFC 793 :</p>
 <div class="grid grid-2">
@@ -98,7 +102,7 @@
   </div>
 </div>
 
-<h2>2. Techniques Avancées de Sondes Nmap &amp; Cartographie de Pare-Feu</h2>
+<h2>3. Techniques Avancées de Sondes Nmap &amp; Cartographie de Pare-Feu</h2>
 
 <p>Nmap propose un éventail complet de techniques de balayage selon les privilèges de l'auditeur et le comportement des pare-feux :</p>
 <table class="table">
@@ -116,7 +120,7 @@
 <p>Attention en environnement hétérogène : la pile réseau TCP de Microsoft Windows (ainsi que certains équipements Cisco ou BSD anciens) ne respecte pas scrupuleusement la RFC 793 pour les paquets non sollicités. Sous Windows, la machine répond systématiquement par un paquet <code>RST</code> sur TOUS les ports, qu'ils soient ouverts ou fermés. Les scans FIN, Null et Xmas ne fonctionnent donc que face aux systèmes Unix, Linux et conformes RFC.</p>
   </div>
 
-<h2>3. Empreinte de Système d'Exploitation (OS Fingerprinting) &amp; Détection de Versions</h2>
+<h2>4. Empreinte de Système d'Exploitation (OS Fingerprinting) &amp; Détection de Versions</h2>
 
 <p>Nmap ne se contente pas de tester l'ouverture d'un port : il identifie le système d'exploitation sous-jacent et les versions logicielles exactes :</p>
 <div class="grid grid-2">
@@ -136,7 +140,7 @@
   </div>
 </div>
 
-<h2>4. Énumération Approfondie des Protocoles d'Infrastructure : SMB &amp; SNMP</h2>
+<h2>5. Énumération Approfondie des Protocoles d'Infrastructure : SMB &amp; SNMP</h2>
 
 <p>Certains protocoles réseau historiques divulguent des quantités massives de données s'ils sont mal configurés :</p>
 <div class="grid grid-2">
@@ -160,7 +164,7 @@
   </div>
 </div>
 
-<h2>5. Nmap Scripting Engine (NSE) &amp; Cartographie des Vulnérabilités</h2>
+<h2>6. Nmap Scripting Engine (NSE) &amp; Cartographie des Vulnérabilités</h2>
 
 <pre><code># Exécution de scripts d'audit de vulnérabilités connues sur un hôte
 $ nmap -sV --script vuln 192.168.1.50
@@ -173,9 +177,11 @@ $ nmap -p 443 --script ssl-enum-ciphers target.com</code></pre>
 <p>Dans une chaîne d'audit d'entreprise, Nmap est complété par des scanners de vulnérabilités automatisés spécialisés (Nessus, OpenVAS, Qualys) qui maintiennent des bases de données actualisées de signatures de vulnérabilités corrélées aux identifiants CVE et CWE.</p>
 
 <!-- code-labs:start -->
-  <h2>6. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <div id="exercices">
+  <h2>7. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="hk3-c3-e1" data-lab
      data-exercise="hk3-c3-e1"
      data-language="analyse"
@@ -204,10 +210,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Interpréteur de Drapeaux TCP et Diagnostic de Sondes de Scan</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="hk3-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Analyser les paquets de réponse TCP pour déterminer l'état d'un port selon la RFC 793 et le type de scan Nmap.</p>
     <div class="lab__brief"><p>Nmap utilise différents types de sondes TCP pour sonder l'état des ports et cartographier les pare-feux :<br><br>
 Règles de diagnostic selon le scan et la réponse reçue :<br>
@@ -225,9 +233,7 @@ Données du cas : <code>TCP_PROBE scan_type=&lt;SYN|FIN|NULL|XMAS|ACK&gt; port=&
 Résultat d’analyse attendu : <code>PORT_STATE: port=&lt;p&gt; scan_type=&lt;type&gt; reply=&lt;reply&gt; state=&lt;state&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TCP_PROBE scan_type=SYN port=443 reply=SYN+ACK</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PORT_STATE: port=443 scan_type=SYN reply=SYN+ACK state=OPEN</pre></div>
     </div>
-    <p class="lab__note">Port HTTPS ouvert renvoyant un paquet SYN+ACK de synchronisation.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
@@ -267,25 +273,25 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Analyseur de Bannières de Services Réseau et Détection de Failles Connues</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="hk3-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Extraire les versions logicielles des bannières de services réseau et identifier les vulnérabilités critiques associées.</p>
     <div class="lab__brief"><p>Le banner grabbing permet de repérer des versions logicielles vulnérables avant toute phase d'exploitation.<br><br>
 Base de signatures connues :<br>
-- <code>vsFTPd 2.3.4</code> -> <code>cve=CVE-2011-2523</code>, <code>severity=CRITICAL</code>, <code>desc=Backdoor_Command_Execution</code><br>
-- <code>Apache/2.4.49</code> -> <code>cve=CVE-2021-41773</code>, <code>severity=CRITICAL</code>, <code>desc=Path_Traversal_RCE</code><br>
-- <code>OpenSSH_7.2p2</code> -> <code>cve=CVE-2016-6210</code>, <code>severity=MEDIUM</code>, <code>desc=User_Enumeration</code><br>
-- <code>ProFTPD 1.3.5</code> -> <code>cve=CVE-2015-3306</code>, <code>severity=HIGH</code>, <code>desc=mod_copy_Arbitrary_Copy</code><br>
-- Autre version -> <code>cve=NONE</code>, <code>severity=INFO</code>, <code>desc=UP_TO_DATE_OR_CUSTOM</code><br><br>
+- <code>vsFTPd 2.3.4</code> -&gt; <code>cve=CVE-2011-2523</code>, <code>severity=CRITICAL</code>, <code>desc=Backdoor_Command_Execution</code><br>
+- <code>Apache/2.4.49</code> -&gt; <code>cve=CVE-2021-41773</code>, <code>severity=CRITICAL</code>, <code>desc=Path_Traversal_RCE</code><br>
+- <code>OpenSSH_7.2p2</code> -&gt; <code>cve=CVE-2016-6210</code>, <code>severity=MEDIUM</code>, <code>desc=User_Enumeration</code><br>
+- <code>ProFTPD 1.3.5</code> -&gt; <code>cve=CVE-2015-3306</code>, <code>severity=HIGH</code>, <code>desc=mod_copy_Arbitrary_Copy</code><br>
+- Autre version -&gt; <code>cve=NONE</code>, <code>severity=INFO</code>, <code>desc=UP_TO_DATE_OR_CUSTOM</code><br><br>
 Données du cas : <code>BANNER_SCAN port=&lt;p&gt; service=&lt;svc&gt; banner=&lt;texte_banniere&gt;</code>.<br>
 Résultat d’analyse attendu : <code>VULN_MATCH: port=&lt;p&gt; service=&lt;svc&gt; cve=&lt;cve&gt; severity=&lt;sev&gt; desc=&lt;desc&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BANNER_SCAN port=21 service=ftp banner=220 (vsFTPd 2.3.4)</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VULN_MATCH: port=21 service=ftp cve=CVE-2011-2523 severity=CRITICAL desc=Backdoor_Command_Execution</pre></div>
     </div>
-    <p class="lab__note">Backdoor historique du serveur FTP vsFTPd 2.3.4 permettant l'exécution root.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
@@ -302,59 +308,48 @@ Résultat d’analyse attendu : <code>VULN_MATCH: port=&lt;p&gt; service=&lt;svc
      data-language="analyse"
      data-height="300"
      data-stdin="SNMP_TEST target=192.168.1.1 wordlist=public,private,cisco,admin target_community=public target_perm=RO sys_descr=Cisco_IOS_Software_C2960">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c3-e3) — Simulateur d'Audit SNMP et Détection de Communautés Vulnérables
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c3-e3) — Recherche simulée dans une liste de communautés SNMP
+# Complétez la réponse attendue sous chaque cas ci-dessous :
 
-[Cas 1 — Chaîne de communauté d'écriture Read-Write découverte au troisième essai]
+[Cas 1 — Correspondance au troisième essai]
 # Données : SNMP_TEST target=10.0.0.254 wordlist=public,cisco,private,switch target_community=private target_perm=RW sys_descr=Juniper_EX4300
 A_COMPLETER
 
-[Cas 2 — Cible robuste dont la chaîne n'est pas dans le dictionnaire testé]
+[Cas 2 — Aucune correspondance dans la liste]
 # Données : SNMP_TEST target=172.16.1.1 wordlist=public,private,secret target_community=complex_snmp_9821 target_perm=RO sys_descr=Linux_Router
 A_COMPLETER
 
-[Cas 3 — Dictionnaire volumineux arrêtant la recherche dès la première correspondance]
+[Cas 3 — Correspondance au deuxième essai]
 # Données : SNMP_TEST target=192.168.100.10 wordlist=manager,monitor,operator target_community=monitor target_perm=RO sys_descr=HP_ProCurve
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Simulateur d'Audit SNMP et Détection de Communautés Vulnérables</h3>
+    <h3 class="lab__title">Exercice 3 — Recherche simulée dans une liste de communautés SNMP</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Auditer les chaînes de communauté SNMP d'un commutateur ou routeur et classifier le niveau de compromission.</p>
-    <div class="lab__brief"><p>SNMP v1 et v2c transmettent les chaînes de communauté en clair sans chiffrement.<br><br>
-Règles d'évaluation :<br>
-- On teste successivement chaque chaîne de la liste de dictionnaires <code>wordlist</code> contre la cible.<br>
-- Si une chaîne correspond à <code>target_community</code> :<br>
-  - Si <code>target_perm == 'RW'</code> : <code>status=COMPROMISED</code>, <code>risk=CRITICAL</code> (modification d'équipement possible).<br>
-  - Si <code>target_perm == 'RO'</code> : <code>status=COMPROMISED</code>, <code>risk=HIGH</code> (fuite complète d'arborescence MIB).<br>
-- Si aucune chaîne ne correspond :<br>
-  - <code>status=SECURE</code>, <code>risk=LOW</code>.<br><br>
-Données du cas : <code>SNMP_TEST target=&lt;ip&gt; wordlist=&lt;w1,w2,...&gt; target_community=&lt;comm&gt; target_perm=&lt;RO|RW&gt; sys_descr=&lt;descr&gt;</code>.<br>
-Résultat d’analyse attendu :<br>
-- Si compromis : <code>SNMP_AUDIT: target=&lt;ip&gt; status=COMPROMISED matched_community=&lt;comm&gt; perm=&lt;perm&gt; attempts=&lt;N&gt; risk=&lt;risk&gt; sys_descr=&lt;descr&gt;</code><br>
-- Si non compromis : <code>SNMP_AUDIT: target=&lt;ip&gt; status=SECURE attempts=&lt;N&gt; risk=LOW reason=COMMUNITY_NOT_FOUND</code></p></div>
+    <p class="lab__formative-notice" id="hk3-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer des chaînes fictives sans conclure au niveau de sécurité d’un service.</p>
+    <div class="lab__brief"><p>Dans cette simulation, comparer successivement les chaînes de <code>wordlist</code> à <code>target_community</code> et arrêter à la première correspondance. Le résultat ne prouve pas qu’un service réel est sûr, compromis ou qu’un niveau de risque particulier s’applique ; d’autres configurations et contrôles doivent être examinés. Toute vérification réelle exige une autorisation.</p><p>Données : <code>SNMP_TEST target=&lt;ip&gt; wordlist=&lt;liste&gt; target_community=&lt;chaine&gt; target_perm=&lt;RO|RW&gt; sys_descr=&lt;description&gt;</code>.<br>Si trouvée : <code>SNMP_AUDIT: target=&lt;ip&gt; status=TROUVEE matched_community=&lt;chaine&gt; perm=&lt;RO|RW&gt; attempts=&lt;n&gt; risk=NON_EVALUE sys_descr=&lt;description&gt;</code>.<br>Sinon : <code>SNMP_AUDIT: target=&lt;ip&gt; status=NON_TROUVEE attempts=&lt;n&gt; risk=NON_EVALUE</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SNMP_TEST target=192.168.1.1 wordlist=public,private,cisco,admin target_community=public target_perm=RO sys_descr=Cisco_IOS_Software_C2960</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SNMP_AUDIT: target=192.168.1.1 status=COMPROMISED matched_community=public perm=RO attempts=1 risk=HIGH sys_descr=Cisco_IOS_Software_C2960</pre></div>
     </div>
-    <p class="lab__note">Chaîne publique par défaut permettant la lecture intégrale des interfaces et tables ARP.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Découpez wordlist sur la virgule et itérez dans l'ordre.</li>
-        <li>Dès qu'un mot correspond à target_community, arrêtez-vous et notez le nombre d'essais effectués.</li>
-        <li>Si target_perm == RW -&gt; risk=CRITICAL, sinon risk=HIGH.</li>
+        <li>Compter les essais jusqu’à la première correspondance, ou toute la liste si aucune chaîne ne correspond.</li>
+        <li>Ne déduire aucun risque global du seul résultat.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
-  <h2>7. QCM — niveau examen</h2>
+  <h2>8. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -439,7 +434,7 @@ Résultat d’analyse attendu :<br>
     </div>
   </div>
 
-<h2>8. Erreurs classiques — récapitulatif</h2>
+<h2>9. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -451,7 +446,7 @@ Résultat d’analyse attendu :<br>
     </ul>
   </div>
 
-<h2>9. Méthodologie de résolution</h2>
+<h2>10. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
@@ -464,7 +459,7 @@ Résultat d’analyse attendu :<br>
     </ol>
   </div>
 
-<h2>10. Révision active</h2>
+<h2>11. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -490,15 +485,15 @@ Résultat d’analyse attendu :<br>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
   </div>
 
-<h2>11. Test de maîtrise</h2>
+<h2>12. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Reprenez les sections théoriques et revoyez les définitions clés.</div>
-      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Pratique les exercices N1 de l'atelier avant de retenter le test.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bon niveau opérationnel : affine les cas limites et les options d'outils.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Reprenez les sections théoriques et revoyez les définitions clés.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Pratiquez les exercices N1 de l'atelier avant de retenter le test.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bon niveau opérationnel : affinez les cas limites et les options d'outils.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise d'ingénierie validée : passez au module suivant.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
@@ -506,11 +501,11 @@ Résultat d’analyse attendu :<br>
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="chapitre4.html">Module 4 — Exploitation des Vulnérabilités Web (OWASP Top 10 & Injection) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="chapitre4.html">Module 4 — Exploitation des Vulnérabilités Web (OWASP Top 10 &amp; Injection) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : Programme officiel Certified Ethical Hacker (CEH v12), Référentiels PTES (Penetration Testing Execution Standard), OWASP Web Security Testing Guide (WSTG v4.2), NIST SP 800-115, Documentation GTFOBins & MITRE ATT&CK.</p>
+  Sources : Programme officiel Certified Ethical Hacker (CEH v12), Référentiels PTES (Penetration Testing Execution Standard), OWASP Web Security Testing Guide (WSTG v4.2), NIST SP 800-115, Documentation GTFOBins &amp; MITRE ATT&amp;CK.</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

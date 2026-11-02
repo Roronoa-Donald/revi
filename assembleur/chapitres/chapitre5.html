@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -63,14 +63,14 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Un étudiant tente d’écrire l’instruction <code>MOV [ebx], [eax]</code> pour copier le contenu d’une variable dans une autre et se heurte à une erreur de compilation immédiate : <i>invalid combination of opcode and operands</i>. Pourquoi l’architecture x86 interdit-elle formellement tout transfert direct de mémoire à mémoire ? Pourquoi l’instruction <code>MOV eax, [ebx + ecx*4]</code> déclenche-t-elle un accès au bus RAM alors que <code>LEA eax, [ebx + ecx*4]</code> ne touche jamais à la mémoire et sert de calculatrice ultra-rapide ? Ce module détaille la grammaire des instructions et la puissance des modes d’adressage.</p>
+    <p>Un étudiant tente d’écrire l’instruction <code>MOV [ebx], [eax]</code> pour copier le contenu d’une variable dans une autre et se heurte à une erreur de compilation immédiate : <i>invalid combination of opcode and operands</i>. Pourquoi la forme usuelle de MOV x86 refuse-t-elle deux opérandes mémoire explicites ? Pourquoi l’instruction <code>MOV eax, [ebx + ecx*4]</code> déclenche-t-elle un accès au bus RAM alors que <code>LEA eax, [ebx + ecx*4]</code> ne touche jamais à la mémoire et sert de calculatrice ultra-rapide ? Ce module détaille la grammaire des instructions et la puissance des modes d’adressage.</p>
   </div>
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
     <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
-      <li>appliquer la règle d’or des processeurs CISC : au maximum un seul opérande mémoire par instruction ;</li>
+      <li>distinguer la restriction des opérandes explicites de MOV des instructions de copie spécialisées ;</li>
       <li>maîtriser l’ensemble des modes d’adressage x86 : immédiat, registre, direct, indirect et indexé avec facteur d’échelle ;</li>
       <li>distinguer rigoureusement le chargement de données (<code>MOV</code>) du calcul d’adresse arithmétique (<code>LEA</code>) ;</li>
       <li>utiliser les instructions arithmétiques et logiques fondamentales (ADD, SUB, INC, DEC, NEG, IMUL, IDIV) ;</li>
@@ -82,12 +82,12 @@
 
 <p>L’instruction <code>MOV destination, source</code> est l’instruction la plus fréquente d’un programme. Elle transfère une donnée de la source vers la destination (sans altérer la source ni modifier les drapeaux EFLAGS).</p>
   <div class="box box--pitfall">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> La règle matérielle absolue : jamais deux accès mémoire simultanés</div>
-<p>Le bus d’adresses et le bus de données d’un processeur ne peuvent pas effectuer deux transferts RAM dans le même cycle d’horloge élémentaire. Par conséquent :</p><pre><code>MOV [varA], [varB]   ; ERREUR CRITIQUE : interdit par le matériel x86 !
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> La règle des opérandes explicites de MOV</div>
+<p>Les formes usuelles de <code>MOV</code> ne codent pas deux opérandes mémoire explicites. Pour copier une valeur avec ces formes, utilisez un registre intermédiaire :</p><pre><code>MOV [varA], [varB]   ; ERREUR CRITIQUE : interdit par le matériel x86 !
 
 // Pour copier d’une case mémoire vers une autre, il FAUT transiter par un registre :
 MOV EAX, [varB]      ; 1. Charger la donnée depuis la RAM vers le registre EAX
-MOV [varA], EAX      ; 2. Écrire le registre EAX vers la destination en RAM</code></pre>
+MOV [varA], EAX      ; 2. Écrire le registre EAX vers la destination en RAM</code></pre><p>Cette restriction ne vaut pas pour toutes les instructions : <code>MOVSB</code> copie un octet entre deux adresses mémoire implicites. En mode 64 bits, elles sont indiquées par RSI (source) et RDI (destination).</p>
   </div>
 
 <h2>2. Les 5 modes d’adressage x86 (de l’immédiat à l’indexé)</h2>
@@ -131,9 +131,11 @@ LEA EAX, [EAX*8 + EAX]   ; Multiplie EAX par 9 en 1 cycle ! (8*EAX + EAX = 9*EAX
 </table>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="asm2-c5-e1" data-lab
      data-exercise="asm2-c5-e1"
      data-language="analyse"
@@ -162,17 +164,17 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Simulateur d’instructions MOV entre registres</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="asm2-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Simuler le transfert de données immédiates et de registre à registre en x86.</p>
     <div class="lab__brief"><p>L’instruction <code>MOV destination, source</code> copie une valeur sans modifier la source. Dans notre processeur simulé, quatre registres 32 bits <code>EAX</code>, <code>EBX</code>, <code>ECX</code> et <code>EDX</code> sont initialement tous fixés à <code>0</code>.</p><p>Analysez les paramètres du problème pour chaque cas. <code>MOV EAX, 42; MOV EBX, EAX</code>). Indiquez l’état final des 4 registres au format :<br><code>EAX=&lt;val&gt; EBX=&lt;val&gt; ECX=&lt;val&gt; EDX=&lt;val&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MOV EAX, 42; MOV EBX, EAX</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EAX=42 EBX=42 ECX=0 EDX=0</pre></div>
     </div>
-    <p class="lab__note">EAX reçoit 42, puis EBX reçoit la valeur de EAX (42).</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
@@ -212,17 +214,17 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Calcul d’adresse effective LEA (Base + Index * Scale + Disp)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="asm2-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Calculer l’adresse mémoire calculée par l’instruction x86 LEA sans accéder à la RAM.</p>
     <div class="lab__brief"><p>L’instruction <code>LEA (Load Effective Address)</code> calcule une adresse mémoire selon le mode d’adressage complet x86 <code>[Base + Index * Scale + Déplacement]</code> sans jamais lire le contenu de la mémoire vive.</p><p>Pour chaque cas, observez :</p><ul><li><code>BASE_HEX</code> : l’adresse de base dans le registre (ex. <code>0x00401000</code>) ;</li><li><code>INDEX_DEC</code> : l’indice dans le tableau (ex. <code>4</code>) ;</li><li><code>SCALE_DEC</code> : le facteur d’échelle (1, 2, 4 ou 8 octets) ;</li><li><code>DISP_HEX</code> : le déplacement constant (ex. <code>0x00000010</code>).</li></ul><p>Indiquez :<br><code>ADRESSE=0x&lt;8 chiffres HEX majuscules&gt; DEC=&lt;valeur&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0x00401000;4;4;0x00000010</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ADRESSE=0x00401020 DEC=4198432</pre></div>
     </div>
-    <p class="lab__note">0x00401000 + 4*4 (16) + 16 (0x10) = 0x00401020.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -261,17 +263,17 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Exécuteur d’opérations arithmétiques x86 (ADD, SUB, INC, DEC, NEG, XOR)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="asm2-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Exécuter pas à pas une séquence d’instructions arithmétiques sur un accumulateur 32 bits.</p>
     <div class="lab__brief"><p>Un registre accumulateur <code>EAX</code> part d’une valeur initiale donnée. On lui applique successivement une suite d’instructions arithmétiques séparées par des virgules :</p><ul>  <li><code>ADD n</code> : ajoute <code>n</code> ;</li>  <li><code>SUB n</code> : soustrait <code>n</code> ;</li>  <li><code>INC</code> : incrémente de 1 ;</li>  <li><code>DEC</code> : décrémente de 1 ;</li>  <li><code>NEG</code> : inverse arithmétiquement le signe ($EAX = -EAX$) ;</li>  <li><code>XOR n</code> : applique un ou exclusif binaire avec <code>n</code>.</li></ul><p>Analysez les paramètres du problème pour chaque cas. Indiquez la valeur finale au format :<br><code>VAL=&lt;entier signé&gt; HEX=0x&lt;8 chiffres HEX majuscules&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>10;ADD 5, SUB 2, INC</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VAL=14 HEX=0x0000000E</pre></div>
     </div>
-    <p class="lab__note">10 + 5 = 15 -&gt; 15 - 2 = 13 -&gt; 13 + 1 = 14 (0x0E).</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -281,6 +283,7 @@ A_COMPLETER
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -288,12 +291,12 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Pourquoi l’instruction assembleur MOV [eax], [ebx] est-elle rejetée par l’assembleur x86 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Parce que le processeur x86 ne permet pas de lire et d’écrire simultanément en mémoire dans une seule instruction</button>
+        <button class="opt" data-correct="1">Parce que les formes de MOV ne codent pas deux opérandes mémoire explicites</button>
         <button class="opt">Parce que les registres EAX et EBX sont réservés aux calculs flottants</button>
         <button class="opt">Parce que les crochets sont interdits en syntaxe Intel</button>
         <button class="opt">Parce que l’instruction MOV ne supporte que les constantes</button>
       </div>
-      <div class="q__exp">En architecture x86, une instruction peut avoir au plus un seul opérande en mémoire vive.</div>
+      <div class="q__exp">MOV ne propose pas cette forme à deux opérandes mémoire explicites. Une instruction spécialisée comme MOVSB lit et écrit pourtant en mémoire avec des adresses implicites.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la différence fondamentale entre MOV EAX, [EBX+4] et LEA EAX, [EBX+4] ?</p>
@@ -386,7 +389,7 @@ A_COMPLETER
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour traduire une affectation C complexe en x86</div>
     <ol>
       <li>Décomposer l’opération de haut niveau : isoler la lecture des opérandes sources, le calcul, et l’écriture finale.</li>
-      <li>Vérifier la règle des opérandes : s’assurer qu’au moins l’un des deux opérandes de chaque instruction est un registre.</li>
+      <li>Pour une copie mémoire-mémoire avec les formes usuelles de MOV, charger d’abord la valeur dans un registre.</li>
       <li>Exploiter l’instruction LEA chaque fois qu’un calcul combine une multiplication par 1, 2, 4 ou 8 avec une addition.</li>
       <li>Conserver les valeurs temporaires dans les registres non volatils (EBX, ESI, EDI) pour limiter les allers-retours vers la RAM.</li>
     </ol>
@@ -397,7 +400,7 @@ A_COMPLETER
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
-      <li>En x86, une instruction ne peut contenir qu’un seul opérande en mémoire vive : le transfert mémoire-mémoire passe par un registre.</li>
+      <li>MOV ne code pas deux opérandes mémoire explicites ; MOVSB est une instruction de copie avec adresses mémoire implicites.</li>
       <li>Les 5 modes d’adressage couvrent de la constante immédiate jusqu’à l’adressage complet [Base + Index * Scale + Déplacement].</li>
       <li>LEA calcule l’adresse sans toucher à la mémoire et sans modifier les drapeaux EFLAGS : arme d’optimisation majeure.</li>
       <li>Les instructions arithmétiques (ADD, SUB, INC, DEC, NEG) mettent à jour les indicateurs d’état ZF, CF, SF et OF.</li>
@@ -425,10 +428,10 @@ A_COMPLETER
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Revoyez la règle d’or des opérandes mémoire et la syntaxe des modes d’adressage.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Revoyez la règle d’or des opérandes mémoire et la syntaxe des modes d’adressage.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur la distinction entre MOV et LEA et les facteurs d’échelle SIB.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous maîtrisez le jeu d’instructions x86 et les modes d’adressage matériels.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Parfait : passe aux branchements, à la pile et aux fonctions au chapitre 6.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Parfait : passez aux branchements, à la pile et aux fonctions au chapitre 6.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

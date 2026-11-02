@@ -65,7 +65,7 @@ module.exports = {
         '    <p>La <strong>MIB (Management Information Base)</strong> organise les données sous forme d\'un arbre hiérarchique normalisé. Chaque paramètre est identifié par un <strong>OID (Object Identifier)</strong> numérique :</p>',
         '    <ul>',
         '      <li><code>1.3.6.1.2.1.1.1</code> : <code>sysDescr</code> — Description du système d\'exploitation et du firmware.</li>',
-        '      <li><code>1.3.6.1.2.1.1.3</code> : <code>sysUpTime</code> — Temps de fonctionnement depuis le dernier boot (en centièmes de seconde).</li>',
+        '      <li><code>1.3.6.1.2.1.1.3.0</code> : <code>sysUpTime</code> — Temps écoulé depuis la dernière réinitialisation de la partie gestion réseau, en centièmes de seconde ; ce n’est pas forcément le démarrage de l’OS. Le compteur TimeTicks revient à zéro modulo 2^32, soit environ 497 jours.</li>',
         '      <li><code>1.3.6.1.2.1.1.5</code> : <code>sysName</code> — Nom FQDN configuré sur la machine.</li>',
         '      <li><code>1.3.6.1.2.1.2.2.1.8.&lt;i&gt;</code> : <code>ifOperStatus</code> — État de l\'interface <code>i</code> (1=up, 2=down).</li>',
         '      <li><code>1.3.6.1.2.1.2.2.1.10.&lt;i&gt;</code> : <code>ifInOctets</code> — Compteur cumulé d\'octets reçus sur l\'interface <code>i</code>.</li>',
@@ -103,10 +103,12 @@ module.exports = {
         '    <h4>Transport &amp; Sécurisation Syslog</h4>',
         '    <ul>',
         '      <li><strong>UDP 514 :</strong> Mode historique sans connexion, léger mais sans garantie de livraison (perte de paquets en cas de congestion réseau).</li>',
-        '      <li><strong>TCP 514 / TLS 6514 :</strong> Mode connecté avec accusé de réception, chiffrement fort TLS et contrôle de flux garantissant la non-répudiation des traces d\'audit.</li>',
+        '      <li><strong>TCP 514 :</strong> transport connecté utilisé dans certaines configurations, sans TLS il ne chiffre pas les journaux.</li>',
+        '      <li><strong>TLS 6514 :</strong> avec une configuration et des certificats correctement vérifiés, apporte confidentialité, intégrité en transit et authentification des pairs. TLS ne garantit pas la non-répudiation des traces ; il ne garantit pas leur enregistrement durable ni la livraison de bout en bout.</li>',
         '    </ul>',
         '  </div>',
-        '</div>'
+        '</div>',
+        '<p>Sources : <a href="https://www.rfc-editor.org/rfc/rfc3418">RFC 3418</a>, <a href="https://www.rfc-editor.org/rfc/rfc2578">RFC 2578</a> et <a href="https://www.rfc-editor.org/rfc/rfc5425">RFC 5425</a> (2009), mise à jour par la <a href="https://www.rfc-editor.org/rfc/rfc9662">RFC 9662</a> (2024) pour les suites cryptographiques ; documents consultés le 30 octobre 2026.</p>'
       ].join('\n')
     }
   ],
@@ -124,7 +126,7 @@ module.exports = {
     'L\'arbre MIB (Management Information Base) et les OID hiérarchiques structurent l\'ensemble des métriques d\'un composant système ou réseau.',
     'SNMPv3 USM comble les failles d\'écoute et d\'usurpation des versions antérieures grâce aux modes noAuthNoPriv, authNoPriv et authPriv.',
     'Syslog RFC 5424 encode chaque message avec un entier PRI = Facility * 8 + Severity (0=Emergency à 7=Debug) pour classifier la criticité.',
-    'La migration de Syslog vers TCP 514 ou TLS 6514 prévient les pertes de paquets inhérentes à UDP sous forte charge d\'incident.'
+    'TCP peut retransmettre les données ; TLS correctement configuré protège le transport, sans garantir le stockage final ni la non-répudiation.'
   ],
 
   checklist: [
@@ -132,7 +134,7 @@ module.exports = {
     'Pouvez-vous déchiffrer un OID MIB-2 fondamental tel que 1.3.6.1.2.1.2.2.1.8 (ifOperStatus) ?',
     'Maîtrisez-vous la configuration du niveau de sécurité SNMPv3 authPriv combinant SHA et AES ?',
     'Savez-vous calculer la sévérité et la facility à partir du code PRI Syslog <34> (Facility 4, Severity 2) ?',
-    'Pourquoi l\'utilisation de Syslog sur TCP ou TLS est-elle indispensable pour garantir l\'auditabilité des traces ?'
+    'Quelles protections TLS apporte-t-il au transport Syslog et quelles preuves supplémentaires faut-il prévoir pour l’audit ?'
   ],
 
   notions: [
@@ -168,7 +170,7 @@ module.exports = {
       stem: 'Dans l\'arborescence MIB-2, à quoi correspond l\'OID standard 1.3.6.1.2.1.1.3.0 ?',
       opts: ['Au nom de machine sysName', 'À la description matérielle sysDescr', 'Au temps de fonctionnement sysUpTime', 'À l\'adresse IP de la passerelle'],
       correct: 2,
-      exp: 'L\'OID 1.3.6.1.2.1.1.3.0 représente le sysUpTime, soit le temps écoulé depuis le dernier démarrage du système en centièmes de seconde (TimeTicks).'
+      exp: 'sysUpTime mesure les centièmes de seconde depuis la réinitialisation de la gestion réseau, pas nécessairement depuis le démarrage de l’OS ; TimeTicks est modulo 2^32.'
     },
     {
       stem: 'Une trame Syslog RFC 5424 débute par la priorité <30>. Quels sont la Facility et la Severity correspondantes ?',
@@ -193,6 +195,12 @@ module.exports = {
       opts: ['Emergency (système inutilisable)', 'Debug (débogage détaillé)', 'Warning (avertissement)', 'Informational (information courante)'],
       correct: 0,
       exp: 'La sévérité 0 est Emergency, le niveau le plus critique signalant une panique totale du système d\'exploitation.'
+    },
+    {
+      stem: 'Quelle différence entre TCP 514 sans TLS et Syslog sur TLS 6514 ?',
+      opts: ['TLS correctement configuré protège la confidentialité en transit ; TCP seul ne chiffre pas', 'TCP seul chiffre et prouve la non-répudiation', 'TLS garantit toujours le stockage final', 'Les deux transports sont nécessairement chiffrés'],
+      correct: 0,
+      exp: 'TLS peut protéger et authentifier les pairs en transit ; la livraison durable et la non-répudiation exigent d’autres mesures.'
     },
     {
       stem: 'Quel est l\'inconvénient majeur du transport Syslog historique sur UDP 514 ?',
@@ -221,7 +229,7 @@ module.exports = {
     },
     {
       q: 'Pourquoi privilégier Syslog sur TLS 6514 plutôt qu\'UDP 514 ?',
-      a: 'Pour garantir la livraison avec accusé de réception TCP, le contrôle de flux et le chiffrement des traces d\'audit.'
+      a: 'Pour protéger la confidentialité et l’intégrité en transit, avec authentification correctement configurée ; la livraison et la conservation ne sont pas garanties.'
     },
     {
       q: 'Quel est le rôle d\'un proxy collecteur dans une architecture distribuée ?',

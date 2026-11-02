@@ -47,7 +47,7 @@ module.exports = [
     "language": "sql",
     "title": "Déclencheur d’audit automatique (CREATE TRIGGER AFTER UPDATE)",
     "goal": "Écrire un trigger enregistrant l’ancienne et la nouvelle valeur lors d’une mise à jour.",
-    "brief": "<p>Soient <code>comptes(id INT, solde INT)</code> et <code>journal_audit(compte_id INT, ancien_solde INT, nouveau_solde INT)</code>. Créez un déclencheur <code>trg_audit_solde</code> qui, <code>AFTER UPDATE ON comptes</code>, insère dans <code>journal_audit</code> les valeurs <code>(OLD.id, OLD.solde, NEW.solde)</code>.</p>",
+    "brief": "<p>Dans cet atelier SQLite, soient <code>comptes(id INT, solde INT)</code> et <code>journal_audit(compte_id INT, ancien_solde INT, nouveau_solde INT)</code>. Créez un déclencheur <code>trg_audit_solde</code> qui, <code>AFTER UPDATE ON comptes</code>, insère dans <code>journal_audit</code> les valeurs <code>(OLD.id, OLD.solde, NEW.solde)</code>. Le journal participe à la même transaction : un ROLLBACK annule aussi son insertion.</p>",
     "starter": "-- Créez le trigger trg_audit_solde AFTER UPDATE ON comptes\nSELECT * FROM comptes;",
     "hints": [
       "Utilisez CREATE TRIGGER trg_audit_solde AFTER UPDATE ON comptes FOR EACH ROW BEGIN ... END;",

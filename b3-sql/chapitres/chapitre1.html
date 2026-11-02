@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -75,11 +75,11 @@
       <li>comparer les 4 niveaux d’isolation ANSI SQL et leurs protections contre les anomalies de concurrence ;</li>
       <li>maîtriser la matrice de compatibilité des verrous à deux phases (2PL) partagés (S) et exclusifs (X) ;</li>
       <li>détecter et résoudre les cycles d’interblocage (Deadlocks) par exploration de graphes orientés ;</li>
-      <li>développer en Python 3 des simulateurs de niveaux d’isolation, des gestionnaires de verrous S/X et des détecteurs de cycles de transactions.</li>
+      <li>développer en requêtes SQL avancées et scripts d’analyse des simulateurs de niveaux d’isolation, des gestionnaires de verrous S/X et des détecteurs de cycles de transactions.</li>
     </ol>
   </div>
 
-<h2>1. Les Fondations ACID & Le Mécanisme de Journalisation WAL (Write-Ahead Logging)</h2>
+<h2>1. Les Fondations ACID &amp; Le Mécanisme de Journalisation WAL (Write-Ahead Logging)</h2>
 
 <p>Une transaction est une unité logique de traitement composée d’une ou plusieurs instructions SQL exécutées de manière atomique (entre <code>BEGIN</code> et <code>COMMIT</code> ou <code>ROLLBACK</code>). Le standard relationnel repose sur quatre propriétés incontournables :</p>
 <div class="grid grid-2">
@@ -89,21 +89,21 @@
       <li><strong>Atomicité (Atomicity) :</strong> Tout ou rien. Soit l’intégralité des opérations réussit, soit la base est restaurée dans son état initial sans effet de bord en cas d’erreur.</li>
       <li><strong>Cohérence (Consistency) :</strong> La transaction fait passer la base d’un état intègre à un autre état intègre en respectant toutes les contraintes (clés étrangères, NOT NULL, CHECK, triggers).</li>
       <li><strong>Isolation :</strong> Les opérations intermédiaires d’une transaction en cours sont invisibles aux transactions concurrentes selon le niveau d’isolation choisi.</li>
-      <li><strong>Durabilité (Durability) :</strong> Une fois le COMMIT acquitté au client, les modifications sont définitivement pérennisées sur disque, survivant à toute panne matérielle ultérieure.</li>
+      <li><strong>Durabilité (Durability) :</strong> Une transaction validée doit survivre à un crash si le journal est synchronisé sur un stockage fiable. Dans PostgreSQL, avec <code>fsync = on</code> et <code>synchronous_commit = on</code>, le COMMIT attend la synchronisation locale du WAL ; avec <code>synchronous_commit = off</code>, il peut être acquitté avant. Des sauvegardes indépendantes et une réplication adaptée restent nécessaires contre la destruction du stockage ou des seules copies.</li>
     </ul>
   </div>
   <div class="card">
     <h4>Le Principe du Write-Ahead Logging (WAL)</h4>
-    <p>Écrire directement chaque page de données modifiée (8 Ko) de manière synchrone sur disque serait prohibitif pour les performances (accès I/O aléatoires dispersés). Les moteurs modernes (PostgreSQL, InnoDB) appliquent le protocole <strong>ARIES / WAL</strong> :</p>
+    <p>Écrire chaque page de données modifiée de manière synchrone serait coûteux. PostgreSQL applique le principe <strong>WAL</strong> ; les mécanismes de récupération, notamment ceux des moteurs utilisant une passe UNDO, varient selon le SGBD :</p>
     <ol>
-      <li>Les modifications sont enregistrées séquentiellement dans des fichiers de journaux circulaires <code>pg_wal</code> (fichiers de 16 Mo).</li>
-      <li><strong>Règle d’or du WAL :</strong> Aucun bloc de données en mémoire tampon (Buffer Pool) n’est écrit sur disque avant que l’enregistrement WAL correspondant n’ait été synchronisé par un <code>fsync()</code>.</li>
-      <li>Lors d’un crash, le moteur exécute une passe <em>REDO</em> (rejoue les commits) puis une passe <em>UNDO</em> (annule les transactions inachevées).</li>
+      <li>Les modifications sont journalisées dans les segments <code>pg_wal</code> de PostgreSQL, dont la taille par défaut est de 16 Mio.</li>
+      <li><strong>Règle d’or du WAL :</strong> Une page de données modifiée ne doit pas être écrite sur disque avant la synchronisation des enregistrements WAL nécessaires à sa reconstruction.</li>
+      <li>Après un crash, PostgreSQL rejoue aussi les enregistrements de transactions non validées. Leur statut et MVCC déterminent la visibilité des versions ; les versions mortes peuvent être nettoyées ultérieurement, sans passe UNDO globale.</li>
     </ol>
   </div>
 </div>
 
-<h2>2. Niveaux d’Isolation ANSI SQL & Anomalies de Concurrence</h2>
+<h2>2. Niveaux d’Isolation ANSI SQL &amp; Anomalies de Concurrence</h2>
 
 <p>Pour concilier intégrité stricte et parallélisme élevé, le standard ANSI SQL définit quatre niveaux d’isolation hiérarchiques caractérisés par les anomalies qu’ils autorisent ou préviennent :</p>
 <div class="grid grid-3">
@@ -133,7 +133,7 @@
 </table>
   </div>
 
-<h2>3. Verrouillage 2PL, Détection d’Interblocages (Deadlocks) & MVCC</h2>
+<h2>3. Verrouillage 2PL, Détection d’Interblocages (Deadlocks) &amp; MVCC</h2>
 
 <p>Pour arbitrer les accès concurrents, les SGBD exploitent le protocole de verrouillage à deux phases (Two-Phase Locking - 2PL) combiné au contrôle de concurrence multiversion (MVCC) :</p>
 <div class="grid grid-2">
@@ -142,7 +142,7 @@
     <p>Les verrous protègent les données contre les écritures conflictuelles :</p>
     <ul>
       <li><strong>Verrou Partagé (S - Shared) :</strong> Posé par une lecture explicite (<code>SELECT ... FOR SHARE</code>). Plusieurs transactions peuvent détenir un verrou S simultanément sur la même ressource.</li>
-      <li><strong>Verrou Exclusif (X - Exclusive) :</strong> Posé par toute écriture (<code>UPDATE</code>, <code>DELETE</code>, <code>SELECT ... FOR UPDATE</code>). Incompatible avec tout autre verrou (S ou X).</li>
+      <li><strong>Verrou Exclusif (X - Exclusive) :</strong> Dans le modèle S/X, il est incompatible avec les verrous S ou X sur la même ressource. Dans PostgreSQL, <code>SELECT ... FOR UPDATE</code> bloque les écritures et verrous de ligne conflictuels, pas un <code>SELECT</code> ordinaire utilisant MVCC.</li>
       <li><strong>Protocole 2PL Strict :</strong> Tous les verrous acquis au cours d’une transaction sont conservés jusqu’à la fin définitive (COMMIT ou ROLLBACK) pour garantir la recouvrabilité.</li>
     </ul>
   </div>
@@ -156,31 +156,32 @@
     </ul>
   </div>
 </div>
+<p><strong>Instantané PostgreSQL :</strong> le snapshot tient compte des transactions en cours et la visibilité dépend aussi du statut validé ou annulé des transactions et des opérations de la transaction courante. Les colonnes système <code>xmin</code> et <code>xmax</code> ne suffisent pas à elles seules : un <code>xmax</code> non nul ne prouve pas une suppression définitivement visible.</p>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="sql3-c1-e1" data-lab
      data-exercise="sql3-c1-e1"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE wal_journal (lsn INT, tx_id INT, op TEXT); INSERT INTO wal_journal VALUES (1, 100, 'BEGIN'), (2, 100, 'UPDATE'), (3, 100, 'COMMIT'), (4, 101, 'BEGIN'), (5, 101, 'UPDATE');&#10;-- exemple">
   <script type="text/plain" data-lab-starter>-- Sélectionnez les tx_id distincts n’ayant ni COMMIT ni ROLLBACK
 SELECT DISTINCT tx_id FROM wal_journal;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Audit des transactions non validées dans le journal WAL</h3>
+    <h3 class="lab__title">Exercice 1 — Audit d’un journal transactionnel fictif</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Identifier par requête SQL les transactions ouvertes sans événement COMMIT ni ROLLBACK.</p>
-    <div class="lab__brief"><p>La table <code>wal_journal(lsn INT, tx_id INT, op TEXT)</code> consigne les opérations du journal Write-Ahead Log (<code>BEGIN</code>, <code>UPDATE</code>, <code>COMMIT</code>, <code>ROLLBACK</code>). Écrivez une requête SQL qui retourne les <code>tx_id</code> distincts des transactions encore en vol (qui ne possèdent aucune ligne avec <code>op IN ('COMMIT', 'ROLLBACK')</code>), triés par <code>tx_id</code> croissant.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier dans un journal fictif les transactions sans événement COMMIT ni ROLLBACK.</p>
+    <p class="lab__note" id="sql3-c1-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans ce journal fictif, la table pédagogique <code>wal_journal(lsn INT, tx_id INT, op TEXT)</code> consigne des événements <code>BEGIN</code>, <code>UPDATE</code>, <code>COMMIT</code> et <code>ROLLBACK</code> ; ce n’est pas le format du WAL réel de PostgreSQL ni une description de sa récupération. Écrivez une requête SQL qui retourne les <code>tx_id</code> distincts des transactions encore en vol (qui ne possèdent aucune ligne avec <code>op IN ('COMMIT', 'ROLLBACK')</code>), triés par <code>tx_id</code> croissant. Ignorez les lignes dont <code>tx_id</code> est <code>NULL</code> : elles ne désignent pas de transaction identifiable.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE wal_journal (lsn INT, tx_id INT, op TEXT); INSERT INTO wal_journal VALUES (1, 100, 'BEGIN'), (2, 100, 'UPDATE'), (3, 100, 'COMMIT'), (4, 101, 'BEGIN'), (5, 101, 'UPDATE');
 -- exemple</pre></div>
@@ -195,7 +196,7 @@ SELECT DISTINCT tx_id FROM wal_journal;</script>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Utilisez une sous-requête : WHERE tx_id NOT IN (SELECT tx_id FROM wal_journal WHERE op IN ('COMMIT', 'ROLLBACK')).</li>
+        <li>Pour chaque identifiant non nul, cherchez s’il existe une ligne de fin pour la même transaction ; attention aux valeurs NULL avec NOT IN.</li>
         <li>Ajoutez DISTINCT et ORDER BY tx_id ASC.</li>
       </ol>
     </details>
@@ -204,21 +205,24 @@ SELECT DISTINCT tx_id FROM wal_journal;</script>
 
 <div class="lab" id="sql3-c1-e2" data-lab
      data-exercise="sql3-c1-e2"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE mvcc_tuples (tuple_id INT, xmin INT, xmax INT, valeur TEXT); INSERT INTO mvcc_tuples VALUES (1, 10, 30, 'v1_supprimee'), (2, 30, 0, 'v2_visible'), (3, 60, 0, 'v3_future');&#10;-- exemple">
   <script type="text/plain" data-lab-starter>-- Filtrez les tuples visibles au snapshot_tx = 50
 SELECT tuple_id, valeur FROM mvcc_tuples;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Visibilité MVCC des tuples selon le snapshot xmin / xmax</h3>
+    <h3 class="lab__title">Exercice 2 — Visibilité dans un modèle MVCC fictif</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Déterminer les versions de lignes visibles pour une transaction de snapshot donné.</p>
-    <div class="lab__brief"><p>Dans PostgreSQL (MVCC), chaque version de ligne possède <code>xmin</code> (transaction créatrice) et <code>xmax</code> (transaction de suppression, <code>0</code> si toujours active). Pour une transaction courante <code>snapshot_tx = 50</code>, sélectionnez <code>tuple_id</code> et <code>valeur</code> de la table <code>mvcc_tuples(tuple_id, xmin, xmax, valeur)</code> qui ont été créés avant le snapshot (<code>xmin &lt; 50</code>) et qui ne sont pas supprimés avant le snapshot (<code>xmax = 0 OR xmax &gt;= 50</code>), triés par <code>tuple_id</code> croissant.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer la règle de visibilité d’un modèle simplifié à un instantané fictif.</p>
+    <p class="lab__note" id="sql3-c1-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans ce modèle simplifié inspiré de MVCC, la table <code>mvcc_tuples(tuple_id, xmin, xmax, valeur)</code> contient des identifiants fictifs de création et de suppression, avec <code>xmax = 0</code> pour une ligne non supprimée. Pour le snapshot fictif <code>50</code>, sélectionnez <code>tuple_id</code> et <code>valeur</code> lorsque <code>xmin &lt; 50</code> et <code>(xmax = 0 OR xmax &gt;= 50)</code>, triés par <code>tuple_id</code> croissant. Ce filtre est une convention de l’atelier : dans PostgreSQL, un snapshot tient compte des transactions en cours et la visibilité dépend aussi du statut validé ou annulé des transactions ; un <code>xmax</code> non nul ne prouve pas une suppression effective.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE mvcc_tuples (tuple_id INT, xmin INT, xmax INT, valeur TEXT); INSERT INTO mvcc_tuples VALUES (1, 10, 30, 'v1_supprimee'), (2, 30, 0, 'v2_visible'), (3, 60, 0, 'v3_future');
 -- exemple</pre></div>
@@ -233,7 +237,7 @@ SELECT tuple_id, valeur FROM mvcc_tuples;</script>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Un tuple est visible à tx=50 si xmin &lt; 50 AND (xmax = 0 OR xmax &gt;= 50).</li>
+        <li>Dans ce modèle fictif, un tuple est visible à tx=50 si xmin &lt; 50 AND (xmax = 0 OR xmax &gt;= 50).</li>
         <li>Triez par tuple_id ASC.</li>
       </ol>
     </details>
@@ -242,6 +246,7 @@ SELECT tuple_id, valeur FROM mvcc_tuples;</script>
 
 <div class="lab" id="sql3-c1-e3" data-lab
      data-exercise="sql3-c1-e3"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE pg_locks_sim (pid INT, ressource TEXT, accorde INT); INSERT INTO pg_locks_sim VALUES (101, 'ligne_42', 1), (102, 'ligne_42', 0), (103, 'ligne_99', 1);&#10;-- exemple">
@@ -251,11 +256,13 @@ SELECT pid, ressource FROM pg_locks_sim;</script>
     <h3 class="lab__title">Exercice 3 — Détection de conflit de verrous (Lock Wait Graph)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Joindre la table des verrous acquis et des verrous en attente pour identifier les blocages.</p>
+    <p class="lab__note" id="sql3-c1-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>La table <code>pg_locks_sim(pid INT, ressource TEXT, accorde INT)</code> indique si un processus détient un verrou (<code>accorde = 1</code>) ou attend ce verrou (<code>accorde = 0</code>). Écrivez une auto-jointure qui affiche <code>attente.pid AS pid_bloque</code>, <code>detenteur.pid AS pid_bloqueur</code> et <code>attente.ressource</code> pour chaque couple où <code>attente.accorde = 0</code> et <code>detenteur.accorde = 1</code> sur la même <code>ressource</code>, triée par <code>pid_bloque</code> croissant.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE pg_locks_sim (pid INT, ressource TEXT, accorde INT); INSERT INTO pg_locks_sim VALUES (101, 'ligne_42', 1), (102, 'ligne_42', 0), (103, 'ligne_99', 1);
@@ -277,6 +284,7 @@ SELECT pid, ressource FROM pg_locks_sim;</script>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -349,7 +357,7 @@ SELECT pid, ressource FROM pg_locks_sim;</script>
         <button class="opt">SELECT ... WITH NO WAIT</button>
         <button class="opt">SELECT ... ISOLATE</button>
       </div>
-      <div class="q__exp">La clause FOR UPDATE verrouille les lignes lues en mode exclusif (X), empêchant toute autre transaction de les modifier ou de poser un verrou concurrent.</div>
+      <div class="q__exp">Dans PostgreSQL, FOR UPDATE verrouille les lignes et bloque les modifications ou verrous de ligne conflictuels. Un SELECT ordinaire peut néanmoins lire une version visible grâce à MVCC.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que signifie l’acronyme MVCC dans les moteurs transactionnels comme PostgreSQL ?</p>
@@ -359,7 +367,7 @@ SELECT pid, ressource FROM pg_locks_sim;</script>
         <button class="opt">Master Volume Cache Check</button>
         <button class="opt">Minimal Value Commit Clause</button>
       </div>
-      <div class="q__exp">MVCC maintient plusieurs versions physiques d’un même enregistrement, permettant aux lectures de consulter des instantanés passés sans jamais bloquer les écritures.</div>
+      <div class="q__exp">MVCC maintient plusieurs versions de ligne : dans PostgreSQL, un SELECT ordinaire lit une version visible de son instantané sans attendre un verrou de ligne ; les lectures verrouillantes ont d’autres règles.</div>
     </div>
   </div>
 
@@ -397,14 +405,14 @@ SELECT pid, ressource FROM pg_locks_sim;</script>
       <li>Les propriétés ACID garantissent l’atomicité, la cohérence, l’isolation et la durabilité des opérations sur la base.</li>
       <li>Le Write-Ahead Logging (WAL) sécurise les modifications de données de manière séquentielle avant toute écriture sur les tables.</li>
       <li>Les 4 niveaux d’isolation ANSI définissent les seuils de tolérance aux lectures sales, lectures non répétables et lectures fantômes.</li>
-      <li>PostgreSQL combine l’isolation avec le mécanisme MVCC où les lectures ne bloquent jamais les écritures.</li>
+      <li>Dans PostgreSQL, MVCC permet aux SELECT ordinaires et aux écritures de lignes de coexister ; les lectures verrouillantes et certains verrous de table ont d’autres règles.</li>
       <li>Les verrous partagés (S) sont compatibles entre eux mais incompatibles avec les verrous exclusifs (X).</li>
       <li>Le moteur résout les interblocages (deadlocks) en détectant les cycles dans le graphe d’attente et en avortant une transaction victime.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
       <li>Je sais expliciter les quatre garanties ACID et leur rôle dans la fiabilité des données.</li>
-      <li>Je comprends pourquoi le mécanisme WAL permet une reprise après sinistre (Crash Recovery) sans perte de commit.</li>
+      <li>Je sais dans quelles conditions le WAL permet la reprise après crash et pourquoi un COMMIT acquitté avec synchronous_commit = off peut être perdu.</li>
       <li>Je maîtrise la matrice ANSI des anomalies de concurrence (Dirty Read, Non-Repeatable Read, Phantom Read).</li>
       <li>Je connais la compatibilité croisée entre les verrous S (Shared) et X (Exclusive).</li>
       <li>Je sais comment le SGBD détecte un cycle d’interblocage via le graphe Wait-For Graph.</li>
@@ -412,7 +420,7 @@ SELECT pid, ressource FROM pg_locks_sim;</script>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>Propriétés ACID Fondamentales</li><li>Write-Ahead Logging (WAL) & ARIES</li><li>Anomalies de Concurrence ANSI</li><li>4 Niveaux d’Isolation (Read Committed, Serializable)</li><li>Contrôle de Concurrence Multiversion (MVCC)</li><li>Verrouillage à Deux Phases (2PL) S & X</li><li>Graphe d’Attente (Wait-For Graph)</li><li>Détection et Résolution de Deadlocks</li>
+      <li>Propriétés ACID Fondamentales</li><li>Write-Ahead Logging (WAL) &amp; ARIES</li><li>Anomalies de Concurrence ANSI</li><li>4 Niveaux d’Isolation (Read Committed, Serializable)</li><li>Contrôle de Concurrence Multiversion (MVCC)</li><li>Verrouillage à Deux Phases (2PL) S &amp; X</li><li>Graphe d’Attente (Wait-For Graph)</li><li>Détection et Résolution de Deadlocks</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -424,7 +432,7 @@ SELECT pid, ressource FROM pg_locks_sim;</script>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à distinguer les propriétés ACID ou confusion entre lecture sale et lecture fantôme.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Difficultés à distinguer les propriétés ACID ou confusion entre lecture sale et lecture fantôme.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne compréhension des niveaux d’isolation ANSI, de la compatibilité des verrous S/X et du mécanisme WAL.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise complète de la concurrence MVCC, détection fine de deadlocks, verrouillage pessimiste fin et stratégies de retry haute résilience.</div>

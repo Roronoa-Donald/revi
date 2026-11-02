@@ -251,6 +251,11 @@ ANALYSE: nom=g_cycle_neg | POIDS_NEGATIFS: OUI | DIJKSTRA_APPLICABLE: NON | CYCL
         label: 'Cycle absorbant à 3 sommets',
         stdin: 'ANALYSE nom=triangle_neg SOURCE=S SOMMETS=S,A,B,C ARCS=S->A:2,A->B:1,B->C:-4,C->A:1',
         expected: 'ANALYSE: nom=triangle_neg | POIDS_NEGATIFS: OUI | DIJKSTRA_APPLICABLE: NON | CYCLE_ABSORBANT: OUI'
+      },
+      {
+        label: 'Arc de poids nul sans poids négatif',
+        stdin: 'ANALYSE nom=poids_nul SOURCE=S SOMMETS=S,A ARCS=S->A:0',
+        expected: 'ANALYSE: nom=poids_nul | POIDS_NEGATIFS: NON | DIJKSTRA_APPLICABLE: OUI | CYCLE_ABSORBANT: NON'
       }
     ],
     solution: `import sys

@@ -111,7 +111,12 @@ module.exports = [
             '    <p>La <strong>table</strong> (copie de travail) accueille tout ce qu\'on bricole ; le ' +
             '<strong>plateau</strong> (index) n\'embarque que ce qu\'on a posé exprès ; l\'<strong>armoire</strong> ' +
             '(dépôt) archive pour de bon. add pose sur le plateau, commit range dans l\'armoire, reset ' +
-            'repose sur la table.</p>')
+            'repose sur la table.</p>'),
+          box('intuition', 'Prérequis Bash pour les ateliers de code', 'terminal',
+            '    <p>Les ateliers pratiques de ce chapitre simulent les états de Git à l\'aide de scripts en ' +
+            '<strong>Bash</strong> (boucles <code>for ((i=0; i&lt;n; i++))</code>, lecture avec <code>read -r op reste</code>, ' +
+            'conditions <code>if [ "$op" = "init" ]</code>). Si vous débutez en Bash, appuyez-vous sur l’amorce de code ' +
+            'fournie dans chaque exercice ou consultez les bases du cours <a href="/b1-linux/">Administration Linux B1</a>.</p>')
         ].join('\n')
       }
     ],
@@ -123,7 +128,7 @@ module.exports = [
       { stem: 'Quels sont les trois espaces de Git ?', opts: ['RAM, disque, cloud', 'Copie de travail, index, dépôt local', 'main, feature, origin'], correct: 1, exp: 'Copie de travail, index (zone de transit) et dépôt local (historique, tête HEAD).' },
       { stem: 'Quelle commande fait un état des lieux permanent ?', opts: ['git add', 'git log', 'git status'], correct: 2, exp: 'git status liste nouveaux fichiers et modifications à commiter.' },
       { stem: 'Un fichier « untracked » est…', opts: ['supprimé', 'jamais ajouté au suivi', 'en conflit'], correct: 1, exp: 'Non suivi : présent dans la copie de travail mais jamais passé par git add.' },
-      { stem: 'git clone fait quoi, de plus que copier des fichiers ?', opts: ['Rien de plus', 'Télécharge le projet et tout son historique, et crée le lien origin', 'Créez un .gitignore'], correct: 1, exp: 'Le clone reconstruit l\'historique complet et le lien vers le dépôt distant.' },
+      { stem: 'git clone fait quoi, de plus que copier des fichiers ?', opts: ['Rien de plus', 'Télécharge le projet et tout son historique, et crée le lien origin', 'Crée un .gitignore'], correct: 1, exp: 'Le clone reconstruit l\'historique complet et le lien vers le dépôt distant.' },
       { stem: 'Quelle commande vérifie la configuration posée ?', opts: ['git config --list', 'git status', 'git log'], correct: 0, exp: 'git config --list liste toutes les valeurs de configuration actives.' }
     ],
 
@@ -163,18 +168,12 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Refaites le TP1 ligne par ligne, en expliquant chaque commande.' },
-      { cls: 'mid', text: '50–69 % — Dessine les trois espaces et les flèches add/commit/reset de mémoire.' },
+      { cls: 'mid', text: '50–69 % — Dessinez les trois espaces et les flèches add/commit/reset de mémoire.' },
       { cls: 'good', text: '70–94 % — Solide : simule un refus de commit sans identité et corrige-le.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 2, l\'index et les commits.' }
     ],
 
     flashcards: [
-      { q: 'Qu’est-ce que « versionnage » ?', a: "La commande git init crée un sous-dossier .git qui contient le dépôt local : tout l'historique, les branches, la configuration propre au projet. Supprimer .git revient à désamorcer le versionnage — les fichiers, eux, restent. On peut aussi créer un dépôt à partir d'un projet exis" },
-      { q: 'Qu’est-ce que « décentralisé » ?', a: "expliquer ce qu'est un système de gestion de versions décentralisé ;" },
-      { q: 'Qu’est-ce que « git status » ?', a: 'lire la sortie de git status et citer les trois espaces de Git.' },
-      { q: 'Qu’est-ce que « git reset HEAD » ?', a: "retirer un fichier de l'index avec git reset HEAD et git rm --cached ;" },
-      { q: 'Qu’est-ce que « oneline » ?', a: "C'est le format --oneline que le TP1 utilise pour vérifier la propreté de l'historique : une ligne, un commit, un message qui raconte quelque chose." },
-      { q: 'Qu’est-ce que « ls-files » ?', a: 'La commande git ls-files --other --ignored --exclude-standard liste tous les fichiers exclus du suivi dans le projet : le moyen de vérifier que le .gitignore fait son travail.' },
       { q: 'Que fait git init ?', a: 'Il crée un sous-dossier .git qui contient le dépôt local : historique, branches, configuration.' },
       { q: 'Les trois espaces de Git ?', a: 'Copie de travail (fichiers du développeur), index (zone de transit), dépôt local (historique, tête HEAD).' },
       { q: 'Pourquoi configurer user.name et user.email ?', a: 'Chaque commit porte une identité : sans elle, Git peut refuser le commit ou signer faux.' },
@@ -285,8 +284,8 @@ module.exports = [
       { stem: 'git add . et git add -A ont en commun de…', opts: ['ignorer les fichiers détruits', 'prendre nouveaux, modifiés et détruits', 'ne prendre que les modifiés'], correct: 1, exp: 'Les deux couvrent les trois états ; -u, lui, ignore les nouveaux fichiers.' },
       { stem: 'Que fait git add -u ?', opts: ['Indexe les nouveaux fichiers', 'Indexe modifications et destructions des fichiers suivis', 'Met à jour le dépôt distant'], correct: 1, exp: '-u (update) ne voit que les fichiers déjà suivis : modifiés et détruits.' },
       { stem: 'Un fichier déjà suivi est ajouté au .gitignore : que se passe-t-il ?', opts: ['Il sort du suivi', 'Il reste suivi — il faut git rm --cached', 'Il est supprimé'], correct: 1, exp: 'Le .gitignore ne s\'applique qu\'aux fichiers pas encore suivis.' },
-      { stem: 'Que fait git rm --cached fichier ?', opts: ['Supprimez le fichier du disque', 'Retire l\'index et le suivi, le fichier reste sur disque', 'Ne fait rien'], correct: 1, exp: '--cached sort de l\'index et du suivi sans détruire physiquement le fichier.' },
-      { stem: 'git reset HEAD fichier fait quoi ?', opts: ['Efface le fichier', 'Retire ses modifications de l\'index, qui repartent dans la copie', 'Créez un commit'], correct: 1, exp: 'reset HEAD est l\'inverse de git add : le fichier reste suivi.' },
+      { stem: 'Que fait git rm --cached fichier ?', opts: ['Supprime le fichier du disque', 'Retire l\'index et le suivi, le fichier reste sur disque', 'Ne fait rien'], correct: 1, exp: '--cached sort de l\'index et du suivi sans détruire physiquement le fichier.' },
+      { stem: 'git reset HEAD fichier fait quoi ?', opts: ['Efface le fichier', 'Retire ses modifications de l\'index, qui repartent dans la copie', 'Crée un commit'], correct: 1, exp: 'reset HEAD est l\'inverse de git add : le fichier reste suivi.' },
       { stem: 'Que contient un commit ?', opts: ['La copie de travail entière', 'L\'état de l\'index, décrit par le message, identifié par un SHA-1', 'Les fichiers du dépôt distant'], correct: 1, exp: 'Le commit archive ce que l\'index contient au moment de la commande.' },
       { stem: 'Quand peut-on commit --amend sans risque ?', opts: ['Toujours', 'Si le commit n\'a pas encore été poussé', 'Après un push'], correct: 1, exp: 'Amend change le SHA-1 : les autres collaborateurs subiraient le déplacement d\'historique.' },
       { stem: 'Après un commit, l\'index est…', opts: ['plein', 'vide', 'inversé'], correct: 1, exp: 'Le commit a transféré tout l\'index vers le dépôt : l\'index se vide.' }

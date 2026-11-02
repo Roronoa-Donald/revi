@@ -19,7 +19,7 @@ module.exports = [
     free: true,
 
     situation:
-      'Le club te prête une carte programmable. Branchée, elle n’affiche rien : ce n’est pas qu’elle est ' +
+      'Le club vous prête une carte programmable. Branchée, elle n’affiche rien : ce n’est pas qu’elle est ' +
       'cassée, c’est qu’elle attend un programme. Avant de brancher la moindre LED, il faut comprendre ' +
       'ce qu’un programme pour carte a toujours : des lectures d’entrées, des calculs, des affichages ' +
       'exactement ordonnés. On écrit ce premier programme de manière méthodique, parce que MicroPython — la variante ' +
@@ -33,10 +33,6 @@ module.exports = [
     ],
 
     sections: [
-      {
-        "title": "Pont pédagogique : Du cycle Capteur → Traitement → Actionneur au programme Arduino (setup / loop)",
-        "html": "<div class=\"box box--tech\"><div class=\"box__title\">Correspondance avec les travaux pratiques sur carte Arduino (C/C++)</div><p>Sur une carte microcontrôleur <strong>Arduino Uno</strong> (étudiée dans les fiches de TP du Club de Robotique), tout programme comporte deux fonctions obligatoires qui reflètent directement la boucle de commande d’un robot :</p><ul><li><code>void setup() { ... }</code> : exécutée <strong>une seule fois</strong> à la mise sous tension pour configurer les broches en entrée ou en sortie (<code>pinMode(pin, INPUT/OUTPUT)</code>) et ouvrir la liaison série (<code>Serial.begin(9600)</code>) ;</li><li><code>void loop() { ... }</code> : répétée <strong>indéfiniment</strong> pour lire les capteurs (<code>digitalRead()</code>, <code>analogRead()</code>), décider du comportement et commander les actionneurs (<code>digitalWrite()</code>, <code>analogWrite()</code>).</li></ul></div>"
-      },
       {
         title: 'La boucle qui anime tout robot',
         html: [
@@ -115,6 +111,10 @@ module.exports = [
           'jusqu’à 12 caractères ». Les libellés de même largeur forment une colonne : l’œil compare ' +
           'immédiatement, ce qui est le but d’un journal de séance.</p>'
         ].join('\n')
+      },
+      {
+        "title": "Pour aller plus loin : Du cycle Capteur → Traitement → Actionneur au programme Arduino (setup / loop)",
+        "html": "<div class=\"box box--tech\"><div class=\"box__title\">Correspondance avec les travaux pratiques sur carte Arduino (C/C++)</div><p>Sur une carte microcontrôleur <strong>Arduino Uno</strong> (étudiée dans les fiches de TP du Club de Robotique), tout programme comporte deux fonctions obligatoires qui reflètent directement la boucle de commande d’un robot :</p><ul><li><code>void setup() { ... }</code> : exécutée <strong>une seule fois</strong> à la mise sous tension pour configurer les broches en entrée ou en sortie (<code>pinMode(pin, INPUT/OUTPUT)</code>) et ouvrir la liaison série (<code>Serial.begin(9600)</code>) ;</li><li><code>void loop() { ... }</code> : répétée <strong>indéfiniment</strong> pour lire les capteurs (<code>digitalRead()</code>, <code>analogRead()</code>), décider du comportement et commander les actionneurs (<code>digitalWrite()</code>, <code>analogWrite()</code>).</li></ul></div>"
       }
     ],
 
@@ -169,25 +169,6 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Qu’est-ce que « boucle principale » ?', a: 'boucle principale : décrire la boucle capter, décider, agir qui anime tout robot ;' },
-      { q: 'Qu’est-ce que « instruction » ?', a: 'Un programme s’exécute ligne par ligne, de haut en bas . Chaque ligne est une instruction achevée : une lecture, un calcul, un affichage.' },
-      { q: 'Qu’est-ce que « f-string » ?', a: 'mettre en forme un rapport lisible avec des f-strings alignées.' },
-      { q: 'Qu’est-ce que « formatage » ?', a: 'formatage : Robotique B1 › Sommaire › Chapitre 1' },
-      { q: 'Qu’est-ce que « indentation » ?', a: 'L’ indentation dessine le bloc : les deux print font partie de la boucle, le print("Fin.") — aligné au même niveau que le for — s’exécute une seule fois, après la boucle. C’est la première cause de bug du débutant : une ligne mal alignée sort de la boucle ou y entre par erreur.' },
-      { q: 'Qu’est-ce que « cas limite » ?', a: 'traiter le cas limite k = 0 sans qu’il casse le programme.' },
-      { q: 'Qu’est-ce que « expression conditionnelle » ?', a: 'L’expression conditionnelle A if condition else B choisit le texte sans écrire de bloc if complet. C’est le détail qui distingue un rapport soigné d’un rapport approximatif — et les tests le vérifient au caractère près.' },
-      { q: 'Qu’est-ce que « return » ?', a: 'La comparaison x % 2 == 0 est déjà un booléen : pas besoin d’écrire if ... : return True else: return False . Un return direct est plus court et dit la même chose.' },
-      { q: 'Qu’est-ce que « elif » ?', a: 'Dans une chaîne if / elif / else, combien de branches s’exécutent ?' },
-      { q: 'Qu’est-ce que « échange » ?', a: 'Le principe : parcourir le tableau en comparant chaque couple de voisins, et échanger quand ils sont mal ordonnés. À chaque passage complet, la plus grande valeur restante « bulle » jusqu’à sa place définitive, en fin de tableau.' },
-      { q: 'Qu’est-ce que « porte logique » ?', a: 'porte logique : Dans CircuitVerse, on câble des portes à la souris ; sur la carte, on écrit des expressions bit à bit. C’est la même logique dans deux habits : ET, OU, NON d’un côté, &, |, ~ de l’autre. Et parce qu’un ordinateur ne sait manipuler que des bits, le chiffre de César — décaler des l' },
-      { q: 'Qu’est-ce que « table de vérité » ?', a: 'Écrire la table de vérité de ce que l’on veut construire, avant le code.' },
-      { q: 'Qu’est-ce que « retenue » ?', a: 'Un bit, ça s’additionne : l’additionneur complet reçoit trois bits (a, b, retenue entrante cin) et rend la somme S et la retenue sortante Cout.' },
-      { q: 'Qu’est-ce que « chr » ?', a: 'ord convertit une lettre en code, chr fait le retour. Le modulo 26 est le rebond : pour z (position 25) et k = 1, (25 + 1) % 26 = 0 — on retombe sur a.' },
-      { q: 'Qu’est-ce que « afficheur 7 segments » ?', a: 'Le robot est équipé : afficheur 7 segments pour compter, capteur de distance pour freiner, capteur de température pour alerter. Le matériel se branche en une heure ; le programme qui le pilote demande trois qualités : une table de correspondance claire, des seuils stricts assumés' },
-      { q: 'Qu’est-ce que « trois états » ?', a: 'classer des relevés par seuils stricts avec trois états ;' },
-      { q: 'Qu’est-ce que « division entière » ?', a: 'La division entière // est imposée par l’énoncé : 135 / 6 vaut 22,5 mais 135 // 6 vaut 22. Le min() d’une liste non vide ne plante jamais ; c’est une liste vide qui le ferait — et l’énoncé garantit n ≥ 1.' },
-      { q: 'Qu’est-ce que « minimum » ?', a: 'agréger une série en minimum et moyenne entière.' },
-      { q: 'Qu’est-ce que « agrégation » ?', a: 'agrégation : Robotique B1 › Sommaire › Chapitre 6' },
       { q: 'Quelles sont les trois phases de la boucle d’un robot ?', a: 'Capter (lire les entrées), décider (comparer), agir (commander les sorties).' },
       { q: 'Que renvoie donnees_capteur et comment obtenir un entier ?', a: 'Une ligne de texte ; int(donnees_capteur) la convertit en entier.' },
       { q: 'Différence entre / et // de manière méthodique ?', a: '/ donne un décimal ; // donne le quotient entier (la division euclidienne).' },

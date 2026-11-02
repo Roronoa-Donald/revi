@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -75,7 +75,7 @@
       <li>analyser et concevoir des piles d’authentification modulaires PAM dans /etc/pam.d/ ;</li>
       <li>distinguer avec rigueur la sémantique des drapeaux de contrôle PAM (required, requisite, sufficient, optional) ;</li>
       <li>configurer le démon d’audit du noyau Linux (auditd, auditctl) pour tracer les appels système sensibles et exécutions setuid ;</li>
-      <li>développer en Python 3 des auditeurs de conformité sysctl, des simulateurs d’évaluation de pile PAM et des analyseurs de journaux auditd pour la détection d’élévations de privilèges.</li>
+      <li>développer en scripts Bash et commandes système des auditeurs de conformité sysctl, des simulateurs d’évaluation de pile PAM et des analyseurs de journaux auditd pour la détection d’élévations de privilèges.</li>
     </ol>
   </div>
 
@@ -107,7 +107,7 @@
     <tr><th>Drapeau de Contrôle</th><th>Comportement en cas de SUCCÈS</th><th>Comportement en cas d’ÉCHEC</th><th>Usage Recommandé</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>required</code></td><td>Continue la chaîne.</td><td>Mémorisez l’échec mais <strong>continue</strong> la chaîne jusqu’au bout (ne révèle rien à l’attaquant).</td><td>Vérification obligatoire (ex: mot de passe standard, compte actif).</td></tr>
+    <tr><td><code>required</code></td><td>Continue la chaîne.</td><td>Mémorise l’échec mais <strong>continue</strong> la chaîne jusqu’au bout (ne révèle rien à l’attaquant).</td><td>Vérification obligatoire (ex: mot de passe standard, compte actif).</td></tr>
     <tr><td><code>requisite</code></td><td>Continue la chaîne.</td><td><strong>Interrompt immédiatement</strong> l’évaluation avec rejet définitif.</td><td>Prérequis strict (ex: vérification de verrouillage de compte ou IP bannie).</td></tr>
     <tr><td><code>sufficient</code></td><td>Si aucun échec préalable, <strong>s’arrête immédiatement avec SUCCÈS</strong>.</td><td>L’échec est ignoré ; la chaîne continue.</td><td>Méthode alternative satisfaisante (ex: clé biométrique, certificat SSO, pam_unix).</td></tr>
     <tr><td><code>optional</code></td><td>Continue la chaîne.</td><td>Continue la chaîne.</td><td>Journalisation ou configuration d’environnement secondaire (pam_env).</td></tr>
@@ -155,14 +155,12 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="lx3-c6-e1" data-lab
      data-exercise="lx3-c6-e1"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="SYSCTL_CHECK key=kernel.randomize_va_space current=2 recommended=2">
@@ -176,15 +174,18 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 1 — Auditeur de paramètres de durcissement du noyau (/etc/sysctl.conf)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité des paramètres de sécurité du noyau Linux par rapport aux recommandations ANSSI / CIS Benchmark.</p>
+    <p class="lab__note" id="lx3-c6-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Le fichier <code>/etc/sysctl.conf</code> et l'interface <code>/proc/sys/</code> permettent d'ajuster dynamiquement les options de sécurité du noyau Linux (randomisation ASLR, restriction des pointeurs mémoire, protection des liens durs et protection contre les attaques SYN Flood).<br><br>
 Le script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>
 Règles :<br>
-- Si <code>current == recommended</code> : <code>status=COMPLIANT</code>.<br>
+- Comparez <code>current</code> et <code>recommended</code> comme des chaînes, en respectant la casse et les zéros initiaux : <code>01</code> diffère de <code>1</code>.<br>
+- Si les deux chaînes sont identiques : <code>status=COMPLIANT</code>.<br>
 - Sinon : <code>status=HARDENING_REQUIRED</code>.<br><br>
 Pour chaque paramètre, afficher :<br>
 <code>SYSCTL_AUDIT key={key} current={val} target={recommended} status={COMPLIANT|HARDENING_REQUIRED}</code></p></div>
@@ -205,6 +206,7 @@ Pour chaque paramètre, afficher :<br>
 
 <div class="lab" id="lx3-c6-e2" data-lab
      data-exercise="lx3-c6-e2"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="PAM_STEP module=pam_unix.so control=sufficient res=SUCCESS">
@@ -218,11 +220,13 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 2 — Évaluateur de chaîne de modules d’authentification PAM (required vs sufficient)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler l’évaluation séquentielle d’une pile de modules PAM selon les drapeaux de contrôle.</p>
+    <p class="lab__note" id="lx3-c6-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Le système <strong>PAM (Pluggable Authentication Modules)</strong> sous Linux filtre l'accès aux services (login, sshd, sudo) via une chaîne séquentielle de modules.<br><br>
 Sémantique des drapeaux de contrôle PAM :<br>
 - <code>required</code> : En cas d'échec (<code>FAIL</code>), l'échec global est mémorisé, mais PAM continue d'évaluer le reste de la pile pour ne pas donner d'indice à un attaquant (<code>action=CONTINUE</code>).<br>
@@ -251,6 +255,7 @@ PAM_FINAL decision=GRANTED</pre></div>
 
 <div class="lab" id="lx3-c6-e3" data-lab
      data-exercise="lx3-c6-e3"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="AUDIT_LOG id=101 uid=1000 euid=0 exe=/usr/bin/sudo res=success">
@@ -264,11 +269,13 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 3 — Parseur de journaux d’audit Linux auditd et détection d’élévation de privilèges</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Analyser les enregistrements auditd (RFC 5424) pour détecter les élévations de privilèges (EUID=0) suspectes.</p>
+    <p class="lab__note" id="lx3-c6-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Le sous-système de sécurité <strong>auditd</strong> trace les activités au cœur du noyau Linux (appels système, exécutions de binaires privilégiés setuid, commandes sudo).<br><br>
 Le script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>
 Règles de détection :<br>
@@ -294,6 +301,7 @@ Pour chaque ligne, afficher :<br>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -442,7 +450,7 @@ Pour chaque ligne, afficher :<br>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Incompréhension des drapeaux de contrôle PAM ou ignorance des options de durcissement sysctl du noyau.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Incompréhension des drapeaux de contrôle PAM ou ignorance des options de durcissement sysctl du noyau.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne configuration des paramètres sysctl recommandés et compréhension de la séquence d’évaluation PAM.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise experte du durcissement système selon les normes CIS/ANSSI, conception avancée de piles PAM et détection temps-réel d’anomalies avec auditd.</div>

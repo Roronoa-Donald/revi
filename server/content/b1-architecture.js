@@ -36,7 +36,7 @@ const course = {
 
   title: 'Circuit logique & architecture des ordinateurs',
   description:
-    'Cours complet B1 : généralités sur l\'ordinateur et les unités de mesure (Ko, Mo, Go, MBps/Mbps), ' +
+    'Cours complet B1 : généralités sur l\'ordinateur et les unités de mesure décimales et binaires (ko/Mo/Go, Kio/Mio/Gio, MBps/Mbps), ' +
     'systèmes de numération et conversions (bases 2, 8, 10, 16, divisions successives, groupements, ' +
     'partie fractionnaire, BCD, ASCII), nombres signés (signe + valeur absolue, compléments à 1 et à 2, ' +
     'arithmétique binaire), circuits logiques combinatoires (huit portes, algèbre de Boole, Karnaugh, ' +

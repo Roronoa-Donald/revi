@@ -96,7 +96,7 @@ module.exports = [
       {
         "stdin": "FINOPS charge=plateforme_saas rate=0.80 base_h=1000 batch_h=400 burst_h=200",
         "expected": "FINOPS_OPTIM: plateforme_saas -> COUT_NAIF=$1280.00 | COUT_FINOPS=$736.00 (RI=$480.00, SPOT=$96.00, OD=$160.00) | ECONOMIE=$544.00 (-42.5%)",
-        "note": "Naïf : 1600h * 0.80$ = 1280$. En FinOps : 1000*0.48 + 400*0.24 + 200*0.80 = 736$. Économie de 544$ (-42.5%)."
+        "note": "Naïf : 1 600 h × 0,80 USD = 1 280 USD. En FinOps : 1 000 × 0,48 + 400 × 0,24 + 200 × 0,80 = 736 USD. Économie de 544 USD (−42,5 %)."
       }
     ],
     "tests": [

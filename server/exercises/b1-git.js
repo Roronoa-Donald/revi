@@ -47,7 +47,9 @@ done
     tests: [
       { label: 'Status avant init', stdin: '1\nstatus\n', expected: 'dépôt : aucun\nconfig : manquant' },
       { label: 'Config complète', stdin: '4\ninit projet\nconfig user.name Bob\nconfig user.email b@x.fr\nstatus\n', expected: 'dépôt projet créé\ndépôt : projet\nconfig : ok' },
-      { label: 'Status répété', stdin: '3\ninit depot\nstatus\nstatus\n', expected: 'dépôt depot créé\ndépôt : depot\nconfig : manquant\ndépôt : depot\nconfig : manquant' }
+      { label: 'Status répété', stdin: '3\ninit depot\nstatus\nstatus\n', expected: 'dépôt depot créé\ndépôt : depot\nconfig : manquant\ndépôt : depot\nconfig : manquant' },
+      { label: 'Identité partielle puis complète', stdin: '5\ninit atelier\nconfig user.name Nora\nstatus\nconfig user.email n@x\nstatus\n', expected: 'dépôt atelier créé\ndépôt : atelier\nconfig : manquant\ndépôt : atelier\nconfig : ok' },
+      { label: 'Configuration inconnue en dernier', stdin: '2\ninit autre\nconfig core.editor vim\n', expected: 'dépôt autre créé' }
     ],
     solution: `read -r n
 nom=""
@@ -75,6 +77,7 @@ for ((i=0; i<n; i++)); do
     fi
   fi
 done
+exit 0
 `
   },
   {
@@ -105,7 +108,9 @@ done
     tests: [
       { label: 'Sans identité', stdin: '1\ncommit premier\n', expected: 'erreur : identité manquante' },
       { label: 'Nom seul', stdin: '3\nconfig user.name Bob\ncommit un\nconfig user.email b@x.fr\n', expected: 'erreur : identité manquante' },
-      { label: 'Trois commits', stdin: '4\nconfig user.name A\nconfig user.email a@x\ncommit un\ndeux\n', expected: '[main 0001] un' }
+      { label: 'Trois commits', stdin: '5\nconfig user.name A\nconfig user.email a@x\ncommit un\ncommit deux\ncommit trois\n', expected: '[main 0001] un\n[main 0002] deux\n[main 0003] trois' },
+      { label: 'Refus sans consommation du numéro', stdin: '4\ncommit avant\nconfig user.name C\nconfig user.email c@x\ncommit apres\n', expected: 'erreur : identité manquante\n[main 0001] apres' },
+      { label: 'Nom configuré en dernier', stdin: '2\nconfig user.email p@x\nconfig user.name Paul\n', expected: '' }
     ],
     solution: `read -r n
 has_name=0
@@ -126,6 +131,7 @@ for ((i=0; i<n; i++)); do
     fi
   fi
 done
+exit 0
 `
   },
   {
@@ -134,43 +140,56 @@ done
     level: 'n2',
     language: 'shell',
     title: 'git status classé',
-    goal: 'Classer les fichiers en non suivis, modifiés ou indexés, comme la sortie de git status.',
+    goal: 'Simuler des compteurs de fichiers non suivis, modifiés et indexés inspirés de git status.',
     brief: '<p>Le script lit <strong>n opérations</strong> : <code>cree fichier</code> (fichier non ' +
-      'suivi), <code>modifie fichier</code> (valide pour un fichier créé ou indexé ; ignoré sinon), ' +
+      'suivi), <code>modifie fichier</code>, ' +
       '<code>add fichier</code>, ou <code>status</code>. Le status affiche trois lignes : ' +
       '<code>non suivis : K</code>, <code>modifies : K</code>, <code>indexes : K</code> — K étant le ' +
-      'nombre de fichiers de chaque catégorie. Un <code>modifie</code> sur un fichier non suivi ou ' +
-      'inconnu est ignoré. Un <code>add</code> enlève le fichier des autres catégories et le compte ' +
-      'une seule fois.</p>',
-    starter: `read -r n
+      'nombre de fichiers de chaque catégorie. Une modification d’un fichier non suivi ne change pas ' +
+      'sa catégorie ; un fichier inconnu est ignoré. Après <code>add</code>, une nouvelle modification ' +
+      'laisse le fichier indexé et le compte aussi parmi les modifiés ; un nouvel <code>add</code> ' +
+      'efface cette modification. Les catégories indexé et modifié peuvent donc se recouper. ' +
+      'Ce modèle ne représente ni les commits ni les suppressions.</p>',
+    starter: `read -r nombre
+declare -A etat modification
 non_suivis=0
 modifies=0
 indexes=0
-for ((i=0; i<n; i++)); do
+for ((numero=0; numero<nombre; numero++)); do
   read -r op fichier
   # À compléter : suivre l'état de chaque fichier et les trois comptes.
 done
-# À compléter : afficher les trois comptes.
 `,
     hints: [
-      'Trois comptes et trois règles de passage : cree → non suivi, modifie → modifié, add → indexé.',
-      'add depuis une autre catégorie doit décrémenter l’ancienne catégorie, sinon les comptes doublent.'
+      'Un fichier peut avoir une version indexée et, en même temps, une modification dans la copie de travail.',
+      'Une modification sur un fichier non suivi le laisse non suivi ; un nouvel add actualise sa version indexée.'
     ],
     examples: [
-      { stdin: '6\ncree main.py\ncree README.md\nadd main.py\nmodifie main.py\nstatus\nadd README.md\n', expected: 'non suivis : 1\nmodifies : 1\nindexes : 0', note: 'main.py indexé puis modifié repasse en « modifies » ; README.md reste non suivi au status.' }
+      { stdin: '6\ncree main.py\ncree README.md\nadd main.py\nmodifie main.py\nstatus\nadd README.md\n', expected: 'non suivis : 1\nmodifies : 1\nindexes : 1', note: 'main.py reste indexé et possède aussi une modification ; README.md reste non suivi au status.' }
     ],
     tests: [
       { label: 'Tout indexé', stdin: '4\ncree a\ncree b\nadd a\nstatus\n', expected: 'non suivis : 1\nmodifies : 0\nindexes : 1' },
       { label: 'Modifie ignoré', stdin: '3\nmodifie fantome\ncree x\nstatus\n', expected: 'non suivis : 1\nmodifies : 0\nindexes : 0' },
-      { label: 'Add double ignoré', stdin: '4\ncree a\nadd a\nadd a\nstatus\n', expected: 'non suivis : 0\nmodifies : 0\nindexes : 1' }
+      { label: 'Add double ignoré', stdin: '4\ncree a\nadd a\nadd a\nstatus\n', expected: 'non suivis : 0\nmodifies : 0\nindexes : 1' },
+      { label: 'Indexé et modifié', stdin: '4\ncree a\nadd a\nmodifie a\nstatus\n', expected: 'non suivis : 0\nmodifies : 1\nindexes : 1' },
+      { label: 'Modification avant et après add', stdin: '6\ncree a\nmodifie a\nstatus\nadd a\nmodifie a\nstatus\n', expected: 'non suivis : 1\nmodifies : 0\nindexes : 0\nnon suivis : 0\nmodifies : 1\nindexes : 1' },
+      { label: 'Réindexation et fichier inconnu', stdin: '7\ncree a\nadd a\nmodifie a\nadd a\nstatus\nadd fantome\nstatus\n', expected: 'non suivis : 0\nmodifies : 0\nindexes : 1\nnon suivis : 0\nmodifies : 0\nindexes : 1' },
+      { label: 'Modifications distinctes et répétées', stdin: '11\ncree doc\ncree note\nadd doc\nadd note\nmodifie doc\nmodifie note\nmodifie note\nadd doc\nstatus\nadd note\nstatus\n', expected: 'non suivis : 0\nmodifies : 1\nindexes : 2\nnon suivis : 0\nmodifies : 0\nindexes : 2' }
     ],
-    solution: `read -r n
-declare -A etat
+    solution: `read -r nombre
+declare -A etat modification
 non_suivis=0
 modifies=0
 indexes=0
-for ((i=0; i<n; i++)); do
+for ((numero=0; numero<nombre; numero++)); do
   read -r op fichier
+  if [ "$op" = "status" ]; then
+    echo "non suivis : $non_suivis"
+    echo "modifies : $modifies"
+    echo "indexes : $indexes"
+    continue
+  fi
+  if [ -z "$fichier" ]; then continue; fi
   courant="\${etat[$fichier]:-}"
   if [ "$op" = "cree" ]; then
     if [ -z "$courant" ]; then
@@ -178,32 +197,20 @@ for ((i=0; i<n; i++)); do
       non_suivis=$((non_suivis + 1))
     fi
   elif [ "$op" = "modifie" ]; then
-    if [ "$courant" = "non_suivi" ]; then
-      non_suivis=$((non_suivis - 1))
-      etat[$fichier]="modifie"
-      modifies=$((modifies + 1))
-    elif [ "$courant" = "indexe" ]; then
-      indexes=$((indexes - 1))
-      etat[$fichier]="modifie"
+    if [ "$courant" = "indexe" ] && [ "\${modification[$fichier]:-0}" = "0" ]; then
+      modification[$fichier]=1
       modifies=$((modifies + 1))
     fi
   elif [ "$op" = "add" ]; then
     if [ "$courant" = "non_suivi" ]; then
       non_suivis=$((non_suivis - 1))
       etat[$fichier]="indexe"
+      modification[$fichier]=0
       indexes=$((indexes + 1))
-    elif [ "$courant" = "modifie" ]; then
+    elif [ "$courant" = "indexe" ] && [ "\${modification[$fichier]:-0}" = "1" ]; then
+      modification[$fichier]=0
       modifies=$((modifies - 1))
-      etat[$fichier]="indexe"
-      indexes=$((indexes + 1))
-    elif [ -z "$courant" ]; then
-      etat[$fichier]="indexe"
-      indexes=$((indexes + 1))
     fi
-  elif [ "$op" = "status" ]; then
-    echo "non suivis : $non_suivis"
-    echo "modifies : $modifies"
-    echo "indexes : $indexes"
   fi
 done
 `
@@ -240,7 +247,8 @@ done
     tests: [
       { label: 'Rien de commité', stdin: '3\nadd a\nadd b\ncompte\n', expected: 'index : 2\ncommits : 0' },
       { label: 'Deux commits', stdin: '5\nadd a\ncommit\nadd b\ncommit\ncompte\n', expected: 'index : 0\ncommits : 2' },
-      { label: 'Index partiel', stdin: '4\nadd a\nadd b\ncommit\ncompte\n', expected: 'index : 0\ncommits : 2' }
+      { label: 'Index partiel', stdin: '4\nadd a\nadd b\ncommit\ncompte\n', expected: 'index : 0\ncommits : 2' },
+      { label: 'Commit avec index vide', stdin: '4\ncommit\nadd plan\ncommit\ncompte\n', expected: 'index : 0\ncommits : 1' }
     ],
     solution: `read -r n
 taille_index=0
@@ -287,7 +295,8 @@ done
     tests: [
       { label: 'Reset inconnu', stdin: '2\nreset x\nindex\n', expected: 'non indexé' },
       { label: 'Reset puis re-add', stdin: '5\nadd a\nreset a\nadd a\nindex\nreset a\n', expected: 'a' },
-      { label: 'Ordre conservé', stdin: '5\nadd a\nadd b\nadd c\nreset b\nindex\n', expected: 'a\nc' }
+      { label: 'Ordre conservé', stdin: '5\nadd a\nadd b\nadd c\nreset b\nindex\n', expected: 'a\nc' },
+      { label: 'Réajout et reset inconnu', stdin: '7\nadd doc\nadd src\nreset doc\nadd doc\nindex\nreset absent\nindex\n', expected: 'src\ndoc\nnon indexé\nsrc\ndoc' }
     ],
     solution: `read -r n
 noms=()
@@ -334,7 +343,7 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Premier caractère : \${ligne:0:1} ; le comparer à sa version majuscule couvre lettres et accents.',
+      'Premier caractère : \${ligne:0:1} ; [[:upper:]] vérifie une lettre majuscule, pas un chiffre.',
       'Longueur : \${#ligne} ; point final : vérifier que le dernier caractère est un point.'
     ],
     examples: [
@@ -343,15 +352,15 @@ done
     tests: [
       { label: 'Trop long', stdin: '1\nUn message de commit beaucoup trop long pour la convention des cinquante\n', expected: 'longueur' },
       { label: 'Juste à la limite', stdin: '1\nAjout du fichier gitignore pour les caches python\n', expected: 'ok' },
-      { label: 'Priorité majuscule', stdin: '2\npremier commit beaucoup trop long pour passer dans les cinquante caractères\ncorrect.\n', expected: 'majuscule\nmajuscule' }
+      { label: 'Priorité majuscule', stdin: '2\npremier commit beaucoup trop long pour passer dans les cinquante caractères\ncorrect.\n', expected: 'majuscule\nmajuscule' },
+      { label: 'Majuscule, point et cinquante caractères', stdin: '4\n4 titres\nAjout.\n' + 'B' + 'y'.repeat(49) + '\nÉcrit\n', expected: 'majuscule\npoint final\nok\nok' }
     ],
     solution: `read -r n
 for ((i=0; i<n; i++)); do
   read -r ligne
   premiere="\${ligne:0:1}"
-  maj="\${premiere^^}"
   dernier="\${ligne: -1}"
-  if [ "$premiere" != "$maj" ]; then
+  if [[ "$premiere" != [[:upper:]] ]]; then
     echo "majuscule"
   elif [ "\${#ligne}" -gt 50 ]; then
     echo "longueur"
@@ -393,7 +402,8 @@ done
     tests: [
       { label: 'Historique vide', stdin: '1\nlog\n', expected: '' },
       { label: 'Un seul commit', stdin: '2\ncommit seul\nlog\n', expected: 'a1 seul' },
-      { label: 'Quatre commits', stdin: '5\ncommit un\ncommit deux\ncommit trois\ncommit quatre\nlog\n', expected: 'a4 quatre\na3 trois\na2 deux\na1 un' }
+      { label: 'Quatre commits', stdin: '5\ncommit un\ncommit deux\ncommit trois\ncommit quatre\nlog\n', expected: 'a4 quatre\na3 trois\na2 deux\na1 un' },
+      { label: 'Dix commits et log non destructif', stdin: '12\ncommit x1\ncommit x2\ncommit x3\ncommit x4\ncommit x5\ncommit x6\ncommit x7\ncommit x8\ncommit x9\ncommit x10\nlog\nlog\n', expected: 'a10 x10\na9 x9\na8 x8\na7 x7\na6 x6\na5 x5\na4 x4\na3 x3\na2 x2\na1 x1\na10 x10\na9 x9\na8 x8\na7 x7\na6 x6\na5 x5\na4 x4\na3 x3\na2 x2\na1 x1' }
     ],
     solution: `read -r n
 shas=()
@@ -436,16 +446,19 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'soft : les commits annulés remontent dans l’index — l’index redevient plein.',
-      'hard efface aussi les modifications de la copie de travail ; soft et mixed les laissent.'
+      'soft : les commits effectivement annulés remontent dans l’index.',
+      'mixed laisse les changements désindexés dans la copie ; hard efface aussi ceux de la copie.'
     ],
     examples: [
       { stdin: '4\ncommit\ncommit\nreset soft 1\netat\n', expected: 'commits : 1\nindex : plein\ncopie : propre' }
     ],
     tests: [
       { label: 'Hard efface tout', stdin: '4\ncommit\nfichier\nreset hard 0\netat\n', expected: 'commits : 1\nindex : vide\ncopie : propre' },
-      { label: 'Mixed vide l index', stdin: '4\ncommit\nreset mixed 1\netat\n', expected: 'commits : 0\nindex : vide\ncopie : propre' },
-      { label: 'Trop de commits', stdin: '3\ncommit\nreset soft 5\netat\n', expected: 'commits : 0\nindex : plein\ncopie : propre' }
+      { label: 'Mixed vide l index', stdin: '3\ncommit\nreset mixed 1\netat\n', expected: 'commits : 0\nindex : vide\ncopie : modifiée' },
+      { label: 'Trop de commits', stdin: '3\ncommit\nreset soft 5\netat\n', expected: 'commits : 0\nindex : plein\ncopie : propre' },
+      { label: 'Mixed préserve la copie', stdin: '4\ncommit\nfichier\nreset mixed 0\netat\n', expected: 'commits : 1\nindex : vide\ncopie : modifiée' },
+      { label: 'Soft zéro puis annulation', stdin: '5\ncommit\nreset soft 0\netat\nreset soft 1\netat\n', expected: 'commits : 1\nindex : vide\ncopie : propre\ncommits : 0\nindex : plein\ncopie : propre' },
+      { label: 'Mixed désindexe les modifications', stdin: '4\ncommit\nreset soft 1\nreset mixed 0\netat\n', expected: 'commits : 0\nindex : vide\ncopie : modifiée' }
     ],
     solution: `read -r n
 commits=0
@@ -466,12 +479,13 @@ for ((i=0; i<n; i++)); do
     fi
     commits=$((commits - k))
     if [ "$a" = "soft" ]; then
-      index="plein"
+      if [ "$k" -gt 0 ]; then index="plein"; fi
+    elif [ "$a" = "mixed" ]; then
+      if [ "$k" -gt 0 ] || [ "$index" = "plein" ]; then modifs=1; fi
+      index="vide"
     else
       index="vide"
-      if [ "$a" = "hard" ]; then
-        modifs=0
-      fi
+      modifs=0
     fi
   elif [ "$op" = "etat" ]; then
     echo "commits : $commits"
@@ -579,7 +593,8 @@ done
     tests: [
       { label: 'Branche doublon', stdin: '2\nbranch main\nbranches\n', expected: 'existe\n* main' },
       { label: 'Checkout inconnu', stdin: '2\ncheckout ghost\nbranches\n', expected: 'inconnue\n* main' },
-      { label: 'Trois branches', stdin: '5\nbranch a\nbranch b\ncheckout a\nbranches\ncheckout b\n', expected: '  main\n* a\n  b' }
+      { label: 'Trois branches', stdin: '5\nbranch a\nbranch b\ncheckout a\nbranches\ncheckout b\n', expected: '  main\n* a\n  b' },
+      { label: 'Créer sans basculer', stdin: '4\ncheckout main\nbranch topic\nbranches\ncheckout topic\n', expected: '* main\n  topic' }
     ],
     solution: `read -r n
 branches=(main)
@@ -629,7 +644,8 @@ done
       'bascule), <code>checkout nom</code> (bascule), ou <code>commit</code> (ajoute un commit sur la ' +
       'branche courante). Puis il affiche, dans l’ordre de création des branches, ' +
       '<code>nom : K</code> pour chacune. Toute branche démarre avec le nombre de commits de la branche ' +
-      'depuis laquelle elle est créée (checkout courant au moment du branch).</p>',
+      'depuis laquelle elle est créée (checkout courant au moment du branch). ' +
+      'Un éventuel <code>bilan</code> en fin de liste sert de repère : l’affichage a toujours lieu après les opérations.</p>',
     starter: `read -r n
 for ((i=0; i<n; i++)); do
   read -r op nom
@@ -647,7 +663,9 @@ done
     tests: [
       { label: 'Sans branche', stdin: '2\ncommit\nbilan\n', expected: 'main : 1' },
       { label: 'Retour sur main', stdin: '7\ncommit\nbranch f\ncheckout f\ncommit\ncheckout main\ncommit\nbilan\n', expected: 'main : 2\nf : 2' },
-      { label: 'Branche de branche', stdin: '7\ncommit\ncommit\nbranch a\ncheckout a\ncommit\nbranch b\nbilan\n', expected: 'main : 2\na : 3\nb : 3' }
+      { label: 'Branche de branche', stdin: '7\ncommit\ncommit\nbranch a\ncheckout a\ncommit\nbranch b\nbilan\n', expected: 'main : 2\na : 3\nb : 3' },
+      { label: 'Branch sans bascule', stdin: '6\ncommit\nbranch alpha\ncheckout alpha\nbranch beta\ncommit\nbilan\n', expected: 'main : 1\nalpha : 2\nbeta : 1' },
+      { label: 'Bilan après les opérations', stdin: '3\ncommit\nbranch autre\ncommit\n', expected: 'main : 2\nautre : 1' }
     ],
     solution: `read -r n
 noms=(main)
@@ -664,11 +682,10 @@ for ((i=0; i<n; i++)); do
     for idx in "\${!noms[@]}"; do
       [ "\${noms[$idx]}" = "$nom" ] && courante=$idx
     done
-  elif [ "$op" = "bilan" ]; then
-    for idx in "\${!noms[@]}"; do
-      echo "\${noms[$idx]} : \${comptes[$idx]}"
-    done
   fi
+done
+for idx in "\${!noms[@]}"; do
+  echo "\${noms[$idx]} : \${comptes[$idx]}"
 done
 `
   },
@@ -694,8 +711,8 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Une clé composée branche:fichier dans un tableau associatif décrit qui a touché quoi.',
-      'Au merge : parcourir les fichiers de la branche fusionnée ; si l’un existe aussi côté cible, conflit.'
+      'Repérer les événements communs au moment de la séparation sans attribuer les anciennes modifications à la nouvelle branche.',
+      'Au merge, comparer les fichiers modifiés de chaque côté depuis leur séparation.'
     ],
     examples: [
       { stdin: '7\nbranch feature\ntouch taches.py\ncommit\ncheckout main\ntouch main.py\ncommit\nmerge feature\n', expected: 'fast-forward' }
@@ -703,35 +720,55 @@ done
     tests: [
       { label: 'Conflit sur main.py', stdin: '7\nbranch feature\ntouch main.py\ncommit\ncheckout main\ntouch main.py\ncommit\nmerge feature\n', expected: 'conflit' },
       { label: 'Fichiers distincts', stdin: '7\nbranch f\ntouch a\ncommit\ncheckout main\ntouch b\ncommit\nmerge f\n', expected: 'fast-forward' },
-      { label: 'Merge sans rien', stdin: '3\nbranch vide\ncheckout main\nmerge vide\n', expected: 'fast-forward' }
+      { label: 'Merge sans rien', stdin: '3\nbranch vide\ncheckout main\nmerge vide\n', expected: 'fast-forward' },
+      { label: 'Modification avant séparation', stdin: '6\ntouch partage.md\nbranch autre\ntouch partage.md\ncheckout main\ncommit\nmerge autre\n', expected: 'fast-forward' },
+      { label: 'Conflit parmi plusieurs fichiers', stdin: '8\nbranch test\ntouch commun.txt\ntouch secondaire.txt\ncheckout main\ntouch commun.txt\ntouch different.txt\ncommit\nmerge test\n', expected: 'conflit' }
     ],
-    solution: `read -r n
-branches=(main)
+    solution: `read -r nombre
 courante=main
-declare -A touche
-for ((i=0; i<n; i++)); do
-  read -r op a
-  if [ "$op" = "branch" ]; then
-    branches+=("$a")
-    courante="$a"
-  elif [ "$op" = "checkout" ]; then
-    courante="$a"
-  elif [ "$op" = "touch" ]; then
-    touche["$courante:$a"]=1
-  elif [ "$op" = "commit" ]; then
-    :
-  elif [ "$op" = "merge" ]; then
+compteur=0
+fichiers=()
+declare -A touches
+for ((numero_operation=0; numero_operation<nombre; numero_operation++)); do
+  read -r operation argument
+  if [ "$operation" = "branch" ]; then
+    for ((indice=1; indice<=compteur; indice++)); do
+      if [ -n "\${touches[$courante:$indice]:-}" ]; then
+        touches["$argument:$indice"]=1
+      fi
+    done
+    courante="$argument"
+  elif [ "$operation" = "checkout" ]; then
+    courante="$argument"
+  elif [ "$operation" = "touch" ]; then
+    compteur=$((compteur + 1))
+    fichiers[$compteur]="$argument"
+    touches["$courante:$compteur"]=1
+  elif [ "$operation" = "merge" ]; then
+    declare -A modifications=()
     conflit=0
-    for cle in "\${!touche[@]}"; do
-      br="\${cle%%:*}"
-      fic="\${cle#*:}"
-      [ "$br" = "$a" ] && [ -n "\${touche[$courante:$fic]:-}" ] && conflit=1
+    for ((indice=1; indice<=compteur; indice++)); do
+      if [ -n "\${touches[$courante:$indice]:-}" ] && [ -z "\${touches[$argument:$indice]:-}" ]; then
+        fichier="\${fichiers[$indice]}"
+        modifications["$fichier"]=1
+      fi
+    done
+    for ((indice=1; indice<=compteur; indice++)); do
+      if [ -n "\${touches[$argument:$indice]:-}" ] && [ -z "\${touches[$courante:$indice]:-}" ]; then
+        fichier="\${fichiers[$indice]}"
+        if [ -n "\${modifications[$fichier]:-}" ]; then conflit=1; fi
+      fi
     done
     if [ "$conflit" = "1" ]; then
       echo "conflit"
     else
       echo "fast-forward"
-      courante="$a"
+      for ((indice=1; indice<=compteur; indice++)); do
+        if [ -n "\${touches[$courante:$indice]:-}" ]; then
+          touches["$argument:$indice"]=1
+        fi
+      done
+      courante="$argument"
     fi
   fi
 done
@@ -773,7 +810,8 @@ done
     tests: [
       { label: 'Push sans commit', stdin: '2\npush\ndistant\n', expected: 'rejeté\nlocal : 0\ndistant : 0\nlocal : 0\ndistant : 0' },
       { label: 'Tiers interposé', stdin: '6\ncommit\ntierce\npush\npull\ncommit\npush\n', expected: 'rejeté\nlocal : 1\ndistant : 1\nlocal : 2\ndistant : 2' },
-      { label: 'Double push', stdin: '5\ncommit\npush\ncommit\npush\ndistant\n', expected: 'local : 1\ndistant : 1\nlocal : 2\ndistant : 2\nlocal : 2\ndistant : 2' }
+      { label: 'Double push', stdin: '5\ncommit\npush\ncommit\npush\ndistant\n', expected: 'local : 1\ndistant : 1\nlocal : 2\ndistant : 2\nlocal : 2\ndistant : 2' },
+      { label: 'Tiers malgré une avance locale', stdin: '7\ncommit\ncommit\ntierce\npush\npull\npush\ndistant\n', expected: 'rejeté\nlocal : 2\ndistant : 1\nlocal : 2\ndistant : 2\nlocal : 2\ndistant : 2' }
     ],
     solution: `read -r n
 local=0
@@ -890,7 +928,8 @@ done
     tests: [
       { label: 'Sans fetch', stdin: '3\ncommit\ntierce main\netat\n', expected: 'local : 1\nremote-suivi : 0\ndistant : 1' },
       { label: 'Fetch deux fois', stdin: '5\ntierce main\ntierce main\nfetch\nfetch\netat\n', expected: 'local : 0\nremote-suivi : 2\ndistant : 2' },
-      { label: 'Le local ne bouge pas', stdin: '5\ncommit\ncommit\ntierce main\nfetch\netat\n', expected: 'local : 2\nremote-suivi : 1\ndistant : 1' }
+      { label: 'Le local ne bouge pas', stdin: '5\ncommit\ncommit\ntierce main\nfetch\netat\n', expected: 'local : 2\nremote-suivi : 1\ndistant : 1' },
+      { label: 'Suivi figé entre deux fetch', stdin: '5\ntierce main\ntierce main\nfetch\ntierce main\netat\n', expected: 'local : 0\nremote-suivi : 2\ndistant : 3' }
     ],
     solution: `read -r n
 local=0
@@ -942,9 +981,11 @@ done
       { stdin: '5\nmodifie\nmodifie\nstash\netat\npop\n', expected: 'copie : 0\nremises : 1' }
     ],
     tests: [
+      { label: 'Ajout aux modifications déjà présentes', stdin: '5\nmodifie\nstash\nmodifie\npop\netat\n', expected: 'copie : 2\nremises : 0' },
       { label: 'Pop vide', stdin: '2\npop\netat\n', expected: 'rien à reprendre\ncopie : 0\nremises : 0' },
       { label: 'Deux remises', stdin: '6\nmodifie\nstash\nmodifie\nmodifie\nstash\netat\n', expected: 'copie : 0\nremises : 2' },
-      { label: 'Aller-retour', stdin: '6\nmodifie\nstash\npop\netat\npop\n', expected: 'copie : 1\nremises : 0\nrien à reprendre' }
+      { label: 'Aller-retour', stdin: '5\nmodifie\nstash\npop\netat\npop\n', expected: 'copie : 1\nremises : 0\nrien à reprendre' },
+      { label: 'Ordre de dépilement', stdin: '9\nmodifie\nmodifie\nstash\nmodifie\nstash\npop\netat\npop\netat\n', expected: 'copie : 1\nremises : 1\ncopie : 3\nremises : 0' }
     ],
     solution: `read -r n
 copie=0
@@ -1006,7 +1047,8 @@ done
     tests: [
       { label: 'Nom exact', stdin: '1\nsecret.txt\n3\nadd secret.txt\nadd code.py\nindex\n', expected: 'ignoré\ncode.py' },
       { label: 'Dossier', stdin: '1\nbuild/\n3\nadd build/output.o\nadd src/main.c\nindex\n', expected: 'ignoré\nsrc/main.c' },
-      { label: 'Sans motif', stdin: '1\n0\n2\nadd a\nindex\n', expected: 'a' }
+      { label: 'Sans motif', stdin: '0\n2\nadd a\nindex\n', expected: 'a' },
+      { label: 'Suffixe et dossier exact', stdin: '2\n*.tmp\nbin/\n5\nadd a.tmp\nadd bin/object\nadd binard\nindex\nadd a.c\n', expected: 'ignoré\nignoré\nbinard' }
     ],
     solution: `read -r g
 motifs=()
@@ -1069,7 +1111,8 @@ done
     tests: [
       { label: 'Seul fichier', stdin: '1\n42 seul\n', expected: 'fichiers : 1\ntaille : 42\nplus gros : seul' },
       { label: 'Aucun au-dessus', stdin: '3\n10 a\n10 b\n10 c\n', expected: 'fichiers : 3\ntaille : 30\nplus gros : a' },
-      { label: 'Premier max garde', stdin: '3\n50 a\n50 b\n20 c\n', expected: 'fichiers : 3\ntaille : 120\nplus gros : a\na\nb' }
+      { label: 'Premier max garde', stdin: '3\n50 a\n50 b\n20 c\n', expected: 'fichiers : 3\ntaille : 120\nplus gros : a\na\nb' },
+      { label: 'Fichiers de taille nulle', stdin: '2\n0 fichier_vide\n0 autre_vide\n', expected: 'fichiers : 2\ntaille : 0\nplus gros : fichier_vide' }
     ],
     solution: `read -r n
 noms=()
@@ -1082,7 +1125,7 @@ for ((i=0; i<n; i++)); do
   noms+=("$nom")
   tailles+=("$taille")
   somme=$((somme + taille))
-  if [ "$taille" -gt "$max" ]; then
+  if [ "$i" -eq 0 ] || [ "$taille" -gt "$max" ]; then
     max="$taille"
     max_nom="$nom"
   fi

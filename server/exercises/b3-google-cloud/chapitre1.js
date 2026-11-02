@@ -52,38 +52,58 @@ module.exports = [
     "title": "Sélecteur de Région et Répartition Multi-Zones GCP",
     "level": "n2",
     "language": "analyse",
-    "goal": "Interroger le référentiel des régions Google Cloud et calculer la répartition équilibrée de machines virtuelles sur les zones de disponibilité.",
-    "brief": "<p>Google Cloud déploie son infrastructure en régions géographiques composées d'au moins 3 zones de disponibilité isolées :<br>\nRéférentiel des régions enregistrées :<br>\n- <code>europe-west1</code> : Belgique, 3 zones (a, b, c), empreinte carbone faible (low_carbon=YES)<br>\n- <code>europe-west9</code> : Paris, 3 zones (a, b, c), empreinte carbone faible (low_carbon=YES)<br>\n- <code>us-central1</code> : Iowa, 4 zones (a, b, c, f), empreinte standard (low_carbon=NO)<br>\n- <code>asia-east1</code> : Taïwan, 3 zones (a, b, c), empreinte standard (low_carbon=NO)<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>REGION_INFO region=&lt;nom&gt;</code> :<br>\n   <code>REGION: name=&lt;nom&gt; location=&lt;loc&gt; zones_count=&lt;nb&gt; low_carbon=&lt;YES|NO&gt;</code> (ou <code>REGION: name=&lt;nom&gt; status=UNKNOWN</code> si non répertoriée).<br>\n2. <code>MULTI_ZONE_DEPLOY region=&lt;nom&gt; instance_count=&lt;N&gt;</code> :<br>\n   Répartit les N instances équitablement sur les zones dans l'ordre alphabétique (division entière + reste attribué de gauche à droite) :<br>\n   <code>DEPLOY: region=&lt;nom&gt; total=&lt;N&gt; allocation=&lt;zone1:k1,zone2:k2,...&gt; status=HA_RESILIENT</code>.</p>",
-    "starter": "# Grille d'analyse (gcp3-c1-e2) — Sélecteur de Région et Répartition Multi-Zones GCP\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Région us-central1 avec 4 zones]\n# Données : MULTI_ZONE_DEPLOY region=us-central1 instance_count=6\nA_COMPLETER\n\n[Cas 2 — Région inconnue]\n# Données : REGION_INFO region=mars-west1\nA_COMPLETER\n\n[Cas 3 — Répartition exacte multiple du nombre de zones]\n# Données : MULTI_ZONE_DEPLOY region=europe-west1 instance_count=9\nA_COMPLETER\n",
+    "goal": "Répartir fictivement des instances entre zones et distinguer répartition et résilience démontrée.",
+    "brief": "<p>Utilisez ce référentiel figé pour la grille : il ne constitue ni un inventaire officiel à jour ni une mesure actuelle de l’empreinte carbone.<br>\n- <code>europe-west1</code> : Belgique, zones a, b, c, low_carbon=YES<br>\n- <code>europe-west9</code> : Paris, zones a, b, c, low_carbon=YES<br>\n- <code>us-central1</code> : Iowa, zones a, b, c, f, low_carbon=NO<br>\n- <code>asia-east1</code> : Taïwan, zones a, b, c, low_carbon=NO<br><br>\n<code>REGION_INFO region=&lt;nom&gt;</code> retourne <code>REGION: name=&lt;nom&gt; location=&lt;lieu&gt; zones_count=&lt;N&gt; low_carbon=&lt;YES|NO&gt;</code>, ou <code>REGION: name=&lt;nom&gt; status=UNKNOWN</code> si elle est absente du référentiel.<br><br>\n<code>MULTI_ZONE_DEPLOY region=&lt;nom&gt; instance_count=&lt;N&gt;</code> simule une répartition dans une région connue. Si N est inférieur à 1, retourner <code>DEPLOY: region=&lt;nom&gt; total=&lt;N&gt; status=INVALID_INSTANCE_COUNT</code>.<br>\nSinon, répartir les instances sur les zones dans l’ordre donné : division entière, puis reste attribué de gauche à droite. Afficher chaque zone, y compris celles qui reçoivent zéro instance, et le statut :<br>\n- <code>SINGLE_ZONE_NO_REDUNDANCY</code> si une seule zone reçoit des instances ;<br>\n- <code>MULTI_ZONE_NO_GUARANTEE</code> si plusieurs zones en reçoivent.<br>\nFormat : <code>DEPLOY: region=&lt;nom&gt; total=&lt;N&gt; allocation=&lt;zone1:n1,zone2:n2,...&gt; status=&lt;statut&gt;</code>.<br><br>\nLa répartition ne crée aucune ressource et ne démontre pas la haute disponibilité. Il faut notamment vérifier capacité et quotas, dépendances, contrôles de santé, charge et basculement. Voir les <a href=\"https://docs.cloud.google.com/architecture/framework/reliability\">principes de conception pour la disponibilité</a>.</p>",
+    "starter": "# Grille d'analyse (gcp3-c1-e2) — Sélecteur de Région et Répartition Multi-Zones GCP\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Répartition dans quatre zones]\n# Données : MULTI_ZONE_DEPLOY region=us-central1 instance_count=6\nA_COMPLETER\n\n[Cas 2 — Région absente du référentiel]\n# Données : REGION_INFO region=mars-west1\nA_COMPLETER\n\n[Cas 3 — Une seule instance ne crée pas de redondance]\n# Données : MULTI_ZONE_DEPLOY region=europe-west9 instance_count=1\nA_COMPLETER\n\n[Cas 4 — Zéro instance est invalide]\n# Données : MULTI_ZONE_DEPLOY region=europe-west9 instance_count=0\nA_COMPLETER\n\n[Cas 5 — Deux zones occupées ne garantissent pas la résilience]\n# Données : MULTI_ZONE_DEPLOY region=europe-west9 instance_count=2\nA_COMPLETER\n\n[Cas 6 — Répartition exacte sur trois zones]\n# Données : MULTI_ZONE_DEPLOY region=europe-west1 instance_count=9\nA_COMPLETER\n\n[Cas 7 — Nombre négatif invalide]\n# Données : MULTI_ZONE_DEPLOY region=europe-west1 instance_count=-2\nA_COMPLETER\n",
     "hints": [
-      "Structurez un dictionnaire avec le nom, la localisation, les zones et le statut low_carbon.",
-      "Pour répartir N instances sur M zones : base = N // M, reste = N % M. Les reste premières zones reçoivent base + 1."
+      "Pour N instances et M zones, calculez le quotient et le reste ; les premières zones reçoivent une instance supplémentaire.",
+      "Comptez les zones réellement occupées et ne déduisez jamais un basculement fonctionnel de la seule répartition."
     ],
     "examples": [
       {
         "stdin": "REGION_INFO region=europe-west9\nMULTI_ZONE_DEPLOY region=europe-west9 instance_count=5",
-        "expected": "REGION: name=europe-west9 location=Paris zones_count=3 low_carbon=YES\nDEPLOY: region=europe-west9 total=5 allocation=europe-west9-a:2,europe-west9-b:2,europe-west9-c:1 status=HA_RESILIENT",
-        "note": "Répartition de 5 VMs sur 3 zones : 2 en zone a, 2 en zone b et 1 en zone c."
+        "expected": "REGION: name=europe-west9 location=Paris zones_count=3 low_carbon=YES\nDEPLOY: region=europe-west9 total=5 allocation=europe-west9-a:2,europe-west9-b:2,europe-west9-c:1 status=MULTI_ZONE_NO_GUARANTEE",
+        "note": "Les cinq instances sont réparties sur trois zones ; la résilience reste à vérifier séparément."
       }
     ],
     "tests": [
       {
-        "label": "Région us-central1 avec 4 zones",
+        "label": "Répartition dans quatre zones",
         "stdin": "cas:1",
-        "expected": "DEPLOY: region=us-central1 total=6 allocation=us-central1-a:2,us-central1-b:2,us-central1-c:1,us-central1-f:1 status=HA_RESILIENT"
+        "expected": "DEPLOY: region=us-central1 total=6 allocation=us-central1-a:2,us-central1-b:2,us-central1-c:1,us-central1-f:1 status=MULTI_ZONE_NO_GUARANTEE"
       },
       {
-        "label": "Région inconnue",
+        "label": "Région absente du référentiel",
         "stdin": "cas:2",
         "expected": "REGION: name=mars-west1 status=UNKNOWN"
       },
       {
-        "label": "Répartition exacte multiple du nombre de zones",
+        "label": "Une seule instance ne crée pas de redondance",
         "stdin": "cas:3",
-        "expected": "DEPLOY: region=europe-west1 total=9 allocation=europe-west1-a:3,europe-west1-b:3,europe-west1-c:3 status=HA_RESILIENT"
+        "expected": "DEPLOY: region=europe-west9 total=1 allocation=europe-west9-a:1,europe-west9-b:0,europe-west9-c:0 status=SINGLE_ZONE_NO_REDUNDANCY"
+      },
+      {
+        "label": "Zéro instance est invalide",
+        "stdin": "cas:4",
+        "expected": "DEPLOY: region=europe-west9 total=0 status=INVALID_INSTANCE_COUNT"
+      },
+      {
+        "label": "Deux zones occupées ne garantissent pas la résilience",
+        "stdin": "cas:5",
+        "expected": "DEPLOY: region=europe-west9 total=2 allocation=europe-west9-a:1,europe-west9-b:1,europe-west9-c:0 status=MULTI_ZONE_NO_GUARANTEE"
+      },
+      {
+        "label": "Répartition exacte sur trois zones",
+        "stdin": "cas:6",
+        "expected": "DEPLOY: region=europe-west1 total=9 allocation=europe-west1-a:3,europe-west1-b:3,europe-west1-c:3 status=MULTI_ZONE_NO_GUARANTEE"
+      },
+      {
+        "label": "Nombre négatif invalide",
+        "stdin": "cas:7",
+        "expected": "DEPLOY: region=europe-west1 total=-2 status=INVALID_INSTANCE_COUNT"
       }
     ],
-    "solution": "[Exemple]\nREGION: name=europe-west9 location=Paris zones_count=3 low_carbon=YES\nDEPLOY: region=europe-west9 total=5 allocation=europe-west9-a:2,europe-west9-b:2,europe-west9-c:1 status=HA_RESILIENT\n\n[Cas 1 — Région us-central1 avec 4 zones]\nDEPLOY: region=us-central1 total=6 allocation=us-central1-a:2,us-central1-b:2,us-central1-c:1,us-central1-f:1 status=HA_RESILIENT\n\n[Cas 2 — Région inconnue]\nREGION: name=mars-west1 status=UNKNOWN\n\n[Cas 3 — Répartition exacte multiple du nombre de zones]\nDEPLOY: region=europe-west1 total=9 allocation=europe-west1-a:3,europe-west1-b:3,europe-west1-c:3 status=HA_RESILIENT"
+    "solution": "[Exemple]\nREGION: name=europe-west9 location=Paris zones_count=3 low_carbon=YES\nDEPLOY: region=europe-west9 total=5 allocation=europe-west9-a:2,europe-west9-b:2,europe-west9-c:1 status=MULTI_ZONE_NO_GUARANTEE\n\n[Cas 1 — Répartition dans quatre zones]\nDEPLOY: region=us-central1 total=6 allocation=us-central1-a:2,us-central1-b:2,us-central1-c:1,us-central1-f:1 status=MULTI_ZONE_NO_GUARANTEE\n\n[Cas 2 — Région absente du référentiel]\nREGION: name=mars-west1 status=UNKNOWN\n\n[Cas 3 — Une seule instance ne crée pas de redondance]\nDEPLOY: region=europe-west9 total=1 allocation=europe-west9-a:1,europe-west9-b:0,europe-west9-c:0 status=SINGLE_ZONE_NO_REDUNDANCY\n\n[Cas 4 — Zéro instance est invalide]\nDEPLOY: region=europe-west9 total=0 status=INVALID_INSTANCE_COUNT\n\n[Cas 5 — Deux zones occupées ne garantissent pas la résilience]\nDEPLOY: region=europe-west9 total=2 allocation=europe-west9-a:1,europe-west9-b:1,europe-west9-c:0 status=MULTI_ZONE_NO_GUARANTEE\n\n[Cas 6 — Répartition exacte sur trois zones]\nDEPLOY: region=europe-west1 total=9 allocation=europe-west1-a:3,europe-west1-b:3,europe-west1-c:3 status=MULTI_ZONE_NO_GUARANTEE\n\n[Cas 7 — Nombre négatif invalide]\nDEPLOY: region=europe-west1 total=-2 status=INVALID_INSTANCE_COUNT"
   },
   {
     "id": "gcp3-c1-e3",

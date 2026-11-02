@@ -24,7 +24,7 @@ module.exports = {
     'Calculer le trafic offert en Erlangs et déterminer le nombre de canaux simultanés nécessaires via la formule récursive d\'Erlang B (GoS <= 1%).',
     'Identifier les contraintes de qualité vocale de la norme ITU-T G.114 (latence <= 150 ms, gigue <= 30 ms, perte de paquets <= 1.0%).',
     'Mettre en œuvre les mécanismes de QoS Couche 2 (Voice VLAN 802.1Q, balisage CoS 5, LLDP-MED) et Couche 3 (DiffServ DSCP EF 46 / Low Latency Queueing).',
-    'Résoudre les problématiques de traversée de NAT et de pare-feu : fonctionnement de STUN (RFC 5389), TURN (RFC 5766), ICE (RFC 5245) et dangers du SIP ALG.'
+    'Diagnostiquer la traversée de NAT et de pare-feu : rôle de STUN (RFC 8489), TURN (RFC 8656), ICE (RFC 8445) et limites possibles d\'un SIP ALG.'
   ],
 
   sections: [
@@ -83,10 +83,10 @@ module.exports = {
         '<div class="card">',
         '  <h4>Technologies de Traversée de NAT (STUN, TURN, ICE)</h4>',
         '  <ul>',
-        '    <li><strong>STUN (RFC 5389) :</strong> Le client envoie une requête UDP à un serveur STUN public qui lui renvoie sa véritable adresse IP et son port publics (MAPPED-ADDRESS). Le client peut ainsi insérer ses coordonnées publiques dans ses offres SDP. STUN fonctionne parfaitement sur les NAT de type Cone (Full Cone, Restricted Cone).</li>',
-        '    <li><strong>TURN (RFC 5766) :</strong> Lorsque le routeur applique un <em>NAT symétrique</em> (le port externe change pour chaque destination IP différente), STUN échoue. Un serveur relais <strong>TURN (Traversal Using Relays around NAT)</strong> doit alors relayer l\'intégralité des flux RTP entre les deux terminaux.</li>',
-        '    <li><strong>ICE (RFC 5245) :</strong> Cadre global combinant STUN et TURN pour tester systématiquement tous les chemins de communication possibles et sélectionner le plus direct et performant.</li>',
-        '    <li><strong>SIP ALG (Application Layer Gateway) :</strong> Module présent sur de nombreux routeurs grand public/PME censé réécrire les adresses SIP. En pratique, la majorité des implémentations SIP ALG sont défaillantes, corrompent les paquets et doivent être <strong>impérativement désactivées</strong>.</li>',
+        '    <li><strong>STUN (RFC 8489) :</strong> Un serveur renseigne le client sur l\'adresse et le port observés pour une requête. Cette observation ne garantit pas la communication directe avec un pair : le filtrage et la topologie comptent également.</li>',
+        '    <li><strong>TURN (RFC 8656) :</strong> Un relais peut transporter le média lorsqu\'un chemin direct utilisable n\'est pas disponible ; son utilisation dépend des candidats et des règles du réseau, pas uniquement d\'une étiquette de NAT.</li>',
+        '    <li><strong>ICE (RFC 8445) :</strong> Les pairs échangent des candidats, notamment locaux, réflexifs et éventuellement relayés, puis effectuent des vérifications de connectivité avant de sélectionner une paire utilisable.</li>',
+        '    <li><strong>SIP ALG (Application Layer Gateway) :</strong> Un module de réécriture SIP peut être utile ou perturber certains déploiements. Vérifier sa compatibilité et tester la configuration avant de le désactiver si nécessaire.</li>',
         '  </ul>',
         '</div>'
       ].join('\n')
@@ -98,7 +98,7 @@ module.exports = {
     'Dimensionner les capacités de trunks : calculer le trafic offert en Erlangs à l\'heure de pointe et utiliser la loi d\'Erlang B pour provisionner les canaux avec un GoS <= 1%.',
     'Déployer la ségrégation Voice VLAN : configurer le balisage 802.1Q et CoS 5 sur les commutateurs avec détection automatique LLDP-MED des téléphones IP.',
     'Activer le marquage DiffServ / LLQ : configurer les règles de marquage DSCP EF (46) pour les médias RTP et allouer une bande passante prioritaire stricte sur les routeurs WAN.',
-    'Désactiver impérativement le SIP ALG : neutraliser le module SIP ALG sur les routeurs/pare-feux et activer STUN ou un contrôleur de session SBC (Session Border Controller).'
+    'Diagnostiquer les règles de filtrage et les candidats ICE ; vérifier si le SIP ALG ou un contrôleur de session SBC convient au déploiement.'
   ],
 
   summary: [
@@ -106,7 +106,7 @@ module.exports = {
     'Les exigences ITU-T G.114 pour la voix imposent une latence <= 150 ms, une gigue <= 30 ms et des pertes de paquets <= 1.0%.',
     'La QoS combine Voice VLAN (802.1Q) et CoS 5 en couche 2, et marquage DSCP EF (46) avec file d\'attente LLQ en couche 3.',
     'Le NAT classique provoque le phénomène de One-Way Audio en laissant des adresses IP privées dans les en-têtes Contact SIP et les offres médias SDP.',
-    'STUN permet au client de découvrir son adresse publique sur NAT Cone ; TURN fournit un relais média obligatoire sur NAT symétrique.'
+    'STUN fournit une adresse observée, ICE vérifie des paires de candidats et TURN peut fournir un relais si le chemin direct ne convient pas.'
   ],
 
   checklist: [
@@ -127,10 +127,10 @@ module.exports = {
   ],
 
   pitfalls: [
-    'Conserver le module SIP ALG actif sur un routeur : source n°1 de désenregistrements aléatoires et d\'échecs de sonnerie en entreprise.',
+    'Supposer qu\'un SIP ALG est toujours adapté ou toujours nuisible sans vérifier son comportement dans le déploiement.',
     'Négliger la réservation de bande passante prioritaire (LLQ) sur le routeur WAN, provoquant une dégradation immédiate de la voix dès qu\'un utilisateur télécharge un fichier volumineux.',
     'Dimensionner un trunk téléphonique sur la moyenne de la journée au lieu de l\'heure de pointe (Busy Hour), provoquant des saturations quotidiennes.',
-    'Penser que STUN fonctionne sur tous les routeurs : sur un NAT symétrique, STUN échoue systématiquement et nécessite un relais TURN ou SBC.'
+    'Confondre découverte de mappage et preuve de connectivité directe : vérifier les paires ICE et prévoir un relais selon les résultats.'
   ],
 
   questions: [
@@ -165,10 +165,10 @@ module.exports = {
       exp: 'L\'émetteur externe tente d\'envoyer son flux RTP vers l\'IP privée non routable du récepteur, causant une absence totale de son dans un sens (One-Way Audio).'
     },
     {
-      stem: 'Pourquoi le protocole STUN (RFC 5389) est-il inefficace pour établir une liaison voix directe lorsque le routeur applique un NAT symétrique ?',
-      opts: ['Car STUN est limité à l\'IPv6', 'Car le routeur attribue un port externe différent pour chaque adresse IP de destination contactée', 'Car STUN nécessite un mot de passe administrateur', 'Car le port 5060 est saturé'],
+      stem: 'Deux serveurs STUN observent le même mappage pour un client. Que peut-on en conclure pour la communication avec un pair ?',
+      opts: ['Le pair est nécessairement joignable directement', 'Les mappages observés sont identiques, mais la connectivité doit être vérifiée', 'Aucun pare-feu ne filtre le trafic', 'Le client ne traverse aucun NAT'],
       correct: 1,
-      exp: 'Sur un NAT symétrique, le port public mappé vers le serveur STUN n\'est pas réutilisable pour joindre le correspondant distant, ce qui exige un serveur relais TURN.'
+      exp: 'La comparaison de ces deux observations ne prouve ni le filtrage ni la joignabilité du pair ; ICE vérifie des paires de candidats et TURN peut fournir un relais.'
     },
     {
       stem: 'Quelle action d\'administration réseau est fortement recommandée sur les passerelles Internet pour éviter que les messages SIP ne soient altérés ou corrompus ?',
@@ -207,14 +207,14 @@ module.exports = {
     },
     {
       q: 'Quelle est la différence entre STUN et TURN ?',
-      a: 'STUN permet la découverte de l\'IP publique pour du trafic direct ; TURN relaie intégralement le flux média lorsque le NAT est symétrique.'
+      a: 'STUN renseigne une adresse observée mais ne garantit pas une liaison directe ; TURN peut fournir un relais, utilisé selon les vérifications de connectivité.'
     }
   ],
 
   mastery: [
     { cls: 'low', text: 'Score < 60 % : Notions d\'Erlang B, QoS et NAT mal comprises. Relisez les sections et refaites le test.' },
     { cls: 'mid', text: 'Score 60-74 % : Principes généraux acquis. Entraînez-vous au calcul du trafic en Erlangs et aux règles de marquage DSCP.' },
-    { cls: 'mid', text: 'Score 75-84 % : Bonne maîtrise technique. Approfondissez les différences entre NAT Cone et NAT symétrique (STUN vs TURN).' },
+    { cls: 'mid', text: 'Score 75-84 % : Bonne maîtrise technique. Approfondissez les rôles respectifs de STUN, TURN et des vérifications ICE.' },
     { cls: 'high', text: 'Score 85-94 % : Niveau solide. Vous maîtrisez le dimensionnement télécoms et la garantie de qualité de service ToIP.' },
     { cls: 'high', text: 'Score ≥ 95 % : Maîtrise d\'ingénieur télécoms. Prêt pour les fonctionnalités avancées et la sécurité du Module 6 !' }
   ]

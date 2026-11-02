@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -63,7 +63,7 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Le <strong>WAN</strong> est l'interconnexion de plusieurs LAN — par ligne louée (HDLC, PPP) ou par Ethernet WAN (EoMPLS). Le routage IP y achemine les paquets de bout en bout : chaque routeur désencapsule, consulte sa table, réencapsule — tandis que l'en-tête IP reste inchangé.</p>
+    <p>Le <strong>WAN</strong> est l'interconnexion de plusieurs LAN — par ligne louée (HDLC, PPP) ou par Ethernet WAN (EoMPLS). Le routage IP y achemine les paquets de bout en bout : chaque routeur désencapsule, consulte sa table et réencapsule. Lors du transfert IPv4, le TTL diminue et la somme de contrôle de l'en-tête est actualisée.</p>
   </div>
 
   <div class="box box--objectifs">
@@ -72,8 +72,8 @@
     <ol>
       <li>décrire le WAN de lignes louées et le WAN Ethernet (EoMPLS) ;</li>
       <li>dérouler les quatre étapes du routage interne d'un routeur ;</li>
-      <li>appliquer les deux règles d'or des sous-réseaux (routeur entre les adresses ou non) ;</li>
-      <li>expliquer l'en-tête IPv4 de 20 octets (adresses source et destination 32 bits) ;</li>
+      <li>comparer des adresses IPv4 et leurs masques pour identifier les sous-réseaux ;</li>
+      <li>décrire l'en-tête IPv4, sa taille et les champs modifiés lors du routage ;</li>
       <li>décrire l'apprentissage des routes par protocole de routage (connectées, annonces, métrique).</li>
     </ol>
   </div>
@@ -83,79 +83,82 @@
 <p>Le <strong>WAN de lignes louées</strong> : une liaison permanente louée à un opérateur, dont les détails de liaison de données utilisent <strong>HDLC</strong> (ou PPP). Le routeur y encapsule le paquet IP dans une trame HDLC. L'<strong>Ethernet WAN</strong> (EoMPLS — Ethernet over MPLS) est « plus d'actualité » : le WAN se comporte comme un gigantesque switch Ethernet entre les sites.</p>
 <p>La logique de routage interne, pour chaque trame qui arrive sur une interface : <strong>1.</strong> vérifier le FCS de la trame (erreur → jeter) ; <strong>2.</strong> supprimer l'ancien en-tête et la fin de liaison de données, laissant le paquet IP ; <strong>3.</strong> comparer l'IP de destination à la table de routage (meilleure route → interface sortante et saut suivant) ; <strong>4.</strong> encapsuler le paquet dans un nouvel en-tête approprié à l'interface sortante et transmettre.</p>
   <div class="box box--mnemo">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « l'en-tête IP voyage intact, l'en-tête de liaison change à chaque saut »</div>
-    <p>Les MAC et en-têtes de trame se renouvellent à chaque routeur ; les adresses IP de bout en bout restent les mêmes.</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> À chaque saut, la trame change et le TTL IPv4 diminue</div>
+    <p>La trame est adaptée à la liaison sortante. Les adresses IP source et destination restent généralement les mêmes en l'absence de traduction d'adresses ou de tunnel.</p>
   </div>
 
 <h2>2. Sous-réseaux, en-tête IP et protocoles de routage</h2>
 
-<p>Les <strong>règles d'or</strong> des groupes d'adresses : deux adresses <em>non séparées</em> par un routeur appartiennent au <strong>même groupe</strong> (sous-réseau) ; deux adresses <em>séparées</em> par au moins un routeur appartiennent à des <strong>groupes différents</strong>. L'analogie du support : le sous-réseau est le code postal des adresses IP. L'<strong>en-tête IPv4</strong> fait 20 octets, avec les adresses source et destination de 32 bits — inchangées par le routage.</p>
+<p>Un <strong>sous-réseau</strong> est un ensemble d'adresses défini par un préfixe et un masque. Le même segment physique peut porter plusieurs sous-réseaux : comparez les adresses et leur masque, pas seulement la présence d'un routeur. Par exemple, <code>192.0.2.1/24</code> et <code>192.0.3.1/24</code> ont des préfixes différents, même si elles sont reliées au même commutateur.</p>
+<p>L'en-tête IPv4 mesure <strong>20 octets au minimum</strong> et jusqu'à <strong>60 octets</strong> avec des options ; les adresses source et destination ont chacune 32 bits. Lorsqu'un routeur transmet un paquet, son <strong>TTL diminue</strong> d'au moins une unité et la somme de contrôle de l'en-tête est recalculée. Sans NAT ni tunnel, les adresses IP restent généralement identiques.</p>
+<p>Références : <a href="https://www.rfc-editor.org/rfc/rfc791">RFC 791, IPv4</a>, <a href="https://www.rfc-editor.org/rfc/rfc1122">RFC 1122, réseaux logiques multiples</a> et <a href="https://www.rfc-editor.org/rfc/rfc1812">RFC 1812, routeurs IPv4</a>, consultées le 30 octobre 2026.</p>
 <p>Les <strong>protocoles de routage</strong> apprennent les routes en trois étapes : chaque routeur ajoute d'abord ses routes <em>connectées</em> ; chaque protocole annonce les routes de sa table à ses voisins (mises à jour de routage) ; après apprentissage, la meilleure route — selon une <strong>métrique</strong> — entre dans la table. Les hôtes, eux, connaissent leur <strong>routeur par défaut</strong> : destination de tout paquet hors du sous-réseau local. ARP apprend dynamiquement la MAC de liaison de données d'un hôte IP du LAN.</p>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
     <ul>
       <li>Le FCS est vérifié AVANT la désencapsulation : trame fautive = trame jetée.</li>
-      <li>Adresses séparées par un routeur = sous-réseaux différents : la règle inverse piège.</li>
-      <li>L'en-tête IP reste inchangé de bout en bout : ce sont les en-têtes de liaison qui changent.</li>
+      <li>Un segment commun ne prouve pas que les adresses partagent le même préfixe IP.</li>
+      <li>Le TTL et la somme de contrôle IPv4 changent lors du transfert par un routeur.</li>
       <li>EoMPLS est un WAN Ethernet : plus d'actualité que HDLC.</li>
     </ul>
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>3. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="cc-c4-e1" data-lab
      data-exercise="cc-c4-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="2&#10;mmelAN memegroupe&#10;mmelAN groupesdifferents&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cc-c4-e1) — Même sous-réseau ou routé
+     data-stdin="2&#10;meme 192.0.2.1 192.0.2.2 /24&#10;autre 192.0.2.1 192.0.3.1 /24&#10;">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc-c4-e1) — Comparer des sous-réseaux IPv4
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
-[Cas 1 — Les deux règles]
+[Cas 1 — Un segment, deux préfixes possibles]
 # Données : 2
-# Données : mmelAN memegroupe
-# Données : mmelRouteur groupesdifferents
+# Données : voisin 192.0.2.1 192.0.2.200 /24
+# Données : autre 192.0.2.1 192.0.3.1 /24
 A_COMPLETER
 
-[Cas 2 — Inversées]
+[Cas 2 — Frontière /25]
 # Données : 2
-# Données : mmelAN groupesdifferents
-# Données : mmelRouteur memegroupe
+# Données : limite 192.0.2.127 192.0.2.128 /25
+# Données : interieur 192.0.2.1 192.0.2.126 /25
 A_COMPLETER
 
-[Cas 3 — Série mixte]
+[Cas 3 — Préfixes précis]
 # Données : 3
-# Données : mmelRouteur groupesdifferents
-# Données : mmelAN memegroupe
-# Données : mmelRouteur memegroupe
+# Données : vaste 198.51.100.1 198.51.101.1 /24
+# Données : lien 192.0.2.0 192.0.2.1 /31
+# Données : hote 203.0.113.0 203.0.113.1 /32
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Même sous-réseau ou routé</h3>
+    <h3 class="lab__title">Exercice 1 — Comparer des sous-réseaux IPv4</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Appliquer les deux règles d'or du sous-réseautage : séparés par un routeur ou non.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « couple verdict » : couple est un code de liaison et verdict un code parmi <code>memegroupe</code> ou <code>groupesdifferents</code>. Règles du support : deux adresses <strong>non séparées</strong> par un routeur appartiennent au <em>même groupe</em> (sous-réseau) ; deux adresses <strong>séparées</strong> par au moins un routeur appartiennent à des <em>groupes différents</em>. Couples du support : <code>mmelAN</code> et <code>mmelRouteur</code> (même LAN, avec ou sans routeur entre les deux). Pour chaque ligne il Indiquez <code>couple : conforme</code> ou <code>couple : a revoir</code>, puis <code>conformes : X/n</code>.</p></div>
+    <p class="lab__formative-notice" id="cc-c4-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer les préfixes calculés à partir de deux adresses et d'un masque commun.</p>
+    <div class="lab__brief"><p>Pour chaque ligne « nom adresse1 adresse2 /p », les deux adresses utilisent le même préfixe /p. Calculez leur adresse réseau respective ; un segment physique commun ne suffit pas à décider. Indiquez <code>nom : meme reseau</code> si les préfixes sont identiques ou <code>nom : reseaux differents</code> sinon. Terminez par <code>identiques : X/n</code>. Les adresses /31 du dernier cas représentent les deux extrémités d'une liaison point-à-point compatible.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2
-mmelAN memegroupe
-mmelAN groupesdifferents
+meme 192.0.2.1 192.0.2.2 /24
+autre 192.0.2.1 192.0.3.1 /24
 </pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>mmelAN : conforme
-mmelAN : a revoir
-conformes : 1/2</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>mmelAN → memegroupe ; mmelRouteur → groupesdifferents.</li>
-        <li>Un case par couple donne le verdict attendu.</li>
+        <li>Appliquez le masque à chaque adresse pour obtenir son préfixe réseau.</li>
+        <li>Comparez les deux préfixes calculés avant de compter les cas identiques.</li>
       </ol>
     </details>
   </div>
@@ -194,22 +197,20 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Les quatre étapes du routage</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="cc-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Dérouler la logique interne du routeur : FCS, désencapsulation, table de routage, réencapsulation.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « etape action » : etape est un numéro de 1 à 4 et action un code parmi <code>fcs</code>, <code>desencapsule</code>, <code>table</code> ou <code>encapsule</code>. Les quatre étapes du support : 1 vérifier le FCS (jeter si erreur), 2 supprimer l'ancien en-tête de liaison de données, 3 chercher la meilleure route pour l'IP de destination, 4 encapsuler dans un nouvel en-tête et transmettre. Pour chaque ligne il Indiquez <code>etape N : OUI</code> quand le couple est juste, sinon <code>etape N : NON</code>, puis <code>justes : X/n</code>.</p></div>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « etape action » : etape est un numéro de 1 à 4 et action un code parmi <code>fcs</code>, <code>desencapsule</code>, <code>table</code> ou <code>encapsule</code>. Les quatre étapes du support : 1 vérifier le FCS (jeter si erreur), 2 supprimer l'ancien en-tête de liaison de données, 3 chercher la meilleure route pour l'IP de destination, 4 encapsuler dans un nouvel en-tête et transmettre. Pour chaque ligne, indiquez <code>etape N : OUI</code> quand le couple est juste, sinon <code>etape N : NON</code>, puis <code>justes : X/n</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 1 fcs
 2 desencapsule
 4 encapsule
 </pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>etape 1 : OUI
-etape 2 : OUI
-etape 4 : OUI
-justes : 3/3</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
@@ -253,10 +254,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Les trois protocoles de routage apprennent</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="cc-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Simuler l'apprentissage des routes par protocole de routage : connexes, annonces, métrique.</p>
     <div class="lab__brief"><p>Analysez les données fournies pour chaque cas..Rn), puis <strong>n lignes</strong> « routeur sousreseau » annoncés dans l'ordre de propagation (le dernier routeur est connecté au sous-réseau, les annonces remontent vers le premier). Le protocole de routage suit trois étapes du support : chaque routeur ajoute d'abord ses routes <em>connectées</em>, les voisins s'annoncent leurs routes, la meilleure route (métrique) entre dans la table. Indiquez pour chaque routeur (du dernier vers le premier) <code>routeur : apprend sousreseau</code>, puis <code>routes apprises : n</code>.</p></div>
     <div class="lab__sample">
@@ -265,10 +268,6 @@ R1 150.150.4.0
 R2 150.150.4.0
 R3 150.150.4.0
 </pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>R3 : apprend 150.150.4.0
-R2 : apprend 150.150.4.0
-R1 : apprend 150.150.4.0
-routes apprises : 3</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
@@ -279,6 +278,7 @@ routes apprises : 3</pre></div>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>4. QCM — niveau examen</h2>
 
@@ -302,31 +302,31 @@ routes apprises : 3</pre></div>
       <div class="q__exp">FCS d'abord : trame erronée jetée.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Deux adresses non séparées par un routeur appartiennent…</p>
+      <p class="q__stem">Deux adresses sont sur le même segment : comment comparer leurs sous-réseaux ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">au même sous-réseau</button>
-        <button class="opt">à des sous-réseaux différents</button>
-        <button class="opt">à des VLAN différents</button>
+        <button class="opt" data-correct="1">Comparer les adresses et leurs masques ou préfixes</button>
+        <button class="opt">Supposer qu'elles sont toujours dans le même sous-réseau</button>
+        <button class="opt">Vérifier uniquement leur adresse MAC</button>
       </div>
-      <div class="q__exp">Première règle d'or du sous-réseautage.</div>
+      <div class="q__exp">Un segment peut porter plusieurs préfixes ; la MAC seule ne détermine pas le sous-réseau IP.</div>
     </div>
     <div class="q">
       <p class="q__stem">L'en-tête IPv4 fait…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">20 octets</button>
-        <button class="opt">32 octets</button>
-        <button class="opt">64 octets</button>
+        <button class="opt" data-correct="1">20 à 60 octets selon les options</button>
+        <button class="opt">toujours 20 octets</button>
+        <button class="opt">toujours 64 octets</button>
       </div>
-      <div class="q__exp">Avec des adresses source et destination de 32 bits chacune.</div>
+      <div class="q__exp">Le minimum est 20 octets ; des options peuvent porter la taille à 60 octets.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Pendant le routage, l'en-tête IP…</p>
+      <p class="q__stem">Pendant le routage IPv4, que devient l'en-tête du paquet transmis ?</p>
       <div class="opts">
-        <button class="opt">est réécrit à chaque saut</button>
-        <button class="opt" data-correct="1">reste inchangé</button>
-        <button class="opt">est jeté</button>
+        <button class="opt" data-correct="1">Le TTL diminue et la somme de contrôle est recalculée</button>
+        <button class="opt">Il reste intégralement inchangé</button>
+        <button class="opt">Il est toujours supprimé</button>
       </div>
-      <div class="q__exp">Seuls les en-têtes de liaison de données se renouvellent.</div>
+      <div class="q__exp">La trame change, et le routeur actualise aussi des champs de l'en-tête IPv4.</div>
     </div>
     <div class="q">
       <p class="q__stem">La « meilleure route » est choisie selon…</p>
@@ -364,7 +364,7 @@ routes apprises : 3</pre></div>
     <ul>
       <li>Chercher la route avant de vérifier le FCS.</li>
       <li>Encapsuler sans désencapsuler : le vieux cabeau de liaison doit partir.</li>
-      <li>Placer deux adresses séparées par un routeur dans le même sous-réseau.</li>
+      <li>Supposer qu'un segment physique unique impose un préfixe IP unique.</li>
       <li>Confondre route connectée (apprentissage automatique) et route apprise (annonce).</li>
     </ul>
   </div>
@@ -376,7 +376,7 @@ routes apprises : 3</pre></div>
     <ol>
       <li>Repérer le sous-réseau de destination : même groupe ou saut vers le routeur par défaut.</li>
       <li>À chaque routeur : FCS, désencapsulation, table, réencapsulation.</li>
-      <li>Vérifier au bout : les adresses IP sont intactes, les en-têtes de liaison ont changé à chaque saut.</li>
+      <li>Vérifier le TTL et la somme de contrôle IPv4 ; sans NAT ni tunnel, les adresses IP restent généralement identiques.</li>
     </ol>
   </div>
 
@@ -387,19 +387,19 @@ routes apprises : 3</pre></div>
     <ul>
       <li>WAN : lignes louées (HDLC, PPP) ou Ethernet WAN (EoMPLS).</li>
       <li>Routage interne : FCS → désencapsulation → table → réencapsulation.</li>
-      <li>Sous-réseaux : routeur entre les adresses = groupes différents.</li>
+      <li>Sous-réseaux : comparer les adresses et les masques, même sur un segment commun.</li>
       <li>Protocoles de routage : routes connectées, annonces aux voisins, métrique.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
       <li>Je sais dérouler les quatre étapes du routage dans l'ordre.</li>
-      <li>Je sais appliquer les deux règles des sous-réseaux.</li>
-      <li>Je sais expliquer l'en-tête IPv4 et sa stabilité.</li>
+      <li>Je sais comparer deux préfixes de sous-réseau.</li>
+      <li>Je sais expliquer la taille de l'en-tête IPv4 et ses champs modifiés.</li>
       <li>Je sais décrire l'apprentissage d'une route par protocole de routage.</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li><strong>HDLC</strong> : protocole de liaison des lignes louées.</li><li><strong>EoMPLS</strong> : Ethernet WAN, le plus d'actualité.</li><li><strong>Table de routage</strong> : sous-réseau → interface sortante + saut suivant.</li><li><strong>Métrique</strong> : critère de choix de la meilleure route.</li><li><strong>Route connectée</strong> : ajoutée sans protocole de routage.</li><li><strong>En-tête IPv4</strong> : 20 octets, adresses 32 bits inchangées.</li><li><strong>Routeur par défaut</strong> : destination des paquets hors du sous-réseau.</li><li><strong>ARP</strong> : apprend la MAC d'un hôte IP du LAN.</li>
+      <li><strong>HDLC</strong> : protocole de liaison des lignes louées.</li><li><strong>EoMPLS</strong> : Ethernet WAN, le plus d'actualité.</li><li><strong>Table de routage</strong> : sous-réseau → interface sortante + saut suivant.</li><li><strong>Métrique</strong> : critère de choix de la meilleure route.</li><li><strong>Route connectée</strong> : ajoutée sans protocole de routage.</li><li><strong>En-tête IPv4</strong> : 20 à 60 octets ; TTL et somme de contrôle sont actualisés au routage.</li><li><strong>Routeur par défaut</strong> : destination des paquets hors du sous-réseau.</li><li><strong>ARP</strong> : apprend la MAC d'un hôte IP du LAN.</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -411,7 +411,7 @@ routes apprises : 3</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — relisez les quatre étapes et les règles de sous-réseaux.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>relisez les quatre étapes et les règles de sous-réseaux.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>refaites le classement des WAN et des protocoles.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>bon niveau, ciblez la propagation des annonces.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>niveau de maîtrise recherché.</div>

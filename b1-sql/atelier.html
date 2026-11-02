@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Atelier de scripts &amp;amp; simulateur SQL | SQL B1</title>
-<meta name="description" content="Atelier du cours de bases de données B1 : scripts Bash réellement exécutés, tuteur d’erreurs, et simulateur SQL complet (base parc_auto chargée, missions guidées et mode examen).">
+<title>Atelier et simulateur SQL | SQL B1</title>
+<meta name="description" content="Atelier SQL B1 : zone libre et simulateur SQLite local avec parc_auto, missions et mode examen.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b1-sql/atelier.html">
-<meta property="og:title" content="Atelier de scripts &amp;amp; simulateur SQL | SQL B1">
-<meta property="og:description" content="Atelier du cours de bases de données B1 : scripts Bash réellement exécutés, tuteur d’erreurs, et simulateur SQL complet (base parc_auto chargée, missions guidées et mode examen).">
+<meta property="og:title" content="Atelier et simulateur SQL | SQL B1">
+<meta property="og:description" content="Atelier SQL B1 : zone libre et simulateur SQLite local avec parc_auto, missions et mode examen.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -54,17 +54,16 @@
 <main id="content" class="sqlwrap">
 <p class="crumb"><a href="index.html">SQL B1</a> › <a href="sommaire.html">Sommaire</a> › Atelier</p>
 
-  <h1>Atelier de scripts &amp; simulateur SQL</h1>
+  <h1>Atelier et simulateur SQL</h1>
 
-  <p class="lead">Deux machines dans une page : un éditeur Bash dont chaque script est réellement exécuté côté serveur, et un vrai moteur SQL — base <strong>parc_auto</strong> du support déjà chargée (12 marques, 23 voitures). La logique des requêtes se programme en Bash, les requêtes s’essaient en réel : rien à installer.</p>
+  <p class="lead">Deux espaces SQLite dans votre navigateur : la zone libre et le simulateur démarrent sur le même <strong>parc_auto</strong> (12 marques, 23 voitures), sans partager leurs modifications.</p>
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Comment fonctionne l’atelier</div>
     <ul>
-      <li><strong>Valider</strong> vérifie la conformité de vos réponses dans la grille d’analyse.</li>
-      <li><strong>Données du cas</strong> contient les paramètres soumis à l’étude.</li>
-      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n’écrit jamais de code à votre place.</li>
-      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l’éditeur ; votre code est conservé dans ce navigateur.</li>
+      <li>Dans la zone libre, chaque exécution repart d’une copie du parc. Pour commencer sur une base vide, effacez le script de préparation dans « Entrée du programme ».</li>
+      <li>Le moteur SQL fonctionne dans le navigateur ; la disponibilité du tuteur dépend de la configuration du service.</li>
+      <li>Dans le simulateur ci-dessous, <strong>Ctrl + Entrée</strong> lance les requêtes localement et votre script est conservé dans ce navigateur.</li>
     </ul>
   </div>
 
@@ -74,27 +73,21 @@
      data-language="sql"
      data-height="360"
      data-languages="1"
-     data-stdin="">
-  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie du cours.
-# Rédigez votre analyse sous forme de grille structurée.
-
-[Cas 1 — Cas d'application libre]
-# Données :
-A_COMPLETER
+     data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque  TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat     TEXT NOT NULL PRIMARY KEY,&#10;  marque    TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur    TEXT NOT NULL,&#10;  datecirc  TEXT,&#10;  km        INTEGER NOT NULL,&#10;  pxachat   INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;('TOY','TOYOTA','JAPON'),('MIT','MITSUBISHI','JAPON'),('MAZ','MAZDA','JAPON'),&#10;('NIS','NISSAN','JAPON'),('SUZ','SUZUKI','JAPON'),('BNZ','MERCEDES BENZ','ALLEMAGNE'),&#10;('BMW','BMW','ALLEMAGNE'),('KIA','KIA','COREE DU SUD'),('HYU','HYUNDAI','COREE DU SUD'),&#10;('REN','RENAULT','FRANCE'),('PEU','PEUGEOT','FRANCE'),('MG','MG','ROYAUME-UNI');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;('TG-7854-Z','MERCEDES BENZ','BNZ','DIESEL','2000-01-21',500,6000000,5),&#10;('TG-6733-AB','MERCEDES BENZ','BNZ','DIESEL','2002-01-21',0,16000000,5),&#10;('TG-2020-AC','MERCEDES BENZ','BNZ','ESSENCE','2003-03-21',0,9000000,5),&#10;('TG-3733-AC','TOYOTA','TOY','HYBRIDE','2010-01-21',0,20000000,7),&#10;('TG-6733-AC','MERCEDES BENZ','BNZ','DIESEL','2012-01-21',0,9600000,5),&#10;('TG-5420-AF','SUZUKI','SUZ','ELECTRIQUE','2013-01-21',10000,21600000,5),&#10;('TG-9420-AF','TOYOTA','TOY','ESSENCE','2013-09-21',0,50000000,7),&#10;('TG-1200-AK','SUZUKI','SUZ','ELECTRIQUE','2014-01-21',0,11600000,5),&#10;('TG-9420-AK','TOYOTA','TOY','ESSENCE','2014-09-21',100,50000000,7),&#10;('TG-0020-AL','TOYOTA','TOY','DIESEL','2014-11-21',0,50000000,7),&#10;('TG-4444-AL','HYUNDAI','HYU','ESSENCE','2015-09-21',5,10000000,5),&#10;('TG-5420-AL','BMW','BMW','ESSENCE','2015-10-21',0,50000000,7),&#10;('TG-0020-AV','MITSUBISHI','MIT','ESSENCE','2018-10-21',30,50000000,7),&#10;('TG-0480-AV','BMW','BMW','ELECTRIQUE','2015-12-21',0,50000000,5),&#10;('TG-1420-AW','MAZDA','MAZ','ESSENCE','2016-02-01',0,17000000,5),&#10;('TG-2540-AW','KIA','KIA','ESSENCE','2016-10-21',0,50000000,7),&#10;('TG-5220-BA','NISSAN','NIS','ESSENCE','2019-10-21',6700,10000000,5),&#10;('TG-2222-BC','RENAULT','REN','DIESEL','2020-01-20',0,15000000,5),&#10;('TG-3333-BC','PEUGEOT','PEU','ESSENCE','2021-03-15',0,20000000,5),&#10;('TG-4444-BC','PEUGEOT','PEU','DIESEL','2021-06-10',25000,30000000,7),&#10;('TG-5555-BC','MG','MG','ESSENCE','2022-08-01',0,20000000,5),&#10;('TG-6666-BC','TOYOTA','TOY','HYBRIDE','2023-05-20',0,25000000,7),&#10;('TG-7777-BC','HYUNDAI','HYU','ELECTRIQUE','2023-09-12',0,23000000,5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;('AIR','Climatisation',0),('GPS','Navigation GPS',450000),&#10;('CAM','Camera de recul',200000),('RAD','Autoradio',NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;('TG-7854-Z','AIR'),('TG-3733-AC','AIR'),('TG-3733-AC','GPS'),&#10;('TG-9420-AF','GPS'),('TG-0020-AV','CAM'),('TG-0480-AV','RAD');">
+  <script type="text/plain" data-lab-starter>SELECT COUNT(*) AS nb FROM Voiture;
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Zone libre — contrôleur de privilèges</h3>
+    <h3 class="lab__title">Zone libre — requêtes SQL</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez une règle du cours (filtre WHERE, jointure, GROUP BY, privilèges GRANT et REVOKE), programmez-la en Bash et testez-la sur des cas limites.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> écrire une requête SQL et observer son résultat.</p>
     <div class="lab__brief">
-      <p>Le script proposé rejoue la matrice des privilèges du chapitre 6 : lecture, écriture, administration. Transforme-le : ajoute un rôle, refuse grant à l’écriture, journalise chaque refus, ou remplace tout le script par la règle SQL que vous voulez vérifier.</p>
-      <p>Dans le vrai SGBD, ces décisions vivent dans GRANT et REVOKE : la structure du script — lire, décider, rapporter — reste exactement la même.</p>
+      <p>La requête initiale compte les voitures du parc. Le script de préparation est modifiable dans « Entrée du programme ».</p>
     </div>
-    <p class="lab__note">Le simulateur SQL plus bas exécute les requêtes elles-mêmes : utilisez-le pour voir le résultat réel d’un SELECT.</p>
+    <p class="lab__note">Les deux espaces exécutent SQLite localement ; seul le simulateur conserve les modifications entre deux exécutions.</p>
   </div>
 </div>
 
@@ -108,10 +101,12 @@ A_COMPLETER
       <li><strong>Exécuter</strong> (ou Ctrl + Entrée) lance tout ce qui est écrit dans l’éditeur, requête par requête, et affiche le résultat de la dernière.</li>
       <li><strong>Réinitialiser</strong> reconstruit la base parc_auto à l’état initial — après un UPDATE ou un DELETE trop large, c’est le bouton magique.</li>
       <li><strong>Historique</strong> garde vos requêtes de la session ; <strong>Exporter</strong> copie le résultat en CSV.</li>
-      <li>Le moteur est <strong>SQLite</strong> (WebAssembly) : toutes les requêtes du cours y fonctionnent. Les commandes d’administration (CREATE USER, GRANT) restent du papier.</li>
+      <li>Le moteur est <strong>SQLite</strong> (WebAssembly) : les exemples signalés MySQL, notamment CREATE USER, GRANT et MODIFY COLUMN, ne s’y exécutent pas.</li>
       <li>Votre script est conservé dans ce navigateur ; aucune donnée ne quitte votre machine.</li>
     </ul>
   </div>
+
+  <p>Une requête interrompue après quatre secondes entraîne la réinitialisation de la base : les modifications précédentes sont perdues. Les résultats sont limités à 2 000 lignes par instruction et à environ 1 Mo au total ; les allocations gérées par SQLite sont limitées à 32 Mio.</p>
 
   <div class="sqlsim" id="sqlsim">
 
@@ -131,14 +126,14 @@ A_COMPLETER
 
       <div class="sqlsim__editor">
 
-        <textarea id="sqlsim-query" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Requête SQL">-- Le parc au complet (23 lignes) :
-SELECT * FROM Voiture LIMIT 10;
-
--- Compte par marque, du plus fourni au plus rare :
+        <textarea id="sqlsim-query" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Requête SQL">-- Compte par marque, du plus fourni au plus rare :
 SELECT marque, COUNT(*) AS nb
 FROM Voiture
 GROUP BY marque
-ORDER BY nb DESC, marque;</textarea>
+ORDER BY nb DESC, marque;
+
+-- Le parc au complet (23 lignes) :
+SELECT * FROM Voiture;</textarea>
 
       </div>
 
@@ -179,14 +174,14 @@ ORDER BY nb DESC, marque;</textarea>
     <p>Deux tables, fidèles au support :</p>
     <ul>
       <li><strong>Marque</strong> (codemarque, nommarque, paysmarque) : 12 lignes, de TOYOTA à MG.</li>
-      <li><strong>Voiture</strong> (immat, marque, moteur, datecirc, km, pxachat, nbreplace) : 23 lignes, moteurs DIESEL/ESSENCE/HYBRIDE/ELECTRIQUE, prix de 6 à 50 millions, dates de 2000 à 2023.</li>
+      <li><strong>Voiture</strong> (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) : 23 lignes, moteurs DIESEL/ESSENCE/HYBRIDE/ELECTRIQUE, prix de 6 à 50 millions, dates de 2000 à 2023.</li>
     </ul>
-    <p>Le lien entre les deux est la colonne <strong>marque</strong> de Voiture, qui porte le nommarque — c’est elle qu’utilisent les jointures du chapitre 4. Après une modification, <strong>Réinitialiser la base</strong> revient à l’état initial.</p>
+    <p>Les clés primaires <strong>Marque.codemarque</strong> et <strong>Voiture.immat</strong> sont non nulles. La clé étrangère composée de Voiture vérifie ensemble son code et son nom contre <strong>Marque(codemarque, nommarque)</strong>. Dans Voiture, seule <strong>datecirc</strong> accepte NULL ; les prix du jeu initial sont des entiers en francs. SQLite applique ici des affinités de type : INTEGER et TEXT ne valident pas à eux seuls toutes les valeurs. Les clés étrangères sont activées à l’initialisation de la connexion SQLite. Après une modification, <strong>Réinitialiser la base</strong> revient à l’état initial.</p>
   </div>
 
   <h2>Missions guidées</h2>
 
-  <p>Huit missions, de la lecture simple à l’analyse groupée : la validation se fait dans le simulateur, en comparant votre résultat au résultat de référence — chaque mission note le nombre de lignes et la première ligne attendue.</p>
+  <p>Huit missions progressives sont proposées sous le tableau. Écrivez d’abord votre requête dans le simulateur : les résultats sont comparés aux tableaux de référence sur la base initiale. Une correspondance aide à vérifier votre réponse sans prouver qu’elle fonctionne sur tous les jeux de données.</p>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche conseillée</div>
@@ -194,8 +189,8 @@ ORDER BY nb DESC, marque;</textarea>
       <li><strong>Lisez la question</strong> et formulez-la en français : quelles colonnes, quelles lignes, quel ordre ?</li>
       <li><strong>Écrivez le squelette</strong> (SELECT…FROM…WHERE…) puis complétez la condition.</li>
       <li><strong>Exécutez</strong> et comparez au résultat de référence affiché sous le simulateur.</li>
-      <li><strong>Corrige</strong> : nombre de lignes différent ? La condition WHERE ou le GROUP BY est en cause.</li>
-      <li><strong>Réinitialise</strong> la base entre deux essais de mission qui modifient les données.</li>
+      <li><strong>Corrigez</strong> : comparez les valeurs, les filtres et l’ordre demandé.</li>
+      <li><strong>Réinitialisez</strong> la base entre deux essais de mission qui modifient les données.</li>
     </ol>
   </div>
 
@@ -205,7 +200,7 @@ ORDER BY nb DESC, marque;</textarea>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Le simulateur s’exécute intégralement dans votre navigateur : aucune requête n’est envoyée au serveur. Sources : le support B1 « Base de données & SQL » (IT-B1) et le jeu de données parc_auto du support (Marque, Voiture).</p>
+  Le simulateur s’exécute intégralement dans votre navigateur : aucune requête n’est envoyée au serveur. Sources : le support B1 « Base de données &amp; SQL » (IT-B1), le jeu de données parc_auto du support et la <a href="https://sqlite.org/docs.html">documentation officielle SQLite</a> (consultée le 29 octobre 2026 ; SELECT revérifié le 30 octobre 2026).</p>
 </main>
 
 <script src="assets/js/cours.js"></script>

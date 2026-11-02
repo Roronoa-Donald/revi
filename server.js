@@ -25,7 +25,8 @@ const IS_PROD = process.env.NODE_ENV === 'production';
 // Note : '/api/' retiré — les routes API sont enregistrées AVANT le catch-all,
 // donc une requête GET sur un endpoint POST-only renvoie désormais 405 propre
 // au lieu du 403 générique qui masquait le véritable état de l'API.
-const BLOCKED_PATHS = ['/server/', '/node_modules/', '/public/', '/.env', '/.git/', '/package.json', '/package-lock.json', '/scripts/', '/dist/', '/vercel.json', '/.vercelignore', '/b1/'];
+const BLOCKED_PATHS = ['/server/', '/node_modules/', '/public/', '/.env', '/.git/', '/package.json', '/package-lock.json', '/scripts/', '/dist/', '/vercel.json', '/.vercelignore', '/b1/', '/verification/', '/corrections/', '/tests/', '/audit/', '/.taskstate/'];
+const PRIVATE_AUDIT_DIRS = new Set(['verification', 'corrections', 'tests', 'audit', '.taskstate']);
 
 // Allowlist des fichiers racine servables (tout le reste → 404).
 // Empêche l'exposition des fichiers de test/preview et des scripts jetables.
@@ -199,6 +200,10 @@ fastify.get('/*', async (request, reply) => {
   // ---- Résoudre le chemin du fichier ----
   const filePath = path.join(SITE_ROOT, urlPath);
   const resolved = path.resolve(filePath);
+  const firstDirectory = path.relative(SITE_ROOT, resolved).split(path.sep)[0];
+  if (PRIVATE_AUDIT_DIRS.has(firstDirectory)) {
+    return reply.code(403).send('Forbidden');
+  }
 
   // Sécurité anti path-traversal
   if (!resolved.startsWith(path.resolve(SITE_ROOT))) {

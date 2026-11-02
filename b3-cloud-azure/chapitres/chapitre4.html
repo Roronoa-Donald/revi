@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -94,12 +94,12 @@
   <div class="card">
     <h4>Les 5 Adresses IP Réservées par Azure</h4>
     <ul>
-      <li><code>.0</code> : <strong>Network ID</strong> (adresse réseau).</li>
-      <li><code>.1</code> : <strong>Default Gateway</strong> (passerelle par défaut interne au VNet gérée par Azure).</li>
-      <li><code>.2</code> : <strong>DNS Resolver Primaire</strong> (résolveur DNS Azure routé en interne).</li>
-      <li><code>.3</code> : <strong>DNS Resolver Secondaire</strong> (redondance et allocation interne Azure).</li>
-      <li><code>.&lt;dernière&gt;</code> (ex: <code>.255</code>) : <strong>Broadcast</strong> (adresse de diffusion non utilisée mais réservée).</li>
-      <li><em>Conséquence :</em> un sous-réseau en <code>/24</code> (256 adresses théoriques) n'offre que <strong>251 adresses IP exploitables</strong> pour les VMs (de .4 à .254).</li>
+      <li><code>+0</code> : <strong>Network ID</strong> (adresse réseau).</li>
+      <li><code>+1</code> : <strong>Default Gateway</strong> (passerelle par défaut gérée par Azure).</li>
+      <li><code>+2</code> et <code>+3</code> : adresses réservées pour la <strong>correspondance des adresses Azure DNS</strong> dans l'espace du VNet, et non résolveurs primaire et secondaire.</li>
+      <li><strong>Dernière adresse</strong> : adresse de diffusion réservée ; Azure ne prend pas en charge le broadcast dans le VNet.</li>
+      <li>Ces décalages partent de l'adresse réseau : pour <code>10.0.5.16/28</code>, les adresses de correspondance sont <code>10.0.5.18</code> et <code>10.0.5.19</code>. Un <code>/24</code> offre 256 - 5 = <strong>251 adresses exploitables</strong>.</li>
+      <li>Lorsque le DNS fourni par Azure est utilisé, son résolveur est accessible à <code>168.63.129.16</code>. Un VNet ou une interface peut aussi utiliser un DNS personnalisé ; ne remplacez pas sa configuration par cette adresse. Voir la <a href="https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-faq">FAQ réseau Microsoft</a>.</li>
     </ul>
   </div>
 </div>
@@ -149,9 +149,11 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="az3-c4-e1" data-lab
      data-exercise="az3-c4-e1"
      data-language="analyse"
@@ -171,38 +173,41 @@ A_COMPLETER
 [Cas 3 — Sous-réseau GatewaySubnet minimal en /27]
 # Données : SUBNET name=GatewaySubnet cidr=192.168.0.0/27
 A_COMPLETER
+
+[Cas 4 — Sous-réseau /28 dont le réseau ne se termine pas par .0]
+# Données : SUBNET name=snet-offset cidr=10.0.5.16/28
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Calculateur d'adressage Azure VNet &amp; Adresses IP réservées</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="az3-c4-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la plage d’adresses IP d’un sous-réseau Azure en déduisant les 5 adresses réservées par le système SDN d’Azure.</p>
-    <div class="lab__brief"><p>Dans chaque sous-réseau (Subnet) d'un VNet Azure, Microsoft réserve systématiquement <strong>5 adresses IP</strong> qui ne peuvent pas être assignées aux machines virtuelles ou ressources clientes :<br>
-- <code>.0</code> : Adresse réseau (Network ID)<br>
-- <code>.1</code> : Passerelle par défaut Azure (Default Gateway)<br>
-- <code>.2</code> : Résolveur DNS Azure primaire<br>
-- <code>.3</code> : Résolveur DNS Azure secondaire<br>
-- <code>.&lt;dernière&gt;</code> (ex: <code>.255</code> pour un /24) : Adresse de diffusion (Broadcast)<br><br>
-Ainsi, la première IP assignable est <code>.4</code> et la dernière est <code>.&lt;dernière - 1&gt;</code>.<br>
-Le nombre d'IPs exploitables est donc <code>Total - 5</code>.<br><br>
+    <div class="lab__brief"><p>Dans chaque sous-réseau IPv4 Azure, les quatre premières adresses et la dernière sont réservées : <strong>5 adresses IP</strong> ne peuvent pas être assignées aux ressources clientes. Les décalages partent de l'adresse réseau du sous-réseau :<br>
+- <code>+0</code> : adresse réseau (Network ID)<br>
+- <code>+1</code> : passerelle par défaut Azure<br>
+- <code>+2</code> et <code>+3</code> : adresses réservées pour la correspondance Azure DNS, et non deux résolveurs<br>
+- dernière adresse : réservée ; le broadcast n'est pas pris en charge dans le VNet<br><br>
+Le DNS fourni par Azure utilise <code>168.63.129.16</code> ; un DNS personnalisé configuré sur le VNet ou l'interface peut être conservé.<br>
+La première IP assignable est l'adresse réseau + 4, la dernière précède l'adresse finale, et le nombre d'IPs exploitables vaut <code>Total - 5</code>.<br><br>
 Format d'entrée :<br>
 <code>SUBNET name=&lt;nom&gt; cidr=&lt;adresse/préfixe&gt;</code><br><br>
 Format de sortie attendu :<br>
-<code>SUBNET &lt;nom&gt;: TOTAL=&lt;total&gt; USABLE=&lt;usable&gt; RESERVED=5 GATEWAY=&lt;gw_ip&gt; DNS1=&lt;dns1_ip&gt; RANGE=&lt;first_usable&gt;-&lt;last_usable&gt;</code></p></div>
+<code>SUBNET &lt;nom&gt;: TOTAL=&lt;total&gt; USABLE=&lt;usable&gt; RESERVED=5 GATEWAY=&lt;gw_ip&gt; DNS_MAP_1=&lt;adresse_reseau_plus_2&gt; DNS_MAP_2=&lt;adresse_reseau_plus_3&gt; RANGE=&lt;first_usable&gt;-&lt;last_usable&gt;</code></p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUBNET name=snet-web cidr=10.0.1.0/24</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUBNET snet-web: TOTAL=256 USABLE=251 RESERVED=5 GATEWAY=10.0.1.1 DNS1=10.0.1.2 RANGE=10.0.1.4-10.0.1.254</pre></div>
     </div>
-    <p class="lab__note">Sous-réseau /24 classique avec 251 adresses exploitables.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Utiliser le module Python `la notation CIDR du réseau`.</li>
-        <li>L’IP de passerelle correspond à l’adresse réseau + 1 (.1), et la première IP assignable aux machines correspond à l’adresse réseau + 4 (.4).</li>
+        <li>Déterminez d’abord l’adresse réseau du CIDR, puis calculez les décalages à partir de cette adresse.</li>
+        <li>La passerelle est à réseau + 1, les correspondances DNS à + 2 et + 3, et la première adresse assignable à + 4.</li>
       </ol>
     </details>
   </div>
@@ -237,10 +242,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Moteur d'évaluation de règles de sécurité NSG</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="az3-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Évaluer le traitement d’un paquet réseau entrant par un groupe de sécurité réseau (NSG) selon l’ordre de priorité des règles et les règles par défaut Azure.</p>
     <div class="lab__brief"><p>Un groupe de sécurité réseau (NSG) filtre le trafic entrant et sortant. Les règles sont traitées par ordre croissant de priorité (de 100 à 4096). La première règle correspondant au paquet s'applique immédiatement.<br><br>
 Règles par défaut Azure (INBOUND) automatiques en fin de chaîne :<br>
@@ -263,10 +270,7 @@ Format de sortie attendu :<br>
 RULE prio=200 name=Deny-SSH direction=INBOUND source=* port=22 proto=TCP action=DENY
 TEST_PACKET source=Internet port=80 proto=TCP
 TEST_PACKET source=Internet port=22 proto=TCP</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PACKET: matched_rule=Allow-HTTP (prio=100) -&gt; RESULT=ALLOW
-PACKET: matched_rule=Deny-SSH (prio=200) -&gt; RESULT=DENY</pre></div>
     </div>
-    <p class="lab__note">Le port 80 est autorisé par la règle 100 et SSH 22 est bloqué par la règle 200.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -308,10 +312,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Validateur de Peering VNet &amp; Topologie Hub-and-Spoke</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="az3-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité de liens d’interconnexion (VNet Peering) en détectant les chevauchements de plages CIDR et les incohérences de passerelles de transit.</p>
     <div class="lab__brief"><p>L'interconnexion de réseaux virtuels par Peering Azure permet une communication privée à haute performance. Toutefois, Azure refuse catégoriquement l'établissement d'un peering si les plages d'adresses IP se chevauchent, ou si la configuration de passerelle est incohérente.<br><br>
 Format d'entrée :<br>
@@ -333,9 +339,7 @@ Règles de validation :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VNET id=vnet-hub cidr=10.0.0.0/16
 VNET id=vnet-spoke1 cidr=10.1.0.0/16
 PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=false</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PEERING_SUCCESS: vnet-hub &lt;-&gt; vnet-spoke1 status=CONNECTED gateway_transit=ENABLED</pre></div>
     </div>
-    <p class="lab__note">Peering valide sans chevauchement avec passerelle de transit activée sur le Hub.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -345,6 +349,7 @@ PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=fal
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -360,14 +365,14 @@ PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=fal
       <div class="q__exp">Azure réserve systématiquement 5 adresses IP dans chaque sous-réseau (.0, .1, .2, .3 et .255 en /24), ce qui laisse 256 - 5 = 251 adresses IP exploitables.</div>
     </div>
     <div class="q">
-      <p class="q__stem">À quoi sert l'adresse IP finissant par .1 dans chaque sous-réseau Azure ?</p>
+      <p class="q__stem">À quoi servent les adresses réservées aux décalages +2 et +3 dans un sous-réseau Azure ?</p>
       <div class="opts">
-        <button class="opt">Adresse de diffusion (Broadcast)</button>
-        <button class="opt" data-correct="1">Passerelle par défaut (Default Gateway) gérée par Azure</button>
-        <button class="opt">Résolveur DNS primaire</button>
-        <button class="opt">Première machine virtuelle créée</button>
+        <button class="opt">Deux résolveurs DNS primaire et secondaire du sous-réseau</button>
+        <button class="opt" data-correct="1">La correspondance des adresses Azure DNS dans l'espace du VNet</button>
+        <button class="opt">La passerelle par défaut et l'adresse de diffusion</button>
+        <button class="opt">Les deux premières machines virtuelles créées</button>
       </div>
-      <div class="q__exp">L'adresse .1 est réservée par Azure pour faire office de Default Gateway (passerelle de routage par défaut) pour toutes les ressources du sous-réseau.</div>
+      <div class="q__exp">Ces deux adresses servent à la correspondance Azure DNS ; elles ne désignent pas deux résolveurs. Le DNS fourni par Azure utilise 168.63.129.16, sauf configuration DNS personnalisée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment s'effectue l'évaluation de deux règles contradictoires au sein d'un même Network Security Group (NSG) ?</p>
@@ -423,7 +428,7 @@ PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=fal
       <p class="q__stem">Quelle est la portée géographique du service Global VNet Peering sous Azure ?</p>
       <div class="opts">
         <button class="opt">Uniquement entre deux datacenters de la même ville</button>
-        <button class="opt" data-correct="1">Entrez n'importe quelles régions Azure à travers le monde entier via le réseau fédérateur privé de Microsoft</button>
+        <button class="opt" data-correct="1">Entre n'importe quelles régions Azure à travers le monde entier via le réseau fédérateur privé de Microsoft</button>
         <button class="opt">Uniquement au sein de l'Union Européenne</button>
         <button class="opt">Uniquement entre régions jumelées</button>
       </div>
@@ -476,7 +481,7 @@ PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=fal
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li><strong>Azure Virtual Network (VNet) :</strong> Réseau virtuel privé isolé sous Azure permettant la communication sécurisée entre ressources Cloud et sur site.</li><li><strong>Adresses IP réservées Azure :</strong> Les 5 adresses IP (.0 réseau, .1 passerelle, .2 DNS primaire, .3 DNS secondaire, .dernière broadcast) confisquées par le SDN Azure dans chaque subnet.</li><li><strong>Network Security Group (NSG) :</strong> Pare-feu de niveau 4 filtrant les paquets réseau par liste de contrôle d'accès (ACL) ordonnée par priorité.</li><li><strong>Azure Bastion :</strong> Passerelle PaaS managée permettant d'administrer des machines virtuelles en RDP/SSH via le portail web (HTTPS) sans IP publique.</li><li><strong>VNet Peering :</strong> Interconnexion directe à haute vitesse et faible latence entre deux réseaux virtuels via le réseau fédérateur privé de Microsoft.</li><li>Un Azure VNet isole un réseau virtuel privé ; Azure réserve systématiquement 5 adresses IP (.0, .1, .2, .3, .255) dans chaque sous-réseau.</li><li>Les sous-réseaux en /24 offrent exactement 251 adresses IP exploitables pour les machines virtuelles.</li><li>Les Network Security Groups (NSG) filtrent le trafic selon la priorité des règles (100 à 4096), avec les règles par défaut 65000 (Allow VNet) et 65500 (Deny All).</li>
+      <li><strong>Azure Virtual Network (VNet) :</strong> Réseau virtuel privé isolé sous Azure permettant la communication sécurisée entre ressources Cloud et sur site.</li><li><strong>Adresses IP réservées Azure :</strong> Les quatre premières adresses d'un sous-réseau (réseau, passerelle, deux adresses de correspondance Azure DNS) et la dernière sont réservées.</li><li><strong>Network Security Group (NSG) :</strong> Pare-feu de niveau 4 filtrant les paquets réseau par liste de contrôle d'accès (ACL) ordonnée par priorité.</li><li><strong>Azure Bastion :</strong> Passerelle PaaS managée permettant d'administrer des machines virtuelles en RDP/SSH via le portail web (HTTPS) sans IP publique.</li><li><strong>VNet Peering :</strong> Interconnexion directe à haute vitesse et faible latence entre deux réseaux virtuels via le réseau fédérateur privé de Microsoft.</li><li>Un Azure VNet isole un réseau virtuel privé ; Azure réserve systématiquement 5 adresses IP (.0, .1, .2, .3, .255) dans chaque sous-réseau.</li><li>Les sous-réseaux en /24 offrent exactement 251 adresses IP exploitables pour les machines virtuelles.</li><li>Les Network Security Groups (NSG) filtrent le trafic selon la priorité des règles (100 à 4096), avec les règles par défaut 65000 (Allow VNet) et 65500 (Deny All).</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -488,7 +493,7 @@ PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=fal
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong><strong>Conception de plan d'adressage d'entreprise multi-VNets :</strong> Découper des espaces d'adressage 10.x.0.0/16 en sous-réseaux étanches (Front, Métier, Data, DMZ) en intégrant les contraintes des 5 adresses réservées.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong><strong>Conception de plan d'adressage d'entreprise multi-VNets :</strong> Découper des espaces d'adressage 10.x.0.0/16 en sous-réseaux étanches (Front, Métier, Data, DMZ) en intégrant les contraintes des 5 adresses réservées.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong><strong>Matrice de sécurité NSG et Application Security Groups (ASG) :</strong> Structurer des règles de pare-feu applicatif par étiquettes ASG pour sécuriser les flux inter-tiers sans multiplier les règles d'IP manuelles.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong><strong>Déploiement zéro-exposition avec Azure Bastion et Private Endpoints :</strong> Bannir totalement les adresses IP publiques et interconnecter les services PaaS (Azure SQL, Storage) via des points de terminaison privés dans le VNet.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong><strong>Automatisation d'évaluation réseau de manière méthodique :</strong> Programmer des calculateurs de sous-réseaux CIDR, des simulateurs d'évaluation de paquets par NSG et des vérificateurs de topologie peering.</div>

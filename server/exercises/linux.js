@@ -164,7 +164,7 @@ done
     brief: '<p>Le script lit <strong>n lignes</strong> « op source cible » où <code>op</code> vaut ' +
       '<code>cp</code> ou <code>mv</code>. Il affiche pour chaque ligne ' +
       '<code>copie source vers cible</code> (pour <code>cp</code>) ou ' +
-      '<code>deplacement source vers cible</code> (pour <code>mv</code>). Il termine par ' +
+      '<code>deplacement source vers cible</code> (pour <code>mv</code>). Terminez par ' +
       '<code>copies : C</code> puis <code>deplacements : D</code>.</p>',
     starter: `read -r n
 c=0
@@ -229,7 +229,8 @@ done
     tests: [
       { label: 'Parc d’administration', stdin: '4\nstart.sh\nreadme.md\nstop.sh\nconfig.conf\n', expected: 'start.sh\nstop.sh\nscripts : 2' },
       { label: 'Aucun script', stdin: '3\nindex.html\nstyle.css\napp.js\n', expected: 'scripts : 0' },
-      { label: 'Série complète', stdin: '5\na.sh\nb.txt\nc.sh\nd.sh\ne.log\n', expected: 'a.sh\nc.sh\nd.sh\nscripts : 3' }
+      { label: 'Série complète', stdin: '5\na.sh\nb.txt\nc.sh\nd.sh\ne.log\n', expected: 'a.sh\nc.sh\nd.sh\nscripts : 3' },
+      { label: 'Borne unitaire script', stdin: '1\nrun.sh\n', expected: 'run.sh\nscripts : 1' }
     ],
     solution: `read -r n
 s=0
@@ -395,7 +396,7 @@ done
 `,
     hints: [
       'Un case sur user : rd → it, sam → dev, ada → admin.',
-      'La comparaison se fait ensuite avec [ "$groupe" = "$attendu" ].'
+      'La comparaison se fait ensuite avec `[ "$groupe" = "$attendu" ]`.'
     ],
     examples: [
       { stdin: '2\nrd it\nsam admin\n', expected: 'rd : membre\nsam : non membre' }
@@ -488,7 +489,8 @@ done
     tests: [
       { label: 'Réseau d’entreprise', stdin: '3\n172.16.5.4\n172.32.1.1\n192.168.10.20\n', expected: 'classe : privee\nclasse : publique\nclasse : privee' },
       { label: 'Internet', stdin: '3\n203.0.113.7\n198.51.100.9\n172.20.0.1\n', expected: 'classe : publique\nclasse : publique\nclasse : privee' },
-      { label: 'Plage 172', stdin: '4\n172.15.0.1\n172.16.0.1\n172.31.255.1\n172.32.0.1\n', expected: 'classe : publique\nclasse : privee\nclasse : privee\nclasse : publique' }
+      { label: 'Plage 172', stdin: '4\n172.15.0.1\n172.16.0.1\n172.31.255.1\n172.32.0.1\n', expected: 'classe : publique\nclasse : privee\nclasse : privee\nclasse : publique' },
+      { label: 'Sous-plages intermédiaires 172', stdin: '2\n172.17.0.1\n172.25.0.1\n', expected: 'classe : privee\nclasse : privee' }
     ],
     solution: `read -r n
 for ((i=0; i<n; i++)); do
@@ -508,8 +510,9 @@ done
     language: 'shell',
     title: 'Décoder une cible SSH',
     goal: 'Extraire utilisateur, hôte et port d’une chaîne de connexion.',
-    brief: '<p>Le script lit <strong>n lignes</strong> au format ' +
-      '<code>utilisateur@hote:port</code>. Pour chacune, il affiche trois lignes : ' +
+    brief: '<p>Le script lit <strong>n lignes</strong> selon la notation de cet exercice ' +
+      '<code>utilisateur@hote:port</code>. Cette notation n’est pas une commande SSH : pour se connecter, ' +
+      'utilisez <code>ssh -p port utilisateur@hote</code>. Pour chaque ligne, le script affiche : ' +
       '<code>utilisateur : X</code>, <code>hote : Y</code>, <code>port : Z</code>.</p>',
     starter: `read -r n
 for ((i=0; i<n; i++)); do
@@ -591,7 +594,7 @@ echo "somme : $s"
     language: 'shell',
     title: 'Trouver le maximum',
     goal: 'Parcourir une série et garder la plus grande valeur.',
-    brief: '<p>Le script lit <strong>n</strong>, puis <strong>n lignes</strong> contenant chacune un ' +
+    brief: '<p>Le script lit <strong>n ≥ 1</strong>, puis <strong>n lignes</strong> contenant chacune un ' +
       'entier. Il affiche <code>max : X</code> où X est la plus grande valeur rencontrée.</p>',
     starter: `read -r n
 read -r max
@@ -603,7 +606,7 @@ done
 `,
     hints: [
       'La première valeur sert de maximum initial.',
-      'On compare ensuite chaque nouvelle valeur à max avec [ "$v" -gt "$max" ].'
+      'On compare ensuite chaque nouvelle valeur à max avec `[ "$v" -gt "$max" ]`.'
     ],
     examples: [
       { stdin: '3\n5\n9\n2\n', expected: 'max : 9' }
@@ -611,7 +614,9 @@ done
     tests: [
       { label: 'Relevés', stdin: '4\n12\n30\n18\n25\n', expected: 'max : 30' },
       { label: 'Croissant', stdin: '3\n1\n2\n3\n', expected: 'max : 3' },
-      { label: 'Décroissant', stdin: '4\n99\n40\n8\n1\n', expected: 'max : 99' }
+      { label: 'Décroissant', stdin: '4\n99\n40\n8\n1\n', expected: 'max : 99' },
+      { label: 'Une seule valeur négative', stdin: '1\n-7\n', expected: 'max : -7' },
+      { label: 'Valeurs toutes négatives', stdin: '3\n-9\n-2\n-5\n', expected: 'max : -2' }
     ],
     solution: `read -r n
 read -r max
@@ -683,7 +688,7 @@ echo "gros : $g"
     brief: '<p>Le script lit <strong>n lignes</strong> « service etat » où <code>etat</code> vaut ' +
       '<code>active</code>, <code>inactive</code> ou <code>failed</code>. Il affiche pour chacun ' +
       '<code>service : rien a faire</code> (active), <code>service : demarrer</code> (inactive) ou ' +
-      '<code>service : redemarrer</code> (failed). Il termine par <code>alertes : X</code>, le nombre ' +
+      '<code>service : redemarrer</code> (failed). Terminez par <code>alertes : X</code>, le nombre ' +
       'de services non actifs.</p>',
     starter: `read -r n
 a=0

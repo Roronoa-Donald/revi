@@ -412,36 +412,36 @@ module.exports = [
   {
     "id": "vrt3-c5-e1",
     "chapter": 5,
-    "title": "Estimateur de Durée & Débit de Migration vMotion (Taille RAM & Dirty Rate)",
+    "title": "Modèle simplifié de deux passes de pré-copie vMotion",
     "level": "n1",
     "language": "analyse",
-    "goal": "Estimer la durée et le volume de données transférées lors d'une migration à chaud vMotion selon la taille mémoire et le débit réseau.",
-    "brief": "<p>La technologie VMware vSphere vMotion transfère la mémoire vive d'une machine virtuelle en marche sans rupture de service :<br><br>\n1. <strong>Débit réseau effectif vMotion</strong> :<br>\nvMotion exploite 80% de la bande passante physique de l'interface réseau :<br>\n<code>net_throughput_mbps = (NET_GBPS * 1024 * 0.8) / 8</code> (exprimé en Mo/s).<br><br>\n2. <strong>Test de convergence</strong> :<br>\nSi le rythme d'écriture mémoire de l'OS invité (<code>DIRTY_RATE_MBPS</code>) est supérieur ou égal au débit réseau disponible (<code>DIRTY_RATE_MBPS &ge; net_throughput_mbps</code>), la migration ne peut pas converger :<br>\nAfficher <code>CONVERGENCE_FAILURE</code>.<br><br>\n3. <strong>Volume transféré et durée de pré-copie</strong> :<br>\nVolume mémoire nominal en Mo : <code>ram_mb = RAM_GB * 1024</code>.<br>\nVolume cumulé intégrant les itérations de pré-copie :<br>\n<code>total_transferred_mb = ram_mb * (1.0 + (DIRTY_RATE_MBPS / net_throughput_mbps))</code>.<br>\nDurée totale de migration :<br>\n<code>duration_s = total_transferred_mb / net_throughput_mbps</code>.<br><br>\n4. <strong>Qualification opérationnelle</strong> :<br>\n- Si <code>duration_s &le; 30.0</code> : <code>RAPIDE</code><br>\n- Si <code>30.0 &lt; duration_s &le; 90.0</code> : <code>ACCEPTABLE</code><br>\n- Sinon : <code>LENT</code><br><br>\nFormat d'entrée (les données d’entrée) :<br>\nLignes : <code>VM=&lt;nom&gt; RAM_GB=&lt;n&gt; DIRTY_RATE_MBPS=&lt;n&gt; NET_GBPS=&lt;1|10|25&gt;</code>.<br><br>\nFormat de sortie :<br>\n<code>VM:&lt;nom&gt; | NET:&lt;NET_GBPS&gt;Gbps | TRANSFERRED:&lt;total_transferred_mb:.1f&gt;MB | DURATION:&lt;duration_s:.1f&gt;s | STATUT:&lt;statut&gt;</code></p>",
-    "starter": "# Grille d'analyse (vrt3-c5-e1) — Estimateur de Durée & Débit de Migration vMotion (Taille RAM & Dirty Rate)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Liaison 25G ultra-rapide et durée acceptable]\n# Données : VM=vm-big RAM_GB=32 DIRTY_RATE_MBPS=100 NET_GBPS=25\n# Données : VM=vm-mid RAM_GB=16 DIRTY_RATE_MBPS=80 NET_GBPS=10\nA_COMPLETER\n\n[Cas 2 — Seuil limite de durée acceptable sur 60 secondes]\n# Données : VM=vm-heavy RAM_GB=48 DIRTY_RATE_MBPS=10 NET_GBPS=10\nA_COMPLETER\n",
+    "goal": "Estimer le volume et la durée de deux passes de pré-copie avec des hypothèses explicites, sans les confondre avec une migration réelle.",
+    "brief": "<p>vMotion vise à limiter l'interruption lors d'une migration, mais une pause de bascule et un impact applicatif restent possibles. Cette grille étudie seulement un modèle simplifié de pré-copie, à débits constants et sans compression.<br><br>\n1. <strong>Débit disponible</strong> :<br>\nUne hypothèse de la grille fixe à 80 % la part du débit nominal utilisable ; ce n'est pas une garantie de vMotion. Les unités sont décimales : 1 Gbit = 1000 Mbit et 1 Go = 1000 Mo. Avec <code>NET_GBPS</code> en Gbit/s, le débit en Mo/s vaut <code>net_throughput_mbps = (NET_GBPS * 1000 * 0.8) / 8</code>.<br><br>\n2. <strong>Test du modèle</strong> :<br>\n<code>DIRTY_RATE_MBPS</code> est le rythme supposé de modification des pages distinctes, en Mo/s. S'il est supérieur ou égal au débit disponible, le modèle à débits constants ne converge pas. Par convention, affichez <code>TRANSFERRED:0.0MB | DURATION:0.0s | STATUT:CONVERGENCE_FAILURE</code> pour indiquer que les deux grandeurs ne sont pas calculées.<br><br>\n3. <strong>Deux premières passes</strong> :<br>\nLe volume mémoire vaut <code>ram_mb = RAM_GB * 1000</code> Mo. Après une copie initiale et une seule copie des pages modifiées pendant celle-ci, le modèle donne <code>total_transferred_mb = ram_mb * (1.0 + (DIRTY_RATE_MBPS / net_throughput_mbps))</code>, puis <code>duration_s = total_transferred_mb / net_throughput_mbps</code>. Cette estimation ne prédit pas la durée totale de migration : elle exclut les passes suivantes, la bascule et les variations de charge.<br><br>\n4. <strong>Seuils fictifs pour cet exercice</strong> :<br>\n- Si <code>duration_s &le; 30.0</code> : <code>RAPIDE</code><br>\n- Si <code>30.0 &lt; duration_s &le; 90.0</code> : <code>ACCEPTABLE</code><br>\n- Sinon : <code>LENT</code><br><br>\nDonnées : <code>VM=&lt;nom&gt; RAM_GB=&lt;n&gt; DIRTY_RATE_MBPS=&lt;n&gt; NET_GBPS=&lt;1|10|25&gt;</code>.<br>\nRésultat d’analyse : <code>VM:&lt;nom&gt; | NET:&lt;NET_GBPS&gt;Gbps | TRANSFERRED:&lt;total_transferred_mb:.1f&gt;MB | DURATION:&lt;duration_s:.1f&gt;s | STATUT:&lt;statut&gt;</code>.</p>",
+    "starter": "# Grille d'analyse (vrt3-c5-e1) — Modèle simplifié de deux passes de pré-copie vMotion\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux liaisons et pré-copies rapides dans le modèle]\n# Données : VM=vm-big RAM_GB=32 DIRTY_RATE_MBPS=100 NET_GBPS=25\n# Données : VM=vm-mid RAM_GB=16 DIRTY_RATE_MBPS=80 NET_GBPS=10\nA_COMPLETER\n\n[Cas 2 — Durée modélisée entre 30 et 90 secondes]\n# Données : VM=vm-heavy RAM_GB=48 DIRTY_RATE_MBPS=10 NET_GBPS=10\nA_COMPLETER\n",
     "hints": [
-      "Calculez le débit réseau en Mo/s avec (NET_GBPS * 1024 * 0.8) / 8.",
-      "Si DIRTY_RATE_MBPS >= net_throughput_mbps, affichez STATUT:CONVERGENCE_FAILURE."
+      "Convertissez le débit nominal de Gbit/s en Mo/s, puis appliquez la proportion supposée dans la grille.",
+      "Comparez le rythme des pages modifiées au débit disponible avant de calculer le volume et la durée des deux passes."
     ],
     "examples": [
       {
         "stdin": "VM=vm-web01 RAM_GB=16 DIRTY_RATE_MBPS=20 NET_GBPS=10\nVM=vm-db01 RAM_GB=64 DIRTY_RATE_MBPS=50 NET_GBPS=1\nVM=vm-cache RAM_GB=8 DIRTY_RATE_MBPS=150 NET_GBPS=1",
-        "expected": "VM:vm-web01 | NET:10Gbps | TRANSFERRED:16704.0MB | DURATION:16.3s | STATUT:RAPIDE\nVM:vm-db01 | NET:1Gbps | TRANSFERRED:97536.0MB | DURATION:952.5s | STATUT:LENT\nVM:vm-cache | NET:1Gbps | TRANSFERRED:0.0MB | DURATION:0.0s | STATUT:CONVERGENCE_FAILURE\n",
-        "note": "Migration rapide sur lien 10G, migration lente sur lien 1G et échec de convergence."
+        "expected": "VM:vm-web01 | NET:10Gbps | TRANSFERRED:16320.0MB | DURATION:16.3s | STATUT:RAPIDE\nVM:vm-db01 | NET:1Gbps | TRANSFERRED:96000.0MB | DURATION:960.0s | STATUT:LENT\nVM:vm-cache | NET:1Gbps | TRANSFERRED:0.0MB | DURATION:0.0s | STATUT:CONVERGENCE_FAILURE\n",
+        "note": "Ces durées et étiquettes ne concernent que le modèle simplifié de deux passes."
       }
     ],
     "tests": [
       {
-        "label": "Liaison 25G ultra-rapide et durée acceptable",
+        "label": "Deux liaisons et pré-copies rapides dans le modèle",
         "stdin": "cas:1",
-        "expected": "VM:vm-big | NET:25Gbps | TRANSFERRED:34048.0MB | DURATION:13.3s | STATUT:RAPIDE\nVM:vm-mid | NET:10Gbps | TRANSFERRED:17664.0MB | DURATION:17.2s | STATUT:RAPIDE\n"
+        "expected": "VM:vm-big | NET:25Gbps | TRANSFERRED:33280.0MB | DURATION:13.3s | STATUT:RAPIDE\nVM:vm-mid | NET:10Gbps | TRANSFERRED:17280.0MB | DURATION:17.3s | STATUT:RAPIDE\n"
       },
       {
-        "label": "Seuil limite de durée acceptable sur 60 secondes",
+        "label": "Durée modélisée entre 30 et 90 secondes",
         "stdin": "cas:2",
-        "expected": "VM:vm-heavy | NET:10Gbps | TRANSFERRED:49632.0MB | DURATION:48.5s | STATUT:ACCEPTABLE\n"
+        "expected": "VM:vm-heavy | NET:10Gbps | TRANSFERRED:48480.0MB | DURATION:48.5s | STATUT:ACCEPTABLE\n"
       }
     ],
-    "solution": "[Exemple]\nVM:vm-web01 | NET:10Gbps | TRANSFERRED:16704.0MB | DURATION:16.3s | STATUT:RAPIDE\nVM:vm-db01 | NET:1Gbps | TRANSFERRED:97536.0MB | DURATION:952.5s | STATUT:LENT\nVM:vm-cache | NET:1Gbps | TRANSFERRED:0.0MB | DURATION:0.0s | STATUT:CONVERGENCE_FAILURE\n\n\n[Cas 1 — Liaison 25G ultra-rapide et durée acceptable]\nVM:vm-big | NET:25Gbps | TRANSFERRED:34048.0MB | DURATION:13.3s | STATUT:RAPIDE\nVM:vm-mid | NET:10Gbps | TRANSFERRED:17664.0MB | DURATION:17.2s | STATUT:RAPIDE\n\n\n[Cas 2 — Seuil limite de durée acceptable sur 60 secondes]\nVM:vm-heavy | NET:10Gbps | TRANSFERRED:49632.0MB | DURATION:48.5s | STATUT:ACCEPTABLE"
+    "solution": "[Exemple]\nVM:vm-web01 | NET:10Gbps | TRANSFERRED:16320.0MB | DURATION:16.3s | STATUT:RAPIDE\nVM:vm-db01 | NET:1Gbps | TRANSFERRED:96000.0MB | DURATION:960.0s | STATUT:LENT\nVM:vm-cache | NET:1Gbps | TRANSFERRED:0.0MB | DURATION:0.0s | STATUT:CONVERGENCE_FAILURE\n\n\n[Cas 1 — Deux liaisons et pré-copies rapides dans le modèle]\nVM:vm-big | NET:25Gbps | TRANSFERRED:33280.0MB | DURATION:13.3s | STATUT:RAPIDE\nVM:vm-mid | NET:10Gbps | TRANSFERRED:17280.0MB | DURATION:17.3s | STATUT:RAPIDE\n\n\n[Cas 2 — Durée modélisée entre 30 et 90 secondes]\nVM:vm-heavy | NET:10Gbps | TRANSFERRED:48480.0MB | DURATION:48.5s | STATUT:ACCEPTABLE"
   },
   {
     "id": "vrt3-c5-e2",

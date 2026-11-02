@@ -140,7 +140,7 @@ module.exports = {
     { cls: 'low', text: '&lt; 50 % — Révise les piliers de la métacognition et les cycles Pomodoro.' },
     { cls: 'mid', text: '50–69 % — Entraînez-vous sur le calcul du score de Brier et la chronobiologie.' },
     { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les principes de l’auto-régulation durable.' },
-    { cls: 'top', text: '≥ 95 % — Parfait : vous possèdez une maîtrise experte de la science de l’apprentissage !' }
+    { cls: 'top', text: '≥ 95 % — Parfait : vous possédez une maîtrise experte de la science de l’apprentissage !' }
   ],
 
   flashcards: [

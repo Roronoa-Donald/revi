@@ -193,7 +193,7 @@ module.exports = {
       exp: 'Même en SaaS, la protection des données, leur classification et la configuration des autorisations d’accès des utilisateurs (IAM) demeurent sous la stricte responsabilité légale et opérationnelle du client.'
     },
     {
-      stem: 'Quelle technique permet à un fournisseur Cloud de faire cohabiter plusieurs clients sur les mêmes serveurs physiques tout en garantissant leur étanchéité ?',
+      stem: 'Quelle technique aide un fournisseur Cloud à faire cohabiter plusieurs clients sur les mêmes serveurs physiques en limitant les accès entre clients ?',
       opts: [
         'L’isolation multi-tenant via virtualisation et réseaux logiques cloisonnés',
         'L’attribution d’adresses IP publiques partagées sans filtrage',
@@ -201,7 +201,7 @@ module.exports = {
         'Le chiffrement des disques durs sans gestion de clés'
       ],
       correct: 0,
-      exp: 'Le modèle multi-tenant repose sur une isolation logique stricte au niveau de l’hyperviseur, des espaces mémoire et des réseaux virtuels (VPC/VLAN) empêchant toute fuite inter-clients.'
+      exp: 'La virtualisation, les contrôles d’accès et les réseaux cloisonnés visent à isoler les locataires. Leur efficacité dépend de leur configuration et de l’absence de vulnérabilités exploitées ; elle ne supprime pas tout risque.'
     },
     {
       stem: 'Quelle architecture combine un datacenter privé d’entreprise et un cloud public pour absorber des pics de charge saisonniers ?',
@@ -216,46 +216,6 @@ module.exports = {
     }
   ],
   flashcards: [
-      { q: 'Qu’est-ce que « Définition canonique NIST SP 800-145 » ?', a: 'Définition canonique NIST SP 800-145' },
-      { q: 'Qu’est-ce que « Libre-service à la demande (On-Demand Self-Service) » ?', a: 'Libre-service à la demande (On-Demand Self-Service)' },
-      { q: 'Qu’est-ce que « Élasticité dynamique (Rapid Elasticity) » ?', a: 'Élasticité dynamique (Rapid Elasticity)' },
-      { q: 'Qu’est-ce que « Infrastructure as a Service (IaaS) » ?', a: 'Infrastructure as a Service (IaaS)' },
-      { q: 'Qu’est-ce que « Platform as a Service (PaaS) » ?', a: 'Platform as a Service (PaaS)' },
-      { q: 'Qu’est-ce que « Software as a Service (SaaS) » ?', a: 'Software as a Service (SaaS)' },
-      { q: 'Qu’est-ce que « Équivalences de services AWS, Azure et GCP » ?', a: 'Équivalences de services AWS, Azure et GCP' },
-      { q: 'Qu’est-ce que « Point de Présence Edge et réseaux CDN » ?', a: 'Point de Présence Edge et réseaux CDN' },
-      { q: 'Qu’est-ce que « Calcul de SLA composé en série (dépendance) » ?', a: 'Calcul de SLA composé en série (dépendance)' },
-      { q: 'Qu’est-ce que « Calcul de SLA composé en parallèle (redondance) » ?', a: 'Calcul de SLA composé en parallèle (redondance)' },
-      { q: 'Qu’est-ce que « Budget d’erreur et indisponibilité annuelle » ?', a: 'Budget d’erreur et indisponibilité annuelle' },
-      { q: 'Qu’est-ce que « Objectif de temps de reprise (RTO) » ?', a: 'Objectif de temps de reprise (RTO)' },
-      { q: 'Qu’est-ce que « Objectif de point de reprise (RPO) » ?', a: 'Objectif de point de reprise (RPO)' },
-      { q: 'Qu’est-ce que « Hyperviseur Type 2 Hosted » ?', a: 'Hyperviseur Type 2 Hosted' },
-      { q: 'Qu’est-ce que « Virtualisation assistée par le processeur (HVM) » ?', a: 'Virtualisation assistée par le processeur (HVM)' },
-      { q: 'Qu’est-ce que « Paravirtualisation (PV) et Hypercalls » ?', a: 'Paravirtualisation (PV) et Hypercalls' },
-      { q: 'Qu’est-ce que « Sur-allocation CPU (vCPU to pCPU Overcommitment) » ?', a: 'Sur-allocation CPU (vCPU to pCPU Overcommitment)' },
-      { q: 'Qu’est-ce que « Sur-allocation mémoire et Memory Ballooning » ?', a: 'Sur-allocation mémoire et Memory Ballooning' },
-      { q: 'Qu’est-ce que « Contention et phénomène du « Noisy Neighbor » » ?', a: 'Contention et phénomène du « Noisy Neighbor »' },
-      { q: 'Qu’est-ce que « Dimensionnement transactionnel et facteur limitant » ?', a: 'Dimensionnement transactionnel et facteur limitant' },
-      { q: 'Qu’est-ce que « Power Usage Effectiveness (PUE) » ?', a: 'Quelle formule définit rigoureusement le Power Usage Effectiveness (PUE) d’un centre de données ?' },
-      { q: 'Qu’est-ce que « Data Center Infrastructure Efficiency (DCiE) » ?', a: 'Data Center Infrastructure Efficiency (DCiE)' },
-      { q: 'Qu’est-ce que « Confinement d’allée chaude et allée froide » ?', a: 'Confinement d’allée chaude et allée froide' },
-      { q: 'Qu’est-ce que « Refroidissement naturel (Free-Cooling) » ?', a: 'Refroidissement naturel (Free-Cooling) : Utilisation de l’air extérieur frais ou de l’eau de mer/rivière pour refroidir le datacenter sans enclencher de compresseurs frigorifiques énergivores pendant la majeure partie de l’année (très utilisé dans les pays nordiques).' },
-      { q: 'Qu’est-ce que « Émissions Scope 1, Scope 2 et Scope 3 (GHG Protocol) » ?', a: 'Émissions Scope 1, Scope 2 et Scope 3 (GHG Protocol)' },
-      { q: 'Qu’est-ce que « Intensité carbone du mix électrique (gCO2e/kWh) » ?', a: 'Intensité carbone du mix électrique (gCO2e/kWh)' },
-      { q: 'Qu’est-ce que « Serveurs fantômes (Zombie Servers) » ?', a: 'Serveurs fantômes (Zombie Servers)' },
-      { q: 'Qu’est-ce que « Modèle de responsabilité partagée (Shared Responsibility) » ?', a: 'Modèle de responsabilité partagée (Shared Responsibility)' },
-      { q: 'Qu’est-ce que « Chiffrement au repos SSE-KMS et Customer Managed Keys (CMK) » ?', a: 'Chiffrement au repos SSE-KMS et Customer Managed Keys (CMK)' },
-      { q: 'Qu’est-ce que « Règlement Général sur la Protection des Données (RGPD) » ?', a: 'Règlement Général sur la Protection des Données (RGPD)' },
-      { q: 'Qu’est-ce que « CLOUD Act américain et extraterritorialité » ?', a: 'CLOUD Act américain et extraterritorialité' },
-      { q: 'Qu’est-ce que « Référentiel de qualification SecNumCloud (ANSSI) » ?', a: 'Référentiel de qualification SecNumCloud (ANSSI)' },
-      { q: 'Qu’est-ce que « Principe du moindre privilège et contrôle d’accès RBAC » ?', a: 'Principe du moindre privilège et contrôle d’accès RBAC' },
-      { q: 'Qu’est-ce que « Total Cost of Ownership (TCO sur 3 ans) » ?', a: 'Total Cost of Ownership (TCO sur 3 ans)' },
-      { q: 'Qu’est-ce que « Transformation de CAPEX en OPEX » ?', a: 'Transformation de CAPEX en OPEX' },
-      { q: 'Qu’est-ce que « Discipline FinOps (Inform, Optimize, Operate) » ?', a: 'Discipline FinOps (Inform, Optimize, Operate)' },
-      { q: 'Qu’est-ce que « Instances À la Demande (On-Demand) » ?', a: 'Instances À la Demande (On-Demand) : Facturation à la seconde sans aucun engagement de durée. Idéal pour les charges de travail courtes, les tests ponctuels et les pics de trafic imprévisibles, mais plein tarif catalogue.' },
-      { q: 'Qu’est-ce que « Instances Réservées (RI) et Savings Plans » ?', a: 'Instances Réservées (RI) et Savings Plans' },
-      { q: 'Qu’est-ce que « Instances Spot et gestion des interruptions » ?', a: 'Instances Spot et gestion des interruptions' },
-      { q: 'Qu’est-ce que « Balisage des coûts (Tagging et Chargeback) » ?', a: 'Balisage des coûts (Tagging et Chargeback)' },
     {
       q: 'Quelles sont les 5 caractéristiques essentielles du Cloud selon le NIST SP 800-145 ?',
       a: '1. On-Demand Self-Service, 2. Broad Network Access, 3. Resource Pooling, 4. Rapid Elasticity, 5. Measured Service.'
@@ -278,7 +238,7 @@ module.exports = {
     },
     {
       q: 'Qu’est-ce que le modèle multi-tenant ?',
-      a: 'Architecture logicielle ou d’infrastructure où une instance unique d’une ressource physique sert plusieurs clients (locataires) distincts en garantissant leur isolation logique absolue.'
+      a: 'Architecture où des ressources servent plusieurs locataires. Virtualisation, contrôles d’accès et cloisonnement visent leur isolation, sans supprimer le risque de mauvaise configuration ou de vulnérabilité.'
     }
   ],
   mastery: [

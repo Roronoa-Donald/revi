@@ -167,17 +167,17 @@ module.exports = {
     }
   ],
   "flashcards": [
-    { "q": 'Qu’est-ce que « Notation de Landau Grand O (borne supérieure) » ?', "a": 'Notation de Landau Grand O (borne supérieure)' },
-    { "q": 'Qu’est-ce que « Notations Grand Omega (borne inférieure) et Grand Theta (encadrement) » ?', "a": 'Notations Grand Omega (borne inférieure) et Grand Theta (encadrement)' },
-    { "q": 'Qu’est-ce que « Hiérarchie des classes de complexité (O(1) à O(n!)) » ?', "a": 'Hiérarchie des classes de complexité (O(1) à O(n!))' },
-    { "q": 'Qu’est-ce que « Théorème Maître de division pour régner (Cas 1, 2 et 3) » ?', "a": 'Théorème Maître de division pour régner (Cas 1, 2 et 3)' },
-    { "q": 'Qu’est-ce que « Exposant critique de prolifération c = log_b(a) » ?', "a": 'On compare l’exposant critique de prolifération $c = \\log_b(a)$ avec l’exposant de travail local $d$ :' },
-    { "q": 'Qu’est-ce que « Cadre de pile d’exécution (Stack Frame) » ?', "a": 'Cadre de pile d’exécution (Stack Frame)' },
-    { "q": 'Qu’est-ce que « Dépassement de pile (Stack Overflow) » ?', "a": 'Dépassement de pile (Stack Overflow) : En ingénierie logicielle d’envergure industrielle, le volume de données traitées peut exploser en passant d’un millier à plusieurs dizaines de millions d’enregistrements. Un algorithme qui s’exécute en quelques millisecondes sur la machine du développeur peut saturer le CPU penda' },
-    { "q": 'Qu’est-ce que « Complexité spatiale auxiliaire de la récursion » ?', "a": 'Complexité spatiale auxiliaire de la récursion' },
+    { "q": 'Qu’est-ce que « Notation de Landau Grand O (borne supérieure) » ?', "a": 'f(n) est en O(g(n)) si, pour n assez grand, 0 ≤ f(n) ≤ c·g(n) avec une constante c > 0 : c’est une borne asymptotique supérieure.' },
+    { "q": 'Qu’est-ce que « Notations Grand Omega (borne inférieure) et Grand Theta (encadrement) » ?', "a": 'f(n) est en Ω(g(n)) si f(n) ≥ c·g(n) pour n assez grand et c > 0 ; elle est en Θ(g(n)) si elle est à la fois en O(g(n)) et en Ω(g(n)).' },
+    { "q": 'Qu’est-ce que « Hiérarchie des classes de complexité (O(1) à O(n!)) » ?', "a": 'Pour n grand, les croissances typiques vont de la plus lente à la plus rapide : 1, log n, n, n log n, n², n³, 2ⁿ, n!.' },
+    { "q": 'Qu’est-ce que « Théorème Maître de division pour régner (Cas 1, 2 et 3) » ?', "a": 'Pour T(n)=aT(n/b)+Θ(n^d), avec a≥1, b>1, d≥0 et T(1)=Θ(1), poser c=log_b(a) : si c>d, T(n)=Θ(n^c) ; si c=d, Θ(n^d log n) ; si c<d, Θ(n^d).' },
+    { "q": 'Qu’est-ce que « Exposant critique de prolifération c = log_b(a) » ?', "a": 'Dans le théorème maître, c=log_b(a) est l’exposant du nombre de feuilles Θ(n^c) de l’arbre des appels ; on compare c à d pour choisir le cas applicable.' },
+    { "q": 'Qu’est-ce que « Cadre de pile d’exécution (Stack Frame) » ?', "a": 'Zone associée à un appel de fonction, qui contient généralement ses paramètres, ses variables locales et son adresse de retour.' },
+    { "q": 'Qu’est-ce que « Dépassement de pile (Stack Overflow) » ?', "a": 'Saturation de la pile d’appels, par exemple lors d’une récursion trop profonde ; elle peut provoquer une erreur comme StackOverflowError en Java.' },
+    { "q": 'Qu’est-ce que « Complexité spatiale auxiliaire de la récursion » ?', "a": 'Mémoire supplémentaire utilisée par la récursion, notamment les cadres d’appels ; avec des cadres de taille constante, une profondeur h coûte O(h).' },
     {
       "q": "Quelle est la différence fondamentale entre O(g(n)) et Theta(g(n)) ?",
-      "a": "O(g(n)) est une borne supérieure (majoration au pire des cas) alors que Theta(g(n)) est un encadrement strict (borne supérieure ET inférieure identiques)."
+      "a": "O(g(n)) donne une borne supérieure asymptotique ; Theta(g(n)) donne à la fois une borne supérieure et une borne inférieure asymptotiques. Ces notations peuvent décrire le meilleur cas, le cas moyen ou le pire cas, selon la fonction étudiée."
     },
     {
       "q": "Quelle est la formule générale de la récurrence de division pour régner pour le Théorème Maître ?",

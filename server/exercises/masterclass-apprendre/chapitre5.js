@@ -87,38 +87,38 @@ module.exports = [
     "chapter": 5,
     "level": "n3",
     "language": "analyse",
-    "title": "Zone d’apprentissage optimal (Règle des 85 %)",
-    "goal": "Calibrer la difficulté d’un entraînement selon la règle optimale d’apprentissage de Robert Wilson.",
-    "brief": "<p>Une étude scientifique de Robert Wilson (Nature Communications, 2019) a démontré que le taux d’apprentissage est maximal lorsque l’apprenant réussit environ <strong>85 %</strong> des exercices (soit 15 % d’erreurs stimulantes).</p><p>Lit une ligne avec <code>exercices_reussis;exercices_totaux</code> (entiers positifs).<br>Calculez le taux de réussite $T = reussis / totaux$. Affichez le taux en pourcentage : <code>Taux: &lt;T_pct&gt;%</code> (1 décimale).<br>- Si $T &gt; 90{,}0\\,\\%$ : <code>Niveau: Trop facile (Risque de stagnation, augmenter la difficulte)</code>.<br>- Si $80{,}0\\,\\% \\le T \\le 90{,}0\\,\\%$ : <code>Niveau: Zone optimale des 85% (Progression maximale)</code>.<br>- Si $T &lt; 80{,}0\\,\\%$ : <code>Niveau: Trop difficile (Risque de decouragement, decomposer les etapes)</code>.</p>",
-    "starter": "# Grille d'analyse (mc2-c5-e3) — Zone d’apprentissage optimal (Règle des 85 %)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Exercices trop faciles avec 95 % de réussite]\n# Données : 19;20\nA_COMPLETER\n\n[Cas 2 — Exercices trop difficiles avec 60 % de réussite]\n# Données : 12;20\nA_COMPLETER\n\n[Cas 3 — Borne basse de la zone optimale]\n# Données : 8;10\nA_COMPLETER\n",
+    "title": "Calcul d’un taux et classement dans des bandes fictives",
+    "goal": "Calculer un pourcentage et appliquer des seuils fictifs sans conclure sur un apprentissage individuel.",
+    "brief": "<p>Wilson et al. (2019) étudient des modèles de classification binaire sous certaines hypothèses. Leur résultat autour de 85 % ne constitue pas un optimum universel pour un étudiant. Les bandes de cette grille sont fictives : elles ne permettent ni de diagnostiquer la difficulté ni de prédire la progression.</p><p>Pour <code>reussis;total</code>, avec 0 &le; reussis &le; total et total &gt; 0, calculer le pourcentage exact T puis l’afficher à une décimale : <code>Taux: &lt;T&gt;%</code>. Comparer T avant arrondi : au-dessus de 90, afficher <code>BANDE: AU_DESSUS_90</code> ; de 80 à 90 inclus, <code>BANDE: DE_80_A_90</code> ; en dessous de 80, <code>BANDE: SOUS_80</code>.</p>",
+    "starter": "# Grille d'analyse (mc2-c5-e3) — Calcul d’un taux et classement dans des bandes fictives\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Taux de 95 pour cent]\n# Données : 19;20\nA_COMPLETER\n\n[Cas 2 — Taux de 60 pour cent]\n# Données : 12;20\nA_COMPLETER\n\n[Cas 3 — Borne basse de la bande fictive]\n# Données : 8;10\nA_COMPLETER\n",
     "hints": [
-      "Calculez round((reussis / totaux) * 100.0, 1).",
-      "Comparez aux bornes 80.0 et 90.0."
+      "Calculer 100 × réussis / total.",
+      "Comparer avant d’arrondir le taux affiché."
     ],
     "examples": [
       {
         "stdin": "17;20",
-        "expected": "Taux: 85.0%\nNiveau: Zone optimale des 85% (Progression maximale)",
-        "note": "17/20 = 85.0% : le niveau de difficulté est parfait pour progresser."
+        "expected": "Taux: 85.0%\nBANDE: DE_80_A_90",
+        "note": "Le taux est dans la bande fictive, sans conclusion sur la progression."
       }
     ],
     "tests": [
       {
-        "label": "Exercices trop faciles avec 95 % de réussite",
+        "label": "Taux de 95 pour cent",
         "stdin": "cas:1",
-        "expected": "Taux: 95.0%\nNiveau: Trop facile (Risque de stagnation, augmenter la difficulte)"
+        "expected": "Taux: 95.0%\nBANDE: AU_DESSUS_90"
       },
       {
-        "label": "Exercices trop difficiles avec 60 % de réussite",
+        "label": "Taux de 60 pour cent",
         "stdin": "cas:2",
-        "expected": "Taux: 60.0%\nNiveau: Trop difficile (Risque de decouragement, decomposer les etapes)"
+        "expected": "Taux: 60.0%\nBANDE: SOUS_80"
       },
       {
-        "label": "Borne basse de la zone optimale",
+        "label": "Borne basse de la bande fictive",
         "stdin": "cas:3",
-        "expected": "Taux: 80.0%\nNiveau: Zone optimale des 85% (Progression maximale)"
+        "expected": "Taux: 80.0%\nBANDE: DE_80_A_90"
       }
     ],
-    "solution": "[Exemple]\nTaux: 85.0%\nNiveau: Zone optimale des 85% (Progression maximale)\n\n[Cas 1 — Exercices trop faciles avec 95 % de réussite]\nTaux: 95.0%\nNiveau: Trop facile (Risque de stagnation, augmenter la difficulte)\n\n[Cas 2 — Exercices trop difficiles avec 60 % de réussite]\nTaux: 60.0%\nNiveau: Trop difficile (Risque de decouragement, decomposer les etapes)\n\n[Cas 3 — Borne basse de la zone optimale]\nTaux: 80.0%\nNiveau: Zone optimale des 85% (Progression maximale)\n"
+    "solution": "[Exemple]\nTaux: 85.0%\nBANDE: DE_80_A_90\n\n[Cas 1 — Taux de 95 pour cent]\nTaux: 95.0%\nBANDE: AU_DESSUS_90\n\n[Cas 2 — Taux de 60 pour cent]\nTaux: 60.0%\nBANDE: SOUS_80\n\n[Cas 3 — Borne basse de la bande fictive]\nTaux: 80.0%\nBANDE: DE_80_A_90\n"
   }
 ];

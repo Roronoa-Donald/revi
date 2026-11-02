@@ -52,10 +52,10 @@ function index(course, chapterList) {
     box('method', 'Comment ce cours s’articule', 'compass', [
       '    <p>Chaque chapitre part d’un problème concret, pose les définitions, déroule un exemple ' +
       'calculé ligne à ligne, puis se termine par <strong>trois études de cas matricielles</strong> : ' +
-      'vous écrivez vraiment un programme qui calcule (somme de vecteurs, produit de matrices, déterminant, ' +
-      'résolution de système), il est réellement exécuté puis corrigé par des tests que vous ne voyez pas.</p>',
-      '    <p>Le langage Python sert ici de <em>démarche méthodologique</em> : il n’est jamais le sujet du ' +
-      'cours, il est le moyen de contrôler que la méthode est comprise. Les formules restent celles du ' +
+      'vous complétez une grille d’analyse qui reprend la méthode (somme de vecteurs, produit de matrices, déterminant, ' +
+      'résolution de système), puis elle est vérifiée par des critères que vous ne voyez pas.</p>',
+      '    <p>La <em>démarche méthodologique</em> prime : la grille sert à contrôler que la méthode est comprise. ' +
+      ' Les formules restent celles du ' +
       'support, en notation mathématique.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -103,8 +103,8 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du vocabulaire matriciel jusqu’aux déterminants. ' +
     'Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou supérieur ' +
     '(et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois études de cas mathématiques</strong> à écrire et à exécuter ' +
-    'dans la page : votre programme est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas mathématiques</strong> à analyser ' +
+    'dans la page : vous remplissez votre grille d’analyse, puis elle est vérifiée par des critères que vous ne voyez pas. ' +
     'L’<a href="atelier.html">atelier de calcul</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
@@ -167,8 +167,8 @@ function atelier(course) {
       '(produit, transposée, déterminant, rang), programmez-la et testez-la sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé calcule le produit d’une matrice fixe par un vecteur fourni dans les données du cas. ' +
-      'Modifiez la matrice, change la dimension, ou remplace tout le script par le calcul que vous voulez vérifier.</p>',
-      '      <p>Une erreur n’est pas un échec : c’est le message que Python te laisse pour comprendre ce qu’il attendait.</p>',
+      'Modifiez la matrice, change la dimension, ou remplacez tout le script par le calcul que vous voulez vérifier.</p>',
+      '      <p>Une erreur n’est pas un échec : c’est le message que Python vous laisse pour comprendre ce qu’il attendait.</p>',
       '    </div>',
       '    <div class="lab__sample">',
       '      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>1',
@@ -391,7 +391,7 @@ function examens(course) {
         {
           num: 'Exercice 3',
           badge: '/6 — Système de Gauss',
-          text: 'Résous par la méthode de Gauss :  x + y + z = 6 ;  2x − y + z = 3 ;  x + 2y − z = 2.',
+          text: 'Résolvez par la méthode de Gauss :  x + y + z = 6 ;  2x − y + z = 3 ;  x + 2y − z = 2.',
           sol: 'Matrice augmentée [1 1 1 | 6 ; 2 −1 1 | 3 ; 1 2 −1 | 2].\n' +
             'L2 ← L2 − 2L1 : [0 −3 −1 | −9]. L3 ← L3 − L1 : [0 1 −2 | −4].\n' +
             'L2 ↔ L3 : [0 1 −2 | −4] puis [0 −3 −1 | −9].  L3 ← L3 + 3L2 : [0 0 −7 | −21].\n' +
@@ -442,7 +442,7 @@ function examens(course) {
         {
           num: 'Exercice 4',
           badge: '/5 — Valeurs propres',
-          text: 'Trouve les valeurs propres de A = [4 1 ; 2 3].',
+          text: 'Trouvez les valeurs propres de A = [4 1 ; 2 3].',
           sol: 'det(A − λI) = (4 − λ)(3 − λ) − 2 = λ² − 7λ + 10 = 0.\n' +
             'Discriminant : 49 − 40 = 9, donc λ = (7 ± 3)/2 : <strong>λ₁ = 5 et λ₂ = 2</strong>.'
         }

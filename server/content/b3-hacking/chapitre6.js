@@ -199,9 +199,9 @@ module.exports = {
   ],
   "flashcards": [
     { "q": 'Qu’est-ce que « Executive Summary » ?', "a": "Executive Summary : Synthèse managériale non-technique d'un rapport d'intrusion exposant le risque global et les impacts métier." },
-    { "q": "Qu’est-ce que « Le maintien de l'accès exploite des mécanismes de démarrage légitimes (cron, systemd, authorized_keys, clés Run du Registre). » ?", "a": "Le maintien de l'accès exploite des mécanismes de démarrage légitimes (cron, systemd, authorized_keys, clés Run du Registre)." },
-    { "q": "Qu’est-ce que « Les web shells dissimulent leur code via des encodages Base64 et des fonctions d'exécution dynamique (eval, assert). » ?", "a": "Les web shells dissimulent leur code via des encodages Base64 et des fonctions d'exécution dynamique (eval, assert)." },
-    { "q": "Qu’est-ce que « Les techniques d'anti-forensics comme le timestomping cherchent à tromper l'investigation numérique des analystes DFIR. » ?", "a": "Les techniques d'anti-forensics comme le timestomping cherchent à tromper l'investigation numérique des analystes DFIR." },
+    { "q": "Quels mécanismes légitimes peuvent être détournés pour maintenir un accès ?", "a": "Les tâches cron, les services systemd, les clés SSH authorized_keys et les clés Run du Registre Windows." },
+    { "q": "Comment certains web shells compliquent-ils leur détection ?", "a": "Ils peuvent masquer du code en Base64 et utiliser une exécution dynamique, comme eval ou, avant PHP 8, assert sur une chaîne." },
+    { "q": "Qu'est-ce que le timestomping et pourquoi est-il utilisé en anti-forensics ?", "a": "La modification d'horodatages de fichiers pour masquer une activité et perturber l'investigation numérique (DFIR)." },
     {
       "q": "Qu'est-ce qu'un web shell et comment fonctionne-t-il ?",
       "a": "Un script déposé sur un serveur web permettant à l'attaquant d'exécuter des commandes système à distance via des requêtes HTTP (ex: system($_GET[\"cmd\"]))."

@@ -13,13 +13,13 @@ module.exports = {
   time: '≈ 2 h 45 de travail',
   free: false,
   lockLabel: 'Réservé B3 et plus',
-  situation: 'Interroger la totalité des membres d’une population cible (recensement exhaustif) est matériellement impossible, financièrement prohibitif et temporellement intenable dans la quasi-totalité des projets d’ingénierie ou de recherche appliquée. L’échantillonnage consiste à sélectionner scientifiquement un sous-ensemble d’individus dont les caractéristiques et les réponses reflètent fidèlement celles de la population mère tout entière. Cependant, interroger 1 000 personnes choisies au hasard sur LinkedIn ne garantit en rien la représentativité si l’échantillon souffre de biais d’autosélection majeurs. L’ingénieur de Bachelor 3 doit maîtriser le dimensionnement statistique exact par la formule de Cochran, savoir appliquer la correction pour population finie, ventiler un tirage stratifié proportionnel et auditer la conformité d’un échantillonnage empirique par quotas.',
+  situation: 'Interroger toute une population cible peut être coûteux ou impossible. L’échantillonnage sélectionne un sous-ensemble d’individus pour étudier cette population ; sa taille ou le respect de quotas ne garantissent pas à eux seuls que ses résultats la reflètent fidèlement. Des volontaires recrutés sur un réseau social peuvent notamment présenter un biais d’autosélection. Il faut expliciter le plan, ventiler les strates et examiner les limites de la collecte.',
   objectives: [
     'distinguer rigoureusement les méthodes d’échantillonnage probabilistes (aléatoires) et non probabilistes (empiriques) ;',
-    'dimensionner mathématiquement la taille minimale d’un échantillon représentatif via la formule de Cochran (scores z, marge d’erreur e, variabilité p) ;',
+    'dimensionner un échantillon sous les hypothèses de la formule de Cochran (scores z, marge d’erreur e, variabilité p), sans en déduire l’absence de biais ;',
     'appliquer la correction de Cochran pour population finie afin d’optimiser les coûts de collecte sans dégrader la précision ;',
     'concevoir un plan d’échantillonnage stratifié proportionnel et calculer les effectifs à sonder par sous-groupe démographique ;',
-    'mettre en œuvre la méthode des quotas et mesurer le biais d’échantillonnage par rapport aux distributions de référence ;',
+    'contrôler les quotas par rapport aux distributions de référence et reconnaître les biais que ce contrôle ne mesure pas ;',
     'analyser et résoudre méthodologiquement des calculateurs de Cochran, des générateurs d’échantillons stratifiés et des vérificateurs de conformité par quotas.'
   ],
   sections: [
@@ -88,30 +88,32 @@ module.exports = {
     {
       title: 'Échantillonnage Stratifié &amp; Contrôle des Quotas',
       html: [
-        '<p>L’échantillonnage ne doit pas se contenter d’un volume brut : il doit reproduire la structure interne de la population selon les critères critiques :</p>',
+        '<p>La répartition selon des critères connus est utile, mais ne suffit pas à établir la représentativité sur toutes les caractéristiques :</p>',
         '<div class="grid grid-2">',
         '  <div class="card">',
         '    <h4>Échantillonnage Stratifié Proportionnel</h4>',
-        '    <p>Chaque sous-population $h$ (strate) de taille $N_h$ se voit allouer une part de l’échantillon proportionnelle à son poids réel $W_h = N_h / N$ :</p>',
-        '    <p>$$n_h = n \\times \\frac{N_h}{N}$$</p>',
-        '    <p>Garantit qu’aucune minorité significative n’est sous-représentée par simple hasard de tirage.</p>',
+        '    <p>Pour chaque strate de taille $N_h$, la part théorique est $q_h = n N_h/N$. Pour obtenir des effectifs entiers, attribuer d’abord $\\lfloor q_h \\rfloor$, puis distribuer les unités restantes aux <strong>plus forts restes</strong> ; en cas d’égalité, suivre l’ordre des strates.</p>',
+        '    <p>Sans remplacement, vérifier $0 \\le n_h \\le N_h$ et $1 \\le n \\le N$. Sans minimum imposé, une strate peut recevoir zéro unité.</p>',
+        '    <p>Si des minima entiers $m_h$ sont imposés, vérifier $0 \\le m_h \\le N_h$ et $\\sum m_h \\le n \\le \\sum N_h$. Une règle possible consiste à attribuer d’abord les minima, puis à répartir le reste proportionnellement aux capacités résiduelles $N_h-m_h$ avec les mêmes plus forts restes. S’il ne reste aucune unité à distribuer, on s’arrête. Cette règle respecte les bornes mais modifie la cible proportionnelle initiale.</p>',
+        '    <p>Exemple : pour $n = 1$ et trois strates de taille 1, les parts sont $1/3, 1/3, 1/3$. Leurs planchers valent $0, 0, 0$ ; l’unité restante va à la première strate : $1, 0, 0$.</p>',
         '  </div>',
         '  <div class="card">',
-        '    <h4>Méthode des Quotas &amp; Audit de Biais</h4>',
+        '    <h4>Méthode des Quotas &amp; Contrôle de Conformité</h4>',
         '    <p>Dans les enquêtes sans base de sondage nominative, on fixe aux enquêteurs des quotas stricts (ex: 30% Juniors, 50% Confirmés, 20% Seniors).</p>',
-        '    <p>L’audit de conformité compare la distribution observée $P_{obs}$ aux quotas cibles $P_{cible}$. Un écart maximal $|P_{obs} - P_{cible}| > 3\%$ signale un biais exigeant un redressement statistique par pondération.</p>',
+        '    <p>Le contrôle compare les proportions observées aux quotas cibles. Un seuil de 3 points est un choix illustratif, pas une garantie : il ne révèle ni tous les biais de sélection ni les écarts sur les variables non contrôlées. Une pondération peut corriger des marges connues, sans supprimer automatiquement les autres biais.</p>',
         '  </div>',
-        '</div>'
+        '</div>',
+        '<p><strong>Contre-exemple synthétique :</strong> une population de 100 personnes compte 50 A et 50 B, dont 10 à revenu élevé dans chaque groupe : 20% au total. Un échantillon de 5 A et 5 B respecte parfaitement les quotas 50/50, mais si les 10 personnes choisies ont un revenu élevé, cette proportion atteint 100% dans l’échantillon. La conformité des quotas ne démontre pas la représentativité des revenus ni l’absence de biais de sélection.</p>'
       ].join('\n')
     }
   ],
-  methodTitle: 'Méthodologie de Construction d’un Échantillon Représentatif',
+  methodTitle: 'Méthodologie de Construction et d’Évaluation d’un Échantillon',
   method: [
     '1. Définir la population mère N : Déterminer la taille totale exacte de l’univers de recherche (ou constater son caractère infini / non borné).',
     '2. Fixer le seuil de confiance et l’erreur tolérée : Retenir conventionnellement 95% de confiance (z = 1.96) et une marge d’erreur de 5% (e = 0.05).',
     '3. Calculer n0 par la formule de Cochran : Appliquer la formule de base avec p = 0.5 (variabilité maximale prudente).',
     '4. Appliquer la correction de population finie : Si N < 100 000, réajuster la taille d’échantillon requise via la formule FPC.',
-    '5. Ventiler par strates ou quotas : Répartir les effectifs à interroger selon les proportions sociodémographiques ou organisationnelles connues.',
+    '5. Ventiler par strates ou quotas : conserver la taille cible avec les plus forts restes, vérifier les capacités et analyser les risques de sélection.',
     '6. Contrôler le taux d’attrition prévu : Prévoir un volume d’envois supérieur (ex: avec un taux de réponse de 20%, envoyer 5 fois plus de questionnaires que la taille n visée).'
   ],
   summary: [
@@ -119,15 +121,16 @@ module.exports = {
     'Les méthodes probabilistes reposent sur un tirage au sort où chaque unité a une probabilité connue et non nulle d’être sélectionnée.',
     'La formule de Cochran ($n_0 = z^2 \\cdot p(1-p) / e^2$) donne la taille requise en population infinie : à 95% et 5% d’erreur, $n_0 = 385$.',
     'La correction pour population finie réduit la taille requise lorsque la population totale $N$ est restreinte, sans perte de niveau de confiance.',
-    'La méthode des quotas et la stratification assurent la représentativité sociologique ou métier en reproduisant la structure de la population mère.',
-    'Tout écart entre la distribution observée et la structure théorique supérieur à 3-5% introduit un biais nécessitant un redressement par pondération.'
+    'Le respect des quotas ne démontre pas la représentativité des autres caractéristiques ni l’absence de biais de sélection.',
+    'La répartition stratifiée entière utilise ici les plus forts restes, avec départage par ordre d’apparition et vérification des capacités.'
   ],
   checklist: [
     'Le choix entre échantillonnage probabiliste et non probabiliste est-il explicitement justifié au regard de la base de sondage disponible ?',
     'Le niveau de confiance (z) et la marge d’erreur maximale (e) sont-ils formellement déclarés ?',
     'La formule de Cochran a-t-elle été correctement appliquée avec p = 0.5 par défaut de prudence ?',
     'La correction pour population finie a-t-elle été mobilisée si la population totale N est connue et restreinte ?',
-    'Les proportions de chaque strate ou catégorie de quota reflètent-elles fidèlement les données démographiques réelles ?',
+    'La somme des effectifs alloués respecte-t-elle la taille cible et les capacités des strates, sans promettre un minimum non prévu ?',
+    'Les quotas sont-ils contrôlés sans en déduire l’absence de biais pour les caractéristiques non observées ?',
     'Le volume d’envoi initial prend-il en compte le taux de non-réponse prévisible (taux de retour) ?'
   ],
   notions: [
@@ -144,7 +147,9 @@ module.exports = {
     'Interroger 1 000 volontaires recrutés sur un réseau social et affirmer que l’échantillon est représentatif de la population générale.',
     'Oublier d’arrondir à l’entier supérieur lors du calcul de la taille minimale d’échantillon avec Cochran.',
     'Négliger la correction pour population finie lorsque l’on étudie une PME de 300 salariés, conduisant à des calculs disproportionnés.',
-    'Ignorer les strates clés (ex: n’interroger que des développeurs juniors et tirer des conclusions sur l’ensemble de la filière informatique).'
+    'Ignorer les strates clés (ex: n’interroger que des développeurs juniors et tirer des conclusions sur l’ensemble de la filière informatique).',
+    'Déduire d’un respect parfait des quotas que toutes les autres variables sont représentatives.',
+    'Arrondir indépendamment les parts de chaque strate sans vérifier la somme ni les capacités.'
   ],
   questions: [
     {
@@ -156,7 +161,7 @@ module.exports = {
         'Parce que cela divise automatiquement le temps de calcul par deux'
       ],
       correct: 1,
-      exp: 'La variance d’une loi de Bernoulli p(1-p) atteint son maximum pour p = 0.5 (0.25). Choisir p = 0.5 garantit que l’échantillon sera suffisant quelle que soit la réalité observée.'
+      exp: 'La variance de Bernoulli p(1-p) est maximale en p = 0.5. Cette valeur donne une taille prudente dans le cadre du modèle, sans corriger les biais de sélection ou de non-réponse.'
     },
     {
       stem: 'Quelle taille d’échantillon minimale brute n0 obtient-on pour une population infinie avec un niveau de confiance de 95% (z = 1.96), une marge d’erreur de 5% (e = 0.05) et p = 0.5 ?',
@@ -181,15 +186,15 @@ module.exports = {
       exp: 'La formule FPC réduit la taille requise lorsque la population totale N est finie et connue, évitant de surdimensionner inutilement l’effort de collecte.'
     },
     {
-      stem: 'Dans un échantillonnage stratifié proportionnel au sein d’une entreprise de 1 000 personnes comptant 600 techniciens et 400 cadres, quelle sera la répartition pour un échantillon de 200 personnes ?',
+      stem: 'Pour n = 1 et trois strates de taille 1, quelle répartition donnent les plus forts restes, avec départage dans l’ordre ?',
       opts: [
-        '100 techniciens et 100 cadres',
-        '120 techniciens et 80 cadres',
-        '180 techniciens et 20 cadres',
-        '50 techniciens et 150 cadres'
+        '0, 0, 0',
+        '1, 0, 0',
+        '1, 1, 1',
+        '1, 1, 0'
       ],
       correct: 1,
-      exp: 'Techniciens : 600/1000 = 60% -> 200 * 0.60 = 120. Cadres : 400/1000 = 40% -> 200 * 0.40 = 80.'
+      exp: 'Chaque part vaut 1/3 : les planchers valent 0. L’unité restante va à la première strate à égalité ; la somme vaut 1.'
     },
     {
       stem: 'Quelle est la caractéristique fondamentale d’un échantillonnage probabiliste par rapport à une méthode empirique (non probabiliste) ?',
@@ -214,15 +219,15 @@ module.exports = {
       exp: 'La méthode boule de neige (snowball) s’appuie sur les réseaux de pairs, indispensable pour atteindre des populations confidentielles ou difficiles d’accès.'
     },
     {
-      stem: 'Lorsqu’un échantillon collecté par quotas présente un écart de 8% par rapport à la structure réelle de la population cible, quelle mesure corrective s’impose ?',
+      stem: 'Des quotas A/B sont parfaitement respectés. Quelle conclusion est justifiée ?',
       opts: [
-        'Supprimer immédiatement toutes les réponses et annuler le projet',
-        'Procéder à un redressement de l’échantillon par pondération statistique pour rééquilibrer le poids de chaque catégorie',
-        'Inventer de fausses réponses pour combler l’écart',
-        'Ignorer totalement l’écart et publier les chiffres bruts'
+        'Toutes les caractéristiques sont représentatives',
+        'Les proportions A/B sont conformes, mais d’autres biais peuvent subsister',
+        'La sélection est forcément aléatoire',
+        'Aucune autre information sur la population n’est utile'
       ],
       correct: 1,
-      exp: 'Le redressement statistique consiste à attribuer un coefficient multiplicateur (poids) supérieur aux catégories sous-représentées pour rétablir l’équilibre démographique.'
+      exp: 'La conformité concerne uniquement les quotas contrôlés : dans le contre-exemple, le revenu élevé passe de 20% dans la population à 100% dans l’échantillon.'
     },
     {
       stem: 'Pourquoi l’échantillonnage « de convenance » (interroger ses amis ou ses voisins de bureau) présente-t-il un risque méthodologique majeur ?',
@@ -251,11 +256,11 @@ module.exports = {
     },
     {
       q: 'En quoi consiste l’échantillonnage stratifié proportionnel ?',
-      a: 'À diviser la population en groupes homogènes (strates) et à sonder chaque groupe proportionnellement à son effectif réel dans la population mère.'
+      a: 'À répartir la taille cible selon les parts de population ; ici les plus forts restes et l’ordre des strates départagent les arrondis, dans la limite des capacités.'
     },
     {
       q: 'Quel est le principe de la méthode des quotas ?',
-      a: 'Reconstituer un modèle réduit de la population mère selon des critères de contrôle (sexe, âge, métier) sans base de sondage nominative.'
+      a: 'Reproduire des proportions cibles sur des critères choisis (sexe, âge, métier) ; cela ne garantit ni les autres caractéristiques ni l’absence de biais de sélection.'
     },
     {
       q: 'Qu’est-ce que le redressement d’échantillon par pondération ?',

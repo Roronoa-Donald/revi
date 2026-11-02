@@ -68,15 +68,15 @@ module.exports = {
         '<div class="grid grid-3">',
         '  <div class="card">',
         '    <h4>RGPD (Règlement Général sur la Protection des Données)</h4>',
-        '    <p>Impose la localisation des données personnelles de citoyens européens au sein de l’Union européenne ou dans des pays tiers disposant d’une décision d’adéquation stricte, avec sanctions pouvant atteindre 4% du CA mondial.</p>',
+        '    <p>Les transferts de données personnelles hors de l’Espace économique européen doivent respecter les conditions applicables, par exemple une décision d’adéquation ou des garanties appropriées. La localisation seule ne démontre pas la conformité.</p>',
         '  </div>',
         '  <div class="card">',
         '    <h4>Le CLOUD Act Américain (2018)</h4>',
-        '    <p>Loi fédérale autorisant les autorités judiciaires américaines à exiger la saisie de données hébergées par toute entreprise soumise au droit américain, <strong>quelle que soit la localisation physique géographique du datacenter</strong> (ex: datacenter situé à Paris ou Francfort).</p>',
+        '    <p>Cette loi peut permettre, sous certaines conditions, à des autorités américaines de demander des données sous le contrôle d’un fournisseur, y compris lorsqu’elles sont stockées hors des États-Unis. Le périmètre applicable demande une analyse juridique contextualisée.</p>',
         '  </div>',
         '  <div class="card">',
         '    <h4>SecNumCloud (ANSSI)</h4>',
-        '    <p>Le référentiel d’excellence français le plus exigeant d’Europe. Il garantit la plus haute sécurité technique (ISO 27001 renforcée) et une <strong>immunité juridique totale aux lois extraterritoriales</strong> (actionnariat et capitaux européens, personnel et support situés dans l’UE).</p>',
+        '    <p>La qualification ANSSI porte sur une offre et un périmètre déterminés : son référentiel comprend des exigences techniques, opérationnelles et juridiques visant notamment à protéger contre certaines lois extraterritoriales. Elle ne dispense ni d’une analyse de risques, ni des autres obligations légales, ni du contrôle des conditions de la qualification.</p>',
         '  </div>',
         '</div>'
       ].join('\n')
@@ -96,7 +96,7 @@ module.exports = {
     'En IaaS, le patching de l’OS invité et le filtrage des flux réseau relèvent exclusivement de la responsabilité de l’organisation cliente.',
     'La gestion des identités (IAM) et la gouvernance des données restent sous la responsabilité du client dans TOUS les modèles.',
     'Le CLOUD Act américain s’applique à toute filiale d’entreprise américaine même si les données résident physiquement en Europe.',
-    'SecNumCloud (ANSSI) apporte la garantie d’une isolation technique et juridique absolue face aux législations extraterritoriales.'
+    'SecNumCloud (ANSSI) encadre une offre qualifiée et réduit certains risques ; il ne constitue pas une immunité juridique absolue.'
   ],
   checklist: [
     'Je sais délimiter qui est responsable d’un composant donné en IaaS, PaaS et SaaS.',
@@ -157,7 +157,7 @@ module.exports = {
       exp: 'Le CLOUD Act américain (2018) dispose d’une portée extraterritoriale s’appliquant à toute entité commerciale de droit américain, indépendamment de la frontière physique du stockage.'
     },
     {
-      stem: 'Quel label de sécurité délivré par l’ANSSI certifie en France qu’un fournisseur Cloud offre les plus hautes garanties techniques et une immunité totale aux lois extraterritoriales ?',
+      stem: 'Quelle qualification ANSSI s’applique à des offres cloud selon un référentiel d’exigences techniques, opérationnelles et juridiques ?',
       opts: [
         'ISO 9001',
         'SecNumCloud',
@@ -165,7 +165,7 @@ module.exports = {
         'HIPAA'
       ],
       correct: 1,
-      exp: 'SecNumCloud est le visa de sécurité souverain élaboré par l’ANSSI pour qualifier les offres Cloud de confiance répondant aux normes de cybersécurité les plus strictes d’Europe.'
+      exp: 'SecNumCloud qualifie une offre et son périmètre sous conditions ; il ne remplace pas l’analyse de risques et les obligations légales applicables.'
     },
     {
       stem: 'Quelle est la principale différence entre le chiffrement de données SSE-S3 et le chiffrement SSE-KMS avec clé CMK ?',
@@ -231,7 +231,7 @@ module.exports = {
     },
     {
       q: 'Quels sont les atouts clés de la qualification SecNumCloud de l’ANSSI ?',
-      a: 'Une sécurité technique de niveau militaire et une immunité juridique absolue face aux législations extraterritoriales (fournisseur et capitaux européens).'
+      a: 'Des exigences techniques, opérationnelles et juridiques sur une offre qualifiée, visant à réduire certains risques. Les conditions et limites de la qualification doivent être vérifiées ; aucune immunité absolue n’est déduite.'
     },
     {
       q: 'Que fait un outil de CSPM (Cloud Security Posture Management) ?',

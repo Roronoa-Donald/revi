@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 5 — Tunnels VPN Sécurisés : OpenVPN (SSL/TLS) &amp;amp; IPsec Site-à-Site | pfSense &amp; Routage B3</title>
-<meta name="description" content="Chapitre 5 du cours pfSense &amp; Routage B3 : PKI interne pfSense, OpenVPN nomade SSL/TLS, révocation CRL, IPsec IKEv2 site-à-site, conformité cryptographique ANSSI et Split vs Full Tunneling. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta name="description" content="Chapitre 5 du cours pfSense &amp; Routage B3 : PKI interne pfSense, OpenVPN nomade SSL/TLS, révocation CRL, IPsec IKEv2 site-à-site, choix cryptographiques et Split vs Full Tunneling. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b3-pfsense/chapitres/chapitre5.html">
 <meta property="og:title" content="Chapitre 5 — Tunnels VPN Sécurisés : OpenVPN (SSL/TLS) &amp;amp; IPsec Site-à-Site | pfSense &amp; Routage B3">
-<meta property="og:description" content="Chapitre 5 du cours pfSense &amp; Routage B3 : PKI interne pfSense, OpenVPN nomade SSL/TLS, révocation CRL, IPsec IKEv2 site-à-site, conformité cryptographique ANSSI et Split vs Full Tunneling. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:description" content="Chapitre 5 du cours pfSense &amp; Routage B3 : PKI interne pfSense, OpenVPN nomade SSL/TLS, révocation CRL, IPsec IKEv2 site-à-site, choix cryptographiques et Split vs Full Tunneling. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -51,7 +51,7 @@
 </div></nav>
 
 <main id="content" class="b3-pfsensewrap">
-<p class="crumb"><a href="../index.html">pfSense & Routage B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+<p class="crumb"><a href="../index.html">pfSense &amp; Routage B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
 
 <h1>Chapitre 5 — Tunnels VPN Sécurisés : OpenVPN (SSL/TLS) &amp; IPsec Site-à-Site</h1>
 
@@ -63,7 +63,7 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Avec la généralisation du télétravail et l’interconnexion de sites géographiquement distants (siège social, filiales, datacenters), le réseau étendu de l’entreprise repose sur des tunnels chiffrés traversant l’Internet non sécurisé. pfSense intègre une infrastructure à clés publiques (PKI X.509) native ainsi que les deux piliers industriels du VPN : OpenVPN (SSL/TLS) pour les accès nomades flexibles et IPsec IKEv2 pour les liaisons site-à-site haute performance. L’ingénieur sécurité doit maîtriser la gestion de la chaîne de confiance et des listes de révocation (CRL), proscrire les suites cryptographiques obsolètes (DES, 3DES, MD5) au profit des recommandations de l’ANSSI (AES-GCM, SHA-384, courbes elliptiques), et arbitrer rigoureusement entre les politiques de Split Tunneling et de Full Tunneling.</p>
+    <p>Avec la généralisation du télétravail et l’interconnexion de sites géographiquement distants (siège social, filiales, datacenters), le réseau étendu de l’entreprise repose sur des tunnels chiffrés traversant l’Internet non sécurisé. pfSense intègre une infrastructure à clés publiques (PKI X.509) native ainsi que les deux piliers industriels du VPN : OpenVPN (SSL/TLS) pour les accès nomades flexibles et IPsec IKEv2 pour les liaisons site-à-site haute performance. L’ingénieur sécurité doit maîtriser la chaîne de confiance et les listes de révocation (CRL), choisir les paramètres cryptographiques selon une politique datée et la compatibilité des pairs, et arbitrer entre Split Tunneling et Full Tunneling.</p>
   </div>
 
   <div class="box box--objectifs">
@@ -74,18 +74,18 @@
       <li>gérer le cycle de vie des certificats numériques clients et révoquer les accès compromis via la CRL ;</li>
       <li>configurer un serveur OpenVPN nomade sécurisé en mode SSL/TLS + User Auth (double authentification) ;</li>
       <li>interconnecter deux infrastructures d’entreprise via un tunnel IPsec IKEv2 site-à-site avec négociation Phase 1 et Phase 2 ;</li>
-      <li>auditer et conformer les propositions cryptographiques aux directives de sécurité de l’ANSSI et du NIST ;</li>
-      <li>analyser et résoudre méthodologiquement des validateurs de certificats PKI, des auditeurs de propositions IPsec et des calculateurs de routage VPN.</li>
+      <li>évaluer les propositions cryptographiques selon une politique datée et les capacités des deux pairs ;</li>
+      <li>analyser des grilles pédagogiques de certificats PKI, de propositions IPsec et de routage VPN.</li>
     </ol>
   </div>
 
 <h2>1. Prérequis intégré : Fondements de la PKI X.509 et des phases IPsec IKEv2 (lien avec Cryptographie B3)</h2>
 
-<div class="box box--intuition"><div class="box__title">Maîtriser les briques cryptographiques avant de configurer OpenVPN et IPsec (voir aussi le cours Cryptographie &amp; PKI B3)</div><ul><li><strong>PKI X.509 (Infrastructure à Clés Publiques) :</strong> une Autorité de Certification racine (<strong>CA</strong>) signe numériquement le certificat du serveur VPN et les certificats des clients. La <strong>CRL (Certificate Revocation List)</strong> est la liste noire permettant d’invalider immédiatement un certificat volé ou compromis ;</li><li><strong>IPsec IKEv2 en deux phases :</strong> la <strong>Phase 1 (IKE SA)</strong> authentifie les deux pare-feux entre eux et établit un canal de contrôle chiffré grâce à l’échange de clés <em>Diffie-Hellman</em>, au chiffrement symétrique <em>AES-GCM</em> et à l’empreinte <em>SHA-256</em> ; la <strong>Phase 2 (Child SA / ESP)</strong> chiffre et achemine ensuite les paquets de données réels entre les sous-réseaux distants.</li></ul></div>
+<div class="box box--intuition"><div class="box__title">Maîtriser les briques cryptographiques avant de configurer OpenVPN et IPsec (voir aussi le cours Cryptographie &amp; PKI B3)</div><ul><li><strong>PKI X.509 (Infrastructure à Clés Publiques) :</strong> une Autorité de Certification racine (<strong>CA</strong>) signe numériquement le certificat du serveur VPN et les certificats des clients. La <strong>CRL (Certificate Revocation List)</strong> signale les certificats révoqués ; son effet dépend de sa publication, de sa mise à jour et de son contrôle effectif par le service ;</li><li><strong>IPsec IKEv2 en deux phases :</strong> la <strong>Phase 1 (IKE SA)</strong> authentifie les deux pare-feux entre eux et établit un canal de contrôle chiffré grâce à l’échange de clés <em>Diffie-Hellman</em>, au chiffrement symétrique <em>AES-GCM</em> et à l’empreinte <em>SHA-256</em> ; la <strong>Phase 2 (Child SA / ESP)</strong> chiffre et achemine ensuite les paquets de données réels entre les sous-réseaux distants.</li></ul></div>
 
 <h2>2. Infrastructure à Clés Publiques (PKI X.509) Interne sous pfSense</h2>
 
-<p>Pour authentifier de manière irréfutable les serveurs et les postes clients distants, pfSense intègre un gestionnaire complet de certificats numériques (<em>System &gt; Cert. Manager</em>) permettant d’opérer en tant qu’<strong>Autorité de Certification (CA) racine</strong> d’entreprise.</p>
+<p>Pour authentifier les serveurs et les postes clients distants, pfSense intègre un gestionnaire de certificats numériques (<em>System &gt; Certificates</em>, appelé <em>Cert. Manager</em> selon la version) permettant d’opérer en tant qu’<strong>Autorité de Certification (CA) racine</strong> d’entreprise.</p>
 <div class="grid grid-2">
   <div class="card">
     <h4>1. La Chaîne de Confiance X.509</h4>
@@ -100,11 +100,15 @@
     <h4>2. Révocation et Liste de Révocation (CRL)</h4>
     <p>Lorsqu’un ordinateur portable d’employé est volé ou qu’un contrat prend fin, la clé privée du certificat est considérée comme compromise :</p>
     <ul>
-      <li><strong>Certificate Revocation List (CRL) :</strong> Fichier signé par la CA recensant les numéros de série (Serial Numbers) des certificats invalidés avant leur date d’expiration.</li>
-      <li>À chaque tentative de négociation VPN, pfSense consulte la CRL : si le certificat présenté y figure, la connexion est immédiatement rejetée.</li>
+      <li><strong>Certificate Revocation List (CRL) :</strong> liste signée recensant les numéros de série des certificats révoqués avant expiration. La révocation doit être publiée puis la CRL distribuée et actualisée sur le serveur : un délai peut donc subsister entre le signalement et sa prise en compte.</li>
+      <li>Dans <em>VPN &gt; OpenVPN &gt; Servers</em>, modifier les paramètres cryptographiques du serveur : <strong>Peer Certificate Revocation List</strong> est facultatif et doit être réglé sur la CRL pertinente. Lorsqu’une CRL appropriée, valide et à jour est effectivement lue et contient le numéro du certificat, une nouvelle connexion utilisant ce certificat est refusée. Les libellés peuvent varier selon la version.</li>
+      <li>Une CRL importée depuis une CA externe doit être mise à jour dans pfSense ; vérifier son émetteur, sa signature, ses dates <code>thisUpdate</code> et <code>nextUpdate</code>, ainsi que le numéro de série. Une liste encore valide peut ne pas contenir une révocation pas encore publiée.</li>
+      <li>La documentation OpenVPN 2.6 indique qu’une CRL pertinente manquante peut produire un avertissement tout en laissant la connexion se poursuivre. Ne pas présumer d’un refus automatique : contrôler la configuration et les journaux, puis effectuer, dans un environnement autorisé, une tentative avec un certificat de test révoqué et une autre avec un certificat non révoqué.</li>
+      <li>La mise à jour de la CRL ne garantit pas la coupure d’une session déjà établie : déconnecter séparément la session compromise et vérifier qu’une reconnexion est refusée.</li>
     </ul>
   </div>
 </div>
+<p><small>Sources consultées le 30 octobre 2026 : <a href="https://www.rfc-editor.org/rfc/rfc5280.html#section-3.3">RFC 5280, § 3.3 et 5.1.2.5 (mai 2008)</a> ; <a href="https://docs.netgate.com/pfsense/en/latest/vpn/openvpn/configure-server-crypto.html">Netgate, paramètres cryptographiques OpenVPN (23 décembre 2025)</a> ; <a href="https://docs.netgate.com/pfsense/en/latest/certificates/crl.html">Netgate, gestion des CRL (15 décembre 2025)</a> ; <a href="https://openvpn.net/community-docs/community-articles/openvpn-2-6-manual/">manuel OpenVPN 2.6, option crl-verify</a>.</small></p>
 
 <h2>3. Passerelle OpenVPN Nomade : SSL/TLS, Client Export &amp; Routage</h2>
 
@@ -140,31 +144,35 @@
     </ul>
   </div>
   <div class="card">
-    <h4>2. Exigences Cryptographiques ANSSI</h4>
-    <p>Pour être conforme aux référentiels de sécurité actuels :</p>
+    <h4>2. Choix cryptographiques et compatibilité IKEv2</h4>
+    <p>Ces exemples ne suffisent pas à établir une conformité ANSSI ou NIST : appliquer la politique datée de l’organisation et vérifier les paramètres disponibles et communs aux deux pairs.</p>
     <ul>
-      <li><strong>Proscrire formellement :</strong> DES, 3DES, Blowfish, MD5, SHA-1 et les groupes DH inférieurs à 14 (DH 1, 2, 5 cassés ou vulnérables).</li>
+      <li><strong>À écarter :</strong> DES, 3DES, Blowfish, MD5, SHA-1 et les groupes DH 1, 2, 5, 22, 23 et 24 selon la politique retenue. En particulier, le groupe 22 est un groupe MODP 1024 bits déprécié, et non une courbe P-256.</li>
       <li><strong>Chiffrement recommandé :</strong> AES-GCM (128 ou 256 bits) qui combine chiffrement et authentification en une seule opération (AEAD), ou AES-CBC avec HMAC-SHA256.</li>
-      <li><strong>Échange de clés :</strong> Groupe Diffie-Hellman 14 (MODP 2048 bits), Groupe 19 (Courbe elliptique NIST P-256) ou Groupe 20 (P-384).</li>
+      <li><strong>Exemples d’échange de clés :</strong> groupe 14 (MODP 2048 bits), groupe 19 (ECP P-256) ou groupe 20 (ECP P-384), si autorisés et compatibles. Les identifiants IANA ne sont pas ordonnés par force : un groupe non cité, comme 31 (Curve25519), ne doit être ni approuvé ni qualifié de faible sur son seul numéro.</li>
+      <li><strong>Phase 2 et PFS :</strong> une phase 2 peut être configurée sans échange DH supplémentaire. Pour IKEv2, le premier Child SA utilise le groupe de la phase 1 ; le réglage PFS de phase 2 intervient pour les Child SA suivants et les renouvellements. Vérifier les propositions et la prise en charge des deux côtés.</li>
     </ul>
   </div>
 </div>
+<p><small>Sources consultées le 30 octobre 2026 : <a href="https://www.iana.org/assignments/ikev2-parameters/ikev2-parameters.xhtml">registre IANA IKEv2, type 4 (mis à jour le 28 octobre 2026)</a> ; <a href="https://www.rfc-editor.org/rfc/rfc8247.html#section-2.4">RFC 8247, § 2.4 (septembre 2017)</a>, mise à jour par la <a href="https://www.rfc-editor.org/rfc/rfc9395.html">RFC 9395 (avril 2023)</a> ; <a href="https://docs.netgate.com/pfsense/en/latest/vpn/ipsec/configure-p1.html">Netgate, phase 1 IPsec (23 décembre 2025)</a>.</small></p>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="pf3-c5-e1" data-lab
      data-exercise="pf3-c5-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="CA cn=PFSENSE_INTERNAL_CA&#10;CRL revoked=104,109&#10;TIMESTAMP current=1700000000&#10;CERT id=C1 cn=alice issuer=PFSENSE_INTERNAL_CA serial=101 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000&#10;CERT id=C2 cn=bob issuer=PFSENSE_INTERNAL_CA serial=104 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000&#10;CERT id=C3 cn=eve issuer=ROGUE_CA serial=200 algo=RSA key_len=4096 valid_from=1690000000 valid_to=1720000000">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c5-e1) — Validateur de certificat X.509 et chaîne de confiance PKI OpenVPN
+     data-stdin="CA cn=PFSENSE_INTERNAL_CA&#10;CRL selected=YES state=CURRENT revoked=104,109&#10;TIMESTAMP current=1700000000&#10;CERT id=C1 cn=alice issuer=PFSENSE_INTERNAL_CA serial=101 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000&#10;CERT id=C2 cn=bob issuer=PFSENSE_INTERNAL_CA serial=104 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000&#10;CERT id=C3 cn=eve issuer=ROGUE_CA serial=200 algo=RSA key_len=4096 valid_from=1690000000 valid_to=1720000000">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c5-e1) — Analyse pédagogique de certificats et de CRL OpenVPN
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
 [Cas 1 — Certificat expiré ou pas encore valide]
 # Données : CA cn=ROOT_CA
-# Données : CRL revoked=NONE
+# Données : CRL selected=YES state=CURRENT revoked=NONE
 # Données : TIMESTAMP current=1700000000
 # Données : CERT id=EXP cn=charlie issuer=ROOT_CA serial=110 algo=RSA key_len=2048 valid_from=1600000000 valid_to=1650000000
 # Données : CERT id=FUT cn=david issuer=ROOT_CA serial=111 algo=RSA key_len=2048 valid_from=1750000000 valid_to=1800000000
@@ -172,62 +180,79 @@ A_COMPLETER
 
 [Cas 2 — Clé RSA faible ou algorithme DSA obsolète]
 # Données : CA cn=COMPANY_CA
-# Données : CRL revoked=NONE
+# Données : CRL selected=YES state=CURRENT revoked=NONE
 # Données : TIMESTAMP current=1700000000
 # Données : CERT id=WEAK cn=legit issuer=COMPANY_CA serial=120 algo=RSA key_len=1024 valid_from=1690000000 valid_to=1710000000
 # Données : CERT id=DSA_LEGACY cn=oldgw issuer=COMPANY_CA serial=121 algo=DSA key_len=1024 valid_from=1690000000 valid_to=1710000000
 # Données : CERT id=ECDSA_OK cn=modern issuer=COMPANY_CA serial=122 algo=ECDSA key_len=256 valid_from=1690000000 valid_to=1710000000
 A_COMPLETER
 
-[Cas 3 — CRL vide avec certificat valide]
+[Cas 3 — CRL appliquée avec certificat révoqué et témoin]
 # Données : CA cn=TEST_CA
-# Données : CRL revoked=NONE
+# Données : CRL selected=YES state=CURRENT revoked=999
 # Données : TIMESTAMP current=1700000000
-# Données : CERT id=TEST cn=testuser issuer=TEST_CA serial=999 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000
+# Données : CERT id=REVOKED cn=testuser issuer=TEST_CA serial=999 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000
+# Données : CERT id=GOOD cn=control issuer=TEST_CA serial=1000 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000
+A_COMPLETER
+
+[Cas 4 — CRL non sélectionnée]
+# Données : CA cn=TEST_CA
+# Données : CRL selected=NO state=MISSING revoked=NONE
+# Données : TIMESTAMP current=1700000000
+# Données : CERT id=NO_CRL cn=testuser issuer=TEST_CA serial=999 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000
+A_COMPLETER
+
+[Cas 5 — CRL sélectionnée mais obsolète]
+# Données : CA cn=TEST_CA
+# Données : CRL selected=YES state=STALE revoked=NONE
+# Données : TIMESTAMP current=1700000000
+# Données : CERT id=STALE_CRL cn=testuser issuer=TEST_CA serial=999 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000
+A_COMPLETER
+
+[Cas 6 — CRL sélectionnée mais indisponible]
+# Données : CA cn=TEST_CA
+# Données : CRL selected=YES state=MISSING revoked=NONE
+# Données : TIMESTAMP current=1700000000
+# Données : CERT id=MISSING_CRL cn=testuser issuer=TEST_CA serial=999 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Validateur de certificat X.509 et chaîne de confiance PKI OpenVPN</h3>
+    <h3 class="lab__title">Exercice 1 — Analyse pédagogique de certificats et de CRL OpenVPN</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité cryptographique et l'état de révocation des certificats clients pour le serveur OpenVPN.</p>
-    <div class="lab__brief"><p>Dans pfSense (<em>System &gt; Cert. Manager</em>), l'authentification des clients <strong>OpenVPN</strong> repose sur une Autorité de Certification (CA) interne et une liste de révocation (CRL). Un certificat n'est accepté que s'il est valide temporellement, signé par la CA racine, non révoqué et basé sur une cryptographie robuste.<br><br>
-Analysez les paramètres du problème pour chaque cas...|NONE&gt;</code><br>
-- L'horodatage courant d'audit :<br>
-  <code>TIMESTAMP current=&lt;int&gt;</code><br>
-- Les certificats présentés par les clients VPN :<br>
-  <code>CERT id=&lt;nom&gt; cn=&lt;nom_client&gt; issuer=&lt;nom_ca&gt; serial=&lt;int&gt; algo=&lt;RSA|ECDSA|DSA&gt; key_len=&lt;int&gt; valid_from=&lt;int&gt; valid_to=&lt;int&gt;</code><br><br>
-Règles de validation (ordre de priorité des rejets) :<br>
-1. Si <code>issuer != CA.cn</code> : <code>status=REJECTED reason=UNTRUSTED_ISSUER</code>.<br>
-2. Si <code>serial</code> est dans la liste <code>revoked</code> : <code>status=REJECTED reason=REVOKED_CERTIFICATE</code>.<br>
-3. Si <code>current &lt; valid_from</code> : <code>status=REJECTED reason=NOT_YET_VALID</code>.<br>
-4. Si <code>current &gt; valid_to</code> : <code>status=REJECTED reason=EXPIRED_CERTIFICATE</code>.<br>
-5. Si <code>algo == 'DSA'</code> : <code>status=REJECTED reason=INSECURE_ALGORITHM</code>.<br>
-6. Si <code>algo == 'RSA' et key_len &lt; 2048</code> : <code>status=REJECTED reason=WEAK_KEY_LENGTH</code>.<br>
-7. Sinon : <code>status=ACCEPTED reason=VALID_CREDENTIALS</code>.<br><br>
-Pour chaque certificat, afficher :<br>
-<code>OPENVPN_PKI id={id} status={status} reason={reason} client={cn} serial={serial}</code></p></div>
+    <p class="lab__formative-notice" id="pf3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les certificats et l'état d'une CRL dans un modèle pédagogique OpenVPN.</p>
+    <div class="lab__brief"><p>Cette grille est un <strong>modèle pédagogique</strong>, pas une validation de PKI ni une prédiction du comportement d'un serveur OpenVPN réel. L'égalité entre noms d'émetteurs ne vérifie aucune signature, chaîne de confiance ou authentification supplémentaire. Une CRL est facultative et sa publication peut être retardée ; une session déjà établie n'est pas traitée ici.</p>
+<p>Chaque cas fournit une autorité <code>CA cn=&lt;nom&gt;</code>, une liste <code>CRL selected=&lt;YES|NO&gt; state=&lt;CURRENT|STALE|MISSING&gt; revoked=&lt;numéros|NONE&gt;</code>, un instant <code>TIMESTAMP current=&lt;int&gt;</code> et des lignes <code>CERT id=&lt;nom&gt; cn=&lt;client&gt; issuer=&lt;nom_ca&gt; serial=&lt;int&gt; algo=&lt;RSA|ECDSA|DSA&gt; key_len=&lt;int&gt; valid_from=&lt;int&gt; valid_to=&lt;int&gt;</code>. Les numéros révoqués sont séparés par des virgules ; <code>NONE</code> signifie qu'aucun numéro n'est fourni, et ne prouve pas qu'une CRL absente ou obsolète est vide.</p>
+<p>Dans ce modèle, <code>CURRENT</code> signifie que la CRL pertinente est supposée valide et appliquée ; <code>STALE</code> désigne une liste obsolète ou périmée et <code>MISSING</code> une liste indisponible. Même une liste valide ne renseigne que sur les révocations qui y ont déjà été publiées. <code>INDETERMINATE</code> indique un état de révocation non établi, et non un refus réel : OpenVPN peut se comporter différemment selon sa configuration et sa version.</p>
+<p>Appliquer la première règle correspondante, dans cet ordre :</p>
+<ol>
+<li>Si <code>issuer != CA.cn</code> : <code>status=REJECTED reason=UNTRUSTED_ISSUER</code>.</li>
+<li>Si <code>current &lt; valid_from</code> : <code>status=REJECTED reason=NOT_YET_VALID</code> ; si <code>current &gt; valid_to</code> : <code>status=REJECTED reason=EXPIRED_CERTIFICATE</code>.</li>
+<li>Si <code>algo == DSA</code> : <code>status=REJECTED reason=INSECURE_ALGORITHM</code> ; si <code>algo == RSA</code> et <code>key_len &lt; 2048</code> : <code>status=REJECTED reason=WEAK_KEY_LENGTH</code>.</li>
+<li>Si <code>selected == NO</code> : <code>status=INDETERMINATE reason=CRL_NOT_CONFIGURED</code>.</li>
+<li>Si la CRL sélectionnée a l'état <code>MISSING</code> : <code>status=INDETERMINATE reason=CRL_UNAVAILABLE</code> ; si elle a l'état <code>STALE</code> : <code>status=INDETERMINATE reason=CRL_STALE</code>.</li>
+<li>Avec une CRL <code>CURRENT</code>, si <code>serial</code> figure dans <code>revoked</code> : <code>status=REJECTED reason=REVOKED_CERTIFICATE</code>. Sinon : <code>status=ACCEPTED reason=VALID_CREDENTIALS</code>, uniquement au regard des données du modèle.</li>
+</ol>
+<p>Pour chaque certificat, saisir une ligne : <code>OPENVPN_PKI id={id} status={status} reason={reason} client={cn} serial={serial}</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CA cn=PFSENSE_INTERNAL_CA
-CRL revoked=104,109
+CRL selected=YES state=CURRENT revoked=104,109
 TIMESTAMP current=1700000000
 CERT id=C1 cn=alice issuer=PFSENSE_INTERNAL_CA serial=101 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000
 CERT id=C2 cn=bob issuer=PFSENSE_INTERNAL_CA serial=104 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000
 CERT id=C3 cn=eve issuer=ROGUE_CA serial=200 algo=RSA key_len=4096 valid_from=1690000000 valid_to=1720000000</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>OPENVPN_PKI id=C1 status=ACCEPTED reason=VALID_CREDENTIALS client=alice serial=101
-OPENVPN_PKI id=C2 status=REJECTED reason=REVOKED_CERTIFICATE client=bob serial=104
-OPENVPN_PKI id=C3 status=REJECTED reason=UNTRUSTED_ISSUER client=eve serial=200</pre></div>
     </div>
-    <p class="lab__note">C1 est accepté, C2 est révoqué dans la CRL, C3 est signé par une autorité non reconnue.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Stocker les numéros de série révoqués dans un set.</li>
-        <li>Suivre précisément l'ordre des vérifications de sécurité.</li>
+        <li>Appliquer les rejets connus, puis vérifier la sélection, l'état et le contenu de la CRL.</li>
+        <li>INDETERMINATE signale une information insuffisante : il ne prédit pas la décision réelle d'OpenVPN.</li>
       </ol>
     </details>
   </div>
@@ -237,63 +262,71 @@ OPENVPN_PKI id=C3 status=REJECTED reason=UNTRUSTED_ISSUER client=eve serial=200<
      data-exercise="pf3-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="IKE_PROPOSAL id=PROP1 phase=1 enc=AES-GCM key_len=256 hash=SHA384 dh_group=19&#10;IKE_PROPOSAL id=PROP2 phase=1 enc=3DES key_len=168 hash=SHA256 dh_group=14&#10;IKE_PROPOSAL id=PROP3 phase=2 enc=AES-CBC key_len=128 hash=MD5 dh_group=14&#10;IKE_PROPOSAL id=PROP4 phase=1 enc=AES-CBC key_len=128 hash=SHA256 dh_group=14">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c5-e2) — Validateur de proposition cryptographique IPsec (IKEv2 & ESP)
+     data-stdin="IKE_PROPOSAL id=PROP1 phase=1 enc=AES-GCM key_len=256 hash=SHA384 dh_group=19&#10;IKE_PROPOSAL id=PROP2 phase=1 enc=3DES key_len=168 hash=SHA256 dh_group=14&#10;IKE_PROPOSAL id=PROP3 phase=2 enc=AES-CBC key_len=128 hash=MD5 dh_group=14&#10;IKE_PROPOSAL id=PROP4 phase=1 enc=AES-CBC key_len=128 hash=SHA256 dh_group=14&#10;IKE_PROPOSAL id=PROP5 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=22&#10;IKE_PROPOSAL id=PROP6 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=31">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c5-e2) — Classement pédagogique de propositions IKEv2 (IPsec)
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
-[Cas 1 — Rejet du groupe DH 2 obsolète]
-# Données : IKE_PROPOSAL id=WEAK_DH phase=1 enc=AES-CBC key_len=256 hash=SHA256 dh_group=2
+[Cas 1 — Groupes déconseillés ou dépréciés]
+# Données : IKE_PROPOSAL id=WEAK_DH2 phase=1 enc=AES-CBC key_len=256 hash=SHA256 dh_group=2
+# Données : IKE_PROPOSAL id=WEAK_DH22 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=22
+# Données : IKE_PROPOSAL id=WEAK_DH23 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=23
+# Données : IKE_PROPOSAL id=WEAK_DH24 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=24
 A_COMPLETER
 
-[Cas 2 — Rejet de clé AES trop courte (< 128)]
+[Cas 2 — Groupes hors de cette politique]
+# Données : IKE_PROPOSAL id=GROUP15 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=15
+# Données : IKE_PROPOSAL id=GROUP21 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=21
+# Données : IKE_PROPOSAL id=GROUP31 phase=2 enc=AES-GCM key_len=256 hash=SHA256 dh_group=31
+A_COMPLETER
+
+[Cas 3 — Limites de clé et niveau standard]
 # Données : IKE_PROPOSAL id=SHORT_KEY phase=2 enc=AES-CBC key_len=64 hash=SHA256 dh_group=14
+# Données : IKE_PROPOSAL id=MODP14 phase=1 enc=AES-CBC key_len=256 hash=SHA256 dh_group=14
+# Données : IKE_PROPOSAL id=ECP19_128 phase=1 enc=AES-GCM key_len=128 hash=SHA256 dh_group=19
 A_COMPLETER
 
-[Cas 3 — Validation proposition Phase 2 moderne ChaCha20]
+[Cas 4 — Niveau pédagogique HIGH sur groupes retenus]
+# Données : IKE_PROPOSAL id=ECP19_256 phase=1 enc=AES-GCM key_len=256 hash=SHA384 dh_group=19
+# Données : IKE_PROPOSAL id=ECP20_256 phase=1 enc=AES-CBC key_len=256 hash=SHA384 dh_group=20
 # Données : IKE_PROPOSAL id=CHACHA_MODERN phase=2 enc=CHACHA20-POLY1305 key_len=256 hash=SHA512 dh_group=20
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Validateur de proposition cryptographique IPsec (IKEv2 &amp; ESP)</h3>
+    <h3 class="lab__title">Exercice 2 — Classement pédagogique de propositions IKEv2 (IPsec)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Auditer la conformité ANSSI/NIST des propositions IKEv2 Phase 1 et Phase 2 dans pfSense.</p>
-    <div class="lab__brief"><p>Lors de l'établissement d'un tunnel VPN <strong>IPsec Site-à-Site</strong>, pfSense négocie les paramètres de chiffrement (IKE Phase 1 et ESP Phase 2). Les algorithmes obsolètes ou cassés (DES, 3DES, MD5, groupes Diffie-Hellman faibles) doivent impérativement être rejetés.<br><br>
-Analysez les paramètres du problème pour chaque cas. Si <code>enc</code> figure parmi <code>DES, 3DES, RC4</code> :<br>
-   <code>status=REJECTED reason=INSECURE_CIPHER level=NONE</code>.<br>
-2. Si <code>hash</code> figure parmi <code>MD5, SHA1</code> :<br>
-   <code>status=REJECTED reason=WEAK_HASH level=NONE</code>.<br>
-3. Si <code>dh_group &lt; 14</code> (groupes 1, 2, 5 modp obsolètes) :<br>
-   <code>status=REJECTED reason=WEAK_DH_GROUP level=NONE</code>.<br>
-4. Si <code>enc in ['AES-CBC', 'AES-GCM'] et key_len &lt; 128</code> :<br>
-   <code>status=REJECTED reason=WEAK_KEY_LENGTH level=NONE</code>.<br>
-5. Si tous les critères sont satisfaits :<br>
-   <code>status=APPROVED reason=NONE</code>.<br>
-   Le niveau de sécurité est évalué :<br>
-   - Si <code>dh_group &gt;= 19</code> (courbes elliptiques NIST P-256 ou plus) et <code>key_len &gt;= 256</code> : <code>level=HIGH</code>.<br>
-   - Sinon : <code>level=STANDARD</code>.<br><br>
-Pour chaque proposition, afficher :<br>
-<code>IPSEC_AUDIT id={id} phase={phase} status={status} reason={reason} level={level}</code></p></div>
+    <p class="lab__formative-notice" id="pf3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Classer des propositions IKEv2 selon une politique pédagogique datée, sans présumer de leur compatibilité.</p>
+    <div class="lab__brief"><p>Cette grille applique une <strong>politique pédagogique version 2026-10-30</strong>, non exhaustive : elle ne démontre ni une conformité ANSSI/NIST ni la sécurité ou la compatibilité d'une configuration réelle. Les identifiants IANA ne sont pas ordonnés par force : 14 est MODP 2048 bits, 19 est P-256, 20 est P-384 et 22 est MODP 1024 bits déprécié. Le groupe 31 (Curve25519) est connu mais hors de cette politique, sans être qualifié de faible.</p>
+<p>Pour chaque ligne <code>IKE_PROPOSAL id=&lt;nom&gt; phase=&lt;1|2&gt; enc=&lt;algorithme&gt; key_len=&lt;int&gt; hash=&lt;algorithme&gt; dh_group=&lt;numéro&gt;</code>, <code>phase=1</code> représente l'échange IKE ; <code>phase=2</code> suppose un échange DH supplémentaire configuré pour PFS lors du renouvellement d'un Child SA. Une phase 2 sans PFS est hors de ce modèle. Le premier Child SA IKEv2 utilise le groupe de phase 1. Vérifier dans la réalité les versions et propositions des deux pairs ; le champ <code>hash</code> est un repère simplifié et ne représente pas nécessairement une intégrité ESP distincte pour un mode AEAD.</p>
+<p>Appliquer la première règle correspondante :</p>
+<ol>
+<li>Si <code>enc</code> appartient à <code>DES, 3DES, RC4</code> : <code>status=REJECTED reason=INSECURE_CIPHER level=NONE</code>.</li>
+<li>Si <code>hash</code> appartient à <code>MD5, SHA1</code> : <code>status=REJECTED reason=WEAK_HASH level=NONE</code>.</li>
+<li>Si <code>dh_group</code> appartient à <code>1, 2, 5, 22, 23, 24</code> : <code>status=REJECTED reason=WEAK_DH_GROUP level=NONE</code>.</li>
+<li>Si <code>dh_group</code> n'appartient pas à la liste retenue <code>14, 19, 20</code> : <code>status=REJECTED reason=NOT_IN_POLICY_GROUP level=NONE</code>. Cela signifie seulement que le groupe est hors de cette politique, pas qu'il est faible ou interdit partout.</li>
+<li>Si <code>enc</code> est <code>AES-CBC</code> ou <code>AES-GCM</code> et <code>key_len &lt; 128</code> : <code>status=REJECTED reason=WEAK_KEY_LENGTH level=NONE</code>.</li>
+<li>Sinon : <code>status=APPROVED reason=NONE</code> ; attribuer <code>level=HIGH</code> uniquement si <code>dh_group</code> vaut 19 ou 20 et <code>key_len &gt;= 256</code>, sinon <code>level=STANDARD</code>. Ces niveaux sont des étiquettes du modèle, pas une mesure de force ni une garantie réelle.</li>
+</ol>
+<p>Pour chaque proposition, saisir une ligne : <code>IPSEC_AUDIT id={id} phase={phase} status={status} reason={reason} level={level}</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>IKE_PROPOSAL id=PROP1 phase=1 enc=AES-GCM key_len=256 hash=SHA384 dh_group=19
 IKE_PROPOSAL id=PROP2 phase=1 enc=3DES key_len=168 hash=SHA256 dh_group=14
 IKE_PROPOSAL id=PROP3 phase=2 enc=AES-CBC key_len=128 hash=MD5 dh_group=14
-IKE_PROPOSAL id=PROP4 phase=1 enc=AES-CBC key_len=128 hash=SHA256 dh_group=14</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IPSEC_AUDIT id=PROP1 phase=1 status=APPROVED reason=NONE level=HIGH
-IPSEC_AUDIT id=PROP2 phase=1 status=REJECTED reason=INSECURE_CIPHER level=NONE
-IPSEC_AUDIT id=PROP3 phase=2 status=REJECTED reason=WEAK_HASH level=NONE
-IPSEC_AUDIT id=PROP4 phase=1 status=APPROVED reason=NONE level=STANDARD</pre></div>
+IKE_PROPOSAL id=PROP4 phase=1 enc=AES-CBC key_len=128 hash=SHA256 dh_group=14
+IKE_PROPOSAL id=PROP5 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=22
+IKE_PROPOSAL id=PROP6 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=31</pre></div>
     </div>
-    <p class="lab__note">PROP1 est approuvé en niveau HIGH (ECDH 19 + AES 256) ; PROP2 rejette 3DES ; PROP3 rejette MD5 ; PROP4 est standard.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Rejeter en priorité les chiffrements cassés (DES, 3DES, RC4).</li>
-        <li>Vérifier le groupe DH &gt;= 14 (DH 14 = 2048-bit MODP).</li>
+        <li>Appliquer les règles dans l'ordre, puis comparer le groupe à la liste explicite.</li>
+        <li>Un groupe hors politique, comme 31, n'est pas automatiquement faible ; HIGH est une étiquette pédagogique.</li>
       </ol>
     </details>
   </div>
@@ -332,10 +365,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Calculateur de routage de tunnel VPN (Split Tunneling vs Full Tunneling)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="pf3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Déterminer la passerelle de sortie pour le trafic client selon la configuration VPN Full ou Split Tunnel.</p>
     <div class="lab__brief"><p>Dans un déploiement client-à-passerelle (OpenVPN ou IPsec IKEv2 Mobile), le mode de routage détermine le chemin emprunté par les flux du télétravailleur :<br>
 - <strong>Full Tunneling (Redirect Gateway) :</strong> <em>tout</em> le trafic (y compris la navigation Internet personnelle) est encapsulé dans le VPN vers le pare-feu central.<br>
@@ -359,20 +394,17 @@ ROUTE subnet=172.16.50.0/24
 PACKET id=P1 dst_ip=10.5.20.1
 PACKET id=P2 dst_ip=8.8.8.8
 PACKET id=P3 dst_ip=172.16.50.10</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VPN_ROUTE id=P1 dst=10.5.20.1 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=10.0.0.0/8
-VPN_ROUTE id=P2 dst=8.8.8.8 tunnel=NO gw=192.168.1.1 path=DIRECT_INTERNET
-VPN_ROUTE id=P3 dst=172.16.50.10 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=172.16.50.0/24</pre></div>
     </div>
-    <p class="lab__note">P1 et P3 sont routés dans le tunnel VPN d'entreprise ; P2 (Google DNS) sort directement par la passerelle locale.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
         <li>Utiliser la notation CIDR du réseau et la notation CIDR du réseau.</li>
-        <li>Vérifier `ip in net` pour tester l'appartenance au sous-réseau.</li>
+        <li>Vérifier <code>ip in net</code> pour tester l'appartenance au sous-réseau.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -380,22 +412,22 @@ VPN_ROUTE id=P3 dst=172.16.50.10 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE sub
     <div class="q">
       <p class="q__stem">Où sont centralisées la création d’Autorités de Certification et l’émission de certificats sous pfSense ?</p>
       <div class="opts">
-        <button class="opt">Firewall > Rules</button>
-        <button class="opt" data-correct="1">System > Cert. Manager</button>
-        <button class="opt">VPN > OpenVPN > Clients</button>
-        <button class="opt">Status > Services</button>
+        <button class="opt">Firewall &gt; Rules</button>
+        <button class="opt" data-correct="1">System &gt; Certificates (Cert. Manager selon la version)</button>
+        <button class="opt">VPN &gt; OpenVPN &gt; Clients</button>
+        <button class="opt">Status &gt; Services</button>
       </div>
-      <div class="q__exp">Le menu System > Cert. Manager gère les CAs racines, les certificats serveurs/clients et les listes de révocation (CRL).</div>
+      <div class="q__exp">Le menu System &gt; Certificates (Cert. Manager selon la version) gère les CAs, les certificats serveurs/clients et les listes de révocation (CRL).</div>
     </div>
     <div class="q">
-      <p class="q__stem">Quel est le rôle d’une Certificate Revocation List (CRL) dans une PKI OpenVPN ?</p>
+      <p class="q__stem">Quand une CRL peut-elle bloquer une nouvelle connexion OpenVPN avec un certificat révoqué ?</p>
       <div class="opts">
-        <button class="opt">Accélérer la vitesse de téléchargement des fichiers</button>
-        <button class="opt" data-correct="1">Lister les numéros de série des certificats révoqués avant terme pour bloquer l’accès des postes compromis</button>
-        <button class="opt">Chiffrer les mots de passe des administrateurs</button>
-        <button class="opt">Générer automatiquement des clés SSH</button>
+        <button class="opt">Dès le signalement, même si la CRL n’est pas publiée ou sélectionnée</button>
+        <button class="opt" data-correct="1">Lorsque la CRL pertinente, à jour et sélectionnée est effectivement lue et contient le numéro du certificat</button>
+        <button class="opt">Toujours immédiatement, y compris pour toutes les sessions déjà établies</button>
+        <button class="opt">Uniquement lorsque la CRL est absente du serveur</button>
       </div>
-      <div class="q__exp">La CRL recense les certificats révoqués : pfSense vérifie cette liste pour interdire l’accès aux certificats compromis ou d’anciens collaborateurs.</div>
+      <div class="q__exp">La sélection de la CRL est facultative et sa publication peut prendre du temps. Vérifier la liste appliquée et la reconnexion ; une session existante peut nécessiter une déconnexion séparée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel port et protocole de transport sont utilisés par défaut pour les tunnels OpenVPN ?</p>
@@ -438,14 +470,14 @@ VPN_ROUTE id=P3 dst=172.16.50.10 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE sub
       <div class="q__exp">MD5 (tout comme SHA-1) présente des collisions cryptographiques prouvées et doit impérativement être banni des propositions IPsec et certificats.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Quel groupe Diffie-Hellman représente la taille minimale requise (MODP 2048 bits) en environnement moderne ?</p>
+      <p class="q__stem">Quelle association d’identifiants IKEv2 et de groupes est correcte ?</p>
       <div class="opts">
-        <button class="opt">Groupe 1 (768 bits)</button>
-        <button class="opt">Groupe 2 (1024 bits)</button>
-        <button class="opt" data-correct="1">Groupe 14 (2048 bits)</button>
-        <button class="opt">Groupe 5 (1536 bits)</button>
+        <button class="opt">Le groupe 22 est une courbe P-384 et tous les numéros supérieurs à 19 sont plus forts</button>
+        <button class="opt">Le groupe 14 est P-256 et le groupe 19 est MODP 1024 bits</button>
+        <button class="opt" data-correct="1">Le groupe 14 est MODP 2048 bits, le 19 est P-256 et le 22 est MODP 1024 bits déprécié</button>
+        <button class="opt">Tout groupe portant un numéro supérieur à 14 est automatiquement autorisé</button>
       </div>
-      <div class="q__exp">Le groupe Diffie-Hellman 14 (MODP 2048 bits) est le standard minimal contemporain : les groupes 1, 2 et 5 sont obsolètes et vulnérables.</div>
+      <div class="q__exp">Le registre IANA attribue ces identifiants sans classement par force. Le choix dépend de la politique datée et de la compatibilité des deux pairs.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l’avantage majeur du chiffrement AES-GCM par rapport à AES-CBC dans IPsec ?</p>
@@ -464,9 +496,9 @@ VPN_ROUTE id=P3 dst=172.16.50.10 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE sub
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
     <ul>
-      <li>Oublier d’associer la liste CRL dans la configuration du serveur OpenVPN, rendant la révocation inefficace.</li>
+      <li>Oublier de sélectionner ou d’actualiser la CRL du serveur OpenVPN, ou supposer qu’une session active est automatiquement coupée.</li>
       <li>Utiliser le mode OpenVPN en clé partagée statique (Shared Key) pour des déploiements multi-utilisateurs.</li>
-      <li>Conserver des groupes Diffie-Hellman obsolètes (DH 2 ou DH 5) par habitude sur des liaisons IPsec.</li>
+      <li>Classer les groupes Diffie-Hellman par numéro et accepter à tort le groupe 22 déprécié.</li>
       <li>Configurer le Full Tunneling sans anticiper la saturation de la bande passante descendante du WAN d’entreprise.</li>
     </ul>
   </div>
@@ -476,11 +508,11 @@ VPN_ROUTE id=P3 dst=172.16.50.10 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE sub
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
     <ol>
-      <li>Étape 1 : Créer l’Autorité de Certification racine (CA) interne dans System > Cert. Manager.</li>
+      <li>Étape 1 : Créer l’Autorité de Certification racine (CA) interne dans System &gt; Certificates (Cert. Manager selon la version).</li>
       <li>Étape 2 : Émettre le certificat du serveur OpenVPN et générer les certificats utilisateurs individuels.</li>
-      <li>Étape 3 : Créer la liste de révocation (CRL) et l’associer au serveur OpenVPN pour la gestion des départs.</li>
+      <li>Étape 3 : Publier la CRL, la sélectionner sur le serveur OpenVPN, la maintenir à jour et vérifier le refus d’un certificat de test révoqué ; déconnecter séparément les sessions compromises.</li>
       <li>Étape 4 : Déployer le serveur OpenVPN en mode SSL/TLS + User Auth et configurer le réseau de tunnel (IPv4 Tunnel Network).</li>
-      <li>Étape 5 : Pour les liaisons inter-sites, configurer IPsec IKEv2 Phase 1 (DH 14+, AES-GCM) et Phase 2 (ESP).</li>
+      <li>Étape 5 : Pour les liaisons inter-sites, choisir des groupes IKEv2 explicitement autorisés et compatibles avec les deux pairs, puis configurer ESP et, si requis, PFS en phase 2.</li>
       <li>Étape 6 : Installer le package OpenVPN Client Export pour distribuer les profils .ovpn pré-configurés aux collaborateurs.</li>
     </ol>
   </div>
@@ -491,24 +523,24 @@ VPN_ROUTE id=P3 dst=172.16.50.10 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE sub
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
       <li>pfSense gère une PKI X.509 complète comprenant CA racine, certificats serveurs, certificats clients et listes CRL.</li>
-      <li>La CRL est contrôlée à chaque connexion VPN pour révoquer instantanément les certificats volés ou révoqués.</li>
+      <li>Une CRL sélectionnée, à jour et effectivement contrôlée bloque les nouvelles connexions dont le certificat y figure ; sa publication et sa mise à jour peuvent prendre du temps.</li>
       <li>OpenVPN en mode SSL/TLS + User Auth combine certificat cryptographique et identifiants utilisateur (2FA logique).</li>
       <li>Full Tunneling achemine 100% des flux par pfSense ; Split Tunneling cible uniquement les réseaux d’entreprise.</li>
       <li>IPsec IKEv2 négocie la gestion en Phase 1 (IKE SA) et le chiffrement des données métiers en Phase 2 (ESP).</li>
-      <li>L’ANSSI exige l’abandon de DES/3DES/MD5 au profit d’AES-GCM, SHA-256/384 et de groupes DH supérieurs ou égaux à 14.</li>
+      <li>Les groupes IKEv2 sont identifiés par une liste explicite, non par un seuil numérique : 22 est un groupe MODP 1024 bits déprécié malgré son numéro supérieur à 19.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
       <li>Je sais créer une Autorité de Certification (CA) interne et émettre un certificat utilisateur.</li>
-      <li>Je comprends le fonctionnement d’une CRL et son rôle lors de la compromission d’un certificat client.</li>
+      <li>Je sais sélectionner et actualiser une CRL, vérifier son application et traiter une session déjà établie.</li>
       <li>Je sais différencier les impacts techniques et sécuritaires du Split Tunneling et du Full Tunneling.</li>
       <li>Je connais la différence entre la Phase 1 (IKE SA) et la Phase 2 (Child SA / ESP) d’un tunnel IPsec.</li>
-      <li>Je sais identifier les suites cryptographiques interdites (DES, 3DES, MD5, SHA-1, DH < 14).</li>
+      <li>Je sais reconnaître les groupes 14, 19, 20 et 22 sans classer leur sécurité par numéro, et vérifier les capacités des pairs.</li>
       <li>Je sais pourquoi le protocole ESP (IP 50) est préféré pour le transport sécurisé inter-sites.</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>PKI X.509 & Autorité de Certification (CA)</li><li>Certificats Serveur & Certificats Clients</li><li>Certificate Revocation List (CRL)</li><li>OpenVPN (SSL/TLS + User Auth)</li><li>Split Tunneling vs Full Tunneling</li><li>IPsec IKEv2 Phase 1 & Phase 2</li><li>Protocole ESP (IP 50) & Chiffrement AES-GCM</li><li>Recommandations Cryptographiques ANSSI/NIST</li>
+      <li>PKI X.509 &amp; Autorité de Certification (CA)</li><li>Certificats Serveur &amp; Certificats Clients</li><li>Certificate Revocation List (CRL)</li><li>OpenVPN (SSL/TLS + User Auth)</li><li>Split Tunneling vs Full Tunneling</li><li>IPsec IKEv2 Phase 1 &amp; Phase 2</li><li>Protocole ESP (IP 50) &amp; Chiffrement AES-GCM</li><li>Politique cryptographique datée et compatibilité des pairs</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -520,7 +552,7 @@ VPN_ROUTE id=P3 dst=172.16.50.10 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE sub
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à articuler la chaîne de confiance X.509 ou confusion entre la Phase 1 et la Phase 2 IPsec.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Difficultés à articuler la chaîne de confiance X.509 ou confusion entre la Phase 1 et la Phase 2 IPsec.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Déploiement complet d’un serveur OpenVPN nomade avec CRL et configuration d’un tunnel IPsec site-à-site standard.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Conception d’architectures VPN d’entreprise résilientes, durcissement cryptographique de pointe (ANSSI/NIST) et gestion avancée de la PKI.</div>

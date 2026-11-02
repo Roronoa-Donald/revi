@@ -1,0 +1,74 @@
+{
+  "schema": "mutants-b3-linux-v1",
+  "construction": "Chaque variante remplace une seule occurrence du fragment avant par après dans le corrigé réellement chargé ; elle est exécutée comme programme Bash complet.",
+  "exercices": {
+    "lx3-c1-e1": [
+      {"nom": "soustraction_ticks", "defaut": "Soustrait le temps système au lieu de l'additionner.", "avant": "fields[\"utime\"] + fields[\"stime\"]", "apres": "fields[\"utime\"] - fields[\"stime\"]"},
+      {"nom": "pages_en_octets", "defaut": "Confond octets et Ko et attribue 4096 Ko à chaque page.", "avant": "fields[\"rss\"] * 4", "apres": "fields[\"rss\"] * 4096"}
+    ],
+    "lx3-c1-e2": [
+      {"nom": "kilo_decimal", "defaut": "Divise les tailles par 1000 au lieu de 1024.", "avant": "quotient = int(remainder / 1024)", "apres": "quotient = int(remainder / 1000)"},
+      {"nom": "wx_prive_seulement", "defaut": "Ne signale la violation W^X que pour une carte privée, pas partagée.", "avant": "index(fields[\"perms\"], \"w\") && index(fields[\"perms\"], \"x\")", "apres": "index(fields[\"perms\"], \"w\") && index(fields[\"perms\"], \"x\") && index(fields[\"perms\"], \"p\")"}
+    ],
+    "lx3-c2-e1": [
+      {"nom": "barre_nimporte_ou", "defaut": "Accepte un chemin relatif dès qu'il contient une barre oblique.", "avant": "substr(fields[\"exec_start\"], 1, 1) != \"/\"", "apres": "index(fields[\"exec_start\"], \"/\") == 0"},
+      {"nom": "cible_unique", "defaut": "N'accepte que multi-user.target et rejette les autres cibles renseignées.", "avant": "fields[\"wanted_by\"] == \"\" || fields[\"wanted_by\"] == \"NONE\"", "apres": "fields[\"wanted_by\"] != \"multi-user.target\""}
+    ],
+    "lx3-c2-e2": [
+      {"nom": "inverse_non_verifie", "defaut": "Vérifie de nouveau la dépendance de l'unité au lieu de celle de sa cible.", "avant": "target != \"NONE\" && dependency[target] == name", "apres": "target != \"NONE\" && dependency[name] == name"},
+      {"nom": "auto_sans_drapeau", "defaut": "Identifie l'auto-dépendance mais émet cycle=NON.", "avant": "reason = \"AUTO_DEPENDANCE\"; cycle = \"OUI\"", "apres": "reason = \"AUTO_DEPENDANCE\"; cycle = \"NON\""}
+    ],
+    "lx3-c2-e3": [
+      {"nom": "warning_alerte", "defaut": "Traite la priorité 4 comme une alerte critique.", "avant": "priority <= 3", "apres": "priority <= 4"},
+      {"nom": "notice_devenue_info", "defaut": "Attribue INFO au niveau NOTICE de priorité 5.", "avant": "labels[5] = \"NOTICE\"", "apres": "labels[5] = \"INFO\""}
+    ],
+    "lx3-c3-e1": [
+      {"nom": "pe_arrondi_inferieur", "defaut": "Tronque le nombre de PE requis au lieu de l'arrondir au supérieur.", "avant": "fields[\"lv_target_gb\"] * 1024 + size - 1", "apres": "fields[\"lv_target_gb\"] * 1024"},
+      {"nom": "gigaoctet_decimal", "defaut": "Calcule les PE disponibles avec 1000 Mo par Go au lieu de 1024.", "avant": "fields[\"total_pv_gb\"] * 1024 / size", "apres": "fields[\"total_pv_gb\"] * 1000 / size"}
+    ],
+    "lx3-c3-e2": [
+      {"nom": "raid6_une_panne", "defaut": "Réduit à une panne la tolérance RAID6.", "avant": "tolerance = fields[\"level\"] == \"RAID5\" ? 1 : 2", "apres": "tolerance = fields[\"level\"] == \"RAID5\" ? 1 : 1"},
+      {"nom": "miroir_dernier_disque", "defaut": "Déclare un miroir en échec dès qu'il ne reste qu'un disque actif.", "avant": "if (active == 0) state = \"FAILED\"", "apres": "if (active <= 1) state = \"FAILED\""}
+    ],
+    "lx3-c3-e3": [
+      {"nom": "pourcentage_arrondi", "defaut": "Arrondit le pourcentage de blocs au plus proche au lieu de le tronquer.", "avant": "blocks = int(fields[\"blocks_used\"] * 100 / fields[\"blocks_total\"])", "apres": "blocks = int((fields[\"blocks_used\"] * 100 + fields[\"blocks_total\"] / 2) / fields[\"blocks_total\"])"},
+      {"nom": "inode_sans_borne_60", "defaut": "Déclenche l'alerte inode jusqu'à 89 % de blocs au lieu de moins de 60 %.", "avant": "inodes >= 90 && blocks < 60", "apres": "inodes >= 90 && blocks < 90"}
+    ],
+    "lx3-c4-e1": [
+      {"nom": "namespace_net_omis", "defaut": "Omet le namespace réseau du décompte.", "avant": "fields[\"ns_net\"] + 0 != fields[\"host_net\"] + 0", "apres": "0"},
+      {"nom": "isolation_totale_exigee", "defaut": "Exige trois namespaces distincts au lieu d'au moins un.", "avant": "count > 0 ? \"OUI\" : \"NON\"", "apres": "count == 3 ? \"OUI\" : \"NON\""}
+    ],
+    "lx3-c4-e2": [
+      {"nom": "demi_dixieme_inferieur", "defaut": "Arrondit les valeurs exactement à mi-dixième vers le bas.", "avant": "fields[\"cpu_quota\"] * 10 + fields[\"cpu_period\"] / 2", "apres": "fields[\"cpu_quota\"] * 10 + fields[\"cpu_period\"] / 2 - 1"},
+      {"nom": "memoire_egalite_seule", "defaut": "Ne déclare la mémoire saturée qu'à égalité et ignore un dépassement.", "avant": "fields[\"mem_curr_mb\"] + 0 >= fields[\"mem_max_mb\"] + 0", "apres": "fields[\"mem_curr_mb\"] + 0 == fields[\"mem_max_mb\"] + 0"}
+    ],
+    "lx3-c4-e3": [
+      {"nom": "immunite_trop_large", "defaut": "Immunise aussi l'ajustement -999.", "avant": "adjustment == -1000", "apres": "adjustment <= -999"},
+      {"nom": "ajustement_signe_inverse", "defaut": "Soustrait l'ajustement au lieu de l'ajouter au score.", "avant": "fields[\"mem_mb\"] + adjustment", "apres": "fields[\"mem_mb\"] - adjustment"}
+    ],
+    "lx3-c5-e1": [
+      {"nom": "veth_double_obligation", "defaut": "Exige à tort que le veth ait à la fois un maître et une adresse.", "avant": "fields[\"type\"] == \"veth\" && fields[\"master\"] == \"NONE\" && fields[\"ip\"] == \"NONE\"", "apres": "fields[\"type\"] == \"veth\" && (fields[\"master\"] == \"NONE\" || fields[\"ip\"] == \"NONE\")"},
+      {"nom": "etat_veth_seulement", "defaut": "Ignore l'état DOWN des ponts et ne le contrôle que pour les veth.", "avant": "fields[\"state\"] != \"UP\"", "apres": "fields[\"state\"] != \"UP\" && fields[\"type\"] == \"veth\""}
+    ],
+    "lx3-c5-e2": [
+      {"nom": "source_ou_port", "defaut": "Accepte une règle si la source ou le port correspond, au lieu des deux.", "avant": "(source[position] == \"ANY\" || source[position] == fields[\"src\"]) && (port[position] == \"ANY\" || port[position] == fields[\"dport\"])", "apres": "((source[position] == \"ANY\" || source[position] == fields[\"src\"]) || (port[position] == \"ANY\" || port[position] == fields[\"dport\"]))"},
+      {"nom": "egalite_derniere_regle", "defaut": "En cas de priorité égale, remplace la première règle par la dernière.", "avant": "priority[position] < priority[best]", "apres": "priority[position] <= priority[best]"}
+    ],
+    "lx3-c5-e3": [
+      {"nom": "source_files_ignoree", "defaut": "Ignore les succès de la source files.", "avant": "fields[\"in_\" source] == \"OUI\"", "apres": "fields[\"in_\" source] == \"OUI\" && source != \"files\""},
+      {"nom": "arret_premier_echec", "defaut": "S'arrête dès qu'une source ne répond pas au lieu de poursuivre dans l'ordre.", "avant": "if (fields[\"in_\" source] == \"OUI\") { resolved = source; status = \"SUCCESS\"; break }", "apres": "if (fields[\"in_\" source] == \"OUI\") { resolved = source; status = \"SUCCESS\"; break } else { break }"}
+    ],
+    "lx3-c6-e1": [
+      {"nom": "comparaison_numerique", "defaut": "Convertit les chaînes en nombres et perd les zéros et les valeurs textuelles.", "avant": "\"value:\" fields[\"current\"] == \"value:\" fields[\"recommended\"]", "apres": "fields[\"current\"] + 0 == fields[\"recommended\"] + 0"},
+      {"nom": "prefixe_accepte", "defaut": "Accepte un simple préfixe au lieu de comparer les chaînes entières.", "avant": "\"value:\" fields[\"current\"] == \"value:\" fields[\"recommended\"]", "apres": "index(fields[\"recommended\"], fields[\"current\"]) == 1"}
+    ],
+    "lx3-c6-e2": [
+      {"nom": "required_oublie", "defaut": "Efface l'échec d'un module required et peut ensuite accorder l'accès.", "avant": "if (control == \"required\" && result == \"FAIL\") failed = 1", "apres": "if (control == \"required\" && result == \"FAIL\") failed = 0"},
+      {"nom": "requisite_continue", "defaut": "Mémorise l'échec requisite mais ne stoppe pas la chaîne.", "avant": "if (control == \"requisite\" && result == \"FAIL\") { failed = 1; stopped = 1; action = \"ABORT_FAIL\" }", "apres": "if (control == \"requisite\" && result == \"FAIL\") { failed = 1; action = \"CONTINUE\" }"}
+    ],
+    "lx3-c6-e3": [
+      {"nom": "uid_ou_euid", "defaut": "Prend une seule des deux conditions d'élévation comme suffisante.", "avant": "uid != 0 && euid == 0", "apres": "uid != 0 || euid == 0"},
+      {"nom": "echec_elevation_critique", "defaut": "Assimile une tentative d'élévation bloquée à une élévation réussie.", "avant": "fields[\"res\"] == \"success\" ? \"CRITICAL_ROOT_ELEVATION\" : \"BLOCKED_PRIVILEGE_ATTEMPT\"", "apres": "\"CRITICAL_ROOT_ELEVATION\""}
+    ]
+  }
+}

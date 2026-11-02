@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -51,7 +51,7 @@
 </div></nav>
 
 <main id="content" class="b3-githubwrap">
-<p class="crumb"><a href="../index.html">Git & GitHub B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+<p class="crumb"><a href="../index.html">Git &amp; GitHub B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
 
 <h1>Chapitre 3 — Diagnostic, Reflog &amp; Sauvetage de Données</h1>
 
@@ -75,7 +75,7 @@
       <li>analyser l’intégrité du magasin d’objets avec la commande de bas niveau git fsck ;</li>
       <li>maîtriser la recherche dichotomique binaire de régressions avec git bisect en mode interactif et automatisé (git bisect run) ;</li>
       <li>manipuler la pile de remisage LIFO git stash (push, pop, apply, drop, list) et inspecter ses commits internes ;</li>
-      <li>développer en Python 3 des analyseurs de reflog, des moteurs de bisect binaire et des gestionnaires de pile stash.</li>
+      <li>développer en scripts Bash et commandes Git des analyseurs de reflog, des moteurs de bisect binaire et des gestionnaires de pile stash.</li>
     </ol>
   </div>
 
@@ -150,22 +150,20 @@ git bisect run npm test</code></pre>
   </thead>
   <tbody>
     <tr><td><code>git stash push -m "msg"</code></td><td>Empile l’état actuel de l’index et de la copie de travail avec un libellé clair.</td></tr>
-    <tr><td><code>git stash list</code></td><td>Affichez la pile LIFO des remises stockées (<code>stash@{0}</code>, <code>stash@{1}</code>, ...).</td></tr>
+    <tr><td><code>git stash list</code></td><td>Affiche la pile LIFO des remises stockées (<code>stash@{0}</code>, <code>stash@{1}</code>, ...).</td></tr>
     <tr><td><code>git stash apply stash@{N}</code></td><td>Réapplique les modifications de la remise sans la supprimer de la pile.</td></tr>
     <tr><td><code>git stash pop</code></td><td>Réapplique la remise la plus récente (<code>stash@{0}</code>) et la dépile immédiatement.</td></tr>
-    <tr><td><code>git stash drop stash@{N}</code></td><td>Supprimez définitivement une remise spécifique de la pile.</td></tr>
+    <tr><td><code>git stash drop stash@{N}</code></td><td>Supprime définitivement une remise spécifique de la pile.</td></tr>
   </tbody>
 </table>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="gh3-c3-e1" data-lab
      data-exercise="gh3-c3-e1"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="ACTIVE_BRANCH name=main tip=C1 ancestors=NONE&#10;REFLOG_ENTRY id=HEAD@{0} commit=C1 action=reset desc=moving to C1&#10;REFLOG_ENTRY id=HEAD@{1} commit=C3 action=commit desc=Feature perdue">
@@ -179,22 +177,14 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 1 — Explorateur de Reflog et récupération de commits orphelins (Dangling Commits)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser le journal des mouvements de têtes (reflog) pour identifier et sauver un commit devenu orphelin après un reset accidentel.</p>
-    <div class="lab__brief"><p>Lorsqu'un développeur exécute par erreur <code>git reset --hard HEAD~3</code> ou supprime une branche locale avant d'avoir poussé, les commits semblent perdus.<br>
-En réalité, Git ne supprime jamais immédiatement les objets : ils restent référencés dans le <strong>Reflog (Reference Log)</strong> jusqu'à la collecte des déchets (Garbage Collection <code>git gc</code>).<br><br>
-Le script Bash lit les paramètres sur l’entrée standard (stdin). La liste des commits actuellement accessibles par les branches actives :<br>
-   <code>ACTIVE_BRANCH name=&lt;nom&gt; tip=&lt;hash&gt; ancestors=&lt;h1,h2...|NONE&gt;</code>.<br>
-2. Les entrées chronologiques du reflog de HEAD (du plus récent au plus ancien) :<br>
-   <code>REFLOG_ENTRY id=&lt;HEAD@{n}&gt; commit=&lt;hash&gt; action=&lt;action&gt; desc=&lt;message&gt;</code>.<br><br>
-Un commit est considéré comme <strong>orphelin (Dangling)</strong> s'il figure dans le reflog mais n'apparaît ni comme tête (tip) ni comme ancêtre d'aucune branche active.<br><br>
-Pour chaque commit orphelin identifié dans le reflog (dans l'ordre d'apparition), afficher :<br>
-<code>RESCUE_CANDIDATE reflog={id} commit={hash} action="{action}" desc="{desc}" status=DANGLING</code><br>
-Si aucun commit orphelin n'est trouvé :<br>
-<code>RESCUE_SUMMARY: ALL_COMMITS_REFERENCED</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier dans un reflog les candidats à récupérer qui ne sont accessibles par aucune des branches fournies.</p>
+    <p class="lab__note" id="gh3-c3-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Le reflog enregistre localement des déplacements de références et peut aider à retrouver un ancien commit après un reset. Il possède ses propres règles d'expiration ; la collecte des objets n'est pas immédiate ni garantie pour une date précise.<br><br>Déclarez d'abord les branches <code>ACTIVE_BRANCH name=&lt;nom&gt; tip=&lt;id&gt; ancestors=&lt;id1,id2,...|NONE&gt;</code>, puis les entrées de reflog, de la plus récente à la plus ancienne : <code>REFLOG_ENTRY id=&lt;entrée&gt; commit=&lt;id&gt; action=&lt;action&gt; desc=&lt;message&gt;</code>. Les identifiants et actions ne contiennent pas d'espaces ; le message peut contenir des espaces mais pas de guillemet double.<br><br>Pour chaque entrée dont le commit ne figure ni parmi les têtes ni parmi les ancêtres des branches déclarées, affichez <code>RESCUE_CANDIDATE reflog={id} commit={hash} action="{action}" desc="{desc}" status=DANGLING</code>. Traitez chaque entrée, même si un commit est répété. Si aucune ne correspond, affichez <code>RESCUE_SUMMARY: ALL_COMMITS_REFERENCED</code>.<br><br>Attention : <code>DANGLING</code> est ici une étiquette du modèle, pas une preuve que <code>git fsck</code> qualifierait cet objet de dangling. D'autres références et le reflog lui-même peuvent le rendre accessible ; le script ne restaure aucun objet.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>ACTIVE_BRANCH name=main tip=C1 ancestors=NONE
 REFLOG_ENTRY id=HEAD@{0} commit=C1 action=reset desc=moving to C1
@@ -205,8 +195,8 @@ REFLOG_ENTRY id=HEAD@{1} commit=C3 action=commit desc=Feature perdue</pre></div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Constituer un ensemble (set) de tous les commits accessibles par les branches actives.</li>
-        <li>Parcourir les entrées de reflog et vérifier l’appartenance au set.</li>
+        <li>Rassemblez les têtes et les ancêtres des branches dans un ensemble.</li>
+        <li>Parcourez ensuite chaque entrée du reflog dans son ordre initial.</li>
       </ol>
     </details>
   </div>
@@ -214,6 +204,7 @@ REFLOG_ENTRY id=HEAD@{1} commit=C3 action=commit desc=Feature perdue</pre></div>
 
 <div class="lab" id="gh3-c3-e2" data-lab
      data-exercise="gh3-c3-e2"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="HISTORY commits=C1,C2,C3,C4,C5&#10;STATUSES C1=GOOD C2=GOOD C3=BAD C4=BAD C5=BAD">
@@ -227,25 +218,14 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 2 — Détecteur de régression dichotomique automatique (git bisect)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler la recherche dichotomique de Git Bisect pour identifier le premier commit ayant introduit un bogue.</p>
-    <div class="lab__brief"><p>L'outil <code>git bisect</code> effectue une recherche binaire (dichotomie) dans l'historique des commits pour trouver la régression en un minimum de tests ($O(\log N)$).<br><br>
-Algorithme :<br>
-1. On dispose d'une liste ordonnée chronologiquement de $N$ commits : <code>[c_0, c_1, ..., c_{N-1}]</code>.<br>
-   Le commit initial $c_0$ est certifié <code>GOOD</code> (sain), et le commit final $c_{N-1}$ est <code>BAD</code> (défaillant).<br>
-2. Tant que l'intervalle <code>[low, high]</code> contient plus d'un commit suspect :<br>
-   On choisit le commit médian : <code>mid = (low + high) // 2</code>.<br>
-   On évalue l'état du commit <code>mid</code> (fourni par la table des statuts) :<br>
-   - Si <code>mid == BAD</code> : la régression a eu lieu à <code>mid</code> ou avant -> <code>high = mid</code>.<br>
-   - Si <code>mid == GOOD</code> : la régression a eu lieu après <code>mid</code> -> <code>low = mid + 1</code>.<br>
-   On Indiquez chaque étape : <code>BISECT_STEP step={k} testing={commit_id} verdict={GOOD|BAD} remaining={high - low + 1}</code>.<br>
-3. Dès que <code>low == high</code>, le premier commit défaillant est identifié :<br>
-   <code>FIRST_BAD_COMMIT id={commit_id}</code>.<br><br>
-Le script Bash lit les données sur l’entrée standard (stdin)...&gt;</code><br>
-<code>STATUSES &lt;c_id&gt;=&lt;GOOD|BAD&gt; ...</code></p></div>
+    <p class="lab__note" id="gh3-c3-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Simulez une recherche dichotomique sur un historique <strong>linéaire</strong>. L'entrée contient <code>HISTORY commits=&lt;c0,c1,...&gt;</code> puis <code>STATUSES &lt;c0&gt;=GOOD &lt;c1&gt;=BAD ...</code>. Les identifiants sont distincts, sans espaces, virgule ni signe égal. Il faut au moins deux commits, le premier <code>GOOD</code>, le dernier <code>BAD</code> et une seule transition de GOOD vers BAD.<br><br>Initialisez <code>low=0</code> et <code>high=N-1</code>. Tant que <code>low &lt; high</code>, calculez <code>mid=(low+high)//2</code> ; si le commit médian est BAD, posez <code>high=mid</code>, sinon <code>low=mid+1</code>. Après chaque étape, affichez <code>BISECT_STEP step={k} testing={id} verdict={GOOD|BAD} remaining={high-low+1}</code>. Enfin, affichez <code>FIRST_BAD_COMMIT id={id}</code>.<br><br>Une liste de moins de deux commits produit <code>BISECT_ERROR reason=INVALID_HISTORY</code>. Un statut manquant, une borne incohérente ou une transition non monotone produit <code>BISECT_ERROR reason=INVALID_STATUSES</code>. Cette simulation n'est pas l'algorithme complet de <code>git bisect</code> sur un graphe de fusions.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>HISTORY commits=C1,C2,C3,C4,C5
 STATUSES C1=GOOD C2=GOOD C3=BAD C4=BAD C5=BAD</pre></div>
@@ -257,8 +237,8 @@ FIRST_BAD_COMMIT id=C3</pre></div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>L’outil git bisect utilise la recherche dichotomique pour identifier le commit responsable d’une régression en log2(N) étapes.</li>
-        <li>À chaque itération, examinez le commit médian situé à mi-chemin entre la bonne version connue et la mauvaise version.</li>
+        <li>Vérifiez d’abord les bornes et la monotonie des statuts.</li>
+        <li>Conservez l’intervalle inclusif low–high, puis réduisez-le après chaque verdict.</li>
       </ol>
     </details>
   </div>
@@ -266,6 +246,7 @@ FIRST_BAD_COMMIT id=C3</pre></div>
 
 <div class="lab" id="gh3-c3-e3" data-lab
      data-exercise="gh3-c3-e3"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="STASH_CMD action=push arg=WIP sur formulaire&#10;STASH_CMD action=pop">
@@ -279,20 +260,14 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 3 — Gestionnaire de pile de remisage (git stash LIFO stack)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler le comportement en pile LIFO (Last-In, First-Out) des commandes git stash.</p>
-    <div class="lab__brief"><p>La commande <code>git stash</code> enregistre temporairement les modifications en cours sur une pile LIFO sans créer de commit formel.<br><br>
-Commandes à exécuter :<br>
-- <code>push &lt;message&gt;</code> : empile une nouvelle entrée au sommet <code>stash@{0}</code>. Les entrées existantes sont décalées : <code>stash@{k} -> stash@{k+1}</code>.<br>
-- <code>pop</code> : extrait et supprime l'entrée la plus récente <code>stash@{0}</code>.<br>
-- <code>apply &lt;idx&gt;</code> : applique l'entrée <code>stash@{idx}</code> sans la supprimer de la pile.<br>
-- <code>drop &lt;idx&gt;</code> : supprime l'entrée <code>stash@{idx}</code> de la pile (les entrées d'indice supérieur sont décrémentées d'une unité).<br><br>
-Le script Bash lit les données sur l’entrée standard (stdin).<br><br>
-Pour chaque action, afficher :<br>
-<code>STASH_OP action={action} result={OK|STACK_EMPTY|INDEX_OUT_OF_BOUNDS} current_size={taille} top="{msg_du_sommet|EMPTY}"</code></p></div>
+    <p class="lab__note" id="gh3-c3-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p><code>git stash</code> met de côté des modifications dans des objets de commit accessibles par une liste de remises. Simulez cette liste, dont l'entrée la plus récente porte l'indice 0.<br><br>Chaque ligne est <code>STASH_CMD action=&lt;push|pop|apply|drop&gt;</code>. Pour <code>push</code>, ajoutez <code> arg=&lt;message&gt;</code> ; le message peut être vide ou contenir des espaces mais pas de guillemet double. Pour <code>apply</code> et <code>drop</code>, ajoutez <code> arg=&lt;indice décimal non négatif&gt;</code>. <code>push</code> insère au sommet, <code>pop</code> retire le sommet, <code>apply</code> laisse la liste inchangée et <code>drop</code> retire l'entrée indiquée et renumérote les suivantes.<br><br>Pour chaque action, affichez <code>STASH_OP action={action} result={OK|STACK_EMPTY|INDEX_OUT_OF_BOUNDS} current_size={taille} top="{message|EMPTY}"</code>. Sur une liste vide, pop, apply et drop renvoient <code>STACK_EMPTY</code>. Sur une liste non vide, un indice invalide ou hors limites renvoie <code>INDEX_OUT_OF_BOUNDS</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>STASH_CMD action=push arg=WIP sur formulaire
 STASH_CMD action=pop</pre></div>
@@ -303,12 +278,13 @@ STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Gérer une liste Python où l’indice 0 représente stash@{0}.</li>
-        <li>Lors d’un push, insérer à l’indice 0 avec stack.insert(0, msg).</li>
+        <li>Utilisez un tableau Bash dont l’indice 0 représente l’entrée la plus récente.</li>
+        <li>Après une suppression, reconstituez un tableau sans trous et ne modifiez pas la pile lors d’un apply.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -457,7 +433,7 @@ STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Panique face à un reset dur ou méconnaissance du reflog et du fonctionnement de git bisect.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Panique face à un reset dur ou méconnaissance du reflog et du fonctionnement de git bisect.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne utilisation du reflog pour récupérer des commits perdus et manipulation de base de git stash et git bisect interactif.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise complète de git fsck, automatisation experte de git bisect run avec scripts de test et compréhension approfondie du ramasse-miettes git gc.</div>
@@ -471,7 +447,7 @@ STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : Documentation officielle Git Pro (Scott Chacon & Ben Straub), spécification Conventional Commits 1.0.0, documentation officielle GitHub Actions et guides de durcissement GitHub Security Hardening.</p>
+  Sources : Documentation officielle Git Pro (Scott Chacon &amp; Ben Straub), spécification Conventional Commits 1.0.0, documentation officielle GitHub Actions et guides de durcissement GitHub Security Hardening.</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

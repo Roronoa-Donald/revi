@@ -55,8 +55,8 @@ function index(course, chapterList) {
       'séance se termine par des listes d\'erreurs et de corrections. Ce cours en garde l\'esprit et fait ' +
       'appliquer chaque mécanisme <strong>dans des études de cas</strong> : une grille d’analyse qui reproduit l\'analyse exacte du ' +
       'correcteur, exécuté dans la page.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
-      'script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique écrite ' +
+      '    <p>Chaque chapitre se termine par <strong>trois études de cas</strong> : vous remplissez vraiment votre ' +
+      'grille d’analyse, elle est vérifiée par des critères que vous ne voyez pas. La logique écrite ' +
       'ici se rejoue telle quelle sur les exercices des supports (registres, ci-joint, lettre de motivation).</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -68,7 +68,7 @@ function index(course, chapterList) {
       '      <a class="btn" href="chapitres/chapitre1.html">' + ic('rocket') + ' Commencer le chapitre 1</a>',
       '      <a class="btn" href="chapitres/cartes.html">' + ic('cards') + ' Flashcards</a>',
       '      <a class="btn" href="chapitres/formules.html">' + ic('file') + ' Mémo français professionnel</a>',
-      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier de scripts</a>',
+      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier d’analyse</a>',
       '      <a class="btn" href="exercices/exercices.html">' + ic('blocks') + ' Exercices &amp; projet</a>',
       '      <a class="btn" href="chapitres/simulateur-examen.html">' + ic('clipboard') + ' Examens blancs</a>',
       '    </p>'
@@ -104,9 +104,9 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, de la première prise de parole jusqu\'à l\'évaluation ' +
     'finale. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou supérieur ' +
     '(et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
-    'dans la page : votre script est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
-    'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à analyser ' +
+    'dans la page : vous remplissez votre grille d’analyse, puis elle est vérifiée par des critères que vous ne voyez pas. ' +
+    'L\'<a href="atelier.html">atelier d’analyse</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
     '  </div>',
@@ -115,7 +115,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s\'auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo français professionnel</span><br><span class="toc__d">Communication, registres, fautes au bureau, pléonasmes, lettre, passé composé.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Scripts gradués et projet final : l\'audit de courriers du service.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier d’analyse</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l\'épreuve, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -137,7 +137,7 @@ function sommaire(course, chapterList) {
 function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
-    '  <h1>Atelier de scripts</h1>',
+    '  <h1>Atelier d’analyse</h1>',
     '  <p class="lead">Un éditeur interactif dans la page pour résoudre les études de cas. Complétez la grille d’analyse, validez-la et observez le résultat : c\'est ici qu\'une règle de registre devient un contrôle automatisé.</p>',
     box('objectifs', 'Comment fonctionne l\'atelier', 'target', [
       '    <ul>',
@@ -174,7 +174,7 @@ function atelier(course) {
       'testez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé juge chaque mot : familier, courant ou soutenu, puis rend un verdict global sur ' +
-      'le registre du texte. Ajoutez d\'autres niveaux, un décompte par registre, ou remplace tout le script par ' +
+      'le registre du texte. Ajoutez d\'autres niveaux, un décompte par registre, ou remplacez tout le script par ' +
       'le mécanisme que vous voulez vérifier.</p>',
       '      <p>Dans un vrai courrier, ce contrôle se fera à l\'œil avant l\'envoi : la structure du script — ' +
       'lire, décider, rapporter — reste exactement la même.</p>',
@@ -226,8 +226,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de scripts — simuler le français professionnel | ' + course.brand,
-      description: 'Atelier de scripts du cours de Français professionnel B1 : éditeur dans le navigateur, ' +
+      title: 'Atelier d’analyse — simuler le français professionnel | ' + course.brand,
+      description: 'Atelier d’analyse du cours de Français professionnel B1 : éditeur dans le navigateur, ' +
         'validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
       active: 'atelier',
       body
@@ -309,7 +309,8 @@ function formules(course) {
       '          apres le nom → accorde (« les statistiques ci-annexees »)\n',
       'veuillez (vouloir) ≠ veillez (veiller)\n',
       'de toute façon : singulier (quoi qu\'il en soit)\n',
-      'profession attribut : sans article (« je suis chercheur »)\n',
+      'profession : souvent sans article pour le metier (« je suis chercheur »)\n',
+      '             article possible (« je suis un chercheur passionne »)\n',
       'abreviations : M. (pas Mr !), Mme, Mlle, Dr, Pr, Me, MM., Mmes\n',
       'sine die : sans jour fixe  |  bel et bien : reellement\n',
       'abonder dans le sens : adhérer a l\'opinion de</code></pre>',
@@ -354,19 +355,19 @@ function formules(course) {
     ].join('\n')),
 
     bloc('Le passé composé', [
-      '<pre><code>avoir + participe : transitifs (j\'ai achete un livre, il a parle de...)\n',
-      'etre + participe  : mouvement — venir, arriver, partir, entrer, sortir,\n',
-      '                    monter, descendre, naitre, mourir, rester, tomber...\n',
-      '                    et verbes pronominaux (ils se sont reveilles)\n',
-      'verbes douteux    : avec COD → avoir (j\'ai monte les bagages)\n',
-      '                    sans COD → etre (je suis monte au 1er)\n',
+      '<pre><code>auxiliaire selon le verbe et son emploi : elle est partie, elle a marche\n',
+      'etre : exemples de la maison d\'etre et verbes pronominaux\n',
+      '       (elle est venue ; elle s\'est couchée)\n',
+      'monter : j\'ai monte les bagages / je suis monte au 1er\n',
+      'sortir : elle a sorti le dossier / elle est sortie du bureau\n',
       '\n',
       'participes : -e (alle) -u (recu) -it (dit) -i (fini) -is (pris) -ert (ouvert)\n',
       '\n',
-      'accord avec etre = accord de l\'adjectif :\n',
+      'accord avec etre, verbe non pronominal :\n',
       '  il est alle / elle est allee / ils sont alles / elles sont allees\n',
       '  vous : sortis (hommes ou mixte) / sorties (femmes)\n',
-      '         sorti (politesse homme) / sortie (politesse femme)</code></pre>',
+      '         sorti (politesse homme) / sortie (politesse femme)\n',
+      'pronominaux : elle s\'est lavée / elle s\'est lave les mains</code></pre>',
       '<p>Identifier l\'antécédent avant d\'accorder : « je » de Julie s\'accorde comme Julie.</p>'
     ].join('\n')),
 
@@ -377,7 +378,7 @@ function formules(course) {
       '    <li>Accorder « ci-jointes les pièces » : invariable en tête de phrase.</li>',
       '    <li>Écrire « veillez croire » : veuillez (vouloir), pas veillez (veiller).</li>',
       '    <li>Écrire « de toutes les façons » au sens de « quoi qu\'il en soit ».</li>',
-      '    <li>Dire « je suis un chercheur » : profession attribut, sans article.</li>',
+      '    <li>Supprimer systématiquement l\'article d\'une profession : le contexte peut le justifier.</li>',
       '    <li>Abréger Monsieur en « Mr » : c\'est l\'anglais Mister.</li>',
       '    <li>Écrire « pallier à », « se rappeler de », « malgré que ».</li>',
       '    <li>Mettre un conditionnel après « si » : les si n\'aiment pas les rais.</li>',
@@ -459,7 +460,7 @@ function examens(course) {
           num: 'Exercice 4',
           badge: '/5 — Passé composé',
           text: 'Corriger : « Elle a parti en vacances hier soir. » ; « J\'ai entré sans frapper. » ; « Elles sont allé au parc. » ; « Vous êtes sorties » (adressé à un homme). ; « Ils se sont divorcés l\'année dernière. »',
-          sol: '« Elle <strong>est parti(e)</strong> en vacances » (mouvement : être). « Je <strong>suis entré</strong> sans frapper » (sans COD : être). « Elles sont <strong>allées</strong> au parc » (accord féminin pluriel). « Vous êtes <strong>sorti</strong> » (politesse envers un homme). « Ils <strong>ont divorcé</strong> » (divorcer n\'est pas pronominal).'
+          sol: '« Elle <strong>est partie</strong> en vacances » (partir prend être ici). « Je <strong>suis entré</strong> sans frapper » (sans COD : être). « Elles sont <strong>allées</strong> au parc » (accord féminin pluriel). « Vous êtes <strong>sorti</strong> » (politesse envers un homme). « Ils <strong>ont divorcé</strong> » (divorcer n\'est pas pronominal).'
         }
       ]
     }
@@ -478,7 +479,7 @@ function examens(course) {
     { stem: 'L\'éthos d\'Aristote est…', opts: ['la raison', 'l\'émotion', 'la crédibilité'], correct: 2, exp: 'Logos = raison ; pathos = émotion ; éthos = crédibilité.' },
     { stem: '« Bouffer / manger / se sustenter » couvre…', opts: ['trois notions', 'un trio familier-courant-soutenu', 'des synonymes familiers'], correct: 1, exp: 'Un mot par registre, dans l\'ordre.' },
     { stem: 'Etc. se ponctue…', opts: ['etc…', 'etc', 'etc.'], correct: 2, exp: 'Un point, toujours — jamais de points de suspension.' },
-    { stem: '« Veuillez trouver, ci-joint, les requêtes » : ci-joint est…', opts: ['accordé', 'invariable', 'au pluriel'], correct: 1, exp: 'Entrez virgules : invariable.' },
+    { stem: '« Veuillez trouver, ci-joint, les requêtes » : ci-joint est…', opts: ['accordé', 'invariable', 'au pluriel'], correct: 1, exp: 'Entre virgules : invariable.' },
     { stem: 'Monsieur s\'abrège…', opts: ['Mr', 'Mr.', 'M.'], correct: 2, exp: 'M. en français ; Mr est l\'anglais Mister.' },
     { stem: '« Pallier à cet incident » est…', opts: ['correct', 'un solécisme', 'un pléonasme'], correct: 1, exp: 'Pallier est transitif direct : on pallie quelque chose.' },
     { stem: 'L\'objet d\'une lettre de motivation…', opts: ['contient un verbe conjugué', 'est nominal, court, clair', 'se place après l\'appel'], correct: 1, exp: '« Candidature au poste de… » : résumé sans verbe conjugué.' },
@@ -577,10 +578,10 @@ function exercices(course) {
       'Concevoir une communication de crise suite à une indisponibilité majeure de service en production.',
       'Élaborer la charte éditoriale et les consignes de style d’une équipe de développement logiciel.'
     ], [
-      '<p><strong>1. Notez d’opportunité :</strong> Chiffrer le coût de l’inaction (dette technique, pannes, perte de productivité) face aux bénéfices mesurables de la modernisation.</p>',
+      '<p><strong>1. Note d’opportunité :</strong> Chiffrer le coût de l’inaction (dette technique, pannes, perte de productivité) face aux bénéfices mesurables de la modernisation.</p>',
       '<p><strong>2. Réclamation :</strong> Accuser réception rapidement, valider la légitimité du ressenti, exposer les mesures correctives immédiates et proposer une compensation proportionnée.</p>',
       '<p><strong>3. Communication de crise :</strong> Transparence sur les faits constatés, absence de spéculation prématurée, engagement ferme de résolution et fréquence des points de situation.</p>',
-      '<p><strong>4. Charte éditoriale :</strong> Règles typographiques (majuscules, tirets, ponctuation), votre de voix, conventions d’intitulés et structure des messages de commit / pull request.</p>'
+      '<p><strong>4. Charte éditoriale :</strong> Règles typographiques (majuscules, tirets, ponctuation), ton de voix, conventions d’intitulés et structure des messages de commit / pull request.</p>'
     ].join('\n')),
 
     '  <h2>Dossier de synthèse — Dossier de Communication &amp; Note de Cadrage</h2>',
@@ -618,7 +619,7 @@ function render(kit, course, chapterList) {
     return Object.assign({}, chapitre, {
       next: next
         ? { href: 'chapitre' + next.n + '.html', label: 'Chapitre ' + next.n + ' — ' + next.title }
-        : { href: '../atelier.html', label: 'Atelier de scripts' }
+        : { href: '../atelier.html', label: 'Atelier d’analyse' }
     });
   });
 

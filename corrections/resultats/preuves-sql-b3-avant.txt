@@ -1,0 +1,190 @@
+=== ENVIRONNEMENT ===
+version=18.6|tcp_desactive=true|socket_unix=true|repertoire_socket=/tmp/socket
+reseau=espace de noms prive ; donnees=tmpfs prive ; repertoire personnel=absent
+
+=== B3-02 ALTER ENABLE RLS PostgreSQL ===
+STATUT=SUCCES
+
+=== B3-03 et B3-04 illustrations completes des clauses de verrouillage ===
+STATUT=SUCCES
+1
+2
+3
+1
+2
+3
+
+=== B3-09 CREATE INDEX INCLUDE ===
+STATUT=SUCCES
+
+=== B3-09 plan choisi sans forcer un index ===
+STATUT=SUCCES
+Seq Scan on commandes (actual rows=1.00 loops=1)
+  Filter: (client_id = 1)
+  Rows Removed by Filter: 1
+  Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=74 read=1
+Planning Time: 0.177 ms
+Execution Time: 0.032 ms
+
+=== B3-09 index-only avec verification de visibilite heap ===
+STATUT=SUCCES
+Index Only Scan using idx_cmd_client_date on commandes (actual rows=1.00 loops=1)
+  Index Cond: (client_id = 1)
+  Heap Fetches: 1
+  Index Searches: 1
+  Buffers: shared hit=1 read=1
+Planning:
+  Buffers: shared hit=75
+Planning Time: 0.157 ms
+Execution Time: 0.042 ms
+
+=== B3-18 fenetre moyenne cumulative ===
+STATUT=SUCCES
+1|IT|100|100.0000000000000000
+2|IT|200|150.0000000000000000
+3|RH|300|300.0000000000000000
+
+=== B3-19 LAG LEAD NTILE ===
+STATUT=SUCCES
+2025-01-01|10|0|20|1
+2025-01-02|20|10|30|2
+2025-01-03|30|20|0|3
+
+=== B3-21 CTE recursive et anti-boucle ===
+STATUT=SUCCES
+1|A||1|{1}
+2|B|1|2|{1,2}
+3|C|1|2|{1,3}
+
+=== B3-23 creation exacte fonction virer_fonds ===
+STATUT=SUCCES
+
+=== B3-23 source absente : apparition de fonds ===
+STATUT=SUCCES
+
+id=1 solde=100
+id=2 solde=40
+
+=== B3-23 destination absente : disparition de fonds ===
+STATUT=SUCCES
+
+id=1 solde=70
+id=2 solde=10
+
+=== B3-23 montant negatif accepte ===
+STATUT=SUCCES
+
+id=1 solde=130
+id=2 solde=-20
+
+=== B3-23 creation de la fonction proposee ===
+STATUT=SUCCES
+
+=== B3-23 proposition : source absente refusee ===
+STATUT=ERREUR code=1
+NOTICE:  Erreur transactionnelle : Compte source absent
+ERROR:  Compte source absent
+CONTEXT:  PL/pgSQL function virer_fonds(integer,integer,numeric) line 13 at RAISE
+
+=== B3-23 proposition : soldes apres source absente ===
+STATUT=SUCCES
+id=1 solde=100
+id=2 solde=10
+
+=== B3-23 proposition : destination absente refusee ===
+STATUT=ERREUR code=1
+NOTICE:  Erreur transactionnelle : Compte destinataire absent ou sans solde
+ERROR:  Compte destinataire absent ou sans solde
+CONTEXT:  PL/pgSQL function virer_fonds(integer,integer,numeric) line 20 at RAISE
+
+=== B3-23 proposition : soldes apres destination absente ===
+STATUT=SUCCES
+id=1 solde=100
+id=2 solde=10
+
+=== B3-23 proposition : montant negatif refuse ===
+STATUT=ERREUR code=1
+NOTICE:  Erreur transactionnelle : Paramètres de virement invalides
+ERROR:  Paramètres de virement invalides
+CONTEXT:  PL/pgSQL function virer_fonds(integer,integer,numeric) line 8 at RAISE
+
+=== B3-23 proposition : virement nominal ===
+STATUT=SUCCES
+
+id=1 solde=80
+id=2 solde=30
+
+=== B3-24 creation exacte fonction de trigger audit ===
+STATUT=SUCCES
+
+=== B3-24 journal modifiable par son proprietaire ===
+STATUT=SUCCES
+lignes_avant_suppression=1
+lignes_apres_suppression=0
+
+=== B3-25 syntaxe FORCE RLS sur table fictive ===
+STATUT=SUCCES
+
+=== B3-25 FORCE, proprietaire, superutilisateur et BYPASSRLS ===
+STATUT=SUCCES
+superutilisateur=2
+proprietaire=0
+bypassrls=2
+
+=== B3-28 B3-29 assemblage sans liste de colonnes ===
+STATUT=ERREUR code=3
+psql:/audit/extraits/cte-assemblage-sans-liste.sql:5: ERROR:  column cte.path does not exist
+LINE 4: SELECT e.id, e.nom, cte.level + 1, cte.path || e.id FROM emp...
+                                           ^
+
+=== B3-28 B3-29 assemblage avec liste explicite ===
+STATUT=SUCCES
+1|A|1|{1}
+2|B|2|{1,2}
+3|C|2|{1,3}
+
+=== B3-28 B3-29 proposition alias path dans ancre ===
+STATUT=SUCCES
+1|A|1|{1}
+2|B|2|{1,2}
+3|C|2|{1,3}
+
+=== B3-30 ALTER documents ENABLE RLS ===
+STATUT=SUCCES
+
+=== B3-31 CREATE POLICY ===
+STATUT=SUCCES
+
+=== B3-31 valeur de session tenant_123 du corrige ===
+STATUT=ERREUR code=1
+ERROR:  invalid input syntax for type uuid: "tenant_123"
+
+=== B3-31 UUID valides et mutabilite du parametre de session ===
+STATUT=SUCCES
+premier_tenant=1
+second_tenant=2
+
+=== B3-33 EXPLAIN ANALYZE BUFFERS complet ===
+STATUT=SUCCES
+Seq Scan on commandes  (cost=0.00..1.02 rows=2 width=40) (actual time=0.002..0.002 rows=2.00 loops=1)
+  Buffers: shared hit=1
+Planning:
+  Buffers: shared hit=69
+Planning Time: 0.132 ms
+Execution Time: 0.014 ms
+
+=== B3-17 option MEMORY dans PostgreSQL 18 ===
+STATUT=SUCCES
+Result  (cost=0.00..0.01 rows=1 width=4)
+Planning:
+  Memory: used=6kB  allocated=8kB
+
+=== B3-26 entree du laboratoire SQLite et separation VERIFY ===
+sqlite_version=3.53.4
+entree_seule=no such table: v_dossiers_rls
+avec_vue_et_verification=[(1, 'clinique_a', 'Koffi')]
+acces_direct_table=[(1, 'clinique_a'), (2, 'clinique_b')]
+
+=== FIN DES SONDES ISOLEES ===

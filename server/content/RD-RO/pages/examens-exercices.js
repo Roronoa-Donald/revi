@@ -44,10 +44,10 @@ function examens(course) {
             '$x_1 = (400 \\times 3 - 600 \\times 1) / 4 = (1200 - 600) / 4 = 600 / 4 = 150$.<br>' +
             '$x_2 = (2 \\times 600 - 2 \\times 400) / 4 = (1200 - 800) / 4 = 400 / 4 = 100$.<br>' +
             'Évaluation des sommets de la région réalisable :<br>' +
-            '- $(0, 0) \\to Z = 0 €$<br>' +
-            '- $(200, 0) \\to Z = 12 \\times 200 = 2400 €$<br>' +
-            '- $(0, 200) \\to Z = 9 \\times 200 = 1800 €$<br>' +
-            '- $(150, 100) \\to Z = 12 \\times 150 + 9 \\times 100 = 1800 + 900 = 2700 €$.<br>' +
+            '- $(0, 0) \\to Z = 0$ €<br>' +
+            '- $(200, 0) \\to Z = 12 \\times 200 = 2400$ €<br>' +
+            '- $(0, 200) \\to Z = 9 \\times 200 = 1800$ €<br>' +
+            '- $(150, 100) \\to Z = 12 \\times 150 + 9 \\times 100 = 1800 + 900 = 2700$ €.<br>' +
             '<strong>Optimum :</strong> fabriquer <strong>150 boîtes Prestige</strong> et <strong>100 boîtes Délice</strong> pour un profit maximal de <strong>2 700 €</strong>.'
         },
         {
@@ -115,7 +115,7 @@ function examens(course) {
             '- Min en (1,1) coût 2 : allouer $q = \\min(30, 35) = 30$. $O_1=0$, reste $D_1=5$.<br>' +
             '- Cellules restantes en ligne 2 : (2,1) coût 4 et (2,2) coût 3. Min en (2,2) : allouer $q = \\min(40, 35) = 35$. $D_2=0$, reste $O_2=5$.<br>' +
             '- Dernière cellule (2,1) : allouer $q = 5$.<br>' +
-            'Base : $(1,1)=30, (2,1)=5, (2,2)=35$. Coût total = $30 \\times 2 + 5 \\times 4 + 35 \\times 3 = 60 + 20 + 105 = 185 €$.<br>' +
+            'Base : $(1,1)=30, (2,1)=5, (2,2)=35$. Coût total = $30 \\times 2 + 5 \\times 4 + 35 \\times 3 = 60 + 20 + 105 = 185$ €.<br>' +
             '2. <em>Potentiels MODI</em> :<br>' +
             '- Poser $u_1 = 0$.<br>' +
             '- Case (1,1) de base : $u_1 + v_1 = c_{11} \\iff 0 + v_1 = 2 \\iff v_1 = 2$.<br>' +

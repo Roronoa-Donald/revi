@@ -6,12 +6,12 @@ const SQL3_EXERCISES = [
     "chapter": 1,
     "level": "n1",
     "language": "sql",
-    "title": "Audit des transactions non validées dans le journal WAL",
-    "goal": "Identifier par requête SQL les transactions ouvertes sans événement COMMIT ni ROLLBACK.",
-    "brief": "<p>La table <code>wal_journal(lsn INT, tx_id INT, op TEXT)</code> consigne les opérations du journal Write-Ahead Log (<code>BEGIN</code>, <code>UPDATE</code>, <code>COMMIT</code>, <code>ROLLBACK</code>). Écrivez une requête SQL qui retourne les <code>tx_id</code> distincts des transactions encore en vol (qui ne possèdent aucune ligne avec <code>op IN ('COMMIT', 'ROLLBACK')</code>), triés par <code>tx_id</code> croissant.</p>",
+    "title": "Audit d’un journal transactionnel fictif",
+    "goal": "Identifier dans un journal fictif les transactions sans événement COMMIT ni ROLLBACK.",
+    "brief": "<p>Dans ce journal fictif, la table pédagogique <code>wal_journal(lsn INT, tx_id INT, op TEXT)</code> consigne des événements <code>BEGIN</code>, <code>UPDATE</code>, <code>COMMIT</code> et <code>ROLLBACK</code> ; ce n’est pas le format du WAL réel de PostgreSQL ni une description de sa récupération. Écrivez une requête SQL qui retourne les <code>tx_id</code> distincts des transactions encore en vol (qui ne possèdent aucune ligne avec <code>op IN ('COMMIT', 'ROLLBACK')</code>), triés par <code>tx_id</code> croissant. Ignorez les lignes dont <code>tx_id</code> est <code>NULL</code> : elles ne désignent pas de transaction identifiable.</p>",
     "starter": "-- Sélectionnez les tx_id distincts n’ayant ni COMMIT ni ROLLBACK\nSELECT DISTINCT tx_id FROM wal_journal;",
     "hints": [
-      "Utilisez une sous-requête : WHERE tx_id NOT IN (SELECT tx_id FROM wal_journal WHERE op IN ('COMMIT', 'ROLLBACK')).",
+      "Pour chaque identifiant non nul, cherchez s’il existe une ligne de fin pour la même transaction ; attention aux valeurs NULL avec NOT IN.",
       "Ajoutez DISTINCT et ORDER BY tx_id ASC."
     ],
     "examples": [
@@ -36,21 +36,31 @@ const SQL3_EXERCISES = [
         "label": "Transaction unique non terminée",
         "stdin": "CREATE TABLE wal_journal (lsn INT, tx_id INT, op TEXT); INSERT INTO wal_journal VALUES (1, 1, 'BEGIN'), (2, 1, 'COMMIT'), (3, 500, 'BEGIN'), (4, 500, 'UPDATE');",
         "expected": "+-------+\n| tx_id |\n+-------+\n| 500   |\n+-------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Fin sans identifiant et transaction identifiable en vol",
+        "stdin": "CREATE TABLE wal_journal (lsn INT, tx_id INT, op TEXT); INSERT INTO wal_journal VALUES (1, 511, 'BEGIN'), (2, NULL, 'COMMIT'), (3, 522, 'BEGIN'), (4, 522, 'ROLLBACK');",
+        "expected": "+-------+\n| tx_id |\n+-------+\n| 511   |\n+-------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Identifiant absent ignoré et transaction identifiable en vol",
+        "stdin": "CREATE TABLE wal_journal (lsn INT, tx_id INT, op TEXT); INSERT INTO wal_journal VALUES (1, NULL, 'BEGIN'), (2, 611, 'BEGIN'), (3, 622, 'BEGIN'), (4, 611, 'COMMIT');",
+        "expected": "+-------+\n| tx_id |\n+-------+\n| 622   |\n+-------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c1-e1\nSELECT DISTINCT tx_id FROM wal_journal WHERE tx_id NOT IN (SELECT tx_id FROM wal_journal WHERE op IN ('COMMIT', 'ROLLBACK')) ORDER BY tx_id ASC;"
+    "solution": "-- Corrigé officiel sql3-c1-e1\nSELECT DISTINCT journal.tx_id FROM wal_journal AS journal WHERE journal.tx_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM wal_journal AS fin WHERE fin.tx_id = journal.tx_id AND fin.op IN ('COMMIT', 'ROLLBACK')) ORDER BY journal.tx_id ASC;"
   },
   {
     "id": "sql3-c1-e2",
     "chapter": 1,
     "level": "n2",
     "language": "sql",
-    "title": "Visibilité MVCC des tuples selon le snapshot xmin / xmax",
-    "goal": "Déterminer les versions de lignes visibles pour une transaction de snapshot donné.",
-    "brief": "<p>Dans PostgreSQL (MVCC), chaque version de ligne possède <code>xmin</code> (transaction créatrice) et <code>xmax</code> (transaction de suppression, <code>0</code> si toujours active). Pour une transaction courante <code>snapshot_tx = 50</code>, sélectionnez <code>tuple_id</code> et <code>valeur</code> de la table <code>mvcc_tuples(tuple_id, xmin, xmax, valeur)</code> qui ont été créés avant le snapshot (<code>xmin &lt; 50</code>) et qui ne sont pas supprimés avant le snapshot (<code>xmax = 0 OR xmax &gt;= 50</code>), triés par <code>tuple_id</code> croissant.</p>",
+    "title": "Visibilité dans un modèle MVCC fictif",
+    "goal": "Appliquer la règle de visibilité d’un modèle simplifié à un instantané fictif.",
+    "brief": "<p>Dans ce modèle simplifié inspiré de MVCC, la table <code>mvcc_tuples(tuple_id, xmin, xmax, valeur)</code> contient des identifiants fictifs de création et de suppression, avec <code>xmax = 0</code> pour une ligne non supprimée. Pour le snapshot fictif <code>50</code>, sélectionnez <code>tuple_id</code> et <code>valeur</code> lorsque <code>xmin &lt; 50</code> et <code>(xmax = 0 OR xmax &gt;= 50)</code>, triés par <code>tuple_id</code> croissant. Ce filtre est une convention de l’atelier : dans PostgreSQL, un snapshot tient compte des transactions en cours et la visibilité dépend aussi du statut validé ou annulé des transactions ; un <code>xmax</code> non nul ne prouve pas une suppression effective.</p>",
     "starter": "-- Filtrez les tuples visibles au snapshot_tx = 50\nSELECT tuple_id, valeur FROM mvcc_tuples;",
     "hints": [
-      "Un tuple est visible à tx=50 si xmin < 50 AND (xmax = 0 OR xmax >= 50).",
+      "Dans ce modèle fictif, un tuple est visible à tx=50 si xmin < 50 AND (xmax = 0 OR xmax >= 50).",
       "Triez par tuple_id ASC."
     ],
     "examples": [
@@ -61,6 +71,11 @@ const SQL3_EXERCISES = [
       }
     ],
     "tests": [
+      {
+        "label": "Bornes de création et de suppression du modèle",
+        "stdin": "CREATE TABLE mvcc_tuples (tuple_id INT, xmin INT, xmax INT, valeur TEXT); INSERT INTO mvcc_tuples VALUES (1, 49, 50, 'visible'), (2, 50, 0, 'future'), (3, 40, 49, 'supprimee');",
+        "expected": "+----------+---------+\n| tuple_id | valeur  |\n+----------+---------+\n| 1        | visible |\n+----------+---------+\n(1 ligne retournée)"
+      },
       {
         "label": "Trois versions MVCC (supprimée, active, future)",
         "stdin": "CREATE TABLE mvcc_tuples (tuple_id INT, xmin INT, xmax INT, valeur TEXT); INSERT INTO mvcc_tuples VALUES (1, 10, 30, 'v1_supprimee'), (2, 30, 0, 'v2_visible'), (3, 60, 0, 'v3_future');",
@@ -75,6 +90,11 @@ const SQL3_EXERCISES = [
         "label": "Deux tuples actifs et un supprimé",
         "stdin": "CREATE TABLE mvcc_tuples (tuple_id INT, xmin INT, xmax INT, valeur TEXT); INSERT INTO mvcc_tuples VALUES (1, 5, 0, 'A'), (2, 12, 0, 'B'), (3, 15, 25, 'C');",
         "expected": "+----------+--------+\n| tuple_id | valeur |\n+----------+--------+\n| 1        | A      |\n| 2        | B      |\n+----------+--------+\n(2 lignes retournées)"
+      },
+      {
+        "label": "Borne de suppression",
+        "stdin": "CREATE TABLE mvcc_tuples (tuple_id INT, xmin INT, xmax INT, valeur TEXT);\nINSERT INTO mvcc_tuples VALUES (72, 49, 50, 'v72');",
+        "expected": "+----------+--------+\n| tuple_id | valeur |\n+----------+--------+\n| 72       | v72    |\n+----------+--------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c1-e2\nSELECT tuple_id, valeur FROM mvcc_tuples WHERE xmin < 50 AND (xmax = 0 OR xmax >= 50) ORDER BY tuple_id ASC;"
@@ -114,6 +134,11 @@ const SQL3_EXERCISES = [
         "label": "Deux processus bloqués par le même détenteur",
         "stdin": "CREATE TABLE pg_locks_sim (pid INT, ressource TEXT, accorde INT); INSERT INTO pg_locks_sim VALUES (500, 'compte_1', 1), (501, 'compte_1', 0), (502, 'compte_1', 0);",
         "expected": "+------------+--------------+-----------+\n| pid_bloque | pid_bloqueur | ressource |\n+------------+--------------+-----------+\n| 501        | 500          | compte_1  |\n| 502        | 500          | compte_1  |\n+------------+--------------+-----------+\n(2 lignes retournées)"
+      },
+      {
+        "label": "Un verrou en attente parmi trois ressources détenues",
+        "stdin": "CREATE TABLE pg_locks_sim (pid INT, ressource TEXT, accorde INT);\nINSERT INTO pg_locks_sim VALUES\n  (412, 'factures', 1),\n  (515, 'stocks', 1),\n  (28, 'journaux', 1),\n  (315, 'factures', 0);",
+        "expected": "+------------+--------------+-----------+\n| pid_bloque | pid_bloqueur | ressource |\n+------------+--------------+-----------+\n| 315        | 412          | factures  |\n+------------+--------------+-----------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c1-e3\nSELECT a.pid AS pid_bloque, d.pid AS pid_bloqueur, a.ressource FROM pg_locks_sim a INNER JOIN pg_locks_sim d ON a.ressource = d.ressource WHERE a.accorde = 0 AND d.accorde = 1 ORDER BY pid_bloque ASC;"
@@ -153,6 +178,11 @@ const SQL3_EXERCISES = [
         "label": "Un seul pays",
         "stdin": "CREATE TABLE commandes (id INT, code_pays TEXT, email_client TEXT); INSERT INTO commandes VALUES (1, 'TG', 'koffi@tg.org'), (2, 'TG', 'koffi@tg.org');",
         "expected": "+--------------+-----------+------------+\n| total_lignes | card_pays | card_email |\n+--------------+-----------+------------+\n| 2            | 1         | 1          |\n+--------------+-----------+------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Pays distincts, adresse répétée",
+        "stdin": "CREATE TABLE commandes (id INT, code_pays TEXT, email_client TEXT);\nINSERT INTO commandes VALUES (73, 'NG', 'c@z'), (74, 'NE', 'c@z');",
+        "expected": "+--------------+-----------+------------+\n| total_lignes | card_pays | card_email |\n+--------------+-----------+------------+\n| 2            | 2         | 1          |\n+--------------+-----------+------------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c2-e1\nSELECT COUNT(*) AS total_lignes, COUNT(DISTINCT code_pays) AS card_pays, COUNT(DISTINCT email_client) AS card_email FROM commandes;"
@@ -192,6 +222,16 @@ const SQL3_EXERCISES = [
         "label": "Commande en cours et commande archivée",
         "stdin": "CREATE TABLE commandes (id INT, client_id INT, statut TEXT, montant INT); INSERT INTO commandes VALUES (5, 10, 'EN_COURS', 45000), (6, 20, 'ARCHIVEE', 10000);",
         "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+---------+\n| id | montant |\n+----+---------+\n| 5  | 45000   |\n+----+---------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Colonne de l’index partiel",
+        "stdin": "CREATE TABLE commandes (id INT, client_id INT, statut TEXT, montant INT); INSERT INTO commandes VALUES (71, 10, 'EN_COURS', 12777), (72, 20, 'LIVREE', 800);\n-- VERIFY:\nSELECT group_concat(name, ',') AS colonnes FROM (SELECT name FROM pragma_index_info('idx_cmd_en_cours') ORDER BY seqno);",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+---------+\n| id | montant |\n+----+---------+\n| 71 | 12777   |\n+----+---------+\n(1 ligne retournée)\n\n+-----------+\n| colonnes  |\n+-----------+\n| client_id |\n+-----------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Index réellement partiel",
+        "stdin": "CREATE TABLE commandes (id INT, client_id INT, statut TEXT, montant INT); INSERT INTO commandes VALUES (81, 10, 'EN_COURS', 15888);\n-- VERIFY:\nSELECT \"partial\" AS est_partiel FROM pragma_index_list('commandes') WHERE name = 'idx_cmd_en_cours';",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+---------+\n| id | montant |\n+----+---------+\n| 81 | 15888   |\n+----+---------+\n(1 ligne retournée)\n\n+-------------+\n| est_partiel |\n+-------------+\n| 1           |\n+-------------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c2-e2\nCREATE INDEX idx_cmd_en_cours ON commandes(client_id) WHERE statut = 'EN_COURS';\nSELECT id, montant FROM commandes WHERE client_id = 10 AND statut = 'EN_COURS' ORDER BY id ASC;"
@@ -231,6 +271,16 @@ const SQL3_EXERCISES = [
         "label": "Cas limite autour du seuil (100 vivants -> seuil 70)",
         "stdin": "CREATE TABLE pg_stat_user_tables_sim (relname TEXT, n_live_tup INT, n_dead_tup INT); INSERT INTO pg_stat_user_tables_sim VALUES ('t_exact', 100, 70), ('t_depasse', 100, 71);",
         "expected": "+-----------+------------+------------+\n| relname   | n_live_tup | n_dead_tup |\n+-----------+------------+------------+\n| t_depasse | 100        | 71         |\n+-----------+------------+------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Seuil exact sans lignes vivantes",
+        "stdin": "CREATE TABLE pg_stat_user_tables_sim (relname TEXT, n_live_tup INT, n_dead_tup INT);\nINSERT INTO pg_stat_user_tables_sim VALUES ('delta', 0, 50);",
+        "expected": "(Requête exécutée avec 0 résultat)"
+      },
+      {
+        "label": "Taux de tuples morts entre les deux formules",
+        "stdin": "CREATE TABLE pg_stat_user_tables_sim (relname TEXT, n_live_tup INT, n_dead_tup INT);\nINSERT INTO pg_stat_user_tables_sim VALUES\n  ('actives', 300, 111),\n  ('archive', 1000, 100),\n  ('stable', 250, 54),\n  ('proche', 400, 129);",
+        "expected": "+---------+------------+------------+\n| relname | n_live_tup | n_dead_tup |\n+---------+------------+------------+\n| actives | 300        | 111        |\n+---------+------------+------------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c2-e3\nSELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim WHERE n_dead_tup > 50 + 0.20 * n_live_tup ORDER BY n_dead_tup DESC;"
@@ -270,6 +320,11 @@ const SQL3_EXERCISES = [
         "label": "Table de 1000 pages",
         "stdin": "CREATE TABLE pg_class_sim (relname TEXT, relpages INT, reltuples INT); INSERT INTO pg_class_sim VALUES ('audit_log', 1000, 80000);",
         "expected": "+-----------+---------------+\n| relname   | cout_seq_scan |\n+-----------+---------------+\n| audit_log | 1800          |\n+-----------+---------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Tri de deux coûts sans tuples",
+        "stdin": "CREATE TABLE pg_class_sim (relname TEXT, relpages INT, reltuples INT);\nINSERT INTO pg_class_sim VALUES ('chi', 4, 0), ('psi', 1, 0);",
+        "expected": "+---------+---------------+\n| relname | cout_seq_scan |\n+---------+---------------+\n| psi     | 1             |\n| chi     | 4             |\n+---------+---------------+\n(2 lignes retournées)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c3-e1\nSELECT relname, ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan FROM pg_class_sim ORDER BY cout_seq_scan ASC;"
@@ -309,6 +364,11 @@ const SQL3_EXERCISES = [
         "label": "Cache froid à 50 %",
         "stdin": "CREATE TABLE pg_stat_database_sim (datname TEXT, blks_hit INT, blks_read INT); INSERT INTO pg_stat_database_sim VALUES ('test_db', 500, 500);",
         "expected": "+---------+---------------+\n| datname | hit_ratio_pct |\n+---------+---------------+\n| test_db | 50            |\n+---------+---------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Aucun cache hit",
+        "stdin": "CREATE TABLE pg_stat_database_sim (datname TEXT, blks_hit INT, blks_read INT);\nINSERT INTO pg_stat_database_sim VALUES ('db_chi', 0, 3);",
+        "expected": "+---------+---------------+\n| datname | hit_ratio_pct |\n+---------+---------------+\n| db_chi  | 0             |\n+---------+---------------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c3-e2\nSELECT datname, ROUND(blks_hit * 100.0 / (blks_hit + blks_read), 2) AS hit_ratio_pct FROM pg_stat_database_sim ORDER BY hit_ratio_pct DESC;"
@@ -319,8 +379,8 @@ const SQL3_EXERCISES = [
     "level": "n3",
     "language": "sql",
     "title": "Réécriture SARGable et index couvrant (Index-Only Scan)",
-    "goal": "Créer un index couvrant et écrire une requête SARGable par intervalle.",
-    "brief": "<p>Sur la table <code>commandes(id INT, annee INT, client_id INT, montant INT)</code>, créez un index couvrant <code>idx_cmd_annee_montant</code> sur <code>(annee, montant)</code>, puis calculez <code>SUM(montant) AS total_2025</code> pour <code>annee = 2025</code>.</p>",
+    "goal": "Créer un index couvrant dans un ordre donné et filtrer l’année de manière SARGable.",
+    "brief": "<p>Dans cet atelier SQLite, sur la table <code>commandes(id INT, annee INT, client_id INT, montant INT)</code>, créez un index couvrant non partiel <code>idx_cmd_annee_montant</code> sur <code>(annee, montant)</code>, dans cet ordre, puis calculez <code>SUM(montant) AS total_2025</code> pour <code>annee = 2025</code>. L’index peut couvrir la requête sans garantir que l’optimiseur choisira ce plan.</p>",
     "starter": "-- Créez l’index couvrant idx_cmd_annee_montant puis calculez SUM(montant) AS total_2025\nSELECT SUM(montant) FROM commandes;",
     "hints": [
       "Créez d’abord CREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);",
@@ -336,8 +396,8 @@ const SQL3_EXERCISES = [
     "tests": [
       {
         "label": "Deux commandes en 2025",
-        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2024, 1, 10000), (2, 2025, 1, 25000), (3, 2025, 2, 15000);",
-        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 40000      |\n+------------+\n(1 ligne retournée)"
+        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2024, 1, 10000), (2, 2025, 1, 25000), (3, 2025, 2, 15000);\n-- VERIFY:\nSELECT group_concat(name, ',') AS ordre_index FROM (SELECT name FROM pragma_index_info('idx_cmd_annee_montant') ORDER BY seqno);",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 40000      |\n+------------+\n(1 ligne retournée)\n\n+---------------+\n| ordre_index   |\n+---------------+\n| annee,montant |\n+---------------+\n(1 ligne retournée)"
       },
       {
         "label": "Trois années distinctes",
@@ -348,6 +408,16 @@ const SQL3_EXERCISES = [
         "label": "Trois commandes en 2025",
         "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2025, 1, 1000), (2, 2025, 2, 2000), (3, 2025, 3, 3000);",
         "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 6000       |\n+------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Index avec sommes annuelles égales",
+        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT);\nINSERT INTO commandes VALUES (71, 2024, 11, 13), (72, 2025, 12, 13);\n-- VERIFY:\nSELECT seqno, name FROM pragma_index_info('idx_cmd_annee_montant') ORDER BY seqno;",
+        "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 13         |\n+------------+\n(1 ligne retournée)\n\n+-------+---------+\n| seqno | name    |\n+-------+---------+\n| 0     | annee   |\n| 1     | montant |\n+-------+---------+\n(2 lignes retournées)"
+      },
+      {
+        "label": "Index complet de la table commandes dans l’ordre demandé",
+        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2024, 1, 10000), (2, 2025, 1, 25000), (3, 2025, 2, 15000);\n-- VERIFY:\nSELECT (SELECT group_concat(name, ',') FROM (SELECT name FROM pragma_index_info('idx_cmd_annee_montant') ORDER BY seqno)) AS ordre_index, \"partial\" AS partiel FROM pragma_index_list('commandes') WHERE name = 'idx_cmd_annee_montant';",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 40000      |\n+------------+\n(1 ligne retournée)\n\n+---------------+---------+\n| ordre_index   | partiel |\n+---------------+---------+\n| annee,montant | 0       |\n+---------------+---------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c3-e3\nCREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);\nSELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;"
@@ -387,6 +457,16 @@ const SQL3_EXERCISES = [
         "label": "Deux mois",
         "stdin": "CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 200000), (2, 180000);",
         "expected": "+------+--------+--------------+-----------+\n| mois | ca     | ca_precedent | variation |\n+------+--------+--------------+-----------+\n| 1    | 200000 | 0            | 200000    |\n| 2    | 180000 | 200000       | -20000    |\n+------+--------+--------------+-----------+\n(2 lignes retournées)"
+      },
+      {
+        "label": "Premier mois nul puis activité",
+        "stdin": "CREATE TABLE chiffre_affaires (mois INT, ca INT);\nINSERT INTO chiffre_affaires VALUES (1, 0), (2, 5);",
+        "expected": "+------+----+--------------+-----------+\n| mois | ca | ca_precedent | variation |\n+------+----+--------------+-----------+\n| 1    | 0  | 0            | 0         |\n| 2    | 5  | 0            | 5         |\n+------+----+--------------+-----------+\n(2 lignes retournées)"
+      },
+      {
+        "label": "Série symétrique sur trois mois",
+        "stdin": "CREATE TABLE chiffre_affaires (mois INT, ca INT);\nINSERT INTO chiffre_affaires VALUES (1, 5), (2, 0), (3, 5);",
+        "expected": "+------+----+--------------+-----------+\n| mois | ca | ca_precedent | variation |\n+------+----+--------------+-----------+\n| 1    | 5  | 0            | 5         |\n| 2    | 0  | 5            | -5        |\n| 3    | 5  | 0            | 5         |\n+------+----+--------------+-----------+\n(3 lignes retournées)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c4-e1\nSELECT mois, ca, LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS ca_precedent, ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation FROM chiffre_affaires ORDER BY mois ASC;"
@@ -437,7 +517,7 @@ const SQL3_EXERCISES = [
     "language": "sql",
     "title": "Parcours d’arbre hiérarchique avec WITH RECURSIVE",
     "goal": "Écrire une CTE récursive pour calculer la profondeur hiérarchique d’un organigramme.",
-    "brief": "<p>La table <code>organigramme(id INT, nom TEXT, manager_id INT)</code> représente la hiérarchie d’une entreprise (la racine a <code>manager_id IS NULL</code>). Écrivez une requête <code>WITH RECURSIVE hierarchie AS (...)</code> qui calcule pour chaque employé son <code>id</code>, son <code>nom</code> et son niveau hiérarchique <code>niveau</code> (<code>1</code> pour la racine, puis <code>h.niveau + 1</code> pour chaque subordonné), triée par <code>niveau</code> croissant puis <code>id</code> croissant.</p>",
+    "brief": "<p>Dans cet atelier SQLite, la table <code>organigramme(id INT, nom TEXT, manager_id INT)</code> représente une hiérarchie dont les racines ont <code>manager_id IS NULL</code>. Les identifiants sont uniques et les liens forment une forêt sans cycle. Écrivez une requête <code>WITH RECURSIVE hierarchie AS (...)</code> qui calcule pour chaque employé son <code>id</code>, son <code>nom</code> et son niveau hiérarchique <code>niveau</code> (<code>1</code> pour une racine, puis <code>h.niveau + 1</code> pour chaque subordonné), triée par <code>niveau</code> croissant puis <code>id</code> croissant. Si ces hypothèses ne sont pas garanties, une garde anti-cycle est nécessaire : UNION seul ne suffit pas lorsque le niveau change.</p>",
     "starter": "-- Écrivez une CTE WITH RECURSIVE hierarchie(id, nom, niveau)\nSELECT id, nom FROM organigramme;",
     "hints": [
       "Le membre d’ancrage sélectionne la racine : SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL.",
@@ -465,6 +545,11 @@ const SQL3_EXERCISES = [
         "label": "Racine et deux directeurs",
         "stdin": "CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (10, 'Recteur', NULL), (20, 'Doyen B1', 10), (30, 'Doyen B3', 10);",
         "expected": "+----+----------+--------+\n| id | nom      | niveau |\n+----+----------+--------+\n| 10 | Recteur  | 1      |\n| 20 | Doyen B1 | 2      |\n| 30 | Doyen B3 | 2      |\n+----+----------+--------+\n(3 lignes retournées)"
+      },
+      {
+        "label": "Chaîne hiérarchique de quatre niveaux",
+        "stdin": "CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT);\nINSERT INTO organigramme VALUES\n  (40, 'Direction', NULL),\n  (13, 'Equipe', 40),\n  (72, 'Analyste', 13),\n  (9, 'Tech', 72);",
+        "expected": "+----+-----------+--------+\n| id | nom       | niveau |\n+----+-----------+--------+\n| 40 | Direction | 1      |\n| 13 | Equipe    | 2      |\n| 72 | Analyste  | 3      |\n| 9  | Tech      | 4      |\n+----+-----------+--------+\n(4 lignes retournées)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c4-e3\nWITH RECURSIVE hierarchie(id, nom, niveau) AS (\n  SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL\n  UNION ALL\n  SELECT o.id, o.nom, h.niveau + 1 FROM organigramme o INNER JOIN hierarchie h ON o.manager_id = h.id\n)\nSELECT id, nom, niveau FROM hierarchie ORDER BY niveau ASC, id ASC;"
@@ -474,9 +559,9 @@ const SQL3_EXERCISES = [
     "chapter": 5,
     "level": "n1",
     "language": "sql",
-    "title": "Déclencheur de protection contre les soldes négatifs (AFTER UPDATE + WHEN)",
+    "title": "Alerte sur solde négatif (AFTER UPDATE + WHEN)",
     "goal": "Déclencher une alerte automatique sur condition métier dans un trigger SQL.",
-    "brief": "<p>Soient <code>comptes(id INT, solde INT)</code> et <code>alertes_fraude(compte_id INT, montant_tente INT)</code>. Créez un trigger <code>trg_alerte_decouvert</code> qui, <code>AFTER UPDATE ON comptes WHEN NEW.solde &lt; 0</code>, insère <code>(NEW.id, NEW.solde)</code> dans <code>alertes_fraude</code>.</p>",
+    "brief": "<p>Dans cet atelier SQLite, soient <code>comptes(id INT, solde INT)</code> et <code>alertes_fraude(compte_id INT, montant_tente INT)</code>. Créez un trigger <code>trg_alerte_decouvert</code> qui, <code>AFTER UPDATE ON comptes WHEN NEW.solde &lt; 0</code>, insère <code>(NEW.id, NEW.solde)</code> dans <code>alertes_fraude</code>. Ce déclencheur alerte sans empêcher le solde négatif ; un ROLLBACK annule la mise à jour et l’alerte dans la même transaction.</p>",
     "starter": "-- Créez le trigger conditionnel trg_alerte_decouvert avec WHEN NEW.solde < 0\nSELECT * FROM comptes;",
     "hints": [
       "Utilisez la clause WHEN NEW.solde < 0 avant BEGIN dans la définition du trigger.",
@@ -504,6 +589,11 @@ const SQL3_EXERCISES = [
         "label": "Solde nul non considéré comme découvert",
         "stdin": "CREATE TABLE comptes (id INT, solde INT); CREATE TABLE alertes_fraude (compte_id INT, montant_tente INT); INSERT INTO comptes VALUES (1, 1000), (2, 1000);\n-- VERIFY:\nUPDATE comptes SET solde = 0 WHERE id = 1; UPDATE comptes SET solde = -1 WHERE id = 2; SELECT compte_id, montant_tente FROM alertes_fraude ORDER BY compte_id;",
         "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-----------+---------------+\n| compte_id | montant_tente |\n+-----------+---------------+\n| 2         | -1            |\n+-----------+---------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Solde nul inchangé",
+        "stdin": "CREATE TABLE comptes (id INT, solde INT);\nINSERT INTO comptes VALUES (71, 0);\nCREATE TABLE alertes_fraude (compte_id INT, montant_tente INT);\n-- VERIFY:\nUPDATE comptes SET solde = 0 WHERE id = 71; SELECT compte_id, montant_tente FROM alertes_fraude;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n(Requête exécutée avec 0 résultat)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c5-e1\nCREATE TRIGGER trg_alerte_decouvert\nAFTER UPDATE ON comptes\nFOR EACH ROW\nWHEN NEW.solde < 0\nBEGIN\n  INSERT INTO alertes_fraude VALUES (NEW.id, NEW.solde);\nEND;"
@@ -543,6 +633,11 @@ const SQL3_EXERCISES = [
         "label": "Clinique B avec deux dossiers",
         "stdin": "CREATE TABLE contexte_session (tenant_actif TEXT, role_actif TEXT); CREATE TABLE dossiers_patients (id INT, tenant_id TEXT, patient TEXT); INSERT INTO contexte_session VALUES ('clinique_b', 'INFIRMIER'); INSERT INTO dossiers_patients VALUES (1, 'clinique_a', 'Yao'), (2, 'clinique_b', 'Sena'), (3, 'clinique_b', 'Afi');\n-- VERIFY:\nSELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;",
         "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+----+------------+---------+\n| id | tenant_id  | patient |\n+----+------------+---------+\n| 2  | clinique_b | Sena    |\n| 3  | clinique_b | Afi     |\n+----+------------+---------+\n(2 lignes retournées)"
+      },
+      {
+        "label": "ADMIN sans droit sur autre locataire",
+        "stdin": "CREATE TABLE contexte_session (tenant_actif TEXT, role_actif TEXT);\nINSERT INTO contexte_session VALUES ('cabinet_y', 'ADMIN');\nCREATE TABLE dossiers_patients (id INT, tenant_id TEXT, patient TEXT);\nINSERT INTO dossiers_patients VALUES (72, 'cabinet_z', 'Tala');\n-- VERIFY:\nSELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n(Requête exécutée avec 0 résultat)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c5-e2\nCREATE VIEW v_dossiers_rls AS\nSELECT id, tenant_id, patient FROM dossiers_patients\nWHERE tenant_id = (SELECT tenant_actif FROM contexte_session)\n   OR (SELECT role_actif FROM contexte_session) = 'SUPERADMIN';"
@@ -621,6 +716,16 @@ const SQL3_EXERCISES = [
         "label": "Bornes exactes des trimestres (3, 6, 9, 12)",
         "stdin": "CREATE TABLE mesures_iot (id INT, mois INT, valeur INT); INSERT INTO mesures_iot VALUES (1, 3, 50), (2, 6, 60), (3, 9, 70), (4, 12, 80);",
         "expected": "+-----------------+-----------+---------------+\n| partition_cible | nb_lignes | total_valeurs |\n+-----------------+-----------+---------------+\n| p_q1            | 1         | 50            |\n| p_q2            | 1         | 60            |\n| p_q3            | 1         | 70            |\n| p_q4            | 1         | 80            |\n+-----------------+-----------+---------------+\n(4 lignes retournées)"
+      },
+      {
+        "label": "Dernier mois du deuxième trimestre",
+        "stdin": "CREATE TABLE mesures_iot (id INT, mois INT, valeur INT);\nINSERT INTO mesures_iot VALUES (72, 6, 19);",
+        "expected": "+-----------------+-----------+---------------+\n| partition_cible | nb_lignes | total_valeurs |\n+-----------------+-----------+---------------+\n| p_q2            | 1         | 19            |\n+-----------------+-----------+---------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Mars inclus dans le premier trimestre",
+        "stdin": "CREATE TABLE mesures_iot (id INT, mois INT, valeur INT);\nINSERT INTO mesures_iot VALUES\n  (11, 1, 4),\n  (12, 3, 9),\n  (13, 4, 6),\n  (14, 8, 12),\n  (15, 10, 3);",
+        "expected": "+-----------------+-----------+---------------+\n| partition_cible | nb_lignes | total_valeurs |\n+-----------------+-----------+---------------+\n| p_q1            | 2         | 13            |\n| p_q2            | 1         | 6             |\n| p_q3            | 1         | 12            |\n| p_q4            | 1         | 3             |\n+-----------------+-----------+---------------+\n(4 lignes retournées)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c6-e1\nSELECT CASE WHEN mois <= 3 THEN 'p_q1' WHEN mois <= 6 THEN 'p_q2' WHEN mois <= 9 THEN 'p_q3' ELSE 'p_q4' END AS partition_cible, COUNT(*) AS nb_lignes, SUM(valeur) AS total_valeurs FROM mesures_iot GROUP BY partition_cible ORDER BY partition_cible ASC;"
@@ -660,6 +765,11 @@ const SQL3_EXERCISES = [
         "label": "Aucun retard",
         "stdin": "CREATE TABLE pg_stat_replication_sim (application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT); INSERT INTO pg_stat_replication_sim VALUES ('ha_node', 800, 800, 'sync');",
         "expected": "+------------------+------------+--------+\n| application_name | sync_state | lag_mb |\n+------------------+------------+--------+\n| ha_node          | sync       | 0      |\n+------------------+------------+--------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Départage alphabétique de retards nuls",
+        "stdin": "CREATE TABLE pg_stat_replication_sim (application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT);\nINSERT INTO pg_stat_replication_sim VALUES ('rep_y', 130, 130, 'async'), ('rep_x', 140, 140, 'sync');",
+        "expected": "+------------------+------------+--------+\n| application_name | sync_state | lag_mb |\n+------------------+------------+--------+\n| rep_x            | sync       | 0      |\n| rep_y            | async      | 0      |\n+------------------+------------+--------+\n(2 lignes retournées)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c6-e2\nSELECT application_name, sync_state, sent_lsn_mb - replay_lsn_mb AS lag_mb FROM pg_stat_replication_sim ORDER BY lag_mb DESC, application_name ASC;"
@@ -699,6 +809,11 @@ const SQL3_EXERCISES = [
         "label": "Seul réplica sain disponible",
         "stdin": "CREATE TABLE cluster_nodes (node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT); INSERT INTO cluster_nodes VALUES ('pg-dr', 'REPLICA', 1, 4200, 10), ('pg-dead', 'REPLICA', 0, 4300, 99);",
         "expected": "+-----------+--------------+----------+\n| node_name | received_lsn | priority |\n+-----------+--------------+----------+\n| pg-dr     | 4200         | 10       |\n+-----------+--------------+----------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "LSN prioritaire et départage de réplicas sains",
+        "stdin": "CREATE TABLE cluster_nodes (node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT);\nINSERT INTO cluster_nodes VALUES\n  ('primaire', 'PRIMARY', 0, 9900, 100),\n  ('mistral', 'REPLICA', 1, 7900, 95),\n  ('boreal', 'REPLICA', 1, 8100, 20),\n  ('sirocco', 'REPLICA', 1, 8100, 40);",
+        "expected": "+-----------+--------------+----------+\n| node_name | received_lsn | priority |\n+-----------+--------------+----------+\n| sirocco   | 8100         | 40       |\n+-----------+--------------+----------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql3-c6-e3\nSELECT node_name, received_lsn, priority FROM cluster_nodes WHERE role = 'REPLICA' AND healthy = 1 ORDER BY received_lsn DESC, priority DESC LIMIT 1;"

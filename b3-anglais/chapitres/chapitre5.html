@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -86,22 +86,25 @@
   <div class="card">
     <h4>Messages Bruts Incompréhensibles</h4>
     <ul>
-      <li><i>"Invalid or malformed claims in JWT payload."</i> -> L’utilisateur pense : <i>"Mon mot de passe est faux ?"</i></li>
-      <li><i>"Fatal 502: Upstream socket connection pool exhausted."</i> -> L’utilisateur s’inquiète : <i>"Est-ce que ma carte bancaire a été débitée deux fois ?"</i></li>
-      <li><i>"Sanitize your inputs to prevent persistent XSS."</i> -> Formule incompréhensible pour un néophyte.</li>
-      <li><i>"Null reference at PaymentWorker.cs line 124."</i> -> Trace de débogage interne exposée inutilement.</li>
+      <li><i>"Invalid or malformed claims in JWT payload."</i> -&gt; L’utilisateur pense : <i>"Mon mot de passe est faux ?"</i></li>
+      <li><i>"Fatal 502: Upstream socket connection pool exhausted."</i> -&gt; L’utilisateur s’inquiète : <i>"Est-ce que ma carte bancaire a été débitée deux fois ?"</i></li>
+      <li><i>"Sanitize your inputs to prevent persistent XSS."</i> -&gt; Formule incompréhensible pour un néophyte.</li>
+      <li><i>"Null reference at PaymentWorker.cs line 124."</i> -&gt; Trace de débogage interne exposée inutilement.</li>
     </ul>
   </div>
   <div class="card">
     <h4>Reformulations Empathiques et Actionnables</h4>
     <ul>
       <li><i>"Your session has expired for security reasons. Please sign in again to continue safely."</i> (Rassurant et clair).</li>
-      <li><i>"The payment gateway is momentarily unavailable. No money has been charged from your account. Please retry in a few moments."</i> (Désamorce l’anxiété financière).</li>
+      <li><i lang="en">"We could not confirm your payment status. Please check it or contact support before trying again."</i> (Reconnaît l’incertitude et évite une nouvelle tentative prématurée).</li>
       <li><i>"Your password must not contain special characters such as &lt; or &gt;."</i> (Consigne d’action immédiate).</li>
       <li><i>"We are having trouble saving your profile right now. Our technical team has been notified and is working on a fix."</i></li>
     </ul>
   </div>
 </div>
+<p>Une <strong>502</strong> indique qu’une passerelle a reçu une réponse invalide de l’amont ; elle ne prouve ni l’échec ni la réussite du paiement. La transaction peut avoir été traitée malgré l’erreur. L’équipe vérifie son état auprès du prestataire et rapproche, si nécessaire, les notifications reçues avant toute nouvelle opération.</p>
+<p>Si une nouvelle tentative est envisagée, suivre la procédure du prestataire : pour une même opération, utiliser la même clé d’idempotence et les mêmes paramètres dans sa fenêtre de validité lorsque le prestataire le prévoit. Une clé ne confirme pas à elle seule le statut ; certaines erreurs peuvent être renvoyées de nouveau. Ne pas créer une nouvelle clé avant d’avoir clarifié le résultat initial.</p>
+<p>Références : <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-15.6.3">RFC 9110 — 502</a> ; <a href="https://docs.stripe.com/error-low-level">Stripe — traitement des erreurs HTTP</a> ; <a href="https://docs.stripe.com/api/idempotent_requests">Stripe — requêtes idempotentes</a> (consultées le 30 octobre 2026).</p>
 
 <h2>2. Matrice de Sévérité ITIL &amp; Fenêtres de Réponse Opérationnelle</h2>
 
@@ -141,15 +144,17 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="an3-c5-e1" data-lab
      data-exercise="an3-c5-e1"
      data-language="analyse"
      data-height="300"
      data-stdin="TRANSLATE_ERROR code=ERR_AUTH_JWT_EXPIRED">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (an3-c5-e1) — Traducteur d’erreurs techniques en langage utilisateur bienveillant
+  <script type="text/plain" data-lab-starter># Grille d'analyse (an3-c5-e1) — Choisir un message de support clair et prudent
 # Complétez la réponse attendue sous chaque cas ci-dessous :
 
 [Cas 1 — Erreur de passerelle de paiement 502]
@@ -170,38 +175,25 @@ A_COMPLETER
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Traducteur d’erreurs techniques en langage utilisateur bienveillant</h3>
+    <h3 class="lab__title">Exercice 1 — Choisir un message de support clair et prudent</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Traduire un message d’erreur brut ou une trace d’exception en un message d’assistance client empathique, clair et compréhensible par un utilisateur non technicien.</p>
-    <div class="lab__brief"><p>Afficher un code d'erreur brut comme <i>"Invalid or malformed claims in JWT payload"</i> ou <i>"NullPointerException at line 140"</i> désoriente l'utilisateur. En support client de niveau 1/2, l'ingénieur doit reformuler le problème avec clarté et empathie.<br>
-Pour chaque cas d’application des codes d'erreurs au format :<br>
-<code>TRANSLATE_ERROR code=&lt;CODE&gt;</code>.<br><br>
-Dictionnaire des correspondances officielles :<br>
-- <code>ERR_AUTH_JWT_EXPIRED</code> : <code>"Your session has expired. Please sign in again to continue safely."</code><br>
-- <code>ERR_DB_CONN_TIMEOUT</code> : <code>"We are having trouble reaching our database. Please wait a moment and refresh the page."</code><br>
-- <code>ERR_PAYMENT_GATEWAY_502</code> : <code>"The payment processor is temporarily unavailable. No money has been charged from your card."</code><br>
-- <code>ERR_RATE_LIMIT_EXCEEDED</code> : <code>"You have sent too many requests in a short time. Please take a break and retry in a few minutes."</code><br>
-- <code>ERR_FILE_TOO_LARGE</code> : <code>"Your uploaded file exceeds the 10 MB limit. Please compress it before re-uploading."</code><br>
-- <code>ERR_ACCOUNT_LOCKED</code> : <code>"Your account has been temporarily locked for security. Please reset your password or contact support."</code><br>
-- Tout autre code non répertorié :<br>
-  <code>"An unexpected issue occurred. Our engineering team has been notified. Please try again shortly."</code><br><br>
-Afficher :<br>
-<code>SUPPORT_MESSAGE: [&lt;CODE&gt;] -&gt; &lt;message_bienveillant&gt;</code></p></div>
+    <p class="lab__formative-notice" id="an3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire des messages d'assistance en anglais et choisir une formulation adaptée sans affirmer un état de paiement non vérifié.</p>
+    <div class="lab__brief"><p>Pour chaque ligne <code>TRANSLATE_ERROR code=&lt;CODE&gt;</code>, choisissez le message anglais le plus adapté parmi les propositions suivantes. Pour un code inconnu, utilisez le message général D.</p><ul><li><b>A</b> : <em>Your session has expired. Please sign in again.</em></li><li><b>B</b> : <em>We could not confirm your payment status. Please check it or contact support before trying again.</em></li><li><b>C</b> : <em>Too many requests were sent. Please wait before sending another request; check any pending payment first.</em></li><li><b>D</b> : <em>An unexpected issue occurred. Please check its status or contact support before trying again.</em></li><li><b>E</b> : <em>Your uploaded file exceeds the 10 MB limit. Please compress it before re-uploading.</em></li><li><b>F</b> : <em>Your account has been temporarily locked for security. Please reset your password or contact support.</em></li></ul><p>Répondez par <code>SUPPORT_MESSAGE: [&lt;CODE&gt;] -&gt; &lt;LETTRE&gt;</code>. Cette sélection à choix fermé n'évalue pas toutes les autres formulations correctes possibles.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TRANSLATE_ERROR code=ERR_AUTH_JWT_EXPIRED</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUPPORT_MESSAGE: [ERR_AUTH_JWT_EXPIRED] -&gt; "Your session has expired. Please sign in again to continue safely."</pre></div>
     </div>
-    <p class="lab__note">Traduction bienveillante d'une expiration de token JWT.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Créer un dictionnaire associant les codes d'erreur à leur message client.</li>
-        <li>Utiliser dict.get(code, message_par_defaut) pour gérer les codes inconnus.</li>
+        <li>Une erreur 502 ne confirme ni l'échec ni la réussite d'un paiement.</li>
+        <li>Pour un code inconnu, choisissez le message général ; ne supposez pas que l'équipe a déjà été avertie.</li>
       </ol>
     </details>
   </div>
@@ -236,10 +228,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Matrice de sévérité d’incident et calcul de SLA de réponse</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="an3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Déterminer le niveau de sévérité ITIL (SEV-1 à SEV-4) d’un incident technique et fixer les délais maximaux de prise en charge et de résolution.</p>
     <div class="lab__brief"><p>Dans les centres d'opérations réseau (NOC) et équipes SRE internationales, la matrice de sévérité croise l'<b>Impact</b> sur le métier et l'<b>Urgence</b> technique pour fixer contractuellement les fenêtres de réponse.<br>
 Pour chaque cas d’application des signalements d'incidents :<br>
@@ -263,9 +257,7 @@ Afficher :<br>
 <code>INCIDENT_CLASSIFICATION: &lt;id&gt; -&gt; LEVEL=&lt;LEVEL&gt; | SLA_RESPONSE=&lt;RESPONSE&gt; | SLA_RESOLUTION=&lt;RESOLUTION&gt;</code></p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>INCIDENT_EVAL id=INC-401 impact=CRITICAL urgency=IMMEDIATE</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>INCIDENT_CLASSIFICATION: INC-401 -&gt; LEVEL=SEV-1 (Critical Outage) | SLA_RESPONSE=15m | SLA_RESOLUTION=4h</pre></div>
     </div>
-    <p class="lab__note">Impact critique et urgence immédiate : incident majeur SEV-1.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -326,10 +318,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Validateur de Post-Mortem Blameless et chaîne des 5 Pourquoi</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="an3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Auditer un rapport post-mortem d’ingénierie (RCA) pour garantir l’absence de culpabilisation individuelle (blameless) et la présence d’une analyse systémique par les 5 Pourquoi.</p>
     <div class="lab__brief"><p>La culture d'ingénierie moderne (Google SRE, Netflix, AWS) prescrit des <i>Blameless Post-Mortems</i> : les pannes ne sont jamais imputées à une erreur humaine individuelle mais à un manque de garde-fous systémiques (manque de tests, d'alertes ou d'automatisation).<br>
 Le cas présente à l'analyse les blocs d'un post-mortem :<br>
@@ -355,9 +349,7 @@ WHY_3: A slow query locked the table for forty seconds
 WHY_4: The query lacked an index on the user_id column
 WHY_5: Automated migration checks did not flag unindexed foreign keys
 REMEDIATION: Add automated lint step in CI pipeline to require indexes on foreign keys</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>POSTMORTEM_EVAL: PM-101 -&gt; STATUS=APPROVED | BLAMELESS=TRUE | DEPTH=5_WHYS</pre></div>
     </div>
-    <p class="lab__note">Analyse systémique rigoureuse débouchant sur un garde-fou automatisé en CI.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -367,6 +359,7 @@ REMEDIATION: Add automated lint step in CI pipeline to require indexes on foreig
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -375,11 +368,11 @@ REMEDIATION: Add automated lint step in CI pipeline to require indexes on foreig
       <p class="q__stem">Face à un utilisateur paniqué demandant si son paiement a été débité suite à une erreur HTTP 502, quelle est la réponse de support la plus professionnelle ?</p>
       <div class="opts">
         <button class="opt">Read the status codes, 502 means bad gateway on upstream Nginx.</button>
-        <button class="opt" data-correct="1">The payment server is momentarily unavailable. No money has been charged from your card. Please wait a moment and retry.</button>
+        <button class="opt" data-correct="1">We could not confirm your payment status. Please check it or contact support before trying again.</button>
         <button class="opt">It is not our problem, your bank rejected the transaction.</button>
         <button class="opt">Our microservice crashed because of a null pointer exception.</button>
       </div>
-      <div class="q__exp">Cette réponse élimine immédiatement l’angoisse financière (« No money has been charged »), évite tout jargon et donne une consigne claire.</div>
+      <div class="q__exp">Une 502 ne confirme pas l’état du paiement. La réponse indique l’incertitude et demande une vérification avant toute nouvelle tentative.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l’objectif premier d’un Post-Mortem Blameless dans la culture SRE (Site Reliability Engineering) ?</p>
@@ -459,6 +452,7 @@ REMEDIATION: Add automated lint step in CI pipeline to require indexes on foreig
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
     <ul>
       <li>Exposer des traces d’exceptions (stack traces) à des utilisateurs non techniciens, créant anxiété et incompréhension.</li>
+      <li>Déduire d’une 502 qu’aucun paiement n’a eu lieu ou demander de payer à nouveau sans vérifier la transaction.</li>
       <li>Surévaluer ou sous-évaluer un incident sans se référer à la grille objective d’impact et d’urgence ITIL.</li>
       <li>Conclure un post-mortem en désignant une erreur humaine sans interroger l’absence de garde-fou technique.</li>
       <li>Arrêter la chaîne des 5 Pourquoi au deuxième ou troisième niveau, masquant la véritable cause racine systémique.</li>
@@ -471,7 +465,7 @@ REMEDIATION: Add automated lint step in CI pipeline to require indexes on foreig
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
     <ol>
       <li>Dépouiller systématiquement les messages d’erreur de tout jargon ou trace de pile avant de communiquer avec un utilisateur.</li>
-      <li>Rassurer immédiatement sur la sécurité des fonds et l’intégrité des données dès le premier message de support.</li>
+      <li>Exprimer de l’empathie sans garantir l’état des fonds ou des données avant vérification.</li>
       <li>Évaluer objectivement l’impact métier et l’urgence pour assigner la sévérité exacte (SEV-1 à SEV-4) selon la grille ITIL.</li>
       <li>Bannir formellement les noms d’ingénieurs et les accusations personnelles lors de la rédaction d’un post-mortem.</li>
       <li>Approfondir la cause racine avec les 5 Pourquoi jusqu’à identifier un garde-fou automatisé absent (test, linter, alerte).</li>
@@ -483,7 +477,8 @@ REMEDIATION: Add automated lint step in CI pipeline to require indexes on foreig
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
-      <li>Le support client exige une vulgarisation empathique : expliquer le problème sans condescendance et donner une action claire.</li>
+      <li>Le support client exige une vulgarisation empathique : signaler ce qui est vérifié ou incertain et donner une action claire.</li>
+      <li>Après une 502 pendant un paiement, vérifier le statut avant une nouvelle opération et respecter la procédure d’idempotence du prestataire.</li>
       <li>La matrice de sévérité ITIL fixe les priorités d’intervention et les fenêtres de réponse contractuelles.</li>
       <li>Un incident SEV-1 exige une prise en charge sous 15 minutes et une résolution ou mitigation sous 4 heures.</li>
       <li>La culture Blameless considère que les pannes révèlent des failles systémiques de conception et non des fautes individuelles.</li>
@@ -491,7 +486,7 @@ REMEDIATION: Add automated lint step in CI pipeline to require indexes on foreig
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
-      <li>Mes réponses de support rassurent-elles l’utilisateur avant d’expliquer la procédure ?</li>
+      <li>Mes réponses de support distinguent-elles les faits vérifiés des incertitudes avant d’expliquer la procédure ?</li>
       <li>Ai-je classifié l’incident selon la matrice ITIL en croisant impact et urgence ?</li>
       <li>Le rapport post-mortem est-il exempt de tout mot de blâme individuel (fault, careless, lazy) ?</li>
       <li>La chaîne des 5 Pourquoi comporte-t-elle bien cinq niveaux d’interrogation successifs ?</li>
@@ -499,7 +494,7 @@ REMEDIATION: Add automated lint step in CI pipeline to require indexes on foreig
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>Vulgarisation & Empathie en support technique</li><li>Matrice de sévérité ITIL (SEV-1 à SEV-4)</li><li>SLAs de prise en charge et de résolution</li><li>Site Reliability Engineering (SRE)</li><li>Culture Blameless & Sécurité psychologique</li><li>Méthode des 5 Pourquoi (5-Whys)</li><li>Root Cause Analysis (RCA)</li><li>Garde-fous systémiques et remédiation automatisée</li>
+      <li>Vulgarisation &amp; Empathie en support technique</li><li>Matrice de sévérité ITIL (SEV-1 à SEV-4)</li><li>SLAs de prise en charge et de résolution</li><li>Site Reliability Engineering (SRE)</li><li>Culture Blameless &amp; Sécurité psychologique</li><li>Méthode des 5 Pourquoi (5-Whys)</li><li>Root Cause Analysis (RCA)</li><li>Garde-fous systémiques et remédiation automatisée</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -511,7 +506,7 @@ REMEDIATION: Add automated lint step in CI pipeline to require indexes on foreig
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à éliminer le jargon en support client ou tendance à imputer les pannes à des fautes humaines individuelles.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Difficultés à éliminer le jargon en support client ou tendance à imputer les pannes à des fautes humaines individuelles.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne application de la matrice ITIL, communication empathique rassurante et respect de la structure des 5 Pourquoi.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Excellence en gouvernance SRE : conduite de post-mortems blameless rigoureux, définition de remédiations systémiques et maîtrise du support opérationnel.</div>

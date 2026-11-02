@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -173,14 +173,12 @@ CMD ["node", "server.js"]</code></pre>
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="dk2-c6-e1" data-lab
      data-exercise="dk2-c6-e1"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="FROM python:3.11-slim&#10;WORKDIR /app&#10;COPY . .&#10;USER appuser&#10;CMD [&quot;python&quot;, &quot;main.py&quot;]">
@@ -194,17 +192,19 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 1 — Auditeur de privilèges root et directive USER</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité de sécurité d’une image Docker en s’assurant qu’elle ne s’exécute pas sous le superutilisateur root.</p>
-    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
-Règles de sécurité CIS Docker Benchmark :<br>
+    <p class="lab__note" id="dk2-c6-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Le script Bash lit un Dockerfile mono-étape sur l’entrée standard (stdin). Le modèle suppose une image de base dont l'utilisateur est root et vérifie seulement le nom ou l'UID indiqué par <code>USER</code>. Il ne résout pas les noms en UID et ne vérifie pas une option <code>--user</code> au lancement : <code>CONFORME</code> ne signifie pas que toute la sécurité du conteneur a été auditée.<br>
+Règles de ce contrôle :<br>
 - Par défaut dans Docker, l'utilisateur actif est <code>root</code> (UID 0).<br>
-- Si une instruction <code>USER &lt;nom_ou_uid&gt;</code> est rencontrée, elle modifie l'utilisateur actif pour les étapes suivantes et le runtime final.<br>
+- Si une instruction <code>USER &lt;nom_ou_uid&gt;[:groupe]</code> est rencontrée, elle modifie l'utilisateur actif pour les étapes suivantes et le runtime final.<br>
 - À la fin du fichier :<br>
-  * Si le dernier utilisateur actif est <code>root</code> ou <code>0</code> ou si aucune directive USER n'a été définie :<br>
+  * Si la partie utilisateur de la dernière directive est <code>root</code> ou <code>0</code> ou si aucune directive USER n'a été définie :<br>
     afficher <code>AUDIT_SECURITE: CRITIQUE (Le conteneur s'execute avec les privileges root - UID 0)</code><br>
   * Si le dernier utilisateur actif est non-root (ex: <code>node</code>, <code>appuser</code>, <code>1001</code>) :<br>
     afficher <code>AUDIT_SECURITE: CONFORME (Execution sous utilisateur non-privilegie: &lt;USER&gt;)</code></p></div>
@@ -229,6 +229,7 @@ CMD ["python", "main.py"]</pre></div>
 
 <div class="lab" id="dk2-c6-e2" data-lab
      data-exercise="dk2-c6-e2"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="MEM=512m SWAP=1g CPUS=1.5&#10;MEM=256m SWAP=256m CPUS=0.5">
@@ -242,13 +243,16 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 2 — Calculateur de quotas cgroups (CPU &amp; Mémoire)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Convertir les paramètres de contrainte de ressources Docker en métriques de contrôle noyau cgroups.</p>
+    <p class="lab__note" id="dk2-c6-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
-Exemple : <code>MEM=512m SWAP=1g CPUS=1.5</code>.<br>
+Chaque ligne contient <code>MEM=&lt;taille&gt; SWAP=&lt;taille&gt; CPUS=&lt;nombre&gt;</code>, par exemple <code>MEM=512m SWAP=1g CPUS=1.5</code>. Les tailles sont des entiers positifs ou nuls et le nombre de cœurs est un décimal positif ou nul.<br>
+Ce modèle arithmétique n'est pas un validateur des options Docker : notamment les valeurs zéro et un total SWAP inférieur à MEM peuvent avoir une autre signification ou être refusés par Docker.<br>
 Unités mémoire : <code>m</code> (Mo = 1024 Ko) ou <code>g</code> (Go = 1024 Mo).<br>
 Règles cgroups v2 :<br>
 - <code>RAM_MAX_MO</code> : valeur convertie en Mo entiers.<br>
@@ -277,6 +281,7 @@ CGROUPS: RAM: 256 Mo | SWAP_ADDITIONNEL: 0 Mo | CPU_QUOTA: 50000 us / 100000 us 
 
 <div class="lab" id="dk2-c6-e3" data-lab
      data-exercise="dk2-c6-e3"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="POLITIQUE=always EXIT_CODE=1 MANUEL=NON&#10;POLITIQUE=always EXIT_CODE=0 MANUEL=OUI&#10;POLITIQUE=on-failure EXIT_CODE=0 MANUEL=NON&#10;POLITIQUE=on-failure EXIT_CODE=137 MANUEL=NON">
@@ -290,13 +295,16 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 3 — Simulateur de politique de redémarrage (Restart Policy)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Déterminer si le démon Docker redémarre ou non un conteneur arrêté selon sa politique et son code de sortie.</p>
-    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
-Règles du démon Docker :<br>
+    <p class="lab__note" id="dk2-c6-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Le script Bash lit un événement par ligne sur l’entrée standard (stdin), au format <code>POLITIQUE=... EXIT_CODE=... MANUEL=OUI|NON</code>. Le code de sortie est un entier positif ou nul.<br>
+Le modèle calcule uniquement la décision immédiate après cet arrêt. Il ne simule ni le redémarrage du daemon ni la durée préalable d'exécution ; <code>ARRET_DEFINITIF</code> est le libellé du modèle, pas une garantie pour tous les événements futurs.<br>
+Règles du modèle :<br>
 1. Si <code>MANUEL=OUI</code> (ex: <code>docker stop</code> déclenché par l'admin) :<br>
    - <code>DECISION: ARRET_DEFINITIF (Arret volontaire par l'administrateur)</code><br>
 2. Sinon :<br>
@@ -322,12 +330,13 @@ EVENEMENT: POLITIQUE=on-failure EXIT_CODE=137 MANUEL=NON -&gt; DECISION: REDEMAR
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Un arrêt volontaire manuel bloque tout redémarrage automatique.</li>
+        <li>Dans ce modèle, un arrêt manuel empêche la relance immédiate ; le redémarrage du daemon n'est pas simulé.</li>
         <li>on-failure ne relance le conteneur que si le code de sortie est non nul.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -476,7 +485,7 @@ EVENEMENT: POLITIQUE=on-failure EXIT_CODE=137 MANUEL=NON -&gt; DECISION: REDEMAR
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Révisez la directive USER, les risques du mode privilégié et les quotas de ressources.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Révisez la directive USER, les risques du mode privilégié et les quotas de ressources.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Bonnes connaissances en sécurité. Approfondissez les Linux Capabilities et le durcissement Cgroups.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Très bonne maîtrise des pratiques de sécurité de production selon le CIS Benchmark.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Score parfait ! Vous sécurisez, monitorez et durcissez les conteneurs Docker au plus haut niveau de conformité industrielle.</div>

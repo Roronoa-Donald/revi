@@ -14,8 +14,8 @@ module.exports = [
     "brief": "<p>Pour chaque situation proposée : onglet est un code de <code>accueil</code>, <code>insertion</code>, <code>miseenpage</code>, <code>revision</code> ou <code>affichage</code>. Pour chaque situation, indiquez <code>groupe : OK</code> si le groupe appartient bien à cet onglet, sinon <code>groupe : ERREUR</code>. Concluez par <code>conformes : X/n</code>.</p>",
     "starter": "# Grille d'analyse (bu-c1-e1) — Onglets et groupes\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Deux erreurs]\n# Données : police accueil\n# Données : zoom revision\n# Données : styles insertion\nA_COMPLETER\n\n[Cas 2 — Tout conforme]\n# Données : tableaux insertion\n# Données : filigrane miseenpage\nA_COMPLETER\n\n[Cas 3 — Cinq groupes]\n# Données : pressepapier accueil\n# Données : symbole insertion\n# Données : themes miseenpage\n# Données : suivi revision\n# Données : macros affichage\nA_COMPLETER\n",
     "hints": [
-      "Un case sur le groupe donne l'onglet attendu ; compare-le à l'onglet saisi.",
-      "Le bilan sort une seule fois, après la boucle."
+      "Pour chaque groupe, retrouvez son onglet dans le rappel de l’exercice.",
+      "Comparez-le à l’onglet proposé avant de compter les associations correctes."
     ],
     "examples": [
       {
@@ -569,10 +569,10 @@ module.exports = [
       {
         "label": "Classe complète",
         "stdin": "cas:3",
-        "expected": "a : tres bien\nb : passe\nc : passe\nd : rattrapage≠ : tres bien\nrecales : 1"
+        "expected": "a : tres bien\nb : passe\nc : passe\nd : rattrapage\ne : tres bien\nrecales : 1"
       }
     ],
-    "solution": "[Exemple]\nana : tres bien\nben : bien\ncleo : passe\ndan : rattrapage\nrecales : 1\n\n[Cas 1 — Frontières]\nana : tres bien\nben : bien\ncleo : bien\nrecales : 0\n\n[Cas 2 — Tous recales]\nana : rattrapage\nben : rattrapage\nrecales : 2\n\n[Cas 3 — Classe complète]\na : tres bien\nb : passe\nc : passe\nd : rattrapage≠ : tres bien\nrecales : 1\n"
+    "solution": "[Exemple]\nana : tres bien\nben : bien\ncleo : passe\ndan : rattrapage\nrecales : 1\n\n[Cas 1 — Frontières]\nana : tres bien\nben : bien\ncleo : bien\nrecales : 0\n\n[Cas 2 — Tous recales]\nana : rattrapage\nben : rattrapage\nrecales : 2\n\n[Cas 3 — Classe complète]\na : tres bien\nb : passe\nc : passe\nd : rattrapage\ne : tres bien\nrecales : 1\n"
   },
   {
     "id": "bu-c6-e1",

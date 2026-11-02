@@ -15,8 +15,8 @@ module.exports = [
     brief: "<p>Pour chaque situation proposée : type vaut <code>o</code> (objectif) ou <code>s</code> (subjectif). Pour chaque situation, indiquez <code>libelle : categorie</code>, où categorie vaut <code>regle</code> (objectif) ou <code>prerogative</code> (subjectif). Enfin Indiquez <code>bilan : X regles / Y prerogatives</code>, X et Y étant les compteurs.</p>",
     starter: "# Grille d'analyse (dr-c1-e1) — Droit objectif et droits subjectifs\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Une seule prérogative]\n# Données : s droit de vote\nA_COMPLETER\n\n[Cas 2 — Deux règles]\n# Données : o loi\n# Données : o decret\nA_COMPLETER\n\n[Cas 3 — Cinq éléments mixtes]\n# Données : o code penal\n# Données : s droit a l image\n# Données : o coutume\n# Données : s droit de propriete\n# Données : o arrrete\nA_COMPLETER\n",
     hints: [
-          "Deux compteurs posés à 0 avant la boucle, incrémentés selon les cas prévus.",
-          "Le bilan sort après la boucle, selon la syntaxe attendue « X regles / Y prerogatives »."
+          "Le code désigne-t-il une règle générale ou une prérogative ?",
+          "Comptez séparément les deux catégories avant de rédiger le bilan."
     ],
     examples: [
           {
@@ -91,8 +91,8 @@ module.exports = [
     brief: "<p>Pour chaque situation proposée : nature vaut <code>pen</code>, <code>civ</code>, <code>adm</code> ou <code>dis</code>. Pour chaque situation, indiquez <code>sanction : nature_complete</code>, où nature_complete vaut <code>penale</code>, <code>civile</code>, <code>administrative</code> ou <code>disciplinaire</code>. Concluez par quatre lignes de comptage, toujours dans cet ordre : <code>penales : X</code>, <code>civiles : X</code>, <code>administratives : X</code> et <code>disciplinaires : X</code>.</p>",
     starter: "# Grille d'analyse (dr-c1-e3) — Les sanctions de la règle de droit\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Une seule sanction]\n# Données : emprisonnement pen\nA_COMPLETER\n\n[Cas 2 — Deux administratives]\n# Données : suspension adm\n# Données : retrait adm\nA_COMPLETER\n\n[Cas 3 — Cinq sanctions mixtes]\n# Données : amende pen\n# Données : blame dis\n# Données : retrait adm\n# Données : dommages civ\n# Données : emprisonnement pen\nA_COMPLETER\n",
     hints: [
-          "Un case à quatre branches remplit les deux rôles : afficher et incrémenter.",
-          "Les quatre totaux sortent après la boucle, dans l'ordre demandé, même quand le compteur vaut 0."
+          "À quelle famille renvoie le code de chaque sanction ?",
+          "Comptez les sanctions de chaque famille, y compris les familles absentes."
     ],
     examples: [
           {

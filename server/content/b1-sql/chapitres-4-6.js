@@ -20,12 +20,12 @@ module.exports = [
 
     situation:
       'Les marques vivent dans une table, les voitures dans une autre — et la question « combien de ' +
-      'voitures japonaises dans le parc ? » traverse les deux. La jointure est l’opération qui assemble ' +
-      'temporairement les tables autour de leur point de passage : la marque. Une fois le principe vu, ' +
+      'voitures japonaises dans le parc ? » traverse les deux. La jointure est l’opération qui combine ' +
+      'leurs lignes autour de leur point de passage : le code de marque. Une fois le principe vu, ' +
       'les questions à deux tables ne coûtent pas plus cher que les autres.',
 
     objectives: [
-      'expliquer ce que produit une jointure : une table virtuelle assemblée ;',
+      'expliquer ce que produit une jointure : un résultat combinant les lignes ;',
       'écrire une jointure interne avec JOIN…ON et sans JOIN (virgules + WHERE) ;',
       'choisir entre INNER JOIN et LEFT JOIN selon la question ;',
       'utiliser des alias de tables pour écrire des requêtes lisibles.'
@@ -33,29 +33,29 @@ module.exports = [
 
     sections: [
       {
-        title: 'Le principe : une table virtuelle',
+        title: 'Le principe : combiner les lignes',
         html: [
-          '<p>Joindre deux tables, c’est construire une <strong>table virtuelle et temporaire</strong> qui ' +
-          'reprend les lignes des deux, appariées par la condition de jointure. Le SGBD combine chaque ' +
-          'ligne de la première avec chaque ligne de la seconde, puis ne garde que les combinaisons qui ' +
-          'satisfont la condition.</p>',
+          '<p>Une jointure combine les lignes de deux tables dans le résultat d’une requête, sans ' +
+          'modifier les tables d’origine. Pour une jointure interne avec condition, imaginez toutes les ' +
+          'combinaisons, puis gardez celles qui satisfont la condition. Le SGBD peut les calculer autrement.</p>',
           '<pre><code>Marque (un extrait)          Voiture (un extrait)\n' +
-          'code   nommarque             immat       marque\n' +
-          'TOY    TOYOTA                TG-3733-AC  TOYOTA\n' +
-          'BMW    BMW                   TG-5420-AL  BMW\n' +
-          'REN    RENAULT               TG-2222-BC  RENAULT\n' +
+          'codemarque  nommarque        immat       codemarque\n' +
+          'TOY         TOYOTA           TG-3733-AC  TOY\n' +
+          'BMW         BMW              TG-5420-AL  BMW\n' +
+          'REN         RENAULT          TG-2222-BC  REN\n' +
           '\n' +
-          'jointure sur  nommarque = marque\n' +
+          'jointure sur Marque.codemarque = Voiture.codemarque\n' +
           '→ TG-3733-AC  TOYOTA   TOYOTA   JAPON\n' +
           '→ TG-5420-AL  BMW      BMW      ALLEMAGNE\n' +
           '→ TG-2222-BC  RENAULT  RENAULT  FRANCE</code></pre>',
           '<p>La condition de jointure se repère dans le schéma : quelle colonne d’une table désigne la ' +
-          'même réalité qu’une colonne de l’autre ? Ici <code>Marque.nommarque = Voiture.marque</code> — ' +
-          'après normalisation, le support remplacerait ce doublon par la clé <code>codemarque</code>.</p>',
+          'même réalité qu’une colonne de l’autre ? Ici les deux colonnes <code>codemarque</code> ' +
+          'désignent la même marque. La clé étrangère composée contrôle aussi la cohérence du nom.</p>',
           box('mnemo', 'Mnémotechnique — « Le pont a deux rives »', 'pin',
-            '    <p>Une jointure sans <strong>ON</strong> n’existe pas : la condition est le pont. Si le ' +
-            'résultat paraît démultiplié (des centaines de lignes pour deux petites tables), la condition ' +
-            'est absente ou fausse — le SGBD a alors apparié toutes les lignes avec toutes.</p>')
+            '    <p>Pour relier les lignes correspondantes, vérifiez la condition : elle peut s’écrire ' +
+            'avec <code>ON</code>, <code>USING</code> ou, pour une jointure interne, dans <code>WHERE</code>. ' +
+            'Un produit cartésien associe volontairement chaque ligne à toutes les autres ; il est valide, ' +
+            'mais souvent involontaire.</p>')
         ].join('\n')
       },
       {
@@ -65,21 +65,36 @@ module.exports = [
           '<code>WHERE</code> :</p>',
           '<pre><code>SELECT V.immat, M.nommarque, M.paysmarque\n' +
           'FROM Voiture V, Marque M\n' +
-          'WHERE V.marque = M.nommarque;</code></pre>',
+          'WHERE V.codemarque = M.codemarque;</code></pre>',
           '<p>La forme moderne — celle du support et des normes — passe par <code>JOIN…ON</code> :</p>',
           '<pre><code>SELECT V.immat, M.nommarque, M.paysmarque\n' +
           'FROM Voiture V\n' +
-          'INNER JOIN Marque M ON V.marque = M.nommarque;\n' +
+          'INNER JOIN Marque M ON V.codemarque = M.codemarque;\n' +
           '\n' +
           '-- les clauses habituelles restent en place :\n' +
           'SELECT V.immat, V.marque\n' +
           'FROM Voiture V\n' +
-          'INNER JOIN Marque M ON V.marque = M.nommarque\n' +
+          'INNER JOIN Marque M ON V.codemarque = M.codemarque\n' +
           'WHERE M.paysmarque = \'JAPON\'\n' +
           'ORDER BY V.immat;</code></pre>',
           '<p><code>INNER</code> est facultatif — <code>JOIN</code> seul signifie déjà jointure interne. ' +
           'La jointure interne ne retient que les lignes ayant <strong>une correspondance des deux ' +
           'côtés</strong> : une marque sans voiture du parc disparaît du résultat.</p>',
+          '<p>Lorsque les deux tables portent le même nom de colonne, SQLite accepte aussi ' +
+          '<code>USING (codemarque)</code>. <code>NATURAL JOIN</code> utilise automatiquement tous ' +
+          'les noms de colonnes communs : ici, seul <code>codemarque</code> est commun. ' +
+          'Ajouter une colonne de même nom aux deux tables peut donc changer le résultat.</p>',
+          '<pre><code>SELECT V.immat, M.nommarque\n' +
+          'FROM Voiture V JOIN Marque M USING (codemarque)\n' +
+          'ORDER BY V.immat LIMIT 3;\n' +
+          'SELECT COUNT(*) AS voitures FROM Voiture NATURAL JOIN Marque;\n' +
+          'SELECT COUNT(*) AS combinaisons FROM Voiture CROSS JOIN Marque;</code></pre>',
+          '<p>Dans la base initiale, NATURAL JOIN donne 23 correspondances ; CROSS JOIN, sans ' +
+          'condition ici, produit 23 × 12 = 276 combinaisons.</p>',
+          '<pre><code>SELECT COUNT(*) FROM Voiture V CROSS JOIN Marque M ON V.codemarque = M.codemarque;</code></pre>',
+          '<p>SQLite accepte aussi une condition ON ou USING sur CROSS JOIN : cette extension non portable ' +
+          'ne conserve que les combinaisons correspondantes (23 ici). Pour obtenir un produit cartésien, ' +
+          'écrivez CROSS JOIN sans condition.</p>',
           box('intuition', 'Pourquoi la jointure interne « perd » des lignes', 'compass',
             '    <p>Si une marque n’a aucune voiture, aucune ligne de Voiture ne correspond : la ligne ' +
             'conjuguée n’existe pas, la marque disparaît. Ce n’est pas un bug — c’est la définition. Pour ' +
@@ -94,18 +109,37 @@ module.exports = [
           'complétées de <code>NULL</code> quand la droite manque :</p>',
           '<pre><code>SELECT M.nommarque, COUNT(V.immat) AS nb\n' +
           'FROM Marque M\n' +
-          'LEFT JOIN Voiture V ON V.marque = M.nommarque\n' +
+          'LEFT JOIN Voiture V ON V.codemarque = M.codemarque\n' +
           'GROUP BY M.nommarque\n' +
           'ORDER BY nb DESC, M.nommarque;</code></pre>',
           '<p>Le détail qui compte : compter <code>V.immat</code> et non <code>*</code>. Pour une marque ' +
           'sans voiture, <code>V.immat</code> vaut NULL et n’est pas compté — le total est juste (0), là ' +
-          'où <code>COUNT(*)</code> compterait 1 (la ligne conjuguée à NULL existe dans la jointure).</p>',
+          'où <code>COUNT(*)</code> compterait 1 (la ligne conjuguée à NULL existe dans la jointure). ' +
+          'Dans la base initiale, les 12 marques ont au moins une voiture : ajoutez une marque fictive ' +
+          'sans voiture pour observer un zéro, puis réinitialisez la base.</p>',
           '<table>\n' +
           '    <tr><th>Type</th><th>Lignes retenues</th></tr>\n' +
           '    <tr><td>INNER JOIN</td><td>uniquement les correspondances des deux côtés</td></tr>\n' +
           '    <tr><td>LEFT JOIN</td><td>toutes les lignes de gauche, NULL à droite si absence</td></tr>\n' +
           '    <tr><td>RIGHT JOIN</td><td>symétrique : toutes les lignes de droite</td></tr>\n' +
           '  </table>'
+        ].join('\n')
+      },
+      {
+        title: 'Relier plusieurs voitures et équipements',
+        html: [
+          '<p>Une voiture peut avoir plusieurs équipements, et un même équipement peut équiper plusieurs ' +
+          'voitures. La table <code>VoitureEquipement</code> enregistre chaque association par ' +
+          'l’immatriculation et le code de l’équipement. Sa clé primaire composée interdit deux fois ' +
+          'la même association ; ses deux clés étrangères désignent des lignes existantes.</p>',
+          '<pre><code>SELECT V.immat, E.nomequipement\n' +
+          'FROM Voiture V\n' +
+          'INNER JOIN VoitureEquipement VE ON VE.immat = V.immat\n' +
+          'INNER JOIN Equipement E ON E.codeequipement = VE.codeequipement\n' +
+          'ORDER BY V.immat, E.nomequipement;</code></pre>',
+          '<p>La première jointure retrouve les associations de chaque voiture ; la seconde retrouve ' +
+          'le nom de chaque équipement. Dans ce parc fictif, supprimer une voiture ou un équipement ' +
+          'supprime aussi ses associations grâce à <code>ON DELETE CASCADE</code>.</p>'
         ].join('\n')
       },
       {
@@ -123,14 +157,14 @@ module.exports = [
           'd’écrire moins de code ».</p>',
           box('pitfall', 'Piège — les colonnes ambiguës', 'warning',
             '    <p>Quand deux tables jointes portent une colonne de même nom (ici <code>codemarque</code> ' +
-            'dans Marque et dans Voiture normalisée), écrire la colonne sans préfixe est une erreur : ' +
+            'dans Marque et Voiture), écrire la colonne sans préfixe est une erreur : ' +
             '« ambiguous column ». <strong>Toujours préfixer par l’alias</strong> : M.codemarque, V.codemarque.</p>')
         ].join('\n')
       }
     ],
 
     questions: [
-      { stem: 'Que produit une jointure de deux tables ?', opts: ['Une copie des deux tables', 'Une table virtuelle appariée par la condition', 'Une fusion permanente'], correct: 1, exp: 'Temporaire et virtuelle : le résultat d’une requête n’altère rien.' },
+      { stem: 'Que produit une jointure interne avec condition ?', opts: ['Une copie permanente des tables', 'Un résultat associant les lignes correspondantes', 'Une suppression des lignes sans correspondance'], correct: 1, exp: 'La requête produit un résultat sans modifier les tables ; le moteur ne crée pas nécessairement une table temporaire.' },
       { stem: 'Que retient une jointure interne ?', opts: ['Toutes les lignes des deux tables', 'Uniquement les correspondances des deux côtés', 'Les lignes de la première table'], correct: 1, exp: 'Sans correspondance, la ligne conjuguée n’existe pas.' },
       { stem: 'Quelle jointure garde les marques sans voiture ?', opts: ['INNER JOIN', 'LEFT JOIN (Marque à gauche)', 'Aucune'], correct: 1, exp: 'LEFT JOIN garde toute la table de gauche, complétée de NULL.' },
       { stem: 'Dans une LEFT JOIN, pourquoi COUNT(V.immat) plutôt que COUNT(*) ?', opts: ['C’est plus rapide', 'COUNT(V.immat) ignore les NULL : les marques sans voiture comptent 0', 'COUNT(*) est interdit en jointure'], correct: 1, exp: 'COUNT(colonne) ne compte que les non-NULL ; COUNT(*) compterait la ligne conjuguée.' },
@@ -139,7 +173,7 @@ module.exports = [
     ],
 
     pitfalls: [
-      '<strong>Condition de jointure oubliée</strong> : produit cartésien, des milliers de lignes absurdes.',
+      '<strong>Condition de jointure oubliée</strong> : produit cartésien, valide mais souvent non souhaité.',
       '<strong>INNER JOIN quand la question demande les absents</strong> : les marques sans voiture disparaissent.',
       '<strong>COUNT(*) sur une LEFT JOIN</strong> : les lignes conjuguées à NULL sont comptées à tort.',
       '<strong>Colonnes non préfixées</strong> : « ambiguous column » dès que deux tables partagent un nom.',
@@ -156,7 +190,7 @@ module.exports = [
     ],
 
     summary: [
-      'Une jointure assemble une table virtuelle autour d’une condition ON exacte.',
+      'Une jointure combine les lignes ; ON, USING et NATURAL sont des formes possibles, CROSS JOIN produit ici toutes les combinaisons.',
       'INNER JOIN : correspondances des deux côtés ; LEFT JOIN : toute la table de gauche, NULL à droite.',
       'COUNT(colonne) ignore les NULL : c’est lui qu’on compte sur une LEFT JOIN.',
       'Les alias (M, V) raccourcissent la requête et remplacent le nom de table partout.',
@@ -180,7 +214,7 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Que construit une jointure ?', a: 'Une table virtuelle et temporaire, appariée par la condition ON.' },
+      { q: 'Que produit une jointure ?', a: 'Un résultat combinant des lignes ; ON ou USING peuvent définir les correspondances. CROSS JOIN peut produire toutes les combinaisons.' },
       { q: 'Différence INNER / LEFT JOIN ?', a: 'INNER ne garde que les correspondances ; LEFT garde toute la table de gauche, complétée de NULL.' },
       { q: 'Pourquoi COUNT(V.immat) et pas COUNT(*) sur une LEFT JOIN ?', a: 'COUNT(colonne) ignore les NULL : les marques sans voiture comptent 0, pas 1.' },
       { q: 'C’est quoi une colonne ambiguë ?', a: 'Un nom de colonne porté par deux tables jointes et écrit sans préfixe d’alias.' }
@@ -217,19 +251,20 @@ module.exports = [
           '<table>\n' +
           '    <tr><th>Fonction</th><th>Résultat</th><th>Exemple sur le parc</th></tr>\n' +
           '    <tr><td>COUNT(*)</td><td>nombre de lignes</td><td>23 voitures</td></tr>\n' +
-          '    <tr><td>COUNT(colonne)</td><td>lignes où la colonne n’est pas NULL</td><td>immatriculées : 23</td></tr>\n' +
+          '    <tr><td>COUNT(colonne)</td><td>lignes où la colonne n’est pas NULL</td><td>dates connues : 23</td></tr>\n' +
           '    <tr><td>MIN / MAX</td><td>plus petite / plus grande valeur</td><td>prix de 6 M à 50 M</td></tr>\n' +
           '    <tr><td>SUM</td><td>somme des valeurs</td><td>budget total : 613,8 M</td></tr>\n' +
           '    <tr><td>AVG</td><td>moyenne des valeurs</td><td>kilométrage moyen : 1 840,65</td></tr>\n' +
           '  </table>',
           '<p><code>MIN</code> et <code>MAX</code> ne sont pas réservés aux nombres : sur des chaînes ils ' +
           'renvoient la première et la dernière dans l’ordre alphabétique, sur des dates la plus ancienne ' +
-          'et la plus récente — <code>MIN(immat), MAX(datecirc)</code> sont des requêtes légales.</p>',
+          'et la plus récente — <code>SELECT MIN(immat), MAX(datecirc) FROM Voiture;</code> est une requête légale.</p>',
           box('pitfall', 'Piège — COUNT(*) vs COUNT(colonne)', 'warning',
             '    <p><code>COUNT(*)</code> compte <strong>toutes</strong> les lignes ; ' +
-            '<code>COUNT(colonne)</code> saute celles où la colonne vaut NULL. Sur le support : « 25 voitures ' +
-            'immatriculées sur 34 » — les 9 sans immatriculation existent dans COUNT(*) et disparaissent de ' +
-            'COUNT(immat). Choisir l’un ou l’autre, c’est répondre à deux questions différentes.</p>')
+            '<code>COUNT(colonne)</code> saute celles où la colonne vaut NULL. Si, dans un autre jeu de ' +
+            '34 voitures, 9 dates étaient inconnues, <code>COUNT(*)</code> vaudrait 34 et ' +
+            '<code>COUNT(datecirc)</code> vaudrait 25. Dans notre base initiale, les 23 dates sont connues ; ' +
+            'l’immatriculation, elle, ne peut jamais être NULL.</p>')
         ].join('\n')
       },
       {
@@ -248,9 +283,14 @@ module.exports = [
           'WHERE marque = \'TOYOTA\'\n' +
           'GROUP BY moteur;</code></pre>',
           '<p>Lecture du premier exemple : une ligne par marque présente dans le parc, avec son effectif — ' +
-          'et rien d’autre. C’est la règle qui surprend : <strong>toute colonne du SELECT doit être dans ' +
-          'le GROUP BY ou dans un agrégat</strong>. <code>SELECT marque, immat … GROUP BY marque</code> est ' +
-          'rejeté : quelle immatriculation choisir pour le groupe ?</p>',
+          'et rien d’autre. Pour obtenir un résultat portable et déterministe, affichez les colonnes ' +
+          'de regroupement et les agrégats ; ne demandez pas une immatriculation arbitraire du groupe.</p>',
+          box('tech', 'Différence de dialecte : colonne non agrégée', 'terminal',
+            '    <p>SQLite accepte aussi la requête suivante : il renvoie 12 groupes et choisit pour ' +
+            'chaque groupe une immatriculation d’une de ses lignes, sans garantir laquelle. D’autres ' +
+            'SGBD ou réglages peuvent refuser cette forme. Préférez la requête précédente, qui ne ' +
+            'demande que la marque et son effectif.</p>\n' +
+            '    <pre><code>SELECT marque, immat, COUNT(*) AS nb FROM Voiture GROUP BY marque;</code></pre>'),
           box('mnemo', 'Mnémotechnique — « GROUP BY découpe, l’agrégat résume »', 'pin',
             '    <p>Chaque groupe devient <strong>une ligne du résultat</strong>. Si le résultat paraît ' +
             'étrange (trop de lignes, valeurs incohérentes), vérifier deux choses : la colonne de ' +
@@ -275,20 +315,22 @@ module.exports = [
           'WHERE marque = \'TOYOTA\'\n' +
           'GROUP BY moteur\n' +
           'HAVING COUNT(*) &gt;= 1;</code></pre>',
-          '<p>HAVING ne peut exister qu’après un GROUP BY, et son critère porte sur une fonction ' +
-          'd’agrégation. La séquence d’exécution du SGBD l’explique : lignes filtrées (WHERE), puis ' +
-          'regroupées (GROUP BY), puis groupes filtrés (HAVING), puis tri (ORDER BY).</p>',
+          '<p>Dans SQLite, une requête agrégée sans GROUP BY forme aussi un groupe global ; ' +
+          'HAVING peut le conserver ou l’écarter :</p>',
+          '<pre><code>SELECT COUNT(*) AS nb FROM Voiture HAVING COUNT(*) &gt; 0;</code></pre>',
+          '<p>Sur la base initiale, cette requête renvoie une ligne contenant 23. Avec ' +
+          '<code>HAVING COUNT(*) &gt; 23</code>, elle ne renvoie aucune ligne. Les conditions acceptées ' +
+          'par HAVING peuvent varier selon le dialecte.</p>',
           box('intuition', 'WHERE ou HAVING : la question à se poser', 'compass',
             '    <p>« Seulement les diesels » parle des <strong>lignes</strong> : WHERE. « Seulement les ' +
-            'marques avec au moins 3 voitures » parle des <strong>groupes</strong> : HAVING. Une condition ' +
-            'qui contient un agrégat (COUNT, AVG…) ne peut jamais vivre dans WHERE.</p>')
+            'marques avec au moins 3 voitures » parle des <strong>groupes</strong> : HAVING. On ne place pas ' +
+            'directement dans WHERE un agrégat du même SELECT ; une sous-requête peut cependant y calculer un agrégat.</p>')
         ].join('\n')
       },
       {
         title: 'L’ordre complet, une dernière fois',
         html: [
-          '<p>Toutes les clauses du cours se combinent dans cet ordre — qui est aussi l’ordre d’exécution ' +
-          'du SGBD :</p>',
+          '<p>Voici l’<strong>ordre d’écriture</strong> des clauses, lorsqu’elles sont présentes :</p>',
           '<pre><code>SELECT   colonnes, agrégats\n' +
           'FROM     tables (jointures éventuelles)\n' +
           'WHERE    filtre les LIGNES\n' +
@@ -296,6 +338,9 @@ module.exports = [
           'HAVING   filtre les GROUPES\n' +
           'ORDER BY trie le résultat\n' +
           'LIMIT    borne le nombre de lignes</code></pre>',
+          '<p>Pour comprendre le résultat, un ordre logique utile est FROM et jointures, WHERE, ' +
+          'GROUP BY, HAVING, SELECT, puis ORDER BY et LIMIT. Ce n’est pas une promesse d’exécution ' +
+          'physique : l’optimiseur choisit un plan équivalent.</p>',
           '<p>Exemple récapitulatif du parc : « les deux moteurs les plus répandus parmi les voitures de ' +
           'moins de 30 millions, avec leur prix moyen » :</p>',
           '<pre><code>SELECT moteur, COUNT(*) AS nb, AVG(pxachat) AS prix_moyen\n' +
@@ -307,24 +352,24 @@ module.exports = [
           box('tech', 'Vérifier dans le simulateur', 'terminal',
             '    <p>Chaque requête de ce chapitre s’exécute dans la page <a href="../atelier.html">atelier — ' +
             'simulateur SQL</a> : le jeu de données parc_auto y est chargé, et le résultat s’affiche en ' +
-            'tableau. Déformer volontairement une clause (WHERE après GROUP BY, colonne hors GROUP BY) pour ' +
-            'lire le message d’erreur est un excellent exercice.</p>')
+            'tableau. Une clause WHERE placée après GROUP BY provoque une erreur de syntaxe ; une ' +
+            'colonne hors GROUP BY, en revanche, peut être acceptée par SQLite sans résultat déterministe.</p>')
         ].join('\n')
       }
     ],
 
     questions: [
       { stem: 'Que renvoie une fonction d’agrégation ?', opts: ['Une colonne', 'Une seule valeur (ou une par groupe)', 'Une table'], correct: 1, exp: 'Elle résume une colonne : une valeur totale, ou une par groupe avec GROUP BY.' },
-      { stem: 'COUNT(immat) sur 34 lignes dont 9 immat NULL vaut…', opts: ['34', '25', '9'], correct: 1, exp: 'COUNT(colonne) ignore les NULL : 34 − 9 = 25.' },
+      { stem: 'Dans un jeu hypothétique de 34 voitures dont 9 dates sont NULL, COUNT(datecirc) vaut…', opts: ['34', '25', '9'], correct: 1, exp: 'COUNT(colonne) ignore les NULL : 34 − 9 = 25. Ce jeu hypothétique diffère des 23 voitures initiales.' },
       { stem: 'Que compte COUNT(DISTINCT marque) ?', opts: ['Toutes les lignes', 'Les marques distinctes', 'Les marques NULL'], correct: 1, exp: 'DISTINCT élimine les doublons avant le comptage.' },
-      { stem: 'Dans SELECT marque, immat … GROUP BY marque, que se passe-t-il ?', opts: ['Tout marche', 'Erreur : immat n’est ni regroupé ni agrégé', 'immat prend la première valeur'], correct: 1, exp: 'Toute colonne du SELECT doit être dans le GROUP BY ou agrégée.' },
+      { stem: 'En SQLite, que fait SELECT marque, immat, COUNT(*) FROM Voiture GROUP BY marque ?', opts: ['SQLite le refuse toujours', 'SQLite accepte et choisit une immatriculation du groupe sans garantir laquelle', 'SQLite choisit toujours la première immatriculation'], correct: 1, exp: 'SQLite accepte une colonne non regroupée et non agrégée ; sa valeur n’est pas déterministe. D’autres dialectes ou réglages peuvent la refuser.' },
       { stem: 'HAVING filtre…', opts: ['les lignes avant regroupement', 'les groupes après regroupement', 'les colonnes'], correct: 1, exp: 'WHERE filtre les lignes, HAVING filtre les groupes.' },
-      { stem: 'Une condition avec COUNT(*) peut-elle vivre dans WHERE ?', opts: ['Oui', 'Non, seulement dans HAVING', 'Seulement avec LIMIT'], correct: 1, exp: 'Les agrégats ne sont calculés qu’au regroupement : HAVING uniquement.' }
+      { stem: 'Dans une même requête agrégée, où placer le filtre COUNT(*) > 2 ?', opts: ['Dans WHERE', 'Dans HAVING', 'Dans LIMIT'], correct: 1, exp: 'WHERE filtre les lignes avant le calcul de cet agrégat ; HAVING filtre les groupes après.' }
     ],
 
     pitfalls: [
-      '<strong>Colonne affichée hors GROUP BY</strong> : erreur immédiate du SGBD.',
-      '<strong>HAVING sans GROUP BY</strong> : la clause est rejetée.',
+      '<strong>Colonne affichée hors GROUP BY</strong> : SQLite peut l’accepter mais sa valeur peut être arbitraire.',
+      '<strong>HAVING sans GROUP BY</strong> : en SQLite, il peut filtrer le groupe global d’une requête agrégée.',
       '<strong>COUNT(*) à la place de COUNT(colonne)</strong> : les NULL sont comptés à tort.',
       '<strong>Filtre de groupe mis dans WHERE</strong> : « HAVING COUNT(*) > 2 » ne s’écrit pas « WHERE COUNT(*) > 2 ».',
       '<strong>AVG sur une colonne textuelle</strong> : résultat sans sens — la moyenne d’un prix, oui ; d’une immatriculation, non.'
@@ -342,9 +387,9 @@ module.exports = [
     summary: [
       'Cinq agrégats : COUNT, MIN, MAX, SUM, AVG — une valeur par table ou par groupe.',
       'COUNT(*) compte les lignes ; COUNT(colonne) ignore les NULL ; COUNT(DISTINCT …) dédoublonne.',
-      'GROUP BY découpe en groupes ; toute colonne affichée y figure ou est agrégée.',
-      'HAVING filtre les groupes (condition avec agrégat) ; WHERE filtre les lignes avant.',
-      'Ordre d’exécution : FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT.'
+      'GROUP BY découpe en groupes ; pour un résultat déterministe, affichez les colonnes regroupées et les agrégats.',
+      'HAVING filtre les groupes, ou le groupe global d’une requête agrégée SQLite ; WHERE filtre les lignes avant.',
+      'Ordre logique : FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT ; le plan physique peut différer.'
     ],
 
     checklist: [
@@ -366,8 +411,8 @@ module.exports = [
     flashcards: [
       { q: 'Que renvoie une fonction d’agrégation ?', a: 'Une valeur unique par table (sans GROUP BY) ou par groupe (avec).' },
       { q: 'Différence COUNT(*) / COUNT(colonne) ?', a: 'COUNT(*) compte toutes les lignes ; COUNT(colonne) saute les NULL.' },
-      { q: 'Règle d’or du GROUP BY ?', a: 'Toute colonne du SELECT est dans le GROUP BY ou dans un agrégat.' },
-      { q: 'WHERE ou HAVING ?', a: 'WHERE filtre les lignes avant regroupement ; HAVING filtre les groupes, avec un agrégat.' }
+      { q: 'Règle d’or du GROUP BY ?', a: 'Pour un résultat déterministe et portable, sélectionnez les colonnes regroupées et les agrégats ; SQLite accepte aussi des colonnes arbitraires.' },
+      { q: 'WHERE ou HAVING ?', a: 'WHERE filtre les lignes ; HAVING filtre les groupes et peut aussi filtrer le groupe global d’une requête agrégée SQLite.' }
     ]
   },
 
@@ -397,22 +442,25 @@ module.exports = [
         title: 'UPDATE : modifier sous condition',
         html: [
           '<p>La syntaxe porte trois informations : quelle table, quelles colonnes changent, quelles ' +
-          'lignes :</p>',
+          'lignes. Ce modèle utilise des noms à remplacer : il ne s’exécute pas tel quel.</p>',
           '<pre><code>UPDATE nom_table\n' +
           'SET colonne1 = valeur1, colonne2 = valeur2\n' +
-          'WHERE condition;\n' +
-          '\n' +
-          '-- le support normalise les codes de marque :\n' +
+          'WHERE condition;</code></pre>',
+          '<p>Exemple exécutable sur le parc initial :</p>',
+          '<pre><code>' +
           'UPDATE Voiture SET codemarque = \'TOY\' WHERE marque = \'TOYOTA\';\n' +
           'UPDATE Voiture SET codemarque = \'BMW\' WHERE marque = \'BMW\';</code></pre>',
           '<p>Le <code>WHERE</code> n’est pas décoratif : c’est lui qui limite la modification aux lignes ' +
-          'visées. Le support le rappelle en marge de ses exemples — et le SGBD se protège un peu : en ' +
-          'mode par défaut prudent, un UPDATE sans WHERE est rejeté ou demande confirmation.</p>',
+          'visées. Dans le simulateur SQLite, un UPDATE sans WHERE s’applique à toutes les lignes, ' +
+          'sans confirmation. Certains outils peuvent proposer une protection configurable ; ' +
+          'ne supposez pas qu’elle est active. Les deux instructions ci-dessus réaffectent des codes ' +
+          'déjà corrects dans la base initiale.</p>',
           box('pitfall', 'Piège — le UPDATE sans WHERE', 'warning',
             '    <p><code>UPDATE Voiture SET moteur = \'DIESEL\';</code> sans WHERE s’applique à ' +
             '<strong>toutes</strong> les lignes : 23 voitures passées au diesel en une requête. Toute ' +
-            'modification sérieuse se teste d’abord par le SELECT équivalent — si le SELECT ramène les ' +
-            'bonnes lignes, l’UPDATE avec le même WHERE les modifiera.</p>')
+            'modification sérieuse se prépare par le SELECT équivalent : il montre les lignes visées ' +
+            'si les données restent inchangées. Contraintes, déclencheurs ou accès concurrents peuvent ' +
+            'ensuite modifier le résultat ou provoquer un échec.</p>')
         ].join('\n')
       },
       {
@@ -424,18 +472,23 @@ module.exports = [
           '<p>Le DELETE sans WHERE ne supprime pas la table : il la <strong>vide</strong>. La structure ' +
           'reste ; seule la commande <code>DROP TABLE</code> fait disparaître la table elle-même.</p>',
           '<p>La structure évolue par <code>ALTER TABLE</code> :</p>',
-          '<pre><code>ALTER TABLE Voiture ADD COLUMN comment VARCHAR(100);\n' +
-          'ALTER TABLE Marque DROP COLUMN paysmarque;   -- l’opération du support avant normalisation\n' +
-          'ALTER TABLE Voiture MODIFY COLUMN km BIGINT;</code></pre>',
-          '<p>Ajouter, supprimer, changer un type : ALTER est la commande d’évolution du schéma — elle ' +
-          's’accompagne d’une réflexion sur les données existantes, qui doivent rester cohérentes avec ' +
-          'la nouvelle structure.</p>'
+          '<pre><code>ALTER TABLE Voiture ADD COLUMN commentaire TEXT;\n' +
+          'ALTER TABLE Voiture DROP COLUMN commentaire;</code></pre>',
+          '<p>SQLite permet ces opérations sous certaines conditions ; une colonne utilisée par une ' +
+          'contrainte, par exemple, peut empêcher sa suppression. Le chapitre 2 a déjà montré ' +
+          '<code>ADD COLUMN</code> avec un DEFAULT.</p>',
+          box('tech', 'Différence de dialecte : changement de type', 'terminal',
+            '    <p>Le support MySQL utilise la forme suivante pour changer un type. Elle ne fonctionne ' +
+            'pas dans le simulateur SQLite ; une modification de type y nécessite généralement de ' +
+            'reconstruire la table en préservant ses données et contraintes.</p>\n' +
+            '    <pre><code>ALTER TABLE Voiture MODIFY COLUMN km BIGINT;</code></pre>')
         ].join('\n')
       },
       {
         title: 'Utilisateurs : CREATE USER et l’hôte',
         html: [
-          '<p>On ne se connecte pas « à MySQL » en général : on s’y connecte <strong>en tant qu’un ' +
+          '<p>Cette section décrit MySQL, pas le simulateur SQLite, qui ne gère pas ces comptes. ' +
+          'On ne se connecte pas « à MySQL » en général : on s’y connecte <strong>en tant qu’un ' +
           'utilisateur</strong>, défini par un <strong>login</strong> et un <strong>hôte</strong> — ' +
           'l’adresse depuis laquelle la connexion est autorisée :</p>',
           '<pre><code>CREATE USER \'login\'@\'hote\' [IDENTIFIED BY \'mot_de_passe\'];\n' +
@@ -443,16 +496,18 @@ module.exports = [
           '\n' +
           'CREATE USER \'delegueITB1\'@\'localhost\' IDENTIFIED BY \'wincrafts@Big\';\n' +
           'CREATE USER \'profside\'@\'192.168.66.9\' IDENTIFIED BY \'vivinve3\';</code></pre>',
-          '<p>Le joker <code>%</code> élargit l’hôte :</p>',
+          '<p>Dans MySQL 8.4, le joker <code>%</code> peut élargir le motif d’hôte. Les jokers ' +
+          'dans les hôtes sont toutefois dépréciés : privilégiez des hôtes explicites et vérifiez ' +
+          'les réglages du serveur.</p>',
           '<table>\n' +
-          '    <tr><th>Utilisateur déclaré</th><th>Connexion autorisée depuis</th></tr>\n' +
+          '    <tr><th>Utilisateur déclaré</th><th>Exemple de motif d’hôte</th></tr>\n' +
           '    <tr><td>\'leader\'@\'192.168.66.%\'</td><td>toute IP commençant par 192.168.66.</td></tr>\n' +
           '    <tr><td>\'youssoufa\'@\'%.camer.net\'</td><td>n’importe quel hôte du domaine camer.net</td></tr>\n' +
           '    <tr><td>\'yeslows\'@\'%\'</td><td>n’importe quel hôte (équivalent à \'yeslows\')</td></tr>\n' +
           '  </table>',
           '<p>Les guillemets entourent indépendamment login et hôte — jamais l’ensemble ' +
-          '<code>\'login@hote\'</code>. Sans précision d’hôte, c’est l’équivalent de <code>%</code> : ' +
-          'tous les hôtes.</p>',
+          '<code>\'login@hote\'</code>. Sans précision, la partie hôte vaut <code>%</code> ; ' +
+          'préférez la préciser explicitement.</p>',
           box('mnemo', 'Mnémotechnique — « login@hôte : deux clés, une porte »', 'pin',
             '    <p>Le login dit <strong>qui</strong> entre, l’hôte dit <strong>d’où</strong>. Le même login ' +
             'peut exister en plusieurs exemplaires aux privilèges différents selon l’hôte — deux clés ' +
@@ -462,7 +517,8 @@ module.exports = [
       {
         title: 'Privilèges : GRANT et REVOKE',
         html: [
-          '<p>Un utilisateur créé n’a <strong>aucun privilège</strong> : il peut à peine se connecter. Un ' +
+          '<p>Un utilisateur MySQL nouvellement créé n’a <strong>aucun privilège</strong> par défaut ; ' +
+          'sa connexion dépend aussi de son authentification. Un ' +
           'privilège est l’autorisation d’effectuer une action sur un objet, accordée par ' +
           '<code>GRANT</code> et retirée par <code>REVOKE</code> :</p>',
           '<pre><code>-- tous les droits sur une base :\n' +
@@ -484,8 +540,9 @@ module.exports = [
           'TO \'admincdp\'@\'localhost\'\n' +
           'WITH GRANT OPTION;</code></pre>',
           '<p><code>GRANT OPTION</code> autorise son détenteur à <strong>transmettre</strong> les ' +
-          'privilèges qu’il possède à d’autres utilisateurs — il n’est pas compris dans ALL, et un ' +
-          'utilisateur ne peut jamais accorder plus qu’il ne possède. C’est la règle de sécurité du ' +
+          'privilèges qu’il possède à d’autres utilisateurs ; il n’est pas compris dans ALL. Sans autre ' +
+          'privilège administratif, il doit posséder les privilèges accordés. Certains privilèges ' +
+          'administratifs supplémentaires constituent une exception. C’est la règle de sécurité du ' +
           'support : la délégation se contrôle, sinon chaque utilisateur pourrait créer sa hiérarchie ' +
           'de droits.</p>',
           box('pitfall', 'Piège — ALL et GRANT OPTION ensemble', 'warning',
@@ -500,9 +557,9 @@ module.exports = [
       { stem: 'Que fait UPDATE sans clause WHERE ?', opts: ['Rien', 'Il modifie toutes les lignes de la table', 'Il modifie la première ligne'], correct: 1, exp: 'Sans condition, la modification s’applique à toute la table.' },
       { stem: 'DELETE FROM Voiture; (sans WHERE)…', opts: ['supprime la table', 'vide la table de ses lignes', 'est une erreur'], correct: 1, exp: 'La structure reste ; seule DROP TABLE supprime la table.' },
       { stem: 'Quelle commande ajoute une colonne à une table existante ?', opts: ['UPDATE', 'ALTER TABLE … ADD COLUMN', 'INSERT'], correct: 1, exp: 'ALTER TABLE fait évoluer la structure.' },
-      { stem: 'Un utilisateur créé avec CREATE USER, avant tout GRANT, peut…', opts: ['lire toutes les bases', 'à peine se connecter', 'créer des tables'], correct: 1, exp: 'Aucun privilège : ni données ni création d’objets.' },
-      { stem: '\'leader\'@\'192.168.66.%\' signifie…', opts: ['connexion uniquement depuis 192.168.66.9', 'connexion depuis toute adresse commençant par 192.168.66.', 'un joker sur le login'], correct: 1, exp: '% élargit l’hôte ; ici tout le réseau 192.168.66.x.' },
-      { stem: 'GRANT OPTION permet de…', opts: ['tout faire sur la base', 'transmettre à d’autres les privilèges qu’on possède', 'créer des utilisateurs sans mot de passe'], correct: 1, exp: 'C’est le droit de déléguer — jamais inclus dans ALL.' }
+      { stem: 'En MySQL, un compte nouvellement créé avant tout GRANT possède…', opts: ['le droit de lire toutes les bases', 'aucun privilège par défaut', 'le droit de créer des tables'], correct: 1, exp: 'Le compte ne reçoit aucun privilège par défaut ; la connexion dépend aussi de l’authentification.' },
+      { stem: 'En MySQL 8.4 avec le joker actif, \'leader\'@\'192.168.66.%\' désigne…', opts: ['un hôte uniquement : 192.168.66.9', 'un motif d’hôte commençant par 192.168.66.', 'un joker sur le login'], correct: 1, exp: '% élargit le motif d’hôte ; cet usage est déprécié dans MySQL 8.4.' },
+      { stem: 'En MySQL, GRANT OPTION permet de…', opts: ['tout faire sur la base', 'transmettre à d’autres les privilèges qu’on possède', 'créer des utilisateurs sans mot de passe'], correct: 1, exp: 'C’est le droit de déléguer — jamais inclus dans ALL.' }
     ],
 
     pitfalls: [
@@ -510,12 +567,12 @@ module.exports = [
       '<strong>DROP TABLE confondu avec DELETE</strong> : l’un efface la structure, l’autre les lignes.',
       '<strong>\'login@hote\' quoté en un seul bloc</strong> : login et hôte se quotent séparément.',
       '<strong>GRANT ALL, GRANT OPTION</strong> : syntaxe refusée — la clause est WITH GRANT OPTION.',
-      '<strong>Accorder plus qu’on possède</strong> : impossible ; un utilisateur transmet au maximum ses propres droits.'
+      '<strong>Accorder plus qu’on possède</strong> : GRANT OPTION seul ne le permet pas ; des privilèges administratifs supplémentaires peuvent faire exception.'
     ],
 
     methodTitle: 'Modifier ou déléguer sans casse',
     method: [
-      '<strong>Écrire le SELECT équivalent</strong> avant tout UPDATE/DELETE : les lignes ramenées sont celles qui seront touchées.',
+      '<strong>Écrire le SELECT équivalent</strong> avant tout UPDATE/DELETE pour repérer les lignes visées ; tenir compte des changements concurrents et des contraintes.',
       '<strong>Modifier les données</strong> (UPDATE/DELETE) sans confondre avec la structure (ALTER/DROP).',
       '<strong>Créer l’utilisateur</strong> avec son couple login@hôte exact.',
       '<strong>Accorder le minimum nécessaire</strong> : SELECT pour consulter, pas ALL par confort.',
@@ -525,8 +582,8 @@ module.exports = [
     summary: [
       'UPDATE … SET … WHERE modifie ; DELETE FROM … WHERE supprime ; sans WHERE, c’est toute la table.',
       'ALTER TABLE fait évoluer la structure ; DROP TABLE la supprime ; DELETE la vide seulement.',
-      'Un utilisateur = login@hôte ; le joker % élargit l’hôte ; guillemets séparés sur chaque partie.',
-      'GRANT accorde, REVOKE retire ; niveaux global, base, table, colonne ; un utilisateur créé n’a aucun droit.',
+      'En MySQL, un utilisateur = login@hôte ; le joker % est déprécié dans l’hôte ; guillemets séparés.',
+      'En MySQL, GRANT accorde, REVOKE retire ; niveaux global, base, table, colonne ; un nouveau compte n’a aucun privilège par défaut.',
       'GRANT OPTION autorise la transmission des privilèges propres ; ALL s’emploie seul, avec WITH GRANT OPTION.'
     ],
 
@@ -540,17 +597,17 @@ module.exports = [
     notions: ['UPDATE', 'DELETE', 'DROP TABLE', 'ALTER TABLE', 'CREATE USER', 'hôte', 'GRANT', 'REVOKE', 'GRANT OPTION', 'privilège'],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — Relis les syntaxes UPDATE/DELETE et réécris-les de mémoire.' },
-      { cls: 'mid', text: '50–69 % — Normalise les codes de marque par UPDATE dans le simulateur.' },
+      { cls: 'low', text: '&lt; 50 % — Relis les syntaxes UPDATE/DELETE et réécrivez-les de mémoire.' },
+      { cls: 'mid', text: '50–69 % — Vérifiez les codes de marque puis essayez un UPDATE ciblé dans le simulateur.' },
       { cls: 'good', text: '70–94 % — Solide : écris le GRANT d’un gestionnaire qui lit tout mais n’écrit que Voiture.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : attaque les examens blancs du simulateur.' }
     ],
 
     flashcards: [
-      { q: 'Pourquoi tester par SELECT avant un UPDATE ?', a: 'Le même WHERE ramène exactement les lignes qui seront modifiées : on voit avant de toucher.' },
+      { q: 'Pourquoi tester par SELECT avant un UPDATE ?', a: 'Le même WHERE montre les lignes visées si la base ne change pas ; contraintes ou déclencheurs peuvent ensuite modifier le résultat.' },
       { q: 'DELETE sans WHERE, effet ?', a: 'La table est vidée de ses lignes ; la structure reste (contrairement à DROP TABLE).' },
-      { q: 'Comment définit-on un utilisateur MySQL ?', a: 'Par un couple login@hôte, le joker % élargissant l’hôte.' },
-      { q: 'Que permet GRANT OPTION ?', a: 'De transmettre à d’autres les privilèges qu’on possède — avec WITH GRANT OPTION dans la clause.' }
+      { q: 'Comment définit-on un utilisateur MySQL ?', a: 'Par un couple login@hôte ; le joker % élargit l’hôte, mais cet usage est déprécié en MySQL 8.4.' },
+      { q: 'Que permet GRANT OPTION en MySQL ?', a: 'De transmettre à d’autres les privilèges qu’on possède — avec WITH GRANT OPTION dans la clause.' }
     ]
   }
 ];

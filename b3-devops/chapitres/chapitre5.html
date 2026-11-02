@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 5 — Métriques DORA, Fiabilité Opérationnelle &amp;amp; Gestion des Incidents | DevOps B3</title>
-<meta name="description" content="Chapitre 5 du cours DevOps B3 : Les 4 métriques DORA d’Accelerate, analyse mathématique MTBF/MTTF/MTTR, rayon d’impact (Blast Radius) et post-mortem sans blâme. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta name="description" content="Chapitre 5 du cours DevOps B3 : Les cinq métriques DORA actuelles, analyse MTBF/MTTF/MTTR, rayon d’impact et post-mortem sans blâme. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b3-devops/chapitres/chapitre5.html">
 <meta property="og:title" content="Chapitre 5 — Métriques DORA, Fiabilité Opérationnelle &amp;amp; Gestion des Incidents | DevOps B3">
-<meta property="og:description" content="Chapitre 5 du cours DevOps B3 : Les 4 métriques DORA d’Accelerate, analyse mathématique MTBF/MTTF/MTTR, rayon d’impact (Blast Radius) et post-mortem sans blâme. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:description" content="Chapitre 5 du cours DevOps B3 : Les cinq métriques DORA actuelles, analyse MTBF/MTTF/MTTR, rayon d’impact et post-mortem sans blâme. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -63,7 +63,7 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Pendant des décennies, le management informatique a cru à un faux dilemme : pour augmenter la stabilité d’un système, il faudrait ralentir la cadence de livraison ; inversement, aller vite impliquerait nécessairement de casser la production. Les recherches scientifiques du programme DORA (DevOps Research and Assessment), synthétisées dans l’ouvrage de référence Accelerate par Nicole Forsgren, Jez Humble et Gene Kim, ont rigoureusement prouvé le contraire : les équipes d’élite qui déploient plusieurs fois par jour sont également celles dont le taux d’échec est le plus faible et le temps de réparation le plus court. Pour piloter rationnellement une organisation d’ingénierie moderne, l’ingénieur B3 doit instrumenter les 4 métriques DORA clés, modéliser la fiabilité du système (MTBF, MTTR, MTTF), mesurer le rayon d’impact (Blast Radius) de chaque composant et instaurer des protocoles d’incident irréprochables.</p>
+    <p>Les recherches DORA étudient la performance de livraison et ses facteurs. Leur modèle a évolué : au 30 octobre 2026, il présente cinq métriques. Elles se lisent dans le contexte de l’équipe et ne constituent ni une note individuelle ni une échelle universelle de maturité. Ce chapitre aborde aussi la fiabilité, le rayon d’impact et la gestion des incidents.</p>
   </div>
 
   <div class="box box--objectifs">
@@ -71,7 +71,7 @@
     <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>maîtriser les conclusions scientifiques du programme de recherche DORA et du livre Accelerate ;</li>
-      <li>calculer, interpréter et classifier les 4 métriques DORA : Deployment Frequency, Lead Time for Changes, Change Failure Rate et MTTR ;</li>
+      <li>décrire les cinq métriques actuelles DORA et les interpréter dans leur contexte ;</li>
       <li>établir les équations formelles de fiabilité matérielle et logicielle : MTBF, MTTF, MTTR et disponibilité intrinsèque ;</li>
       <li>modéliser le rayon d’impact (Blast Radius) et les dépendances en cascade d’une architecture distribuée ;</li>
       <li>structurer un protocole de gestion d’incident critique et rédiger un post-mortem sans blâme (Blameless Post-Mortem) ;</li>
@@ -81,51 +81,23 @@
 
 <h2>1. Le Programme DORA &amp; La Démonstration Scientifique d’Accelerate</h2>
 
-<p>Fondé par les chercheurs Nicole Forsgren, Jez Humble et Gene Kim (puis racheté par Google Cloud), le programme <strong>DORA (DevOps Research and Assessment)</strong> a interrogé plus de 32 000 professionnels dans le monde pendant une décennie. Ses analyses statistiques rigoureuses réfutent définitivement le mythe de l’arbitrage entre vitesse et stabilité :</p>
+<p>Le programme <strong>DORA (DevOps Research and Assessment)</strong> étudie les pratiques et la performance de livraison logicielle. Les résultats d’enquête sont à interpréter selon leur période et leur population :</p>
   <div class="box box--standard">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> L’Enseignement Majeur de DORA</div>
-<p><strong>La vitesse et la stabilité sont corrélées positivement.</strong> Les équipes qui livrent le plus fréquemment et le plus rapidement sont aussi celles qui connaissent le moins d’incidents majeurs et qui rétablissent le service le plus vite en cas de panne imprévue. La performance logicielle est un catalyseur direct de la performance économique globale de l’entreprise.</p>
+<p>Les recherches montrent que rapidité et stabilité peuvent coexister. Une corrélation observée ne garantit pas ce résultat pour toute équipe et ne démontre pas à elle seule une causalité.</p>
   </div>
 
-<h2>2. Les 4 Métriques Clés de Performance DORA</h2>
+<h2>2. Les cinq métriques de performance DORA</h2>
 
-<p>DORA a isolé 4 indicateurs universels permettant d’évaluer la santé et la maturité d’une chaîne de livraison logicielle :</p>
-<table class="table">
-  <thead>
-    <tr>
-      <th style="width:20%">Métrique</th>
-      <th style="width:20%">Axe mesuré</th>
-      <th style="width:30%">Performance Élite (Elite)</th>
-      <th style="width:30%">Performance Faible (Low)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Deployment Frequency (DF)</strong></td>
-      <td>Débit / Vélocité</td>
-      <td>Multiples déploiements par jour à la demande.</td>
-      <td>Moins d’un déploiement tous les six mois.</td>
-    </tr>
-    <tr>
-      <td><strong>Lead Time for Changes (LTTC)</strong></td>
-      <td>Débit / Vélocité</td>
-      <td>Moins d’une heure entre le commit Git et la prod.</td>
-      <td>Entre 1 et 6 mois de latence calendaire.</td>
-    </tr>
-    <tr>
-      <td><strong>Change Failure Rate (CFR)</strong></td>
-      <td>Qualité / Stabilité</td>
-      <td>Entre 0% et 5% des déploiements causent une panne.</td>
-      <td>Supérieur à 15% (jusqu’à 45% d’échecs).</td>
-    </tr>
-    <tr>
-      <td><strong>Time to Restore Service (MTTR)</strong></td>
-      <td>Résilience / Stabilité</td>
-      <td>Moins d’une heure pour réparer un incident en prod.</td>
-      <td>Plusieurs jours ou semaines de résolution.</td>
-    </tr>
-  </tbody>
-</table>
+<p>Le guide DORA consulté le 30 octobre 2026 présente cinq métriques pour observer la livraison dans son contexte :</p>
+<ul>
+  <li><strong>Deployment frequency :</strong> fréquence des déploiements.</li>
+  <li><strong>Change lead time :</strong> délai entre commit et production.</li>
+  <li><strong>Failed deployment recovery time :</strong> temps de rétablissement après un déploiement nécessitant une intervention immédiate.</li>
+  <li><strong>Change fail rate :</strong> proportion de déploiements nécessitant une intervention immédiate.</li>
+  <li><strong>Deployment rework rate :</strong> proportion de déploiements non planifiés à la suite d’un incident.</li>
+</ul>
+<p>Les profils de recherche et les définitions ont évolué. Ne pas appliquer des seuils fixes à toutes les équipes ; un MTTR général d’incident n’est pas nécessairement le temps de rétablissement d’un déploiement échoué.</p>
 
 <h2>3. Modélisation Mathématique de la Fiabilité : MTBF, MTTF &amp; MTTR</h2>
 
@@ -179,9 +151,11 @@ $$A = \frac{720}{720 + 0.5} = \frac{720}{720.5} \approx 0.999306\,\text{ (soit }
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="do3-c5-e1" data-lab
      data-exercise="do3-c5-e1"
      data-language="analyse"
@@ -206,10 +180,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Classificateur de paradigmes d’Infrastructure as Code (Déclaratif vs Impératif)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="do3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Identifier les propriétés d’idempotence et de gestion d’état d’un outil IaC pour qualifier son adéquation opérationnelle.</p>
     <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br><br>
 Règles de qualification :<br>
@@ -229,11 +205,7 @@ Afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OUTIL nom=terraform PARADIGME=DECLARATIF GESTION_ETAT=OUI IDEMPOTENT=OUI
 OUTIL nom=ansible PARADIGME=DECLARATIF GESTION_ETAT=NON IDEMPOTENT=OUI
 OUTIL nom=bash_script PARADIGME=IMPERATIF GESTION_ETAT=NON IDEMPOTENT=NON</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>OUTIL_IAC: terraform -&gt; PARADIGME=DECLARATIF | ETAT=AVEC_STATE | USAGE=PROVISIONING_INFRASTRUCTURE_OPTIMAL
-OUTIL_IAC: ansible -&gt; PARADIGME=DECLARATIF | ETAT=SANS_STATE | USAGE=GESTION_CONFIGURATION_ETATS
-OUTIL_IAC: bash_script -&gt; PARADIGME=IMPERATIF | ETAT=SANS_STATE | USAGE=SCRIPT_PROCEDURAL_LEGACY</pre></div>
     </div>
-    <p class="lab__note">Terraform maintient un tfstate pour provisionner, Ansible configure les machines sans state distant.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -268,10 +240,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Détecteur de dérive d’infrastructure Terraform (Drift Detection)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="do3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Comparer l’état déclaré dans le code (.tf), le fichier d’état (tfstate) et la réalité observée sur le Cloud pour détecter toute altération non autorisée.</p>
     <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br><br>
 Matrice de diagnostic déterministe :<br>
@@ -289,11 +263,7 @@ Afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RESOURCE id=vm_instance code_val=t3.medium state_val=t3.medium real_val=t3.medium
 RESOURCE id=db_cluster code_val=db.r5.xlarge state_val=db.r5.large real_val=db.r5.large
 RESOURCE id=security_group code_val=port_443 state_val=port_443 real_val=port_22_ouvert</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DRIFT_AUDIT: vm_instance -&gt; STATUT=SYNCHRONISE | ACTION=AUCUNE
-DRIFT_AUDIT: db_cluster -&gt; STATUT=PLAN_EN_ATTENTE | ACTION=TERRAFORM_APPLY
-DRIFT_AUDIT: security_group -&gt; STATUT=DERIVE_EXTERNE | ACTION=TERRAFORM_REFRESH_OU_ALIGNEMENT</pre></div>
     </div>
-    <p class="lab__note">Le security_group a subi une modification manuelle (port 22 ouvert) non déclarée dans Git.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -333,19 +303,21 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Planificateur d’exécution Terraform et graphe de dépendances (DAG)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="do3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Construire les vagues d’exécution parallèles (Execution Waves) à partir du graphe orienté acyclique (DAG) de dépendances entre ressources.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...|NONE&gt;</code>.<br><br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...|NONE&gt;&lt;/code&gt;.<br><br>
 Règles :<br>
 - <strong>Vague 1 :</strong> toutes les ressources qui n'ont aucune dépendance (ou dont <code>depends_on == NONE</code>). Elles peuvent être créées simultanément en parallèle.<br>
 - <strong>Vague $k$ :</strong> toutes les ressources non encore créées dont <strong>l’ensemble</strong> des dépendances a été satisfait lors des vagues $1$ à $k-1$.<br>
 - Au sein de chaque vague, trier les identifiants de ressources par <strong>ordre alphabétique</strong>.<br>
 - Si un cycle de dépendance mutuelle est détecté :<br>
   <code>TERRAFORM_DAG: ERREUR=CYCLE_DE_DEPENDANCE_DETECTE</code><br>
-- Sinon, affichezzr les vagues successives et le parallélisme maximal ($P = \max(|Vague_i|)$) :<br>
+- Sinon, afficher les vagues successives et le parallélisme maximal ($P = \max(|Vague_i|)$) :<br>
   <code>TERRAFORM_DAG: VAGUE 1=[&lt;...&gt;] | VAGUE 2=[&lt;...&gt;] ... | PARALLELISME_MAX=&lt;P&gt;</code></p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RESOURCE id=vpc depends_on=NONE
@@ -353,9 +325,7 @@ RESOURCE id=subnet_pub depends_on=vpc
 RESOURCE id=subnet_priv depends_on=vpc
 RESOURCE id=vm_web depends_on=subnet_pub
 RESOURCE id=db_sql depends_on=subnet_priv</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TERRAFORM_DAG: VAGUE 1=[vpc] | VAGUE 2=[subnet_priv, subnet_pub] | VAGUE 3=[db_sql, vm_web] | PARALLELISME_MAX=2</pre></div>
     </div>
-    <p class="lab__note">Le VPC est créé seul (Vague 1), puis les deux sous-réseaux en parallèle (Vague 2), puis les machines et bases (Vague 3).</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -365,6 +335,7 @@ RESOURCE id=db_sql depends_on=subnet_priv</pre></div>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -373,21 +344,21 @@ RESOURCE id=db_sql depends_on=subnet_priv</pre></div>
       <p class="q__stem">Quelle conclusion scientifique majeure ressort des recherches DORA (DevOps Research and Assessment) publiées dans Accelerate ?</p>
       <div class="opts">
         <button class="opt">Pour éviter les pannes, il est scientifiquement prouvé qu’il faut réduire les déploiements à un par trimestre</button>
-        <button class="opt" data-correct="1">La vélocité de livraison et la stabilité de production sont corrélées positivement : les équipes les plus rapides ont aussi les systèmes les plus fiables</button>
+        <button class="opt" data-correct="1">Rapidité de livraison et stabilité peuvent coexister, sans garantie automatique pour chaque équipe</button>
         <button class="opt">L’automatisation des tests augmente les coûts de développement sans aucun gain mesurable</button>
         <button class="opt">Le langage de programmation est le seul facteur expliquant la réussite d’un projet</button>
       </div>
-      <div class="q__exp">DORA a démontré que les équipes d’élite concilient vitesse et fiabilité : déployer souvent par petits incréments réduit le risque unitaire de chaque mise en production.</div>
+      <div class="q__exp">Les recherches rapportent que rapidité et stabilité peuvent coexister ; il faut examiner le contexte et éviter de déduire une causalité automatique.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Quelles sont les 4 métriques universelles définies par DORA pour évaluer la performance de livraison logicielle ?</p>
+      <p class="q__stem">Selon le guide DORA consulté en octobre 2026, quel ensemble présente les cinq métriques de livraison ?</p>
       <div class="opts">
         <button class="opt">Nombre de lignes de code, Nombre de bugs, Heures supplémentaires, Coût des serveurs</button>
-        <button class="opt" data-correct="1">Deployment Frequency, Lead Time for Changes, Change Failure Rate, Mean Time to Restore (MTTR)</button>
+        <button class="opt" data-correct="1">Deployment Frequency, Change Lead Time, Failed Deployment Recovery Time, Change Fail Rate et Deployment Rework Rate</button>
         <button class="opt">Vitesse CPU, Bande passante réseau, Taux de mémoire vive, Taille du disque dur</button>
         <button class="opt">Nombre de réunions, Points de vélocité Scrum, Nombre de commits, Salaire moyen</button>
       </div>
-      <div class="q__exp">Les 4 métriques DORA mesurent deux axes : le débit (Deployment Frequency et Lead Time for Changes) et la stabilité (Change Failure Rate et MTTR).</div>
+      <div class="q__exp">Le guide actuel décrit cinq métriques ; un MTTR général ne correspond pas nécessairement au rétablissement après un déploiement échoué.</div>
     </div>
     <div class="q">
       <p class="q__stem">Une équipe réalise 200 déploiements en production sur une année. Parmi ceux-ci, 10 déploiements ont provoqué un incident nécessitant un retour arrière immédiat. Quel est le Change Failure Rate (CFR) ?</p>
@@ -397,7 +368,7 @@ RESOURCE id=db_sql depends_on=subnet_priv</pre></div>
         <button class="opt" data-correct="1">5%</button>
         <button class="opt">2%</button>
       </div>
-      <div class="q__exp">CFR = (Nombre de déploiements en échec / Nombre total de déploiements) * 100 = (10 / 200) * 100 = 5% (ce qui correspond au seuil supérieur du profil Elite selon DORA).</div>
+      <div class="q__exp">CFR = (Nombre de déploiements nécessitant une intervention / Nombre total de déploiements) × 100 = (10 / 200) × 100 = 5 %. Ce chiffre ne classe pas universellement l’équipe.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans la modélisation de fiabilité d’un système réparable, que vaut le MTBF (Mean Time Between Failures) ?</p>
@@ -457,7 +428,7 @@ RESOURCE id=db_sql depends_on=subnet_priv</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
     <ul>
       <li>Croire que ralentir la cadence de livraison logicielle permet d’augmenter la stabilité des systèmes de production.</li>
-      <li>Mesurer la performance des ingénieurs au nombre de lignes de code ou au nombre de commits plutôt qu’aux 4 métriques d’impact DORA.</li>
+      <li>Utiliser des indicateurs de livraison comme une note individuelle ou une compétition entre équipes.</li>
       <li>Investir des budgets disproportionnés dans un MTTF infini au détriment de l’observabilité et de la réduction drastique du MTTR.</li>
       <li>Considérer l’erreur humaine comme la cause racine d’un incident majeur plutôt que comme le symptôme d’un manque de garde-fous systémiques.</li>
     </ul>
@@ -470,8 +441,8 @@ RESOURCE id=db_sql depends_on=subnet_priv</pre></div>
     <ol>
       <li>Instrumenter les dépôts Git et les plateformes de production pour collecter les horodatages de livraison et d’incident.</li>
       <li>Calculer la fréquence de déploiement (DF) et le Lead Time for Changes (LTTC) pour caractériser le débit.</li>
-      <li>Calculer le Change Failure Rate (CFR) et le Mean Time to Restore (MTTR) pour caractériser la stabilité.</li>
-      <li>Positionner l’organisation sur l’échelle de maturité officielle DORA (Low, Medium, High, Elite).</li>
+      <li>Définir le périmètre des déploiements et incidents, puis mesurer les taux d’échec et de reprise ainsi que le temps de rétablissement après déploiement échoué.</li>
+      <li>Interpréter les tendances dans leur contexte, sans attribuer de rang universel ni comparer directement les équipes.</li>
       <li>Modéliser les équations de fiabilité du système (MTBF, MTTF, MTTR et disponibilité opérationnelle A).</li>
       <li>Conduire un post-mortem sans blâme (Blameless) et cartographier le rayon d’impact (Blast Radius).</li>
     </ol>
@@ -482,9 +453,9 @@ RESOURCE id=db_sql depends_on=subnet_priv</pre></div>
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
-      <li>L’enquête DORA (Accelerate) prouve que la vélocité et la stabilité se renforcent mutuellement.</li>
-      <li>Les 4 métriques DORA fournissent un tableau de bord équilibré entre débit (DF, LTTC) et stabilité (CFR, MTTR).</li>
-      <li>Les équipes d’élite déploient plusieurs fois par jour, ont un délai < 1h, un CFR < 5% et un MTTR < 1h.</li>
+      <li>Les recherches DORA étudient les liens entre performance de livraison et conditions de travail ; corrélation ne signifie pas causalité automatique.</li>
+      <li>Le modèle consulté en octobre 2026 utilise cinq métriques : fréquence, délai de changement, rétablissement après déploiement échoué, taux d’échec et taux de reprise.</li>
+      <li>Les seuils d’un exercice ou d’une enquête ne sont pas un classement universel.</li>
       <li>La disponibilité A vaut MTTF / (MTTF + MTTR) : réduire le MTTR est plus rentable que chercher un MTTF infini.</li>
       <li>Le cloisonnement en cloisons étanches (Bulkheads) et disjoncteurs limite le rayon d’impact (Blast Radius).</li>
       <li>Le post-mortem sans blâme traite l’erreur humaine comme un symptôme pour corriger les défaillances de conception.</li>
@@ -492,15 +463,15 @@ RESOURCE id=db_sql depends_on=subnet_priv</pre></div>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
       <li>Je connais les auteurs et la méthodologie scientifique du programme de recherche DORA.</li>
-      <li>Je sais calculer et interpréter chacune des 4 métriques DORA.</li>
-      <li>Je connais les critères caractérisant une équipe de niveau Élite.</li>
+      <li>Je sais décrire les cinq métriques DORA et leur périmètre.</li>
+      <li>Je sais expliquer pourquoi un seuil générique ne suffit pas à classer une équipe.</li>
       <li>Je sais calculer le MTBF, le MTTF, le MTTR et le taux de disponibilité global d’un composant.</li>
       <li>Je sais définir et compartimenter le Blast Radius d’un microservice.</li>
       <li>Je sais animer un post-mortem sans blâme et formaliser des actions préventives robustes.</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>Programme de recherche DORA &amp; Accelerate</li><li>Deployment Frequency (DF)</li><li>Lead Time for Changes (LTTC)</li><li>Change Failure Rate (CFR)</li><li>Mean Time to Restore (MTTR)</li><li>Équations de fiabilité MTBF, MTTF, MTTR</li><li>Rayon d’impact (Blast Radius) &amp; Bulkheads</li><li>Post-mortem sans blâme (Blameless)</li>
+      <li>Programme de recherche DORA &amp; Accelerate</li><li>Deployment Frequency (DF)</li><li>Lead Time for Changes (LTTC)</li><li>Change Failure Rate (CFR)</li><li>Failed Deployment Recovery Time et Deployment Rework Rate</li><li>Équations de fiabilité MTBF, MTTF, MTTR</li><li>Rayon d’impact (Blast Radius) &amp; Bulkheads</li><li>Post-mortem sans blâme (Blameless)</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -512,7 +483,7 @@ RESOURCE id=db_sql depends_on=subnet_priv</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Révisez les 4 métriques DORA et les définitions de base de MTBF, MTTF et MTTR.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Révisez les cinq métriques DORA et les définitions de base de MTBF, MTTF et MTTR.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bon niveau, revoyez les formules de disponibilité et la notion de Blast Radius.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Excellent ! Vous maîtrisez parfaitement les métriques scientifiques DORA et l’ingénierie de résilience.</div>

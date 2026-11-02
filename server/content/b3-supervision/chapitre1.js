@@ -96,13 +96,13 @@ module.exports = {
         '  <div class="card">',
         '    <h4>MTTR (Maintenabilité)</h4>',
         '    <p><em>Mean Time To Repair</em> : Durée moyenne nécessaire pour diagnostiquer, réparer et restaurer un composant après défaillance :</p>',
-        '    <p><code>MTTR = Indisponibilité_totale / Nombre_pannes</code></p>',
+        '    <p>Dans cet exercice, on estime la durée moyenne d’indisponibilité par incident : <code>MTTR = Indisponibilité_totale / Nombre_pannes</code>.</p>',
         '    <p>Un MTTR faible témoigne d\'une excellente automatisation, d\'outils d\'alerte réactifs et de runbooks efficaces.</p>',
         '  </div>',
         '  <div class="card">',
         '    <h4>MTBF (Fiabilité)</h4>',
         '    <p><em>Mean Time Between Failures</em> : Temps moyen écoulé entre deux pannes consécutives pendant lequel le système fonctionne normalement :</p>',
-        '    <p><code>MTBF = Temps_fonctionnement / Nombre_pannes</code></p>',
+        '    <p>Pour une période observée avec des pannes, on utilise ici l’estimation <code>MTBF = Temps_fonctionnement / Nombre_pannes</code>, à interpréter selon le modèle et la période.</p>',
         '    <p>Un MTBF élevé reflète la robustesse matérielle et la qualité du dimensionnement de l\'infrastructure.</p>',
         '  </div>',
         '  <div class="card">',
@@ -112,6 +112,7 @@ module.exports = {
         '    <p>99.9% ("trois neufs") équivaut à 43.2 minutes d\'indisponibilité max par mois ; 99.99% ("quatre neufs") à seulement 4.32 minutes.</p>',
         '  </div>',
         '</div>',
+        '<p>Si aucune panne n’est observée, ces deux rapports sont <strong>non calculables</strong> : on ne remplace pas le MTTR par zéro ni le MTBF par la durée de la fenêtre. Une borne statistique peut être étudiée avec des hypothèses et un niveau de confiance explicites. Source : <a href="https://www.itl.nist.gov/div898/handbook/apr/section4/apr451.htm">NIST, estimation et cas sans défaillance</a>, consulté le 30 octobre 2026.</p>',
         '<p style="margin-top: 1rem;">Dans les démarches SRE (*Site Reliability Engineering*), le <strong>Budget d\'Erreur (Error Budget)</strong> formalise l\'indisponibilité tolérée : <code>Budget = Période_minutes * (1 - SLO / 100)</code>. Si le budget est consommé prématurément, les déploiements de nouvelles fonctionnalités sont gelés au profit de la stabilisation de l\'infrastructure.</p>'
       ].join('\n')
     }
@@ -128,8 +129,8 @@ module.exports = {
   summary: [
     'La supervision assure la surveillance proactive temps réel du SI, tandis que la métrologie historise les tendances quantitatives pour le Capacity Planning.',
     'Le périmètre couvre 4 couches complémentaires : matériel/serveurs, équipements réseaux, services d\'infrastructure et applications métiers.',
-    'Le MTTR (Mean Time To Repair) mesure la maintenabilité et la rapidité de rétablissement (Indisponibilité totale / Nombre de pannes).',
-    'Le MTBF (Mean Time Between Failures) mesure la fiabilité et le temps moyen de bon fonctionnement continu entre deux pannes (Uptime / Nombre de pannes).',
+    'Dans cet exercice, MTTR = indisponibilité totale / nombre de pannes ; sans panne, le rapport est non calculable.',
+    'Dans cet exercice, uptime / nombre de pannes estime le MTBF sous une convention explicite ; sans panne, le rapport est non calculable.',
     'L\'Error Budget quantifie la marge d\'indisponibilité permise par le SLO, servant de régulateur entre rythme de livraison logicielle et stabilité opérationnelle.'
   ],
 
@@ -209,34 +210,24 @@ module.exports = {
   ],
 
   flashcards: [
-      { q: 'Qu’est-ce que « La supervision assure la surveillance proactive temps réel du SI, tandis que la métrologie historise les tendances quantitatives pour le Capacity Planning. » ?', a: 'La supervision assure la surveillance proactive temps réel du SI, tandis que la métrologie historise les tendances quantitatives pour le Capacity Planning.' },
-      { q: 'Qu’est-ce que « Le périmètre couvre 4 couches complémentaires » ?', a: "Le périmètre couvre 4 couches complémentaires : matériel/serveurs, équipements réseaux, services d'infrastructure et applications métiers." },
-      { q: 'Qu’est-ce que « MIB » ?', a: 'MIB : Management Information Base : base de données arborescente décrivant les variables gérées par un agent SNMP.' },
-      { q: 'Qu’est-ce que « Syslog RFC 5424 » ?', a: 'Syslog RFC 5424 : Norme universelle de journalisation horodatée encodant la source (Facility) et la gravité (Severity) dans un en-tête PRI.' },
-      { q: "Qu’est-ce que « SNMP (Simple Network Management Protocol) standardise la scrutation périodique (UDP 161) et la réception asynchrone d'alertes traps (UDP 162). » ?", a: "SNMP (Simple Network Management Protocol) standardise la scrutation périodique (UDP 161) et la réception asynchrone d'alertes traps (UDP 162)." },
-      { q: "Qu’est-ce que « L'arbre MIB (Management Information Base) et les OID hiérarchiques structurent l'ensemble des métriques d'un composant système ou réseau. » ?", a: "L'arbre MIB (Management Information Base) et les OID hiérarchiques structurent l'ensemble des métriques d'un composant système ou réseau." },
-      { q: 'Qu’est-ce que « Nagios Core » ?', a: "Nagios Core : Moteur de supervision modulaire exécutant des plugins autonomes vérifiant l'état des services et des hôtes." },
-      { q: 'Qu’est-ce que « Trigger Zabbix » ?', a: "Trigger Zabbix : Expression logique booléenne calculée à partir de fonctions temporelles pour qualifier l'état d'un service." },
-      { q: "Qu’est-ce que « L'écosystème Nagios repose sur une architecture modulaire de plugins vérifiant ponctuellement l'état des services et machines. » ?", a: "L'écosystème Nagios repose sur une architecture modulaire de plugins vérifiant ponctuellement l'état des services et machines." },
-      { q: 'Qu’est-ce que « OpenMetrics » ?', a: "OpenMetrics : Format texte universel d'exposition de métriques adopté par Prometheus et standardisé par l'IETF." },
-      { q: 'Qu’est-ce que « Prometheus repose sur un modèle de collecte active par tirage (Pull HTTP), enregistrant les métriques dans une base de données temporelle (TSDB). » ?', a: 'Prometheus repose sur un modèle de collecte active par tirage (Pull HTTP), enregistrant les métriques dans une base de données temporelle (TSDB).' },
-      { q: 'Qu’est-ce que « Les types fondamentaux sont les Counters (monotones croissants), les Gauges (valeurs fluctuantes), les Histograms (répartition en buckets) et les Summaries. » ?', a: 'Les types fondamentaux sont les Counters (monotones croissants), les Gauges (valeurs fluctuantes), les Histograms (répartition en buckets) et les Summaries.' },
-      { q: 'Qu’est-ce que « SIEM » ?', a: 'SIEM : Security Information and Event Management : système de centralisation et corrélation temps réel des événements de sécurité.' },
-      { q: "Qu’est-ce que « La stack Elastic (Elasticsearch, Logstash, Kibana, Beats) constitue le standard de l'industrie pour la centralisation, le parsing et l'analyse de logs massifs. » ?", a: "La stack Elastic (Elasticsearch, Logstash, Kibana, Beats) constitue le standard de l'industrie pour la centralisation, le parsing et l'analyse de logs massifs." },
-      { q: "Qu’est-ce que « Filebeat assure une collecte locale économe en ressources avec maintien d'un registre d'offset disque pour garantir l'absence de perte de données. » ?", a: "Filebeat assure une collecte locale économe en ressources avec maintien d'un registre d'offset disque pour garantir l'absence de perte de données." },
+      { q: "Quels ports SNMP (Simple Network Management Protocol) servent à la scrutation et aux notifications traps ?", a: "Le gestionnaire interroge périodiquement l'agent sur UDP 161 et reçoit les traps asynchrones sur UDP 162." },
+      { q: "Comment une MIB (Management Information Base) et les OID organisent-ils les données supervisées en SNMP ?", a: "La MIB décrit des objets de gestion ; chaque OID identifie un objet dans une arborescence hiérarchique." },
+      { q: "Comment Nagios vérifie-t-il l'état d'un hôte ou d'un service ?", a: "Il exécute des plugins modulaires dont les résultats déterminent l'état à chaque contrôle." },
+      { q: "Quel rôle jouent Elasticsearch, Logstash, Kibana et Beats dans une pile de journaux ?", a: "Beats collecte, Logstash transforme, Elasticsearch stocke et indexe, et Kibana permet d'explorer et de visualiser les données." },
+      { q: "Comment Filebeat reprend-il une collecte interrompue et peut-il garantir zéro perte ?", a: "Cet agent de collecte local léger conserve les positions de lecture dans un registre sur disque ; rotations et interruptions peuvent toutefois provoquer pertes ou doublons." },
       { q: "Qu’est-ce que « La fatigue d'alerte est l'ennemi n°1 de l'astreinte » ?", a: "La fatigue d'alerte est l'ennemi n°1 de l'astreinte : un flot excessif d'alertes non actionnables conduit inévitablement à ignorer les incidents critiques réels." },
-      { q: "Qu’est-ce que « L'hystérésis et la détection d'état battant (flapping) suppriment les notifications en rafale issues d'oscillations légères autour des seuils. » ?", a: "L'hystérésis et la détection d'état battant (flapping) suppriment les notifications en rafale issues d'oscillations légères autour des seuils." },
+      { q: "Comment l'hystérésis et la détection de flapping réduisent-elles les alertes répétées ?", a: "L'hystérésis sépare les seuils d'entrée et de sortie ; la détection de flapping peut suspendre certaines notifications pendant des changements d'état fréquents." },
     {
       q: 'Quelle est la définition de la supervision informatique ?',
       a: 'Surveillance proactive en temps réel du bon fonctionnement du SI pour détecter et alerter immédiatement en cas de panne.'
     },
     {
       q: 'Qu\'est-ce que le MTTR et comment se calcule-t-il ?',
-      a: 'Mean Time To Repair : temps moyen de réparation = Indisponibilité totale / Nombre de pannes.'
+      a: 'Pour cet exercice : indisponibilité totale / nombre de pannes ; sans panne, le rapport est non calculable.'
     },
     {
       q: 'Qu\'est-ce que le MTBF et comment se calcule-t-il ?',
-      a: 'Mean Time Between Failures : temps moyen entre pannes = Temps de fonctionnement effectif / Nombre de pannes.'
+      a: 'Estimation de l’exercice : temps de fonctionnement / nombre de pannes ; sans panne, le rapport est non calculable.'
     },
     {
       q: 'À quoi correspond un SLA à 99.9% sur un mois de 30 jours ?',

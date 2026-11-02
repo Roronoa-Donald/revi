@@ -69,10 +69,19 @@ function buildMessages(input) {
     parts.push(`Sortie standard :\n${clip(input.stdout, 1500)}`);
   }
   if (!input.compileError && !input.stderr) {
-    if (input.expected || input.actual) {
-      parts.push(`Le programme s’est exécuté mais le résultat n’est pas celui attendu.\nRésultat obtenu : ${clip(input.actual || '(vide)', 500)}\nRésultat attendu : ${clip(input.expected, 500)}`);
-    } else {
-      parts.push('Le programme s’est exécuté sans erreur visible, mais le résultat est incorrect.');
+    const summaries = {
+      compile_error: 'La compilation est signalée en échec.',
+      runtime_error: 'Le programme est signalé comme arrêté pendant son exécution.',
+      timeout: 'Le programme est signalé comme ayant dépassé le délai d’exécution.',
+      wrong_output: 'La réponse est signalée comme incorrecte.'
+    };
+    parts.push(Object.prototype.hasOwnProperty.call(summaries, input.status)
+      ? summaries[input.status] : 'Le type de l’erreur n’a pas été précisé.');
+    parts.push('Diagnostic détaillé non communiqué : ne supposez pas sa cause.');
+    if (input.actual) parts.push(`Résultat obtenu : ${clip(input.actual, 500)}`);
+    if (input.expected) parts.push(`Résultat attendu : ${clip(input.expected, 500)}`);
+    else if (input.status === 'wrong_output' || input.actual) {
+      parts.push('Résultat attendu non communiqué : ne le supposez pas.');
     }
   }
   if (input.question) {

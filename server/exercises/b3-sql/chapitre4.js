@@ -86,7 +86,7 @@ module.exports = [
     "language": "sql",
     "title": "Parcours d’arbre hiérarchique avec WITH RECURSIVE",
     "goal": "Écrire une CTE récursive pour calculer la profondeur hiérarchique d’un organigramme.",
-    "brief": "<p>La table <code>organigramme(id INT, nom TEXT, manager_id INT)</code> représente la hiérarchie d’une entreprise (la racine a <code>manager_id IS NULL</code>). Écrivez une requête <code>WITH RECURSIVE hierarchie AS (...)</code> qui calcule pour chaque employé son <code>id</code>, son <code>nom</code> et son niveau hiérarchique <code>niveau</code> (<code>1</code> pour la racine, puis <code>h.niveau + 1</code> pour chaque subordonné), triée par <code>niveau</code> croissant puis <code>id</code> croissant.</p>",
+    "brief": "<p>Dans cet atelier SQLite, la table <code>organigramme(id INT, nom TEXT, manager_id INT)</code> représente une hiérarchie dont les racines ont <code>manager_id IS NULL</code>. Les identifiants sont uniques et les liens forment une forêt sans cycle. Écrivez une requête <code>WITH RECURSIVE hierarchie AS (...)</code> qui calcule pour chaque employé son <code>id</code>, son <code>nom</code> et son niveau hiérarchique <code>niveau</code> (<code>1</code> pour une racine, puis <code>h.niveau + 1</code> pour chaque subordonné), triée par <code>niveau</code> croissant puis <code>id</code> croissant. Si ces hypothèses ne sont pas garanties, une garde anti-cycle est nécessaire : UNION seul ne suffit pas lorsque le niveau change.</p>",
     "starter": "-- Écrivez une CTE WITH RECURSIVE hierarchie(id, nom, niveau)\nSELECT id, nom FROM organigramme;",
     "hints": [
       "Le membre d’ancrage sélectionne la racine : SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL.",

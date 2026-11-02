@@ -16,11 +16,11 @@ module.exports = {
 
   situation:
     'Un audit de cybersécurité externe classe au niveau « Critique » le parc de commutateurs et routeurs d’une banque régionale. ' +
-    'Des mots de passe circulent en clair sur le réseau via Telnet, les bannières d’avertissement légales sont absentes ' +
+    'Des mots de passe circulent en clair sur le réseau via Telnet, les bannières d’avertissement sont absentes ' +
     'et les accès d’administration par console ne sont pas verrouillés. ' +
     'Les ingénieurs réseau doivent reprendre le contrôle de la flotte d’équipements sous Cisco IOS, ' +
     'maîtriser la hiérarchie des modes d’accès de la CLI, appliquer les 5 règles d’or du durcissement Cisco ' +
-    '(chiffrement des mots de passe locaux, secret privilégié haché, SSH version 2 exclusif sur les lignes VTY) ' +
+    '(protection des secrets locaux, secret privilégié adapté à la plateforme, SSH version 2 sur les lignes VTY) ' +
     'et interpréter instantanément les sorties de commandes show pour diagnostiquer les incidents matériels et logiques. ' +
     'Ce quatrième module forme à la pratique opérationnelle quotidienne de l’administration réseau Cisco.',
 
@@ -28,7 +28,7 @@ module.exports = {
     'naviguer avec aisance entre les différents modes d’exécution de la CLI Cisco IOS (User EXEC, Privileged EXEC, Global Config, Interface Config) ;',
     'appliquer la configuration de base d’un équipement (hostname, description d’interfaces, bannières MOTD) ;',
     'distinguer et manipuler la mémoire vive running-config (RAM) et la mémoire non volatile startup-config (NVRAM) ;',
-    'sécuriser l’accès privilégié avec enable secret (hachage MD5/SHA-256) et chiffrer les mots de passe locaux avec service password-encryption ;',
+    'distinguer les types de secrets Cisco et les limites de service password-encryption pour protéger les accès ;',
     'configurer l’accès à distance sécurisé SSH v2 (nom de domaine, clés RSA 2048 bits, désactivation de Telnet sur les lignes VTY) ;',
     'analyser la commande de diagnostic clé « show ip interface brief » pour distinguer les pannes L1 des erreurs d’encapsulation L2.'
   ],
@@ -109,15 +109,15 @@ module.exports = {
         '<p>Tout équipement déployé en production doit impérativement respecter les règles de durcissement recommandées par Cisco et l’ANSSI :</p>',
 
         '<ol>',
-        '  <li><strong>Chiffrement des mots de passe en mémoire :</strong><br>',
+        '  <li><strong>Masquage de certains mots de passe dans la configuration :</strong><br>',
         '    <code>Router(config)# service password-encryption</code><br>',
-        '    Chiffre automatiquement les mots de passe affichés en clair dans la configuration (algorithme type 7).</li>',
+        '    Le type 7 est un masquage réversible et faible : il ne protège pas un secret contre une personne qui obtient la configuration.</li>',
         '  <li><strong>Protection du mode Privilégié avec enable secret :</strong><br>',
         '    <code>Router(config)# enable secret &lt;MotDePasseRobuste&gt;</code><br>',
-        '    Utilisez un hachage cryptographique fort (MD5 type 5 ou SHA-256 type 8/9). La commande obsolète <code>enable password</code> (en clair) ne doit jamais être utilisée.</li>',
-        '  <li><strong>Configuration d’une bannière légale d’avertissement :</strong><br>',
+        '    Le type 5 utilise MD5 et est faible pour les mots de passe ; le type 8 utilise PBKDF2 avec SHA-256 et le type 9 utilise scrypt. Choisir un type adapté à la politique de sécurité, à la version et à la compatibilité de l’équipement ; la seule présence de <code>enable secret</code> ne prouve pas le type utilisé.</li>',
+        '  <li><strong>Configuration d’une bannière d’avertissement :</strong><br>',
         '    <code>Router(config)# banner motd #ACCES INTERDIT AU PERSONNEL NON AUTORISE#</code><br>',
-        '    Exigence légale pour établir l’accès non autorisé lors de poursuites judiciaires. Ne jamais afficher de message de bienvenue du type « Bienvenue sur notre routeur » !</li>',
+        '    La bannière avertit de la restriction d’accès ; ses éventuelles exigences juridiques dépendent du contexte et doivent être vérifiées localement.</li>',
         '  <li><strong>Authentification locale sur console physique :</strong><br>',
         '    <code>Router(config)# line console 0<br>',
         '    Router(config-line)# login local<br>',
@@ -183,7 +183,7 @@ module.exports = {
   methodTitle: 'Méthodologie de Configuration &amp; Recette d’un Équipement Cisco',
   method: [
     'Étape 1 — Nommage &amp; Accès : Se connecter sur console, attribuer un hostname explicite et configurer logging synchronous.',
-    'Étape 2 — Sécurisation : Déclarer service password-encryption, enable secret et banner motd.',
+    'Étape 2 — Sécurisation : Configurer enable secret avec un type adapté à la version, connaître les limites de service password-encryption et déclarer une banner motd.',
     'Étape 3 — Accès distant : Déclarer le nom de domaine, générer la clé RSA 2048 bits, créer un utilisateur local et forcer transport input ssh sur VTY.',
     'Étape 4 — Adressage d’interfaces : Configurer l’IP et le masque sur les ports requis, ajouter une description explicite et activer avec no shutdown.',
     'Étape 5 — Recette : Exécuter show ip interface brief et sauvegarder la configuration avec copy running-config startup-config.'
@@ -193,7 +193,7 @@ module.exports = {
     'La CLI Cisco IOS s’organise en 4 modes principaux : User EXEC (>), Privileged EXEC (#), Global Config (config)# et Interface (config-if)#.',
     'La running-config vit en mémoire vive RAM (volatile) ; la startup-config est sauvegardée en NVRAM permanente.',
     'La commande copy running-config startup-config sauvegarde les modifications de manière persistante.',
-    'Le durcissement exige enable secret (hachage fort), service password-encryption, banner motd et SSH v2 sur les lignes VTY.',
+    'Le type 5 de enable secret est faible ; privilégier un type 8 ou 9 compatible et ne pas confondre le masquage réversible de type 7 avec une protection forte.',
     'Telnet transmettant les données en clair, il doit être formellement banni en production via transport input ssh.',
     'show ip interface brief permet de diagnostiquer en un coup d’œil l’état physique L1 (Status) et protocolaire L2 (Protocol) de chaque port.'
   ],
@@ -252,13 +252,13 @@ module.exports = {
     {
       stem: 'Pourquoi est-il impératif d’utiliser « enable secret » plutôt que « enable password » ?',
       opts: [
-        'enable secret utilise un hachage cryptographique fort à sens unique (MD5/SHA), tandis qu’enable password stocke le mot de passe en clair ou faiblement réversible',
+        'enable secret permet, selon la version et la compatibilité, un type 8 ou un type 9 ; enable password peut rester en clair ou utiliser un masquage faible',
         'enable secret est la seule commande compatible avec IPv6',
         'enable secret permet de définir plusieurs mots de passe simultanément',
         'enable password est réservé aux commutateurs de niveau 3'
       ],
       correct: 0,
-      exp: 'enable secret chiffre le mot de passe avec un algorithme de hachage fort (type 5 ou 8/9). enable password le stocke en clair ou avec un chiffrement trivial type 7 facilement cassé en quelques secondes.'
+      exp: 'Le type 5 fondé sur MD5 est faible ; les types 8 (PBKDF2-SHA-256) et 9 (scrypt) sont à privilégier lorsqu’ils sont compatibles avec la plateforme et sa politique de sécurité. Le type 7 est réversible.'
     },
     {
       stem: 'Quelle instruction interdit formellement les connexions Telnet non chiffrées sur les terminaux virtuels (lignes VTY) ?',
@@ -297,7 +297,7 @@ module.exports = {
         'Elle empêche toute modification de configuration par console'
       ],
       correct: 0,
-      exp: 'Elle applique un chiffrement réversible (type 7) sur les mots de passe affichés en clair dans la configuration (mots de passe de console, vty, etc.) pour éviter qu’une personne regardant par-dessus l’épaule de l’administrateur ne les lise.'
+      exp: 'Elle masque certains mots de passe dans la configuration au moyen du type 7, réversible et faible : ce masquage ne protège pas les secrets si la configuration est divulguée.'
     }
   ],
 
@@ -316,7 +316,7 @@ module.exports = {
     },
     {
       q: 'Pourquoi bannir « enable password » au profit de « enable secret » ?',
-      a: 'Parce qu’enable secret applique un hachage cryptographique fort à sens unique (MD5/SHA), tandis qu’enable password est stocké en clair ou en chiffrement trivial.'
+      a: 'Le type 5 de enable secret est faible ; le type 8 et le type 9 sont préférables lorsqu’ils sont compatibles. enable password peut être en clair ou masqué par un type 7 réversible.'
     },
     {
       q: 'Quelles commandes sont nécessaires pour activer SSH v2 sur Cisco IOS ?',

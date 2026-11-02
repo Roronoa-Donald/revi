@@ -5,7 +5,7 @@ PAT = re.compile(r"\$[^$\n]*?[\t\x08\x0c\r][^$\n]*?\$")
 bad = 0
 for p in sorted(glob.glob(os.path.join(ROOT, "**/*.html"), recursive=True)):
     rel = os.path.relpath(p, ROOT)
-    if rel.startswith(("audit/", "dist/", "node_modules/", "revi-cours-html/")):
+    if rel.startswith(("audit/", "dist/", "node_modules/")):
         continue
     s = open(p, encoding="utf-8", errors="ignore", newline="").read()
     hits = PAT.findall(s)

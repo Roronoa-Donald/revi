@@ -56,7 +56,7 @@ $utilise = [int][Console]::In.ReadLine()
 # À compléter : afficher l'espace libre, puis une alerte sous 10 Go.
 `,
     hints: [
-      'Espace libre = $capacite - $utilise.',
+      'Espace libre = `$capacite - $utilise`.',
       'Ajoutez une ligne d’alerte si le libre est inférieur à 10.'
     ],
     examples: [

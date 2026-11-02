@@ -1,0 +1,123 @@
+{
+  "exercices": [
+    {
+      "id": "dk2-c1-e2", "source": "docker.js", "oracle": "dk2-c1-e2", "codec": "lignes",
+      "cas": [
+        {"entree": "7 19 13\n300 70", "attendu": "ARCHITECTURE VM: Disque 2233 Mo | RAM 581 Mo\nARCHITECTURE DOCKER: Disque 133 Mo | RAM 91 Mo\nECONOMIE DOCKER: Disque -2100 Mo | RAM -490 Mo", "raison": "Sept copies de 19+300 Mo et 13+70 Mo ; économie de sept fois les ressources invitées."},
+        {"entree": "1 9007199254740993 29\n17 0", "attendu": "ARCHITECTURE VM: Disque 9007199254741010 Mo | RAM 29 Mo\nARCHITECTURE DOCKER: Disque 9007199254740993 Mo | RAM 29 Mo\nECONOMIE DOCKER: Disque -17 Mo | RAM -0 Mo", "raison": "Une instance ajoute 17 à 9007199254740993, soit 9007199254741010 ; l'économie est exactement 17 Mo et la RAM invitée nulle."}
+      ]
+    },
+    {
+      "id": "dk2-c1-e3", "source": "docker.js", "oracle": "dk2-c1-e3", "codec": "lignes",
+      "cas": [
+        {"entree": "CONTAINERD\nCLI\nDOCKERD\nSHIM\nRUNC", "attendu": "CONTAINERD -> containerd | Superviseur de conteneurs (cycle de vie, distribution d'images et snapshots)\nCLI -> docker (client) | Interprete les commandes utilisateur et communique via l'API REST (socket UNIX)\nDOCKERD -> dockerd (daemon) | Gestionnaire haut niveau des images, volumes, reseaux et authentification\nSHIM -> containerd-shim | Processus leger maintenant les E/S et l'etat sans dependre du daemon\nRUNC -> runc (OCI runtime) | Cree les namespaces et cgroups, puis execute le binaire conteneurise", "raison": "Chaque identifiant reçoit le composant et le rôle explicitement associés par l'énoncé, dans l'ordre saisi."},
+        {"entree": "RUNC\nVMM\nRUNC\nSHIM", "attendu": "RUNC -> runc (OCI runtime) | Cree les namespaces et cgroups, puis execute le binaire conteneurise\nVMM -> INCONNU\nRUNC -> runc (OCI runtime) | Cree les namespaces et cgroups, puis execute le binaire conteneurise\nSHIM -> containerd-shim | Processus leger maintenant les E/S et l'etat sans dependre du daemon", "raison": "VMM n'est pas dans la liste ; les deux occurrences de RUNC produisent chacune une ligne."}
+      ]
+    },
+    {
+      "id": "dk2-c2-e1", "source": "docker.js", "oracle": "dk2-c2-e1", "codec": "lignes",
+      "cas": [
+        {"entree": "Delta : fond:8, codec:3\nEpsilon : fond:8, docs:4\nZeta : codec:3, docs:4", "attendu": "IMAGE: Delta -> TAILLE_APPARENTE: 11 Mo\nIMAGE: Epsilon -> TAILLE_APPARENTE: 12 Mo\nIMAGE: Zeta -> TAILLE_APPARENTE: 7 Mo\nTOTAL_BRUT: 30 Mo | TOTAL_REEL: 15 Mo | ECONOMIE_DEDUPLICATION: -15 Mo", "raison": "Les images pèsent 11, 12 et 7 Mo ; les seules couches distinctes valent 8+3+4=15 Mo."},
+        {"entree": "Mini : part:0, gemme:9\nNoyau : part:0, gemme:9\nSeul : cache:2", "attendu": "IMAGE: Mini -> TAILLE_APPARENTE: 9 Mo\nIMAGE: Noyau -> TAILLE_APPARENTE: 9 Mo\nIMAGE: Seul -> TAILLE_APPARENTE: 2 Mo\nTOTAL_BRUT: 20 Mo | TOTAL_REEL: 11 Mo | ECONOMIE_DEDUPLICATION: -9 Mo", "raison": "La couche nulle part et la couche gemme sont partagées ; 0+9+2=11 Mo réellement stockés."}
+      ]
+    },
+    {
+      "id": "dk2-c2-e2", "source": "docker.js", "oracle": "dk2-c2-e2", "codec": "lignes",
+      "cas": [
+        {"entree": "quay.io:7443/acme/tool:v4@sha256:cafe42\nsampler", "attendu": "REF: quay.io:7443/acme/tool:v4@sha256:cafe42 -> REGISTRE: quay.io:7443 | IMAGE: acme/tool | TAG: v4 | DIGEST: sha256:cafe42\nREF: sampler -> REGISTRE: docker.io/library | IMAGE: sampler | TAG: latest | DIGEST: NONE", "raison": "Le premier deux-points désigne le port du registre, le dernier le tag ; sampler utilise les valeurs par défaut."},
+        {"entree": "team/worker@sha256:fa1234\nlocalhost:6443/outil:edge", "attendu": "REF: team/worker@sha256:fa1234 -> REGISTRE: docker.io | IMAGE: team/worker | TAG: latest | DIGEST: sha256:fa1234\nREF: localhost:6443/outil:edge -> REGISTRE: localhost:6443 | IMAGE: outil | TAG: edge | DIGEST: NONE", "raison": "Le namespace simple reste dans docker.io ; localhost avec port est un registre et edge le tag."}
+      ]
+    },
+    {
+      "id": "dk2-c2-e3", "source": "docker.js", "oracle": "dk2-c2-e3", "codec": "lignes",
+      "cas": [
+        {"entree": "/seed,/lib\nREAD /seed\nWRITE /seed\nREAD /seed\nWRITE /seed\nDELETE /seed\nREAD /seed\nCREATE /seed\nREAD /seed\nDELETE /seed", "attendu": "READ /seed -> ACCES: Image Layer (Lecture directe RO sans duplication)\nWRITE /seed -> MECANISME: Copy-On-Write (Copie du fichier vers la Container Layer puis ecriture)\nREAD /seed -> ACCES: Container Layer (Version modifiee)\nWRITE /seed -> MECANISME: Ecriture directe dans Container Layer\nDELETE /seed -> MECANISME: Whiteout (Creation d'un fichier masque dans Container Layer sans toucher a l'image RO)\nREAD /seed -> ERREUR: Fichier introuvable (404 ENOENT)\nCREATE /seed -> MECANISME: Creation directe dans Container Layer\nREAD /seed -> ACCES: Container Layer (Version modifiee)\nDELETE /seed -> MECANISME: Whiteout (Creation d'un fichier masque dans Container Layer sans toucher a l'image RO)", "raison": "Le fichier d'image est copié à la première écriture ; chaque suppression le masque, même après recréation."},
+        {"entree": "\nCREATE /volatile\nWRITE /volatile\nREAD /volatile\nDELETE /volatile\nREAD /volatile\nWRITE /inexistant", "attendu": "CREATE /volatile -> MECANISME: Creation directe dans Container Layer\nWRITE /volatile -> MECANISME: Ecriture directe dans Container Layer\nREAD /volatile -> ACCES: Container Layer (Version modifiee)\nDELETE /volatile -> MECANISME: Suppression directe de Container Layer\nREAD /volatile -> ERREUR: Fichier introuvable (404 ENOENT)\nWRITE /inexistant -> ERREUR: Fichier introuvable pour modification", "raison": "La première ligne vide est une image vide autorisée : volatile ne provient pas de l'image et sa suppression est directe."}
+      ]
+    },
+    {
+      "id": "dk2-c3-e1", "source": "docker.js", "oracle": "dk2-c3-e1", "codec": "lignes",
+      "cas": [
+        {"entree": "# base\nARG SUITE=stable\nFROM debian:bookworm\nRUN apt-get update && \\\n    apt-get install -y nano\nADD conf.toml /etc/\nADD pack.tar.gz /opt/", "attendu": "AVERTISSEMENT [Ligne 6]: Preferer COPY a ADD pour les fichiers locaux\nAUDIT_DOCKERFILE: NON_CONFORME (1 avertissement(s))", "raison": "ARG peut précéder FROM ; update et install sont dans la même instruction, et seule la ligne 6 ajoute un fichier local simple."},
+        {"entree": "FROM alpine\nRUN apt-get update\nADD notice.txt /tmp/\nADD agent.py /srv/", "attendu": "AVERTISSEMENT [Ligne 2]: RUN apt-get update isole (fusionner avec install et rm -rf /var/lib/apt/lists/*)\nAVERTISSEMENT [Ligne 3]: Preferer COPY a ADD pour les fichiers locaux\nAVERTISSEMENT [Ligne 4]: Preferer COPY a ADD pour les fichiers locaux\nAUDIT_DOCKERFILE: NON_CONFORME (3 avertissement(s))", "raison": "La mise à jour est isolée et les deux ADD locaux simples donnent trois avertissements ordonnés."}
+      ]
+    },
+    {
+      "id": "dk2-c3-e2", "source": "docker.js", "oracle": "dk2-c3-e2", "codec": "lignes",
+      "cas": [
+        {"entree": "ENTRYPOINT: /bin/runner, -v\nCMD: prior, --old\nCLI_ARGS: --serve, 8087", "attendu": "COMMANDE_FINALE: /bin/runner -v --serve 8087", "raison": "CLI_ARGS remplace CMD, puis les deux arguments CLI suivent les deux éléments d'ENTRYPOINT."},
+        {"entree": "ENTRYPOINT: /entry, --ready\nCMD: sync, --safe\nCLI_ARGS: NONE", "attendu": "COMMANDE_FINALE: /entry --ready sync --safe", "raison": "Sans argument CLI, les arguments CMD suivent ENTRYPOINT."}
+      ]
+    },
+    {
+      "id": "dk2-c3-e3", "source": "docker.js", "oracle": "dk2-c3-e3", "codec": "lignes",
+      "cas": [
+        {"entree": "MONOLITHIC: large 90 + 15 + 7 + 8\nSTAGE_BUILD: large 120 -> EXPORT: 8\nSTAGE_FINAL: lite 12 + IMPORT: 8", "attendu": "IMAGE_MONOLITHIQUE: 120 Mo\nIMAGE_MULTI_STAGE: 20 Mo\nGAIN_SECURITE_ET_TAILLE: -100 Mo (83.3% economises)", "raison": "90+15+7+8=120, 12+8=20 ; le gain 100/120 donne 83,3 % à une décimale."},
+        {"entree": "MONOLITHIC: builder 80 + 10 + 0 + 10\nSTAGE_BUILD: builder 100 -> EXPORT: 10\nSTAGE_FINAL: base 30 + IMPORT: 10", "attendu": "IMAGE_MONOLITHIQUE: 100 Mo\nIMAGE_MULTI_STAGE: 40 Mo\nGAIN_SECURITE_ET_TAILLE: -60 Mo (60.0% economises)", "raison": "Le binaire est compté dans les deux images : 100 et 40 Mo, soit une réduction de 60 %."}
+      ]
+    },
+    {
+      "id": "dk2-c4-e1", "source": "docker.js", "oracle": "dk2-c4-e1", "codec": "lignes",
+      "cas": [
+        {"entree": "create\nstart\npause\nrm\nunpause\nstop\nstart\nrestart\nkill\nrm", "attendu": "create -> NOUVEL_ETAT: CREATED\nstart -> NOUVEL_ETAT: RUNNING\npause -> NOUVEL_ETAT: PAUSED\nTRANSITION_INVALIDE: Impossible de supprimer un conteneur actif sans --force (Etat: PAUSED)\nunpause -> NOUVEL_ETAT: RUNNING\nstop -> NOUVEL_ETAT: STOPPED\nstart -> NOUVEL_ETAT: RUNNING\nrestart -> NOUVEL_ETAT: RUNNING\nkill -> NOUVEL_ETAT: STOPPED\nrm -> NOUVEL_ETAT: ABSENT", "raison": "rm pendant PAUSED est refusé sans changement d'état ; unpause reprend avant stop et restart."},
+        {"entree": "stop\nrun\npause\nstop\nunpause\nrm\nkill\nstart\nstop\nrm", "attendu": "TRANSITION_INVALIDE: Action stop impossible depuis l'etat ABSENT\nrun -> NOUVEL_ETAT: RUNNING\npause -> NOUVEL_ETAT: PAUSED\nTRANSITION_INVALIDE: Action stop impossible depuis l'etat PAUSED\nunpause -> NOUVEL_ETAT: RUNNING\nTRANSITION_INVALIDE: Impossible de supprimer un conteneur actif sans --force (Etat: RUNNING)\nkill -> NOUVEL_ETAT: STOPPED\nstart -> NOUVEL_ETAT: RUNNING\nstop -> NOUVEL_ETAT: STOPPED\nrm -> NOUVEL_ETAT: ABSENT", "raison": "Les deux stop invalides et rm sur RUNNING ne modifient pas l'état ; les autres transitions suivent la table."}
+      ]
+    },
+    {
+      "id": "dk2-c4-e2", "source": "docker.js", "oracle": "dk2-c4-e2", "codec": "lignes",
+      "cas": [
+        {"entree": "one 0.0.0.0:5088:90\ntwo 192.168.7.4:5088:81\ntri 192.168.7.4:5089:82", "attendu": "PUBLICATION: one -> NAT: 0.0.0.0:5088 => 90/tcp (SUCCES)\nCONFLIT_PORT: two -> Port hote 5088 deja reserve par one (ECHEC)\nPUBLICATION: tri -> NAT: 192.168.7.4:5089 => 82/tcp (SUCCES)", "raison": "Une réservation générique couvre toutes les interfaces sur 5088 ; le port 5089 reste libre."},
+        {"entree": "east 127.0.0.1:6055:30\nwest 10.1.0.4:6055:31\nany 6055:32", "attendu": "PUBLICATION: east -> NAT: 127.0.0.1:6055 => 30/tcp (SUCCES)\nPUBLICATION: west -> NAT: 10.1.0.4:6055 => 31/tcp (SUCCES)\nCONFLIT_PORT: any -> Port hote 6055 deja reserve par east (ECHEC)", "raison": "Deux IP spécifiques distinctes partagent 6055 ; la réservation générique cite la première, east."}
+      ]
+    },
+    {
+      "id": "dk2-c4-e3", "source": "docker.js", "oracle": "dk2-c4-e3", "codec": "lignes",
+      "cas": [
+        {"entree": "-v ../donnees:/mnt:ro,z\n--mount target=/var,source=./cache,type=bind,readonly\n--tmpfs /run/token", "attendu": "STOCKAGE: -v ../donnees:/mnt:ro,z -> TYPE: BIND_MOUNT | Repertoire specifique de la machine hote | PERSISTANT (survit a docker rm) | LECTURE_SEULE\nSTOCKAGE: --mount target=/var,source=./cache,type=bind,readonly -> TYPE: BIND_MOUNT | Repertoire specifique de la machine hote | PERSISTANT (survit a docker rm) | LECTURE_SEULE\nSTOCKAGE: --tmpfs /run/token -> TYPE: TMPFS | Memoire vive RAM de l'hote | VOLATILE (detruit a l'arret du conteneur) | LECTURE_ECRITURE", "raison": "../ désigne un bind et ro figure parmi les options ; readonly vaut aussi pour --mount ; tmpfs est volatil."},
+        {"entree": "-v bobine:/log:rw\n--mount target=/var/type,type=tmpfs\n--mount source=stockage,target=/srv,type=volume,readonly", "attendu": "STOCKAGE: -v bobine:/log:rw -> TYPE: VOLUME_NOMME | Espace reserve du daemon (/var/lib/docker/volumes/) | PERSISTANT (survit a docker rm) | LECTURE_ECRITURE\nSTOCKAGE: --mount target=/var/type,type=tmpfs -> TYPE: TMPFS | Memoire vive RAM de l'hote | VOLATILE (detruit a l'arret du conteneur) | LECTURE_ECRITURE\nSTOCKAGE: --mount source=stockage,target=/srv,type=volume,readonly -> TYPE: VOLUME_NOMME | Espace reserve du daemon (/var/lib/docker/volumes/) | PERSISTANT (survit a docker rm) | LECTURE_SEULE", "raison": "bobine et stockage sont des volumes nommés ; le champ type=tmpfs impose le stockage volatil."}
+      ]
+    },
+    {
+      "id": "dk2-c5-e1", "source": "docker.js", "oracle": "dk2-c5-e1", "codec": "lignes",
+      "cas": [
+        {"entree": "service: phare | image: phare:v5 | build: ./build | ports: 3150:15 | restart: always\nservice: ombre | image: | build: ./ombre | restart: sauf", "attendu": "SERVICE: phare -> VALIDE [Origine: image:phare:v5 | Ports: 3150:15 | Restart: always]\nSERVICE: ombre -> VALIDE [Origine: build:./ombre | Ports: aucun | Restart: no]", "raison": "image prime sur build ; une image vide ne prime pas et le restart inconnu devient no."},
+        {"entree": "restart: unless-stopped | service: veille | ports: 8088:88 | image: veille:v1\nservice: vide | build: | image: | ports: 9088:88", "attendu": "SERVICE: veille -> VALIDE [Origine: image:veille:v1 | Ports: 8088:88 | Restart: unless-stopped]\nSERVICE: vide -> INVALIDE (Directive image ou build obligatoire)", "raison": "Les champs réordonnés sont reconnus et deux valeurs d'origine vides ne valident pas le service."}
+      ]
+    },
+    {
+      "id": "dk2-c5-e2", "source": "docker.js", "oracle": "dk2-c5-e2", "codec": "lignes",
+      "cas": [
+        {"entree": "web -> api, cache\napi -> base\ncache -> base\nbase -> NONE\nagent -> NONE", "attendu": "ORDRE_DEMARRAGE: agent -> base -> api -> cache -> web", "raison": "agent précède base alphabétiquement ; base libère api et cache avant web."},
+        {"entree": "avant -> NONE\nalpha -> beta\nbeta -> gamma\ngamma -> alpha", "attendu": "ERREUR_COMPOSE: Dependance cyclique detectee", "raison": "Le démarrage possible de avant ne supprime pas le cycle alpha, beta, gamma."}
+      ]
+    },
+    {
+      "id": "dk2-c5-e3", "source": "docker.js", "oracle": "dk2-c5-e3", "codec": "lignes",
+      "cas": [
+        {"entree": "COULEUR=bleu nuit\nVIDE=\nZERO=0\n---\n${COULEUR}|${VIDE:-sec}|${ZERO:-autre}|${ABSENT}\nURL=${ABSENT:-http://local}", "attendu": "RESOLU: bleu nuit|sec|0|\nRESOLU: URL=http://local", "raison": "La valeur 0 n'est pas vide ; VIDE et ABSENT déclenchent les valeurs de repli indiquées."},
+        {"entree": "A=une=deux\nMOT=bonjour\n---\n${A}-${A}\n${MOT:-defaut}:${MANQUE:-repli}", "attendu": "RESOLU: une=deux-une=deux\nRESOLU: bonjour:repli", "raison": "La valeur littérale conserve son signe égal ; les deux occurrences sont interpolées et seule MANQUE prend le repli."}
+      ]
+    },
+    {
+      "id": "dk2-c6-e1", "source": "docker.js", "oracle": "dk2-c6-e1", "codec": "lignes",
+      "cas": [
+        {"entree": "FROM alpine:3.20\nUSER 0:app\nUSER 2002:ops\nCMD [\"sh\"]", "attendu": "AUDIT_SECURITE: CONFORME (Execution sous utilisateur non-privilegie: 2002:ops)", "raison": "La dernière directive USER prévaut ; sa partie utilisateur 2002 n'est pas root et son groupe reste affiché."},
+        {"entree": "FROM alpine\nUSER admin\nUSER root:staff\nCMD [\"run\"]", "attendu": "AUDIT_SECURITE: CRITIQUE (Le conteneur s'execute avec les privileges root - UID 0)", "raison": "La dernière partie utilisateur est root, malgré le groupe staff et le USER précédent."}
+      ]
+    },
+    {
+      "id": "dk2-c6-e2", "source": "docker.js", "oracle": "dk2-c6-e2", "codec": "lignes",
+      "cas": [
+        {"entree": "MEM=3g SWAP=2g CPUS=0.333333\nMEM=384m SWAP=2g CPUS=1.25", "attendu": "CGROUPS: RAM: 3072 Mo | SWAP_ADDITIONNEL: 0 Mo | CPU_QUOTA: 33333 us / 100000 us (0.333333 cœurs)\nCGROUPS: RAM: 384 Mo | SWAP_ADDITIONNEL: 1664 Mo | CPU_QUOTA: 125000 us / 100000 us (1.25 cœurs)", "raison": "Le swap est borné à zéro puis vaut 2048-384=1664 ; 0,333333 fois 100000 est tronqué à 33333."},
+        {"entree": "MEM=0m SWAP=1g CPUS=0.125\nMEM=512m SWAP=512m CPUS=2", "attendu": "CGROUPS: RAM: 0 Mo | SWAP_ADDITIONNEL: 1024 Mo | CPU_QUOTA: 12500 us / 100000 us (0.125 cœurs)\nCGROUPS: RAM: 512 Mo | SWAP_ADDITIONNEL: 0 Mo | CPU_QUOTA: 200000 us / 100000 us (2 cœurs)", "raison": "Avec RAM nulle, 1 Go de swap total donne 1024 Mo supplémentaires ; une limite égale à la RAM donne zéro."}
+      ]
+    },
+    {
+      "id": "dk2-c6-e3", "source": "docker.js", "oracle": "dk2-c6-e3", "codec": "lignes",
+      "cas": [
+        {"entree": "POLITIQUE=always EXIT_CODE=0 MANUEL=OUI\nPOLITIQUE=on-failure EXIT_CODE=7 MANUEL=NON\nPOLITIQUE=no EXIT_CODE=9 MANUEL=NON", "attendu": "EVENEMENT: POLITIQUE=always EXIT_CODE=0 MANUEL=OUI -> DECISION: ARRET_DEFINITIF (Arret volontaire par l'administrateur)\nEVENEMENT: POLITIQUE=on-failure EXIT_CODE=7 MANUEL=NON -> DECISION: REDEMARRER (Echec detecte: code 7)\nEVENEMENT: POLITIQUE=no EXIT_CODE=9 MANUEL=NON -> DECISION: ARRET_DEFINITIF (Politique \"no\")", "raison": "L'arrêt manuel prime ; on-failure relance pour 7 tandis que no arrête pour 9."},
+        {"entree": "POLITIQUE=unless-stopped EXIT_CODE=9 MANUEL=NON\nPOLITIQUE=on-failure EXIT_CODE=0 MANUEL=NON\nPOLITIQUE=always EXIT_CODE=9 MANUEL=OUI", "attendu": "EVENEMENT: POLITIQUE=unless-stopped EXIT_CODE=9 MANUEL=NON -> DECISION: REDEMARRER (Relance automatique du conteneur)\nEVENEMENT: POLITIQUE=on-failure EXIT_CODE=0 MANUEL=NON -> DECISION: ARRET_DEFINITIF (Code sortie normal 0)\nEVENEMENT: POLITIQUE=always EXIT_CODE=9 MANUEL=OUI -> DECISION: ARRET_DEFINITIF (Arret volontaire par l'administrateur)", "raison": "unless-stopped relance hors arrêt manuel ; on-failure ne relance pas sur zéro ; l'arrêt manuel prime sur always."}
+      ]
+    }
+  ]
+}

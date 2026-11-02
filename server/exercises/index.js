@@ -113,7 +113,9 @@ function toClient(exercise) {
     starter: exercise.starter,
     language: exercise.language,
     hints: exercise.hints || [],
-    examples: exercise.examples || []
+    examples: exercise.language === 'analyse'
+      ? (exercise.examples || []).map(example => ({ stdin: typeof example.stdin === 'string' ? example.stdin : '' }))
+      : exercise.examples || []
   };
 }
 
@@ -141,6 +143,11 @@ function validateCatalogue() {
     }
     if (!Array.isArray(exercise.examples) || exercise.examples.length < 1) {
       problems.push(`${where} : au moins 1 exemple visible est requis`);
+    }
+    if (exercise.verifyFirstExample === true &&
+        (exercise.language === 'analyse' || !Array.isArray(exercise.examples) || !exercise.examples[0] ||
+         typeof exercise.examples[0].stdin !== 'string' || typeof exercise.examples[0].expected !== 'string')) {
+      problems.push(`${where} : exemple visible à vérifier invalide`);
     }
     if (!Array.isArray(exercise.hints) || exercise.hints.length < 1) {
       problems.push(`${where} : au moins 1 indice est requis`);

@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -53,7 +53,7 @@
 <main id="content" class="reactwrap">
 <p class="crumb"><a href="../index.html">React B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
 
-<h1>Chapitre 6 — Navigation avec React Router & architecture globale</h1>
+<h1>Chapitre 6 — Navigation avec React Router &amp; architecture globale</h1>
 
 <div class="chapmeta">
     <span class="tag">Module 6</span>
@@ -74,6 +74,7 @@
       <li>configurer React Router v6 (BrowserRouter, Routes, Route, Link) ;</li>
       <li>extraire des paramètres dynamiques d’URL avec le Hook useParams ;</li>
       <li>concevoir des routes imbriquées à l’aide du composant Outlet ;</li>
+      <li>distinguer une garde d’interface côté client de l’autorisation côté serveur ;</li>
       <li>gérer des flux d’état globaux avec useReducer et structurer une base de code professionnelle.</li>
     </ol>
   </div>
@@ -125,7 +126,21 @@ function DetailCours() {
   return &lt;h1&gt;Consultation du cours : {slug}&lt;/h1&gt;;
 }</code></pre>
 
-<h2>4. Architecture professionnelle et gestion d’état par Reducer</h2>
+<h2>4. Routes privées : garde d’interface et autorisation serveur</h2>
+
+<p>Une garde React comme <code>PrivateRoute</code> peut afficher un composant ou rediriger un utilisateur non connecté. Elle améliore la navigation, mais elle s’exécute dans le navigateur : elle peut être contournée et ne protège pas, à elle seule, les données ou les API.</p>
+<p>Pour <strong>chaque requête</strong> visant une ressource sensible, le serveur authentifie la session ou le jeton et vérifie les droits de l’utilisateur sur l’action et la ressource demandées, y compris pour une requête directe ou un fichier sensible. Il ne fait pas confiance à un rôle ou un identifiant simplement déclaré par le client et refuse l’accès par défaut.</p>
+  <div class="box box--warn">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Exemple : consulter un cours privé</div>
+    <ul>
+      <li>Sans authentification valide, le serveur répond <code>401</code>.</li>
+      <li>Avec une identité valide mais sans droit sur ce cours, il répond <code>403</code> (ou <code>404</code> si la politique masque son existence).</li>
+      <li>Il peut renvoyer les données uniquement après validation de l’identité et des droits sur ce cours.</li>
+    </ul>
+  </div>
+<p>Référence : <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html">recommandations OWASP sur l’autorisation</a>.</p>
+
+<h2>5. Architecture professionnelle et gestion d’état par Reducer</h2>
 
 <p>Lorsque la complexité augmente, regrouper les données dans de multiples <code>useState</code> devient confus. Le Hook <code>useReducer</code> offre une architecture prédictible inspirée du pattern Redux :</p>
 <pre><code>function panierReducer(state, action) {
@@ -149,14 +164,12 @@ function DetailCours() {
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <div id="exercices">
+  <h2>6. Exercices de code</h2>
+  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="rx2-c6-e1" data-lab
      data-exercise="rx2-c6-e1"
+     data-grading-suspended="1"
      data-language="javascript"
      data-height="300"
      data-stdin="/users/:id/profile&#10;/users/42/profile&#10;">
@@ -172,11 +185,13 @@ const url = (lignes[1] || '').trim().split('/').filter(Boolean);
     <h3 class="lab__title">Exercice 1 — Paramètres de route dynamiques (useParams)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Extraire les paramètres d'URL définis avec la notation :param de React Router.</p>
+    <p class="lab__note" id="rx2-c6-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le hook <code>useParams</code> extrait les paramètres dynamiques de l'URL. Le script lit sur la ligne 1 le modèle de route (ex. <code>/users/:id/profile</code>) et sur la ligne 2 l'URL courante (ex. <code>/users/42/profile</code>). Affichez les paramètres extraits au format JSON : <code>{"id":"42"}</code>. Si les segments ne correspondent pas en nombre, affichez <code>{}</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>/users/:id/profile
@@ -197,6 +212,7 @@ const url = (lignes[1] || '').trim().split('/').filter(Boolean);
 
 <div class="lab" id="rx2-c6-e2" data-lab
      data-exercise="rx2-c6-e2"
+     data-grading-suspended="1"
      data-language="javascript"
      data-height="300"
      data-stdin="1 Dashboard&#10;">
@@ -205,24 +221,26 @@ const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
 
 const [auth, composant] = lignes[0].split(' ');
 
-// À compléter : autoriser ou rediriger vers /login
+// À compléter : afficher le composant ou rediriger vers /login
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Route protégée et composant Navigate</h3>
+    <h3 class="lab__title">Exercice 2 — Garde de navigation côté client et composant Navigate</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Rediriger un utilisateur non connecté avec le composant Navigate de React Router.</p>
-    <div class="lab__brief"><p>Pour sécuriser une route privée, on teste l'authentification : si l'utilisateur est connecté, le composant enfant s'affiche ; sinon, une redirection s'opère. Le script lit une ligne <code>auth composant</code> où auth vaut <code>1</code> ou <code>0</code>. Si 1, affichez <code>&lt;COMPOSANT /&gt;</code> ; si 0, affichez <code>&lt;Navigate to="/login" replace /&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'affichage ou la redirection côté client avec Navigate de React Router.</p>
+    <p class="lab__note" id="rx2-c6-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
+    <div class="lab__brief"><p>Une garde React choisit le composant à afficher ou redirige l'utilisateur : c'est une simulation de navigation côté client, pas une protection des données. Le serveur doit vérifier l'identité et les droits sur la ressource à chaque requête sensible, y compris une requête directe. Le script lit une ligne <code>auth composant</code> où auth vaut <code>1</code> ou <code>0</code>. Si 1, affichez <code>&lt;COMPOSANT /&gt;</code> ; si 0, affichez <code>&lt;Navigate to="/login" replace /&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>1 Dashboard
 </pre></div>
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>&lt;Dashboard /&gt;</pre></div>
     </div>
-    <p class="lab__note">Accès autorisé au tableau de bord.</p>
+    <p class="lab__note">Composant affiché côté client ; aucun droit serveur n'est démontré.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -235,6 +253,7 @@ const [auth, composant] = lignes[0].split(' ');
 
 <div class="lab" id="rx2-c6-e3" data-lab
      data-exercise="rx2-c6-e3"
+     data-grading-suspended="1"
      data-language="javascript"
      data-height="300"
      data-stdin="50&#10;AJOUT:20 REMISE:10&#10;">
@@ -250,11 +269,13 @@ const actions = (lignes[1] || '').split(' ');
     <h3 class="lab__title">Exercice 3 — Architecture d'état par Reducer (useReducer)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Implémenter une fonction réductrice pure (state, action) =&gt; newState pour gérer un panier d'achats.</p>
+    <p class="lab__note" id="rx2-c6-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Pour des états complexes, le hook <code>useReducer</code> découple les transitions dans une fonction pure. Le script lit sur la ligne 1 le total initial (entier), et sur la ligne 2 une suite d'actions séparées par des espaces : <code>AJOUT:X</code> (ajoute X) ou <code>REMISE:X</code> (retire X, minimum 0). Affichez <code>Total panier : TOTAL</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>50
@@ -272,8 +293,9 @@ AJOUT:20 REMISE:10
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -315,9 +337,11 @@ AJOUT:20 REMISE:10
     <div class="q">
       <p class="q__stem">Une route 404 « introuvable » est configurée avec le chemin…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">path="*"', 'path="404"', 'path="none"</button>
+        <button class="opt" data-correct="1">path="*"</button>
+        <button class="opt">path="404"</button>
+        <button class="opt">path="none"</button>
       </div>
-      <div class="q__exp">L’astérisque (*) capture toutes les URLs ne correspondant à aucune route précédente.</div>
+      <div class="q__exp">L’astérisque (*) capture les chemins non reconnus. Les chemins « 404 » et « none » correspondent seulement à ces chemins précis.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pour rediriger automatiquement un utilisateur non authentifié, on rend…</p>
@@ -326,7 +350,7 @@ AJOUT:20 REMISE:10
         <button class="opt">&lt;RedirectPermanent /&gt;</button>
         <button class="opt">&lt;window.forward /&gt;</button>
       </div>
-      <div class="q__exp">Navigate permet des redirections déclaratives en JSX.</div>
+      <div class="q__exp">Navigate permet une redirection côté client, sans remplacer les contrôles d’autorisation du serveur.</div>
     </div>
     <div class="q">
       <p class="q__stem">La navigation programmatique (ex. après validation d’un formulaire) s’effectue avec…</p>
@@ -346,9 +370,18 @@ AJOUT:20 REMISE:10
       </div>
       <div class="q__exp">Isoler les services réseau découple la logique métier de la vue UI.</div>
     </div>
+    <div class="q">
+      <p class="q__stem">Quel contrôle protège les données d’une route privée ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le serveur vérifie l’identité et les droits sur la ressource à chaque requête</button>
+        <button class="opt">PrivateRoute dans le navigateur suffit</button>
+        <button class="opt">Masquer le lien dans le menu suffit</button>
+      </div>
+      <div class="q__exp">La garde client est contournable : le serveur contrôle chaque requête, y compris les accès directs, et refuse par défaut.</div>
+    </div>
   </div>
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -358,10 +391,11 @@ AJOUT:20 REMISE:10
       <li>Omettre le composant &lt;Outlet /&gt; dans un composant de Layout contenant des sous-routes.</li>
       <li>Muter l’état à l’intérieur d’un reducer au lieu de renvoyer un nouvel objet { ...state }.</li>
       <li>Mélanger les responsabilités en plaçant des requêtes HTTP directes dans des composants UI de bas niveau.</li>
+      <li>Croire qu’une garde React ou un lien masqué remplace l’autorisation côté serveur.</li>
     </ul>
   </div>
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Structurer et sécuriser la navigation d’une application React</div>
@@ -369,12 +403,13 @@ AJOUT:20 REMISE:10
       <li><strong>Définir</strong> l’arborescence des URLs (publiques, privées, introuvables).</li>
       <li><strong>Configurer</strong> le BrowserRouter au niveau le plus haut de l’application.</li>
       <li><strong>Organiser</strong> les composants dans des dossiers dédiés (pages, components, services).</li>
-      <li><strong>Protéger</strong> les routes sensibles à l’aide d’un composant PrivateRoute vérifiant la session.</li>
+      <li><strong>Limiter</strong> l’affichage côté client avec une garde comme PrivateRoute et rediriger si nécessaire.</li>
+      <li><strong>Vérifier</strong> côté serveur, à chaque requête sensible, l’identité et les droits sur l’action et la ressource ; refuser par défaut.</li>
       <li><strong>Gérer</strong> les paramètres d’URL avec useParams pour les vues de détail dynamiques.</li>
     </ol>
   </div>
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -383,6 +418,7 @@ AJOUT:20 REMISE:10
       <li>BrowserRouter synchronise l’UI avec l’URL du navigateur via l’History API.</li>
       <li>Les composants Link et NavLink évitent le rechargement de page natif.</li>
       <li>useParams et Outlet permettent des routes dynamiques et des layouts imbriqués modulaires.</li>
+      <li>Une garde React améliore la navigation ; le serveur vérifie l’autorisation sur chaque requête sensible.</li>
       <li>useReducer apporte une architecture prévisible pour les états complexes et volumineux.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
@@ -391,6 +427,7 @@ AJOUT:20 REMISE:10
       <li>J’utilise Link ou NavLink pour tous mes liens internes.</li>
       <li>J’extrais des identifiants dynamiques avec useParams.</li>
       <li>J’utilise Outlet pour composer des pages avec barre de navigation ou sidebar.</li>
+      <li>Je distingue la redirection côté client de la vérification des droits côté serveur.</li>
       <li>Je structure mes projets React selon les standards professionnels de l’industrie.</li>
     </ul>
     <h3>Les 10 notions à connaître absolument</h3>
@@ -401,16 +438,16 @@ AJOUT:20 REMISE:10
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
   </div>
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Révise les bases du routage déclaratif et la différence avec les balises &lt;a&gt;.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Révisez les bases du routage déclaratif et la différence avec les balises &lt;a&gt;.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur les paramètres dynamiques et les layouts imbriqués.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous maîtrisez le routage avancé et l’architecture SPA.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise complète : félicitations, passe aux ateliers et examens blancs !</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise complète : félicitations, passez aux ateliers et examens blancs !</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

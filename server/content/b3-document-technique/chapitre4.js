@@ -54,7 +54,7 @@ module.exports = {
         '  </div>',
         '  <div class="card">',
         '    <h4>2. Les Routes : paths</h4>',
-        '    <p>Déclaration des endpoints hiérarchisés au pluriel (ex. <code>/api/v1/clients/{id}</code>), verbes HTTP associés, résumés, tags de regroupement et identifiants uniques <code>operationId</code>.</p>',
+        '    <p>Déclaration des endpoints selon une convention cohérente, par exemple des collections au pluriel (<code>/api/v1/clients/{id}</code>), méthodes HTTP, résumés, tags et identifiants <code>operationId</code>.</p>',
         '  </div>',
         '  <div class="card">',
         '    <h4>3. Les Schémas : components</h4>',
@@ -128,7 +128,7 @@ module.exports = {
   methodTitle: 'Protocole de Conception et de Validation d’une API OpenAPI 3.0',
   method: [
     'Concevoir le contrat d’interface en amont sur un modèle API-First avec les équipes consommatrices.',
-    'Structurer l’arborescence des chemins selon la convention REST plurielle (ex. /api/v1/ressources).',
+    'Choisir une convention cohérente pour les chemins, par exemple des collections au pluriel (/api/v1/ressources).',
     'Définir rigoureusement les verbes HTTP appropriés et l’idempotence associée (GET, POST, PUT, DELETE).',
     'Documenter systématiquement les codes de retour nominaux (200, 201) et les codes d’erreur (400, 401, 403, 404, 500).',
     'Factoriser tous les modèles de données dans la section components/schemas pour éliminer la duplication.',
@@ -161,7 +161,7 @@ module.exports = {
   ],
   pitfalls: [
     'Renvoyer un code HTTP 200 OK avec un corps JSON contenant `{"error": "User not found"}`, violant la norme REST.',
-    'Nommer les routes avec des verbes d’action (ex. `/api/getUser/10`) plutôt que des noms pluriels (`/api/users/10`).',
+    'Adopter des noms de routes incohérents avec la convention documentée pour l’API.',
     'Omettre de documenter les schémas d’erreur 400 et 404, laissant les développeurs dans l’ignorance des formats de rejet.',
     'Laisser la documentation d’API dériver du code de production sans contrôle automatisé en intégration continue.'
   ],
@@ -189,7 +189,7 @@ module.exports = {
       exp: 'Le code 201 Created est le code standard désignant la création effective d’une ressource nouvelle, idéalement accompagné de l’en-tête Location précisant son URI.'
     },
     {
-      stem: 'Quelle convention de nommage d’URI respecte les bonnes pratiques de conception d’une API RESTful ?',
+      stem: 'Pour une API qui choisit des collections au pluriel et des méthodes HTTP pour les actions, quelle URI suit cette convention ?',
       opts: [
         '/api/getUserById?id=12',
         '/api/v1/deleteUser/12',
@@ -197,7 +197,7 @@ module.exports = {
         '/api/user_action.php?action=view&uid=12'
       ],
       correct: 2,
-      exp: 'En REST, les URIs désignent des ressources (noms au pluriel), et les verbes HTTP (GET, POST, PUT, DELETE) portent l’action à effectuer.'
+      exp: 'Dans cette convention, /users désigne une collection. Le pluriel n’est pas imposé par REST : l’API GitHub propose par exemple GET /user.'
     },
     {
       stem: 'Dans la spécification OpenAPI 3.0, à quoi sert la section « components/schemas » ?',
@@ -269,8 +269,8 @@ module.exports = {
       a: '401 Unauthorized : absence ou invalidité de credentials d’authentification. 403 Forbidden : identité authentifiée mais droits/rôles insuffisants.'
     },
     {
-      q: 'Pourquoi les URIs REST doivent-elles être composées de noms au pluriel ?',
-      a: 'Car les URIs désignent des collections de ressources (ex. `/api/v1/orders`), les actions étant portées par les verbes HTTP (GET, POST, DELETE).'
+      q: 'Les URIs REST doivent-elles utiliser des noms au pluriel ?',
+      a: 'Non, le pluriel est une convention possible pour les collections, pas une contrainte imposée par REST. L’API GitHub utilise par exemple GET /user ; documenter une convention cohérente.'
     },
     {
       q: 'Quelles sont les sections majeures d’une spécification OpenAPI 3.0 ?',

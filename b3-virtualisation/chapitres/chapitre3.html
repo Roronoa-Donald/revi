@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -53,7 +53,7 @@
 <main id="content" class="b3-virtualisationwrap">
 <p class="crumb"><a href="../index.html">Virtualisation Avancée B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
 
-<h1>Chapitre 3 — Stockage Virtuel Datastores, VMFS-6 & Architectures Hyperconvergées vSAN</h1>
+<h1>Chapitre 3 — Stockage Virtuel Datastores, VMFS-6 &amp; Architectures Hyperconvergées vSAN</h1>
 
 <div class="chapmeta">
     <span class="tag">Module 3</span>
@@ -86,7 +86,7 @@
     <ul>
       <li><strong>Présentation :</strong> La baie de stockage expose des LUNs (Logical Unit Numbers) brutes. L'hyperviseur formate le LUN avec son propre système de fichiers clustered (VMFS).</li>
       <li><strong>Fibre Channel (FC) :</strong> Protocole sans perte dédié sur réseau optique (8, 16, 32 Gbps) avec adaptateurs HBA matériels. Fiabilité maximale, coût élevé.</li>
-      <li><strong>iSCSI :</strong> Encapsule les commandes SCSI dans des paquets TCP/IP (port 3260). Utilisez le réseau Ethernet standard avec cartes réseau 10G/25G et initiateur logiciel VMkernel.</li>
+      <li><strong>iSCSI :</strong> Encapsule les commandes SCSI dans des paquets TCP/IP (port 3260). Utilise le réseau Ethernet standard avec cartes réseau 10G/25G et initiateur logiciel VMkernel.</li>
     </ul>
   </div>
   <div class="card">
@@ -100,7 +100,7 @@
 </div>
 <p>Pour les réseaux de stockage IP (iSCSI et NFS), l'activation des <strong>Jumbo Frames (MTU 9000 octets au lieu de 1500)</strong> de bout en bout (carte VMkernel, vSwitch, commutateurs physiques et contrôleurs de baie) est indispensable : elle divise par six le nombre d'interruptions processeur par seconde et accroît le débit utile de 15% à 25%.</p>
 
-<h2>2. Système de Fichiers Clustered VMFS-6 & Primitives d'Accélération VAAI</h2>
+<h2>2. Système de Fichiers Clustered VMFS-6 &amp; Primitives d'Accélération VAAI</h2>
 
 <p><strong>VMFS-6 (Virtual Machine File System)</strong> est un système de fichiers en cluster propriétaire développé par VMware, permettant à des dizaines de serveurs ESXi de lire et d'écrire simultanément sur le même LUN SAN sans risquer de corrompre les données :</p>
 <div class="grid grid-2">
@@ -115,26 +115,26 @@
   <div class="card">
     <h4>Primitives Matérielles VAAI (vStorage APIs for Array Integration)</h4>
     <ul>
-      <li><strong>ATS (Atomic Test and Set) :</strong> Remplacez le verrouillage global SCSI (SCSI reservation) par un verrouillage ultra-fin bloc par bloc pour la mise à jour des métadonnées.</li>
+      <li><strong>ATS (Atomic Test and Set) :</strong> Remplace le verrouillage global SCSI (SCSI reservation) par un verrouillage ultra-fin bloc par bloc pour la mise à jour des métadonnées.</li>
       <li><strong>XCOPY (Extended Copy) :</strong> Décharge le clonage et le déplacement de VMDK directement sur les contrôleurs de la baie de stockage sans solliciter le réseau ni le CPU ESXi.</li>
       <li><strong>Write Same (Zeroing) :</strong> Ordonne à la baie d'écrire des blocs de zéros à haute vitesse lors du provisionnement Thick Eager Zeroed.</li>
     </ul>
   </div>
 </div>
 
-<h2>3. Multipathing NMP & Politiques de Sélection de Chemin (PSP)</h2>
+<h2>3. Multipathing NMP &amp; Politiques de Sélection de Chemin (PSP)</h2>
 
 <p>Pour garantir la résilience et le débit d'accès au stockage SAN, chaque hôte ESXi est relié à la baie via au moins deux contrôleurs physiques redondants (chemins multiples). Le sous-système <strong>NMP (Native Multipathing Plugin)</strong> gère le basculement et l'équilibrage grâce aux modules <strong>PSP (Path Selection Plugin)</strong> :</p>
 <table class="table">
   <thead><tr><th>Politique PSP</th><th>Comportement Opérationnel</th><th>Usage &amp; Recommandation</th></tr></thead>
   <tbody>
     <tr><td><strong>Round Robin (VMW_PSP_RR)</strong></td><td>Distribue les commandes d'E/S successivement sur l'ensemble des chemins actifs (toutes les 1000 E/S par défaut, ou 1 E/S en mode optimisé).</td><td><strong>Recommandé :</strong> Agrège la bande passante de plusieurs liens 10G/16G et offre une tolérance de panne immédiate.</td></tr>
-    <tr><td><strong>Fixed (VMW_PSP_FIXED)</strong></td><td>Utilisez un chemin primaire désigné par l'administrateur ; ne bascule sur le chemin secondaire qu'en cas de coupure physique.</td><td>Adapté aux baies Actif/Passif traditionnelles sans ALUA.</td></tr>
+    <tr><td><strong>Fixed (VMW_PSP_FIXED)</strong></td><td>Utilise un chemin primaire désigné par l'administrateur ; ne bascule sur le chemin secondaire qu'en cas de coupure physique.</td><td>Adapté aux baies Actif/Passif traditionnelles sans ALUA.</td></tr>
     <tr><td><strong>Most Recently Used (VMW_PSP_MRU)</strong></td><td>Conserve le chemin en cours d'utilisation jusqu'à ce qu'une panne survienne, sans jamais revenir en arrière (pas de failback automatique).</td><td>Obligatoire sur les baies Actif/Passif asymétriques pour éviter le phénomène de ping-pong de LUN.</td></tr>
   </tbody>
 </table>
 
-<h2>4. Architectures Hyperconvergées vSAN & Politiques SPBM (FTT, RAID-1, RAID-5/6)</h2>
+<h2>4. Architectures Hyperconvergées vSAN &amp; Politiques SPBM (FTT, RAID-1, RAID-5/6)</h2>
 
 <p><strong>VMware vSAN (Virtual SAN)</strong> remplace les baies de stockage externes traditionnelles par une architecture <strong>hyperconvergée (HCI)</strong> : les disques internes (SSD NVMe, SSD SAS) installés localement dans chaque serveur ESXi du cluster sont regroupés en un datastore partagé unique et distribué :</p>
 <div class="grid grid-2">
@@ -158,9 +158,11 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="vrt3-c3-e1" data-lab
      data-exercise="vrt3-c3-e1"
      data-language="analyse"
@@ -182,10 +184,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Dimensionneur de Datastores VMFS &amp; Provisionnement de Disques (Thin vs Thick)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="vrt3-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la consommation logique et physique d'un Datastore VMFS selon les types de provisionnement (Thick vs Thin).</p>
     <div class="lab__brief"><p>Sur un Datastore VMware VMFS, les disques virtuels (.vmdk) utilisent différentes stratégies de provisionnement :<br><br>
 1. <strong>Types de disques</strong> :<br>
@@ -208,11 +212,7 @@ Format de sortie :<br>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DATASTORE=ds-san-01 DS_SIZE_GB=1000 DISKS=vm1:200:THICK_EAGER,vm2:300:THIN:30,vm3:400:THIN:20
 DATASTORE=ds-nfs-02 DS_SIZE_GB=500 DISKS=vm4:400:THICK_LAZY,vm5:200:THIN:50</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DATASTORE:ds-san-01 | LOGICAL:900GB (90.0%) | PHYSICAL:370.0GB (37.0%) | STATUT:NOMINAL
-DATASTORE:ds-nfs-02 | LOGICAL:600GB (120.0%) | PHYSICAL:500.0GB (100.0%) | STATUT:ALERTE_SATURATION
-</pre></div>
     </div>
-    <p class="lab__note">Datastore nominal sous 80% vs Datastore saturé à 100% avec surallocation logique.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -244,10 +244,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Calculateur de Capacité Utile vSAN &amp; Politiques SPBM (FTT / RAID-1 / RAID-5)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="vrt3-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la consommation brute et la capacité restante d'un cluster vSAN selon les règles SPBM (Failures to Tolerate).</p>
     <div class="lab__brief"><p>VMware vSAN protège les machines virtuelles en appliquant des politiques de stockage SPBM avec facteurs d'amplification d'écriture :<br><br>
 1. <strong>Politiques de protection (SPBM)</strong> :<br>
@@ -274,12 +276,7 @@ Format de sortie :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HOSTS=4 RAW_CAPACITY_TB=50.0 POLICY=FTT=1_RAID5 VM_DATA_TB=15.0
 HOSTS=3 RAW_CAPACITY_TB=60.0 POLICY=FTT=1_RAID1 VM_DATA_TB=20.0
 HOSTS=3 RAW_CAPACITY_TB=40.0 POLICY=FTT=1_RAID5 VM_DATA_TB=10.0</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>POLICY:FTT=1_RAID5 | MULTIPLIER:1.33x | CONSUMED:20.00TB | REMAINING:20.00TB | STATUT:HEALTHY
-POLICY:FTT=1_RAID1 | MULTIPLIER:2.00x | CONSUMED:40.00TB | REMAINING:8.00TB | STATUT:HEALTHY
-ERROR:INVALID_HOST_COUNT
-</pre></div>
     </div>
-    <p class="lab__note">vSAN RAID-5 sain sur 4 hôtes, RAID-1 en avertissement slack space et échec d'hôtes insuffisants.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -319,10 +316,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Moteur d'Arbitrage Multipathing MPIO (Round Robin &amp; Fixed)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="vrt3-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Simuler l'acheminement des requêtes I/O disque sur les chemins SAN selon les politiques multipathing MPIO (Round Robin et Fixed).</p>
     <div class="lab__brief"><p>Le plug-in natif de sélection de chemin VMware NMP (Native Multipathing) répartit les flux d'entrées/sorties sur les adaptateurs HBA/iSCSI :<br><br>
 1. <strong>Politique <code>VMW_PSP_RR</code> (Round Robin)</strong> :<br>
@@ -340,10 +339,7 @@ Pour chaque chemin, afficher le nombre total d'I/O reçues :<br>
 IO=1000
 IO=1000
 IO=500</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PATH:vmhba1:C0:T0:L0=1500 | PATH:vmhba2:C0:T0:L0=1000 | CURRENT_ACTIVE:vmhba1:C0:T0:L0
-</pre></div>
     </div>
-    <p class="lab__note">Round Robin alternant par tranche de 1000 I/O entre deux chemins.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -353,6 +349,7 @@ IO=500</pre></div>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -454,7 +451,7 @@ IO=500</pre></div>
 <h2>8. Méthodologie de résolution</h2>
 
   <div class="box box--method">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie d'Ingénierie : Dimensionnement & Audit de Capacité vSAN</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie d'Ingénierie : Dimensionnement &amp; Audit de Capacité vSAN</div>
     <ol>
       <li>Calculer la capacité brute totale du cluster vSAN en sommant la capacité des disques de persistance de tous les nœuds.</li>
       <li>Retrancher immédiatement la réserve de Slack Space opérationnelle de 20% (Capacité_Utile = Capacité_Brute * 0.80).</li>
@@ -496,7 +493,7 @@ IO=500</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Dimensionner et valider les liaisons de stockage SAN iSCSI et Fibre Channel avec Jumbo Frames MTU 9000.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Dimensionner et valider les liaisons de stockage SAN iSCSI et Fibre Channel avec Jumbo Frames MTU 9000.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Analyser le fonctionnement des primitives VAAI (ATS, XCOPY, UNMAP) sur les datastores VMFS-6.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Dimensionner un cluster hyperconvergé VMware vSAN en appliquant les politiques SPBM adaptées (RAID-1 vs RAID-5/6).</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Surveiller et maintenir la réserve opérationnelle de 20% de Slack Space pour garantir la haute résilience de vSAN.</div>
@@ -506,11 +503,11 @@ IO=500</pre></div>
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="chapitre4.html">Module 4 — Réseau Virtuel, Commutation Standard & Distribuée (vSwitch & VDS) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="chapitre4.html">Module 4 — Réseau Virtuel, Commutation Standard &amp; Distribuée (vSwitch &amp; VDS) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : Supports officiels B3-ASI / L3-ASI Virtualisation (Auteur : M. Caleb AGOUTOCO-POKO, Enseignant & Spécialiste Systèmes et Réseaux), Documentation technique officielle VMware vSphere 7.0 / 8.0, Documentation Citrix Hypervisor, Guides de durcissement CIS Benchmark VMware ESXi.</p>
+  Sources : Supports officiels B3-ASI / L3-ASI Virtualisation (Auteur : M. Caleb AGOUTOCO-POKO, Enseignant &amp; Spécialiste Systèmes et Réseaux), Documentation technique officielle VMware vSphere 7.0 / 8.0, Documentation Citrix Hypervisor, Guides de durcissement CIS Benchmark VMware ESXi.</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

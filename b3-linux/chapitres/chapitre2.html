@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -75,7 +75,7 @@
       <li>concevoir et valider des fichiers d’unités Systemd (.service, .socket, .timer, .target) conformes aux exigences d’entreprise ;</li>
       <li>maîtriser le graphe de dépendances (Requires, Wants, After, Before) et prévenir les blocages circulaires (deadlocks) ;</li>
       <li>exploiter l’activation par socket (Socket Activation) pour éliminer les dépendances d’ordre et démarrer les démons à la demande ;</li>
-      <li>développer en Python 3 des validateurs d’unités de service, des détecteurs de cycles de dépendances et des parseurs d’événements Journald.</li>
+      <li>développer en scripts Bash et commandes système des validateurs d’unités de service, des détecteurs de cycles de dépendances et des parseurs d’événements Journald.</li>
     </ol>
   </div>
 
@@ -86,7 +86,7 @@
   <div class="card">
     <h4>1. Matériel &amp; Chargeur d’Amorçage (GRUB2)</h4>
     <ul>
-      <li><strong>UEFI / BIOS :</strong> Initialisez le matériel physique (POST) et lit la partition système EFI (ESP) pour charger le gestionnaire d’amorçage.</li>
+      <li><strong>UEFI / BIOS :</strong> Initialise le matériel physique (POST) et lit la partition système EFI (ESP) pour charger le gestionnaire d’amorçage.</li>
       <li><strong>GRUB2 (Grand Unified Bootloader) :</strong> Présente le menu de boot, charge l’image compressée du noyau (<code>vmlinuz</code>) et le disque mémoire initial (<code>initramfs</code>) en RAM, puis passe la main au noyau en Ring 0.</li>
     </ul>
   </div>
@@ -154,14 +154,12 @@ journalctl -u api.service -o json-pretty</code></pre>
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="lx3-c2-e1" data-lab
      data-exercise="lx3-c2-e1"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="SERVICE_DEF name=api.service desc=&quot;Backend API&quot; exec_start=/usr/bin/python3 wanted_by=multi-user.target">
@@ -175,16 +173,19 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 1 — Validateur d’unité de service Systemd ([Unit], [Service], [Install])</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité syntaxique et la validité des directives d’un fichier de service Systemd.</p>
+    <p class="lab__note" id="lx3-c2-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Sous Linux, <strong>Systemd</strong> (PID 1) orchestre le démarrage des démons via des fichiers déclaratifs d'unités (<code>.service</code>) placés dans <code>/etc/systemd/system/</code> ou <code>/lib/systemd/system/</code>.<br><br>
-Règles de conformité strictes d'une unité de service :<br>
-1. <code>ExecStart</code> est obligatoire et doit impérativement spécifier un <strong>chemin absolu</strong> (commençant par <code>/</code>). Un binaire relatif (ex: <code>python app.py</code>) est rejeté avec l'erreur <code>EXECSTART_RELATIF</code>.<br>
-2. <code>Description</code> doit être non vide (sinon <code>DESCRIPTION_MANQUANTE</code>).<br>
-3. <code>WantedBy</code> dans la section <code>[Install]</code> doit référencer une cible valide (ex: <code>multi-user.target</code>). S'il est vide ou absent, erreur <code>WANTEDBY_MANQUANT</code>.<br><br>
+Pour ce simulateur, contrôlez les champs dans cet ordre et affichez seulement la première erreur :<br>
+1. <code>Description</code> doit être renseignée (sinon <code>DESCRIPTION_MANQUANTE</code>).<br>
+2. <code>ExecStart</code> doit commencer par <code>/</code>, indiquant un chemin absolu (sinon <code>EXECSTART_RELATIF</code>).<br>
+3. <code>WantedBy</code> doit être renseigné (sinon <code>WANTEDBY_MANQUANT</code>).<br>
+Dans les données de cet exercice, une valeur vide ou <code>NONE</code> représente un champ absent. Le simulateur ne vérifie ni l'existence du fichier exécutable ni celle de la cible, par exemple <code>multi-user.target</code>.<br><br>
 Le script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>
 Pour chaque service, afficher :<br>
 <code>SERVICE_VALIDATION name={name} valid={OUI|NON} error={OK|motif_erreur}</code></p></div>
@@ -205,6 +206,7 @@ Pour chaque service, afficher :<br>
 
 <div class="lab" id="lx3-c2-e2" data-lab
      data-exercise="lx3-c2-e2"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="UNIT_DEP name=db.service requires=NONE&#10;UNIT_DEP name=web.service requires=db.service">
@@ -218,11 +220,13 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 2 — Résolveur de dépendances et détection de cycles Systemd</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Analyser le graphe de dépendances d’unités et détecter les dépendances circulaires bloquantes (deadlocks).</p>
+    <p class="lab__note" id="lx3-c2-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Systemd gère les dépendances entre unités via les directives <code>Requires=</code> (dépendance forte) et <code>Wants=</code> (dépendance faible). Si deux unités se requièrent mutuellement de manière circulaire, Systemd rencontre une dépendance cyclique et doit casser le lien ou échouer le démarrage.<br><br>
 Le script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>
 Règles :<br>
@@ -251,6 +255,7 @@ DEP_CHECK unit=web.service cycle=NON reason=OK</pre></div>
 
 <div class="lab" id="lx3-c2-e3" data-lab
      data-exercise="lx3-c2-e3"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="JOURNAL id=1 priority=6 unit=sshd.service msg=&quot;Server listening on port 22&quot;">
@@ -264,13 +269,15 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 3 — Parseur et filtreur d’événements Systemd Journald</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Classer les journaux binaires Systemd Journald selon les priorités Syslog RFC 5424 et isoler les incidents critiques.</p>
+    <p class="lab__note" id="lx3-c2-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Le démon <code>systemd-journald</code> centralise les logs du noyau, des services et de l'espace utilisateur dans un format binaire structuré indexé.<br><br>
-Le script Bash lit les paramètres sur l’entrée standard (stdin)..7&gt; unit=&lt;service&gt; msg=&lt;message&gt;</code>.<br><br>
+Le script Bash lit sur l’entrée standard (stdin) zéro ou plusieurs lignes <code>JOURNAL id=&lt;id&gt; priority=&lt;0..7&gt; unit=&lt;service&gt; msg=&lt;message&gt;</code>.<br><br>
 Échelle de sévérité Syslog (RFC 5424) :<br>
 - 0 : <code>EMERGENCY</code><br>
 - 1 : <code>ALERT</code><br>
@@ -297,6 +304,7 @@ Pour chaque log, afficher :<br>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -444,7 +452,7 @@ Pour chaque log, afficher :<br>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à distinguer Requires= et After= ou écriture de chemins relatifs dans les unités de service.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Difficultés à distinguer Requires= et After= ou écriture de chemins relatifs dans les unités de service.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne rédaction des unités .service et .socket, utilisation fluide de systemctl et investigation efficace avec journalctl.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Conception avancée de graphes de dépendances sans deadlocks, maîtrise complète de la Socket Activation et durcissement des services via cgroups.</div>

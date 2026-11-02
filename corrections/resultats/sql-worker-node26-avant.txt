@@ -1,0 +1,216 @@
+TAP version 13
+# Subtest: instantané : secrets et liens symboliques refusés
+ok 1 - instantané : secrets et liens symboliques refusés
+  ---
+  duration_ms: 1.71582
+  type: 'test'
+  ...
+# Subtest: sql.js : plafond mémoire irréversible et reprise après allocation refusée
+not ok 2 - sql.js : plafond mémoire irréversible et reprise après allocation refusée
+  ---
+  duration_ms: 94.037406
+  type: 'test'
+  location: '/project/tests/sql-worker.test.js:314:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    
+    
+    
+    #
+    # Fatal process out of memory: Failed to reserve virtual memory for CodeRange
+    #
+    ----- Native stack trace -----
+    
+     1: 0x55cd5d4f2e56  [/usr/bin/node]
+     2: 0x55cd5d6efc8f v8::base::FatalOOM(v8::base::OOMType, char const*) [/usr/bin/node]
+     3: 0x55cd5d97a9ae  [/usr/bin/node]
+     4: 0x55cd5d97ab1d  [/usr/bin/node]
+     5: 0x55cd5daa8018  [/usr/bin/node]
+     6: 0x55cd5e293d75  [/usr/bin/node]
+     7: 0x55cd5e86a76e  [/usr/bin/node]
+     8: 0x55cd5e7097fe v8::Isolate::Initialize(v8::Isolate*, v8::Isolate::CreateParams const&) [/usr/bin/node]
+     9: 0x55cd5e542489 node::NewIsolate(v8::Isolate::CreateParams*, uv_loop_s*, node::MultiIsolatePlatform*, node::SnapshotData const*, node::IsolateSettings const&) [/usr/bin/node]
+    10: 0x55cd5e541fad node::NodeMainInstance::NodeMainInstance(node::SnapshotData const*, uv_loop_s*, node::MultiIsolatePlatform*, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) [/usr/bin/node]
+    11: 0x55cd5e527ea8 node::Start(int, char**) [/usr/bin/node]
+    12: 0x7f64dae27d0e  [/usr/lib/libc.so.6]
+    13: 0x7f64dae27e4b __libc_start_main [/usr/lib/libc.so.6]
+    14: 0x55cd5e4d1d05 _start [/usr/bin/node]
+    
+    
+    null !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: ~
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/project/tests/sql-worker.test.js:348:12)
+    Test.runInAsyncScope (node:async_hooks:226:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: le build isolé inclut le worker et ses dépendances
+ok 3 - le build isolé inclut le worker et ses dépendances
+  ---
+  duration_ms: 25.602258
+  type: 'test'
+  ...
+# build minimal réussi ; worker, moteur et fichiers WebAssembly présents dans dist/
+# Subtest: WorkerRunner distingue délai expiré et arrêt utilisateur
+ok 4 - WorkerRunner distingue délai expiré et arrêt utilisateur
+  ---
+  duration_ms: 30.70299
+  type: 'test'
+  ...
+# Subtest: un message tardif ne termine pas le worker suivant
+ok 5 - un message tardif ne termine pas le worker suivant
+  ---
+  duration_ms: 0.370954
+  type: 'test'
+  ...
+# Subtest: échec de transmission au worker : erreur locale et nettoyage
+ok 6 - échec de transmission au worker : erreur locale et nettoyage
+  ---
+  duration_ms: 0.251722
+  type: 'test'
+  ...
+# Subtest: initialisation Node et requêtes SQL normales restent compatibles
+ok 7 - initialisation Node et requêtes SQL normales restent compatibles
+  ---
+  duration_ms: 23.39147
+  type: 'test'
+  ...
+# Subtest: VALUES affiche les colonnes et les lignes produites
+ok 8 - VALUES affiche les colonnes et les lignes produites
+  ---
+  duration_ms: 2.600488
+  type: 'test'
+  ...
+# VALUES : success ; sortie "+---------+\\n| column1 |\\n+---------+\\n| 42      |\\n| 43      |\\n+---------+\\n(2 lignes retournées)\\n"
+# Subtest: INSERT RETURNING affiche les lignes et exécute la modification
+ok 9 - INSERT RETURNING affiche les lignes et exécute la modification
+  ---
+  duration_ms: 1.374061
+  type: 'test'
+  ...
+# INSERT RETURNING : success ; sortie "+--------+\\n| retour |\\n+--------+\\n| 42     |\\n| 43     |\\n+--------+\\n(2 lignes retournées)\\n\\n+-------+\\n| total |\\n+-------+\\n| 2     |\\n+-------+\\n(1 ligne retournée)\\n"
+# Subtest: les résultats sans ligne restent distincts des instructions sans colonne
+ok 10 - les résultats sans ligne restent distincts des instructions sans colonne
+  ---
+  duration_ms: 1.181071
+  type: 'test'
+  ...
+# Subtest: VALUES et RETURNING respectent les limites de lignes et de sortie cumulée
+ok 11 - VALUES et RETURNING respectent les limites de lignes et de sortie cumulée
+  ---
+  duration_ms: 2.690953
+  type: 'test'
+  ...
+# Subtest: métadonnées de colonnes indisponibles ou incohérentes : arrêt avant copie
+ok 12 - métadonnées de colonnes indisponibles ou incohérentes : arrêt avant copie
+  ---
+  duration_ms: 5.31298
+  type: 'test'
+  ...
+# Subtest: types, tailles et noms invalides : aucune copie de cellule
+ok 13 - types, tailles et noms invalides : aucune copie de cellule
+  ---
+  duration_ms: 2.420362
+  type: 'test'
+  ...
+# Subtest: itérateur incompatible : aucune instruction préparée
+ok 14 - itérateur incompatible : aucune instruction préparée
+  ---
+  duration_ms: 0.393209
+  type: 'test'
+  ...
+# Subtest: statement incompatible : échec fermé et base libérée
+ok 15 - statement incompatible : échec fermé et base libérée
+  ---
+  duration_ms: 0.332806
+  type: 'test'
+  ...
+# Subtest: le tampon de l’itérateur reste libéré sans son aideur minifié
+ok 16 - le tampon de l’itérateur reste libéré sans son aideur minifié
+  ---
+  duration_ms: 0.297477
+  type: 'test'
+  ...
+# Subtest: le tampon reste libéré si _free n’est pas exposé
+ok 17 - le tampon reste libéré si _free n’est pas exposé
+  ---
+  duration_ms: 0.312929
+  type: 'test'
+  ...
+# Subtest: une erreur ne prépare pas la suite et libère les ressources même si la fermeture échoue
+ok 18 - une erreur ne prépare pas la suite et libère les ressources même si la fermeture échoue
+  ---
+  duration_ms: 1.641321
+  type: 'test'
+  ...
+# fermeture en échec : next=1 ; foreign_keys=0 ; tampon libéré=true ; statement libéré=true
+# Subtest: une erreur de préparation libère l’itérateur et empêche la vérification suivante
+ok 19 - une erreur de préparation libère l’itérateur et empêche la vérification suivante
+  ---
+  duration_ms: 0.701971
+  type: 'test'
+  ...
+# Subtest: un échec de libération du statement ne relance pas l’itérateur
+ok 20 - un échec de libération du statement ne relance pas l’itérateur
+  ---
+  duration_ms: 1.057533
+  type: 'test'
+  ...
+# Subtest: analyse native : identifiants, commentaires, trigger et scripts séparés
+ok 21 - analyse native : identifiants, commentaires, trigger et scripts séparés
+  ---
+  duration_ms: 3.431159
+  type: 'test'
+  ...
+# Subtest: le délai interne du moteur SQL conserve le statut timeout
+ok 22 - le délai interne du moteur SQL conserve le statut timeout
+  ---
+  duration_ms: 0.329702
+  type: 'test'
+  ...
+# Subtest: un BLOB trop grand est rejeté avant sa copie JavaScript, y compris VALUES et RETURNING
+ok 23 - un BLOB trop grand est rejeté avant sa copie JavaScript, y compris VALUES et RETURNING
+  ---
+  duration_ms: 24.507876
+  type: 'test'
+  ...
+# Subtest: Chromium : atelier SQL interrompable, page réactive et aucun repli serveur
+ok 24 - Chromium : atelier SQL interrompable, page réactive et aucun repli serveur
+  ---
+  duration_ms: 11598.477542
+  type: 'test'
+  ...
+# SQL valide=success; récursion=timeout/124; arrêt=cancelled/130; battements=12; appels SQL UI=0; requêtes serveur=0; exercice généré exécuté deux fois; 18 starters comparés (18 succès); 5 sorties hostiles bornées; parseur natif, VALUES et RETURNING vérifiés
+# Subtest: Chromium : échec du chargement SQL sans repli serveur
+ok 25 - Chromium : échec du chargement SQL sans repli serveur
+  ---
+  duration_ms: 775.222203
+  type: 'test'
+  ...
+# script du routeur absent : erreur SQL locale, zéro appel SQL ; repli Python conservé
+# Subtest: Chromium : arrêt avant chargement et reprise sans course obsolète
+ok 26 - Chromium : arrêt avant chargement et reprise sans course obsolète
+  ---
+  duration_ms: 1834.658027
+  type: 'test'
+  ...
+# arrêt avant routeur : aucun worker tardif ; relance concurrente reste active ; reprise SQL réussie
+1..26
+# tests 26
+# suites 0
+# pass 25
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14646.664534

@@ -8,37 +8,42 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "goal": "Calculer la plage d’adresses IP d’un sous-réseau Azure en déduisant les 5 adresses réservées par le système SDN d’Azure.",
-    "brief": "<p>Dans chaque sous-réseau (Subnet) d'un VNet Azure, Microsoft réserve systématiquement <strong>5 adresses IP</strong> qui ne peuvent pas être assignées aux machines virtuelles ou ressources clientes :<br>\n- <code>.0</code> : Adresse réseau (Network ID)<br>\n- <code>.1</code> : Passerelle par défaut Azure (Default Gateway)<br>\n- <code>.2</code> : Résolveur DNS Azure primaire<br>\n- <code>.3</code> : Résolveur DNS Azure secondaire<br>\n- <code>.&lt;dernière&gt;</code> (ex: <code>.255</code> pour un /24) : Adresse de diffusion (Broadcast)<br><br>\nAinsi, la première IP assignable est <code>.4</code> et la dernière est <code>.&lt;dernière - 1&gt;</code>.<br>\nLe nombre d'IPs exploitables est donc <code>Total - 5</code>.<br><br>\nFormat d'entrée :<br>\n<code>SUBNET name=&lt;nom&gt; cidr=&lt;adresse/préfixe&gt;</code><br><br>\nFormat de sortie attendu :<br>\n<code>SUBNET &lt;nom&gt;: TOTAL=&lt;total&gt; USABLE=&lt;usable&gt; RESERVED=5 GATEWAY=&lt;gw_ip&gt; DNS1=&lt;dns1_ip&gt; RANGE=&lt;first_usable&gt;-&lt;last_usable&gt;</code></p>",
-    "starter": "# Grille d'analyse (az3-c4-e1) — Calculateur d'adressage Azure VNet & Adresses IP réservées\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sous-réseau de base de données /24 distinct]\n# Données : SUBNET name=snet-db cidr=10.0.10.0/24\nA_COMPLETER\n\n[Cas 2 — Petit sous-réseau AzureBastionSubnet en /26]\n# Données : SUBNET name=AzureBastionSubnet cidr=10.0.2.0/26\nA_COMPLETER\n\n[Cas 3 — Sous-réseau GatewaySubnet minimal en /27]\n# Données : SUBNET name=GatewaySubnet cidr=192.168.0.0/27\nA_COMPLETER\n",
+    "brief": "<p>Dans chaque sous-réseau IPv4 Azure, les quatre premières adresses et la dernière sont réservées : <strong>5 adresses IP</strong> ne peuvent pas être assignées aux ressources clientes. Les décalages partent de l'adresse réseau du sous-réseau :<br>\n- <code>+0</code> : adresse réseau (Network ID)<br>\n- <code>+1</code> : passerelle par défaut Azure<br>\n- <code>+2</code> et <code>+3</code> : adresses réservées pour la correspondance Azure DNS, et non deux résolveurs<br>\n- dernière adresse : réservée ; le broadcast n'est pas pris en charge dans le VNet<br><br>\nLe DNS fourni par Azure utilise <code>168.63.129.16</code> ; un DNS personnalisé configuré sur le VNet ou l'interface peut être conservé.<br>\nLa première IP assignable est l'adresse réseau + 4, la dernière précède l'adresse finale, et le nombre d'IPs exploitables vaut <code>Total - 5</code>.<br><br>\nFormat d'entrée :<br>\n<code>SUBNET name=&lt;nom&gt; cidr=&lt;adresse/préfixe&gt;</code><br><br>\nFormat de sortie attendu :<br>\n<code>SUBNET &lt;nom&gt;: TOTAL=&lt;total&gt; USABLE=&lt;usable&gt; RESERVED=5 GATEWAY=&lt;gw_ip&gt; DNS_MAP_1=&lt;adresse_reseau_plus_2&gt; DNS_MAP_2=&lt;adresse_reseau_plus_3&gt; RANGE=&lt;first_usable&gt;-&lt;last_usable&gt;</code></p>",
+    "starter": "# Grille d'analyse (az3-c4-e1) — Calculateur d'adressage Azure VNet & Adresses IP réservées\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sous-réseau de base de données /24 distinct]\n# Données : SUBNET name=snet-db cidr=10.0.10.0/24\nA_COMPLETER\n\n[Cas 2 — Petit sous-réseau AzureBastionSubnet en /26]\n# Données : SUBNET name=AzureBastionSubnet cidr=10.0.2.0/26\nA_COMPLETER\n\n[Cas 3 — Sous-réseau GatewaySubnet minimal en /27]\n# Données : SUBNET name=GatewaySubnet cidr=192.168.0.0/27\nA_COMPLETER\n\n[Cas 4 — Sous-réseau /28 dont le réseau ne se termine pas par .0]\n# Données : SUBNET name=snet-offset cidr=10.0.5.16/28\nA_COMPLETER\n",
     "hints": [
-      "Utiliser le module Python `la notation CIDR du réseau`.",
-      "L’IP de passerelle correspond à l’adresse réseau + 1 (.1), et la première IP assignable aux machines correspond à l’adresse réseau + 4 (.4)."
+      "Déterminez d’abord l’adresse réseau du CIDR, puis calculez les décalages à partir de cette adresse.",
+      "La passerelle est à réseau + 1, les correspondances DNS à + 2 et + 3, et la première adresse assignable à + 4."
     ],
     "examples": [
       {
         "stdin": "SUBNET name=snet-web cidr=10.0.1.0/24",
-        "expected": "SUBNET snet-web: TOTAL=256 USABLE=251 RESERVED=5 GATEWAY=10.0.1.1 DNS1=10.0.1.2 RANGE=10.0.1.4-10.0.1.254",
-        "note": "Sous-réseau /24 classique avec 251 adresses exploitables."
+        "expected": "SUBNET snet-web: TOTAL=256 USABLE=251 RESERVED=5 GATEWAY=10.0.1.1 DNS_MAP_1=10.0.1.2 DNS_MAP_2=10.0.1.3 RANGE=10.0.1.4-10.0.1.254",
+        "note": "Dans ce /24, 251 adresses sont exploitables ; DNS_MAP_1 et DNS_MAP_2 désignent les adresses réservées de correspondance."
       }
     ],
     "tests": [
       {
         "label": "Sous-réseau de base de données /24 distinct",
         "stdin": "cas:1",
-        "expected": "SUBNET snet-db: TOTAL=256 USABLE=251 RESERVED=5 GATEWAY=10.0.10.1 DNS1=10.0.10.2 RANGE=10.0.10.4-10.0.10.254"
+        "expected": "SUBNET snet-db: TOTAL=256 USABLE=251 RESERVED=5 GATEWAY=10.0.10.1 DNS_MAP_1=10.0.10.2 DNS_MAP_2=10.0.10.3 RANGE=10.0.10.4-10.0.10.254"
       },
       {
         "label": "Petit sous-réseau AzureBastionSubnet en /26",
         "stdin": "cas:2",
-        "expected": "SUBNET AzureBastionSubnet: TOTAL=64 USABLE=59 RESERVED=5 GATEWAY=10.0.2.1 DNS1=10.0.2.2 RANGE=10.0.2.4-10.0.2.62"
+        "expected": "SUBNET AzureBastionSubnet: TOTAL=64 USABLE=59 RESERVED=5 GATEWAY=10.0.2.1 DNS_MAP_1=10.0.2.2 DNS_MAP_2=10.0.2.3 RANGE=10.0.2.4-10.0.2.62"
       },
       {
         "label": "Sous-réseau GatewaySubnet minimal en /27",
         "stdin": "cas:3",
-        "expected": "SUBNET GatewaySubnet: TOTAL=32 USABLE=27 RESERVED=5 GATEWAY=192.168.0.1 DNS1=192.168.0.2 RANGE=192.168.0.4-192.168.0.30"
+        "expected": "SUBNET GatewaySubnet: TOTAL=32 USABLE=27 RESERVED=5 GATEWAY=192.168.0.1 DNS_MAP_1=192.168.0.2 DNS_MAP_2=192.168.0.3 RANGE=192.168.0.4-192.168.0.30"
+      },
+      {
+        "label": "Sous-réseau /28 dont le réseau ne se termine pas par .0",
+        "stdin": "cas:4",
+        "expected": "SUBNET snet-offset: TOTAL=16 USABLE=11 RESERVED=5 GATEWAY=10.0.5.17 DNS_MAP_1=10.0.5.18 DNS_MAP_2=10.0.5.19 RANGE=10.0.5.20-10.0.5.30"
       }
     ],
-    "solution": "[Exemple]\nSUBNET snet-web: TOTAL=256 USABLE=251 RESERVED=5 GATEWAY=10.0.1.1 DNS1=10.0.1.2 RANGE=10.0.1.4-10.0.1.254\n\n[Cas 1 — Sous-réseau de base de données /24 distinct]\nSUBNET snet-db: TOTAL=256 USABLE=251 RESERVED=5 GATEWAY=10.0.10.1 DNS1=10.0.10.2 RANGE=10.0.10.4-10.0.10.254\n\n[Cas 2 — Petit sous-réseau AzureBastionSubnet en /26]\nSUBNET AzureBastionSubnet: TOTAL=64 USABLE=59 RESERVED=5 GATEWAY=10.0.2.1 DNS1=10.0.2.2 RANGE=10.0.2.4-10.0.2.62\n\n[Cas 3 — Sous-réseau GatewaySubnet minimal en /27]\nSUBNET GatewaySubnet: TOTAL=32 USABLE=27 RESERVED=5 GATEWAY=192.168.0.1 DNS1=192.168.0.2 RANGE=192.168.0.4-192.168.0.30"
+    "solution": "[Exemple]\nSUBNET snet-web: TOTAL=256 USABLE=251 RESERVED=5 GATEWAY=10.0.1.1 DNS_MAP_1=10.0.1.2 DNS_MAP_2=10.0.1.3 RANGE=10.0.1.4-10.0.1.254\n\n[Cas 1 — Sous-réseau de base de données /24 distinct]\nSUBNET snet-db: TOTAL=256 USABLE=251 RESERVED=5 GATEWAY=10.0.10.1 DNS_MAP_1=10.0.10.2 DNS_MAP_2=10.0.10.3 RANGE=10.0.10.4-10.0.10.254\n\n[Cas 2 — Petit sous-réseau AzureBastionSubnet en /26]\nSUBNET AzureBastionSubnet: TOTAL=64 USABLE=59 RESERVED=5 GATEWAY=10.0.2.1 DNS_MAP_1=10.0.2.2 DNS_MAP_2=10.0.2.3 RANGE=10.0.2.4-10.0.2.62\n\n[Cas 3 — Sous-réseau GatewaySubnet minimal en /27]\nSUBNET GatewaySubnet: TOTAL=32 USABLE=27 RESERVED=5 GATEWAY=192.168.0.1 DNS_MAP_1=192.168.0.2 DNS_MAP_2=192.168.0.3 RANGE=192.168.0.4-192.168.0.30\n\n[Cas 4 — Sous-réseau /28 dont le réseau ne se termine pas par .0]\nSUBNET snet-offset: TOTAL=16 USABLE=11 RESERVED=5 GATEWAY=10.0.5.17 DNS_MAP_1=10.0.5.18 DNS_MAP_2=10.0.5.19 RANGE=10.0.5.20-10.0.5.30"
   },
   {
     "id": "az3-c4-e2",

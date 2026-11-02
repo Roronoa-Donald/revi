@@ -15,7 +15,7 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère trois décimaux : <code>a</code>, <code>b</code> (bornes, avec <code>a &lt; b</code>) puis <code>x</code>. Pour une loi uniforme continue sur <code>[a, b]</code>, la fonction de répartition vaut <code>F(x) = (x−a)/(b−a)</code>, ramenée à 0 si <code>x &lt; a</code> et à 1 si <code>x &gt; b</code>. Indiquez <code>F(x)</code> avec 4 décimales.</p>",
     "starter": "# Grille de calcul (pb2-c5-e1) — Loi uniforme continue\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Milieu d’un autre intervalle]\n# Données : 1\n# Données : 5\n# Données : 3\nA_COMPLETER\n\n[Cas 2 — Sous la borne inférieure]\n# Données : 0\n# Données : 10\n# Données : 0\nA_COMPLETER\n\n[Cas 3 — Au-dessus de la borne supérieure]\n# Données : 0\n# Données : 10\n# Données : 12\nA_COMPLETER\n",
     "hints": [
-      "Commence par « ramener » x dans l’intervalle : si x est sous a, le résultat vaut 0 ; au-dessus de b, il vaut 1.",
+      "Commencez par « ramener » x dans l’intervalle : si x est sous a, le résultat vaut 0 ; au-dessus de b, il vaut 1.",
       "Au milieu, la répartition vaut (x - a) / (b - a)."
     ],
     "examples": [

@@ -9,7 +9,7 @@ module.exports = {
   n: 5,
   title: 'Design Responsive, Ergonomie Mobile &amp; Touch Targets',
   short: 'Responsive &amp; Ergonomie Mobile',
-  toc: 'Philosophie Mobile-First (Luke Wroblewski), breakpoints et grilles adaptatives, ergonomie tactile et Thumb Zone (Steven Hoober), dimensionnement des cibles tactiles (norme 48x48 px), adaptation des composants et navigation sous contrainte d’espace.',
+  toc: 'Philosophie Mobile-First (Luke Wroblewski), breakpoints et grilles adaptatives, ergonomie tactile et Thumb Zone (Steven Hoober), dimensionnement des cibles selon WCAG et les recommandations des plateformes.',
   time: '≈ 2 h 45 de travail',
   free: false,
   lockLabel: 'Réservé B2 et plus',
@@ -28,7 +28,7 @@ module.exports = {
     'adopter la démarche de conception Mobile-First pour prioriser les fonctionnalités essentielles ;',
     'définir et implémenter les paliers de rupture (breakpoints) pour mobile (4 col), tablette (8 col) et desktop (12 col) ;',
     'cartographier la Thumb Zone de Steven Hoober sur mobile (zone naturelle, étirée et difficile) ;',
-    'auditer et dimensionner les cibles tactiles selon la norme minimale de 48x48 px (WCAG 2.5.5 / Android) ;',
+    'distinguer les critères WCAG en pixels CSS des recommandations Android en dp et Apple en points ;',
     'adapter les schémas de navigation (Bottom Navigation Bar vs Menu Tiroir) selon la densité d’information ;',
     'anticiper les contraintes contextuelles du mobile (soleil, mouvement, connexions instables, clavier virtuel).'
   ],
@@ -162,17 +162,17 @@ module.exports = {
         'La pulpe d’un pouce d’adulte couvre une surface moyenne de 10 à 14 mm de diamètre :</p>',
 
         '<ul>',
-        '  <li><strong>Norme Android Material Design :</strong> cible tactile minimale de <strong>48 x 48 dp (pixels)</strong>.</li>',
-        '  <li><strong>Norme Apple iOS Human Interface Guidelines :</strong> cible tactile minimale de <strong>44 x 44 pt</strong>.</li>',
-        '  <li><strong>Standard W3C WCAG 2.1 (Critère 2.5.5) :</strong> taille de cible recommandée d’au moins <strong>44 x 44 px</strong> (et 24 x 24 px en seuil strict AA dans WCAG 2.2).</li>',
+        '  <li><strong>Android :</strong> recommandation d’une cible d’au moins <strong>48 x 48 dp</strong>, unités indépendantes de la densité, et non pixels CSS ou pixels physiques.</li>',
+        '  <li><strong>Apple :</strong> pour un bouton, la recommandation générale est <strong>44 x 44 pt</strong> ; visionOS recommande 60 x 60 pt.</li>',
+        '  <li><strong>WCAG 2.2, critère 2.5.5 :</strong> carré de <strong>44 x 44 pixels CSS</strong> dans la cible (niveau AAA), sauf exceptions prévues, notamment certains liens en ligne.</li>',
+        '  <li><strong>WCAG 2.2, critère 2.5.8 :</strong> carré de <strong>24 x 24 pixels CSS</strong> dans la cible (niveau AA), sauf exceptions, notamment l’espacement suffisant de cibles plus petites.</li>',
         '</ul>',
 
         box(
           'tip',
           'Astuce Visuelle vs Cible Tactile Réelle',
-          '<p>Une icône peut visuellement mesurer 20 x 20 px tout en respectant la norme si sa zone cliquable ' +
-          'est étendue à l’aide d’un rembourrage interne (<code>padding: 14px;</code>) ou d’un pseudo-élément invisible, ' +
-          'offrant ainsi les 48 x 48 px requis pour un appui sans erreur.</p>'
+          '<p>Une icône de 20 x 20 pixels CSS peut être placée dans un bouton natif dont le rembourrage ' +
+          '(<code>padding: 14px;</code> de chaque côté) crée une zone interactive de 48 x 48 pixels CSS. Vérifiez la cible effective, son espacement et le référentiel applicable : aucune taille ne garantit une utilisation sans erreur.</p>'
         )
       ].join('\n')
     }
@@ -183,7 +183,7 @@ module.exports = {
     'Étape 1 — Définir le chemin critique mobile : Lister les 3 actions fondamentales qu’un utilisateur mobile pressé doit accomplir en moins de 30 secondes.',
     'Étape 2 — Établir la grille fluide : Configurer les colonnes pour 4 (Mobile), 8 (Tablette) et 12 (Desktop) avec les marges de sécurité appropriées.',
     'Étape 3 — Positionner les actions dans la Thumb Zone : Placer le CTA principal et la barre de navigation dans le tiers inférieur (Zone Naturelle).',
-    'Étape 4 — Dimensionner toutes les cibles tactiles : Vérifier qu’aucun bouton ni lien cliquable ne mesure moins de 48 x 48 px de surface interactive.',
+    'Étape 4 — Dimensionner les cibles tactiles : identifier le référentiel, ses unités et exceptions, puis mesurer la surface interactive et son espacement.',
     'Étape 5 — Gérer l’interaction avec le clavier virtuel : S’assurer que l’apparition du clavier sur mobile ne masque ni le champ en cours de saisie ni le bouton de confirmation.',
     'Étape 6 — Tester sur appareil réel en conditions nomades : Valider l’interface à une seule main, en marchant et sous forte luminosité ambiante.'
   ],
@@ -194,7 +194,7 @@ module.exports = {
     'Sur grand écran, le contenu doit être borné par un max-width pour conserver une longueur de ligne de lecture confortable.',
     'Près de la moitié des sessions mobiles s’effectuent à une seule main : la Thumb Zone privilégie le bas de l’écran.',
     'Le coin supérieur gauche est le point le plus difficile d’accès pour un utilisateur tenant son téléphone d’une main.',
-    'La taille minimale d’une cible tactile est de 48x48 px (Android) ou 44x44 pt (iOS) pour éviter les frappes accidentelles.'
+    'WCAG 2.5.5 vise 44 x 44 pixels CSS au niveau AAA avec exceptions ; Android recommande 48 x 48 dp et Apple 44 x 44 pt pour les boutons en règle générale.'
   ],
 
   checklist: [
@@ -202,7 +202,7 @@ module.exports = {
     'Je sais découper une mise en page selon les 4 grands paliers de breakpoints responsive.',
     'Je sais pourquoi le menu hamburger en haut à gauche pose un sérieux problème d’ergonomie sur smartphone.',
     'Je connais la délimitation de la Zone Naturelle du pouce selon Steven Hoober.',
-    'Je m’assure que tous les boutons et liens respectent le seuil de 48 x 48 px de cible tactile.',
+    'Je mesure les cibles, leur espacement et les exceptions du référentiel applicable, sans confondre pixels CSS, dp et points.',
     'Je sais comment étendre la surface tactile d’une petite icône sans altérer sa taille visuelle.'
   ],
 
@@ -213,7 +213,7 @@ module.exports = {
     'Grilles fluides (4, 8 et 12 colonnes)',
     'Thumb Zone de Steven Hoober',
     'Zone Naturelle vs Zone Difficile',
-    'Taille de cible tactile (Touch Target 48x48 px)',
+    'Taille de cible tactile : pixels CSS, dp et points',
     'Bottom Navigation Bar (Tab Bar)'
   ],
 
@@ -259,15 +259,15 @@ module.exports = {
       exp: 'Le pouce pivote autour de son articulation carpienne : la zone la plus naturelle d’accès sans effort s’étend dans le bas de l’écran, d’où l’efficacité des barres de navigation inférieures.'
     },
     {
-      stem: 'Quelle est la taille minimale recommandée pour une cible tactile (Touch Target) selon les guidelines Android et WCAG 2.5.5 ?',
+      stem: 'Que prévoit le critère WCAG 2.5.5 pour la taille d’une cible, en l’absence d’exception ?',
       opts: [
         '12 x 12 px',
-        '48 x 48 px (ou 44 x 44 pt sur iOS)',
+        'Un carré de 44 x 44 pixels CSS dans la cible',
         '100 x 100 px obligatoirement',
         '8 x 8 px'
       ],
       correct: 1,
-      exp: 'La pulpe du doigt mesure entre 10 et 14 mm : un carré d’au moins 48x48 px garantit que l’utilisateur peut appuyer sur l’élément sans toucher accidentellement un voisin.'
+      exp: 'WCAG 2.5.5 est un critère AAA prévoyant des exceptions ; Android recommande 48 x 48 dp, dans une unité différente.'
     },
     {
       stem: 'Pourquoi est-il fortement déconseillé de placer le menu de navigation principal (burger) en haut à gauche sur un grand smartphone ?',
@@ -281,7 +281,7 @@ module.exports = {
       exp: 'Pour un droitier manipulant son téléphone à une main, le coin haut gauche exige une extension pénible du pouce ou l’emploi de la seconde main, nuisant à l’ergonomie.'
     },
     {
-      stem: 'Comment une icône visuelle de 24 x 24 px peut-elle être rendue conforme à la norme de cible tactile de 48 x 48 px ?',
+      stem: 'Dans un modèle visant une cible de 48 x 48 pixels CSS, comment agrandir la zone interactive d’une icône de 24 x 24 pixels CSS ?',
       opts: [
         'En quadruplant la résolution de son fichier PNG',
         'En lui appliquant une zone de clic invisible élargie (padding de 12 px ou pseudo-élément transparent) atteignant 48 x 48 px',
@@ -330,7 +330,7 @@ module.exports = {
     },
     {
       q: 'Quelle est la taille minimale recommandée d’une cible tactile ?',
-      a: '48 x 48 px selon Android et WCAG 2.5.5 (44 x 44 pt sur iOS).'
+      a: 'WCAG 2.5.5 : 44 x 44 pixels CSS au niveau AAA, avec exceptions. Android recommande 48 x 48 dp ; Apple recommande généralement 44 x 44 pt pour les boutons.'
     },
     {
       q: 'Pourquoi privilégier la Bottom Navigation Bar (Tab Bar) sur mobile ?',

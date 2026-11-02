@@ -52,10 +52,9 @@ function examens(course) {
       '    Correction pour population finie ($N = 1\\,200$) :<br>' +
       '    $$n = \\frac{n_0}{1 + \\frac{n_0 - 1}{N}} = \\frac{384.16}{1 + \\frac{383.16}{1200}} = \\frac{384.16}{1 + 0.3193} = \\frac{384.16}{1.3193} \\approx 291.18 \\rightarrow 292\\text{ répondants}$$</li>',
       '  <li><strong>Échantillon stratifié proportionnel (3 pts) :</strong><br>' +
-      '    - Ingénierie : $W_1 = 600/1200 = 50.0\\% \\rightarrow n_1 = \\text{round}(292 \\times 0.50) = 146$ collaborateurs.<br>' +
-      '    - Opérations : $W_2 = 360/1200 = 30.0\\% \\rightarrow n_2 = \\text{round}(292 \\times 0.30) = 88$ collaborateurs.<br>' +
-      '    - Support : $W_3 = 240/1200 = 20.0\\% \\rightarrow n_3 = \\text{round}(292 \\times 0.20) = 58$ collaborateurs.<br>' +
-      '    Total : $146 + 88 + 58 = 292$.</li>',
+      '    Les parts théoriques sont $146$, $87.6$ et $58.4$. Les planchers donnent $146$, $87$ et $58$, soit 291 personnes.<br>' +
+      '    Par la règle des plus forts restes, la dernière unité va aux Opérations (reste 0.6 contre 0.4 pour le Support).<br>' +
+      '    Total : $146 + 88 + 58 = 292$, sans dépasser les capacités de chaque département.</li>',
       '</ul>',
       '<h4>Corrigé Partie 3 (7 points)</h4>',
       '<ul>',
@@ -76,7 +75,7 @@ function examens(course) {
       '<h4>Partie 1 : Collecte Qualitative &amp; Focus Groups (6 points)</h4>',
       '<ol>',
       '  <li>Lors de l’organisation d’un focus group de 8 personnes, le modérateur constate qu’un responsable d’équipe accapare 55% du temps de parole total. Quels sont les impacts négatifs majeurs de ce biais de dominance sur la validité scientifique des données ? Quelles techniques d’animation le modérateur doit-il mobiliser pour rétablir l’équilibre ? (3 pts)</li>',
-      '  <li>Deux chercheurs codent indépendamment 20 séquences comportementales in situ. Ils obtiennent un accord sur 17 séquences. Calculez le taux d’accord brut $P_0$. Selon le référentiel de Miles &amp; Huberman ($P_0 \\ge 85\\%$), la grille d’observation est-elle scientifiquement validée ? (3 pts)</li>',
+      '  <li>Deux chercheurs codent indépendamment 20 séquences comportementales in situ. Ils obtiennent un accord sur 17 séquences. Calculez le taux d’accord brut $P_0$. Peut-on valider la grille avec ce seul chiffre et calculer le kappa ? Quelles informations complémentaires demander ? (3 pts)</li>',
       '</ol>',
       '<h4>Partie 2 : Analyse Statistique Bivariée (8 points)</h4>',
       '<ol>',
@@ -99,7 +98,7 @@ function examens(course) {
       '  <li><strong>Biais de dominance en Focus Group (3 pts) :</strong> Ce biais engendre l’effet Asch (conformisme de groupe) : les autres participants taisent leurs divergences par peur du conflit ou respect hiérarchique, biaisant gravement la représentativité des opinions exprimées. Pour rétablir l’équilibre, le modérateur doit distribuer explicitement la parole (« Merci pour ce point de vue, donnons maintenant la parole à ceux qui ne se sont pas encore exprimés »), utiliser des techniques de post-it anonymes (brainwriting) ou solliciter nominativement les participants discrets.</li>',
       '  <li><strong>Accord inter-observateurs (3 pts) :</strong><br>' +
       '    $$P_0 = \\frac{17}{20} \\times 100 = 85.0\\%$$<br>' +
-      '    Le seuil de Miles &amp; Huberman ($85\\%$) est exactement atteint. La grille est considérée comme scientifiquement fiable et reproductible, les définitions des codes comportementaux étant suffisamment claires pour deux observateurs indépendants.</li>',
+      '    Ce seul taux ne garantit ni l’objectivité ni l’absence d’ambiguïté. Il faut le tableau croisé des codages et ses marges pour calculer le kappa, ainsi qu’un examen des désaccords et du protocole.</li>',
       '</ul>',
       '<h4>Corrigé Partie 2 (8 points)</h4>',
       '<ul>',

@@ -46,13 +46,14 @@ module.exports = {
         '      <li><code>COUNT(*)</code> : Compte le nombre total de lignes dans le groupe, qu’elles contiennent des NULLs ou non.</li>',
         '      <li><code>COUNT(colonne)</code> : Ne compte QUE les lignes où la colonne est strictement non-NULL.</li>',
         '      <li><code>SUM(colonne)</code> et <code>AVG(colonne)</code> : Ignorent silencieusement toutes les valeurs NULL (ne les assimilent pas à zéro).</li>',
+        '      <li>Ces règles ne concernent pas tous les agrégats : dans PostgreSQL, <code>array_agg(colonne)</code> conserve les valeurs NULL.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
         '    <h4 class="card-title">WHERE vs HAVING</h4>',
         '    <ul>',
-        '      <li><strong>WHERE :</strong> Filtrez les lignes <em>avant</em> tout regroupement et calcul d’agrégat. Les fonctions d’agrégation y sont strictement <strong>interdites</strong>.</li>',
-        '      <li><strong>HAVING :</strong> Filtrez les groupes <em>après</em> le calcul des agrégats (ex: <code>HAVING COUNT(*) &gt; 5</code> ou <code>HAVING SUM(montant) &ge; 1000</code>).</li>',
+        '      <li><strong>WHERE :</strong> Filtre les lignes <em>avant</em> tout regroupement et calcul d’agrégat. Les fonctions d’agrégation y sont strictement <strong>interdites</strong>.</li>',
+        '      <li><strong>HAVING :</strong> Filtre les groupes <em>après</em> le calcul des agrégats (ex: <code>HAVING COUNT(*) &gt; 5</code> ou <code>HAVING SUM(montant) &ge; 1000</code>).</li>',
         '    </ul>',
         '  </div>',
         '</div>'
@@ -188,7 +189,7 @@ module.exports = {
   ],
 
   summary: [
-    'Les fonctions d’agrégation (COUNT, SUM, AVG) réduisent un ensemble de lignes en une valeur synthétique en ignorant les NULLs.',
+    'COUNT(colonne), SUM et AVG ignorent les NULL ; COUNT(*) compte toutes les lignes et certains autres agrégats peuvent conserver NULL.',
     'La clause WHERE filtre les lignes individuelles avant regroupement, tandis que HAVING filtre les groupes après agrégation.',
     'Les fonctions de fenêtrage (OVER) calculent des agrégats et classements sans jamais perdre le niveau de détail des lignes.',
     'ROW_NUMBER() attribue un identifiant unique contigu, RANK() laisse des sauts en cas d’ex aequo, et DENSE_RANK() reste contigu.',
@@ -225,7 +226,7 @@ module.exports = {
     { q: 'Quelle est la différence fondamentale entre WHERE et HAVING ?', a: 'WHERE filtre les lignes individuelles avant le calcul des agrégats, alors que HAVING filtre les groupes après le calcul des fonctions d’agrégation.' },
     { q: 'Que fait la clause OVER (PARTITION BY categorie) ?', a: 'Elle applique le calcul analytique indépendamment à chaque sous-ensemble défini par categorie sans fusionner les lignes de la table.' },
     { q: 'Quelle est la différence entre RANK() et DENSE_RANK() ?', a: 'En cas d’ex aequo, RANK() saute des numéros pour refléter le nombre d’éléments (1, 2, 2, 4), alors que DENSE_RANK() reste strictement contigu (1, 2, 2, 3).' },
-    { q: 'Que renvoie AVG(note) si une table contient les notes 10, 20 et NULL ?', a: 'Elle renvoie 15 (la moyenne de 10 et 20). En SQL, les fonctions d’agrégation ignorent les NULLs sans les convertir en 0.' },
+    { q: 'Que renvoie AVG(note) si une table contient les notes 10, 20 et NULL ?', a: 'AVG(note) renvoie 15 : il ignore NULL sans le convertir en 0. COUNT(note) vaut 2, mais COUNT(*) compte les 3 lignes. Dans PostgreSQL, array_agg(note) peut conserver NULL.' },
     { q: 'À quoi sert la fonction analytique LEAD(valeur, 1) ?', a: 'À lire la valeur de la ligne suivante dans la partition ordonnée pour anticiper ou comparer avec l’événement futur.' },
     { q: 'Pourquoi ne peut-on pas écrire WHERE ROW_NUMBER() OVER (...) <= 3 directement ?', a: 'Parce que les fonctions de fenêtrage sont évaluées après la clause WHERE. Il faut passer par une sous-requête ou une CTE (WITH).' }
   ]

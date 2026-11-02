@@ -111,7 +111,7 @@ module.exports = {
         '  <div class="card">',
         '    <h4>Cloud Run (PaaS Conteneurisé)</h4>',
         '    <ul>',
-        '      <li>Exécutez n\'importe quel conteneur OCI (Docker) répondant sur un port HTTP ou gRPC.</li>',
+        '      <li>Exécute n\'importe quel conteneur OCI (Docker) répondant sur un port HTTP ou gRPC.</li>',
         '      <li><strong>Scale-to-Zero :</strong> aucun coût lorsqu\'aucune requête n\'est traitée.</li>',
         '      <li><strong>Concurrence :</strong> un seul conteneur peut traiter jusqu\'à 1 000 requêtes simultanées (extrême rentabilité).</li>',
         '      <li><strong>Révisions immuables :</strong> support natif de Canary Release et de Traffic Splitting sans interruption.</li>',

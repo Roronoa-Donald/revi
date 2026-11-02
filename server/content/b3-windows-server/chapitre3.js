@@ -142,7 +142,7 @@ module.exports = {
       desc: 'Mécanisme d’ACL restreignant l’exécution d’une GPO aux seuls objets ayant le droit « Appliquer la stratégie de groupe ».'
     },
     {
-      name: 'Filtrez WMI (WQL)',
+      name: 'Filtre WMI (WQL)',
       desc: 'Requête d’interrogation de la base de gestion Windows conditionnant l’application d’une GPO aux caractéristiques matérielles du poste.'
     },
     {

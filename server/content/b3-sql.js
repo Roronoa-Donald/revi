@@ -35,11 +35,11 @@ const course = {
     'structures physiques de stockage et indexation de pointe (B-Tree n-aire, pages physiques et tuples Heap, Fill Factor, Index Coverage Index-Only Scan, index GIN inversés pour JSONB/Full-Text et index BRIN pour Big Data ordonné), ' +
     'analyse approfondie des plans d’exécution EXPLAIN (ANALYZE, BUFFERS) et optimiseur par les coûts CBO (nœuds Seq Scan, Index Scan, Bitmap Heap Scan, algorithmes de jointure Nested Loop, Hash Join, Merge Join, mémoire work_mem et dérives de cardinalité pg_statistic), ' +
     'fonctions de fenêtrage analytiques (clauses OVER avec PARTITION BY et ORDER BY, fonctions ROW_NUMBER, RANK, DENSE_RANK, décalages temporels LAG et LEAD, cadrage ROWS/RANGE BETWEEN et requêtes hiérarchiques récursives WITH RECURSIVE avec anti-boucle), ' +
-    'programmation procédurale PL/pgSQL, déclencheurs (Triggers) d’audit immuables avec pseudo-variables NEW/OLD, sécurité au niveau de la ligne Row-Level Security (RLS) multi-tenant et défense absolue contre les injections SQL, ' +
+    'programmation procédurale PL/pgSQL, déclencheurs (Triggers) d’audit transactionnels avec pseudo-variables NEW/OLD, sécurité au niveau de la ligne Row-Level Security (RLS) multi-tenant et prévention des injections SQL, ' +
     'et partitionnement déclaratif horizontal (stratégies RANGE, LIST, HASH, élagage Partition Pruning statique et dynamique, journalisation WAL Write-Ahead Logging, checkpoints, réplication en streaming synchrone/asynchrone, audit du lag LSN et haute disponibilité).',
   lead:
     'Maîtrisez l’ingénierie des bases de données de production : isolation ACID, indexation avancée B-Tree/GIN/BRIN, tuning EXPLAIN CBO, fenêtrage analytique, sécurité RLS et partitionnement scalable. ' +
-    'Six modules approfondis combinant rigueur mathématique relationnelle, 18 ateliers de code interactifs en Python 3 et 48 QCM d’évaluation.',
+    'Six modules combinent théorie, 18 exercices SQL et des QCM. La correction automatique des exercices est temporairement suspendue.',
 
   sources: 'Standards ANSI/ISO SQL:2016, Documentation officielle PostgreSQL 16, RFC et Guides d’optimisation DBA PostgreSQL',
 

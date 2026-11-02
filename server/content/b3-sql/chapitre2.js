@@ -12,14 +12,14 @@ module.exports = {
   toc: 'Structures physiques de stockage, pages mémoire de 8 Ko, architecture interne des arbres B-Tree, index Hash, GiST et GIN, dimensionnement et Fill Factor, index couvrants (Covering Indexes) et maintenance REINDEX.',
   time: '≈ 2 h 45 de travail',
   free: false,
-  situation: 'Sur une base de données de production atteignant des centaines de gigaoctets ou des téraoctets, exécuter un balayage séquentiel complet (Sequential Scan) pour retrouver quelques enregistrements parmi 50 millions de lignes immobilise le disque, sature le buffer pool et génère des temps de réponse inacceptables de plusieurs secondes. Pour garantir des temps d’accès sub-millisecondes, les moteurs relationnels s’appuient sur des structures d’indexation physique sophistiquées. L’ingénieur de données de niveau Bachelor 3 doit comprendre l’anatomie des blocs disques de 8 Ko, la traversée logarithmique des arbres équilibrés B-Tree, maîtriser les index spécialisés pour le JSONB et le texte intégral (GIN), dimensionner le facteur de remplissage (Fill Factor) pour prévenir la fragmentation et concevoir des index couvrants (Index-Only Scan) éliminant tout accès superflu à la table.',
+  situation: 'Sur une base de données de production atteignant des centaines de gigaoctets ou des téraoctets, un balayage séquentiel complet (Sequential Scan) pour retrouver quelques enregistrements parmi 50 millions de lignes peut solliciter fortement le disque et le buffer pool. Les index peuvent accélérer certaines requêtes, selon les données et le plan choisi. L’ingénieur de données de niveau Bachelor 3 doit comprendre l’anatomie des blocs disques de 8 Ko, la traversée logarithmique des arbres équilibrés B-Tree, maîtriser les index spécialisés pour le JSONB et le texte intégral (GIN), dimensionner le facteur de remplissage (Fill Factor) et concevoir des index couvrants susceptibles de limiter les accès à la table selon la visibilité MVCC.',
   objectives: [
     'comprendre l’organisation physique des pages de 8 Ko dans PostgreSQL (PageHeader, ItemId, Tuples) ;',
     'analyser l’architecture interne des index B-Tree (nœuds racine, internes et feuilles, fan-out) ;',
     'dimensionner précisément l’empreinte disque et mémoire d’un index en fonction du Fill Factor ;',
     'comparer les familles d’index : B-Tree, Hash, GiST (géospatial) et GIN (JSONB, tableaux) ;',
     'concevoir des index partiels (Partial Indexes) et des index couvrants (Covering Indexes avec INCLUDE) ;',
-    'développer en Python 3 des simulateurs de traversée B-Tree, des calculateurs d’empreinte mémoire et des conseillers d’indexation (Index Advisor).'
+    'développer en requêtes SQL avancées et scripts d’analyse des simulateurs de traversée B-Tree, des calculateurs d’empreinte mémoire et des conseillers d’indexation (Index Advisor).'
   ],
   sections: [
     {
@@ -64,7 +64,7 @@ module.exports = {
         box('standard', 'Index Couvrants (Covering Indexes) &amp; Index Only Scan', [
           '<p>Dans un <code>Index Scan</code> classique, le moteur parcourt l’arbre d’index pour récupérer le tuple ID (TID), puis doit lire le bloc de la table pour extraire les colonnes non indexées. Grâce à la clause <code>INCLUDE</code> (introduite dans PostgreSQL 11), on peut stocker des colonnes supplémentaires dans les feuilles de l’index sans les inclure dans l’arbre de tri :</p>',
           '<pre><code>CREATE INDEX idx_cmd_client_date ON commandes (client_id) INCLUDE (total_ttc, date_cmd);</code></pre>',
-          '<p>Une requête interrogeant <code>client_id</code>, <code>total_ttc</code> et <code>date_cmd</code> réalise alors un <strong>Index Only Scan</strong> : elle lit 100 % des données dans l’index sans jamais toucher la table physique, divisant les I/O disque par dix.</p>'
+          '<p>Une requête interrogeant ces colonnes peut bénéficier d’un <strong>Index Only Scan</strong> si le planificateur le choisit. PostgreSQL peut toutefois consulter la table pour vérifier la visibilité MVCC ; le gain dépend du plan et des données.</p>'
         ])
       ].join('\n')
     },
@@ -86,8 +86,8 @@ module.exports = {
         '    <h4>Reconstruction Concurrente via REINDEX CONCURRENTLY</h4>',
         '    <p>Au fil du temps, un index fragmenté (index bloat) consomme une mémoire RAM démesurée et ralentit les lectures :</p>',
         '    <ul>',
-        '      <li>Un <code>REINDEX</code> standard pose un verrou exclusif <code>AccessExclusiveLock</code> qui bloque toutes les lectures et écritures sur la table.</li>',
-        '      <li>La commande <code>REINDEX TABLE CONCURRENTLY &lt;nom&gt;;</code> reconstruit le nouvel index en tâche de fond en plusieurs passes sans interrompre la production.</li>',
+        '      <li>Dans PostgreSQL, <code>REINDEX INDEX</code> standard pose un verrou <code>SHARE</code> sur la table parente et <code>ACCESS EXCLUSIVE</code> sur l’index. Les écritures attendent ; le planificateur prenant des verrous sur les index, des lectures peuvent aussi attendre.</li>',
+        '      <li>La commande <code>REINDEX TABLE CONCURRENTLY &lt;nom&gt;;</code> reconstruit les index en plusieurs passes sans verrou empêchant les écritures concurrentes sur la table, mais elle peut attendre d’autres transactions et consomme des ressources.</li>',
         '    </ul>',
         '  </div>',
         '</div>'
@@ -99,24 +99,24 @@ module.exports = {
     'Étape 2 : Vérifier la sélectivité des colonnes : ne jamais indexer une colonne à très faible cardinalité (ex: booléen ou statut binaire) avec un B-Tree complet.',
     'Étape 3 : Créer des index composites en respectant la règle d’or : colonnes d’égalité stricte en premier, suivies des colonnes d’intervalle ou de tri.',
     'Étape 4 : Déployer des index partiels (WHERE actif = true) sur les tables volumineuses pour réduire l’empreinte mémoire de 80 %.',
-    'Étape 5 : Exploiter la clause INCLUDE pour concevoir des index couvrants permettant l’exécution en Index Only Scan.',
+    'Étape 5 : Exploiter la clause INCLUDE pour concevoir des index couvrants susceptibles de permettre un Index Only Scan si le planificateur le choisit.',
     'Étape 6 : Planifier périodiquement une maintenance des index fragmentés via REINDEX CONCURRENTLY lors des heures creuses.'
   ],
   summary: [
     'Le stockage PostgreSQL repose sur des pages de 8 Ko contenant un en-tête fixe, des ItemIds et des tuples.',
     'L’index B-Tree organise les clés dans un arbre n-aire équilibré assurant une traversée en temps logarithmique O(log N).',
     'L’index GIN est le choix indispensable pour indexer les documents semi-structurés JSONB, les tableaux et le texte intégral.',
-    'Les index couvrants (clause INCLUDE) permettent au moteur de satisfaire la requête par un Index Only Scan sans toucher la table.',
+    'Un index couvrant peut permettre un Index Only Scan ; PostgreSQL consulte encore la table si la carte de visibilité ne suffit pas, et l’optimiseur peut choisir un autre plan.',
     'Le paramètre fillfactor réserve de l’espace libre dans les pages d’index pour prévenir les coûteuses divisions de pages (Page Splits).',
-    'La maintenance d’un index fragmenté s’opère sans verrouillage applicatif via la commande REINDEX CONCURRENTLY.'
+    'REINDEX CONCURRENTLY permet les écritures concurrentes sur la table pendant la reconstruction, avec des attentes et des coûts à prévoir.'
   ],
   checklist: [
     'Je comprends la découpe interne d’une page PostgreSQL de 8 192 octets.',
     'Je sais expliquer pourquoi un arbre B-Tree n’a généralement que 3 à 4 niveaux de profondeur.',
     'Je maîtrise les cas d’usage distincts de B-Tree, HASH, GIN et GiST.',
-    'Je sais concevoir un index couvrant avec la clause INCLUDE pour déclencher un Index Only Scan.',
+    'Je sais concevoir un index couvrant avec la clause INCLUDE et expliquer les conditions d’un Index Only Scan.',
     'Je comprends le rôle du Fill Factor dans la prévention des divisions de pages lors d’insertions massives.',
-    'Je sais pourquoi REINDEX CONCURRENTLY est obligatoire sur une base en production 24/7.'
+    'Je sais comparer REINDEX et REINDEX CONCURRENTLY selon leurs verrous, attentes et restrictions.'
   ],
   notions: [
     'Pages Disques de 8 Ko & PageHeaderData',
@@ -132,7 +132,7 @@ module.exports = {
     'Créer un index sur chaque colonne individuelle d’une table, provoquant un effondrement dramatique des performances d’INSERT et d’UPDATE.',
     'Inverser l’ordre des colonnes dans un index composite (placer la colonne d’intervalle avant la colonne d’égalité), empêchant l’index d’être pleinement exploité.',
     'Indexer une colonne JSONB avec un index B-Tree ordinaire plutôt qu’un index GIN, rendant impossible la recherche par clés internes.',
-    'Oublier le mot-clé CONCURRENTLY lors d’un REINDEX en production, figeant l’ensemble de l’application sous un verrou exclusif.'
+    'Oublier le mot-clé CONCURRENTLY lors d’un REINDEX en production, ce qui peut bloquer des écritures et des lectures sur les objets concernés.'
   ],
   questions: [
     {
@@ -166,7 +166,7 @@ module.exports = {
         'Traduire les colonnes en minuscules'
       ],
       correct: 1,
-      exp: 'La clause INCLUDE intègre des données complémentaires dans les feuilles de l’index, permettant au moteur d’exécuter la requête sans accéder à la table.'
+      exp: 'La clause INCLUDE ajoute des données aux feuilles de l’index et peut permettre un Index Only Scan. PostgreSQL peut néanmoins consulter la table pour vérifier la visibilité ou choisir un autre plan.'
     },
     {
       stem: 'Que se produit-il lorsqu’une page feuille B-Tree atteint 100 % de sa capacité et reçoit une nouvelle clé ?',
@@ -191,7 +191,7 @@ module.exports = {
       exp: 'Règle d’or : les colonnes à égalité stricte (client_id) doivent toujours être placées avant les colonnes à intervalle (date_cmd).'
     },
     {
-      stem: 'Quelle commande PostgreSQL permet de reconstruire un index sans bloquer les opérations de lecture et d’écriture concurrentes ?',
+      stem: 'Quelle commande PostgreSQL reconstruit les index sans verrou empêchant les écritures concurrentes sur la table ?',
       opts: [
         'REINDEX TABLE commandes;',
         'VACUUM FULL commandes;',
@@ -199,7 +199,7 @@ module.exports = {
         'ALTER INDEX commandes RESTART;'
       ],
       correct: 2,
-      exp: 'L’option CONCURRENTLY évite le verrou exclusif lourd et permet à la production de continuer pendant la reconstruction de l’index.'
+      exp: 'CONCURRENTLY autorise les écritures concurrentes sur la table, mais nécessite plusieurs passes et peut attendre d’autres transactions.'
     },
     {
       stem: 'Qu’est-ce qu’un index partiel (Partial Index) dans PostgreSQL ?',
@@ -239,7 +239,7 @@ module.exports = {
     },
     {
       q: 'Qu’est-ce qu’un Index Only Scan ?',
-      a: 'Une exécution où toutes les données nécessaires sont lues directement dans l’index sans jamais accéder aux blocs de la table.'
+      a: 'Un plan qui lit les colonnes nécessaires dans l’index, mais peut consulter la table pour vérifier la visibilité des lignes.'
     },
     {
       q: 'À quoi sert le paramètre fillfactor sur un index B-Tree ?',
@@ -247,7 +247,7 @@ module.exports = {
     },
     {
       q: 'Pourquoi exécuter REINDEX TABLE CONCURRENTLY en production ?',
-      a: 'Pour éliminer la fragmentation de l’index sans bloquer les lectures ni les écritures des utilisateurs applicatifs.'
+      a: 'Pour reconstruire les index en autorisant les écritures concurrentes sur la table, avec plusieurs passes, des attentes possibles et des restrictions.'
     }
   ],
   mastery: [
@@ -261,7 +261,7 @@ module.exports = {
     },
     {
       cls: 'high',
-      text: 'Maîtrise approfondie des index couvrants (INCLUDE), élimination des accès tables via Index Only Scan et maintenance non bloquante en production.'
+      text: 'Maîtrise approfondie des index couvrants (INCLUDE), analyse des accès à la table avec Index Only Scan et maintenance tenant compte des verrous et des attentes.'
     }
   ]
 };

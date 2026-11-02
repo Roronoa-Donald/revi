@@ -251,7 +251,7 @@ function exercices(course) {
 
     '  <h2>Projet intégrateur — « liste de tâches »</h2>',
     box('situation', 'Cahier des charges', 'play', [
-      '    <p>On te confie une petite application ToDo List. Le programme lit <code>n</code>, puis ' +
+      '    <p>On vous confie une petite application ToDo List. Le programme lit <code>n</code>, puis ' +
       '<code>n</code> lignes de tâches. Il les range dans une classe <code>TodoList</code> (ajout + lecture), ' +
       'les affiche numérotées de 1 à n au format <code>1. tâche</code>, puis compte les tâches contenant le mot ' +
       '« urgent ».</p>'

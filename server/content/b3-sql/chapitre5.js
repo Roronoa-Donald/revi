@@ -9,17 +9,17 @@ module.exports = {
   n: 5,
   title: 'Procédures Stockées PL/pgSQL, Déclencheurs (Triggers) &amp; Row-Level Security (RLS)',
   short: 'PL/pgSQL, Triggers &amp; RLS',
-  toc: 'Langage procédural PL/pgSQL, blocs d’exécution et gestion des exceptions, déclencheurs (Triggers) BEFORE / AFTER sur INSERT, UPDATE, DELETE, pseudo-enregistrements NEW et OLD, tables d’audit immuables, sécurité au niveau de la ligne (Row-Level Security - RLS) avec politiques CREATE POLICY, et prévention absolue des injections SQL (SQLi).',
+  toc: 'Langage procédural PL/pgSQL, blocs d’exécution et gestion des exceptions, déclencheurs (Triggers) BEFORE / AFTER sur INSERT, UPDATE, DELETE, pseudo-enregistrements NEW et OLD, journalisation d’audit, sécurité au niveau de la ligne (Row-Level Security - RLS) avec politiques CREATE POLICY, et prévention des injections SQL (SQLi).',
   time: '≈ 3 h 00 de travail',
   free: false,
-  situation: 'Dans les architectures d’entreprise modernes et les environnements multi-tenants (SaaS), la sécurité et l’intégrité des données ne peuvent reposer uniquement sur la couche applicative backend. Si une faille d’injection SQL ou un bug de code survient, la base de données doit constituer le rempart ultime. PostgreSQL offre un moteur d’exécution procédurale puissant (PL/pgSQL) permettant d’exécuter des règles métier complexes directement au plus près des données. Les déclencheurs (Triggers) garantissent une traçabilité d’audit infalsifiable en interceptant chaque mutation physique via les pseudo-enregistrements NEW et OLD. Enfin, le mécanisme de Row-Level Security (RLS) applique un cloisonnement cryptographique et logique strict, garantissant qu’un utilisateur ne puisse jamais lire ou modifier les données d’une autre organisation.',
+  situation: 'Dans les architectures d’entreprise modernes et les environnements multi-tenants (SaaS), la sécurité et l’intégrité des données ne peuvent reposer uniquement sur la couche applicative backend. PostgreSQL permet d’exécuter des règles métier près des données grâce à PL/pgSQL. Les déclencheurs peuvent journaliser des modifications avec les pseudo-enregistrements NEW et OLD, mais la protection du journal demande des mesures distinctes. Row-Level Security (RLS) permet de filtrer les lignes selon des politiques ; son efficacité dépend notamment des rôles et du contexte de confiance configurés.',
   objectives: [
     'maîtriser la syntaxe et la structure des blocs procéduraux PL/pgSQL (DECLARE, BEGIN, EXCEPTION, END) ;',
     'concevoir et déployer des fonctions déclencheurs (TRIGGER) associées aux événements BEFORE et AFTER ;',
     'exploiter rigoureusement les pseudo-enregistrements NEW et OLD pour journaliser les modifications d’attributs ;',
     'activer et configurer la sécurité au niveau de la ligne (Row-Level Security) avec CREATE POLICY ;',
     'différencier les clauses de politique RLS : USING (filtrage en lecture) et WITH CHECK (validation en écriture) ;',
-    'développer en Python 3 des simulateurs de déclencheurs d’audit, des moteurs d’évaluation RLS et des détecteurs d’injections SQL.'
+    'développer en requêtes SQL avancées et scripts d’analyse des simulateurs de déclencheurs d’audit, des moteurs d’évaluation RLS et des détecteurs d’injections SQL.'
   ],
   sections: [
     {
@@ -35,12 +35,21 @@ module.exports = {
         'DECLARE',
         '    solde_dispo NUMERIC;',
         'BEGIN',
+        '    IF montant IS NULL OR montant IN (\'NaN\'::numeric, \'Infinity\'::numeric, \'-Infinity\'::numeric) OR montant &lt;= 0 THEN',
+        '        RAISE EXCEPTION \'Le montant doit être positif et fini\';',
+        '    END IF;',
         '    SELECT solde INTO solde_dispo FROM comptes WHERE id = compte_src FOR UPDATE;',
-        '    IF solde_dispo &lt; montant THEN',
+        '    IF NOT FOUND THEN',
+        '        RAISE EXCEPTION \'Compte source absent\';',
+        '    END IF;',
+        '    IF solde_dispo IS NULL OR solde_dispo IN (\'NaN\'::numeric, \'Infinity\'::numeric, \'-Infinity\'::numeric) OR solde_dispo &lt; montant THEN',
         '        RAISE EXCEPTION \'Fonds insuffisants : disponible %\', solde_dispo;',
         '    END IF;',
         '    UPDATE comptes SET solde = solde - montant WHERE id = compte_src;',
-        '    UPDATE comptes SET solde = solde + montant WHERE id = compte_dest;',
+        '    UPDATE comptes SET solde = solde + montant WHERE id = compte_dest AND solde IS NOT NULL AND solde NOT IN (\'NaN\'::numeric, \'Infinity\'::numeric, \'-Infinity\'::numeric);',
+        '    IF NOT FOUND THEN',
+        '        RAISE EXCEPTION \'Compte destinataire absent ou solde invalide\';',
+        '    END IF;',
         'EXCEPTION',
         '    WHEN OTHERS THEN',
         '        RAISE NOTICE \'Erreur transactionnelle : %\', SQLERRM;',
@@ -52,16 +61,17 @@ module.exports = {
         '    <h4>Cycle de Vie et Types de Triggers</h4>',
         '    <p>Un déclencheur intercepte une mutation (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>TRUNCATE</code>) :</p>',
         '    <ul>',
-        '      <li><strong>BEFORE :</strong> Déclenché <em>avant</em> l’écriture sur disque. Permet de modifier ou normaliser les données arrivantes, ou d’avorter l’opération (<code>RETURN NULL</code> ou <code>RAISE EXCEPTION</code>).</li>',
-        '      <li><strong>AFTER :</strong> Déclenché <em>après</em> la validation physique. Idéal pour propager des actions secondaires ou alimenter un journal d’audit infalsifiable.</li>',
+        '      <li><strong>BEFORE :</strong> Déclenché <em>avant</em> l’opération sur la ligne. Permet de modifier ou normaliser les données arrivantes, ou d’avorter l’opération (<code>RETURN NULL</code> ou <code>RAISE EXCEPTION</code>).</li>',
+        '      <li><strong>AFTER :</strong> Déclenché <em>après</em> l’opération, dans la même transaction et avant le COMMIT. Une contrainte différée peut encore entraîner l’échec de celui-ci.</li>',
         '      <li><strong>FOR EACH ROW vs FOR EACH STATEMENT :</strong> S’exécute soit pour chaque ligne altérée individuellement, soit une seule fois pour toute la commande SQL.</li>',
         '    </ul>',
+        '    <p>Dans PostgreSQL, BEFORE comme AFTER peuvent écrire dans un journal de la même transaction : ROLLBACK annule ces écritures. AFTER FOR EACH ROW convient pour tracer chaque ligne après sa modification, pas pour garantir une trace indépendante du COMMIT.</p>',
         '  </div>',
         '</div>'
       ].join('\n')
     },
     {
-      title: 'Pseudo-Enregistrements NEW / OLD & Tables d’Audit Immuables',
+      title: 'Pseudo-Enregistrements NEW / OLD & Journalisation d’Audit',
       html: [
         '<p>Au sein d’un déclencheur s’exécutant au niveau de la ligne (<code>FOR EACH ROW</code>), le moteur PostgreSQL met à disposition deux variables d’enregistrement spéciales :</p>',
         '<div class="grid grid-2">',
@@ -78,7 +88,7 @@ module.exports = {
         '    <p>La variable <code>TG_OP</code> contient le type d’opération (<code>\'INSERT\'</code>, <code>\'UPDATE\'</code>, <code>\'DELETE\'</code>).</p>',
         '  </div>',
         '  <div class="card">',
-        '    <h4>Patron de Conception : Table d’Audit Infalsifiable</h4>',
+        '    <h4>Patron de Conception : Journal d’Audit</h4>',
         '    <pre><code>CREATE OR REPLACE FUNCTION audit_employes_trigger()',
         'RETURNS TRIGGER AS $$',
         'BEGIN',
@@ -93,9 +103,10 @@ module.exports = {
         '    END IF;',
         '    RETURN NEW;',
         'END; $$ LANGUAGE plpgsql;</code></pre>',
+        '    <p>Cette fonction peut journaliser les modifications ; elle ne rend pas à elle seule la table infalsifiable.</p>',
         '  </div>',
         '</div>',
-        box('tip', '<strong>Règle d’or des Triggers AFTER :</strong> Les triggers d’audit doivent toujours être de type <code>AFTER ... FOR EACH ROW</code> pour s’assurer que les données ont passé toutes les contraintes d’intégrité (clés étrangères, check, unicités) avant d’être enregistrées dans le journal.')
+        box('tip', '<strong>Triggers AFTER et contraintes :</strong> Un trigger <code>AFTER ... FOR EACH ROW</code> peut journaliser chaque ligne après l’opération, dans la même transaction. Une contrainte différée peut encore faire échouer le <code>COMMIT</code> ; un rollback annule alors aussi l’écriture du journal.')
       ].join('\n')
     },
     {
@@ -130,7 +141,7 @@ module.exports = {
         '    <p>En PL/pgSQL dynamique, l’utilisation de la clause <code>USING</code> et des fonctions <code>quote_ident()</code> (pour les noms de tables/colonnes) et <code>quote_literal()</code> est indispensable pour neutraliser toute injection.</p>',
         '  </div>',
         '</div>',
-        box('danger', '<strong>Les super-utilisateurs contournent RLS par défaut :</strong> Dans PostgreSQL, l’utilisateur <code>postgres</code> (superuser) ainsi que le propriétaire de la table ignorent les politiques RLS sauf si la table est explicitement configurée avec <code>ALTER TABLE table_name FORCE ROW LEVEL SECURITY;</code>. Dans une architecture applicative sécurisée, l’application doit toujours se connecter avec un rôle sans privilèges superuser.')
+        box('danger', '<strong>Contournement de RLS :</strong> Les super-utilisateurs et les rôles <code>BYPASSRLS</code> contournent toujours RLS, même avec <code>ALTER TABLE table_name FORCE ROW LEVEL SECURITY;</code>. Le propriétaire ordinaire contourne RLS par défaut, mais FORCE peut le soumettre aux politiques. L’application doit utiliser un rôle sans ces privilèges, distinct du propriétaire.')
       ].join('\n')
     }
   ],
@@ -138,17 +149,17 @@ module.exports = {
     '1. Déterminer si la règle métier doit être garantie dans la base (PL/pgSQL/Trigger) ou dans l’application cliente.',
     '2. Choisir le moment du trigger : BEFORE pour nettoyer/valider des données, AFTER pour journaliser ou synchroniser.',
     '3. Isoler le code procédural dans des blocs BEGIN...EXCEPTION pour garantir des rollbacks propres en cas d’anomalie.',
-    '4. Mettre en place une table d’audit immuable avec stockage JSON des états OLD et NEW.',
+    '4. Journaliser en JSON les états OLD et NEW et définir séparément la protection du journal.',
     '5. Activer systématiquement ENABLE ROW LEVEL SECURITY sur toutes les tables contenant des données multi-tenants ou confidentielles.',
     '6. Bannir toute concaténation de chaînes dans les requêtes dynamiques au profit de requêtes préparées avec clause USING.'
   ],
   summary: [
     'PL/pgSQL apporte la puissance procédurale au moteur relationnel avec une gestion fine des exceptions et des curseurs.',
-    'Les triggers interceptent les opérations INSERT, UPDATE et DELETE soit avant validation physique (BEFORE), soit après (AFTER).',
+    'Les triggers BEFORE et AFTER interviennent respectivement avant et après l’opération, dans la même transaction et avant le COMMIT ; ROLLBACK annule leurs écritures.',
     'NEW représente l’état résultant d’une modification, OLD l’état antérieur ; NEW est NULL lors d’un DELETE, OLD est NULL lors d’un INSERT.',
     'Row-Level Security (RLS) applique un filtrage transparent et imperméable au niveau des tuples sans modifier le code SQL applicatif.',
     'La clause USING d’une politique RLS filtre les lignes visibles en lecture ; la clause WITH CHECK valide les insertions et modifications.',
-    'La prévention absolue contre les injections SQL exige des requêtes paramétrées avec substitution typée ($1, $2).'
+    'Les requêtes paramétrées avec substitution des valeurs (<code>$1</code>, <code>$2</code>) protègent ces valeurs contre l’injection SQL. Les noms de tables ou de colonnes non paramétrables doivent être choisis dans une liste autorisée.'
   ],
   checklist: [
     'Le trigger est-il déclaré FOR EACH ROW pour inspecter chaque tuple individuellement ?',
@@ -163,13 +174,13 @@ module.exports = {
     'Déclencheurs (Triggers) BEFORE vs AFTER',
     'Pseudo-enregistrements NEW & OLD',
     'Opération TG_OP & variable TG_TABLE_NAME',
-    'Tables d’audit immuables (Audit Logging)',
+    'Journalisation et protection de l’audit (Audit Logging)',
     'Row-Level Security (RLS) & ALTER TABLE ... ENABLE RLS',
     'Politiques de sécurité (CREATE POLICY ... USING / WITH CHECK)',
     'Prévention des injections SQL & requêtes paramétrées (USING)'
   ],
   pitfalls: [
-    'Utiliser un trigger BEFORE au lieu d’un AFTER pour alimenter une table d’audit, risquant de journaliser une transaction qui va ensuite échouer.',
+    'Supposer qu’un trigger AFTER rend le journal infalsifiable ou conserve une tentative annulée par rollback.',
     'Oublier de retourner NEW dans une fonction trigger BEFORE INSERT/UPDATE, ce qui supprime silencieusement la ligne.',
     'Tester la Row-Level Security en se connectant en tant que superuser postgres, masquant ainsi l’inactivité des règles.',
     'Concaténer des entrées utilisateur dans un bloc EXECUTE en PL/pgSQL, ouvrant une faille critique d’injection SQL.'
@@ -187,7 +198,7 @@ module.exports = {
       exp: 'Lors d’un INSERT, aucune ligne préalable n’existait dans la table : la variable OLD vaut donc strictement NULL.'
     },
     {
-      stem: 'Quel type de déclencheur est recommandé pour modifier ou normaliser les données d’une ligne avant son écriture sur disque ?',
+      stem: 'Dans PostgreSQL, quel type de déclencheur permet de modifier ou normaliser une ligne avant son insertion ou sa mise à jour ?',
       opts: [
         'BEFORE INSERT OR UPDATE FOR EACH ROW',
         'AFTER INSERT FOR EACH STATEMENT',
@@ -195,7 +206,7 @@ module.exports = {
         'DEFERRED TRANSACTION TRIGGER'
       ],
       correct: 0,
-      exp: 'Un trigger BEFORE FOR EACH ROW s’exécute avant l’écriture disque et permet de modifier les attributs du tuple NEW avant persistance.'
+      exp: 'Dans PostgreSQL, une fonction BEFORE FOR EACH ROW peut modifier NEW puis le retourner avant l’opération ; la persistance dépend ensuite du COMMIT.'
     },
     {
       stem: 'Si une fonction déclencheur BEFORE INSERT retourne NULL, que se passe-t-il pour la ligne en cours d’insertion ?',
@@ -228,7 +239,7 @@ module.exports = {
         'C’est un bogue connu corrigé en version 17'
       ],
       correct: 1,
-      exp: 'Dans la conception PostgreSQL, les super-utilisateurs ignorent les politiques de sécurité sauf si la directive FORCE ROW LEVEL SECURITY est appliquée.'
+      exp: 'Les super-utilisateurs et les rôles BYPASSRLS contournent toujours RLS. FORCE soumet le propriétaire ordinaire aux politiques, mais ne limite pas ces rôles privilégiés.'
     },
     {
       stem: 'Quelle instruction PL/pgSQL permet d’exécuter une requête dynamique sécurisée contre les injections SQL ?',
@@ -253,7 +264,7 @@ module.exports = {
       exp: 'TG_OP contient sous forme de chaîne de caractères l’événement SQL ayant déclenché l’exécution (INSERT, UPDATE, DELETE ou TRUNCATE).'
     },
     {
-      stem: 'Pour garantir qu’un journal d’audit ne conserve que les transactions ayant réellement réussi, quel trigger privilégier ?',
+      stem: 'Quel trigger permet de journaliser chaque ligne après sa modification, dans la même transaction ?',
       opts: [
         'BEFORE ... FOR EACH STATEMENT',
         'AFTER ... FOR EACH ROW',
@@ -261,13 +272,13 @@ module.exports = {
         'BEFORE ... FOR EACH ROW'
       ],
       correct: 1,
-      exp: 'Un trigger AFTER ... FOR EACH ROW garantit que la modification a passé toutes les contraintes de table avant d’écrire l’audit.'
+      exp: 'Dans PostgreSQL, AFTER ... FOR EACH ROW trace la ligne après sa modification. BEFORE peut aussi écrire dans la même transaction : un ROLLBACK annule les écritures des deux, et une contrainte différée peut encore faire échouer le COMMIT.'
     }
   ],
   flashcards: [
     {
       q: 'Quelle est la différence fondamentale entre un trigger BEFORE et AFTER ?',
-      a: 'BEFORE s’exécute avant l’écriture physique (peut modifier NEW ou annuler) ; AFTER s’exécute après persistance (idéal pour l’audit).'
+      a: 'Dans PostgreSQL, BEFORE intervient avant l’opération sur la ligne et AFTER après. Les deux agissent dans la même transaction : ROLLBACK annule leurs écritures et une contrainte différée peut encore faire échouer le COMMIT.'
     },
     {
       q: 'Que contiennent les pseudo-tuples NEW et OLD lors d’un UPDATE ?',
@@ -301,7 +312,7 @@ module.exports = {
     },
     {
       cls: 'high',
-      text: 'Architecture de sécurité complète : RLS multi-tenant étanche avec FORCE RLS, audit infalsifiable et élimination totale des risques SQLi.'
+      text: 'Configurer les rôles et le contexte de confiance de RLS, protéger le journal d’audit et réduire les risques d’injection SQL.'
     }
   ]
 };

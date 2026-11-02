@@ -5,12 +5,9 @@
  * (voir `scripts/course-kit.js`) : aucune page n'est écrite à la main ici, et
  * aucune page ne doit être éditée à la main dans le dossier b1-sql/.
  *
- * Cours à atelier de code exécutable : chaque chapitre se termine par trois
- * exercices Bash corrigés automatiquement (catalogue `server/exercises/b1-sql.js`,
- * préfixe `sq`). L'atelier de la page atelier.html complète le **simulateur SQL**
- * embarqué (SQLite en WebAssembly, jeu de données « parc_auto » du support) : la
- * logique des requêtes se vérifie en Bash, les requêtes s'essaient en réel dans
- * le simulateur.
+ * Chaque chapitre propose trois exercices SQL (catalogue
+ * `server/exercises/b1-sql.js`, préfixe `sq`). Le simulateur embarque SQLite
+ * en WebAssembly et le jeu de données « parc_auto » du support.
  */
 'use strict';
 
@@ -47,9 +44,11 @@ const course = {
     'Une base de données ne répond qu’à une seule chose : une question bien écrite. Six chapitres pour ' +
     'apprendre à décrire une base, la remplir, la questionner, relier ses tables, regrouper ses lignes ' +
     'et protéger ses données — chaque chapitre se termine par trois exercices de code corrigés, et ' +
-    'chaque requête s’essaie en réel dans le simulateur SQL intégré au cours, sans rien installer.',
+    'les requêtes compatibles SQLite s’essaient dans le simulateur intégré, sans rien installer.',
 
-  sources: 'le support B1 « Base de données & SQL » (IT-B1) et le jeu de données parc_auto du support (Marque, Voiture)',
+  sources: 'le support B1 « Base de données & SQL » (IT-B1), le jeu de données parc_auto du support ' +
+    'et la <a href="https://sqlite.org/docs.html">documentation officielle SQLite</a> ' +
+    '(consultée le 29 octobre 2026 ; SELECT revérifié le 30 octobre 2026)',
 
   chapters: chapitres.map(chapitre => ({ n: chapitre.n, title: chapitre.title })),
 

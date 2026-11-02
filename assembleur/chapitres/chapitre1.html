@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -137,7 +137,7 @@
 </table>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> L’astuce classique : XOR EAX, EAX</div>
-<p>Dans tous les compilateurs C/C++ générant du code x86, on observe l’instruction <code>XOR EAX, EAX</code> plutôt que <code>MOV EAX, 0</code>. Pourquoi ?</p><ul>  <li>L’instruction <code>XOR EAX, EAX</code> n’occupe que <strong>2 octets</strong> d’opcode (<code>31 C0</code>), alors que <code>MOV EAX, 0</code> en occupe <strong>5 octets</strong> (<code>B8 00 00 00 00</code>) ;</li>  <li>Les décodeurs CPU modernes reconnaissent <code>XOR reg, reg</code> comme une réinitialisation sans dépendance de données, rompant les aléas de pipeline.</li></ul>
+<p>Les compilateurs C/C++ générant du code x86 utilisent souvent <code>XOR EAX, EAX</code> plutôt que <code>MOV EAX, 0</code>. Pourquoi ?</p><ul>  <li>L’instruction <code>XOR EAX, EAX</code> occupe <strong>2 octets</strong> de code machine (<code>31 C0</code>), alors que <code>MOV EAX, 0</code> en occupe <strong>5 octets</strong> (<code>B8 00 00 00 00</code>) ;</li>  <li>En x86-64, <code>XOR RAX, RAX</code> occupe <strong>3 octets</strong> (<code>48 31 C0</code>) : la taille dépend du registre et de l’encodage ;</li>  <li>Certains processeurs reconnaissent cette remise à zéro et éliminent une dépendance ; son coût dépend du processeur. Contrairement à MOV, XOR modifie les drapeaux.</li></ul>
   </div>
 
 <h2>4. Décalages logiques vs Décalages arithmétiques (SHL, SHR, SAR)</h2>
@@ -156,9 +156,11 @@ SAR AL, 1    ; Divise par 2 pour ENTIERS SIGNÉS. Le bit de signe (bit 7) est r�
             ; Exemple : 1000 0000b (-128) &rarr; 1100 0000b (-64). Le signe est conservé !</code></pre>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="asm2-c1-e1" data-lab
      data-exercise="asm2-c1-e1"
      data-language="analyse"
@@ -187,17 +189,17 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Masquage binaire &amp; opérations logiques (AND, OR, XOR)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="asm2-c1-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Appliquer des masques binaires 8 bits pour isoler, forcer ou inverser des bits.</p>
     <div class="lab__brief"><p>En programmation assembleur, les opérations bit à bit (AND, OR, XOR) sont omniprésentes pour manipuler les registres et interagir avec le matériel.</p><p>Pour chaque cas, observez :</p><ul><li><code>VAL1</code> et <code>VAL2</code> : les opérandes 8 bits en hexadécimal ;</li><li><code>OP</code> : l’opération logique parmi <code>AND</code>, <code>OR</code>, <code>XOR</code>.</li></ul><p>Indiquez le résultat sur 8 bits au format :<br><code>HEX=0xXX BIN=bbbbbbbb</code> (où XX est en majuscules sur 2 chiffres et bbbbbbbb sur 8 bits binaires).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0x3F;0x0F;AND</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>HEX=0x0F BIN=00001111</pre></div>
     </div>
-    <p class="lab__note">0x3F (00111111) AND 0x0F (00001111) = 0x0F (00001111).</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
@@ -237,17 +239,17 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Décodage du Complément à 2 (8 bits &amp; 16 bits)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="asm2-c1-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Convertir une valeur hexadécimale brute en entier signé selon le complément à 2.</p>
     <div class="lab__brief"><p>Les processeurs représentent les entiers relatifs selon la convention du <strong>complément à 2</strong>. Le bit de poids fort (MSB) détermine le signe (0 = positif, 1 = négatif).</p><p>Pour chaque cas, observez :</p><ul><li><code>VAL_HEX</code> : la valeur hexadécimale brute (ex. <code>0xFF</code> ou <code>0x8000</code>) ;</li><li><code>BITS</code> : la largeur du registre (8 ou 16 bits).</li></ul><p>Indiquez la valeur décimale signée au format :<br><code>DEC=&lt;valeur signée&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0xFF;8</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DEC=-1</pre></div>
     </div>
-    <p class="lab__note">0xFF sur 8 bits correspond à -1 en complément à 2.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -286,17 +288,17 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Décalages logiques &amp; arithmétiques (SHL, SHR, SAR)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="asm2-c1-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Distinguer le décalage logique vers la droite (SHR) et le décalage arithmétique avec préservation du signe (SAR).</p>
     <div class="lab__brief"><p>Les instructions de décalage permettent d’effectuer des multiplications et divisions rapides par des puissances de 2. Sur 8 bits :</p><ul>  <li><code>SHL</code> : décale les bits à gauche et insère des 0 à droite ;</li>  <li><code>SHR</code> : décale à droite et insère des 0 à gauche (pour entiers non signés) ;</li>  <li><code>SAR</code> : décale à droite en répliquant le bit de signe (bit 7) à gauche (pour entiers signés).</li></ul><p>Analysez les paramètres du problème pour chaque cas.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0x80;1;SHL</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RES=0x00</pre></div>
     </div>
-    <p class="lab__note">0x80 (10000000) décalé de 1 à gauche déborde sur 8 bits et devient 0x00.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -306,6 +308,7 @@ A_COMPLETER
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -351,14 +354,14 @@ A_COMPLETER
       <div class="q__exp">Dans la table de vérité de l’opérateur OR : 0 OR 1 = 1, et 1 OR 1 = 1. Le bit est forcé à 1.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Pourquoi l’instruction XOR EAX, EAX est-elle préférée à MOV EAX, 0 par les compilateurs ?</p>
+      <p class="q__stem">Quel avantage XOR EAX, EAX peut-il avoir sur MOV EAX, 0 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Elle est plus compacte (2 octets contre 5) et rompt les dépendances de registre dans le CPU</button>
+        <button class="opt" data-correct="1">Elle est plus compacte (2 octets contre 5) et peut supprimer une dépendance sur certains processeurs</button>
         <button class="opt">Elle active automatiquement l’unité arithmétique flottante FPU</button>
         <button class="opt">Elle permet d’écrire dans la mémoire cache L1</button>
         <button class="opt">Elle désactive les interruptions matérielles</button>
       </div>
-      <div class="q__exp">XOR reg, reg n’occupe que 2 octets et est optimisé par les processeurs modernes pour réinitialiser le registre à coût nul.</div>
+      <div class="q__exp">XOR EAX, EAX occupe 2 octets, contre 5 pour MOV EAX, 0 dans cet encodage. Le résultat dépend du registre et du processeur ; XOR modifie les drapeaux, contrairement à MOV.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la différence fondamentale entre SHR (Shift Right) et SAR (Shift Arithmetic Right) ?</p>
@@ -425,7 +428,7 @@ A_COMPLETER
       <li>Un quartet (4 bits) correspond exactement à un chiffre hexadécimal (0 à F). Deux chiffres hexadécimaux forment un octet.</li>
       <li>Le complément à 2 s’obtient par inversion de tous les bits (NOT) puis ajout de 1 : $[-2^{n-1} \ .. \ +2^{n-1} - 1]$.</li>
       <li>Les masques binaires utilisent AND (isoler/mettre à 0), OR (forcer à 1) et XOR (inverser).</li>
-      <li>L’instruction XOR reg, reg est le moyen le plus rapide et compact pour remettre un registre à zéro.</li>
+      <li>XOR reg, reg met ce registre à zéro ; sa taille et son intérêt dépendent de l’encodage et du processeur.</li>
       <li>Les décalages gauche (SHL) multiplient par 2. SAR divise par 2 les entiers signés en répliquant le bit de signe.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
@@ -450,10 +453,10 @@ A_COMPLETER
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Revoyez les conversions binaire/hexa et la méthode du complément à 2.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Revoyez les conversions binaire/hexa et la méthode du complément à 2.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur le masquage logique et la différence entre SHR et SAR.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous maîtrisez la numération binaire et les opérations logiques machine.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Parfait : passe à l’architecture interne du processeur et aux registres au chapitre 2.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Parfait : passez à l’architecture interne du processeur et aux registres au chapitre 2.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

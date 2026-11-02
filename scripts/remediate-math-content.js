@@ -164,8 +164,8 @@ console.log('=== REMEDIATION DU CONTENU DES COURS DE MATHS (b1-algebre & b1-stat
 
   const oldBrief = [
     "      '<p>Le script proposé calcule le produit d’une matrice fixe par un vecteur lu sur l’entrée standard. ' +",
-    "      'Modifie la matrice, change la dimension, ou remplace tout le script par le calcul que tu veux vérifier.</p>',",
-    "      '<p>Une erreur n’est pas un échec : c’est le message que Python te laisse pour comprendre ce qu’il attendait.</p>'"
+    "      'Modifie la matrice, change la dimension, ou remplacez tout le script par le calcul que tu veux vérifier.</p>',",
+    "      '<p>Une erreur n’est pas un échec : c’est le message que Python vous laisse pour comprendre ce qu’il attendait.</p>'"
   ].join('\n');
 
   const newBrief = [
@@ -387,7 +387,7 @@ console.log('=== REMEDIATION DU CONTENU DES COURS DE MATHS (b1-algebre & b1-stat
   const oldStatsBrief = [
     "      '<p>Le script proposé calcule les indicateurs usuels d’une série lue sur l’entrée standard. ' +",
     "      'Colle tes données, change la formule, ou écris le calcul d’une médiane, de quartiles ou d’un écart-type.</p>',",
-    "      '<p>Une erreur n’est pas un échec : c’est le message que Python te laisse pour comprendre ce qu’il attendait.</p>'"
+    "      '<p>Une erreur n’est pas un échec : c’est le message que Python vous laisse pour comprendre ce qu’il attendait.</p>'"
   ].join('\n');
 
   const newStatsBrief = [

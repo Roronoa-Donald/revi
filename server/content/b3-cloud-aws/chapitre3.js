@@ -195,7 +195,7 @@ module.exports = {
       exp: 'Les instances Spot exploitent le surplus de capacité matérielle inutilisée d\'AWS avec jusqu\'à 90% de rabais, mais AWS peut les réclamer avec un préavis d\'interruption de 2 minutes.'
     },
     {
-      stem: 'Quelle caractéristique technique distingue les volumes EBS gp3 par rapport aux anciens volumes gp2 ?',
+      stem: 'Quelle caractéristique technique distinguez les volumes EBS gp3 par rapport aux anciens volumes gp2 ?',
       opts: ['Les volumes gp3 ne peuvent pas être chiffrés', 'Les volumes gp3 permettent d\'augmenter les IOPS et le débit MB/s indépendamment de la taille du disque de stockage', 'Les volumes gp3 sont accessibles simultanément par 100 instances', 'Les volumes gp3 sont stockés sur bande magnétique'],
       correct: 1,
       exp: 'Contrairement à gp2 dont les performances dépendaient strictement du nombre de Go alloués, gp3 permet de provisionner les IOPS et le débit indépendamment de la capacité de stockage.'

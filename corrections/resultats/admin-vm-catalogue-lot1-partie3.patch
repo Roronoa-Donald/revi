@@ -1,0 +1,98 @@
+diff --git a/server/exercises/admin-vm.js b/server/exercises/admin-vm.js
+index 46fd0c7..958ccf2 100644
+--- a/server/exercises/admin-vm.js
++++ b/server/exercises/admin-vm.js
+@@ -2,16 +2,13 @@
+  * Catalogue des 18 exercices d'administration de machines virtuelles du cours
+  * « Admin VM » B2 (dossier `admin-vm/`).
+  *
+- * Chaque fiche est un script PowerShell lu sur l'entrée standard. Le langage
+- * `powershell` n'étant pas exécutable localement (ni dans la liste blanche),
+- * `tests/exercise-solutions.test.js` ignore ces fiches et l'intégrité du
+- * catalogue est vérifiée structurellement, comme pour `rd_winserver`.
++ * Chaque fiche est un script PowerShell lu sur l'entrée standard.
+  *
+  * Découpage : six modules de trois fiches (`vm2-cN-eM`).
+  */
+ 'use strict';
+ 
+-module.exports = [
++const exercices = [
+   ...require('./admin-vm/chapitre1'),
+   ...require('./admin-vm/chapitre2'),
+   ...require('./admin-vm/chapitre3'),
+@@ -19,3 +16,74 @@ module.exports = [
+   ...require('./admin-vm/chapitre5'),
+   ...require('./admin-vm/chapitre6')
+ ];
++
++const testsSupplementaires = {
++  'vm2-c1-e3': [
++    { label: 'Virtualisation de serveurs', stdin: 'serveur', expected: 'exemple : Proxmox' }
++  ],
++  'vm2-c2-e1': [
++    { label: 'Extensions absentes et mémoire faible', stdin: 'non\n5', expected: 'virtualisation : impossible' },
++    { label: 'Juste sous le minimum', stdin: 'oui\n7', expected: 'ram insuffisante' }
++  ],
++  'vm2-c2-e2': [
++    { label: 'Division entière sans arrondi au plus proche', stdin: '11\n4', expected: 'vms possibles : 2' },
++    { label: 'RAM insuffisante pour une VM', stdin: '4\n8', expected: 'vms possibles : 0' }
++  ],
++  'vm2-c2-e3': [
++    { label: 'Rôle du noyau', stdin: 'noyau', expected: 'role : extensions CPU' }
++  ],
++  'vm2-c3-e2': [
++    { label: 'Maintenance non listée', stdin: 'maintenance preventive', expected: 'tache : inconnue' },
++    { label: 'Décommissionnement non listé', stdin: 'decommissionnement', expected: 'tache : inconnue' }
++  ],
++  'vm2-c4-e1': [
++    { label: 'Groupe de volumes', stdin: 'vg', expected: 'vg : groupe de volumes' }
++  ],
++  'vm2-c4-e2': [
++    { label: 'Un Go sous le seuil', stdin: '50\n41', expected: 'libre : 9 Go\nalerte : espace faible' }
++  ],
++  'vm2-c4-e3': [
++    { label: 'Sauvegarde hebdomadaire', stdin: 'hebdo', expected: 'retention : 4 semaines' }
++  ],
++  'vm2-c5-e1': [
++    { label: 'Rôle du bridge', stdin: 'bridge', expected: 'role : switch virtuel' }
++  ],
++  'vm2-c5-e2': [
++    { label: 'VLAN des serveurs', stdin: '20', expected: 'vlan 20 : serveurs' }
++  ],
++  'vm2-c5-e3': [
++    { label: 'Interne au LAN', stdin: 'lan\nlan\n80', expected: 'flux : autorise' },
++    { label: 'Interne à une autre zone', stdin: 'autre\nautre\n22', expected: 'flux : autorise' },
++    { label: 'HTTPS du LAN vers la DMZ', stdin: 'lan\ndmz\n443', expected: 'flux : autorise' },
++    { label: 'HTTPS de la DMZ vers le LAN', stdin: 'dmz\nlan\n443', expected: 'flux : autorise' }
++  ],
++  'vm2-c6-e1': [
++    { label: 'Majorité simple sans deux tiers', stdin: '5\n3', expected: 'quorum : atteint' }
++  ],
++  'vm2-c6-e2': [
++    { label: 'Valeur supérieure au seuil', stdin: '61\n60', expected: 'etat : alerte' }
++  ],
++  'vm2-c6-e3': [
++    { label: 'Division entière avec reste', stdin: '111\n40', expected: 'apres dedup : 66 Go' }
++  ]
++};
++
++const testsHorsEnonce = {
++  'vm2-c2-e3': { stdin: 'inconnu', expected: 'role : inconnu' },
++  'vm2-c4-e1': { stdin: 'x', expected: 'x : inconnu' },
++  'vm2-c4-e3': { stdin: 'annuel', expected: 'retention : inconnue' }
++};
++
++for (const exercice of exercices) {
++  const horsEnonce = testsHorsEnonce[exercice.id];
++  if (horsEnonce) {
++    exercice.tests = exercice.tests.filter(test => test.stdin !== horsEnonce.stdin || test.expected !== horsEnonce.expected);
++  }
++  for (const test of testsSupplementaires[exercice.id] || []) {
++    if (!exercice.tests.some(existant => existant.stdin === test.stdin && existant.expected === test.expected)) {
++      exercice.tests.push(test);
++    }
++  }
++}
++
++module.exports = exercices;

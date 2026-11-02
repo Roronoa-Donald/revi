@@ -48,7 +48,9 @@ const LEVELS = {
 
 const exercises = require('../server/exercises');
 const courseConfig = require('../server/exercises/course-config');
+const { isGradingSuspended, suspensionMessage, gradingSuspensionMessage } = require('../server/exercises/grading-policy');
 const { getLanguage } = require('../server/services/execution/languages');
+const { richHtml } = require('./course-kit');
 
 // ========================
 // Utilitaires de rendu
@@ -71,6 +73,12 @@ function escAttr(value) {
 function escRawText(value) {
   return String(value === undefined || value === null ? '' : value)
     .replace(/<\/(script)/gi, '<\\/$1');
+}
+
+function renderHint(value) {
+  const parts = String(value).split('`');
+  if (parts.length % 2 === 0) return escText(value);
+  return parts.map((part, index) => index % 2 ? '<code>' + escText(part) + '</code>' : escText(part)).join('');
 }
 
 function icon(name) {
@@ -97,12 +105,15 @@ const NUMBER_WORDS = {
 function renderLab(exercise, index) {
   const example = exercise.examples[0] || { stdin: '', expected: '' };
   const isAnalyse = exercise.language === 'analyse';
+  const gradingSuspended = isGradingSuspended(exercise.course, exercise.id);
 
   const head =
     '  <div class="lab__head">\n' +
     '    <h3 class="lab__title">Exercice ' + (index + 1) + ' — ' + escText(exercise.title) + '</h3>\n' +
     '    <div class="lab__meta">\n' +
     '      <span class="lab__lang">' + icon(isAnalyse ? 'book' : 'terminal') + ' ' + escText(languageLabel(exercise.language)) + '</span>\n' +
+    (isAnalyse ? '      <span class="lab__formative">Formative</span>\n' : '') +
+    (gradingSuspended ? '      <span class="lab__training">Entraînement, non noté</span>\n' : '') +
     '      <span class="badge badge--' + exercise.level + '">' + LEVELS[exercise.level] + '</span>\n' +
     '    </div>\n' +
     '  </div>\n';
@@ -111,9 +122,9 @@ function renderLab(exercise, index) {
     '    <div class="lab__sample">\n' +
     '      <div class="lab__sample-part"><b>' + (isAnalyse ? 'Cas d’exemple' : 'Entrée du programme') + '</b><pre>' +
         escText(example.stdin === '' ? '(aucune)' : example.stdin) + '</pre></div>\n' +
-    '      <div class="lab__sample-part"><b>' + (isAnalyse ? 'Résolution attendue' : 'Sortie attendue') + '</b><pre>' + escText(example.expected) + '</pre></div>\n' +
+    (isAnalyse ? '' : '      <div class="lab__sample-part"><b>Sortie attendue</b><pre>' + escText(example.expected) + '</pre></div>\n') +
     '    </div>\n' +
-    (example.note ? '    <p class="lab__note">' + escText(example.note) + '</p>\n' : '');
+    (!isAnalyse && example.note ? '    <p class="lab__note">' + escText(example.note) + '</p>\n' : '');
 
   const nHints = Array.isArray(exercise.hints) ? exercise.hints.length : 0;
   const hintsTitle = (NUMBER_WORDS[nHints] || (nHints + ' indices')) + (nHints === 1 ? ', rédigé en mots' : ', rédigés en mots');
@@ -122,14 +133,16 @@ function renderLab(exercise, index) {
     '    <details class="lab__hints">\n' +
     '      <summary>' + icon('lightbulb') + ' ' + hintsTitle + '</summary>\n' +
     '      <ol>\n' +
-    exercise.hints.map(hint => '        <li>' + escText(hint) + '</li>').join('\n') + '\n' +
+    exercise.hints.map(hint => '        <li>' + renderHint(hint) + '</li>').join('\n') + '\n' +
     '      </ol>\n' +
     '    </details>\n';
 
   const body =
     '  <div class="lab__body">\n' +
-    '    <p class="lab__goal"><strong>Objectif :</strong> ' + escText(exercise.goal) + '</p>\n' +
-    '    <div class="lab__brief">' + exercise.brief + '</div>\n' +
+    (isAnalyse ? '    <p class="lab__formative-notice" id="' + escAttr(exercise.id) + '-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>\n' : '') +
+    '    <p class="lab__goal"><strong>Objectif :</strong> ' + renderHint(exercise.goal || '') + '</p>\n' +
+    (gradingSuspended ? '    <p class="lab__note" id="' + escAttr(exercise.id) + '-grading-notice">' + escText(gradingSuspensionMessage(exercise.course, exercise.id)) + '</p>\n' : '') +
+    '    <div class="lab__brief">' + richHtml(exercise.brief) + '</div>\n' +
     sample +
     hints +
     '  </div>\n';
@@ -137,6 +150,7 @@ function renderLab(exercise, index) {
   return (
     '<div class="lab" id="' + escAttr(exercise.id) + '" data-lab\n' +
     '     data-exercise="' + escAttr(exercise.id) + '"\n' +
+    (gradingSuspended ? '     data-grading-suspended="1"\n' : '') +
     '     data-language="' + escAttr(exercise.language) + '"\n' +
     '     data-height="300"\n' +
     '     data-stdin="' + escAttr(example.stdin) + '">\n' +
@@ -153,10 +167,19 @@ function renderSection(courseId, chapter) {
     .sort((a, b) => a.id.localeCompare(b.id));
 
   const allAnalyse = list.length > 0 && list.every(exercise => exercise.language === 'analyse');
+  const sectionSuspended = list.length > 0 && list.every(exercise => exercise.language !== 'analyse' &&
+    isGradingSuspended(exercise.course, exercise.id));
+  const partialSuspension = !isGradingSuspended(courseId) &&
+    !sectionSuspended && list.some(exercise => isGradingSuspended(exercise.course, exercise.id));
 
-  const intro = allAnalyse
-    ? '  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>\n' +
-      '  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>\n'
+  const intro = isGradingSuspended(courseId)
+    ? '  <p class="lead">' + escText(suspensionMessage) + ' Les énoncés et les exemples restent disponibles.</p>\n'
+    : sectionSuspended
+    ? '  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>\n'
+    : allAnalyse
+    ? '  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>\n' +
+      '  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>\n' +
+      '  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>\n'
     : '  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code\n' +
       '  et la validation fait tourner des jeux de tests indépendants :\n' +
       '  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>\n' +
@@ -165,10 +188,13 @@ function renderSection(courseId, chapter) {
 
   return (
     START + '\n' +
+    '  <div id="exercices">\n' +
     // Numéro de remplissage : la renumérotation du chapitre le réécrit.
     (allAnalyse ? '  <h2>0. Études de cas &amp; applications pratiques</h2>\n' : '  <h2>0. Exercices de code</h2>\n') +
     intro +
+    (partialSuspension ? '  <p>La validation est suspendue pour les exercices signalés ci-dessous.</p>\n' : '') +
     list.map((exercise, index) => renderLab(exercise, index)).join('\n') +
+    '  </div>\n' +
     '  ' + END + '\n'
   );
 }
@@ -261,6 +287,7 @@ const changes = [];
 const problems = [];
 
 function write(file, content) {
+  if (/\.html$/i.test(file)) content = require('./course-kit').escapeUnknownTags(content);
   if (CHECK) {
     if (!fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== content) {
       problems.push(path.relative(ROOT, file));

@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -51,7 +51,7 @@
 </div></nav>
 
 <main id="content" class="b3-etude-quantitativewrap">
-<p class="crumb"><a href="../index.html">Étude Quantitative & Qualitative B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+<p class="crumb"><a href="../index.html">Étude Quantitative &amp; Qualitative B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
 
 <h1>Chapitre 2 — Théorie de l’Échantillonnage, Méthodes Aléatoires &amp; Quotas</h1>
 
@@ -63,7 +63,7 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Interroger la totalité des membres d’une population cible (recensement exhaustif) est matériellement impossible, financièrement prohibitif et temporellement intenable dans la quasi-totalité des projets d’ingénierie ou de recherche appliquée. L’échantillonnage consiste à sélectionner scientifiquement un sous-ensemble d’individus dont les caractéristiques et les réponses reflètent fidèlement celles de la population mère tout entière. Cependant, interroger 1 000 personnes choisies au hasard sur LinkedIn ne garantit en rien la représentativité si l’échantillon souffre de biais d’autosélection majeurs. L’ingénieur de Bachelor 3 doit maîtriser le dimensionnement statistique exact par la formule de Cochran, savoir appliquer la correction pour population finie, ventiler un tirage stratifié proportionnel et auditer la conformité d’un échantillonnage empirique par quotas.</p>
+    <p>Interroger toute une population cible peut être coûteux ou impossible. L’échantillonnage sélectionne un sous-ensemble d’individus pour étudier cette population ; sa taille ou le respect de quotas ne garantissent pas à eux seuls que ses résultats la reflètent fidèlement. Des volontaires recrutés sur un réseau social peuvent notamment présenter un biais d’autosélection. Il faut expliciter le plan, ventiler les strates et examiner les limites de la collecte.</p>
   </div>
 
   <div class="box box--objectifs">
@@ -71,10 +71,10 @@
     <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
       <li>distinguer rigoureusement les méthodes d’échantillonnage probabilistes (aléatoires) et non probabilistes (empiriques) ;</li>
-      <li>dimensionner mathématiquement la taille minimale d’un échantillon représentatif via la formule de Cochran (scores z, marge d’erreur e, variabilité p) ;</li>
+      <li>dimensionner un échantillon sous les hypothèses de la formule de Cochran (scores z, marge d’erreur e, variabilité p), sans en déduire l’absence de biais ;</li>
       <li>appliquer la correction de Cochran pour population finie afin d’optimiser les coûts de collecte sans dégrader la précision ;</li>
       <li>concevoir un plan d’échantillonnage stratifié proportionnel et calculer les effectifs à sonder par sous-groupe démographique ;</li>
-      <li>mettre en œuvre la méthode des quotas et mesurer le biais d’échantillonnage par rapport aux distributions de référence ;</li>
+      <li>contrôler les quotas par rapport aux distributions de référence et reconnaître les biais que ce contrôle ne mesure pas ;</li>
       <li>analyser et résoudre méthodologiquement des calculateurs de Cochran, des générateurs d’échantillons stratifiés et des vérificateurs de conformité par quotas.</li>
     </ol>
   </div>
@@ -138,25 +138,29 @@ L’enquête nécessite 278 collaborateurs au lieu de 385, soit une économie d�
 
 <h2>4. Échantillonnage Stratifié &amp; Contrôle des Quotas</h2>
 
-<p>L’échantillonnage ne doit pas se contenter d’un volume brut : il doit reproduire la structure interne de la population selon les critères critiques :</p>
+<p>La répartition selon des critères connus est utile, mais ne suffit pas à établir la représentativité sur toutes les caractéristiques :</p>
 <div class="grid grid-2">
   <div class="card">
     <h4>Échantillonnage Stratifié Proportionnel</h4>
-    <p>Chaque sous-population $h$ (strate) de taille $N_h$ se voit allouer une part de l’échantillon proportionnelle à son poids réel $W_h = N_h / N$ :</p>
-    <p>$$n_h = n \times \frac{N_h}{N}$$</p>
-    <p>Garantit qu’aucune minorité significative n’est sous-représentée par simple hasard de tirage.</p>
+    <p>Pour chaque strate de taille $N_h$, la part théorique est $q_h = n N_h/N$. Pour obtenir des effectifs entiers, attribuer d’abord $\lfloor q_h \rfloor$, puis distribuer les unités restantes aux <strong>plus forts restes</strong> ; en cas d’égalité, suivre l’ordre des strates.</p>
+    <p>Sans remplacement, vérifier $0 \le n_h \le N_h$ et $1 \le n \le N$. Sans minimum imposé, une strate peut recevoir zéro unité.</p>
+    <p>Si des minima entiers $m_h$ sont imposés, vérifier $0 \le m_h \le N_h$ et $\sum m_h \le n \le \sum N_h$. Une règle possible consiste à attribuer d’abord les minima, puis à répartir le reste proportionnellement aux capacités résiduelles $N_h-m_h$ avec les mêmes plus forts restes. S’il ne reste aucune unité à distribuer, on s’arrête. Cette règle respecte les bornes mais modifie la cible proportionnelle initiale.</p>
+    <p>Exemple : pour $n = 1$ et trois strates de taille 1, les parts sont $1/3, 1/3, 1/3$. Leurs planchers valent $0, 0, 0$ ; l’unité restante va à la première strate : $1, 0, 0$.</p>
   </div>
   <div class="card">
-    <h4>Méthode des Quotas &amp; Audit de Biais</h4>
+    <h4>Méthode des Quotas &amp; Contrôle de Conformité</h4>
     <p>Dans les enquêtes sans base de sondage nominative, on fixe aux enquêteurs des quotas stricts (ex: 30% Juniors, 50% Confirmés, 20% Seniors).</p>
-    <p>L’audit de conformité compare la distribution observée $P_{obs}$ aux quotas cibles $P_{cible}$. Un écart maximal $|P_{obs} - P_{cible}| > 3%$ signale un biais exigeant un redressement statistique par pondération.</p>
+    <p>Le contrôle compare les proportions observées aux quotas cibles. Un seuil de 3 points est un choix illustratif, pas une garantie : il ne révèle ni tous les biais de sélection ni les écarts sur les variables non contrôlées. Une pondération peut corriger des marges connues, sans supprimer automatiquement les autres biais.</p>
   </div>
 </div>
+<p><strong>Contre-exemple synthétique :</strong> une population de 100 personnes compte 50 A et 50 B, dont 10 à revenu élevé dans chaque groupe : 20% au total. Un échantillon de 5 A et 5 B respecte parfaitement les quotas 50/50, mais si les 10 personnes choisies ont un revenu élevé, cette proportion atteint 100% dans l’échantillon. La conformité des quotas ne démontre pas la représentativité des revenus ni l’absence de biais de sélection.</p>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="eq3-c2-e1" data-lab
      data-exercise="eq3-c2-e1"
      data-language="analyse"
@@ -181,10 +185,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Calculateur de taille d’échantillon probabiliste (Formule de Cochran)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="eq3-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la taille minimale d’échantillon requise selon le niveau de confiance, la marge d’erreur et la taille de population.</p>
     <div class="lab__brief"><p>Pour chaque cas d’application :<br>
 <code>COCHRAN etude=&lt;nom&gt; confiance=&lt;90|95|99&gt; erreur=&lt;pct_erreur&gt; p=&lt;proportion&gt; [N=&lt;taille_pop&gt;]</code>.<br><br>
@@ -202,12 +208,10 @@ $$n = \frac{n_0}{1 + \frac{n_0 - 1}{N}}$$<br>
 Sinon $n = n_0$.<br>
 La taille requise est arrondie à l'entier supérieur : $n_{final} = \lceil n \rceil$ (via <code>math.ceil</code>).<br><br>
 Afficher :<br>
-<code>ECHANTILLON: {etude} -> N_POP={N_ou_INFINI} | CONFIANCE={confiance}% ERREUR={erreur}% | TAILLE_REQUISE={n_final}</code></p></div>
+<code>ECHANTILLON: {etude} -&gt; N_POP={N_ou_INFINI} | CONFIANCE={confiance}% ERREUR={erreur}% | TAILLE_REQUISE={n_final}</code></p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>COCHRAN etude=SondageNational confiance=95 erreur=5.0 p=0.5</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ECHANTILLON: SondageNational -&gt; N_POP=INFINI | CONFIANCE=95% ERREUR=5.0% | TAILLE_REQUISE=385</pre></div>
     </div>
-    <p class="lab__note">Cas classique : confiance 95% et marge d’erreur 5% donne n0 = 384.16 -&gt; 385 répondants.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -230,49 +234,58 @@ Afficher :<br>
 # Données : STRATIFIE etude=CampusTech n=150 strates=INFO:600,RESEAUX:300,CYBER:100
 A_COMPLETER
 
-[Cas 2 — Échantillon médical avec effectifs variés]
-# Données : STRATIFIE etude=PersonnelSante n=100 strates=MEDECINS:50,INFIRMIERS:350,AIDES:600
+[Cas 2 — Respect des capacités des strates]
+# Données : STRATIFIE etude=PersonnelSante n=6 strates=MEDECINS:1,INFIRMIERS:2,AIDES:4
 A_COMPLETER
 
-[Cas 3 — Deux strates équilibrées]
-# Données : STRATIFIE etude=PariteEquipe n=80 strates=FEMMES:250,HOMMES:250
+[Cas 3 — Une unité pour trois strates égales]
+# Données : STRATIFIE etude=Mini n=1 strates=A:1,B:1,C:1
+A_COMPLETER
+
+[Cas 4 — Minima réalisables et capacités résiduelles]
+# Données : STRATIFIE etude=Minima n=5 strates=A:1,B:2,C:4 minima=A:1,B:0,C:1
+A_COMPLETER
+
+[Cas 5 — Minima impossibles]
+# Données : STRATIFIE etude=MiniBloque n=1 strates=A:1,B:1,C:1 minima=A:1,B:1,C:1
+A_COMPLETER
+
+[Cas 6 — Échantillon supérieur à la population]
+# Données : STRATIFIE etude=HorsCapacite n=4 strates=A:1,B:1,C:1
 A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Échantillonnage stratifié proportionnel</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la ventilation exacte des quotas de sondage par sous-population selon leur poids démographique réel.</p>
+    <p class="lab__formative-notice" id="eq3-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Répartir un échantillon entier en respectant les minima éventuels, les capacités des strates et la taille cible.</p>
     <div class="lab__brief"><p>Pour chaque cas d’application :<br>
-<code>STRATIFIE etude=&lt;nom&gt; n=&lt;taille_echantillon&gt; strates=&lt;NOM1&gt;:&lt;N1&gt;,&lt;NOM2&gt;:&lt;N2&gt;,...</code>.<br><br>
-Calculs :<br>
-- Calculer la population totale mère : $N = \sum N_i$.<br>
-- Pour chaque strate $i$ :<br>
-  - Poids relatif : $W_i = N_i / N$.<br>
-  - Effectif théorique à sonder : $n_i = \text{round}(n \times W_i)$.<br>
-  - Pourcentage dans l'échantillon : $P_i = (n_i / n) \times 100$ (1 décimale).<br><br>
+<code>STRATIFIE etude=&lt;nom&gt; n=&lt;taille&gt; strates=&lt;NOM1&gt;:&lt;N1&gt;,&lt;NOM2&gt;:&lt;N2&gt;,... [minima=&lt;NOM1&gt;:&lt;m1&gt;,&lt;NOM2&gt;:&lt;m2&gt;,...]</code>.<br>
+Les tailles $N_i$ et les minima $m_i$ sont des entiers positifs ou nuls. Les noms de strates sont distincts ; si les minima sont fournis, ils mentionnent chaque strate une fois. Sans minima, prendre $m_i=0$. Le tirage est sans remplacement.<br><br>
+Vérifier $N=\sum N_i &gt; 0$, $1 \le n \le N$, $0 \le m_i \le N_i$ et $\sum m_i \le n$. Si une condition échoue, afficher uniquement <code>STRATIFICATION: {etude} -&gt; IMPOSSIBLE (CONTRAINTES)</code>.<br><br>
+Sinon :<br>
+- Attribuer les minima, puis calculer $R=n-\sum m_i$ et les capacités résiduelles $C_i=N_i-m_i$. Si $R=0$, ne rien ajouter.<br>
+- Si $R&gt;0$, calculer les parts $q_i=R C_i/\sum C_i$, puis attribuer leurs planchers et distribuer les unités restantes aux <strong>plus forts restes</strong>. En cas d’égalité, respecter l’ordre des strates.<br>
+- Vérifier $m_i \le n_i \le N_i$ et $\sum n_i=n$. Sans minimum, la règle revient à répartir $n$ proportionnellement aux tailles initiales ; avec minima, elle répartit le reste selon les capacités résiduelles.<br>
+- Calculer $W_i=N_i/N$ et $P_i=100 n_i/n$, affichés à une décimale.<br><br>
 Afficher :<br>
 <code>STRATIFICATION: {etude} (N_TOTAL={N}, n_CIBLE={n})</code><br>
-Pour chaque strate dans l'ordre d'apparition :<br>
-<code>  - {NOM_i}: N_pop={N_i} (W={W_i*100:.1f}%) -> n_sonde={n_i} ({P_i:.1f}%)</code></p></div>
+Pour chaque strate dans l’ordre d’apparition :<br>
+<code>  - {NOM_i}: N_pop={N_i} (W={W_i*100:.1f}%) -&gt; n_sonde={n_i} ({P_i:.1f}%)</code></p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>STRATIFIE etude=SondageDSI n=200 strates=DEV:400,OPS:300,QA:200,DIR:100</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STRATIFICATION: SondageDSI (N_TOTAL=1000, n_CIBLE=200)
-  - DEV: N_pop=400 (W=40.0%) -&gt; n_sonde=80 (40.0%)
-  - OPS: N_pop=300 (W=30.0%) -&gt; n_sonde=60 (30.0%)
-  - QA: N_pop=200 (W=20.0%) -&gt; n_sonde=40 (20.0%)
-  - DIR: N_pop=100 (W=10.0%) -&gt; n_sonde=20 (10.0%)</pre></div>
     </div>
-    <p class="lab__note">La répartition est rigoureusement proportionnelle au poids de chaque strate.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
         <li>Sommer tous les Ni pour obtenir la population mère totale N.</li>
-        <li>Utiliser round() pour arrondir chaque effectif à sonder.</li>
+        <li>Attribuer les minima faisables, puis répartir le reste selon les capacités résiduelles par plus forts restes ; départager les égalités dans l’ordre.</li>
       </ol>
     </details>
   </div>
@@ -283,50 +296,47 @@ Pour chaque strate dans l'ordre d'apparition :<br>
      data-language="analyse"
      data-height="300"
      data-stdin="QUOTAS etude=SondageSalaries cibles=JUNIOR:30.0,CONFIRME:50.0,SENIOR:20.0 obs=JUNIOR:140,CONFIRME:260,SENIOR:100">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (eq3-c2-e3) — Contrôleur de conformité et représentativité par quotas
+  <script type="text/plain" data-lab-starter># Grille d'analyse (eq3-c2-e3) — Contrôleur de conformité des quotas
 # Complétez la réponse attendue sous chaque cas ci-dessous :
 
-[Cas 1 — Échantillon avec biais modéré acceptable]
+[Cas 1 — Écart de cinq points]
 # Données : QUOTAS etude=PanelConsommateurs cibles=HOMMES:50.0,FEMMES:50.0 obs=HOMMES:275,FEMMES:225
 A_COMPLETER
 
-[Cas 2 — Échantillon fortement biaisé rejeté]
+[Cas 2 — Écart important aux quotas]
 # Données : QUOTAS etude=EtudeJeunes cibles=ETUDIANT:40.0,ACTIF:40.0,CHOMEUR:20.0 obs=ETUDIANT:300,ACTIF:80,CHOMEUR:20
 A_COMPLETER
 
-[Cas 3 — Quotas strictement parfaits]
-# Données : QUOTAS etude=TestEquilibre cibles=A:25.0,B:25.0,C:25.0,D:25.0 obs=A:50,B:50,C:50,D:50
+[Cas 3 — Quotas A/B respectés malgré la sélection]
+# Données : QUOTAS etude=TestEquilibre cibles=A:50.0,B:50.0 obs=A:5,B:5
+# Contexte : 20 personnes sur 100 ont un revenu élevé dans la population, mais les 10 personnes sélectionnées ont toutes un revenu élevé.
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Contrôleur de conformité et représentativité par quotas</h3>
+    <h3 class="lab__title">Exercice 3 — Contrôleur de conformité des quotas</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Comparer la distribution d’un échantillon empirique aux quotas cibles de la population et détecter les biais de sélection.</p>
+    <p class="lab__formative-notice" id="eq3-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer les proportions observées aux quotas cibles sans conclure à la représentativité générale.</p>
     <div class="lab__brief"><p>Pour chaque cas d’application :<br>
 <code>QUOTAS etude=&lt;nom&gt; cibles=&lt;C1&gt;:&lt;P1&gt;,&lt;C2&gt;:&lt;P2&gt;,... obs=&lt;C1&gt;:&lt;N1&gt;,&lt;C2&gt;:&lt;N2&gt;,...</code>.<br>
-Où les cibles sont des pourcentages théoriques et obs les effectifs observés.<br><br>
+Les cibles sont des pourcentages totalisant 100 ; les effectifs observés sont positifs ou nuls, leur total est strictement positif et les catégories sont les mêmes.<br><br>
 Calculs :<br>
-- Calculer le total observé $T_{obs} = \sum N_i$.<br>
-- Pour chaque catégorie $i$ :<br>
-  - Pourcentage observé : $P_{obs,i} = (N_i / T_{obs}) \times 100$.<br>
-  - Écart absolu : $\Delta_i = |P_{obs,i} - P_{cible,i}|$.<br>
-- Écart maximum : $\Delta_{max} = \max(\Delta_i)$.<br><br>
-Qualification du biais d'échantillonnage :<br>
-- Si $\Delta_{max} \le 3.0\%$ : <code>CONFORMITE=EXCELLENTE_REPRESENTATIF</code><br>
-- Sinon si $\Delta_{max} \le 6.0\%$ : <code>CONFORMITE=ACCEPTABLE_BIAIS_LEGER</code><br>
-- Sinon : <code>CONFORMITE=REJET_BIAIS_CRITIQUE (REDRESSEMENT_REQUIS)</code><br><br>
+- Calculer $T_{obs} = \sum N_i$ et chaque proportion observée $P_{obs,i} = 100 N_i / T_{obs}$.<br>
+- Calculer $\Delta_{max} = \max |P_{obs,i} - P_{cible,i}|$ en <strong>points de pourcentage</strong>.<br>
+- Dans cet exercice seulement, le seuil de conformité choisi est 3,0 points : afficher <code>CONFORMITE_QUOTAS=OUI</code> si $\Delta_{max} \le 3$, sinon <code>CONFORMITE_QUOTAS=NON</code>.<br>
+- Afficher l’écart maximum à une décimale.<br><br>
+Le respect des quotas ne démontre pas la représentativité des autres caractéristiques ni l’absence de biais de sélection. Le seuil retenu ne mesure pas ces biais ; la pondération n’est pas une correction automatique de tous les biais.<br><br>
 Afficher :<br>
-<code>AUDIT_QUOTAS: {etude} -> TOTAL_OBS={T_obs} | ECART_MAX={Delta_max:.1f}% | {CONFORMITE}</code></p></div>
+<code>AUDIT_QUOTAS: {etude} -&gt; TOTAL_OBS={T_obs} | ECART_MAX={Delta_max:.1f} points | CONFORMITE_QUOTAS={OUI ou NON}</code></p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>QUOTAS etude=SondageSalaries cibles=JUNIOR:30.0,CONFIRME:50.0,SENIOR:20.0 obs=JUNIOR:140,CONFIRME:260,SENIOR:100</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT_QUOTAS: SondageSalaries -&gt; TOTAL_OBS=500 | ECART_MAX=2.0% | CONFORMITE=EXCELLENTE_REPRESENTATIF</pre></div>
     </div>
-    <p class="lab__note">Écart max = 2.0% (Junior 28% vs 30%, Confirmé 52% vs 50%) : représentativité excellente.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -336,6 +346,7 @@ Afficher :<br>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -348,7 +359,7 @@ Afficher :<br>
         <button class="opt">Parce que la loi interdit d’utiliser une autre valeur que 0.5</button>
         <button class="opt">Parce que cela divise automatiquement le temps de calcul par deux</button>
       </div>
-      <div class="q__exp">La variance d’une loi de Bernoulli p(1-p) atteint son maximum pour p = 0.5 (0.25). Choisir p = 0.5 garantit que l’échantillon sera suffisant quelle que soit la réalité observée.</div>
+      <div class="q__exp">La variance de Bernoulli p(1-p) est maximale en p = 0.5. Cette valeur donne une taille prudente dans le cadre du modèle, sans corriger les biais de sélection ou de non-réponse.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle taille d’échantillon minimale brute n0 obtient-on pour une population infinie avec un niveau de confiance de 95% (z = 1.96), une marge d’erreur de 5% (e = 0.05) et p = 0.5 ?</p>
@@ -371,14 +382,14 @@ Afficher :<br>
       <div class="q__exp">La formule FPC réduit la taille requise lorsque la population totale N est finie et connue, évitant de surdimensionner inutilement l’effort de collecte.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Dans un échantillonnage stratifié proportionnel au sein d’une entreprise de 1 000 personnes comptant 600 techniciens et 400 cadres, quelle sera la répartition pour un échantillon de 200 personnes ?</p>
+      <p class="q__stem">Pour n = 1 et trois strates de taille 1, quelle répartition donnent les plus forts restes, avec départage dans l’ordre ?</p>
       <div class="opts">
-        <button class="opt">100 techniciens et 100 cadres</button>
-        <button class="opt" data-correct="1">120 techniciens et 80 cadres</button>
-        <button class="opt">180 techniciens et 20 cadres</button>
-        <button class="opt">50 techniciens et 150 cadres</button>
+        <button class="opt">0, 0, 0</button>
+        <button class="opt" data-correct="1">1, 0, 0</button>
+        <button class="opt">1, 1, 1</button>
+        <button class="opt">1, 1, 0</button>
       </div>
-      <div class="q__exp">Techniciens : 600/1000 = 60% -> 200 * 0.60 = 120. Cadres : 400/1000 = 40% -> 200 * 0.40 = 80.</div>
+      <div class="q__exp">Chaque part vaut 1/3 : les planchers valent 0. L’unité restante va à la première strate à égalité ; la somme vaut 1.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la caractéristique fondamentale d’un échantillonnage probabiliste par rapport à une méthode empirique (non probabiliste) ?</p>
@@ -401,14 +412,14 @@ Afficher :<br>
       <div class="q__exp">La méthode boule de neige (snowball) s’appuie sur les réseaux de pairs, indispensable pour atteindre des populations confidentielles ou difficiles d’accès.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Lorsqu’un échantillon collecté par quotas présente un écart de 8% par rapport à la structure réelle de la population cible, quelle mesure corrective s’impose ?</p>
+      <p class="q__stem">Des quotas A/B sont parfaitement respectés. Quelle conclusion est justifiée ?</p>
       <div class="opts">
-        <button class="opt">Supprimer immédiatement toutes les réponses et annuler le projet</button>
-        <button class="opt" data-correct="1">Procéder à un redressement de l’échantillon par pondération statistique pour rééquilibrer le poids de chaque catégorie</button>
-        <button class="opt">Inventer de fausses réponses pour combler l’écart</button>
-        <button class="opt">Ignorer totalement l’écart et publier les chiffres bruts</button>
+        <button class="opt">Toutes les caractéristiques sont représentatives</button>
+        <button class="opt" data-correct="1">Les proportions A/B sont conformes, mais d’autres biais peuvent subsister</button>
+        <button class="opt">La sélection est forcément aléatoire</button>
+        <button class="opt">Aucune autre information sur la population n’est utile</button>
       </div>
-      <div class="q__exp">Le redressement statistique consiste à attribuer un coefficient multiplicateur (poids) supérieur aux catégories sous-représentées pour rétablir l’équilibre démographique.</div>
+      <div class="q__exp">La conformité concerne uniquement les quotas contrôlés : dans le contre-exemple, le revenu élevé passe de 20% dans la population à 100% dans l’échantillon.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi l’échantillonnage « de convenance » (interroger ses amis ou ses voisins de bureau) présente-t-il un risque méthodologique majeur ?</p>
@@ -431,19 +442,21 @@ Afficher :<br>
       <li>Oublier d’arrondir à l’entier supérieur lors du calcul de la taille minimale d’échantillon avec Cochran.</li>
       <li>Négliger la correction pour population finie lorsque l’on étudie une PME de 300 salariés, conduisant à des calculs disproportionnés.</li>
       <li>Ignorer les strates clés (ex: n’interroger que des développeurs juniors et tirer des conclusions sur l’ensemble de la filière informatique).</li>
+      <li>Déduire d’un respect parfait des quotas que toutes les autres variables sont représentatives.</li>
+      <li>Arrondir indépendamment les parts de chaque strate sans vérifier la somme ni les capacités.</li>
     </ul>
   </div>
 
 <h2>8. Méthodologie de résolution</h2>
 
   <div class="box box--method">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Construction d’un Échantillon Représentatif</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Construction et d’Évaluation d’un Échantillon</div>
     <ol>
       <li>1. Définir la population mère N : Déterminer la taille totale exacte de l’univers de recherche (ou constater son caractère infini / non borné).</li>
       <li>2. Fixer le seuil de confiance et l’erreur tolérée : Retenir conventionnellement 95% de confiance (z = 1.96) et une marge d’erreur de 5% (e = 0.05).</li>
       <li>3. Calculer n0 par la formule de Cochran : Appliquer la formule de base avec p = 0.5 (variabilité maximale prudente).</li>
-      <li>4. Appliquer la correction de population finie : Si N < 100 000, réajuster la taille d’échantillon requise via la formule FPC.</li>
-      <li>5. Ventiler par strates ou quotas : Répartir les effectifs à interroger selon les proportions sociodémographiques ou organisationnelles connues.</li>
+      <li>4. Appliquer la correction de population finie : Si N &lt; 100 000, réajuster la taille d’échantillon requise via la formule FPC.</li>
+      <li>5. Ventiler par strates ou quotas : conserver la taille cible avec les plus forts restes, vérifier les capacités et analyser les risques de sélection.</li>
       <li>6. Contrôler le taux d’attrition prévu : Prévoir un volume d’envois supérieur (ex: avec un taux de réponse de 20%, envoyer 5 fois plus de questionnaires que la taille n visée).</li>
     </ol>
   </div>
@@ -457,8 +470,8 @@ Afficher :<br>
       <li>Les méthodes probabilistes reposent sur un tirage au sort où chaque unité a une probabilité connue et non nulle d’être sélectionnée.</li>
       <li>La formule de Cochran ($n_0 = z^2 \cdot p(1-p) / e^2$) donne la taille requise en population infinie : à 95% et 5% d’erreur, $n_0 = 385$.</li>
       <li>La correction pour population finie réduit la taille requise lorsque la population totale $N$ est restreinte, sans perte de niveau de confiance.</li>
-      <li>La méthode des quotas et la stratification assurent la représentativité sociologique ou métier en reproduisant la structure de la population mère.</li>
-      <li>Tout écart entre la distribution observée et la structure théorique supérieur à 3-5% introduit un biais nécessitant un redressement par pondération.</li>
+      <li>Le respect des quotas ne démontre pas la représentativité des autres caractéristiques ni l’absence de biais de sélection.</li>
+      <li>La répartition stratifiée entière utilise ici les plus forts restes, avec départage par ordre d’apparition et vérification des capacités.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
@@ -466,7 +479,8 @@ Afficher :<br>
       <li>Le niveau de confiance (z) et la marge d’erreur maximale (e) sont-ils formellement déclarés ?</li>
       <li>La formule de Cochran a-t-elle été correctement appliquée avec p = 0.5 par défaut de prudence ?</li>
       <li>La correction pour population finie a-t-elle été mobilisée si la population totale N est connue et restreinte ?</li>
-      <li>Les proportions de chaque strate ou catégorie de quota reflètent-elles fidèlement les données démographiques réelles ?</li>
+      <li>La somme des effectifs alloués respecte-t-elle la taille cible et les capacités des strates, sans promettre un minimum non prévu ?</li>
+      <li>Les quotas sont-ils contrôlés sans en déduire l’absence de biais pour les caractéristiques non observées ?</li>
       <li>Le volume d’envoi initial prend-il en compte le taux de non-réponse prévisible (taux de retour) ?</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
@@ -483,7 +497,7 @@ Afficher :<br>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Révisez la formule de Cochran, les valeurs de z (1.96 à 95%), la correction de population finie et les quotas.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Révisez la formule de Cochran, les valeurs de z (1.96 à 95%), la correction de population finie et les quotas.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bon niveau, approfondissez l’échantillonnage stratifié proportionnel et les techniques de redressement.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Parfait ! Vous maîtrisez la théorie et le calcul mathématique de l’échantillonnage représentatif en ingénierie.</div>

@@ -56,8 +56,8 @@ function index(course, chapterList) {
       'prend au mot et fait appliquer chaque règle <strong>dans des études de cas</strong> : le seuil des 48 minutes, le ' +
       'partage mémoire/processeur/disque, l’allocation sans dépasser la capacité, l’inventaire et la charge ' +
       'des services, le plafond de la consolidation, la saturation et ses symptômes, le pitch final.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
-      'script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique écrite ' +
+      '    <p>Chaque chapitre se termine par <strong>trois études de cas</strong> : vous remplissez vraiment votre ' +
+      'grille d’analyse, elle est vérifiée par des critères que vous ne voyez pas. La logique écrite ' +
       'ici se rejoue telle quelle sur les questions du support.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -69,7 +69,7 @@ function index(course, chapterList) {
       '      <a class="btn" href="chapitres/chapitre1.html">' + ic('rocket') + ' Commencer le chapitre 1</a>',
       '      <a class="btn" href="chapitres/cartes.html">' + ic('cards') + ' Flashcards</a>',
       '      <a class="btn" href="chapitres/formules.html">' + ic('file') + ' Mémo Virtualisation</a>',
-      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier de scripts</a>',
+      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier d’analyse</a>',
       '      <a class="btn" href="exercices/exercices.html">' + ic('blocks') + ' Exercices &amp; projet</a>',
       '      <a class="btn" href="chapitres/simulateur-examen.html">' + ic('clipboard') + ' Examens blancs</a>',
       '    </p>'
@@ -105,9 +105,9 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du serveur fainéant jusqu’au plan de réveil. ' +
     'Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou supérieur (et un ' +
     'abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
-    'dans la page : votre script est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
-    'L’<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à analyser ' +
+    'dans la page : vous remplissez votre grille d’analyse, puis elle est vérifiée par des critères que vous ne voyez pas. ' +
+    'L’<a href="atelier.html">atelier d’analyse</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
     '  </div>',
@@ -116,7 +116,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s’auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo Virtualisation</span><br><span class="toc__d">Constat 48/2/80, partage des ressources, saturation, symptômes, consolidation, pitch.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Scripts gradués et projet final : le réveil d’un parc entier.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier d’analyse</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l’épreuve, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -169,8 +169,8 @@ function atelier(course) {
       'programmez-la et testez-la sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé rejoue le constat : 80 % d’une heure = 48 minutes creuses, l’heure est ' +
-      'perdue. Transforme-le : fais-le dire le taux d’inactivité global en pourcentage, distingue les ' +
-      'heures à 100 % de repos, ou remplace tout le script par la règle que vous voulez vérifier.</p>',
+      'perdue. Transformez-le : faites-le dire le taux d’inactivité global en pourcentage, distinguez les ' +
+      'heures à 100 % de repos, ou remplacez tout le script par la règle que vous voulez vérifier.</p>',
       '      <p>Dans un vrai parc, ce contrôle tourne en continu sur les métriques du matériel : la ' +
       'structure du script — lire, décider, rapporter — reste exactement la même.</p>',
       '    </div>',
@@ -219,8 +219,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de scripts — Virtualisation | ' + course.brand,
-      description: 'Atelier de scripts du cours B1 : éditeur dans le navigateur, validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
+      title: 'Atelier d’analyse — Virtualisation | ' + course.brand,
+      description: 'Atelier d’analyse du cours B1 : éditeur dans le navigateur, validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
       active: 'atelier',
       body
     }
@@ -271,9 +271,9 @@ function formules(course) {
       '  80% du temps a ne rien faire, electricite pour rien\n',
       '\n',
       'nombres du constat : 48 min (80% d une heure) /\n',
-      '  2 services (seuil du faineant) / 80% du cout\n',
-      'heure perdue : inactif &gt;= 48 min\n',
-      'faineant : moins de 2 services hébergés\n',
+      '  les seuils des exercices sont fictifs, pas une norme\n',
+      'grille fictive : heure perdue si inactif &gt;= 48 min\n',
+      'charge et cout reel : a mesurer, pas à déduire du nombre de services\n',
       'energie : W * heures / 1000 = kWh ; x prix = facture</code></pre>',
       '<p>Un constat chiffré convainc ; une impression ne convainc personne.</p>'
     ].join('\n')),
@@ -315,8 +315,9 @@ function formules(course) {
       'economie : cout parc physique - cout parc virtualise\n',
       'placement : premier hote suffisant, ordre du fichier\n',
       '  VM sans place = rien n est décompté\n',
-      'hote a 0 restant = rentabilise a 100%</code></pre>',
-      '<p>2,5 VM font 3 : le plafond, pas l’arrondi au plus proche.</p>'
+      'hote a 0 restant = capacite allouee dans ce modele\n',
+      'utilisation reelle = mesure distincte</code></pre>',
+      '<p>2,5 VM font 3 dans ce calcul fictif ; le coût seul ne dimensionne pas un parc réel.</p>'
     ].join('\n')),
 
     bloc('Surcharge et vigilance', [
@@ -388,8 +389,8 @@ function examens(course) {
         {
           num: 'Exercice 1',
           badge: '/5 — Constat',
-          text: 'Raconter la situation de départ de l’histoire. Calculer : un serveur de 500 W qui tourne 720 h par mois, à 100 FCFA le kWh. Combien coûtent ses heures creuses si 80 % du temps est inactif ?',
-          sol: 'Un serveur puissant qui héberge un seul système et un seul service, 80 % du temps à ne rien faire — de l’électricité pour rien. Énergie : <strong>500 × 720 / 1000 = 360 kWh</strong>, soit <strong>36 000 FCFA</strong>. Heures creuses : <strong>80 % de 36 000 = 28 800 FCFA</strong> pour rien.'
+          text: 'Dans un exemple fictif, un serveur consomme constamment 500 W pendant 720 h par mois, à 100 FCFA le kWh. Quelle part de la facture énergétique correspond aux heures inactives, supposées représenter 80 % du temps ?',
+          sol: 'Sous l’hypothèse de puissance constante : <strong>500 × 720 / 1000 = 360 kWh</strong>, soit <strong>36 000 FCFA</strong>. La part correspondant aux heures inactives est <strong>28 800 FCFA</strong> ; cela ne prouve pas qu’elle est entièrement évitable.'
         },
         {
           num: 'Exercice 2',
@@ -418,20 +419,20 @@ function examens(course) {
         {
           num: 'Exercice 1',
           badge: '/5 — Consolidation',
-          text: 'Un parc coûte 200 000 FCFA/mois, une VM coûte 80 000 FCFA. Combien de VM, quel coût, quelle économie ?',
-          sol: '<strong>Plafond</strong> de 200 000 / 80 000 = 2,5 → <strong>3 VM</strong>, soit 240 000 FCFA. Économie : <strong>−40 000 FCFA (−20 %)</strong>. La consolidation peut coûter plus cher : l’arithmétique tranche sans complaisance.'
+          text: 'Dans le modèle fictif qui fixe le nombre de VM au plafond du rapport des coûts, le parc coûte 200 000 FCFA/mois et une VM 80 000 FCFA. Appliquer la règle et calculer l’écart.',
+          sol: '<strong>Plafond</strong> de 200 000 / 80 000 = 2,5 → <strong>3 VM</strong>, soit 240 000 FCFA. Écart : <strong>−40 000 FCFA (−20 %)</strong>. Cette règle fictive ne détermine pas le nombre de VM nécessaires en réalité.'
         },
         {
           num: 'Exercice 2',
           badge: '/5 — Saturation',
-          text: 'Capacité 100. VM : a (40), b (40), c (30). Verdicts ? Quand parle-t-on de « serveur plein » ?',
-          sol : 'a : <strong>hébergée</strong> (total 40) ; b : <strong>hébergée</strong> (total 80) ; c : <strong>refusée</strong> — 80 + 30 &gt; 100, sa charge n’est pas comptée. Serveur plein : quand la charge totale atteint <strong>exactement</strong> la capacité (ex. 50 + 50).'
+          text: 'Dans le modèle de réservation, capacité 100. VM : a (40), b (40), c (30). Verdicts ? Quand la capacité réservée est-elle pleine ?',
+          sol : 'a : <strong>hébergée</strong> (total 40) ; b : <strong>hébergée</strong> (total 80) ; c : <strong>refusée</strong> — 80 + 30 &gt; 100. La capacité réservée est pleine à <strong>100</strong> (ex. 50 + 50), ce qui ne prouve pas une utilisation réelle de 100 %.'
         },
         {
           num: 'Exercice 3',
           badge: '/5 — Symptômes',
           text: 'Serveur : CPU 95 %, RAM 95 %, réponses 100 ms. Quels symptômes, quel cas, quelle action ?',
-          sol : 'CPU &gt; 90 <strong>et</strong> RAM &gt; 90 : deux symptômes → cas <strong>multiple</strong> (saturation globale en cours). Action : <strong>déplacer une VM</strong> vers un hôte moins chargé — service continu, utilisateur non impacté.'
+          sol : 'CPU &gt; 90 <strong>et</strong> RAM &gt; 90 : deux alertes → cas <strong>multiple</strong> dans la grille fictive. Investiguer ; une migration vers un hôte moins chargé peut aider, avec une pause ou un impact possibles.'
         },
         {
           num: 'Exercice 4',
@@ -453,12 +454,12 @@ function examens(course) {
 
   const mastery = [
     { stem: 'Le seuil de l’heure perdue :', opts: ['48 minutes d’inactivité', '30 minutes', '60 minutes'], correct: 0, exp: '80 % d’une heure = 48 minutes creuses.' },
-    { stem: 'Un serveur fainéant héberge…', opts: ['moins de 2 services', 'plus de 5 services', 'aucun service'], correct: 0, exp: 'Un seul système, un seul service : le profil du fainéant.' },
+    { stem: 'Dans l’histoire, le serveur héberge…', opts: ['un seul service', 'plus de 5 services', 'aucun service'], correct: 0, exp: 'Un seul service dans le récit ; cela ne détermine pas la charge d’un serveur réel.' },
     { stem: 'Les ressources partagées de l’histoire :', opts: ['mémoire, processeur, disque', 'clavier, écran, souris', 'seulement le réseau'], correct: 0, exp: '« Votre mémoire, votre processeur et même votre disque dur ».' },
     { stem: 'Une VM refusée consomme…', opts: ['rien', 'la moitié', 'tout'], correct: 0, exp: 'Le contrôle précède l’allocation : rien n’est décompté.' },
     { stem: '2,5 VM se comptent…', opts: ['3 (plafond)', '2 (arrondi bas)', '2,5'], correct: 0, exp: 'Plafond de la division : on ne loue pas une demi-machine.' },
     { stem: 'Le placement des VM suit…', opts: ['le premier hôte suffisant', 'l’hôte le plus rapide', 'l’ordre alphabétique'], correct: 0, exp: 'Les hôtes sont pris dans l’ordre du fichier, premier dont la capacité suffit.' },
-    { stem: 'Un serveur est « plein » quand…', opts: ['charge totale = capacité exactement', 'il s’éteint', 'charge = 0'], correct: 0, exp: 'Égalité exacte : hébergeable mais plus rien ne peut s’ajouter.' },
+    { stem: 'Dans le modèle, un serveur est « plein » quand…', opts: ['capacité réservée = capacité disponible', 'il s’éteint', 'charge = 0'], correct: 0, exp: 'Aucune réservation ne peut s’ajouter dans ce modèle ; l’utilisation réelle doit être mesurée.' },
     { stem: 'Les seuils d’alerte :', opts: ['CPU 90 %, RAM 90 %, 500 ms', 'CPU 50 %, RAM 50 %, 100 ms', 'CPU 99 %, RAM 99 %, 1 s'], correct: 0, exp: 'Dans l’ordre de détection : cpu, ram, réponses.' },
     { stem: 'L’action de secours en surcharge :', opts: ['déplacer une VM', 'éteindre le serveur', 'supprimer les sauvegardes'], correct: 0, exp: 'La VM rejoint un hôte qui dort : le privilège de la virtualisation.' },
     { stem: 'L’ordre du pitch :', opts: ['constat, idée, preuve, verdict', 'idée, verdict, preuve, constat', 'preuve, constat, idée, verdict'], correct: 0, exp: 'L’ordre de l’histoire elle-même.' }
@@ -531,7 +532,7 @@ function exercices(course) {
     ], [
       '<p><strong>1. Hyperviseurs :</strong> Le Type 1 s’exécute directement sur le matériel physique pour des performances optimales ; le Type 2 s’exécute au-dessus d’un système d’exploitation hôte.</p>',
       '<p><strong>2. Composants VM :</strong> L’hyperviseur intercepte et planifie l’accès aux ressources matérielles réelles de manière totalement isolée pour chaque VM.</p>',
-      '<p><strong>3. Provisioning disque :</strong> Thin provisioning n’alloue que l’espace réellement écrit par le système invité ; Thick réserve immédiatement la taille totale sur le stockage.</p>',
+      '<p><strong>3. Provisioning disque :</strong> Thin alloue des blocs à la demande ; thick réserve l’espace sur la couche concernée. L’occupation physique dépend des couches, des écritures et de la récupération des blocs.</p>',
       '<p><strong>4. Outils invités :</strong> Permettent la paravirtualisation (accès direct sans émulation lourde), la synchronisation horaire et l’arrêt propre de l’OS invité.</p>'
     ].join('\n')),
 
@@ -539,13 +540,13 @@ function exercices(course) {
     item('Application', 'n2', [
       'Calculer les ratios de surallocation (overcommit) de vCPU et de RAM recommandés en production.',
       'Comparer les modes de réseau virtuel : Accès par pont (Bridge), NAT et Réseau privé hôte (Host-Only).',
-      'Distinguer un instantané de machine virtuelle (snapshot - mémoire et delta de disques) d’une véritable sauvegarde.',
-      'Analyser le fonctionnement de la migration à chaud de machines virtuelles (vMotion / Live Migration sans interruption).'
+      'Distinguer un instantané de machine virtuelle d’une véritable sauvegarde, selon le type d’instantané.',
+      'Analyser la migration à chaud de machines virtuelles et ses possibles pauses de bascule.'
     ], [
       '<p><strong>1. Surallocation :</strong> Ratio vCPU:pCPU usuel de 3:1 à 5:1 selon la charge ; overcommit RAM déconseillé ou très limité pour éviter le swap de l’hyperviseur.</p>',
       '<p><strong>2. Réseau VM :</strong> Le Bridge intègre la VM directement au LAN physique avec sa propre IP ; le NAT partage l’adresse de l’hôte physique.</p>',
-      '<p><strong>3. Snapshots :</strong> Un snapshot fige l’état pour un retour arrière rapide avant mise à jour mais dégrade les performances disque et ne protège pas contre une panne matérielle.</p>',
-      '<p><strong>4. Migration à chaud :</strong> Pré-copie itérative de la RAM de la VM vers l’hôte cible pendant que la VM tourne, bascule finale en quelques millisecondes.</p>'
+      '<p><strong>3. Snapshots :</strong> Le contenu dépend du type : le checkpoint Hyper-V standard capture la mémoire, celui de production non. Un checkpoint ne remplace pas une sauvegarde indépendante.</p>',
+      '<p><strong>4. Migration à chaud :</strong> Une copie de mémoire peut précéder la bascule, qui comporte une courte pause ; la durée et l’impact dépendent de la charge et des applications.</p>'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
@@ -596,7 +597,7 @@ function render(kit, course, chapterList) {
     return Object.assign({}, chapitre, {
       next: next
         ? { href: 'chapitre' + next.n + '.html', label: 'Chapitre ' + next.n + ' — ' + next.title }
-        : { href: '../atelier.html', label: 'Atelier de scripts' }
+        : { href: '../atelier.html', label: 'Atelier d’analyse' }
     });
   });
 

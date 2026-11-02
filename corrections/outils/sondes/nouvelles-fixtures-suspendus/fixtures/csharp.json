@@ -1,0 +1,92 @@
+{
+  "csb2-c1-e1": {
+    "stdin": "double mesure = 2.5d; object paquet = mesure; double reprise = (double)paquet; string mot = \"nebuleuse\"; string copie = mot; int seuil = 19; int autre = seuil;",
+    "expected": "mesure: Type=double | Mem=Stack | Op=ALLOCATION\npaquet: Type=object | Mem=Heap | Op=BOXING\nreprise: Type=double | Mem=Stack | Op=UNBOXING\nmot: Type=string | Mem=Heap | Op=ALLOCATION\ncopie: Type=string | Mem=Heap | Op=COPIE_REF\nseuil: Type=int | Mem=Stack | Op=ALLOCATION\nautre: Type=int | Mem=Stack | Op=COPIE_VALEUR",
+    "raison": "Le double est une valeur : sa conversion vers object boxe et le cast inverse déboxe ; string se copie par référence et int par valeur."
+  },
+  "csb2-c1-e2": {
+    "stdin": "INIT zeta=4, omega=99\nMETHOD Fusion(ref p, ref q, out z)\nBODY p=p+3; q=q*2; z=p-q\nCALL Fusion(ref zeta, ref zeta, out omega)",
+    "expected": "ETAT_INITIAL: omega=99, zeta=4\nMETHODE: Fusion\nETAT_FINAL: omega=0, zeta=14",
+    "raison": "p et q désignent zeta : après +3 et *2 il vaut 14 ; les deux références valent donc 14 et z reçoit 0."
+  },
+  "csb2-c1-e3": {
+    "stdin": "Circle Radius=10\nCircle Radius=11\nRectangle Width=7 Height=7\nRectangle Width=3 Height=9\nHexagon Side=8",
+    "expected": "Circle (r=10) => PetitCercle | Aire=314.00\nCircle (r=11) => GrandCercle | Aire=379.94\nRectangle (7x7) => Carre | Aire=49.00\nRectangle (3x9) => Rectangle | Aire=27.00\nHexagon => FormeNonSupportee | Aire=0.00",
+    "raison": "10 n'est pas strictement supérieur à 10 ; 3.14*11*11=379.94 ; les aires des rectangles valent 49 et 27."
+  },
+  "csb2-c2-e1": {
+    "stdin": "INIT Titulaire=\"Nadia\" Solde=15.50\nRETRAIT 0\nDEPOT 3.25\nRETRAIT 18.75\nRETRAIT 0.01\nDEPOT -2",
+    "expected": "Compte: Nadia | Solde initial: 15.50\nRETRAIT 0.00 => Rejet: ArgumentException (Montant invalide)\nDEPOT 3.25 => Succes | Nouveau solde: 18.75\nRETRAIT 18.75 => Succes | Nouveau solde: 0.00\nRETRAIT 0.01 => Rejet: InvalidOperationException (Solde insuffisant)\nDEPOT -2.00 => Rejet: ArgumentException (Montant invalide)\nSOLDE_FINAL: 0.00",
+    "raison": "Zéro et un montant négatif sont refusés ; le retrait égal au solde 15.50+3.25 est accepté, puis 0.01 dépasse le solde nul."
+  },
+  "csb2-c2-e2": {
+    "stdin": "NEW Article(\"A73\")\nNEW Article(\"B84\", \"Lampe\")\nNEW Article(\"C95\", \"Voile\", 12.5)",
+    "expected": "Article(\"A73\") => Chaine: ctor(r) -> ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=A73, Nom=Sans nom, Prix=0.00]\nArticle(\"B84\", \"Lampe\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=B84, Nom=Lampe, Prix=0.00]\nArticle(\"C95\", \"Voile\", 12.5) => Chaine: ctor(r, nom, prix) | Objet: [Ref=C95, Nom=Voile, Prix=12.50]",
+    "raison": "Les constructeurs un puis deux arguments délèguent ; celui à trois arguments finalise le prix explicite."
+  },
+  "csb2-c2-e3": {
+    "stdin": "RECORD original Ville=Lome Jour=Jeudi\nWITH copie FROM original Jour=Vendredi\nRECORD autre Jour=Jeudi Ville=Lome\nCOMPARE original autre\nCOMPARE original copie\nCOMPARE original original",
+    "expected": "CREATE: original => Record { Ville = Lome, Jour = Jeudi }\nWITH: copie => Record { Ville = Lome, Jour = Vendredi }\nCREATE: autre => Record { Jour = Jeudi, Ville = Lome }\nEQUALS: original == autre => True (Egalite structurelle)\nEQUALS: original == copie => False\nEQUALS: original == original => True",
+    "raison": "WITH ne modifie pas la source ; la comparaison ignore l'ordre des propriétés et la mention structurelle concerne deux records distincts."
+  },
+  "csb2-c3-e1": {
+    "stdin": "REF Derived OBJ Derived CALL Identifier\nREF Base OBJ Derived CALL Afficher\nREF Derived OBJ Derived CALL Afficher",
+    "expected": "Derived->Derived: Identifier() => Derived.Identifier [new]\nBase->Derived: Afficher() => Derived.Afficher [virtual/override dynamique]\nDerived->Derived: Afficher() => Derived.Afficher [override]",
+    "raison": "Identifier est lié statiquement, Afficher virtuellement ; les libellés de ces trois combinaisons sont explicités par l'exemple. Le domaine des combinaisons est fini."
+  },
+  "csb2-c3-e2": {
+    "stdin": "CAST IAuditable CALL Traiter\nDIRECT CALL Traiter\nCAST IAuditable CALL Traiter\nCAST IExportable CALL Traiter",
+    "expected": "IAuditable.Traiter => Audit journalise dans le registre de conformite\nDIRECT Traiter => ERREUR_COMPILATION CS1061 (Implementation explicite requiert un cast)\nIAuditable.Traiter => Audit journalise dans le registre de conformite\nIExportable.Traiter => Export JSON genere avec succes",
+    "raison": "Seules trois commandes sont admises : cette séquence inédite répète l'interface d'audit et place l'accès direct entre les casts."
+  },
+  "csb2-c3-e3": {
+    "stdin": "PIPELINE Inscription\nPIPELINE Facture\nPIPELINE Inscription\nPIPELINE Virement",
+    "expected": "Pipeline Inscription: [1. Valider unicite email] -> [2. Creer compte utilisateur en base] -> [3. Notification globale envoyee]\nPipeline Facture: [1. Valider TVA et lignes] -> [2. Calculer totaux et generer PDF] -> [3. Notification globale envoyee]\nPipeline Inscription: [1. Valider unicite email] -> [2. Creer compte utilisateur en base] -> [3. Notification globale envoyee]\nPipeline Virement: [1. Valider IBAN et solde] -> [2. Debiter compte et crediter tiers] -> [3. Notification globale envoyee]",
+    "raison": "Le barème fixe les trois pipelines ; une nouvelle séquence vérifie notamment la répétition d'Inscription."
+  },
+  "csb2-c4-e1": {
+    "stdin": "ADD Miroir 11\nADD Miroir 13\nTRYGET Miroir\nTRYGET secret\nGET cache\nADD Extra 7",
+    "expected": "ADD: Miroir => 11 (Taille=1)\nADD: Miroir => 13 (Taille=1)\nTRYGET: Miroir => Trouve: 13\nTRYGET: secret => NonTrouve (out val=0)\nGET: cache => CRASH KeyNotFoundException (Cle absente du dictionnaire)",
+    "raison": "La mise à jour ne grossit pas le dictionnaire ; TRYGET absent ne plante pas, GET absent arrête avant ADD Extra."
+  },
+  "csb2-c4-e2": {
+    "stdin": "THROW HttpException StatusCode=499\nTHROW HttpException StatusCode=500\nTHROW TimeoutException StatusCode=700\nTHROW HttpException StatusCode=404",
+    "expected": "Exception: HttpException (499) => Intercepte par: catch (Exception) [FallbackGlobal] | FINALLY execute\nException: HttpException (500) => Intercepte par: catch when (StatusCode >= 500) [ServerError] | FINALLY execute\nException: TimeoutException (700) => Intercepte par: catch (TimeoutException) [DelaiDepasse] | FINALLY execute\nException: HttpException (404) => Intercepte par: catch when (StatusCode == 404) [ClientError] | FINALLY execute",
+    "raison": "499 passe au repli, 500 atteint la borne serveur, TimeoutException suit son propre catch indépendamment du code, et 404 le filtre client."
+  },
+  "csb2-c4-e3": {
+    "stdin": "CONSTRAINT where T : struct, IComparable\nCandidate Nom=Etoile IsClass=False HasDefaultCtor=True ImplementsComparable=True\nCandidate Nom=Quart IsClass=False HasDefaultCtor=True ImplementsComparable=True",
+    "expected": "Type Etoile: VALIDE (Toutes contraintes respectees)\nType Quart: VALIDE (Toutes contraintes respectees)",
+    "raison": "Les deux candidats sont des types valeur non nullables qui implémentent IComparable ; la combinaison struct/new() interdite n'est pas utilisée."
+  },
+  "csb2-c5-e1": {
+    "stdin": "FILTER Prix >= 24.5\nArticle Nom=Vase Prix=24.5\nArticle Nom=Globe Prix=35\nArticle Nom=Corde Prix=35\nArticle Nom=Livre Prix=24.49",
+    "expected": "LINQ: Declenchement ToList() (Evaluation differee terminee)\nResultat: Globe - 35.00\nResultat: Corde - 35.00\nResultat: Vase - 24.50\nTOTAL_ELEMENTS: 3",
+    "raison": "Le seuil est inclusif ; Globe et Corde ont le même prix et conservent leur ordre, puis Vase, tandis que Livre est exclu."
+  },
+  "csb2-c5-e2": {
+    "stdin": "Orion Papier 5.00\nVega Zeste 8.00\nDeneb Papier 7.00\nLune Zeste 2.00\nRhea Papier 6.00",
+    "expected": "Groupe: Papier | NbAchats: 3 | Total: 18.00 | Moyenne: 6.00\nGroupe: Zeste | NbAchats: 2 | Total: 10.00 | Moyenne: 5.00",
+    "raison": "Papier : 5+7+6=18 pour trois achats ; Zeste : 8+2=10 pour deux ; P précède Z dans les cultures usuelles."
+  },
+  "csb2-c5-e3": {
+    "stdin": "SUBSCRIBE Alfa\nSUBSCRIBE Beta\nSUBSCRIBE Alfa\nEMIT \"Plan 17\"\nUNSUBSCRIBE Alfa\nEMIT \"Plan 18\"\nUNSUBSCRIBE Beta\nEMIT \"Plan 19\"",
+    "expected": "EVENT \"Plan 17\" => Alfa recoit la notification\nEVENT \"Plan 17\" => Beta recoit la notification\nEVENT \"Plan 17\" => Alfa recoit la notification\nEVENT \"Plan 18\" => Alfa recoit la notification\nEVENT \"Plan 18\" => Beta recoit la notification\nEVENT \"Plan 19\" => Alfa recoit la notification",
+    "raison": "Le retrait d'Alfa supprime uniquement sa dernière inscription ; la première reste avant Beta, puis Beta est désinscrit."
+  },
+  "csb2-c6-e1": {
+    "stdin": "TASK Ouvrir Duree=17ms\nTASK Verifier Duree=0ms\nTASK Publier Duree=9ms",
+    "expected": "[T=0ms] Demarrage Ouvrir -> Await (trace simulee)\n[T=17ms] Reprise contexte -> Demarrage Verifier -> Await\n[T=17ms] Reprise contexte -> Demarrage Publier -> Await\n[T=26ms] Tache completee avec succes. Duree totale=26ms",
+    "raison": "Les durées séquentielles valent 17, 0 et 9 ms ; la deuxième ne fait pas avancer l'horloge de la simulation."
+  },
+  "csb2-c6-e2": {
+    "stdin": "TASK Atlas Status=FAIL Error=\"Erreur nord\"\nTASK Boreal Status=OK\nTASK Cygnus Status=FAIL Error=\"Erreur sud\"\nTASK Delta Status=FAIL Error=\"Erreur ouest\"",
+    "expected": "WHENALL: 1 succes, 3 echecs\nAggregateException observee (3 erreurs):\n- Erreur 1: Erreur nord\n- Erreur 2: Erreur sud\n- Erreur 3: Erreur ouest",
+    "raison": "Une tâche réussit et trois échouent ; l'agrégat conserve l'ordre des trois messages d'erreur."
+  },
+  "csb2-c6-e3": {
+    "stdin": "RESOURCE Flux ALLOCATE=Handle0x3F7\nOP Ecriture \"balise\"\nOP Lecture page=7\nEXIT\nOP Ignorer page=9",
+    "expected": "[ALLOC] Flux alloue (Handle=Handle0x3F7)\n[EXEC] Op Ecriture \"balise\"\n[EXEC] Op Lecture page=7\n[DISPOSE] Flux libere via IDisposable",
+    "raison": "EXIT arrête la simulation avant Ignorer et la sortie du bloc libère Flux, sans message d'exception."
+  }
+}

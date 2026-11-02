@@ -97,18 +97,18 @@ function examens(course) {
       '<ul>',
       '  <li><strong>Structure GitHub Actions &amp; Matrix (3 pts) :</strong> Un workflow YAML réagit à des événements (push, pull_request, schedule). Il orchestre des jobs s’exécutant sur des machines virtuelles (runners). Chaque job contient une suite séquentielle d’étapes (steps) exécutant des scripts shell ou des actions réutilisables. <code>strategy.matrix</code> permet d’instancier dynamiquement un produit cartésien de configurations (ex: Python 3.10, 3.11, 3.12 sur Ubuntu, macOS et Windows), parallélisant les tests sur l’ensemble des matrices de support.</li>',
       '  <li><strong>Injection de commande et remédiation (2 pts) :</strong> La syntaxe <code>\${{ github.event.pull_request.title }}</code> est évaluée avant l’exécution du shell : si un attaquant nomme sa PR <code>"Test\"; rm -rf /; echo \""</code>, le shell bash exécutera la commande arbitraire injectée, compromettant le runner et les secrets du dépôt. La remédiation obligatoire consiste à passer la valeur par une variable d’environnement intermédiaire :<br>' +
-      '  <pre><code>- name: Traiter titre PR de facon securisee\n  env:\n    PR_TITLE: \${{ github.event.pull_request.title }}\n  run: echo "Titre recu : \$PR_TITLE"</code></pre></li>',
+      '  <pre><code>- name: Traiter le titre PR\n  env:\n    PR_TITLE: \${{ github.event.pull_request.title }}\n  run: printf \'%s\\n\' "\$PR_TITLE"</code></pre>Le passage par env ne suffit pas dans tous les usages : citer les expansions, valider les arguments et éviter eval.</li>',
       '  <li><strong>Permissions GITHUB_TOKEN (2 pts) :</strong> Par défaut sur certains dépôts, le token dispose d’accès d’écriture complets. En cas de faille dans une dépendance ou une action tierce compromise, l’attaquant peut pousser du code malveillant sur le dépôt ou altérer les releases. Pour un audit statique, on restreint explicitement les droits au strict minimum :<br>' +
       '  <pre><code>permissions:\n  contents: read\n  pull-requests: read</code></pre></li>',
       '</ul>',
       '<h4>Corrigé Partie 3 (6 points)</h4>',
       '<ul>',
       '  <li><strong>Git LFS (3 pts) :</strong> Git standard conserve l’intégralité des versions de chaque fichier dans son historique sous forme compressée : modifier plusieurs fois un fichier de 500 Mo gonfle la taille du dossier <code>.git</code> de plusieurs gigaoctets, rendant chaque <code>clone</code> prohibitif pour l’équipe. Git LFS (Large File Storage) remplace le fichier volumineux dans l’arbre Git par un micro-pointeur textuel de quelques octets contenant son identifiant SHA-256 et sa taille. Le binaire réel est téléversé séparément sur un serveur de stockage d’objets dédié et n’est téléchargé en local que pour le commit actif au checkout.</li>',
-      '  <li><strong>Purge d’un secret avec git-filter-repo (3 pts) :</strong> Un <code>git rm</code> crée simplement un nouveau commit supprimant le fichier dans la version courante ; la clé reste présente dans tous les commits antérieurs de l’historique et est accessible à quiconque clone le dépôt. Pour éliminer définitivement le secret :<br>' +
+      '  <li><strong>Réponse à une fuite de secret (3 pts) :</strong> <code>git rm</code> prépare une suppression dans l’index et l’arbre de travail, sans créer de commit. Même après un commit, la clé peut rester dans l’historique. Mesures à adapter et à autoriser :<br>' +
       '    1. Révoquer immédiatement la clé privée auprès d’AWS (première mesure d’urgence vitale !).<br>' +
-      '    2. Utiliser <code>git-filter-repo --path cle.pem --invert-paths</code> ou <code>--replace-text</code> pour réécrire l’intégralité du DAG en purgeant l’objet de tous les arbres et commits.<br>' +
-      '    3. Forcer la mise à jour des références distantes : <code>git push origin --force --all --tags</code>.<br>' +
-      '    4. Prévenir l’ensemble des collaborateurs de cloner une copie neuve du dépôt assaini.</li>',
+      '    2. Étudier une réécriture des références concernées avec <code>git-filter-repo</code>, en suivant la procédure du fournisseur.<br>' +
+      '    3. Coordonner toute mise à jour des références avec les responsables et les collaborateurs.<br>' +
+      '    4. Vérifier les forks, caches et autres copies : la disparition du secret partout ne peut pas être garantie.</li>',
       '</ul>'
     ].join('\n')),
     '',
@@ -143,7 +143,7 @@ function exercices(course, chapterList) {
 
     { id: 'gh3-c2-e1', ch: 2, title: 'Classificateur de stratégie de fusion : Fast-Forward vs 3-Way Merge (LCA)', level: 'n1', lang: 'Bash', desc: 'Identifier le Lowest Common Ancestor (LCA) et déterminer si un Fast-Forward est possible.' },
     { id: 'gh3-c2-e2', ch: 2, title: 'Simulateur de rebase interactif (git rebase -i)', level: 'n2', lang: 'Bash', desc: 'Simuler le traitement des directives pick, squash, drop et reword sur un historique.' },
-    { id: 'gh3-c2-e3', ch: 3, title: 'Résolveur formel de conflits de fusion tridirectionnelle', level: 'n3', lang: 'Bash', desc: 'Effectuer l’arbitrage ligne par ligne entre ancêtre commun, branche locale et distante.' },
+    { id: 'gh3-c2-e3', ch: 2, title: 'Résolveur formel de conflits de fusion tridirectionnelle', level: 'n3', lang: 'Bash', desc: 'Effectuer l’arbitrage ligne par ligne entre ancêtre commun, branche locale et distante.' },
 
     { id: 'gh3-c3-e1', ch: 3, title: 'Analyseur de journal de références (git reflog) et sauvetage de commits', level: 'n1', lang: 'Bash', desc: 'Identifier les commits orphelins (dangling) détachés de tout pointeur de branche.' },
     { id: 'gh3-c3-e2', ch: 3, title: 'Moteur de recherche dichotomique de régressions (git bisect)', level: 'n2', lang: 'Bash', desc: 'Calculer les étapes binaires de bisect pour isoler le premier commit défaillant.' },

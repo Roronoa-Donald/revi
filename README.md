@@ -23,14 +23,14 @@ Cette branche est strictement dédiée à l'expérience d'apprentissage web inte
   - Mode sombre reposant avec transitions fluides sans flash.
 - **Serveur Backend Fastify Sécurisé** (`server/app.js`) :
   - Exécution cloisonnée sécurisée, limitations de taux, protection fail-closed.
-- **Suite de Tests Complète** : 100% verte sur l'intégralité du catalogue.
+- **Suite de tests locale** : les résultats et leurs limites sont détaillés dans `corrections/`.
 
 ---
 
 ## 🛠️ Démarrage Rapide
 
 ### Prérequis
-- Node.js version 20 ou supérieure (recommandé v22)
+- Node.js 22.x (les vérifications locales utilisent les versions 22.23.2 et 22.23.4)
 - npm
 
 ### Installation & Démarrage
@@ -38,7 +38,7 @@ Cette branche est strictement dédiée à l'expérience d'apprentissage web inte
 # Installer les dépendances
 npm install
 
-# Lancer la suite complète de vérification (7 470 tests)
+# Lancer la suite de tests automatisée
 npm test
 
 # Lancer le serveur en local sur le port 3000
@@ -49,3 +49,10 @@ npm start
 ```bash
 node scripts/build.js
 ```
+
+### Déploiement et version de Node.js
+
+- `package.json` et `package-lock.json` déclarent Node.js `22.x`. Par défaut, npm peut seulement avertir si la version locale ne correspond pas : vérifiez `node --version` avant installation et exécution.
+- Sur Render, le blueprint `render.yaml` définit `NODE_VERSION=22.23.4`. Vérifiez que le service utilise ce blueprint et que la variable dans son tableau de bord a bien cette valeur ; `NODE_VERSION` est prioritaire sur les fichiers de version et sur `engines`.
+- Sur Vercel, `engines.node` sélectionne la branche majeure `22.x`. Vercel gère les versions mineures et correctives ; la version exacte peut différer entre la construction et les fonctions. Vérifiez la version de la construction et, si nécessaire, `process.version` côté serveur.
+- Ces paramètres décrivent la configuration voulue : ils ne confirment pas, à eux seuls, la version d'un déploiement existant.

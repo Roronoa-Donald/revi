@@ -47,6 +47,11 @@ TAS_MAX: tas_invalide | VALIDE : NON | VIOLATION: index=1 (pere=40) < fils=50 (i
         label: 'Tas-Max valide avec égalités',
         stdin: 'TAS nom=egalites VALEURS=40,40,30,40,20',
         expected: 'TAS_MAX: egalites | VALIDE : OUI | TAILLE: 5 | RACINE: 40'
+      },
+      {
+        label: 'Violation sur le fils gauche',
+        stdin: 'TAS nom=fils_gauche VALEURS=50,60,30',
+        expected: 'TAS_MAX: fils_gauche | VALIDE : NON | VIOLATION: index=0 (pere=50) < fils=60 (index=1)'
       }
     ],
     solution: `import sys

@@ -13,7 +13,7 @@ module.exports = {
   time: '≈ 2 h 45 de travail',
   free: false,
   lockLabel: 'Réservé B3 et plus',
-  situation: 'Dans les environnements critiques (hôpitaux, banques, industries, datacenters), la défaillance matérielle d’un pare-feu unique paralyse instantanément l’ensemble de l’activité économique de l’entreprise. Pour garantir un temps de disponibilité de 99,999 % (cinq 9), pfSense met en œuvre un cluster de haute disponibilité (HA) actif/passif s’appuyant sur le protocole CARP (Common Address Redundancy Protocol) et la synchronisation en temps réel de la table d’états par pfsync. Parallèlement, pour faire face aux menaces avancées et aux attaques par déni de service, le pare-feu s’arme de modules IDS/IPS (Snort ou Suricata) capables d’analyser les signatures de paquets en temps réel et de bloquer automatiquement les attaquants via l’injection dynamique dans les tables du noyau.',
+  situation: 'Dans les environnements critiques (hôpitaux, banques, industries, datacenters), la panne d’un pare-feu unique peut interrompre les services qui en dépendent. Un cluster pfSense de haute disponibilité (HA) actif/passif utilise CARP et la synchronisation d’états pfsync pour améliorer la continuité, sans garantir un taux de disponibilité ni un basculement sans coupure. Des modules IDS/IPS comme Snort ou Suricata peuvent analyser le trafic et contribuer au blocage selon leur configuration.',
   objectives: [
     'comprendre l’architecture de haute disponibilité (HA) et les exigences matérielles d’un cluster pfSense redondant ;',
     'analyser le protocole CARP, le rôle des adresses IP virtuelles (VIPs) et l’élection du Master via advbase et advskew ;',
@@ -51,16 +51,16 @@ module.exports = {
       ].join('\n')
     },
     {
-      title: 'Continuité de Service Sans Coupure : pfsync &amp; Réplication XMLRPC',
+      title: 'Synchronisation d’états et de configuration : pfsync &amp; XMLRPC',
       html: [
-        '<p>Un simple basculement d’adresse IP (CARP) ne suffit pas : dans un pare-feu à état standard, toutes les connexions TCP actives (téléchargements, sessions SSH, flux VoIP) seraient réinitialisées (RST) après le failover car le pare-feu de secours n’en aurait pas connaissance. pfSense résout ce défi grâce à deux modules couplés :</p>',
+        '<p>Un basculement d’adresse IP par CARP ne transmet pas à lui seul les états des connexions. Sans état disponible sur le pare-feu de secours, certaines sessions actives peuvent être interrompues. pfSense utilise notamment deux mécanismes complémentaires :</p>',
         '<div class="grid grid-2">',
         '  <div class="card">',
-        '    <h4>1. pfsync : Réplication d’États en Temps Réel</h4>',
-        '    <p>Le protocole <strong>pfsync</strong> (protocole IP 240) transmet immédiatement toute création, modification ou clôture d’état de connexion du pare-feu Primaire vers le Secondaire :</p>',
+        '    <h4>1. pfsync : Synchronisation d’États</h4>',
+        '    <p>Le protocole <strong>pfsync</strong> (protocole IP 240) transmet les mises à jour de la table d’états entre les pare-feux :</p>',
         '    <ul>',
-        '      <li><strong>Lien Dédié (Sync Interface) :</strong> Pour des raisons de performance et de sécurité, pfsync doit impérativement transiter sur un câble réseau physique direct ou un VLAN isolé non routable.</li>',
-        '      <li><strong>Bénéfice :</strong> Au moment exact où le Secondaire devient MASTER, sa table d’états locale est déjà parfaitement identique à celle du Primaire. Le basculement est 100 % transparent et indolore pour les utilisateurs finaux (aucune coupure de session).</li>',
+        '      <li><strong>Lien dédié (Sync Interface) :</strong> Netgate recommande une interface dédiée et isolée pour la sécurité et les performances ; pfsync n’authentifie pas ses messages.</li>',
+        '      <li><strong>Limites :</strong> La synchronisation peut préserver des sessions lors d’une bascule, mais des états peuvent manquer ou arriver en retard ; certaines connexions peuvent être interrompues.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
@@ -71,7 +71,8 @@ module.exports = {
         '      <li>Le Secondaire recharge immédiatement son fichier de règles sans intervention humaine.</li>',
         '    </ul>',
         '  </div>',
-        '</div>'
+        '</div>',
+        '<p>Source : <a href="https://docs.netgate.com/pfsense/en/latest/highavailability/pfsync.html">Netgate, synchronisation pfsync</a>, consultée le 30 octobre 2026.</p>'
       ].join('\n')
     },
     {
@@ -107,14 +108,14 @@ module.exports = {
   summary: [
     'Le protocole CARP partage une IP virtuelle (VIP) et une adresse MAC virtuelle standardisée entre deux nœuds.',
     'L’élection CARP repose sur le décalage advskew : le plus petit intervalle (advskew 0) définit le MASTER actif.',
-    'pfsync réplique instantanément toutes les sessions de la table d’états pour garantir un basculement sans coupure.',
+    'pfsync synchronise les états pour aider à préserver les sessions, sans garantir un basculement sans coupure.',
     'XMLRPC Sync propage automatiquement toute modification de configuration du pare-feu Primaire vers le Secondaire.',
     'Snort/Suricata inspectent les flux en DPI et injectent dynamiquement les IP malveillantes dans la table noyau snort2c.',
     'La Pass List est une sécurité vitale protégeant les passerelles et infrastructures clés contre les faux positifs.'
   ],
   checklist: [
     'Je comprends le rôle des paramètres advbase et advskew dans l’élection du Master CARP.',
-    'Je sais expliquer pourquoi pfsync élimine les coupures de téléchargement lors d’un basculement de pare-feu.',
+    'Je sais expliquer comment pfsync aide à préserver les sessions et pourquoi des coupures restent possibles.',
     'Je sais configurer la réplication de configuration XMLRPC.',
     'Je connais la différence de posture entre un mode IDS (alerte seule) et IPS (blocage actif).',
     'Je sais afficher le contenu de la table de blocage avec pfctl -t snort2c -T show.',
@@ -168,7 +169,7 @@ module.exports = {
         'CARP'
       ],
       correct: 0,
-      exp: 'pfsync synchronise les entrées de la State Table du noyau entre les deux pare-feux pour garantir un basculement sans rupture de session.'
+      exp: 'pfsync synchronise les entrées de la table d’états entre les pare-feux, mais ne garantit pas le maintien de chaque session lors d’une bascule.'
     },
     {
       stem: 'Comment la synchronisation des règles et de la configuration s’opère-t-elle entre le nœud primaire et secondaire ?',
@@ -237,7 +238,7 @@ module.exports = {
     },
     {
       q: 'Quel est le rôle de pfsync dans un cluster pfSense ?',
-      a: 'Répliquer en continu les états de connexion TCP/UDP entre les deux pare-feux pour éviter toute déconnexion lors du failover.'
+      a: 'Synchroniser les états de connexion entre les pare-feux pour aider au maintien des sessions ; certaines peuvent être interrompues lors du basculement.'
     },
     {
       q: 'Qu’est-ce que XMLRPC Sync dans pfSense ?',

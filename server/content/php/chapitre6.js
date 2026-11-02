@@ -88,8 +88,8 @@ module.exports = {
     { stem: 'Que signifie PDO ?', opts: ['PHP Data Objects', 'Private Data Output', 'PHP Direct Object'], correct: 0, exp: 'PDO est la couche d’accès aux bases de données de PHP.' },
     { stem: 'Qu’est-ce qu’un DSN ?', opts: ['Une requête', 'Un descripteur de connexion', 'Un mot de passe'], correct: 1, exp: 'Le DSN décrit le driver et la cible de la connexion.' },
     { stem: 'Pourquoi ERRORMODE_EXCEPTION ?', opts: ['Pour aller plus vite', 'Pour que les erreurs lèvent une exception', 'Pour se connecter'], correct: 1, exp: 'Sans ce mode, une requête échouée renvoie false en silence.' },
-    { stem: 'Que protège une requête préparée ?', opts: ['La vitesse', 'De l’injection SQL', 'La mémoire'], correct: 1, exp: 'Elle sépare le SQL des valeurs, empêchant l’injection.' },
-    { stem: 'Comment lie-t-on un paramètre nommé ?', opts: ['$stmt->execute([":nom" => $v])', 'echo $v', '$pdo->link($v)'], correct: 0, exp: 'On passe un tableau associatif à execute().' },
+    { stem: 'Que protège une requête préparée ?', opts: ['La vitesse', 'De l’injection SQL', 'La mémoire'], correct: 1, exp: 'Elle sépare les valeurs liées de l’instruction SQL : ces valeurs ne deviennent pas du code SQL.' },
+    { stem: 'Comment lie-t-on un paramètre nommé ?', opts: ['<code>$stmt->execute([":nom" => $v])</code>', 'echo $v', '<code>$pdo->link($v)</code>'], correct: 0, exp: 'On passe un tableau associatif à execute().' },
     { stem: 'À quoi sert un dépôt (repository) ?', opts: ['À afficher', 'À isoler l’accès aux données', 'À valider les formulaires'], correct: 1, exp: 'Il centralise les accès à la base pour un type d’entité.' },
     { stem: 'Que reçoit un dépôt à sa construction ?', opts: ['Un utilisateur', 'L’objet PDO', 'Une requête'], correct: 1, exp: 'On lui injecte la connexion PDO, qu’il utilise en interne.' },
     { stem: 'Combien de couches distingue-t-on ici ?', opts: ['Une', 'Entités, dépôt, service, affichage', 'Aucune'], correct: 1, exp: 'Chaque couche ne connaît que la suivante : entités, dépôt, service, affichage.' }
@@ -131,15 +131,15 @@ module.exports = {
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Reprenez l’ouverture de connexion et la requête préparée.' },
     { cls: 'mid', text: '50–69 % — Entraînez-vous à écrire le dépôt d’une entité.' },
-    { cls: 'good', text: '70–94 % — Solide : vous ne concatènez jamais d’entrée dans du SQL.' },
+    { cls: 'good', text: '70–94 % — Solide : vous ne concaténez jamais d’entrée dans du SQL.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : le projet ToDo List est à votre portée, direction les examens blancs.' }
   ],
 
   flashcards: [
     { q: 'Que fait PDO ?', a: 'Il offre une couche d’accès unique aux bases (MySQL, PostgreSQL, SQLite…).' },
     { q: 'Qu’est-ce qu’un DSN ?', a: 'Le descripteur de connexion : driver plus paramètres (hôte, base).' },
-    { q: 'Pourquoi une requête préparée ?', a: 'Pour séparer le SQL des valeurs et empêcher l’injection.' },
-    { q: 'Comment exécuter une requête préparée ?', a: '$stmt->execute([":param" => $valeur]).' },
+    { q: 'Pourquoi une requête préparée ?', a: 'Pour séparer les valeurs liées de l’instruction SQL et limiter les injections sur ces valeurs.' },
+    { q: 'Comment exécuter une requête préparée ?', a: '<code>$stmt->execute([":param" => $valeur])</code>.' },
     { q: 'À quoi sert un dépôt ?', a: 'À isoler l’accès aux données d’une entité du reste du code.' },
     { q: 'Que veut dire « en couches » ?', a: 'Entités, dépôt, service, affichage : chaque couche ne connaît que la suivante.' }
   ]

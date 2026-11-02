@@ -57,7 +57,7 @@ function index(course, chapterList) {
       'à tracer les interactions temporelles par les diagrammes de séquence (lignes de vie, retours, fragments alt/opt/loop), ' +
       'à représenter les flux métier via les diagrammes d’activités (gardes, synchronisations fork/join, swimlanes), ' +
       'et à piloter les cycles de vie et déploiements physiques (machines à états, composants et nœuds matériels). ' +
-      'Chaque module combine principes théoriques formels, conventions OMG, 3 exercices de code de manière méthodiqueet un QCM d’évaluation.</p>'
+      'Chaque module combine principes théoriques formels, conventions OMG, 3 exercices de code de manière méthodique et un QCM d’évaluation.</p>'
     ].join('\n')),
     '',
     disclaimer('Ce cours couvre le standard officiel UML 2.5 de l’OMG et les bonnes pratiques de génie logiciel.')

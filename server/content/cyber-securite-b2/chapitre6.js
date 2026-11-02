@@ -28,7 +28,7 @@ module.exports = {
     'comprendre l’architecture d’un SIEM (collecte d’événements Syslog/EventLog, normalisation, indexation et règles de corrélation) ;',
     'expliquer les mécanismes d’attaques DDoS (SYN Flood, amplification DNS/NTP) et les stratégies de mitigation (SYN Cookies, scrubbing) ;',
     'décortiquer la chaîne d’infection d’un ransomware moderne (accès initial, mouvement latéral, exfiltration, chiffrement, double extorsion) ;',
-    'appliquer les 6 étapes de la méthodologie de gestion d’incidents de sécurité selon le standard NIST SP 800-61.'
+    'distinguer préparation, réponse et amélioration continue dans le guide NIST SP 800-61 révision 3.'
   ],
 
   sections: [
@@ -49,7 +49,7 @@ module.exports = {
         '  <div class="card">',
         '    <h4 class="card-title">Approches de détection</h4>',
         '    <ul>',
-        '      <li><strong>Détection par signatures :</strong> Comparez le trafic à une base de motifs connus (chaînes d’octets, hash, regex). Très rapide et faible taux de faux positifs, mais incapable de bloquer une vulnérabilité 0-day inconnue.</li>',
+        '      <li><strong>Détection par signatures :</strong> Compare le trafic à une base de motifs connus (chaînes d’octets, hash, regex). Très rapide et faible taux de faux positifs, mais incapable de bloquer une vulnérabilité 0-day inconnue.</li>',
         '      <li><strong>Détection comportementale / par anomalies :</strong> Établit une référence du trafic normal et alerte en cas d’écart statistique notable (débit inhabituel, volume de requêtes). Détecte les menaces émergentes mais génère davantage de faux positifs.</li>',
         '    </ul>',
         '  </div>',
@@ -58,9 +58,9 @@ module.exports = {
         '<h4>Syntaxe d’une règle Snort</h4>',
         '<p>Une règle Snort se divise en deux parties distinctes : l’en-tête (Header) et les options de la règle (Rule Options).</p>',
 
-        '<div class="code-block">' +
+        '<div class="code-block"><code>' +
         'alert tcp $EXTERNAL_NET any -&gt; $HOME_NET 80 (msg:"ATTACK-RESPONSES /etc/passwd disclosure"; content:"root:x:0:0:"; nocase; sid:1000001; rev:1;)' +
-        '</div>',
+        '</code></div>',
 
         '<table class="table-compact">',
         '  <thead>',
@@ -113,7 +113,9 @@ module.exports = {
         'suivie du chiffrement intégral des disques et sauvegardes en ligne.</p>',
 
         '<div class="card">',
-        '  <h4 class="card-title">Les 6 phases de gestion d’un incident de sécurité (NIST SP 800-61 Rev. 2)</h4>',
+        '  <h4 class="card-title">Réponse à incident : NIST SP 800-61 révision 3 (2025)</h4>',
+        '  <p>La révision 3 aligne le guide sur le CSF 2.0 : Govern, Identify et Protect participent à la préparation ; Detect, Respond et Recover structurent les activités de réponse. Les leçons apprises alimentent l’amélioration continue, notamment Identify.</p>',
+        '  <p>Les six repères opérationnels suivants illustrent des activités qui peuvent se chevaucher ; ils ne sont pas six phases officielles et immuables de la révision 3.</p>',
         '  <ol>',
         '    <li><strong>1. Préparation (Preparation) :</strong> Mise en place des outils de surveillance, politiques de sécurité, procédures de crise, sauvegardes immuables hors-ligne (règle 3-2-1) et formation des équipes de réponse (CSIRT).</li>',
         '    <li><strong>2. Détection &amp; Analyse (Detection &amp; Analysis) :</strong> Réception des alertes SIEM/EDR, triage, vérification des indicateurs de compromission (IoC : adresses IP, hash de fichiers, domaines C2) et qualification de la gravité.</li>',
@@ -170,7 +172,7 @@ module.exports = {
       exp: 'Les SYN Cookies évitent la saturation de la table des demi-connexions : le serveur calcule un ISN cryptographique contenant les paramètres de la connexion. La structure mémoire n’est allouée que si le client renvoie un paquet ACK valide contenant ce cookie.'
     },
     {
-      stem: 'Dans le cycle de gestion des incidents NIST SP 800-61, quelle est la priorité immédiate lors de la phase de « Confinement » (Containment) ?',
+      stem: 'Lors du confinement d’un incident, quelle action vise à limiter sa propagation tout en tenant compte des preuves ?',
       opts: [
         'Limiter la propagation de l’attaque à d’autres machines du système d’information sans altérer les preuves numériques volatiles',
         'Réinstaller immédiatement le système d’exploitation de la machine infectée à neuf',
@@ -214,7 +216,7 @@ module.exports = {
     'Un SIEM agrège et normalise les logs d’équipements variés pour corréler des scénarios d’attaques avancés.',
     'Les attaques DDoS exploitent l’épuisement des états (SYN flood contré par SYN Cookies) ou l’asymétrie de protocoles sans état (amplification UDP).',
     'La chaîne d’attaque par ransomware associe intrusion initiale, élévation de privilèges, propagation latérale, double extorsion et chiffrement destructeur.',
-    'Le référentiel NIST SP 800-61 structure la réponse à incident en 6 phases : Préparation, Détection, Confinement, Éradication, Recouvrement et Leçons apprises.'
+    'NIST SP 800-61 révision 3 (2025) relie la préparation aux fonctions Govern, Identify et Protect, la réponse à Detect, Respond et Recover, et les leçons à l’amélioration continue.'
   ],
 
   checklist: [
@@ -222,7 +224,7 @@ module.exports = {
     'Je sais distinguer le rôle d’un NIDS passif de celui d’un NIPS actif.',
     'Je comprends l’intérêt des SYN Cookies face à une attaque par déni de service SYN Flood.',
     'Je sais expliquer le principe d’une attaque DDoS par réflexion et amplification UDP.',
-    'Je maîtrise l’ordre des 6 phases du cycle de réponse à incident NIST SP 800-61.',
+    'Je distingue les fonctions de préparation et de réponse du NIST SP 800-61 révision 3 et le rôle de l’amélioration continue.',
     'Je sais pourquoi il ne faut jamais éteindre un serveur compromis avant d’avoir extrait la RAM.'
   ],
 
@@ -245,18 +247,18 @@ module.exports = {
   ],
 
   flashcards: [
-    { "q": 'Qu’est-ce que « Règles et signatures Snort (sid, rev, content) » ?', "a": 'Règles et signatures Snort (sid, rev, content)' },
-    { "q": 'Qu’est-ce que « SIEM et corrélation de journaux de sécurité » ?', "a": 'SIEM et corrélation de journaux de sécurité' },
-    { "q": 'Qu’est-ce que « Attaques DDoS SYN Flood et SYN Cookies » ?', "a": 'Attaques DDoS SYN Flood et SYN Cookies' },
-    { "q": 'Qu’est-ce que « Amplification et réflexion UDP (DNS, NTP) » ?', "a": 'Amplification et réflexion UDP (DNS, NTP)' },
-    { "q": 'Qu’est-ce que « Ransomwares et modèle de double extorsion » ?', "a": 'Ransomwares et modèle de double extorsion' },
-    { "q": 'Qu’est-ce que « Méthodologie NIST SP 800-61 » ?', "a": 'Méthodologie NIST SP 800-61' },
-    { "q": 'Qu’est-ce que « Forensics numérique et acquisition de mémoire RAM » ?', "a": 'Forensics numérique et acquisition de mémoire RAM' },
+    { "q": 'Qu’est-ce que « Règles et signatures Snort (sid, rev, content) » ?', "a": 'Une règle Snort décrit les critères de détection : content recherche un motif, sid identifie la règle et rev indique sa révision.' },
+    { "q": 'Qu’est-ce que « SIEM et corrélation de journaux de sécurité » ?', "a": 'Un SIEM collecte et normalise des journaux, puis corrèle les événements pour détecter des scénarios suspects et produire des alertes.' },
+    { "q": 'Qu’est-ce que « Attaques DDoS SYN Flood et SYN Cookies » ?', "a": 'Le SYN flood surcharge la file des connexions TCP inachevées ; les SYN cookies limitent son épuisement en reportant la création d’état jusqu’à un ACK valide.' },
+    { "q": 'Qu’est-ce que « Amplification et réflexion UDP (DNS, NTP) » ?', "a": 'L’attaquant usurpe l’adresse source de la victime dans des requêtes UDP ; des serveurs DNS ou NTP envoient alors à la victime des réponses plus volumineuses.' },
+    { "q": 'Qu’est-ce que « Ransomwares et modèle de double extorsion » ?', "a": 'Le rançongiciel chiffre ou bloque des données ; la double extorsion ajoute la menace de publier les données préalablement volées.' },
+    { "q": 'Qu’est-ce que « Méthodologie NIST SP 800-61 » ?', "a": 'Guide de réponse aux incidents : préparer, détecter et analyser, contenir et éradiquer, restaurer et tirer les leçons ; la révision 3 est alignée sur le CSF 2.0.' },
+    { "q": 'Qu’est-ce que « Forensics numérique et acquisition de mémoire RAM » ?', "a": 'Collecte et analyse de preuves numériques en documentant leur intégrité et leur traçabilité ; la capture de RAM recueille des données volatiles avant extinction.' },
     { q: 'Quelle est la fonction du paramètre sid dans une règle Snort ?', a: 'Il attribue un identifiant unique (Snort ID) à la règle pour faciliter son traçage et sa gestion dans les alertes du SOC.' },
     { q: 'Pourquoi un NIDS passif est-il incapable d’interrompre directement une connexion malveillante ?', a: 'Parce qu’il écoute une copie du flux sur un port miroir et n’est pas positionné en coupure directe (in-line) sur le flux réseau.' },
     { q: 'Comment les SYN Cookies protègent-ils un serveur contre un SYN Flood ?', a: 'Ils encodent l’état de la connexion dans le numéro de séquence TCP initial (ISN), évitant d’allouer de la mémoire tant que le ACK final du client n’est pas reçu.' },
     { q: 'Quel est l’objectif de l’amplification UDP dans une attaque DDoS ?', a: 'Envoyer de petites requêtes forgées à des serveurs tiers pour qu’ils inondent la cible de réponses jusqu’à 50 à 100 fois plus volumineuses.' },
-    { q: 'Quelles sont les 6 phases de la réponse à incident selon le NIST SP 800-61 ?', a: '1. Préparation, 2. Détection & Analyse, 3. Confinement, 4. Éradication, 5. Recouvrement, 6. Activités post-incident (Leçons apprises).' },
+    { q: 'Comment la révision 3 du NIST SP 800-61 organise-t-elle la réponse à incident ?', a: 'Detect, Respond et Recover couvrent la réponse ; Govern, Identify et Protect contribuent à la préparation, et les leçons alimentent l’amélioration continue.' },
     { q: 'Pourquoi ne faut-il pas couper l’alimentation d’un serveur victime d’un ransomware ?', a: 'Pour ne pas perdre la mémoire vive (RAM) qui contient les clés de chiffrement éphémères, les processus malveillants et les connexions réseau actives.' }
   ]
 };

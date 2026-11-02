@@ -50,12 +50,12 @@ module.exports = [
     level: "n2",
     language: 'analyse',
     title: "Échantillonnage stratifié proportionnel",
-    goal: "Calculer la ventilation exacte des quotas de sondage par sous-population selon leur poids démographique réel.",
-    brief: "<p>Pour chaque cas d’application :<br>\n<code>STRATIFIE etude=&lt;nom&gt; n=&lt;taille_echantillon&gt; strates=&lt;NOM1&gt;:&lt;N1&gt;,&lt;NOM2&gt;:&lt;N2&gt;,...</code>.<br><br>\nCalculs :<br>\n- Calculer la population totale mère : $N = \\sum N_i$.<br>\n- Pour chaque strate $i$ :<br>\n  - Poids relatif : $W_i = N_i / N$.<br>\n  - Effectif théorique à sonder : $n_i = \\text{round}(n \\times W_i)$.<br>\n  - Pourcentage dans l'échantillon : $P_i = (n_i / n) \\times 100$ (1 décimale).<br><br>\nAfficher :<br>\n<code>STRATIFICATION: {etude} (N_TOTAL={N}, n_CIBLE={n})</code><br>\nPour chaque strate dans l'ordre d'apparition :<br>\n<code>  - {NOM_i}: N_pop={N_i} (W={W_i*100:.1f}%) -> n_sonde={n_i} ({P_i:.1f}%)</code></p>",
-    starter: "# Grille d'analyse (eq3-c2-e2) — Échantillonnage stratifié proportionnel\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Échantillonnage universitaire sur 3 facultés]\n# Données : STRATIFIE etude=CampusTech n=150 strates=INFO:600,RESEAUX:300,CYBER:100\nA_COMPLETER\n\n[Cas 2 — Échantillon médical avec effectifs variés]\n# Données : STRATIFIE etude=PersonnelSante n=100 strates=MEDECINS:50,INFIRMIERS:350,AIDES:600\nA_COMPLETER\n\n[Cas 3 — Deux strates équilibrées]\n# Données : STRATIFIE etude=PariteEquipe n=80 strates=FEMMES:250,HOMMES:250\nA_COMPLETER\n",
+    goal: "Répartir un échantillon entier en respectant les minima éventuels, les capacités des strates et la taille cible.",
+    brief: "<p>Pour chaque cas d’application :<br>\n<code>STRATIFIE etude=&lt;nom&gt; n=&lt;taille&gt; strates=&lt;NOM1&gt;:&lt;N1&gt;,&lt;NOM2&gt;:&lt;N2&gt;,... [minima=&lt;NOM1&gt;:&lt;m1&gt;,&lt;NOM2&gt;:&lt;m2&gt;,...]</code>.<br>\nLes tailles $N_i$ et les minima $m_i$ sont des entiers positifs ou nuls. Les noms de strates sont distincts ; si les minima sont fournis, ils mentionnent chaque strate une fois. Sans minima, prendre $m_i=0$. Le tirage est sans remplacement.<br><br>\nVérifier $N=\\sum N_i &gt; 0$, $1 \\le n \\le N$, $0 \\le m_i \\le N_i$ et $\\sum m_i \\le n$. Si une condition échoue, afficher uniquement <code>STRATIFICATION: {etude} -> IMPOSSIBLE (CONTRAINTES)</code>.<br><br>\nSinon :<br>\n- Attribuer les minima, puis calculer $R=n-\\sum m_i$ et les capacités résiduelles $C_i=N_i-m_i$. Si $R=0$, ne rien ajouter.<br>\n- Si $R&gt;0$, calculer les parts $q_i=R C_i/\\sum C_i$, puis attribuer leurs planchers et distribuer les unités restantes aux <strong>plus forts restes</strong>. En cas d’égalité, respecter l’ordre des strates.<br>\n- Vérifier $m_i \\le n_i \\le N_i$ et $\\sum n_i=n$. Sans minimum, la règle revient à répartir $n$ proportionnellement aux tailles initiales ; avec minima, elle répartit le reste selon les capacités résiduelles.<br>\n- Calculer $W_i=N_i/N$ et $P_i=100 n_i/n$, affichés à une décimale.<br><br>\nAfficher :<br>\n<code>STRATIFICATION: {etude} (N_TOTAL={N}, n_CIBLE={n})</code><br>\nPour chaque strate dans l’ordre d’apparition :<br>\n<code>  - {NOM_i}: N_pop={N_i} (W={W_i*100:.1f}%) -> n_sonde={n_i} ({P_i:.1f}%)</code></p>",
+    starter: "# Grille d'analyse (eq3-c2-e2) — Échantillonnage stratifié proportionnel\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Échantillonnage universitaire sur 3 facultés]\n# Données : STRATIFIE etude=CampusTech n=150 strates=INFO:600,RESEAUX:300,CYBER:100\nA_COMPLETER\n\n[Cas 2 — Respect des capacités des strates]\n# Données : STRATIFIE etude=PersonnelSante n=6 strates=MEDECINS:1,INFIRMIERS:2,AIDES:4\nA_COMPLETER\n\n[Cas 3 — Une unité pour trois strates égales]\n# Données : STRATIFIE etude=Mini n=1 strates=A:1,B:1,C:1\nA_COMPLETER\n\n[Cas 4 — Minima réalisables et capacités résiduelles]\n# Données : STRATIFIE etude=Minima n=5 strates=A:1,B:2,C:4 minima=A:1,B:0,C:1\nA_COMPLETER\n\n[Cas 5 — Minima impossibles]\n# Données : STRATIFIE etude=MiniBloque n=1 strates=A:1,B:1,C:1 minima=A:1,B:1,C:1\nA_COMPLETER\n\n[Cas 6 — Échantillon supérieur à la population]\n# Données : STRATIFIE etude=HorsCapacite n=4 strates=A:1,B:1,C:1\nA_COMPLETER\n",
     hints: [
           "Sommer tous les Ni pour obtenir la population mère totale N.",
-          "Utiliser round() pour arrondir chaque effectif à sonder."
+          "Attribuer les minima faisables, puis répartir le reste selon les capacités résiduelles par plus forts restes ; départager les égalités dans l’ordre."
     ],
     examples: [
           {
@@ -71,27 +71,42 @@ module.exports = [
                 "expected": "STRATIFICATION: CampusTech (N_TOTAL=1000, n_CIBLE=150)\n  - INFO: N_pop=600 (W=60.0%) -> n_sonde=90 (60.0%)\n  - RESEAUX: N_pop=300 (W=30.0%) -> n_sonde=45 (30.0%)\n  - CYBER: N_pop=100 (W=10.0%) -> n_sonde=15 (10.0%)"
           },
           {
-                "label": "Échantillon médical avec effectifs variés",
+                "label": "Respect des capacités des strates",
                 "stdin": "cas:2",
-                "expected": "STRATIFICATION: PersonnelSante (N_TOTAL=1000, n_CIBLE=100)\n  - MEDECINS: N_pop=50 (W=5.0%) -> n_sonde=5 (5.0%)\n  - INFIRMIERS: N_pop=350 (W=35.0%) -> n_sonde=35 (35.0%)\n  - AIDES: N_pop=600 (W=60.0%) -> n_sonde=60 (60.0%)"
+                "expected": "STRATIFICATION: PersonnelSante (N_TOTAL=7, n_CIBLE=6)\n  - MEDECINS: N_pop=1 (W=14.3%) -> n_sonde=1 (16.7%)\n  - INFIRMIERS: N_pop=2 (W=28.6%) -> n_sonde=2 (33.3%)\n  - AIDES: N_pop=4 (W=57.1%) -> n_sonde=3 (50.0%)"
           },
           {
-                "label": "Deux strates équilibrées",
+                "label": "Une unité pour trois strates égales",
                 "stdin": "cas:3",
-                "expected": "STRATIFICATION: PariteEquipe (N_TOTAL=500, n_CIBLE=80)\n  - FEMMES: N_pop=250 (W=50.0%) -> n_sonde=40 (50.0%)\n  - HOMMES: N_pop=250 (W=50.0%) -> n_sonde=40 (50.0%)"
+                "expected": "STRATIFICATION: Mini (N_TOTAL=3, n_CIBLE=1)\n  - A: N_pop=1 (W=33.3%) -> n_sonde=1 (100.0%)\n  - B: N_pop=1 (W=33.3%) -> n_sonde=0 (0.0%)\n  - C: N_pop=1 (W=33.3%) -> n_sonde=0 (0.0%)"
+          },
+          {
+                "label": "Minima réalisables et capacités résiduelles",
+                "stdin": "cas:4",
+                "expected": "STRATIFICATION: Minima (N_TOTAL=7, n_CIBLE=5)\n  - A: N_pop=1 (W=14.3%) -> n_sonde=1 (20.0%)\n  - B: N_pop=2 (W=28.6%) -> n_sonde=1 (20.0%)\n  - C: N_pop=4 (W=57.1%) -> n_sonde=3 (60.0%)"
+          },
+          {
+                "label": "Minima impossibles",
+                "stdin": "cas:5",
+                "expected": "STRATIFICATION: MiniBloque -> IMPOSSIBLE (CONTRAINTES)"
+          },
+          {
+                "label": "Échantillon supérieur à la population",
+                "stdin": "cas:6",
+                "expected": "STRATIFICATION: HorsCapacite -> IMPOSSIBLE (CONTRAINTES)"
           }
     ],
-    solution: "[Exemple]\nSTRATIFICATION: SondageDSI (N_TOTAL=1000, n_CIBLE=200)\n  - DEV: N_pop=400 (W=40.0%) -> n_sonde=80 (40.0%)\n  - OPS: N_pop=300 (W=30.0%) -> n_sonde=60 (30.0%)\n  - QA: N_pop=200 (W=20.0%) -> n_sonde=40 (20.0%)\n  - DIR: N_pop=100 (W=10.0%) -> n_sonde=20 (10.0%)\n\n[Cas 1 — Échantillonnage universitaire sur 3 facultés]\nSTRATIFICATION: CampusTech (N_TOTAL=1000, n_CIBLE=150)\n  - INFO: N_pop=600 (W=60.0%) -> n_sonde=90 (60.0%)\n  - RESEAUX: N_pop=300 (W=30.0%) -> n_sonde=45 (30.0%)\n  - CYBER: N_pop=100 (W=10.0%) -> n_sonde=15 (10.0%)\n\n[Cas 2 — Échantillon médical avec effectifs variés]\nSTRATIFICATION: PersonnelSante (N_TOTAL=1000, n_CIBLE=100)\n  - MEDECINS: N_pop=50 (W=5.0%) -> n_sonde=5 (5.0%)\n  - INFIRMIERS: N_pop=350 (W=35.0%) -> n_sonde=35 (35.0%)\n  - AIDES: N_pop=600 (W=60.0%) -> n_sonde=60 (60.0%)\n\n[Cas 3 — Deux strates équilibrées]\nSTRATIFICATION: PariteEquipe (N_TOTAL=500, n_CIBLE=80)\n  - FEMMES: N_pop=250 (W=50.0%) -> n_sonde=40 (50.0%)\n  - HOMMES: N_pop=250 (W=50.0%) -> n_sonde=40 (50.0%)\n"
+    solution: "[Exemple]\nSTRATIFICATION: SondageDSI (N_TOTAL=1000, n_CIBLE=200)\n  - DEV: N_pop=400 (W=40.0%) -> n_sonde=80 (40.0%)\n  - OPS: N_pop=300 (W=30.0%) -> n_sonde=60 (30.0%)\n  - QA: N_pop=200 (W=20.0%) -> n_sonde=40 (20.0%)\n  - DIR: N_pop=100 (W=10.0%) -> n_sonde=20 (10.0%)\n\n[Cas 1 — Échantillonnage universitaire sur 3 facultés]\nSTRATIFICATION: CampusTech (N_TOTAL=1000, n_CIBLE=150)\n  - INFO: N_pop=600 (W=60.0%) -> n_sonde=90 (60.0%)\n  - RESEAUX: N_pop=300 (W=30.0%) -> n_sonde=45 (30.0%)\n  - CYBER: N_pop=100 (W=10.0%) -> n_sonde=15 (10.0%)\n\n[Cas 2 — Respect des capacités des strates]\nSTRATIFICATION: PersonnelSante (N_TOTAL=7, n_CIBLE=6)\n  - MEDECINS: N_pop=1 (W=14.3%) -> n_sonde=1 (16.7%)\n  - INFIRMIERS: N_pop=2 (W=28.6%) -> n_sonde=2 (33.3%)\n  - AIDES: N_pop=4 (W=57.1%) -> n_sonde=3 (50.0%)\n\n[Cas 3 — Une unité pour trois strates égales]\nSTRATIFICATION: Mini (N_TOTAL=3, n_CIBLE=1)\n  - A: N_pop=1 (W=33.3%) -> n_sonde=1 (100.0%)\n  - B: N_pop=1 (W=33.3%) -> n_sonde=0 (0.0%)\n  - C: N_pop=1 (W=33.3%) -> n_sonde=0 (0.0%)\n\n[Cas 4 — Minima réalisables et capacités résiduelles]\nSTRATIFICATION: Minima (N_TOTAL=7, n_CIBLE=5)\n  - A: N_pop=1 (W=14.3%) -> n_sonde=1 (20.0%)\n  - B: N_pop=2 (W=28.6%) -> n_sonde=1 (20.0%)\n  - C: N_pop=4 (W=57.1%) -> n_sonde=3 (60.0%)\n\n[Cas 5 — Minima impossibles]\nSTRATIFICATION: MiniBloque -> IMPOSSIBLE (CONTRAINTES)\n\n[Cas 6 — Échantillon supérieur à la population]\nSTRATIFICATION: HorsCapacite -> IMPOSSIBLE (CONTRAINTES)\n"
   },
   {
     id: "eq3-c2-e3",
     chapter: 2,
     level: "n3",
     language: 'analyse',
-    title: "Contrôleur de conformité et représentativité par quotas",
-    goal: "Comparer la distribution d’un échantillon empirique aux quotas cibles de la population et détecter les biais de sélection.",
-    brief: "<p>Pour chaque cas d’application :<br>\n<code>QUOTAS etude=&lt;nom&gt; cibles=&lt;C1&gt;:&lt;P1&gt;,&lt;C2&gt;:&lt;P2&gt;,... obs=&lt;C1&gt;:&lt;N1&gt;,&lt;C2&gt;:&lt;N2&gt;,...</code>.<br>\nOù les cibles sont des pourcentages théoriques et obs les effectifs observés.<br><br>\nCalculs :<br>\n- Calculer le total observé $T_{obs} = \\sum N_i$.<br>\n- Pour chaque catégorie $i$ :<br>\n  - Pourcentage observé : $P_{obs,i} = (N_i / T_{obs}) \\times 100$.<br>\n  - Écart absolu : $\\Delta_i = |P_{obs,i} - P_{cible,i}|$.<br>\n- Écart maximum : $\\Delta_{max} = \\max(\\Delta_i)$.<br><br>\nQualification du biais d'échantillonnage :<br>\n- Si $\\Delta_{max} \\le 3.0\\%$ : <code>CONFORMITE=EXCELLENTE_REPRESENTATIF</code><br>\n- Sinon si $\\Delta_{max} \\le 6.0\\%$ : <code>CONFORMITE=ACCEPTABLE_BIAIS_LEGER</code><br>\n- Sinon : <code>CONFORMITE=REJET_BIAIS_CRITIQUE (REDRESSEMENT_REQUIS)</code><br><br>\nAfficher :<br>\n<code>AUDIT_QUOTAS: {etude} -> TOTAL_OBS={T_obs} | ECART_MAX={Delta_max:.1f}% | {CONFORMITE}</code></p>",
-    starter: "# Grille d'analyse (eq3-c2-e3) — Contrôleur de conformité et représentativité par quotas\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Échantillon avec biais modéré acceptable]\n# Données : QUOTAS etude=PanelConsommateurs cibles=HOMMES:50.0,FEMMES:50.0 obs=HOMMES:275,FEMMES:225\nA_COMPLETER\n\n[Cas 2 — Échantillon fortement biaisé rejeté]\n# Données : QUOTAS etude=EtudeJeunes cibles=ETUDIANT:40.0,ACTIF:40.0,CHOMEUR:20.0 obs=ETUDIANT:300,ACTIF:80,CHOMEUR:20\nA_COMPLETER\n\n[Cas 3 — Quotas strictement parfaits]\n# Données : QUOTAS etude=TestEquilibre cibles=A:25.0,B:25.0,C:25.0,D:25.0 obs=A:50,B:50,C:50,D:50\nA_COMPLETER\n",
+    title: "Contrôleur de conformité des quotas",
+    goal: "Comparer les proportions observées aux quotas cibles sans conclure à la représentativité générale.",
+    brief: "<p>Pour chaque cas d’application :<br>\n<code>QUOTAS etude=&lt;nom&gt; cibles=&lt;C1&gt;:&lt;P1&gt;,&lt;C2&gt;:&lt;P2&gt;,... obs=&lt;C1&gt;:&lt;N1&gt;,&lt;C2&gt;:&lt;N2&gt;,...</code>.<br>\nLes cibles sont des pourcentages totalisant 100 ; les effectifs observés sont positifs ou nuls, leur total est strictement positif et les catégories sont les mêmes.<br><br>\nCalculs :<br>\n- Calculer $T_{obs} = \\sum N_i$ et chaque proportion observée $P_{obs,i} = 100 N_i / T_{obs}$.<br>\n- Calculer $\\Delta_{max} = \\max |P_{obs,i} - P_{cible,i}|$ en <strong>points de pourcentage</strong>.<br>\n- Dans cet exercice seulement, le seuil de conformité choisi est 3,0 points : afficher <code>CONFORMITE_QUOTAS=OUI</code> si $\\Delta_{max} \\le 3$, sinon <code>CONFORMITE_QUOTAS=NON</code>.<br>\n- Afficher l’écart maximum à une décimale.<br><br>\nLe respect des quotas ne démontre pas la représentativité des autres caractéristiques ni l’absence de biais de sélection. Le seuil retenu ne mesure pas ces biais ; la pondération n’est pas une correction automatique de tous les biais.<br><br>\nAfficher :<br>\n<code>AUDIT_QUOTAS: {etude} -> TOTAL_OBS={T_obs} | ECART_MAX={Delta_max:.1f} points | CONFORMITE_QUOTAS={OUI ou NON}</code></p>",
+    starter: "# Grille d'analyse (eq3-c2-e3) — Contrôleur de conformité des quotas\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Écart de cinq points]\n# Données : QUOTAS etude=PanelConsommateurs cibles=HOMMES:50.0,FEMMES:50.0 obs=HOMMES:275,FEMMES:225\nA_COMPLETER\n\n[Cas 2 — Écart important aux quotas]\n# Données : QUOTAS etude=EtudeJeunes cibles=ETUDIANT:40.0,ACTIF:40.0,CHOMEUR:20.0 obs=ETUDIANT:300,ACTIF:80,CHOMEUR:20\nA_COMPLETER\n\n[Cas 3 — Quotas A/B respectés malgré la sélection]\n# Données : QUOTAS etude=TestEquilibre cibles=A:50.0,B:50.0 obs=A:5,B:5\n# Contexte : 20 personnes sur 100 ont un revenu élevé dans la population, mais les 10 personnes sélectionnées ont toutes un revenu élevé.\nA_COMPLETER\n",
     hints: [
           "Calculer le total observé pour obtenir les pourcentages réels.",
           "Comparer les écarts absolus avec les quotas cibles."
@@ -99,27 +114,27 @@ module.exports = [
     examples: [
           {
                 "stdin": "QUOTAS etude=SondageSalaries cibles=JUNIOR:30.0,CONFIRME:50.0,SENIOR:20.0 obs=JUNIOR:140,CONFIRME:260,SENIOR:100",
-                "expected": "AUDIT_QUOTAS: SondageSalaries -> TOTAL_OBS=500 | ECART_MAX=2.0% | CONFORMITE=EXCELLENTE_REPRESENTATIF",
-                "note": "Écart max = 2.0% (Junior 28% vs 30%, Confirmé 52% vs 50%) : représentativité excellente."
+                "expected": "AUDIT_QUOTAS: SondageSalaries -> TOTAL_OBS=500 | ECART_MAX=2.0 points | CONFORMITE_QUOTAS=OUI",
+                "note": "Écart maximal de 2 points sur les catégories contrôlées ; les autres caractéristiques restent à examiner."
           }
     ],
     tests: [
           {
-                "label": "Échantillon avec biais modéré acceptable",
+                "label": "Écart de cinq points",
                 "stdin": "cas:1",
-                "expected": "AUDIT_QUOTAS: PanelConsommateurs -> TOTAL_OBS=500 | ECART_MAX=5.0% | CONFORMITE=ACCEPTABLE_BIAIS_LEGER"
+                "expected": "AUDIT_QUOTAS: PanelConsommateurs -> TOTAL_OBS=500 | ECART_MAX=5.0 points | CONFORMITE_QUOTAS=NON"
           },
           {
-                "label": "Échantillon fortement biaisé rejeté",
+                "label": "Écart important aux quotas",
                 "stdin": "cas:2",
-                "expected": "AUDIT_QUOTAS: EtudeJeunes -> TOTAL_OBS=400 | ECART_MAX=35.0% | CONFORMITE=REJET_BIAIS_CRITIQUE (REDRESSEMENT_REQUIS)"
+                "expected": "AUDIT_QUOTAS: EtudeJeunes -> TOTAL_OBS=400 | ECART_MAX=35.0 points | CONFORMITE_QUOTAS=NON"
           },
           {
-                "label": "Quotas strictement parfaits",
+                "label": "Quotas A/B respectés malgré la sélection",
                 "stdin": "cas:3",
-                "expected": "AUDIT_QUOTAS: TestEquilibre -> TOTAL_OBS=200 | ECART_MAX=0.0% | CONFORMITE=EXCELLENTE_REPRESENTATIF"
+                "expected": "AUDIT_QUOTAS: TestEquilibre -> TOTAL_OBS=10 | ECART_MAX=0.0 points | CONFORMITE_QUOTAS=OUI"
           }
     ],
-    solution: "[Exemple]\nAUDIT_QUOTAS: SondageSalaries -> TOTAL_OBS=500 | ECART_MAX=2.0% | CONFORMITE=EXCELLENTE_REPRESENTATIF\n\n[Cas 1 — Échantillon avec biais modéré acceptable]\nAUDIT_QUOTAS: PanelConsommateurs -> TOTAL_OBS=500 | ECART_MAX=5.0% | CONFORMITE=ACCEPTABLE_BIAIS_LEGER\n\n[Cas 2 — Échantillon fortement biaisé rejeté]\nAUDIT_QUOTAS: EtudeJeunes -> TOTAL_OBS=400 | ECART_MAX=35.0% | CONFORMITE=REJET_BIAIS_CRITIQUE (REDRESSEMENT_REQUIS)\n\n[Cas 3 — Quotas strictement parfaits]\nAUDIT_QUOTAS: TestEquilibre -> TOTAL_OBS=200 | ECART_MAX=0.0% | CONFORMITE=EXCELLENTE_REPRESENTATIF\n"
+    solution: "[Exemple]\nAUDIT_QUOTAS: SondageSalaries -> TOTAL_OBS=500 | ECART_MAX=2.0 points | CONFORMITE_QUOTAS=OUI\n\n[Cas 1 — Écart de cinq points]\nAUDIT_QUOTAS: PanelConsommateurs -> TOTAL_OBS=500 | ECART_MAX=5.0 points | CONFORMITE_QUOTAS=NON\n\n[Cas 2 — Écart important aux quotas]\nAUDIT_QUOTAS: EtudeJeunes -> TOTAL_OBS=400 | ECART_MAX=35.0 points | CONFORMITE_QUOTAS=NON\n\n[Cas 3 — Quotas A/B respectés malgré la sélection]\nAUDIT_QUOTAS: TestEquilibre -> TOTAL_OBS=10 | ECART_MAX=0.0 points | CONFORMITE_QUOTAS=OUI\n"
   }
 ];

@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -169,11 +169,11 @@ docker run -d --net mynet -p 8080:8080 myapi</code></pre>
 
 <h2>4. Gestion des Variables d’Environnement et Fichiers .env</h2>
 
-<p>Docker Compose lit automatiquement le fichier <code>.env</code> présent dans le même répertoire et remplace les variables selon des syntaxes d’interpolation normalisées :</p>
+<p>Pour interpoler le fichier Compose, la valeur définie dans l’environnement du shell est prioritaire. Sinon, Compose utilise le fichier fourni par <code>--env-file</code> ou, sans cette option, un fichier <code>.env</code> du projet ; le répertoire de travail et la configuration du projet peuvent influer sur le fichier chargé. Ces sources d’interpolation ne sont pas nécessairement les variables transmises au conteneur.</p>
 <ul>
-  <li><code>${VARIABLE}</code> : insère la valeur définie dans <code>.env</code>. Si la variable n’existe pas, renvoie une chaîne vide.</li>
+  <li><code>${VARIABLE}</code> : insère la valeur issue des sources d’interpolation ; si la variable n’est pas définie et n’a pas de valeur de repli, Compose avertit et utilise une chaîne vide.</li>
   <li><code>${VARIABLE:-valeur_par_defaut}</code> : utilise la variable si elle existe et n’est pas vide, sinon applique <code>valeur_par_defaut</code>.</li>
-  <li><code>${VARIABLE:?message_erreur}</code> : bloque immédiatement le lancement avec une erreur si la variable obligatoire est manquante.</li>
+  <li><code>${VARIABLE:?message_erreur}</code> : signale une erreur si la variable obligatoire est absente ou vide.</li>
 </ul>
   <div class="box box--important">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Règle de Sécurité des Fichiers .env</div>
@@ -181,14 +181,12 @@ docker run -d --net mynet -p 8080:8080 myapi</code></pre>
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="dk2-c5-e1" data-lab
      data-exercise="dk2-c5-e1"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="service: frontend | image: nginx:alpine | ports: 80:80 | restart: always&#10;service: cache | image: redis:7 | restart: unless-stopped&#10;service: orphelin | restart: always">
@@ -202,12 +200,15 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 1 — Parseur et validateur de services Docker Compose</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Valider la structure des déclarations de services dans une spécification Docker Compose.</p>
-    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
+    <p class="lab__note" id="dk2-c5-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Le script Bash lit un service par ligne sur l’entrée standard (stdin), au format <code>service: nom | image: valeur | ports: valeur | restart: valeur</code> ; <code>build</code> peut remplacer ou accompagner <code>image</code>. Les champs facultatifs peuvent être omis ou réordonnés.<br>
+Ce format et les règles suivantes sont ceux d'un modèle d'exercice, pas un validateur complet de Compose : une valeur <code>restart</code> inconnue est ramenée à <code>no</code> par convention. Une valeur vide ne compte pas comme image ou build ; si les deux sont renseignés, afficher l'image comme origine.<br>
 Règles de validation :<br>
 1. Chaque service DOIT comporter au moins une directive <code>image</code> OU <code>build</code>.<br>
 2. La directive <code>restart</code>, si présente, doit être parmi : <code>no</code>, <code>always</code>, <code>unless-stopped</code>, <code>on-failure</code>. (Sinon <code>no</code> par défaut).<br>
@@ -235,6 +236,7 @@ SERVICE: orphelin -&gt; INVALIDE (Directive image ou build obligatoire)</pre></d
 
 <div class="lab" id="dk2-c5-e2" data-lab
      data-exercise="dk2-c5-e2"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="web -&gt; api&#10;api -&gt; db, redis&#10;db -&gt; NONE&#10;redis -&gt; NONE">
@@ -248,19 +250,21 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 2 — Résolveur d’ordre de démarrage par graphe de dépendances (depends_on)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer l’ordre d’instanciation séquentiel des conteneurs via un tri topologique sans cycle.</p>
-    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin)... ou NONE&gt;</code>.<br>
+    <p class="lab__note" id="dk2-c5-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Le script Bash lit une ligne par service sur l’entrée standard (stdin), au format <code>&lt;service&gt; -&gt; &lt;dépendance1, dépendance2, ... ou NONE&gt;</code>. Une dépendance mentionnée est aussi un service, même sans ligne propre.<br>
 Par exemple : <code>web -&gt; api</code> signifie que <code>web</code> dépend de <code>api</code> (donc <code>api</code> doit démarrer avant <code>web</code>).<br>
 Règles :<br>
 - Effectuer un tri topologique des services.<br>
-- En cas d'égalité de niveau de dépendance, trier par ordre alphabétique des noms de service.<br>
-- Si une boucle de dépendance mutuelle est détectée, afficher : <code>ERREUR_COMPOSE: Dependance cyclique detectee</code>.<br>
-- Sinon, affichezzr l'ordre strict de démarrage :<br>
-<code>ORDRE_DEMARRAGE: &lt;S1&gt; -&gt; &lt;S2&gt; -&gt; ...</code></p></div>
+- À chaque étape, parmi les services dont toutes les dépendances sont déjà démarrées, choisir le premier par ordre alphabétique. Une dépendance répétée ne compte qu'une fois.<br>
+- Si une boucle de dépendance, y compris sur un service lui-même, est détectée, afficher : <code>ERREUR_COMPOSE: Dependance cyclique detectee</code>.<br>
+- Sinon, afficher l'ordre de ce modèle séquentiel :<br>
+<code>ORDRE_DEMARRAGE: &lt;S1&gt; -&gt; &lt;S2&gt; -&gt; ...</code><br>Une entrée sans service donne <code>ORDRE_DEMARRAGE:</code>. Cet ordre ne garantit pas que les applications soient prêtes à recevoir des requêtes.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>web -&gt; api
 api -&gt; db, redis
@@ -281,6 +285,7 @@ redis -&gt; NONE</pre></div>
 
 <div class="lab" id="dk2-c5-e3" data-lab
      data-exercise="dk2-c5-e3"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="PORT=8080&#10;DB_USER=admin&#10;---&#10;image: nginx:${TAG:-latest}&#10;ports: ${PORT}:80&#10;user: ${DB_USER}&#10;db_pass: ${DB_PASS:-secret123}">
@@ -294,13 +299,17 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 3 — Interprète de variables d’environnement et fichiers .env dans Compose</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Résoudre les syntaxes d’interpolation ${VAR} et ${VAR:-default} dans les fichiers de configuration Compose.</p>
-    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).env</code>.<br>
+    <p class="lab__goal"><strong>Objectif :</strong> Résoudre les syntaxes d’interpolation <code>${VAR}</code> et <code>${VAR:-default}</code> dans les fichiers de configuration Compose.</p>
+    <p class="lab__note" id="dk2-c5-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Le script Bash lit deux blocs sur l’entrée standard (stdin).<br>
+- Bloc 1 : une affectation simple <code>NOM=valeur</code> par ligne, représentant les valeurs d'un fichier <code>.env</code>.<br>
 - Bloc 2 (après <code>---</code>) : chaînes de configuration Compose à évaluer (une par ligne).<br>
+Ce modèle utilise uniquement le premier bloc ; il ne reproduit pas les priorités entre environnement du shell et fichiers Compose. Les noms suivent le format <code>[A-Za-z_][A-Za-z0-9_]*</code>, les valeurs sont du texte littéral, et les interpolations imbriquées ou échappées ne sont pas traitées.<br>
 Règles d'interpolation :<br>
 - <code>${VAR}</code> : remplacé par la valeur de <code>VAR</code> si elle existe, sinon chaîne vide.<br>
 - <code>${VAR:-default}</code> : remplacé par la valeur de <code>VAR</code> si non vide, sinon par <code>default</code>.<br>
@@ -329,6 +338,7 @@ RESOLU: db_pass: secret123</pre></div>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -381,7 +391,7 @@ RESOLU: db_pass: secret123</pre></div>
         <button class="opt">La valeur est remplacée par le mot « NULL »</button>
         <button class="opt">Le port 80 est attribué automatiquement</button>
       </div>
-      <div class="q__exp">La syntaxe ${VAR:-defaut} permet de fournir une valeur de repli robuste lorsque la variable d’environnement n’est pas renseignée.</div>
+      <div class="q__exp">La syntaxe ${VAR:-defaut} utilise la valeur de repli si la variable est absente ou vide ; une variable définie et non vide est conservée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi est-il impératif d’ajouter le fichier « .env » dans le fichier « .gitignore » du projet ?</p>
@@ -460,7 +470,7 @@ RESOLU: db_pass: secret123</pre></div>
       <li>Je sais pourquoi depends_on classique peut conduire à un plantage d’application au démarrage.</li>
       <li>Je sais configurer une directive healthcheck avec interval, timeout et retries.</li>
       <li>Je maîtrise la syntaxe d’interpolation ${VAR:-default} dans les fichiers YAML Compose.</li>
-      <li>Je sais pourquoi le fichier .env ne doit jamais être versionné dans git.</li>
+      <li>Je sais pourquoi un fichier .env contenant des secrets ne doit pas être versionné dans git.</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
@@ -476,7 +486,7 @@ RESOLU: db_pass: secret123</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Révisez la structure YAML Compose, la commande up et le rôle de depends_on.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Révisez la structure YAML Compose, la commande up et le rôle de depends_on.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Bon socle acquis. Approfondissez les Healthchecks et la gestion des variables d’environnement.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Très bonne maîtrise de l’orchestration multi-conteneurs sous Docker Compose.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Score parfait ! Vous architectez des environnements de déploiement déclaratifs d’une fiabilité exemplaire.</div>

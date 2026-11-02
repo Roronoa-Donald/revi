@@ -40,12 +40,15 @@ module.exports = {
         '    <h4>Reformulations Empathiques et Actionnables</h4>',
         '    <ul>',
         '      <li><i>"Your session has expired for security reasons. Please sign in again to continue safely."</i> (Rassurant et clair).</li>',
-        '      <li><i>"The payment gateway is momentarily unavailable. No money has been charged from your account. Please retry in a few moments."</i> (Désamorce l’anxiété financière).</li>',
+        '      <li><i lang="en">"We could not confirm your payment status. Please check it or contact support before trying again."</i> (Reconnaît l’incertitude et évite une nouvelle tentative prématurée).</li>',
         '      <li><i>"Your password must not contain special characters such as &lt; or &gt;."</i> (Consigne d’action immédiate).</li>',
         '      <li><i>"We are having trouble saving your profile right now. Our technical team has been notified and is working on a fix."</i></li>',
         '    </ul>',
         '  </div>',
-        '</div>'
+        '</div>',
+        '<p>Une <strong>502</strong> indique qu’une passerelle a reçu une réponse invalide de l’amont ; elle ne prouve ni l’échec ni la réussite du paiement. La transaction peut avoir été traitée malgré l’erreur. L’équipe vérifie son état auprès du prestataire et rapproche, si nécessaire, les notifications reçues avant toute nouvelle opération.</p>',
+        '<p>Si une nouvelle tentative est envisagée, suivre la procédure du prestataire : pour une même opération, utiliser la même clé d’idempotence et les mêmes paramètres dans sa fenêtre de validité lorsque le prestataire le prévoit. Une clé ne confirme pas à elle seule le statut ; certaines erreurs peuvent être renvoyées de nouveau. Ne pas créer une nouvelle clé avant d’avoir clarifié le résultat initial.</p>',
+        '<p>Références : <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-15.6.3">RFC 9110 — 502</a> ; <a href="https://docs.stripe.com/error-low-level">Stripe — traitement des erreurs HTTP</a> ; <a href="https://docs.stripe.com/api/idempotent_requests">Stripe — requêtes idempotentes</a> (consultées le 30 octobre 2026).</p>'
       ].join('\n')
     },
     {
@@ -92,20 +95,21 @@ module.exports = {
   ],
   method: [
     'Dépouiller systématiquement les messages d’erreur de tout jargon ou trace de pile avant de communiquer avec un utilisateur.',
-    'Rassurer immédiatement sur la sécurité des fonds et l’intégrité des données dès le premier message de support.',
+    'Exprimer de l’empathie sans garantir l’état des fonds ou des données avant vérification.',
     'Évaluer objectivement l’impact métier et l’urgence pour assigner la sévérité exacte (SEV-1 à SEV-4) selon la grille ITIL.',
     'Bannir formellement les noms d’ingénieurs et les accusations personnelles lors de la rédaction d’un post-mortem.',
     'Approfondir la cause racine avec les 5 Pourquoi jusqu’à identifier un garde-fou automatisé absent (test, linter, alerte).'
   ],
   summary: [
-    'Le support client exige une vulgarisation empathique : expliquer le problème sans condescendance et donner une action claire.',
+    'Le support client exige une vulgarisation empathique : signaler ce qui est vérifié ou incertain et donner une action claire.',
+    'Après une 502 pendant un paiement, vérifier le statut avant une nouvelle opération et respecter la procédure d’idempotence du prestataire.',
     'La matrice de sévérité ITIL fixe les priorités d’intervention et les fenêtres de réponse contractuelles.',
     'Un incident SEV-1 exige une prise en charge sous 15 minutes et une résolution ou mitigation sous 4 heures.',
     'La culture Blameless considère que les pannes révèlent des failles systémiques de conception et non des fautes individuelles.',
     'La méthode des 5 Pourquoi remonte du symptôme immédiat jusqu’à la cause racine organisationnelle et technique.'
   ],
   checklist: [
-    'Mes réponses de support rassurent-elles l’utilisateur avant d’expliquer la procédure ?',
+    'Mes réponses de support distinguent-elles les faits vérifiés des incertitudes avant d’expliquer la procédure ?',
     'Ai-je classifié l’incident selon la matrice ITIL en croisant impact et urgence ?',
     'Le rapport post-mortem est-il exempt de tout mot de blâme individuel (fault, careless, lazy) ?',
     'La chaîne des 5 Pourquoi comporte-t-elle bien cinq niveaux d’interrogation successifs ?',
@@ -123,6 +127,7 @@ module.exports = {
   ],
   pitfalls: [
     'Exposer des traces d’exceptions (stack traces) à des utilisateurs non techniciens, créant anxiété et incompréhension.',
+    'Déduire d’une 502 qu’aucun paiement n’a eu lieu ou demander de payer à nouveau sans vérifier la transaction.',
     'Surévaluer ou sous-évaluer un incident sans se référer à la grille objective d’impact et d’urgence ITIL.',
     'Conclure un post-mortem en désignant une erreur humaine sans interroger l’absence de garde-fou technique.',
     'Arrêter la chaîne des 5 Pourquoi au deuxième ou troisième niveau, masquant la véritable cause racine systémique.'
@@ -132,12 +137,12 @@ module.exports = {
       stem: 'Face à un utilisateur paniqué demandant si son paiement a été débité suite à une erreur HTTP 502, quelle est la réponse de support la plus professionnelle ?',
       opts: [
         'Read the status codes, 502 means bad gateway on upstream Nginx.',
-        'The payment server is momentarily unavailable. No money has been charged from your card. Please wait a moment and retry.',
+        'We could not confirm your payment status. Please check it or contact support before trying again.',
         'It is not our problem, your bank rejected the transaction.',
         'Our microservice crashed because of a null pointer exception.'
       ],
       correct: 1,
-      exp: 'Cette réponse élimine immédiatement l’angoisse financière (« No money has been charged »), évite tout jargon et donne une consigne claire.'
+      exp: 'Une 502 ne confirme pas l’état du paiement. La réponse indique l’incertitude et demande une vérification avant toute nouvelle tentative.'
     },
     {
       stem: 'Quel est l’objectif premier d’un Post-Mortem Blameless dans la culture SRE (Site Reliability Engineering) ?',
@@ -220,7 +225,7 @@ module.exports = {
   flashcards: [
     {
       q: 'Quelle est la règle d’or pour traduire un message d’erreur en support client ?',
-      a: 'Faire preuve d’empathie, rassurer sur l’intégrité des données ou des paiements, éliminer le jargon technique et donner une consigne d’action claire.'
+      a: 'Faire preuve d’empathie, distinguer les faits vérifiés des incertitudes, éviter le jargon et donner une consigne d’action claire.'
     },
     {
       q: 'Quelles sont les deux dimensions croisées par la matrice de sévérité ITIL ?',

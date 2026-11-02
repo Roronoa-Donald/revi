@@ -23,7 +23,7 @@ module.exports = [
       '- <code>introuvable</code> &rarr; <code>404 Not Found</code><br>' +
       '- <code>invalide</code> &rarr; <code>400 Bad Request</code><br>' +
       '- <code>non_autorise</code> &rarr; <code>401 Unauthorized</code><br>' +
-      '- <code>interdit</code> &rarr; <code>403 Forbidden</code><br>' +
+      '- <code>interdit</code> &rarr; <code>403 Forbidden</code></p>' +
       '<p>Lit le nom du scénario sur l’entrée standard (minuscules, sans espaces superflus) et ' +
       'affiche le code d’état exact suivi de son libellé officiel sous la forme <code>&lt;code&gt; &lt;libelle&gt;</code>.</p>',
     starter: `scenario = input().strip().lower()\n\n# À compléter : mapper le scénario vers le code HTTP approprié.\n`,
@@ -38,6 +38,7 @@ module.exports = [
         note: 'Création réussie d’une nouvelle ressource.'
       }
     ],
+    verifyFirstExample: true,
     tests: [
       {
         label: 'Suppression sans contenu',
@@ -53,6 +54,26 @@ module.exports = [
         label: 'Payload de requête invalide',
         stdin: 'invalide',
         expected: '400 Bad Request'
+      },
+      {
+        label: 'Lecture réussie',
+        stdin: 'lecture',
+        expected: '200 OK'
+      },
+      {
+        label: 'Succès générique',
+        stdin: 'succes',
+        expected: '200 OK'
+      },
+      {
+        label: 'Authentification requise',
+        stdin: 'non_autorise',
+        expected: '401 Unauthorized'
+      },
+      {
+        label: 'Accès interdit',
+        stdin: 'interdit',
+        expected: '403 Forbidden'
       }
     ],
     solution: `scenario = input().strip().lower()
@@ -144,7 +165,7 @@ print(json.dumps(payload, sort_keys=True))
       '1. Le numéro de page demandé (entier, commence à 1)<br>' +
       '2. La limite d’éléments par page (entier)<br>' +
       '3. Une liste complète d’éléments au format JSON (tableau d’entiers ou de chaînes)<br>' +
-      'Calcule la tranche d’éléments correspondant à la page demandée, puis produis le JSON contenant :<br>' +
+      'Calculez la tranche d’éléments correspondant à la page demandée, puis produisez le JSON contenant :<br>' +
       '- <code>"total"</code>: nombre total d’éléments dans la collection<br>' +
       '- <code>"page"</code>: page courante (int)<br>' +
       '- <code>"limit"</code>: taille de page (int)<br>' +

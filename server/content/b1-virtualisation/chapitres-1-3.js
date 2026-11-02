@@ -23,40 +23,34 @@ module.exports = [
     free: true,
 
     situation:
-      'Dans l’architecture informatique classique, la règle historique était stricte : « un serveur physique ' +
-      'dédié pour un seul service ». Cette approche a engendré un gaspillage économique et écologique massif : ' +
-      'des machines surpuissantes et coûteuses sous-utilisées à plus de 80 % de leur temps, condamnées à ' +
-      'consommer de l’électricité à vide. Ce syndrome du « serveur fainéant » est le point de départ de toute ' +
-      'la révolution de la virtualisation. Ce chapitre pose le constat chiffré indispensable à tout ingénieur ' +
-      'd’infrastructure : mesurer le temps perdu, identifier les serveurs mono-service et calculer la facture énergétique.',
+      'Dans la fable du serveur fainéant, une machine héberge un seul service et reste souvent inactive. ' +
+      'Ce scénario aide à comprendre la consolidation, mais les chiffres de l’histoire ne décrivent pas ' +
+      'automatiquement un parc réel : il faut mesurer la charge et les coûts avant de conclure.',
 
     objectives: [
-      'comprendre l’origine historique de la sous-utilisation : le dogme « un serveur, un service » ;',
-      'mesurer le taux d’inactivité d’un parc serveur (seuil critique des 80 % / 48 minutes par heure) ;',
-      'identifier les serveurs mono-service et chiffrer le coût financier du gaspillage matériel ;',
-      'calculer la consommation électrique réelle d’un serveur en fonctionnement (watts vers kWh).'
+      'reconnaître une sous-utilisation possible dans le scénario du serveur mono-service ;',
+      'convertir un taux d’inactivité fictif en minutes par heure ;',
+      'distinguer l’affectation des services, la charge mesurée et le coût réel ;',
+      'estimer une consommation électrique à partir d’une puissance supposée constante (watts vers kWh).'
     ],
 
     sections: [
       {
         title: 'Le problème historique : le syndrome du serveur mono-service',
         html: [
-          '<p>Avant l’avènement de la virtualisation moderne, les administrateurs systèmes appliquaient un principe ' +
-          'de précaution absolu : <strong>isoler physiquement chaque application sur sa propre machine</strong>. ' +
-          'Un serveur physique était acheté pour héberger un site web, un autre pour la base de données, un troisième ' +
-          'pour la messagerie. L’objectif était d’éviter qu’un plantage logiciel n’entraîne la chute des autres services.</p>',
-          '<p>La conséquence directe de cette architecture fut désastreuse : des serveurs professionnels puissants, ' +
-          'dotés de processeurs multicœurs et de dizaines de gigaoctets de mémoire vive, passaient en réalité ' +
-          '<strong>80 % de leur temps à ne rien faire</strong> (en attente de requêtes). Le support pédagogique ' +
-          'illustre cette réalité sous le nom parlant de <strong>serveur fainéant</strong> : une machine coûteuse qui ' +
-          'tourne à vide et consomme de l’électricité sans produire de valeur.</p>',
-          '<p>C’est pour briser cette impasse qu’un ingénieur IT a introduit la <strong>virtualisation</strong> : ' +
+          '<p>Dans certains parcs, des applications sont isolées sur des machines physiques distinctes. ' +
+          'Cette organisation peut limiter les interactions entre services, mais certaines machines peuvent ' +
+          'rester sous-utilisées : cela dépend de leur charge réelle.</p>',
+          '<p>La fable illustre ce cas avec un <strong>serveur fainéant</strong>, supposé inactif ' +
+          '<strong>80 % du temps</strong>. Cette valeur est une hypothèse du récit, pas une statistique ' +
+          'générale sur les serveurs mono-service.</p>',
+          '<p>Une approche possible est la <strong>virtualisation</strong> : ' +
           'plutôt que de multiplier les boîtiers physiques, on installe une couche logicielle (l’<strong>hyperviseur</strong>) ' +
           'qui crée plusieurs <strong>machines virtuelles (VM)</strong> indépendantes et isolées se partageant la même machine physique.</p>',
           box('situation', 'L’origine du terme « serveur fainéant »', 'compass',
-            '    <p>Le « serveur fainéant » n’est pas une machine défectueuse : c’est une machine victime d’une ' +
-            'mauvaise architecture. Tant qu’un serveur reste cantonné à un seul service, son taux d’utilisation ' +
-            'moyen plafonne entre 10 % et 20 %. La virtualisation résout ce problème en consolidant les charges.</p>')
+            '    <p>Le « serveur fainéant » est une image. Un seul service peut être très sollicité : ' +
+            'son nombre ne permet pas de déduire la charge. Mesurer avant de décider si la consolidation ' +
+            'convient, en gardant des marges de capacité.</p>')
         ].join('\n')
       },
       {
@@ -66,14 +60,13 @@ module.exports = [
           'standard de 60 minutes, un taux d’inactivité de 80 % correspond exactement à <strong>48 minutes ' +
           'à ne rien faire</strong> :</p>',
           '$$\\text{Temps perdu} = 60 \\text{ min} \\times 0{,}80 = 48 \\text{ min}$$',
-          '<p>Toute heure où l’inactivité cumulée atteint ou dépasse 48 minutes est formellement qualifiée d’<strong>heure ' +
-          'perdue</strong>. Pour auditer un parc informatique, l’administrateur recense systématiquement les machines hébergeant ' +
-          '<strong>moins de deux services</strong> (les serveurs mono-service). Chaque machine mono-service reproduit ce schéma ' +
-          'de sous-utilisation : <strong>80 % de son coût d’amortissement mensuel part en pure perte</strong>.</p>',
+          '<p>Pour les exercices, on appelle « heure perdue » une heure avec au moins 48 minutes ' +
+          'd’inactivité : c’est un seuil fictif, non une norme d’audit. Le nombre de services ne suffit ' +
+          'pas à mesurer la charge et 80 % d’inactivité ne signifie pas automatiquement 80 % de coût perdu.</p>',
           box('mnemo', 'Les trois repères du constat', 'pin',
-            '    <p>Retenir les trois chiffres cardinaux de l’audit : <strong>48 minutes</strong> d’inactivité par heure, ' +
-            'moins de <strong>2 services</strong> par machine physique = serveur fainéant, et <strong>80 %</strong> ' +
-            'du coût matériel gaspillé. C’est la base du dimensionnement vu au chapitre 4.</p>')
+            '    <p>Dans cet exemple, <strong>80 %</strong> d’une heure font <strong>48 minutes</strong>. ' +
+            'Mesurer séparément l’usage, les besoins de disponibilité et les coûts avant de décider ' +
+            'si une consolidation est pertinente.</p>')
         ].join('\n')
       },
       {
@@ -93,22 +86,21 @@ module.exports = [
           box('pitfall', 'Piège classique — Watts contre Kilowattheures', 'warning',
             '    <p>Le <strong>watt (W)</strong> mesure la puissance appelée à un instant T (le débit d’eau du robinet). ' +
             'Le <strong>kilowattheure (kWh)</strong> mesure le volume total consommé dans le temps (la quantité d’eau dans la baignoire). ' +
-            'On ne facture jamais des watts, mais des kilowattheures.</p>')
+            'L’énergie est exprimée en kilowattheures ; la facture peut aussi comporter des frais fixes ou liés à la puissance.</p>')
         ].join('\n')
       },
       {
         title: 'Vers la consolidation et les machines virtuelles',
         html: [
-          '<p>Face à ce constat accablant — 80 % d’inactivité, serveurs mono-service pléthoriques, factures d’énergie ' +
-          'et de climatisation colossales —, la question de l’ingénieur s’impose d’elle-même : ' +
-          '<em>« Pourquoi payer dix machines physiques quand une seule suffirait amplement à héberger tous ces services ? »</em></p>',
+          '<p>Face à une sous-utilisation mesurée, on peut étudier une consolidation. Le nombre d’hôtes ' +
+          'nécessaires dépend des charges, de la disponibilité attendue et des marges de sécurité.</p>',
           '<p>La réponse technique réside dans la <strong>consolidation par virtualisation</strong>, abordée au chapitre suivant : ' +
-          'allouer à chaque service uniquement les ressources réelles dont il a besoin (vCPU, mémoire vive, stockage), ' +
-          'tout en maintenant une étanchéité logicielle totale.</p>',
+          'dimensionner les ressources des VM (vCPU, mémoire vive, stockage) et vérifier l’isolation, ' +
+          'la sécurité et la capacité sous charge.</p>',
           box('tech', 'Les exercices pratiques de ce module', 'terminal',
             '    <p>Pour valider ce premier chapitre, vous allez coder trois algorithmes d’audit : ' +
             '1. Classer les heures d’un serveur (utile vs perdue) au seuil de 48 min ; ' +
-            '2. Identifier les serveurs mono-service et chiffrer la perte financière ; ' +
+            '2. Appliquer une hypothèse fictive de coût à un parc simulé ; ' +
             '3. Calculer la facture d’électricité globale d’un parc à partir de sa consommation en watts.</p>')
         ].join('\n')
       }
@@ -118,10 +110,10 @@ module.exports = [
       { q: 'Pourquoi le serveur est-il qualifié de « fainéant » ?', opts: ['il passait 80 % de son temps à ne rien faire', 'il refusait les mises à jour', 'il était trop lent'], correct: 0, exp: 'Un seul système, un seul service, 80 % d’inactivité : la définition exacte de l’histoire.' },
       { q: 'Que faisait le serveur avec son temps libre ?', opts: ['il dormait et mangeait de l’électricité pour rien', 'il compilait des projets', 'il aidait les autres serveurs'], correct: 0, exp: 'L’histoire insiste : il s’ennuyait et coûtait de l’électricité à vide.' },
       { q: '80 % d’une heure, c’est…', opts: ['48 minutes', '60 minutes', '30 minutes'], correct: 0, exp: '0,8 × 60 = 48 minutes — le seuil du calcul du fainéant.' },
-      { q: 'Un serveur mono-service héberge…', opts: ['moins de deux services', 'exactement dix services', 'aucun service'], correct: 0, exp: 'Moins de 2 services : le profil du fainéant.' },
+      { q: 'Un serveur mono-service héberge…', opts: ['un seul service', 'exactement dix services', 'aucun service'], correct: 0, exp: 'Mono-service signifie un seul service ; cela ne détermine pas son taux de charge.' },
       { q: 'L’énergie consommée par 500 W pendant 720 h vaut…', opts: ['360 kWh', '360 000 W', '36 kWh'], correct: 0, exp: '500 × 720 / 1000 = 360 kWh.' },
       { q: 'Le service hébergé en premier dans l’histoire…', opts: ['un site web ou une base de données', 'un jeu vidéo', 'un serveur de mail'], correct: 0, exp: 'L’histoire cite « un site web ou une base de données » comme unique service.' },
-      { q: 'Le gaspillage d’un fainéant se chiffre à…', opts: ['80 % de son coût', '100 % de son coût', '50 % de son coût'], correct: 0, exp: 'Il tourne à vide 80 % du temps : 80 % du coût part pour rien.' },
+      { q: 'Que déduit-on d’une inactivité mesurée de 80 % ?', opts: ['Le coût perdu ne se déduit pas sans autre analyse', '80 % du coût est forcément perdu', 'Tout le coût est forcément perdu'], correct: 0, exp: 'Charge, disponibilité, coûts fixes et consommation doivent être étudiés séparément.' },
       { q: 'Qui a l’idée de la virtualisation dans l’histoire ?', opts: ['un ingénieur IT', 'le serveur lui-même', 'les machines virtuelles'], correct: 0, exp: 'Un jour, un ingénieur IT eut cette idée.' }
     ],
 
@@ -135,14 +127,14 @@ module.exports = [
     methodTitle: 'Construire le constat',
     method: [
       'Mesurer l’inactivité heure par heure et compter les heures perdues (seuil 48 minutes).',
-      'Lister les serveurs à moins de deux services et chiffrer 80 % de leur coût.',
+      'Lister les services et mesurer l’usage ; expliciter toute hypothèse de coût.',
       'Traduire le tout en facture d’électricité : le langage que les responsables comprennent.'
     ],
 
     summary: [
-      'Un serveur puissant + un seul service = 80 % du temps à ne rien faire.',
+      'Dans la fable, un serveur à un service est supposé inactif 80 % du temps ; ce n’est pas une règle générale.',
       'Le gaspillage se mesure : heures perdues, serveurs mono-service, facture du vide.',
-      '48 minutes, 2 services, 80 % : les trois nombres du constat.',
+      '80 % d’une heure font 48 minutes ; le coût ne se déduit pas de ce seul taux.',
       'L’énergie se calcule : watt × heures / 1000 = kWh, puis × prix = facture.'
     ],
 
@@ -172,24 +164,7 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Qu’est-ce que « mono-service » ?', a: 'mono-service : Dans l’architecture informatique classique, la règle historique était stricte : « un serveur physique dédié pour un seul service ». Cette approche a engendré un gaspillage économique et écologique massif : des machines surpuissantes et coûteuses sous-utilisées à plus de 80 % de l' },
-      { q: 'Qu’est-ce que « taux d’inactivité » ?', a: 'mesurer le taux d’inactivité d’un parc serveur (seuil critique des 80 % / 48 minutes par heure) ;' },
-      { q: 'Qu’est-ce que « heure perdue » ?', a: 'Toute heure où l’inactivité cumulée atteint ou dépasse 48 minutes est formellement qualifiée d’ heure perdue . Pour auditer un parc informatique, l’administrateur recense systématiquement les machines hébergeant moins de deux services (les serveurs mono-service). Chaque machine m' },
-      { q: 'Qu’est-ce que « kilowattheure (kWh) » ?', a: 'Le watt (W) mesure la puissance appelée à un instant T (le débit d’eau du robinet). Le kilowattheure (kWh) mesure le volume total consommé dans le temps (la quantité d’eau dans la baignoire). On ne facture jamais des watts, mais des kilowattheures.' },
-      { q: 'Qu’est-ce que « machine virtuelle » ?', a: 'Chaque machine virtuelle se comporte comme un ordinateur complet — son propre système, ses propres applications — mais tout cela n’est qu’un partage organisé du matériel physique du serveur hôte.' },
-      { q: 'Qu’est-ce que « stockage (disque) » ?', a: 'Les VM de l’histoire promettent : « on va se partager votre mémoire, votre processeur et même votre disque dur ». Analysez chaque ligne proposée « ressource partage » : partage est un code parmi vive (mémoire), calcul (processeur), stockage (disque) ou pas-partage (ressource qui reste p' },
-      { q: 'Qu’est-ce que « ordre d’apparition » ?', a: 'dresser l’inventaire des VM par type de service, dans l’ordre d’apparition ;' },
-      { q: 'Qu’est-ce que « charge cumulée » ?', a: 'L’inventaire et la charge préparent le dimensionnement du chapitre 4 : un service dont la charge cumulée grimpe aura besoin d’une VM supplémentaire ; un service à 5 % pourrait partager mieux. Le parc devient un objet que l’on lit, pas une collection de machines que l’on subit.' },
-      { q: 'Qu’est-ce que « taux d’utilisation » ?', a: 'mesurer le réveil d’un serveur : taux d’utilisation avant et après ;' },
-      { q: 'Qu’est-ce que « consolidation » ?', a: 'Exemple du cours : 300 000 FCFA de serveurs, une VM à 60 000 FCFA → 300 000 / 60 000 = 5 VM exactement : 300 000 FCFA aussi, économie nulle. Mais à 80 000 FCFA la VM, 200 000 / 80 000 = 2,5 → 3 VM : 240 000 FCFA. L’économie peut être négative : la consolidation a un coût, et l’ar' },
-      { q: 'Qu’est-ce que « tableau de bord » ?', a: 'Le constat est posé, la promesse acceptée : place aux résultats. « Le serveur, bien que toujours un peu paresseux, se retrouva rentabilisé à 100 %. » Ce chapitre transforme la fable en tableau de bord : mesurer le réveil d’un serveur, comparer le parc physique au parc virtualisé,' },
-      { q: 'Qu’est-ce que « mutualisation » ?', a: 'Quel concept est illustré ? La mutualisation : plusieurs VM sur un même serveur physique, ressources partagées.' },
-      { q: 'Qu’est-ce que « seuil de saturation » ?', a: 'appliquer le seuil de saturation : une VM refusée plutôt qu’un serveur noyé ;' },
-      { q: 'Qu’est-ce que « serveur plein » ?', a: 'Cas limite à connaître : le serveur plein . Quand la charge totale atteint exactement la capacité, il reste hébergeable — mais plus rien ne pourra s’ajouter. C’est un état à surveiller, pas encore une panne.' },
-      { q: 'Qu’est-ce que « déplacement de VM » ?', a: 'Réagir par déplacement de VM vers un hôte moins chargé, jamais par accumulation.' },
-      { q: 'Qu’est-ce que « plan de réveil » ?', a: 'élaborer le plan de réveil : virtualiser, étudier, garder ;' },
-      { q: 'Qu’est-ce que « vigilance » ?', a: 'Ce verdict, l’histoire l’a déjà prononcé à sa façon : « Et pour une fois, il ne s’ennuyait plus ! (Bon, il se plaignait quand même un peu, mais ça, c’est une autre histoire...) » — le succès n’exclut pas la vigilance.' },
-      { q: 'Les trois nombres du constat ?', a: '48 minutes (80 % d’une heure), 2 services (seuil du fainéant), 80 % du coût (gaspillage).' },
+      { q: 'Que vaut 80 % d’une heure ?', a: '48 minutes ; ce taux ne suffit pas à déduire le coût perdu.' },
       { q: 'Que faisait le serveur fainéant ?', a: 'Un seul système, un seul service, 80 % du temps à ne rien faire, de l’électricité pour rien.' },
       { q: 'Le calcul du kWh ?', a: 'Puissance (W) × heures / 1000 = kWh ; à 100 F le kWh, la facture suit.' },
       { q: 'Qui a l’idée de la virtualisation ?', a: 'Un ingénieur IT — « et si on utilisait la virtualisation ? ».' },
@@ -276,7 +251,7 @@ module.exports = [
           '    <li>l’<strong>ingénieur</strong> propose l’idée de la virtualisation ;</li>\n' +
           '    <li>le <strong>serveur</strong> se réveille en sursaut et refuse (« C’est de la folie ! ») ;</li>\n' +
           '    <li>les <strong>machines virtuelles</strong> proposent le partage des ressources ;</li>\n' +
-          '    <li>le <strong>serveur</strong> accepte — et se retrouve rentabilisé à 100 %.</li>\n' +
+          '    <li>le <strong>serveur</strong> accepte — le récit le dit « rentabilisé à 100 % », image à distinguer d’une mesure.</li>\n' +
           '  </ol>',
           box('tech', 'Les exercices de ce chapitre', 'terminal',
             '    <p>Classer les ressources partagées, allouer les demandes sans dépasser la capacité, rejouer ' +

@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -92,7 +92,7 @@
   <div class="card">
     <h4 class="card-title">Types textuels &amp; Temporels</h4>
     <ul>
-      <li><strong>CHAR(n) vs VARCHAR(n) :</strong> <code>CHAR</code> réserve une longueur fixe complétée par des espaces (ex: code ISO pays à 2 lettres). <code>VARCHAR</code> n’occupe que la taille réelle du texte plus un préfixe de longueur.</li>
+      <li><strong>CHAR(n) vs VARCHAR(n) :</strong> Dans PostgreSQL, <code>CHAR(n)</code> est complété par des espaces et <code>VARCHAR(n)</code> limite la longueur en caractères, pas en octets. La représentation et le nombre d’octets dépendent notamment de l’encodage. Dans SQLite, <code>VARCHAR(n)</code> ne fait pas respecter la limite n : ajoutez une contrainte explicite si nécessaire.</li>
       <li><strong>TIMESTAMP WITH TIME ZONE :</strong> Horodatage universel stocké en UTC et restitué selon le fuseau du client.</li>
     </ul>
   </div>
@@ -136,21 +136,19 @@
     <p>Une clé étrangère garantit que la valeur d’une colonne fait référence à une clé primaire existante dans la table parent :</p>
     <ul>
       <li><strong>ON DELETE RESTRICT (défaut) :</strong> Empêche la suppression du parent tant que des enfants y sont rattachés.</li>
-      <li><strong>ON DELETE CASCADE :</strong> Supprimez automatiquement tous les enregistrements enfants dépendants lors de la suppression du parent.</li>
+      <li><strong>ON DELETE CASCADE :</strong> Supprime automatiquement tous les enregistrements enfants dépendants lors de la suppression du parent.</li>
       <li><strong>ON DELETE SET NULL :</strong> Affecte la valeur NULL à la clé étrangère des enfants si la colonne est nullable.</li>
     </ul>
   </div>
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="sql2-c1-e1" data-lab
      data-exercise="sql2-c1-e1"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="&#10;-- VERIFY:&#10;SELECT name, type, &quot;notnull&quot;, dflt_value, pk FROM pragma_table_info('collaborateurs') ORDER BY cid;&#10;-- exemple">
@@ -160,12 +158,14 @@ SELECT 'A_COMPLETER';</script>
     <h3 class="lab__title">Exercice 1 — Création de table avec contraintes PRIMARY KEY, UNIQUE et CHECK</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Définir une table relationnelle avec contraintes d’unicité et de domaine.</p>
-    <div class="lab__brief"><p>Créez la table <code>collaborateurs(id INT PRIMARY KEY, email TEXT UNIQUE NOT NULL, salaire INT CHECK (salaire &gt;= 100000))</code>.</p></div>
+    <p class="lab__note" id="sql2-c1-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Créez la table <code>collaborateurs(id INT PRIMARY KEY, email TEXT UNIQUE NOT NULL, salaire INT CHECK (salaire &gt;= 100000))</code>. Dans ce schéma, le salaire peut être NULL : CHECK seul n’impose pas sa présence.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>
 -- VERIFY:
@@ -195,6 +195,7 @@ SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('collaborate
 
 <div class="lab" id="sql2-c1-e2" data-lab
      data-exercise="sql2-c1-e2"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE services (id INT PRIMARY KEY, libelle TEXT);&#10;-- VERIFY:&#10;SELECT name, type, &quot;notnull&quot;, dflt_value, pk FROM pragma_table_info('projets') ORDER BY cid;&#10;-- exemple">
@@ -204,11 +205,13 @@ SELECT 'A_COMPLETER';</script>
     <h3 class="lab__title">Exercice 2 — Clé étrangère et intégrité référentielle (FOREIGN KEY)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Déclarer une clé étrangère reliant une table enfant à une table parente.</p>
+    <p class="lab__note" id="sql2-c1-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>La table <code>services(id INT PRIMARY KEY, libelle TEXT)</code> existe déjà. Créez la table <code>projets(code TEXT PRIMARY KEY, titre TEXT NOT NULL, service_id INT REFERENCES services(id))</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE services (id INT PRIMARY KEY, libelle TEXT);
@@ -239,6 +242,7 @@ SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('projets') O
 
 <div class="lab" id="sql2-c1-e3" data-lab
      data-exercise="sql2-c1-e3"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="&#10;-- VERIFY:&#10;SELECT name, type, &quot;notnull&quot;, dflt_value, pk FROM pragma_table_info('affectations') ORDER BY cid;&#10;-- exemple">
@@ -248,11 +252,13 @@ SELECT 'A_COMPLETER';</script>
     <h3 class="lab__title">Exercice 3 — Clé primaire composite sur une table associative</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Définir une contrainte PRIMARY KEY (col1, col2) composée de deux colonnes.</p>
+    <p class="lab__note" id="sql2-c1-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Créez la table <code>affectations(employe_id INT, projet_id INT, heures INT NOT NULL, PRIMARY KEY (employe_id, projet_id))</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>
@@ -280,6 +286,7 @@ SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('affectation
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -325,14 +332,14 @@ SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('affectation
       <div class="q__exp">La clé primaire composite PRIMARY KEY (id_commande, id_produit) impose l’unicité stricte du couple (id_commande, id_produit) au niveau du moteur relationnel.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Quelle contrainte SQL permet de s’assurer qu’une colonne numérique stocke exclusivement des valeurs strictement positives (> 0) ?</p>
+      <p class="q__stem">Dans PostgreSQL, quelle définition accepte uniquement des valeurs strictement positives, finies et non NULL ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">CHECK (colonne > 0)</button>
-        <button class="opt">NOT NULL (colonne > 0)</button>
-        <button class="opt">UNIQUE (colonne > 0)</button>
-        <button class="opt">CONSTRAINT POSITIVE (colonne)</button>
+        <button class="opt" data-correct="1">colonne NUMERIC NOT NULL CHECK (colonne &gt; 0 AND colonne &lt; 'Infinity'::numeric)</button>
+        <button class="opt">colonne NUMERIC CHECK (colonne &gt; 0)</button>
+        <button class="opt">colonne NUMERIC NOT NULL CHECK (colonne &gt; 0)</button>
+        <button class="opt">colonne NUMERIC UNIQUE</button>
       </div>
-      <div class="q__exp">La contrainte CHECK évalue une expression booléenne sur chaque ligne insérée ou modifiée et rejette l’opération si l’expression vaut FALSE.</div>
+      <div class="q__exp">CHECK rejette FALSE mais accepte NULL (UNKNOWN) : NOT NULL impose la présence. PostgreSQL classe NaN et Infinity au-dessus de zéro ; la borne colonne &lt; 'Infinity'::numeric exclut ces deux valeurs si un prix fini est exigé.</div>
     </div>
   </div>
 
@@ -382,7 +389,7 @@ SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('affectation
     </ul>
     <h3>Les 9 notions à connaître absolument</h3>
     <ol>
-      <li>Modèle Relationnel & Schéma de table</li><li>Types de données SQL (INT, DECIMAL, VARCHAR, TIMESTAMP)</li><li>Data Definition Language (DDL)</li><li>Commandes CREATE TABLE, ALTER TABLE, DROP TABLE</li><li>Commande TRUNCATE TABLE vs DELETE</li><li>Intégrité d’Entité (PRIMARY KEY simple et composite)</li><li>Intégrité Référentielle (FOREIGN KEY)</li><li>Actions de suppression (ON DELETE CASCADE, RESTRICT, SET NULL)</li><li>Contraintes d’intégrité CHECK et UNIQUE</li>
+      <li>Modèle Relationnel &amp; Schéma de table</li><li>Types de données SQL (INT, DECIMAL, VARCHAR, TIMESTAMP)</li><li>Data Definition Language (DDL)</li><li>Commandes CREATE TABLE, ALTER TABLE, DROP TABLE</li><li>Commande TRUNCATE TABLE vs DELETE</li><li>Intégrité d’Entité (PRIMARY KEY simple et composite)</li><li>Intégrité Référentielle (FOREIGN KEY)</li><li>Actions de suppression (ON DELETE CASCADE, RESTRICT, SET NULL)</li><li>Contraintes d’intégrité CHECK et UNIQUE</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -394,10 +401,10 @@ SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('affectation
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Révise la syntaxe de CREATE TABLE et la différence entre FLOAT et DECIMAL.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Révisez la syntaxe de CREATE TABLE et la différence entre FLOAT et DECIMAL.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur les clés primaires composites et les actions ON DELETE.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous maîtrisez la modélisation formelle et les contraintes DDL.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise totale : passe à la manipulation des données, au filtrage et aux fonctions scalaires au module 2.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise totale : passez à la manipulation des données, au filtrage et aux fonctions scalaires au module 2.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

@@ -19,7 +19,7 @@ module.exports = {
     'comparer les 4 niveaux d’isolation ANSI SQL et leurs protections contre les anomalies de concurrence ;',
     'maîtriser la matrice de compatibilité des verrous à deux phases (2PL) partagés (S) et exclusifs (X) ;',
     'détecter et résoudre les cycles d’interblocage (Deadlocks) par exploration de graphes orientés ;',
-    'développer en Python 3 des simulateurs de niveaux d’isolation, des gestionnaires de verrous S/X et des détecteurs de cycles de transactions.'
+    'développer en requêtes SQL avancées et scripts d’analyse des simulateurs de niveaux d’isolation, des gestionnaires de verrous S/X et des détecteurs de cycles de transactions.'
   ],
   sections: [
     {
@@ -33,16 +33,16 @@ module.exports = {
         '      <li><strong>Atomicité (Atomicity) :</strong> Tout ou rien. Soit l’intégralité des opérations réussit, soit la base est restaurée dans son état initial sans effet de bord en cas d’erreur.</li>',
         '      <li><strong>Cohérence (Consistency) :</strong> La transaction fait passer la base d’un état intègre à un autre état intègre en respectant toutes les contraintes (clés étrangères, NOT NULL, CHECK, triggers).</li>',
         '      <li><strong>Isolation :</strong> Les opérations intermédiaires d’une transaction en cours sont invisibles aux transactions concurrentes selon le niveau d’isolation choisi.</li>',
-        '      <li><strong>Durabilité (Durability) :</strong> Une fois le COMMIT acquitté au client, les modifications sont définitivement pérennisées sur disque, survivant à toute panne matérielle ultérieure.</li>',
+        '      <li><strong>Durabilité (Durability) :</strong> Une transaction validée doit survivre à un crash si le journal est synchronisé sur un stockage fiable. Dans PostgreSQL, avec <code>fsync = on</code> et <code>synchronous_commit = on</code>, le COMMIT attend la synchronisation locale du WAL ; avec <code>synchronous_commit = off</code>, il peut être acquitté avant. Des sauvegardes indépendantes et une réplication adaptée restent nécessaires contre la destruction du stockage ou des seules copies.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
         '    <h4>Le Principe du Write-Ahead Logging (WAL)</h4>',
-        '    <p>Écrire directement chaque page de données modifiée (8 Ko) de manière synchrone sur disque serait prohibitif pour les performances (accès I/O aléatoires dispersés). Les moteurs modernes (PostgreSQL, InnoDB) appliquent le protocole <strong>ARIES / WAL</strong> :</p>',
+        '    <p>Écrire chaque page de données modifiée de manière synchrone serait coûteux. PostgreSQL applique le principe <strong>WAL</strong> ; les mécanismes de récupération, notamment ceux des moteurs utilisant une passe UNDO, varient selon le SGBD :</p>',
         '    <ol>',
-        '      <li>Les modifications sont enregistrées séquentiellement dans des fichiers de journaux circulaires <code>pg_wal</code> (fichiers de 16 Mo).</li>',
-        '      <li><strong>Règle d’or du WAL :</strong> Aucun bloc de données en mémoire tampon (Buffer Pool) n’est écrit sur disque avant que l’enregistrement WAL correspondant n’ait été synchronisé par un <code>fsync()</code>.</li>',
-        '      <li>Lors d’un crash, le moteur exécute une passe <em>REDO</em> (rejoue les commits) puis une passe <em>UNDO</em> (annule les transactions inachevées).</li>',
+        '      <li>Les modifications sont journalisées dans les segments <code>pg_wal</code> de PostgreSQL, dont la taille par défaut est de 16 Mio.</li>',
+        '      <li><strong>Règle d’or du WAL :</strong> Une page de données modifiée ne doit pas être écrite sur disque avant la synchronisation des enregistrements WAL nécessaires à sa reconstruction.</li>',
+        '      <li>Après un crash, PostgreSQL rejoue aussi les enregistrements de transactions non validées. Leur statut et MVCC déterminent la visibilité des versions ; les versions mortes peuvent être nettoyées ultérieurement, sans passe UNDO globale.</li>',
         '    </ol>',
         '  </div>',
         '</div>'
@@ -89,7 +89,7 @@ module.exports = {
         '    <p>Les verrous protègent les données contre les écritures conflictuelles :</p>',
         '    <ul>',
         '      <li><strong>Verrou Partagé (S - Shared) :</strong> Posé par une lecture explicite (<code>SELECT ... FOR SHARE</code>). Plusieurs transactions peuvent détenir un verrou S simultanément sur la même ressource.</li>',
-        '      <li><strong>Verrou Exclusif (X - Exclusive) :</strong> Posé par toute écriture (<code>UPDATE</code>, <code>DELETE</code>, <code>SELECT ... FOR UPDATE</code>). Incompatible avec tout autre verrou (S ou X).</li>',
+        '      <li><strong>Verrou Exclusif (X - Exclusive) :</strong> Dans le modèle S/X, il est incompatible avec les verrous S ou X sur la même ressource. Dans PostgreSQL, <code>SELECT ... FOR UPDATE</code> bloque les écritures et verrous de ligne conflictuels, pas un <code>SELECT</code> ordinaire utilisant MVCC.</li>',
         '      <li><strong>Protocole 2PL Strict :</strong> Tous les verrous acquis au cours d’une transaction sont conservés jusqu’à la fin définitive (COMMIT ou ROLLBACK) pour garantir la recouvrabilité.</li>',
         '    </ul>',
         '  </div>',
@@ -102,7 +102,8 @@ module.exports = {
         '      <li>Dès qu’un cycle est détecté, le moteur sélectionne une transaction victime (généralement la plus récente) et l’annule par un <code>ROLLBACK</code> avec code d’erreur <code>40P01</code>.</li>',
         '    </ul>',
         '  </div>',
-        '</div>'
+        '</div>',
+        '<p><strong>Instantané PostgreSQL :</strong> le snapshot tient compte des transactions en cours et la visibilité dépend aussi du statut validé ou annulé des transactions et des opérations de la transaction courante. Les colonnes système <code>xmin</code> et <code>xmax</code> ne suffisent pas à elles seules : un <code>xmax</code> non nul ne prouve pas une suppression définitivement visible.</p>'
       ].join('\n')
     }
   ],
@@ -118,13 +119,13 @@ module.exports = {
     'Les propriétés ACID garantissent l’atomicité, la cohérence, l’isolation et la durabilité des opérations sur la base.',
     'Le Write-Ahead Logging (WAL) sécurise les modifications de données de manière séquentielle avant toute écriture sur les tables.',
     'Les 4 niveaux d’isolation ANSI définissent les seuils de tolérance aux lectures sales, lectures non répétables et lectures fantômes.',
-    'PostgreSQL combine l’isolation avec le mécanisme MVCC où les lectures ne bloquent jamais les écritures.',
+    'Dans PostgreSQL, MVCC permet aux SELECT ordinaires et aux écritures de lignes de coexister ; les lectures verrouillantes et certains verrous de table ont d’autres règles.',
     'Les verrous partagés (S) sont compatibles entre eux mais incompatibles avec les verrous exclusifs (X).',
     'Le moteur résout les interblocages (deadlocks) en détectant les cycles dans le graphe d’attente et en avortant une transaction victime.'
   ],
   checklist: [
     'Je sais expliciter les quatre garanties ACID et leur rôle dans la fiabilité des données.',
-    'Je comprends pourquoi le mécanisme WAL permet une reprise après sinistre (Crash Recovery) sans perte de commit.',
+    'Je sais dans quelles conditions le WAL permet la reprise après crash et pourquoi un COMMIT acquitté avec synchronous_commit = off peut être perdu.',
     'Je maîtrise la matrice ANSI des anomalies de concurrence (Dirty Read, Non-Repeatable Read, Phantom Read).',
     'Je connais la compatibilité croisée entre les verrous S (Shared) et X (Exclusive).',
     'Je sais comment le SGBD détecte un cycle d’interblocage via le graphe Wait-For Graph.',
@@ -222,7 +223,7 @@ module.exports = {
         'SELECT ... ISOLATE'
       ],
       correct: 1,
-      exp: 'La clause FOR UPDATE verrouille les lignes lues en mode exclusif (X), empêchant toute autre transaction de les modifier ou de poser un verrou concurrent.'
+      exp: 'Dans PostgreSQL, FOR UPDATE verrouille les lignes et bloque les modifications ou verrous de ligne conflictuels. Un SELECT ordinaire peut néanmoins lire une version visible grâce à MVCC.'
     },
     {
       stem: 'Que signifie l’acronyme MVCC dans les moteurs transactionnels comme PostgreSQL ?',
@@ -233,59 +234,17 @@ module.exports = {
         'Minimal Value Commit Clause'
       ],
       correct: 1,
-      exp: 'MVCC maintient plusieurs versions physiques d’un même enregistrement, permettant aux lectures de consulter des instantanés passés sans jamais bloquer les écritures.'
+      exp: 'MVCC maintient plusieurs versions de ligne : dans PostgreSQL, un SELECT ordinaire lit une version visible de son instantané sans attendre un verrou de ligne ; les lectures verrouillantes ont d’autres règles.'
     }
   ],
   flashcards: [
-      { q: 'Qu’est-ce que « Propriétés ACID Fondamentales » ?', a: 'Propriétés ACID Fondamentales' },
-      { q: 'Qu’est-ce que « Write-Ahead Logging (WAL) & ARIES » ?', a: 'Write-Ahead Logging (WAL) & ARIES' },
-      { q: 'Qu’est-ce que « Anomalies de Concurrence ANSI » ?', a: 'Anomalies de Concurrence ANSI' },
-      { q: 'Qu’est-ce que « 4 Niveaux d’Isolation (Read Committed, Serializable) » ?', a: '4 Niveaux d’Isolation (Read Committed, Serializable)' },
-      { q: 'Qu’est-ce que « Contrôle de Concurrence Multiversion (MVCC) » ?', a: 'Pour arbitrer les accès concurrents, les SGBD exploitent le protocole de verrouillage à deux phases (Two-Phase Locking - 2PL) combiné au contrôle de concurrence multiversion (MVCC) :' },
-      { q: 'Qu’est-ce que « Graphe d’Attente (Wait-For Graph) » ?', a: 'Graphe d’Attente (Wait-For Graph)' },
-      { q: 'Qu’est-ce que « Détection et Résolution de Deadlocks » ?', a: 'Détection et Résolution de Deadlocks' },
-      { q: 'Qu’est-ce que « Pages Disques de 8 Ko & PageHeaderData » ?', a: 'Pages Disques de 8 Ko & PageHeaderData' },
-      { q: 'Qu’est-ce que « Arbre Équilibré B-Tree & Fan-Out » ?', a: 'Arbre Équilibré B-Tree & Fan-Out' },
-      { q: 'Qu’est-ce que « Index Hash & Accès O(1) » ?', a: 'Index Hash & Accès O(1) : Sur une base de données de production atteignant des centaines de gigaoctets ou des téraoctets, exécuter un balayage séquentiel complet (Sequential Scan) pour retrouver quelques enregistrements parmi 50 millions de lignes immobilise le disque, sature le buffer pool et génère des ' },
-      { q: 'Qu’est-ce que « Generalized Inverted Index (GIN) pour JSONB » ?', a: 'Generalized Inverted Index (GIN) pour JSONB' },
-      { q: 'Qu’est-ce que « Index Couvrants & Clause INCLUDE » ?', a: 'Les index couvrants (clause INCLUDE) permettent au moteur de satisfaire la requête par un Index Only Scan sans toucher la table.' },
-      { q: 'Qu’est-ce que « Index Partiels (Partial Indexes) » ?', a: 'concevoir des index partiels (Partial Indexes) et des index couvrants (Covering Indexes avec INCLUDE) ;' },
-      { q: 'Qu’est-ce que « Maintenance Reindex Concurrently » ?', a: 'Maintenance Reindex Concurrently' },
-      { q: 'Qu’est-ce que « Commande EXPLAIN (ANALYZE, BUFFERS) » ?', a: 'Commande EXPLAIN (ANALYZE, BUFFERS) : Lorsqu’une requête SQL met 12 secondes à s’exécuter en production au lieu des 50 millisecondes attendues, tenter de deviner intuitivement ce qui se passe conduit souvent à de fausses pistes ou à l’ajout hasardeux d’index inutiles. Dans un SGBDR comme PostgreSQL, l’optimiseur de r' },
-      { q: 'Qu’est-ce que « Coût de Démarrage & Coût Total (Startup vs Total Cost) » ?', a: 'Coût de Démarrage & Coût Total (Startup vs Total Cost)' },
-      { q: 'Qu’est-ce que « Nœuds d’Accès (Seq Scan, Index Scan, Bitmap Scan) » ?', a: 'Nœuds d’Accès (Seq Scan, Index Scan, Bitmap Scan)' },
-      { q: 'Qu’est-ce que « Mémoire work_mem & Spill to Disk » ?', a: 'Mémoire work_mem & Spill to Disk' },
-      { q: 'Qu’est-ce que « Statistiques du Catalogue pg_statistic & MCV » ?', a: 'Statistiques du Catalogue pg_statistic & MCV' },
-      { q: 'Qu’est-ce que « Dérives de Cardinalité & Commande ANALYZE » ?', a: 'Dérives de Cardinalité & Commande ANALYZE' },
-      { q: 'Qu’est-ce que « Clause OVER() » ?', a: 'Clause OVER() : maîtriser la clause analytique OVER avec ses sous-clauses PARTITION BY et ORDER BY ;' },
-      { q: 'Qu’est-ce que « ROW_NUMBER(), RANK(), DENSE_RANK() » ?', a: 'ROW_NUMBER(), RANK(), DENSE_RANK()' },
-      { q: 'Qu’est-ce que « LAG() & LEAD() » ?', a: '1. Identifier si le problème nécessite une fonction de classement (ROW_NUMBER/RANK), une navigation séquentielle (LAG/LEAD) ou une hiérarchie (WITH RECURSIVE).' },
-      { q: 'Qu’est-ce que « Cadres de fenêtre ROWS vs RANGE BETWEEN » ?', a: 'Cadres de fenêtre ROWS vs RANGE BETWEEN' },
-      { q: 'Qu’est-ce que « Moyennes glissantes (Moving Averages) » ?', a: 'Moyennes glissantes (Moving Averages)' },
-      { q: 'Qu’est-ce que « Common Table Expression récursive (WITH RECURSIVE) » ?', a: 'Common Table Expression récursive (WITH RECURSIVE)' },
-      { q: 'Qu’est-ce que « Détection et rupture de cycles hiérarchiques » ?', a: 'Détection et rupture de cycles hiérarchiques' },
-      { q: 'Qu’est-ce que « Langage PL/pgSQL (DECLARE, BEGIN, EXCEPTION) » ?', a: 'Langage PL/pgSQL (DECLARE, BEGIN, EXCEPTION)' },
-      { q: 'Qu’est-ce que « Déclencheurs (Triggers) BEFORE vs AFTER » ?', a: 'Déclencheurs (Triggers) BEFORE vs AFTER' },
-      { q: 'Qu’est-ce que « Pseudo-enregistrements NEW & OLD » ?', a: 'Pseudo-enregistrements NEW & OLD' },
-      { q: 'Qu’est-ce que « Opération TG_OP & variable TG_TABLE_NAME » ?', a: 'Opération TG_OP & variable TG_TABLE_NAME' },
-      { q: 'Qu’est-ce que « Tables d’audit immuables (Audit Logging) » ?', a: 'Tables d’audit immuables (Audit Logging)' },
-      { q: 'Qu’est-ce que « Row-Level Security (RLS) & ALTER TABLE ... ENABLE RLS » ?', a: 'Row-Level Security (RLS) & ALTER TABLE ... ENABLE RLS' },
-      { q: 'Qu’est-ce que « Politiques de sécurité (CREATE POLICY ... USING / WITH CHECK) » ?', a: 'Politiques de sécurité (CREATE POLICY ... USING / WITH CHECK)' },
-      { q: 'Qu’est-ce que « Prévention des injections SQL & requêtes paramétrées (USING) » ?', a: 'Prévention des injections SQL & requêtes paramétrées (USING)' },
-      { q: 'Qu’est-ce que « Élagage de partitions (Partition Pruning) » ?', a: 'comprendre et activer l’élagage de partitions (Partition Pruning) au niveau de l’optimiseur CBO et au runtime ;' },
-      { q: 'Qu’est-ce que « Partition par défaut (DEFAULT) » ?', a: 'Partition par défaut (DEFAULT)' },
-      { q: 'Qu’est-ce que « Write-Ahead Logging (WAL) & Segments WAL » ?', a: 'Write-Ahead Logging (WAL) & Segments WAL' },
-      { q: 'Qu’est-ce que « Checkpoints & Dirty Buffers » ?', a: 'Checkpoints & Dirty Buffers' },
-      { q: 'Qu’est-ce que « Streaming Replication synchrone vs asynchrone » ?', a: 'Streaming Replication synchrone vs asynchrone' },
-      { q: 'Qu’est-ce que « Log Sequence Number (LSN) & pg_wal_lsn_diff() » ?', a: 'Log Sequence Number (LSN) & pg_wal_lsn_diff()' },
-      { q: 'Qu’est-ce que « Haute Disponibilité (Patroni, repmgr, failover automatique) » ?', a: 'Haute Disponibilité (Patroni, repmgr, failover automatique)' },
     {
       q: 'Que garantit la propriété d’Atomicité (A) dans ACID ?',
       a: 'Que toutes les opérations de la transaction sont menées à terme, ou qu’aucune ne persiste en cas d’échec (tout ou rien).'
     },
     {
       q: 'Quel est l’impératif fondamental du Write-Ahead Logging (WAL) ?',
-      a: 'Inscrire et synchroniser les modifications dans le journal WAL sur disque avant de modifier les pages de table correspondantes.'
+      a: 'Synchroniser les enregistrements WAL nécessaires avant d’écrire sur disque les pages de données modifiées ; celles-ci peuvent déjà avoir été modifiées en mémoire.'
     },
     {
       q: 'Qu’est-ce qu’une lecture non répétable (Non-Repeatable Read) ?',

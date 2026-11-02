@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -107,17 +107,17 @@
 <table class="table">
   <thead><tr><th>Opérateur KQL</th><th>Rôle et Fonction</th><th>Exemple Concret de Syntaxe</th></tr></thead>
   <tbody>
-    <tr><td><code>where</code></td><td>Filtrez les lignes correspondant à un prédicat logique booléen.</td><td><code>AzureActivity | where Status == "Failed" and DurationMs &gt; 1000</code></td></tr>
+    <tr><td><code>where</code></td><td>Filtre les lignes correspondant à un prédicat logique booléen.</td><td><code>AzureActivity | where Status == "Failed" and DurationMs &gt; 1000</code></td></tr>
     <tr><td><code>project</code></td><td>Sélectionne, ordonne ou renomme les colonnes à afficher dans le résultat.</td><td><code>| project TimeGenerated, OperationName, Caller, ResourceGroup</code></td></tr>
     <tr><td><code>summarize</code></td><td>Agrège les lignes par regroupement (fonctions <code>count()</code>, <code>avg()</code>, <code>sum()</code>, <code>dcount()</code>).</td><td><code>| summarize FailureCount = count() by OperationName</code></td></tr>
-    <tr><td><code>order by</code> / <code>sort by</code></td><td>Triez les enregistrements de manière ascendante (<code>asc</code>) ou descendante (<code>desc</code>).</td><td><code>| order by FailureCount desc</code></td></tr>
+    <tr><td><code>order by</code> / <code>sort by</code></td><td>Trie les enregistrements de manière ascendante (<code>asc</code>) ou descendante (<code>desc</code>).</td><td><code>| order by FailureCount desc</code></td></tr>
     <tr><td><code>take</code> / <code>limit</code></td><td>Restreint le nombre d'enregistrements renvoyés par la requête.</td><td><code>| take 10</code></td></tr>
   </tbody>
 </table>
   <div class="box box--standard">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Exemple de Requête KQL d'Audit des Défaillances Système</div>
 <pre><code>AzureActivity
-| where TimeGenerated >= ago(24h)
+| where TimeGenerated &gt;= ago(24h)
 | where Status == "Failed"
 | summarize TotalErreurs = count() by OperationName, Caller
 | order by TotalErreurs desc
@@ -148,9 +148,11 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="az3-c6-e1" data-lab
      data-exercise="az3-c6-e1"
      data-language="analyse"
@@ -184,10 +186,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Interpréteur de requêtes Log Analytics KQL</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="az3-c6-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Exécuter un pipeline de requêtes KQL (where, summarize, order by, take) sur un jeu de journaux d’événements Azure.</p>
     <div class="lab__brief"><p>Le langage KQL (Kusto Query Language) est le standard d'interrogation analytique d'Azure Monitor, Log Analytics et Microsoft Sentinel.<br><br>
 Format d'entrée :<br>
@@ -210,11 +214,7 @@ EVENT rg=rg-prod op=DeleteDisk status=Failed duration_ms=1200
 EVENT rg=rg-prod op=RestartVM status=Failed duration_ms=300
 EVENT rg=rg-dev op=RestartVM status=Success duration_ms=150
 KQL where status == "Failed" | summarize count() by op | order by count_ desc | take 2</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>op | count_
-RestartVM | 2
-DeleteDisk | 1</pre></div>
     </div>
-    <p class="lab__note">Filtrage des événements en échec, agrégation par opération et sélection des 2 premières.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
@@ -260,10 +260,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Gestionnaire d'alertes Azure Monitor et suivi budgétaire</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="az3-c6-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Évaluer en temps réel des règles d’alerte sur métriques d’infrastructure (CPU) et surveiller les seuils d’engagement budgétaire Cost Management.</p>
     <div class="lab__brief"><p>Azure Monitor déclenche des alertes métriques pour automatiser les remédiations, tandis qu'Azure Cost Management avertit les équipes lorsque les dépenses réelles ou prévisionnelles franchissent des pourcentages clés du budget mensuel.<br><br>
 Format d'entrée :<br>
@@ -296,10 +298,7 @@ ALERT_RULE metric=CPU threshold=80 severity=Sev1
 ALERT_RULE metric=SPEND_ACTUAL threshold_pct=80 severity=Sev2
 RECORD metric=CPU value=85.5
 RECORD metric=SPEND_ACTUAL value=750.0</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ALERT_FIRED: metric=CPU val=85.5% threshold=80% severity=Sev1 action=TRIGGER_ACTION_GROUP
-ALERT_OK: metric=SPEND_ACTUAL val=750.00EUR</pre></div>
     </div>
-    <p class="lab__note">Alerte CPU déclenchée à 85.5% et dépense sous le seuil des 80% (800 EUR).</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -343,10 +342,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Linter et ordonnanceur de gabarit Bicep / ARM</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="az3-c6-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité des déclarations et dépendances (dependsOn) d’un gabarit d’Infrastructure as Code Azure et ordonnancer les déploiements.</p>
     <div class="lab__brief"><p>Dans les modèles Azure Resource Manager (ARM) ou Bicep, la propriété <code>dependsOn</code> garantit que les ressources prérequises (ex: réseau, sous-réseau, carte réseau) sont déployées avant les ressources dépendantes (ex: machine virtuelle).<br><br>
 Format d'entrée :<br>
@@ -366,9 +367,7 @@ Contrôles de cohérence :<br>
 RESOURCE name=vnet01 type=Microsoft.Network/virtualNetworks dependsOn=[]
 RESOURCE name=nic01 type=Microsoft.Network/networkInterfaces dependsOn=[vnet01]
 RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LINT_SUCCESS: resources_count=3 params_count=1 execution_order=[vnet01, nic01, vm01]</pre></div>
     </div>
-    <p class="lab__note">Gabarit valide déployant dans l'ordre vnet01 puis nic01 puis vm01.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
@@ -379,6 +378,7 @@ RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]</pre
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -401,7 +401,7 @@ RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]</pre
         <button class="opt">aggregate()</button>
         <button class="opt">count_distinct</button>
       </div>
-      <div class="q__exp">L'opérateur summarize count() by <colonne> regroupe les enregistrements par les valeurs distinctes de la colonne et calcule le total d'occurrences pour chaque groupe.</div>
+      <div class="q__exp">L'opérateur summarize count() by &lt;colonne&gt; regroupe les enregistrements par les valeurs distinctes de la colonne et calcule le total d'occurrences pour chaque groupe.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel outil de surveillance de la sécurité fournit le Secure Score pour évaluer la posture de conformité d'un tenant Azure ?</p>
@@ -522,10 +522,10 @@ RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]</pre
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong><strong>Création d'un centre opérationnel d'observabilité (SOC) avec Log Analytics :</strong> Centraliser les Diagnostic Settings de tous les VNets, VMs et passerelles dans un workspace et concevoir des classeurs (Workbooks) interactifs.</div>
-      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong><strong>Développement de requêvos KQL avancées de détection d'anomalies :</strong> Écrire des requêvos corrélant les logs d'accès web et les journaux de sécurité pour isoler les attaques par déni de service et tentatives d'intrusion.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong><strong>Création d'un centre opérationnel d'observabilité (SOC) avec Log Analytics :</strong> Centraliser les Diagnostic Settings de tous les VNets, VMs et passerelles dans un workspace et concevoir des classeurs (Workbooks) interactifs.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong><strong>Développement de requêtes KQL avancées de détection d'anomalies :</strong> Écrire des requêtes corrélant les logs d'accès web et les journaux de sécurité pour isoler les attaques par déni de service et tentatives d'intrusion.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong><strong>Industrialisation complète de l'infrastructure par modules Bicep :</strong> Développer des modules Bicep réutilisables (réseau, sécurité, calcul, stockage) testés par linters et déployés automatiquement via GitHub Actions.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong><strong>Automatisation d'évaluation d'alertes et de templates de manière méthodique :</strong> Programmer des moteurs de requêvos KQL, des gestionnaires de seuils d'alertes métriques et des validateurs topologiques de dépendances IaC.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong><strong>Automatisation d'évaluation d'alertes et de templates de manière méthodique :</strong> Programmer des moteurs de requêtes KQL, des gestionnaires de seuils d'alertes métriques et des validateurs topologiques de dépendances IaC.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

@@ -37,7 +37,7 @@ module.exports = {
         '       ) AS salaire_moyen_cumul',
         'FROM employes;</code></pre>',
         '    <ul>',
-        '      <li><strong>PARTITION BY :</strong> Découpez le jeu de données en sous-groupes indépendants (ex: par département). Le calcul redémarre à zéro pour chaque partition.</li>',
+        '      <li><strong>PARTITION BY :</strong> Découpe le jeu de données en sous-groupes indépendants (ex: par département). Le calcul redémarre à zéro pour chaque partition.</li>',
         '      <li><strong>ORDER BY :</strong> Détermine l’ordre d’évaluation séquentielle des tuples au sein de chaque partition.</li>',
         '    </ul>',
         '  </div>',
@@ -124,7 +124,7 @@ module.exports = {
         '    </ol>',
         '  </div>',
         '</div>',
-        box('danger', '<strong>Risque de boucle infinie en cas de cycle :</strong> Si les données contiennent une référence circulaire (ex: A est le manager de B qui est le manager de A), la CTE récursive bouclera indéfiniment jusqu’au crash mémoire ou au timeout. L’utilisation d’un tableau d’identifiants parcourus (<code>ARRAY[id]</code>) avec une condition <code>WHERE NOT (id = ANY(chemin))</code> est impérative pour détecter et couper les cycles !')
+        box('danger', '<strong>Cycle atteignable depuis l’ancre :</strong> Dans PostgreSQL et SQLite, <code>UNION</code> élimine les doublons sur toutes les colonnes de la ligne entière. Sur un graphe fini, si la ligne ne contient que l’identifiant, les répétitions peuvent arrêter la récursion. Mais si le niveau ou le chemin change à chaque passage, les lignes restent différentes : <code>UNION</code> seul ne suffit pas. L’exemple PostgreSQL ci-dessus suit le chemin avec <code>ARRAY</code> et <code>ANY</code> pour couper les cycles ; SQLite ne possède pas ces tableaux et exige une garde adaptée à son dialecte.')
       ].join('\n')
     }
   ],
@@ -134,7 +134,7 @@ module.exports = {
     '3. Établir l’ordre chronologique ou de tri strict avec ORDER BY au sein du bloc analytique.',
     '4. Préciser le cadre ROWS BETWEEN lorsque vous calculez des moyennes ou sommes mobiles physiques.',
     '5. Structurer les CTEs récursives avec une ancre claire (racines WHERE parent IS NULL) et un terme récursif avec jointure.',
-    '6. Intégrer systématiquement une colonne de profondeur (niveau) et un tableau anti-cycle (path array) pour garantir la terminaison.'
+    '6. Choisir une garde anti-cycle adaptée lorsque UNION ne suffit pas, par exemple un tableau de chemin dans PostgreSQL.'
   ],
   summary: [
     'Les fonctions de fenêtrage calculent des métriques agrégées sans compresser ni faire disparaître les lignes individuelles.',
@@ -142,7 +142,7 @@ module.exports = {
     'LAG et LEAD permettent d’accéder sans auto-jointure aux valeurs précédentes et suivantes d’une partition.',
     'La clause ROWS BETWEEN définit le cadre physique des lignes mobiles pour le lissage statistique (moyennes mobiles).',
     'WITH RECURSIVE résout l’exploration des graphes et des arbres hiérarchiques par point fixe itératif.',
-    'La prévention des boucles infinies dans les graphes cycliques s’opère par la détection de présence dans un tableau de trace de parcours.'
+    'UNION élimine les lignes complètes déjà vues ; lorsque la profondeur varie, une garde comme le tableau de parcours PostgreSQL permet de couper les cycles.'
   ],
   checklist: [
     'Ai-je bien distingué le besoin entre un GROUP BY (agrégation destructive) et une Window Function (conservatrice de lignes) ?',
@@ -214,7 +214,7 @@ module.exports = {
       exp: 'Le troisième paramètre de LAG permet de remplacer la valeur NULL retournée pour la toute première ligne de la partition.'
     },
     {
-      stem: 'Dans une CTE WITH RECURSIVE, quel mot-clé combine traditionnellement l’ancre et le terme récursif ?',
+      stem: 'Dans une CTE WITH RECURSIVE, quel opérateur relie l’ancre au terme récursif en conservant les doublons ?',
       opts: [
         'UNION ALL',
         'INTERSECT',
@@ -222,18 +222,18 @@ module.exports = {
         'MERGE'
       ],
       correct: 0,
-      exp: 'UNION ALL combine l’ensemble initial de l’ancre avec les tuples générés à chaque itération par le terme récursif.'
+      exp: 'UNION ALL conserve les doublons générés par le terme récursif. UNION est aussi possible : il élimine les doublons sur la ligne entière.'
     },
     {
-      stem: 'Comment éviter qu’une requête WITH RECURSIVE ne boucle à l’infini dans un graphe contenant des cycles ?',
+      stem: 'Dans PostgreSQL, comment éviter qu’une requête WITH RECURSIVE contenant une colonne niveau qui augmente ne boucle sur un cycle ?',
       opts: [
         'En désactivant le cache PostgreSQL',
         'En traçant les identifiants visités dans un tableau et en vérifiant WHERE NOT (id = ANY(chemin))',
-        'En remplaçant UNION ALL par UNION',
+        'En remplaçant UNION ALL par UNION, qui suffit toujours',
         'En augmentant la variable work_mem'
       ],
       correct: 1,
-      exp: 'L’accumulation des IDs visités dans un tableau ARRAY permet d’exclure les nœuds déjà visités et d’interrompre la récursion.'
+      exp: 'Dans PostgreSQL, le tableau ARRAY permet d’exclure les identifiants déjà visités. UNION élimine les doublons sur toutes les colonnes : il peut arrêter un cycle si la ligne entière se répète, mais pas si le niveau augmente à chaque passage.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre une fonction d’agrégation ordinaire et une fonction de fenêtrage ?',
@@ -277,11 +277,11 @@ module.exports = {
     },
     {
       q: 'Quels sont les deux éléments obligatoires d’une CTE WITH RECURSIVE ?',
-      a: 'L’ancre (requête initiale non récursive) et le terme récursif reliés par UNION ALL.'
+      a: 'L’ancre (requête initiale non récursive) et le terme récursif reliés par UNION ou UNION ALL.'
     },
     {
       q: 'Comment stopper une boucle infinie dans une récursion hiérarchique ?',
-      a: 'En mémorisant les nœuds parcourus dans un tableau et en filtrant les nœuds déjà présents.'
+      a: 'Dans PostgreSQL, on peut mémoriser le chemin et filtrer les nœuds déjà présents. UNION peut aussi suffire lorsque la ligne entière se répète, mais pas si la profondeur change.'
     }
   ],
   mastery: [

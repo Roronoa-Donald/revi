@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -79,18 +79,17 @@
 
 <h2>1. UPDATE : modifier sous condition</h2>
 
-<p>La syntaxe porte trois informations : quelle table, quelles colonnes changent, quelles lignes :</p>
+<p>La syntaxe porte trois informations : quelle table, quelles colonnes changent, quelles lignes. Ce modèle utilise des noms à remplacer : il ne s’exécute pas tel quel.</p>
 <pre><code>UPDATE nom_table
 SET colonne1 = valeur1, colonne2 = valeur2
-WHERE condition;
-
--- le support normalise les codes de marque :
-UPDATE Voiture SET codemarque = 'TOY' WHERE marque = 'TOYOTA';
+WHERE condition;</code></pre>
+<p>Exemple exécutable sur le parc initial :</p>
+<pre><code>UPDATE Voiture SET codemarque = 'TOY' WHERE marque = 'TOYOTA';
 UPDATE Voiture SET codemarque = 'BMW' WHERE marque = 'BMW';</code></pre>
-<p>Le <code>WHERE</code> n’est pas décoratif : c’est lui qui limite la modification aux lignes visées. Le support le rappelle en marge de ses exemples — et le SGBD se protège un peu : en mode par défaut prudent, un UPDATE sans WHERE est rejeté ou demande confirmation.</p>
+<p>Le <code>WHERE</code> n’est pas décoratif : c’est lui qui limite la modification aux lignes visées. Dans le simulateur SQLite, un UPDATE sans WHERE s’applique à toutes les lignes, sans confirmation. Certains outils peuvent proposer une protection configurable ; ne supposez pas qu’elle est active. Les deux instructions ci-dessus réaffectent des codes déjà corrects dans la base initiale.</p>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le UPDATE sans WHERE</div>
-    <p><code>UPDATE Voiture SET moteur = 'DIESEL';</code> sans WHERE s’applique à <strong>toutes</strong> les lignes : 23 voitures passées au diesel en une requête. Toute modification sérieuse se teste d’abord par le SELECT équivalent — si le SELECT ramène les bonnes lignes, l’UPDATE avec le même WHERE les modifiera.</p>
+    <p><code>UPDATE Voiture SET moteur = 'DIESEL';</code> sans WHERE s’applique à <strong>toutes</strong> les lignes : 23 voitures passées au diesel en une requête. Toute modification sérieuse se prépare par le SELECT équivalent : il montre les lignes visées si les données restent inchangées. Contraintes, déclencheurs ou accès concurrents peuvent ensuite modifier le résultat ou provoquer un échec.</p>
   </div>
 
 <h2>2. DELETE et ALTER</h2>
@@ -100,27 +99,31 @@ UPDATE Voiture SET codemarque = 'BMW' WHERE marque = 'BMW';</code></pre>
 DELETE FROM Voiture;        -- VIDE TOUTE LA TABLE, ligne par ligne</code></pre>
 <p>Le DELETE sans WHERE ne supprime pas la table : il la <strong>vide</strong>. La structure reste ; seule la commande <code>DROP TABLE</code> fait disparaître la table elle-même.</p>
 <p>La structure évolue par <code>ALTER TABLE</code> :</p>
-<pre><code>ALTER TABLE Voiture ADD COLUMN comment VARCHAR(100);
-ALTER TABLE Marque DROP COLUMN paysmarque;   -- l’opération du support avant normalisation
-ALTER TABLE Voiture MODIFY COLUMN km BIGINT;</code></pre>
-<p>Ajouter, supprimer, changer un type : ALTER est la commande d’évolution du schéma — elle s’accompagne d’une réflexion sur les données existantes, qui doivent rester cohérentes avec la nouvelle structure.</p>
+<pre><code>ALTER TABLE Voiture ADD COLUMN commentaire TEXT;
+ALTER TABLE Voiture DROP COLUMN commentaire;</code></pre>
+<p>SQLite permet ces opérations sous certaines conditions ; une colonne utilisée par une contrainte, par exemple, peut empêcher sa suppression. Le chapitre 2 a déjà montré <code>ADD COLUMN</code> avec un DEFAULT.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Différence de dialecte : changement de type</div>
+    <p>Le support MySQL utilise la forme suivante pour changer un type. Elle ne fonctionne pas dans le simulateur SQLite ; une modification de type y nécessite généralement de reconstruire la table en préservant ses données et contraintes.</p>
+    <pre><code>ALTER TABLE Voiture MODIFY COLUMN km BIGINT;</code></pre>
+  </div>
 
 <h2>3. Utilisateurs : CREATE USER et l’hôte</h2>
 
-<p>On ne se connecte pas « à MySQL » en général : on s’y connecte <strong>en tant qu’un utilisateur</strong>, défini par un <strong>login</strong> et un <strong>hôte</strong> — l’adresse depuis laquelle la connexion est autorisée :</p>
+<p>Cette section décrit MySQL, pas le simulateur SQLite, qui ne gère pas ces comptes. On ne se connecte pas « à MySQL » en général : on s’y connecte <strong>en tant qu’un utilisateur</strong>, défini par un <strong>login</strong> et un <strong>hôte</strong> — l’adresse depuis laquelle la connexion est autorisée :</p>
 <pre><code>CREATE USER 'login'@'hote' [IDENTIFIED BY 'mot_de_passe'];
 DROP   USER 'login'@'hote';
 
 CREATE USER 'delegueITB1'@'localhost' IDENTIFIED BY 'wincrafts@Big';
 CREATE USER 'profside'@'192.168.66.9' IDENTIFIED BY 'vivinve3';</code></pre>
-<p>Le joker <code>%</code> élargit l’hôte :</p>
+<p>Dans MySQL 8.4, le joker <code>%</code> peut élargir le motif d’hôte. Les jokers dans les hôtes sont toutefois dépréciés : privilégiez des hôtes explicites et vérifiez les réglages du serveur.</p>
 <table>
-    <tr><th>Utilisateur déclaré</th><th>Connexion autorisée depuis</th></tr>
+    <tr><th>Utilisateur déclaré</th><th>Exemple de motif d’hôte</th></tr>
     <tr><td>'leader'@'192.168.66.%'</td><td>toute IP commençant par 192.168.66.</td></tr>
     <tr><td>'youssoufa'@'%.camer.net'</td><td>n’importe quel hôte du domaine camer.net</td></tr>
     <tr><td>'yeslows'@'%'</td><td>n’importe quel hôte (équivalent à 'yeslows')</td></tr>
   </table>
-<p>Les guillemets entourent indépendamment login et hôte — jamais l’ensemble <code>'login@hote'</code>. Sans précision d’hôte, c’est l’équivalent de <code>%</code> : tous les hôtes.</p>
+<p>Les guillemets entourent indépendamment login et hôte — jamais l’ensemble <code>'login@hote'</code>. Sans précision, la partie hôte vaut <code>%</code> ; préférez la préciser explicitement.</p>
   <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « login@hôte : deux clés, une porte »</div>
     <p>Le login dit <strong>qui</strong> entre, l’hôte dit <strong>d’où</strong>. Le même login peut exister en plusieurs exemplaires aux privilèges différents selon l’hôte — deux clés distinctes pour deux portes distinctes.</p>
@@ -128,7 +131,7 @@ CREATE USER 'profside'@'192.168.66.9' IDENTIFIED BY 'vivinve3';</code></pre>
 
 <h2>4. Privilèges : GRANT et REVOKE</h2>
 
-<p>Un utilisateur créé n’a <strong>aucun privilège</strong> : il peut à peine se connecter. Un privilège est l’autorisation d’effectuer une action sur un objet, accordée par <code>GRANT</code> et retirée par <code>REVOKE</code> :</p>
+<p>Un utilisateur MySQL nouvellement créé n’a <strong>aucun privilège</strong> par défaut ; sa connexion dépend aussi de son authentification. Un privilège est l’autorisation d’effectuer une action sur un objet, accordée par <code>GRANT</code> et retirée par <code>REVOKE</code> :</p>
 <pre><code>-- tous les droits sur une base :
 GRANT ALL PRIVILEGES ON parc_auto.* TO 'IT_B1'@'localhost';
 
@@ -144,58 +147,105 @@ REVOKE UPDATE ON parc_auto.Voiture FROM 'gestionnaire'@'localhost';</code></pre>
 <pre><code>GRANT SELECT, UPDATE ON parc_auto.*
 TO 'admincdp'@'localhost'
 WITH GRANT OPTION;</code></pre>
-<p><code>GRANT OPTION</code> autorise son détenteur à <strong>transmettre</strong> les privilèges qu’il possède à d’autres utilisateurs — il n’est pas compris dans ALL, et un utilisateur ne peut jamais accorder plus qu’il ne possède. C’est la règle de sécurité du support : la délégation se contrôle, sinon chaque utilisateur pourrait créer sa hiérarchie de droits.</p>
+<p><code>GRANT OPTION</code> autorise son détenteur à <strong>transmettre</strong> les privilèges qu’il possède à d’autres utilisateurs ; il n’est pas compris dans ALL. Sans autre privilège administratif, il doit posséder les privilèges accordés. Certains privilèges administratifs supplémentaires constituent une exception. C’est la règle de sécurité du support : la délégation se contrôle, sinon chaque utilisateur pourrait créer sa hiérarchie de droits.</p>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — ALL et GRANT OPTION ensemble</div>
     <p><code>GRANT ALL, GRANT OPTION ON …</code> est refusé : ALL s’emploie seul. Pour donner tout <strong>et</strong> le droit de transmettre, la forme est <code>GRANT ALL PRIVILEGES ON … TO … WITH GRANT OPTION</code>. La distinction est tombée en QCM du support.</p>
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="sq-c6-e1" data-lab
      data-exercise="sq-c6-e1"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
-     data-stdin="CREATE TABLE stocks (id INT, article TEXT, quantite INT); INSERT INTO stocks VALUES (1, 'Clavier', 2), (2, 'Souris', 12), (3, 'Ecran', 4);&#10;-- VERIFY:&#10;SELECT id, article, quantite FROM stocks ORDER BY id;&#10;-- exemple">
-  <script type="text/plain" data-lab-starter>-- Réapprovisionnez de +10 les articles ayant quantite < 5
-UPDATE stocks SET quantite = quantite;</script>
+     data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');&#10;-- VERIFY:&#10;SELECT * FROM Voiture ORDER BY immat ASC;">
+  <script type="text/plain" data-lab-starter>UPDATE Voiture SET km = km;</script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Mettre à jour des lignes ciblées avec UPDATE ... WHERE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Modifier la valeur d’une colonne sur un sous-ensemble de lignes avec UPDATE.</p>
-    <div class="lab__brief"><p>Dans la table <code>stocks(id, article, quantite)</code>, augmentez de <code>10</code> la <code>quantite</code> (<code>quantite = quantite + 10</code>) uniquement pour les articles dont la quantité actuelle est strictement inférieure à <code>5</code> (<code>WHERE quantite &lt; 5</code>).</p></div>
+    <p class="lab__note" id="sq-c6-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans une copie de <code>Voiture</code>, ajoutez <code>10</code> au kilométrage <code>km</code> des seules voitures dont le kilométrage actuel est strictement inférieur à <code>5</code>, après un essai de 10 km. Ne modifiez ni les autres voitures ni leurs autres colonnes.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE stocks (id INT, article TEXT, quantite INT); INSERT INTO stocks VALUES (1, 'Clavier', 2), (2, 'Souris', 12), (3, 'Ecran', 4);
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
+CREATE TABLE Marque (
+  codemarque TEXT NOT NULL PRIMARY KEY,
+  nommarque TEXT NOT NULL UNIQUE,
+  paysmarque TEXT NOT NULL,
+  UNIQUE (codemarque, nommarque)
+);
+CREATE TABLE Voiture (
+  immat TEXT NOT NULL PRIMARY KEY,
+  marque TEXT NOT NULL,
+  codemarque TEXT NOT NULL,
+  moteur TEXT NOT NULL,
+  datecirc TEXT,
+  km INTEGER NOT NULL,
+  pxachat INTEGER NOT NULL,
+  nbreplace INTEGER NOT NULL,
+  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)
+);
+CREATE TABLE Equipement (
+  codeequipement TEXT NOT NULL PRIMARY KEY,
+  nomequipement TEXT NOT NULL UNIQUE,
+  prix INTEGER DEFAULT 0
+);
+CREATE TABLE VoitureEquipement (
+  immat TEXT NOT NULL,
+  codeequipement TEXT NOT NULL,
+  PRIMARY KEY (immat, codeequipement),
+  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,
+  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE
+);
+INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
+  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),
+  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),
+  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');
+INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES
+  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),
+  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),
+  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),
+  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),
+  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),
+  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);
+INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES
+  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),
+  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);
+INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
+  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),
+  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');
 -- VERIFY:
-SELECT id, article, quantite FROM stocks ORDER BY id;
--- exemple</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (2 lignes modifiées).
+SELECT * FROM Voiture ORDER BY immat ASC;</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (3 lignes modifiées).
 
-+----+---------+----------+
-| id | article | quantite |
-+----+---------+----------+
-| 1  | Clavier | 12       |
-| 2  | Souris  | 12       |
-| 3  | Ecran   | 14       |
-+----+---------+----------+
-(3 lignes retournées)</pre></div>
++------------+---------------+------------+------------+------------+-----+----------+-----------+
+| immat      | marque        | codemarque | moteur     | datecirc   | km  | pxachat  | nbreplace |
++------------+---------------+------------+------------+------------+-----+----------+-----------+
+| TG-0020-AV | MITSUBISHI    | MIT        | ESSENCE    | 2018-10-21 | 30  | 50000000 | 7         |
+| TG-0480-AV | BMW           | BMW        | ELECTRIQUE | 2015-12-21 | 10  | 50000000 | 5         |
+| TG-3733-AC | TOYOTA        | TOY        | HYBRIDE    | 2010-01-21 | 10  | 20000000 | 7         |
+| TG-4444-AL | HYUNDAI       | HYU        | ESSENCE    | 2015-09-21 | 5   | 10000000 | 5         |
+| TG-7854-Z  | MERCEDES BENZ | BNZ        | DIESEL     | 2000-01-21 | 500 | 6000000  | 5         |
+| TG-9420-AF | TOYOTA        | TOY        | ESSENCE    | 2013-09-21 | 10  | 50000000 | 7         |
++------------+---------------+------------+------------+------------+-----+----------+-----------+
+(6 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
+    <p class="lab__note">La vérification affiche toutes les voitures après la modification.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Utilisez UPDATE stocks SET quantite = quantite + 10.</li>
-        <li>Filtrez impérativement avec WHERE quantite &lt; 5 pour ne pas modifier tout le stock.</li>
+        <li>La nouvelle valeur peut être calculée à partir de l’ancienne : km + 10.</li>
+        <li>Utilisez WHERE pour ne conserver que les kilométrages strictement inférieurs à 5.</li>
       </ol>
     </details>
   </div>
@@ -203,41 +253,102 @@ SELECT id, article, quantite FROM stocks ORDER BY id;
 
 <div class="lab" id="sq-c6-e2" data-lab
      data-exercise="sq-c6-e2"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
-     data-stdin="CREATE TABLE sessions (id INT, utilisateur TEXT, expiree INT); INSERT INTO sessions VALUES (1, 'amina', 0), (2, 'koffi', 1), (3, 'yao', 1);&#10;-- VERIFY:&#10;SELECT id, utilisateur, expiree FROM sessions ORDER BY id;&#10;-- exemple">
-  <script type="text/plain" data-lab-starter>-- Supprimez uniquement les sessions où expiree = 1
-SELECT * FROM sessions;</script>
+     data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');&#10;UPDATE Voiture SET datecirc = NULL WHERE immat IN ('TG-3733-AC', 'TG-9420-AF');&#10;-- VERIFY:&#10;SELECT * FROM Voiture ORDER BY immat ASC;&#10;SELECT immat, codeequipement FROM VoitureEquipement ORDER BY immat ASC, codeequipement ASC;">
+  <script type="text/plain" data-lab-starter>SELECT * FROM Voiture;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Supprimer les enregistrements obsolètes avec DELETE ... WHERE</h3>
+    <h3 class="lab__title">Exercice 2 — Supprimer des lignes ciblées avec DELETE ... WHERE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Supprimer uniquement les lignes répondant à un critère précis avec DELETE FROM.</p>
-    <div class="lab__brief"><p>Dans la table <code>sessions(id, utilisateur, expiree)</code>, supprimez toutes les sessions expirées pour lesquelles <code>expiree = 1</code>.</p></div>
+    <p class="lab__note" id="sq-c6-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Pour cet exercice sur une copie du parc, supprimez de <code>Voiture</code> uniquement les lignes dont la date de circulation <code>datecirc</code> est <code>NULL</code>. Conservez les autres voitures ; une chaîne vide n’est pas <code>NULL</code>. Le parc initial du simulateur ne comporte pas de date absente : certains jeux sont adaptés pour l’exercice.</p><p>Les clés étrangères étant activées, les associations des voitures supprimées disparaissent automatiquement de <code>VoitureEquipement</code> ; les équipements eux-mêmes sont conservés.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE sessions (id INT, utilisateur TEXT, expiree INT); INSERT INTO sessions VALUES (1, 'amina', 0), (2, 'koffi', 1), (3, 'yao', 1);
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
+CREATE TABLE Marque (
+  codemarque TEXT NOT NULL PRIMARY KEY,
+  nommarque TEXT NOT NULL UNIQUE,
+  paysmarque TEXT NOT NULL,
+  UNIQUE (codemarque, nommarque)
+);
+CREATE TABLE Voiture (
+  immat TEXT NOT NULL PRIMARY KEY,
+  marque TEXT NOT NULL,
+  codemarque TEXT NOT NULL,
+  moteur TEXT NOT NULL,
+  datecirc TEXT,
+  km INTEGER NOT NULL,
+  pxachat INTEGER NOT NULL,
+  nbreplace INTEGER NOT NULL,
+  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)
+);
+CREATE TABLE Equipement (
+  codeequipement TEXT NOT NULL PRIMARY KEY,
+  nomequipement TEXT NOT NULL UNIQUE,
+  prix INTEGER DEFAULT 0
+);
+CREATE TABLE VoitureEquipement (
+  immat TEXT NOT NULL,
+  codeequipement TEXT NOT NULL,
+  PRIMARY KEY (immat, codeequipement),
+  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,
+  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE
+);
+INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
+  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),
+  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),
+  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');
+INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES
+  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),
+  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),
+  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),
+  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),
+  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),
+  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);
+INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES
+  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),
+  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);
+INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
+  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),
+  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');
+UPDATE Voiture SET datecirc = NULL WHERE immat IN ('TG-3733-AC', 'TG-9420-AF');
 -- VERIFY:
-SELECT id, utilisateur, expiree FROM sessions ORDER BY id;
--- exemple</pre></div>
+SELECT * FROM Voiture ORDER BY immat ASC;
+SELECT immat, codeequipement FROM VoitureEquipement ORDER BY immat ASC, codeequipement ASC;</pre></div>
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (2 lignes modifiées).
 
-+----+-------------+---------+
-| id | utilisateur | expiree |
-+----+-------------+---------+
-| 1  | amina       | 0       |
-+----+-------------+---------+
-(1 ligne retournée)</pre></div>
++------------+---------------+------------+------------+------------+-----+----------+-----------+
+| immat      | marque        | codemarque | moteur     | datecirc   | km  | pxachat  | nbreplace |
++------------+---------------+------------+------------+------------+-----+----------+-----------+
+| TG-0020-AV | MITSUBISHI    | MIT        | ESSENCE    | 2018-10-21 | 30  | 50000000 | 7         |
+| TG-0480-AV | BMW           | BMW        | ELECTRIQUE | 2015-12-21 | 0   | 50000000 | 5         |
+| TG-4444-AL | HYUNDAI       | HYU        | ESSENCE    | 2015-09-21 | 5   | 10000000 | 5         |
+| TG-7854-Z  | MERCEDES BENZ | BNZ        | DIESEL     | 2000-01-21 | 500 | 6000000  | 5         |
++------------+---------------+------------+------------+------------+-----+----------+-----------+
+(4 lignes retournées)
+
++------------+----------------+
+| immat      | codeequipement |
++------------+----------------+
+| TG-0020-AV | CAM            |
+| TG-0480-AV | RAD            |
+| TG-7854-Z  | AIR            |
++------------+----------------+
+(3 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
+    <p class="lab__note">La vérification affiche les voitures et associations conservées après les suppressions.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Utilisez DELETE FROM sessions WHERE expiree = 1;</li>
-        <li>Vérifiez la présence de la clause WHERE pour conserver les sessions actives (expiree = 0).</li>
+        <li>DELETE FROM supprime des lignes ; la clause WHERE limite la suppression.</li>
+        <li>Testez l’absence de date avec IS NULL.</li>
       </ol>
     </details>
   </div>
@@ -245,42 +356,91 @@ SELECT id, utilisateur, expiree FROM sessions ORDER BY id;
 
 <div class="lab" id="sq-c6-e3" data-lab
      data-exercise="sq-c6-e3"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
-     data-stdin="CREATE TABLE utilisateurs (id INT, login TEXT, role TEXT); CREATE TABLE journal_connexions (id_log INT, user_id INT, action TEXT); INSERT INTO utilisateurs VALUES (1, 'root', 'admin'), (2, 'invite', 'lecteur'); INSERT INTO journal_connexions VALUES (100, 1, 'GRANT SELECT'), (101, 2, 'SELECT'), (102, 1, 'BACKUP');&#10;-- exemple">
-  <script type="text/plain" data-lab-starter>-- Sélectionnez id_log et action des utilisateurs ayant role = 'admin'
-SELECT id_log, action FROM journal_connexions;</script>
+     data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');">
+  <script type="text/plain" data-lab-starter>SELECT immat, marque FROM Voiture;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Sous-requête dans WHERE (supprimer ou filtrer selon une autre table)</h3>
+    <h3 class="lab__title">Exercice 3 — Sous-requête dans WHERE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Utiliser une sous-requête (IN / SELECT) pour filtrer selon les données d’une seconde table.</p>
-    <div class="lab__brief"><p>Soient <code>utilisateurs(id, login, role)</code> et <code>journal_connexions(id_log, user_id, action)</code>. Affichez <code>id_log</code> et <code>action</code> du journal uniquement pour les utilisateurs dont le <code>role</code> est <code>'admin'</code> dans la table <code>utilisateurs</code>, triés par <code>id_log</code> croissant.</p></div>
+    <p class="lab__note" id="sq-c6-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans <code>Voiture</code>, affichez <code>immat</code> et <code>marque</code> pour les voitures dont la marque a <code>paysmarque = 'JAPON'</code> dans la table <code>Marque</code>. Reliez les deux tables par <code>codemarque</code> et triez par <code>immat</code> croissante.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE utilisateurs (id INT, login TEXT, role TEXT); CREATE TABLE journal_connexions (id_log INT, user_id INT, action TEXT); INSERT INTO utilisateurs VALUES (1, 'root', 'admin'), (2, 'invite', 'lecteur'); INSERT INTO journal_connexions VALUES (100, 1, 'GRANT SELECT'), (101, 2, 'SELECT'), (102, 1, 'BACKUP');
--- exemple</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+--------+--------------+
-| id_log | action       |
-+--------+--------------+
-| 100    | GRANT SELECT |
-| 102    | BACKUP       |
-+--------+--------------+
-(2 lignes retournées)</pre></div>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
+CREATE TABLE Marque (
+  codemarque TEXT NOT NULL PRIMARY KEY,
+  nommarque TEXT NOT NULL UNIQUE,
+  paysmarque TEXT NOT NULL,
+  UNIQUE (codemarque, nommarque)
+);
+CREATE TABLE Voiture (
+  immat TEXT NOT NULL PRIMARY KEY,
+  marque TEXT NOT NULL,
+  codemarque TEXT NOT NULL,
+  moteur TEXT NOT NULL,
+  datecirc TEXT,
+  km INTEGER NOT NULL,
+  pxachat INTEGER NOT NULL,
+  nbreplace INTEGER NOT NULL,
+  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)
+);
+CREATE TABLE Equipement (
+  codeequipement TEXT NOT NULL PRIMARY KEY,
+  nomequipement TEXT NOT NULL UNIQUE,
+  prix INTEGER DEFAULT 0
+);
+CREATE TABLE VoitureEquipement (
+  immat TEXT NOT NULL,
+  codeequipement TEXT NOT NULL,
+  PRIMARY KEY (immat, codeequipement),
+  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,
+  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE
+);
+INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
+  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),
+  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),
+  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');
+INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES
+  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),
+  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),
+  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),
+  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),
+  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),
+  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);
+INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES
+  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),
+  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);
+INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
+  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),
+  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>+------------+------------+
+| immat      | marque     |
++------------+------------+
+| TG-0020-AV | MITSUBISHI |
+| TG-3733-AC | TOYOTA     |
+| TG-9420-AF | TOYOTA     |
++------------+------------+
+(3 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
+    <p class="lab__note">Le jeu contient des voitures de deux marques japonaises.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Utilisez WHERE user_id IN (SELECT id FROM utilisateurs WHERE role = 'admin') ou un INNER JOIN.</li>
-        <li>Triez par id_log ASC.</li>
+        <li>Une sous-requête sur Marque peut renvoyer les codes de toutes les marques japonaises.</li>
+        <li>Utilisez IN pour comparer le code de chaque voiture à cet ensemble, puis triez par immat.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -313,25 +473,25 @@ SELECT id_log, action FROM journal_connexions;</script>
       <div class="q__exp">ALTER TABLE fait évoluer la structure.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Un utilisateur créé avec CREATE USER, avant tout GRANT, peut…</p>
+      <p class="q__stem">En MySQL, un compte nouvellement créé avant tout GRANT possède…</p>
       <div class="opts">
-        <button class="opt">lire toutes les bases</button>
-        <button class="opt" data-correct="1">à peine se connecter</button>
-        <button class="opt">créer des tables</button>
+        <button class="opt">le droit de lire toutes les bases</button>
+        <button class="opt" data-correct="1">aucun privilège par défaut</button>
+        <button class="opt">le droit de créer des tables</button>
       </div>
-      <div class="q__exp">Aucun privilège : ni données ni création d’objets.</div>
+      <div class="q__exp">Le compte ne reçoit aucun privilège par défaut ; la connexion dépend aussi de l’authentification.</div>
     </div>
     <div class="q">
-      <p class="q__stem">'leader'@'192.168.66.%' signifie…</p>
+      <p class="q__stem">En MySQL 8.4 avec le joker actif, 'leader'@'192.168.66.%' désigne…</p>
       <div class="opts">
-        <button class="opt">connexion uniquement depuis 192.168.66.9</button>
-        <button class="opt" data-correct="1">connexion depuis toute adresse commençant par 192.168.66.</button>
+        <button class="opt">un hôte uniquement : 192.168.66.9</button>
+        <button class="opt" data-correct="1">un motif d’hôte commençant par 192.168.66.</button>
         <button class="opt">un joker sur le login</button>
       </div>
-      <div class="q__exp">% élargit l’hôte ; ici tout le réseau 192.168.66.x.</div>
+      <div class="q__exp">% élargit le motif d’hôte ; cet usage est déprécié dans MySQL 8.4.</div>
     </div>
     <div class="q">
-      <p class="q__stem">GRANT OPTION permet de…</p>
+      <p class="q__stem">En MySQL, GRANT OPTION permet de…</p>
       <div class="opts">
         <button class="opt">tout faire sur la base</button>
         <button class="opt" data-correct="1">transmettre à d’autres les privilèges qu’on possède</button>
@@ -350,7 +510,7 @@ SELECT id_log, action FROM journal_connexions;</script>
       <li><strong>DROP TABLE confondu avec DELETE</strong> : l’un efface la structure, l’autre les lignes.</li>
       <li><strong>'login@hote' quoté en un seul bloc</strong> : login et hôte se quotent séparément.</li>
       <li><strong>GRANT ALL, GRANT OPTION</strong> : syntaxe refusée — la clause est WITH GRANT OPTION.</li>
-      <li><strong>Accorder plus qu’on possède</strong> : impossible ; un utilisateur transmet au maximum ses propres droits.</li>
+      <li><strong>Accorder plus qu’on possède</strong> : GRANT OPTION seul ne le permet pas ; des privilèges administratifs supplémentaires peuvent faire exception.</li>
     </ul>
   </div>
 
@@ -359,7 +519,7 @@ SELECT id_log, action FROM journal_connexions;</script>
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Modifier ou déléguer sans casse</div>
     <ol>
-      <li><strong>Écrire le SELECT équivalent</strong> avant tout UPDATE/DELETE : les lignes ramenées sont celles qui seront touchées.</li>
+      <li><strong>Écrire le SELECT équivalent</strong> avant tout UPDATE/DELETE pour repérer les lignes visées ; tenir compte des changements concurrents et des contraintes.</li>
       <li><strong>Modifier les données</strong> (UPDATE/DELETE) sans confondre avec la structure (ALTER/DROP).</li>
       <li><strong>Créer l’utilisateur</strong> avec son couple login@hôte exact.</li>
       <li><strong>Accorder le minimum nécessaire</strong> : SELECT pour consulter, pas ALL par confort.</li>
@@ -374,8 +534,8 @@ SELECT id_log, action FROM journal_connexions;</script>
     <ul>
       <li>UPDATE … SET … WHERE modifie ; DELETE FROM … WHERE supprime ; sans WHERE, c’est toute la table.</li>
       <li>ALTER TABLE fait évoluer la structure ; DROP TABLE la supprime ; DELETE la vide seulement.</li>
-      <li>Un utilisateur = login@hôte ; le joker % élargit l’hôte ; guillemets séparés sur chaque partie.</li>
-      <li>GRANT accorde, REVOKE retire ; niveaux global, base, table, colonne ; un utilisateur créé n’a aucun droit.</li>
+      <li>En MySQL, un utilisateur = login@hôte ; le joker % est déprécié dans l’hôte ; guillemets séparés.</li>
+      <li>En MySQL, GRANT accorde, REVOKE retire ; niveaux global, base, table, colonne ; un nouveau compte n’a aucun privilège par défaut.</li>
       <li>GRANT OPTION autorise la transmission des privilèges propres ; ALL s’emploie seul, avec WITH GRANT OPTION.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
@@ -399,10 +559,10 @@ SELECT id_log, action FROM journal_connexions;</script>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Relisez les syntaxes UPDATE/DELETE et réécris-les de mémoire.</div>
-      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Normalise les codes de marque par UPDATE dans le simulateur.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : écris le GRANT d’un gestionnaire qui lit tout mais n’écrit que Voiture.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : attaque les examens blancs du simulateur.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Relisez les syntaxes UPDATE/DELETE et réécrivez-les de mémoire.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Vérifiez les codes de marque puis essayez un UPDATE ciblé dans le simulateur.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : écrivez le GRANT d’un gestionnaire qui lit tout mais n’écrit que Voiture.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : attaquez les examens blancs du simulateur.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -413,7 +573,7 @@ SELECT id_log, action FROM journal_connexions;</script>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : le support B1 « Base de données & SQL » (IT-B1) et le jeu de données parc_auto du support (Marque, Voiture).</p>
+  Sources : le support B1 « Base de données &amp; SQL » (IT-B1), le jeu de données parc_auto du support et la <a href="https://sqlite.org/docs.html">documentation officielle SQLite</a> (consultée le 29 octobre 2026 ; SELECT revérifié le 30 octobre 2026).</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

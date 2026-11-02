@@ -133,7 +133,7 @@ module.exports = {
   methodTitle: 'Méthodologie de Recherche Terrain &amp; Cartographie d’Expérience',
   method: [
     'Étape 1 — Définir le protocole d’entretien : Rédiger un guide d’entretien semi-directif neutre, évitant toute question fermée ou suggestive.',
-    'Étape 2 — Recruter 5 profils représentatifs : Jakob Nielsen démontre que 5 utilisateurs cibles suffisent pour révéler 85% des problèmes majeurs.',
+    'Étape 2 — Recruter des profils représentatifs et adapter l’échantillon au contexte. L’estimation historique de Nielsen (environ 85 % avec cinq personnes) dépend des hypothèses de son modèle et ne garantit pas ce résultat pour une étude.',
     'Étape 3 — Coder et catégoriser les verbatims : Extraire les citations récurrentes et les regrouper par affinités sur un tableau collaboratif.',
     'Étape 4 — Formaliser le Persona primaire : Rédiger la fiche persona avec ses 5 composantes clés en s’interdisant toute spéculation non attestée.',
     'Étape 5 — Tracer la Customer Journey Map : Aligner les étapes chronologiques et tracer la courbe émotionnelle pour identifier le point de friction le plus profond.',
@@ -229,10 +229,10 @@ module.exports = {
       exp: 'Le tri ouvert explore les modèles mentaux spontanés (l’utilisateur invente les rubriques). Le tri fermé évalue la pertinence d’une arborescence prédéterminée.'
     },
     {
-      stem: 'Combien d’utilisateurs Jakob Nielsen préconise-t-il d’observer lors d’un test d’utilisabilité qualitatif pour détecter l’essentiel des problèmes ergonomiques ?',
-      opts: ['1 seul utilisateur', 'Exactement 5 utilisateurs', 'Au moins 100 utilisateurs', 'Plus de 10 000 utilisateurs'],
-      correct: 1,
-      exp: 'La courbe de découverte des problèmes de Nielsen démontre que 5 utilisateurs permettent d’identifier environ 85% des anomalies d’utilisabilité, chaque utilisateur additionnel apportant des rendements décroissants.'
+      stem: 'Que signifie l’estimation historique de Nielsen d’environ 85 % pour cinq participants ?',
+      opts: ['Une estimation sous hypothèses de modèle, variable selon l’étude', 'Une garantie pour toutes les interfaces', 'Une preuve que tous les problèmes graves seront détectés', 'Une dispense de tester les changements'],
+      correct: 0,
+      exp: 'Le modèle utilise notamment une probabilité moyenne de détection par personne. Les problèmes, profils et contextes varient : cinq participants ne garantissent pas 85 % dans chaque étude.'
     },
     {
       stem: 'Qu’est-ce qu’un «Touchpoint» (point de contact) dans une cartographie de parcours utilisateur ?',
@@ -261,7 +261,7 @@ module.exports = {
   flashcards: [
     {
       q: 'Quelle est la différence fondamentale entre recherche qualitative et quantitative ?',
-      a: 'Le qualitatif analyse le « pourquoi » et les motivations profondes ; le quantitatif mesure le « combien » avec des données chiffrées massives.'
+      a: 'Le qualitatif explore notamment le « pourquoi » et les expériences ; le quantitatif mesure le « combien » avec des données chiffrées, sans imposer à lui seul une taille d’échantillon.'
     },
     {
       q: 'Qu’est-ce qu’un Persona selon Alan Cooper ?',
@@ -280,8 +280,8 @@ module.exports = {
       a: 'À concevoir et tester l’Architecture de l’Information (arborescence des menus) selon la logique mentale réelle des utilisateurs.'
     },
     {
-      q: 'Combien d’utilisateurs suffisent pour un test qualitatif selon Nielsen ?',
-      a: '5 utilisateurs suffisent pour découvrir environ 85% des problèmes d’utilisabilité majeurs.'
+      q: 'Que signifie l’estimation de Nielsen pour un test qualitatif ?',
+      a: 'Son modèle historique estime environ 85 % avec cinq participants sous certaines hypothèses ; il ne garantit pas ce taux dans chaque étude. Adapter le recrutement aux profils et au contexte.'
     }
   ],
 

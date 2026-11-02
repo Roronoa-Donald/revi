@@ -10,44 +10,44 @@ module.exports = [
     chapter: 5,
     level: "n1",
     language: 'analyse',
-    title: "Traducteur d’erreurs techniques en langage utilisateur bienveillant",
-    goal: "Traduire un message d’erreur brut ou une trace d’exception en un message d’assistance client empathique, clair et compréhensible par un utilisateur non technicien.",
-    brief: "<p>Afficher un code d'erreur brut comme <i>\"Invalid or malformed claims in JWT payload\"</i> ou <i>\"NullPointerException at line 140\"</i> désoriente l'utilisateur. En support client de niveau 1/2, l'ingénieur doit reformuler le problème avec clarté et empathie.<br>\nPour chaque cas d’application des codes d'erreurs au format :<br>\n<code>TRANSLATE_ERROR code=&lt;CODE&gt;</code>.<br><br>\nDictionnaire des correspondances officielles :<br>\n- <code>ERR_AUTH_JWT_EXPIRED</code> : <code>\"Your session has expired. Please sign in again to continue safely.\"</code><br>\n- <code>ERR_DB_CONN_TIMEOUT</code> : <code>\"We are having trouble reaching our database. Please wait a moment and refresh the page.\"</code><br>\n- <code>ERR_PAYMENT_GATEWAY_502</code> : <code>\"The payment processor is temporarily unavailable. No money has been charged from your card.\"</code><br>\n- <code>ERR_RATE_LIMIT_EXCEEDED</code> : <code>\"You have sent too many requests in a short time. Please take a break and retry in a few minutes.\"</code><br>\n- <code>ERR_FILE_TOO_LARGE</code> : <code>\"Your uploaded file exceeds the 10 MB limit. Please compress it before re-uploading.\"</code><br>\n- <code>ERR_ACCOUNT_LOCKED</code> : <code>\"Your account has been temporarily locked for security. Please reset your password or contact support.\"</code><br>\n- Tout autre code non répertorié :<br>\n  <code>\"An unexpected issue occurred. Our engineering team has been notified. Please try again shortly.\"</code><br><br>\nAfficher :<br>\n<code>SUPPORT_MESSAGE: [&lt;CODE&gt;] -&gt; &lt;message_bienveillant&gt;</code></p>",
-    starter: "# Grille d'analyse (an3-c5-e1) — Traducteur d’erreurs techniques en langage utilisateur bienveillant\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Erreur de passerelle de paiement 502]\n# Données : TRANSLATE_ERROR code=ERR_PAYMENT_GATEWAY_502\nA_COMPLETER\n\n[Cas 2 — Erreur de dépassement de quota de requêtes]\n# Données : TRANSLATE_ERROR code=ERR_RATE_LIMIT_EXCEEDED\nA_COMPLETER\n\n[Cas 3 — Code d’erreur interne inconnu]\n# Données : TRANSLATE_ERROR code=ERR_INTERNAL_CORRUPTED_CACHE_POINTER\nA_COMPLETER\n\n[Cas 4 — Fichier trop lourd et compte verrouillé]\n# Données : TRANSLATE_ERROR code=ERR_FILE_TOO_LARGE\n# Données : TRANSLATE_ERROR code=ERR_ACCOUNT_LOCKED\nA_COMPLETER\n",
+    title: "Choisir un message de support clair et prudent",
+    goal: "Lire des messages d'assistance en anglais et choisir une formulation adaptée sans affirmer un état de paiement non vérifié.",
+    brief: "<p>Pour chaque ligne <code>TRANSLATE_ERROR code=&lt;CODE&gt;</code>, choisissez le message anglais le plus adapté parmi les propositions suivantes. Pour un code inconnu, utilisez le message général D.</p><ul><li><b>A</b> : <em>Your session has expired. Please sign in again.</em></li><li><b>B</b> : <em>We could not confirm your payment status. Please check it or contact support before trying again.</em></li><li><b>C</b> : <em>Too many requests were sent. Please wait before sending another request; check any pending payment first.</em></li><li><b>D</b> : <em>An unexpected issue occurred. Please check its status or contact support before trying again.</em></li><li><b>E</b> : <em>Your uploaded file exceeds the 10 MB limit. Please compress it before re-uploading.</em></li><li><b>F</b> : <em>Your account has been temporarily locked for security. Please reset your password or contact support.</em></li></ul><p>Répondez par <code>SUPPORT_MESSAGE: [&lt;CODE&gt;] -&gt; &lt;LETTRE&gt;</code>. Cette sélection à choix fermé n'évalue pas toutes les autres formulations correctes possibles.</p>",
+    starter: "# Grille d'analyse (an3-c5-e1) — Choisir un message de support clair et prudent\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Erreur de passerelle de paiement 502]\n# Données : TRANSLATE_ERROR code=ERR_PAYMENT_GATEWAY_502\nA_COMPLETER\n\n[Cas 2 — Erreur de dépassement de quota de requêtes]\n# Données : TRANSLATE_ERROR code=ERR_RATE_LIMIT_EXCEEDED\nA_COMPLETER\n\n[Cas 3 — Code d’erreur interne inconnu]\n# Données : TRANSLATE_ERROR code=ERR_INTERNAL_CORRUPTED_CACHE_POINTER\nA_COMPLETER\n\n[Cas 4 — Fichier trop lourd et compte verrouillé]\n# Données : TRANSLATE_ERROR code=ERR_FILE_TOO_LARGE\n# Données : TRANSLATE_ERROR code=ERR_ACCOUNT_LOCKED\nA_COMPLETER\n",
     hints: [
-          "Créer un dictionnaire associant les codes d'erreur à leur message client.",
-          "Utiliser dict.get(code, message_par_defaut) pour gérer les codes inconnus."
+          "Une erreur 502 ne confirme ni l'échec ni la réussite d'un paiement.",
+          "Pour un code inconnu, choisissez le message général ; ne supposez pas que l'équipe a déjà été avertie."
     ],
     examples: [
           {
                 "stdin": "TRANSLATE_ERROR code=ERR_AUTH_JWT_EXPIRED",
-                "expected": "SUPPORT_MESSAGE: [ERR_AUTH_JWT_EXPIRED] -> \"Your session has expired. Please sign in again to continue safely.\"",
-                "note": "Traduction bienveillante d'une expiration de token JWT."
+                "expected": "SUPPORT_MESSAGE: [ERR_AUTH_JWT_EXPIRED] -> A",
+                "note": "Le message A décrit une session expirée sans exposer le jargon du jeton."
           }
     ],
     tests: [
           {
                 "label": "Erreur de passerelle de paiement 502",
                 "stdin": "cas:1",
-                "expected": "SUPPORT_MESSAGE: [ERR_PAYMENT_GATEWAY_502] -> \"The payment processor is temporarily unavailable. No money has been charged from your card.\""
+                "expected": "SUPPORT_MESSAGE: [ERR_PAYMENT_GATEWAY_502] -> B"
           },
           {
                 "label": "Erreur de dépassement de quota de requêtes",
                 "stdin": "cas:2",
-                "expected": "SUPPORT_MESSAGE: [ERR_RATE_LIMIT_EXCEEDED] -> \"You have sent too many requests in a short time. Please take a break and retry in a few minutes.\""
+                "expected": "SUPPORT_MESSAGE: [ERR_RATE_LIMIT_EXCEEDED] -> C"
           },
           {
                 "label": "Code d’erreur interne inconnu",
                 "stdin": "cas:3",
-                "expected": "SUPPORT_MESSAGE: [ERR_INTERNAL_CORRUPTED_CACHE_POINTER] -> \"An unexpected issue occurred. Our engineering team has been notified. Please try again shortly.\""
+                "expected": "SUPPORT_MESSAGE: [ERR_INTERNAL_CORRUPTED_CACHE_POINTER] -> D"
           },
           {
                 "label": "Fichier trop lourd et compte verrouillé",
                 "stdin": "cas:4",
-                "expected": "SUPPORT_MESSAGE: [ERR_FILE_TOO_LARGE] -> \"Your uploaded file exceeds the 10 MB limit. Please compress it before re-uploading.\"\nSUPPORT_MESSAGE: [ERR_ACCOUNT_LOCKED] -> \"Your account has been temporarily locked for security. Please reset your password or contact support.\""
+                "expected": "SUPPORT_MESSAGE: [ERR_FILE_TOO_LARGE] -> E\nSUPPORT_MESSAGE: [ERR_ACCOUNT_LOCKED] -> F"
           }
     ],
-    solution: "[Exemple]\nSUPPORT_MESSAGE: [ERR_AUTH_JWT_EXPIRED] -> \"Your session has expired. Please sign in again to continue safely.\"\n\n[Cas 1 — Erreur de passerelle de paiement 502]\nSUPPORT_MESSAGE: [ERR_PAYMENT_GATEWAY_502] -> \"The payment processor is temporarily unavailable. No money has been charged from your card.\"\n\n[Cas 2 — Erreur de dépassement de quota de requêtes]\nSUPPORT_MESSAGE: [ERR_RATE_LIMIT_EXCEEDED] -> \"You have sent too many requests in a short time. Please take a break and retry in a few minutes.\"\n\n[Cas 3 — Code d’erreur interne inconnu]\nSUPPORT_MESSAGE: [ERR_INTERNAL_CORRUPTED_CACHE_POINTER] -> \"An unexpected issue occurred. Our engineering team has been notified. Please try again shortly.\"\n\n[Cas 4 — Fichier trop lourd et compte verrouillé]\nSUPPORT_MESSAGE: [ERR_FILE_TOO_LARGE] -> \"Your uploaded file exceeds the 10 MB limit. Please compress it before re-uploading.\"\nSUPPORT_MESSAGE: [ERR_ACCOUNT_LOCKED] -> \"Your account has been temporarily locked for security. Please reset your password or contact support.\"\n"
+    solution: "[Exemple]\nSUPPORT_MESSAGE: [ERR_AUTH_JWT_EXPIRED] -> A\n\n[Cas 1 — Erreur de passerelle de paiement 502]\nSUPPORT_MESSAGE: [ERR_PAYMENT_GATEWAY_502] -> B\n\n[Cas 2 — Erreur de dépassement de quota de requêtes]\nSUPPORT_MESSAGE: [ERR_RATE_LIMIT_EXCEEDED] -> C\n\n[Cas 3 — Code d’erreur interne inconnu]\nSUPPORT_MESSAGE: [ERR_INTERNAL_CORRUPTED_CACHE_POINTER] -> D\n\n[Cas 4 — Fichier trop lourd et compte verrouillé]\nSUPPORT_MESSAGE: [ERR_FILE_TOO_LARGE] -> E\nSUPPORT_MESSAGE: [ERR_ACCOUNT_LOCKED] -> F\n"
   },
   {
     id: "an3-c5-e2",

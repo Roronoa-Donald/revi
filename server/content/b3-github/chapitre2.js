@@ -20,7 +20,7 @@ module.exports = {
     'comparer les moteurs de fusion historiques de Git (recursive) et le moteur moderne par défaut (ORT - Ostensibly Recursive’s Twin) ;',
     'maîtriser le rebase interactif (git rebase -i) avec ses directives clés : pick, reword, edit, squash, fixup, drop ;',
     'appliquer rigoureusement la règle d’or du rebase pour préserver la cohérence des dépôts d’équipe distribués ;',
-    'développer en Python 3 des classificateurs de stratégies de fusion, des simulateurs de rebase et des résolveurs de conflits tridirectionnels.'
+    'développer en scripts Bash et commandes Git des classificateurs de stratégies de fusion, des simulateurs de rebase et des résolveurs de conflits tridirectionnels.'
   ],
   sections: [
     {
@@ -77,7 +77,7 @@ module.exports = {
         '    <tr><td><code>edit</code></td><td><code>e</code></td><td>Met en pause le rebase pour amender le contenu du commit (fichiers).</td></tr>',
         '    <tr><td><code>squash</code></td><td><code>s</code></td><td>Fond le commit dans le commit précédent et concatène les messages.</td></tr>',
         '    <tr><td><code>fixup</code></td><td><code>f</code></td><td>Fond le commit dans le précédent en éliminant silencieusement son message.</td></tr>',
-        '    <tr><td><code>drop</code></td><td><code>d</code></td><td>Supprimez purement et simplement le commit de l’historique.</td></tr>',
+        '    <tr><td><code>drop</code></td><td><code>d</code></td><td>Supprime purement et simplement le commit de l’historique.</td></tr>',
         '  </tbody>',
         '</table>',
         box('danger', 'La Règle d’Or Absolue du Rebase', [

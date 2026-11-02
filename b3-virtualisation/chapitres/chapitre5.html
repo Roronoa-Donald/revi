@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Module 5 — Haute Disponibilité, Clustering &amp; Mobilité (HA, DRS &amp; vMotion) | Virtualisation Avancée B3</title>
-<meta name="description" content="Module 5 du cours Virtualisation Avancée B3 : Architecture vSphere HA (agents FDM, élection maître/esclave, heartbeats réseau &amp; datastore, contrôle d'admission), équilibrage dynamique vSphere DRS (métriques de charge, seuils 1-5, règles d'affinité et anti-affinité), mobilité à chaud vMotion (pré-copie, dirty rate, convergence, bascule sub-seconde) et Storage vMotion. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta name="description" content="Module 5 du cours Virtualisation Avancée B3 : Architecture vSphere HA (agents FDM, élection maître/esclave, heartbeats réseau &amp; datastore, contrôle d'admission), équilibrage dynamique vSphere DRS (métriques de charge, seuils 1-5, règles d'affinité et anti-affinité), mobilité à chaud vMotion (pré-copie, dirty rate, convergence et pause de bascule) et Storage vMotion. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b3-virtualisation/chapitres/chapitre5.html">
 <meta property="og:title" content="Module 5 — Haute Disponibilité, Clustering &amp; Mobilité (HA, DRS &amp; vMotion) | Virtualisation Avancée B3">
-<meta property="og:description" content="Module 5 du cours Virtualisation Avancée B3 : Architecture vSphere HA (agents FDM, élection maître/esclave, heartbeats réseau &amp; datastore, contrôle d'admission), équilibrage dynamique vSphere DRS (métriques de charge, seuils 1-5, règles d'affinité et anti-affinité), mobilité à chaud vMotion (pré-copie, dirty rate, convergence, bascule sub-seconde) et Storage vMotion. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:description" content="Module 5 du cours Virtualisation Avancée B3 : Architecture vSphere HA (agents FDM, élection maître/esclave, heartbeats réseau &amp; datastore, contrôle d'admission), équilibrage dynamique vSphere DRS (métriques de charge, seuils 1-5, règles d'affinité et anti-affinité), mobilité à chaud vMotion (pré-copie, dirty rate, convergence et pause de bascule) et Storage vMotion. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -53,7 +53,7 @@
 <main id="content" class="b3-virtualisationwrap">
 <p class="crumb"><a href="../index.html">Virtualisation Avancée B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
 
-<h1>Chapitre 5 — Haute Disponibilité, Clustering & Mobilité (HA, DRS & vMotion)</h1>
+<h1>Chapitre 5 — Haute Disponibilité, Clustering &amp; Mobilité (HA, DRS &amp; vMotion)</h1>
 
 <div class="chapmeta">
     <span class="tag">Module 5</span>
@@ -63,21 +63,21 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Vous êtes l'architecte système en charge de concevoir un cluster Datacenter critique à tolérance de panne pour les services financiers d'une banque en ligne. Vous devez déployer et configurer vSphere HA pour assurer le redémarrage automatique immédiat des machines virtuelles en cas de sinistre matériel sur un serveur hôte, dimensionner le contrôle d'admission pour garantir la réserve de calcul nécessaire, mettre en place l'équilibrage automatisé vSphere DRS avec règles d'anti-affinité pour séparer les contrôleurs de domaine et les nœuds de cluster SQL, et modéliser les opérations de migration à chaud vMotion pour réaliser la maintenance des hyperviseurs sans aucune seconde d'interruption de service.</p>
+    <p>Vous êtes l'architecte système en charge de concevoir un cluster Datacenter critique à tolérance de panne pour les services financiers d'une banque en ligne. Vous devez déployer et configurer vSphere HA pour permettre le redémarrage automatique des machines virtuelles après détection d'un sinistre matériel sur un serveur hôte, dimensionner le contrôle d'admission pour garantir la réserve de calcul nécessaire, mettre en place l'équilibrage automatisé vSphere DRS avec règles d'anti-affinité pour séparer les contrôleurs de domaine et les nœuds de cluster SQL, et modéliser les opérations de migration à chaud vMotion pour limiter les interruptions pendant la maintenance des hyperviseurs, puis mesurer leur impact éventuel.</p>
   </div>
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
     <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
-      <li>Comprendre l'architecture interne de vSphere HA : élection FDM (Master/Slave), surveillance par double heartbeat (réseau & datastore) et détection de pannes d'hôte vs isolement.</li>
+      <li>Comprendre l'architecture interne de vSphere HA : élection FDM (Master/Slave), surveillance par double heartbeat (réseau &amp; datastore) et détection de pannes d'hôte vs isolement.</li>
       <li>Configurer et dimensionner le contrôle d'admission vSphere HA (Admission Control) pour réserver la capacité de failover sans gaspiller de ressources.</li>
       <li>Modéliser l'ordonnancement automatisé vSphere DRS, ajuster les seuils de migration (1 à 5) et créer des règles d'affinité et d'anti-affinité strictes (VM-VM et VM-Hôte).</li>
-      <li>Maîtriser les étapes de la migration à chaud vMotion (phases de pré-copie, Dirty Rate, convergence et bascule sub-seconde) et du Storage vMotion.</li>
+      <li>Comprendre les étapes de la migration à chaud vMotion (phases de pré-copie, Dirty Rate, convergence et pause de bascule) et du Storage vMotion.</li>
     </ol>
   </div>
 
-<h2>1. Haute Disponibilité vSphere HA : Agents FDM, Élection & Double Heartbeat</h2>
+<h2>1. Haute Disponibilité vSphere HA : Agents FDM, Élection &amp; Double Heartbeat</h2>
 
 <p><strong>vSphere HA (High Availability)</strong> protège les applications contre les pannes matérielles en redémarrant automatiquement les machines virtuelles affectées sur les autres serveurs hôtes sains du cluster, sans intervention humaine :</p>
 <div class="grid grid-2">
@@ -99,7 +99,7 @@
   </div>
 </div>
 
-<h2>2. Contrôle d'Admission HA & Politiques de Basculement (Failover Capacity)</h2>
+<h2>2. Contrôle d'Admission HA &amp; Politiques de Basculement (Failover Capacity)</h2>
 
 <p>Le <strong>Contrôle d'Admission (Admission Control)</strong> garantit qu'une réserve suffisante de ressources CPU et mémoire reste toujours disponible sur le cluster pour accueillir les machines virtuelles sinistrées :</p>
 <table class="table">
@@ -111,7 +111,7 @@
   </tbody>
 </table>
 
-<h2>3. Équilibrage Dynamique vSphere DRS & Règles d'Affinité / Anti-Affinité</h2>
+<h2>3. Équilibrage Dynamique vSphere DRS &amp; Règles d'Affinité / Anti-Affinité</h2>
 
 <p><strong>vSphere DRS (Distributed Resource Scheduler)</strong> agrège la puissance de calcul d'un cluster pour équilibrer dynamiquement la charge CPU et RAM en migrant automatiquement les VM via vMotion :</p>
 <div class="grid grid-2">
@@ -134,9 +134,9 @@
   </div>
 </div>
 
-<h2>4. Mobilité à Chaud vMotion : Algorithme de Pré-Copie & Convergence</h2>
+<h2>4. Mobilité à Chaud vMotion : Algorithme de Pré-Copie &amp; Convergence</h2>
 
-<p>La technologie <strong>vSphere vMotion</strong> transfère une machine virtuelle en cours de fonctionnement d'un serveur ESXi source vers un serveur ESXi cible sans coupure de service pour les utilisateurs :</p>
+<p>La technologie <strong>vSphere vMotion</strong> transfère une machine virtuelle en cours de fonctionnement d'un serveur ESXi source vers un serveur ESXi cible. Elle vise à limiter l'interruption, mais une pause de bascule est possible et son impact dépend notamment de la charge et des applications :</p>
 <div class="grid grid-2">
   <div class="card">
     <h4>Phases de l'Algorithme vMotion</h4>
@@ -144,84 +144,75 @@
       <li><strong>Initialisation :</strong> Création d'une VM squelette sur l'hôte cible et réservation des ressources.</li>
       <li><strong>Pré-copie itérative (Pre-Copy) :</strong> Copie initiale de l'intégralité des pages de mémoire vive sur le réseau vMotion. Durant ce transfert, les pages modifiées par la VM sont tracées par un filtre mémoire (<em>Dirty Pages</em>).</li>
       <li><strong>Passes successives :</strong> L'hyperviseur ne renvoie que les pages modifiées lors de la passe précédente.</li>
-      <li><strong>Bascule sub-seconde (Switchover) :</strong> Dès que le volume restant peut être envoyé en moins d'une seconde, la VM source est brièvement suspendue (&lt; 0.5s), l'état des registres CPU est transféré, et la VM cible reprend l'exécution.</li>
+      <li><strong>Bascule (Switchover) :</strong> Après la pré-copie, l'exécution de la VM est suspendue pour transférer l'état restant ; elle reprend ensuite sur l'hôte cible. La <a href="https://knowledge.broadcom.com/external/article/436882/how-to-identify-vmotion-stun-time.html">documentation Broadcom pour vSphere 8.x</a> (consultée le 30 octobre 2026) indique un objectif de 500 ms, pas une durée garantie.</li>
       <li><strong>Annonce RARP :</strong> L'hôte cible émet une trame RARP pour mettre à jour les tables CAM des commutateurs physiques.</li>
     </ol>
   </div>
   <div class="card">
     <h4>Équation de Convergence &amp; SDPS</h4>
-    <p>Pour que la migration converge, le débit réseau effectif doit être strictement supérieur au rythme d'écriture mémoire de la VM (Dirty Rate) :</p>
+    <p>Dans un modèle simplifié à débits constants, sans compression ni ralentissement de la VM, la pré-copie converge si le débit réseau effectif est strictement supérieur au rythme de modification des pages mémoire distinctes (Dirty Rate) :</p>
     <pre><code>Dirty_Rate_Mo_s &lt; Debit_Reseau_Mo_s</code></pre>
-    <p>Si la VM modifie sa mémoire plus vite que le réseau ne peut la transmettre, vSphere active le mécanisme <strong>SDPS (Stun During Page Send)</strong> : le VMkernel ralentit temporairement les cycles d'horloge de la VM pour brider son écriture et forcer la convergence.</p>
+    <p>En pratique, des mécanismes tels que <strong>SDPS (Stun During Page Send)</strong> peuvent ralentir temporairement l'exécution de la VM pour favoriser la convergence. Ils ne garantissent pas le succès de toute migration et peuvent affecter les applications sensibles.</p>
   </div>
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="vrt3-c5-e1" data-lab
      data-exercise="vrt3-c5-e1"
      data-language="analyse"
      data-height="300"
      data-stdin="VM=vm-web01 RAM_GB=16 DIRTY_RATE_MBPS=20 NET_GBPS=10&#10;VM=vm-db01 RAM_GB=64 DIRTY_RATE_MBPS=50 NET_GBPS=1&#10;VM=vm-cache RAM_GB=8 DIRTY_RATE_MBPS=150 NET_GBPS=1">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vrt3-c5-e1) — Estimateur de Durée & Débit de Migration vMotion (Taille RAM & Dirty Rate)
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vrt3-c5-e1) — Modèle simplifié de deux passes de pré-copie vMotion
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
-[Cas 1 — Liaison 25G ultra-rapide et durée acceptable]
+[Cas 1 — Deux liaisons et pré-copies rapides dans le modèle]
 # Données : VM=vm-big RAM_GB=32 DIRTY_RATE_MBPS=100 NET_GBPS=25
 # Données : VM=vm-mid RAM_GB=16 DIRTY_RATE_MBPS=80 NET_GBPS=10
 A_COMPLETER
 
-[Cas 2 — Seuil limite de durée acceptable sur 60 secondes]
+[Cas 2 — Durée modélisée entre 30 et 90 secondes]
 # Données : VM=vm-heavy RAM_GB=48 DIRTY_RATE_MBPS=10 NET_GBPS=10
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Estimateur de Durée &amp; Débit de Migration vMotion (Taille RAM &amp; Dirty Rate)</h3>
+    <h3 class="lab__title">Exercice 1 — Modèle simplifié de deux passes de pré-copie vMotion</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Estimer la durée et le volume de données transférées lors d'une migration à chaud vMotion selon la taille mémoire et le débit réseau.</p>
-    <div class="lab__brief"><p>La technologie VMware vSphere vMotion transfère la mémoire vive d'une machine virtuelle en marche sans rupture de service :<br><br>
-1. <strong>Débit réseau effectif vMotion</strong> :<br>
-vMotion exploite 80% de la bande passante physique de l'interface réseau :<br>
-<code>net_throughput_mbps = (NET_GBPS * 1024 * 0.8) / 8</code> (exprimé en Mo/s).<br><br>
-2. <strong>Test de convergence</strong> :<br>
-Si le rythme d'écriture mémoire de l'OS invité (<code>DIRTY_RATE_MBPS</code>) est supérieur ou égal au débit réseau disponible (<code>DIRTY_RATE_MBPS &ge; net_throughput_mbps</code>), la migration ne peut pas converger :<br>
-Afficher <code>CONVERGENCE_FAILURE</code>.<br><br>
-3. <strong>Volume transféré et durée de pré-copie</strong> :<br>
-Volume mémoire nominal en Mo : <code>ram_mb = RAM_GB * 1024</code>.<br>
-Volume cumulé intégrant les itérations de pré-copie :<br>
-<code>total_transferred_mb = ram_mb * (1.0 + (DIRTY_RATE_MBPS / net_throughput_mbps))</code>.<br>
-Durée totale de migration :<br>
-<code>duration_s = total_transferred_mb / net_throughput_mbps</code>.<br><br>
-4. <strong>Qualification opérationnelle</strong> :<br>
+    <p class="lab__formative-notice" id="vrt3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Estimer le volume et la durée de deux passes de pré-copie avec des hypothèses explicites, sans les confondre avec une migration réelle.</p>
+    <div class="lab__brief"><p>vMotion vise à limiter l'interruption lors d'une migration, mais une pause de bascule et un impact applicatif restent possibles. Cette grille étudie seulement un modèle simplifié de pré-copie, à débits constants et sans compression.<br><br>
+1. <strong>Débit disponible</strong> :<br>
+Une hypothèse de la grille fixe à 80 % la part du débit nominal utilisable ; ce n'est pas une garantie de vMotion. Les unités sont décimales : 1 Gbit = 1000 Mbit et 1 Go = 1000 Mo. Avec <code>NET_GBPS</code> en Gbit/s, le débit en Mo/s vaut <code>net_throughput_mbps = (NET_GBPS * 1000 * 0.8) / 8</code>.<br><br>
+2. <strong>Test du modèle</strong> :<br>
+<code>DIRTY_RATE_MBPS</code> est le rythme supposé de modification des pages distinctes, en Mo/s. S'il est supérieur ou égal au débit disponible, le modèle à débits constants ne converge pas. Par convention, affichez <code>TRANSFERRED:0.0MB | DURATION:0.0s | STATUT:CONVERGENCE_FAILURE</code> pour indiquer que les deux grandeurs ne sont pas calculées.<br><br>
+3. <strong>Deux premières passes</strong> :<br>
+Le volume mémoire vaut <code>ram_mb = RAM_GB * 1000</code> Mo. Après une copie initiale et une seule copie des pages modifiées pendant celle-ci, le modèle donne <code>total_transferred_mb = ram_mb * (1.0 + (DIRTY_RATE_MBPS / net_throughput_mbps))</code>, puis <code>duration_s = total_transferred_mb / net_throughput_mbps</code>. Cette estimation ne prédit pas la durée totale de migration : elle exclut les passes suivantes, la bascule et les variations de charge.<br><br>
+4. <strong>Seuils fictifs pour cet exercice</strong> :<br>
 - Si <code>duration_s &le; 30.0</code> : <code>RAPIDE</code><br>
 - Si <code>30.0 &lt; duration_s &le; 90.0</code> : <code>ACCEPTABLE</code><br>
 - Sinon : <code>LENT</code><br><br>
-Format d'entrée (les données d’entrée) :<br>
-Lignes : <code>VM=&lt;nom&gt; RAM_GB=&lt;n&gt; DIRTY_RATE_MBPS=&lt;n&gt; NET_GBPS=&lt;1|10|25&gt;</code>.<br><br>
-Format de sortie :<br>
-<code>VM:&lt;nom&gt; | NET:&lt;NET_GBPS&gt;Gbps | TRANSFERRED:&lt;total_transferred_mb:.1f&gt;MB | DURATION:&lt;duration_s:.1f&gt;s | STATUT:&lt;statut&gt;</code></p></div>
+Données : <code>VM=&lt;nom&gt; RAM_GB=&lt;n&gt; DIRTY_RATE_MBPS=&lt;n&gt; NET_GBPS=&lt;1|10|25&gt;</code>.<br>
+Résultat d’analyse : <code>VM:&lt;nom&gt; | NET:&lt;NET_GBPS&gt;Gbps | TRANSFERRED:&lt;total_transferred_mb:.1f&gt;MB | DURATION:&lt;duration_s:.1f&gt;s | STATUT:&lt;statut&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VM=vm-web01 RAM_GB=16 DIRTY_RATE_MBPS=20 NET_GBPS=10
 VM=vm-db01 RAM_GB=64 DIRTY_RATE_MBPS=50 NET_GBPS=1
 VM=vm-cache RAM_GB=8 DIRTY_RATE_MBPS=150 NET_GBPS=1</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VM:vm-web01 | NET:10Gbps | TRANSFERRED:16704.0MB | DURATION:16.3s | STATUT:RAPIDE
-VM:vm-db01 | NET:1Gbps | TRANSFERRED:97536.0MB | DURATION:952.5s | STATUT:LENT
-VM:vm-cache | NET:1Gbps | TRANSFERRED:0.0MB | DURATION:0.0s | STATUT:CONVERGENCE_FAILURE
-</pre></div>
     </div>
-    <p class="lab__note">Migration rapide sur lien 10G, migration lente sur lien 1G et échec de convergence.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Calculez le débit réseau en Mo/s avec (NET_GBPS * 1024 * 0.8) / 8.</li>
-        <li>Si DIRTY_RATE_MBPS &gt;= net_throughput_mbps, affichez STATUT:CONVERGENCE_FAILURE.</li>
+        <li>Convertissez le débit nominal de Gbit/s en Mo/s, puis appliquez la proportion supposée dans la grille.</li>
+        <li>Comparez le rythme des pages modifiées au débit disponible avant de calculer le volume et la durée des deux passes.</li>
       </ol>
     </details>
   </div>
@@ -248,10 +239,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Calculateur d'Admission Control vSphere HA (Pourcentage de Cluster Réservé)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="vrt3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la réserve obligatoire de ressources de haute disponibilité vSphere HA et valider le contrôle d'admission.</p>
     <div class="lab__brief"><p>vSphere HA (High Availability) garantit la tolérance aux pannes matérielles en réservant un quota de capacité de secours :<br><br>
 1. <strong>Pourcentage de réservation de cluster (HA Reserved %)</strong> :<br>
@@ -273,11 +266,7 @@ Format de sortie :<br>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HOSTS=4 CPU_GHZ=40 RAM_GB=128 FAILURES=1 VMS_CPU=100 VMS_RAM=300
 HOSTS=3 CPU_GHZ=50 RAM_GB=256 FAILURES=1 VMS_CPU=110 VMS_RAM=400</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CLUSTER:4_HOSTS | HA_RESERVED:25.0% | AVAIL_CPU:120.0GHz | AVAIL_RAM:384.0GB | STATUS:ADMISSION_PASSED
-CLUSTER:3_HOSTS | HA_RESERVED:33.3% | AVAIL_CPU:100.0GHz | AVAIL_RAM:512.0GB | STATUS:ADMISSION_FAILED
-</pre></div>
     </div>
-    <p class="lab__note">Cluster 4 hôtes tolérant 1 panne (25% réservé) vs cluster 3 hôtes échouant sur le CPU (110 GHz &gt; 100 GHz).</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -312,17 +301,19 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Moteur de Recommandations DRS &amp; Règles d'Anti-Affinité</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="vrt3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Détecter les violations de règles d'anti-affinité et recommander des migrations DRS pour équilibrer la charge.</p>
     <div class="lab__brief"><p>vSphere DRS (Distributed Resource Scheduler) veille au respect des contraintes d'emplacement et à l'équilibrage du cluster :<br><br>
 1. <strong>Règles d'anti-affinité</strong> :<br>
 Une règle <code>ANTI_AFFINITY=VM1+VM2</code> impose que les deux VMs ne doivent jamais résider sur le même hôte.<br>
 Si une violation est constatée (les deux VMs sont sur le même hôte <code>H_SRC</code>) :<br>
 La deuxième VM (<code>VM2</code>) doit être migrée vers l'hôte actif disponible ayant l'utilisation CPU la plus faible.<br>
-Résultat d’analyse attendu : <code>VIOLATION:ANTI_AFFINITY | ACTION:MIGRATE <VM2> FROM <H_SRC> TO <H_DST></code>.<br><br>
+Résultat d’analyse attendu : <code>VIOLATION:ANTI_AFFINITY | ACTION:MIGRATE &lt;VM2&gt; FROM &lt;H_SRC&gt; TO &lt;H_DST&gt;</code>.<br><br>
 2. <strong>Équilibrage de charge (Load Balancing)</strong> :<br>
 S'il n'y a aucune violation d'anti-affinité, calculer l'écart entre l'hôte le plus chargé et le moins chargé :<br>
 <code>spread = max(CPU_PCT) - min(CPU_PCT)</code>.<br>
@@ -338,10 +329,7 @@ Le statut et l'action recommandée selon les critères ci-dessus.</p></div>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HOSTS=esxi01:80,esxi02:30,esxi03:40
 VMS=dc01:esxi01,dc02:esxi01,web:esxi02
 ANTI_AFFINITY=dc01+dc02</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VIOLATION:ANTI_AFFINITY | ACTION:MIGRATE dc02 FROM esxi01 TO esxi02
-</pre></div>
     </div>
-    <p class="lab__note">Violation de la règle dc01+dc02 hébergés tous deux sur esxi01 ; migration de dc02 vers l'hôte le moins chargé (esxi02 à 30%).</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -351,6 +339,7 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -396,24 +385,24 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
       <div class="q__exp">Une règle d'anti-affinité VM-VM garantit que deux machines virtuelles assurant le même rôle applicatif ne résident jamais sur le même serveur physique, éliminant tout point de défaillance unique (SPOF).</div>
     </div>
     <div class="q">
-      <p class="q__stem">Quelle condition mathématique est indispensable pour qu'une migration à chaud vMotion puisse converger sans blocage ?</p>
+      <p class="q__stem">Dans le modèle simplifié de pré-copie à débits constants, sans compression ni ralentissement de la VM, quelle condition permet de réduire les données restantes ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Le débit réseau effectif vMotion doit être supérieur au rythme de modification mémoire (Dirty Rate) de la VM.</button>
         <button class="opt">La taille de la RAM de la VM doit être strictement inférieure à 4 Go.</button>
         <button class="opt">Le datastore doit obligatoirement être formaté en système de fichiers FAT32.</button>
         <button class="opt">L'hôte source et l'hôte cible doivent posséder le même numéro de série constructeur.</button>
       </div>
-      <div class="q__exp">Si le système invité écrit dans sa mémoire (Dirty Rate) plus rapidement que le réseau ne peut transmettre les blocs modifiés, le volume restant à copier ne diminue jamais et la migration ne peut pas converger.</div>
+      <div class="q__exp">Dans ce modèle, les pages distinctes modifiées à chaque passe doivent représenter moins de données que le réseau ne peut transférer. Une migration réelle dépend aussi de mécanismes et de contraintes que ce modèle ne représente pas.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que fait le mécanisme SDPS (Stun During Page Send) lors d'une migration vMotion difficile ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Il ralentit temporairement les cycles d'exécution de la VM pour réduire son rythme d'écriture et forcer la convergence.</button>
+        <button class="opt" data-correct="1">Il ralentit temporairement l'exécution de la VM pour réduire son rythme d'écriture et favoriser la convergence.</button>
         <button class="opt">Il éteint brusquement la machine virtuelle sans sauvegarder les données.</button>
         <button class="opt">Il bascule la liaison réseau en Wi-Fi pour contourner le commutateur physique.</button>
         <button class="opt">Il duplique le fichier .vmx sur l'ensemble des datastores du datacenter.</button>
       </div>
-      <div class="q__exp">SDPS injecte de micro-ralentissements sur les processeurs de la machine virtuelle pour brider artificiellement son taux d'écriture mémoire (Dirty Rate), permettant à la phase de pré-copie de terminer le transfert.</div>
+      <div class="q__exp">SDPS peut imposer de courtes pauses aux processeurs virtuels pour limiter le rythme de modification mémoire ; cela peut aider la pré-copie sans garantir son succès ni l'absence d'impact applicatif.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle opération réseau termine la bascule finale d'une migration vMotion sur le nouvel hôte physique ?</p>
@@ -433,7 +422,7 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
         <button class="opt">vMotion ne fonctionne qu'avec Linux, tandis que Storage vMotion ne fonctionne qu'avec Windows.</button>
         <button class="opt">Storage vMotion exige de remplacer physiquement les disques durs dans la baie.</button>
       </div>
-      <div class="q__exp">vMotion déplace le traitement (calcul CPU et mémoire vive) entre serveurs physiques sans toucher aux disques partagés, tandis que Storage vMotion déplace les fichiers disques VMDK d'un datastore à un autre sans couper la VM.</div>
+      <div class="q__exp">vMotion déplace le traitement (calcul CPU et mémoire vive) entre serveurs physiques, tandis que Storage vMotion déplace les fichiers disques VMDK d'un datastore à un autre. Dans les deux cas, l'impact sur les applications doit être mesuré.</div>
     </div>
   </div>
 
@@ -457,7 +446,7 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
       <li>Activer vSphere HA sur le cluster et vérifier que chaque hôte dispose de connexions redondantes au réseau de management et à au moins deux datastores de heartbeat.</li>
       <li>Configurer le contrôle d'admission en définissant une réserve de ressources en pourcentage calquée sur la formule 100% / N_hôtes (ex: 25% pour 4 hôtes).</li>
       <li>Activer vSphere DRS en mode Fully Automated (Niveau 3) et créer les règles d'anti-affinité indispensables pour séparer les serveurs redondants critiques.</li>
-      <li>Valider les performances du réseau vMotion (interfaces 10 Gbps dédiées) et tester la migration à chaud sans perte de ping (ICMP &le; 1 paquet perdu).</li>
+      <li>Mesurer les performances du réseau vMotion et l'impact de la migration sur le ping et les applications, puis les comparer aux objectifs du service.</li>
     </ol>
   </div>
 
@@ -469,20 +458,20 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
       <li>vSphere HA redémarre automatiquement les VM sinistrées grâce aux agents FDM autonomes et à la détection par double heartbeat réseau/datastore.</li>
       <li>Le contrôle d'admission garantit qu'une réserve de ressources suffisante reste toujours disponible pour absorber la défaillance d'un ou plusieurs serveurs.</li>
       <li>vSphere DRS optimise dynamiquement l'allocation CPU/RAM et applique des règles d'anti-affinité pour éviter qu'un crash unique ne détruise deux serveurs redondants.</li>
-      <li>vMotion transfère la mémoire vive à chaud par un processus itératif de pré-copie avant d'effectuer une bascule imperceptible en moins d'une demi-seconde.</li>
-      <li>Le mécanisme SDPS garantit la convergence finale de vMotion sur les machines virtuelles très actives en bridant temporairement le Dirty Rate.</li>
+      <li>vMotion transfère la mémoire vive à chaud par pré-copie ; une pause de bascule est possible et sa durée varie selon le contexte.</li>
+      <li>Le mécanisme SDPS peut ralentir temporairement la VM pour favoriser la convergence, sans garantir le succès de la migration.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
       <li>Chaque hôte ESXi du cluster dispose-t-il d'accès redondants à au moins deux datastores partagés pour le heartbeat HA ?</li>
       <li>Le contrôle d'admission HA est-il configuré pour empêcher le démarrage de VM non garanties en cas de sinistre ?</li>
       <li>Des règles d'anti-affinité VM-VM séparent-elles systématiquement les binômes de serveurs critiques (AD, SQL, Web) ?</li>
-      <li>Le réseau VMkernel vMotion dispose-t-il d'une bande passante minimale de 10 Gbps pour garantir des durées de transfert réduites ?</li>
+      <li>La bande passante du réseau VMkernel vMotion est-elle adaptée à la charge et aux objectifs mesurés du service ?</li>
       <li>Une passerelle d'isolement valide (Isolation Address) est-elle configurée pour permettre aux hôtes de diagnostiquer un isolement réseau ?</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li><strong>vSphere HA :</strong> Mécanisme de haute disponibilité redémarrant automatiquement les machines virtuelles sinistrées sur les hôtes survivants du cluster.</li><li><strong>FDM (Fault Domain Manager) :</strong> Agent logiciel autonome de vSphere HA s'exécutant sur chaque hyperviseur pour surveiller la santé des nœuds du cluster.</li><li><strong>Heartbeat Datastore :</strong> Canal de secours de vSphere HA utilisant des fichiers sur stockage partagé pour distinguer une panne d'hôte d'un isolement réseau.</li><li><strong>Admission Control :</strong> Politique de réservation de capacité CPU et mémoire garantissant que le cluster peut honorer les redémarrages en cas de sinistre.</li><li><strong>vSphere DRS :</strong> Ordonnanceur distribué équilibrant la charge CPU et mémoire du cluster en migrant les VM via vMotion.</li><li><strong>Règle d'anti-affinité :</strong> Contrainte logique vSphere interdisant formellement le placement de deux machines virtuelles désignées sur le même serveur physique.</li><li><strong>vMotion :</strong> Technologie de migration à chaud transférant l'état d'exécution et la mémoire vive d'une VM sans rupture de service.</li><li><strong>Dirty Rate :</strong> Rythme en Mo/s auquel le système d'exploitation d'une VM modifie ses pages de mémoire vive pendant une migration vMotion.</li>
+      <li><strong>vSphere HA :</strong> Mécanisme de haute disponibilité redémarrant automatiquement les machines virtuelles sinistrées sur les hôtes survivants du cluster.</li><li><strong>FDM (Fault Domain Manager) :</strong> Agent logiciel autonome de vSphere HA s'exécutant sur chaque hyperviseur pour surveiller la santé des nœuds du cluster.</li><li><strong>Heartbeat Datastore :</strong> Canal de secours de vSphere HA utilisant des fichiers sur stockage partagé pour distinguer une panne d'hôte d'un isolement réseau.</li><li><strong>Admission Control :</strong> Politique de réservation de capacité CPU et mémoire garantissant que le cluster peut honorer les redémarrages en cas de sinistre.</li><li><strong>vSphere DRS :</strong> Ordonnanceur distribué équilibrant la charge CPU et mémoire du cluster en migrant les VM via vMotion.</li><li><strong>Règle d'anti-affinité :</strong> Contrainte logique vSphere interdisant formellement le placement de deux machines virtuelles désignées sur le même serveur physique.</li><li><strong>vMotion :</strong> Technologie de migration à chaud transférant l'état d'exécution et la mémoire vive d'une VM ; une pause de bascule reste possible.</li><li><strong>Dirty Rate :</strong> Rythme en Mo/s auquel le système d'exploitation d'une VM modifie ses pages de mémoire vive pendant une migration vMotion.</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -494,21 +483,21 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Déployer et dépanner un cluster vSphere HA avec validation des agents FDM et des doubles heartbeats.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Déployer et dépanner un cluster vSphere HA avec validation des agents FDM et des doubles heartbeats.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Calculer et dimensionner la politique de contrôle d'admission HA en pourcentage de ressources réservées.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Estimer la durée et le volume de transfert d'une migration vMotion en fonction du Dirty Rate et du débit réseau.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Exécuter des opérations de Storage vMotion pour rééquilibrer les datastores et réaliser des maintenances sans interruption.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Estimer, dans un modèle simplifié, le volume et la durée de deux passes de pré-copie selon le Dirty Rate et le débit réseau.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Exécuter des opérations de Storage vMotion pour rééquilibrer les datastores et préparer les maintenances en cherchant à limiter les interruptions.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Sauvegarde Avancée (CBT), Sécurité & Virtualisation du Poste de Travail (VDI) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Sauvegarde Avancée (CBT), Sécurité &amp; Virtualisation du Poste de Travail (VDI) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : Supports officiels B3-ASI / L3-ASI Virtualisation (Auteur : M. Caleb AGOUTOCO-POKO, Enseignant & Spécialiste Systèmes et Réseaux), Documentation technique officielle VMware vSphere 7.0 / 8.0, Documentation Citrix Hypervisor, Guides de durcissement CIS Benchmark VMware ESXi.</p>
+  Sources : Supports officiels B3-ASI / L3-ASI Virtualisation (Auteur : M. Caleb AGOUTOCO-POKO, Enseignant &amp; Spécialiste Systèmes et Réseaux), Documentation technique officielle VMware vSphere 7.0 / 8.0, Documentation Citrix Hypervisor, Guides de durcissement CIS Benchmark VMware ESXi.</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

@@ -74,7 +74,7 @@ function examens(course) {
       '</ul>',
       '<ol>',
       '  <li>Calculez le Change Failure Rate (CFR) de cette organisation. (2 pts)</li>',
-      '  <li>Évaluez la maturité de cette entreprise au regard du benchmark officiel DORA pour chacune des 4 métriques (Deployment Frequency, Lead Time for Changes, CFR, MTTR). Dans quelle catégorie se classe-t-elle globalement (Low, Medium, High, Elite) ? Justifiez. (4 pts)</li>',
+      '  <li>Quelles métriques sont calculables à partir des informations fournies ? Quelles données manquent pour les cinq métriques DORA actuelles, et pourquoi ne peut-on pas attribuer une catégorie universelle ? (4 pts)</li>',
       '</ol>',
       '<h4>Partie 2 : SRE, SLI/SLO &amp; Gestion d’Error Budget (8 points)</h4>',
       '<p>Un service de paiement en ligne applique un Service Level Objective (SLO) stipulant que <strong>99.9%</strong> des requêtes HTTP doivent répondre avec un code statut &lt; 500 sur une fenêtre glissante de 30 jours (considérée à 2 592 000 secondes).</p>',
@@ -96,12 +96,7 @@ function examens(course) {
       '<ul>',
       '  <li><strong>Change Failure Rate (2 pts) :</strong><br>' +
       '    $$CFR = \\frac{N_{echecs}}{N_{deploiements}} \\times 100 = \\frac{18}{365} \\times 100 \\approx 4.93\\,\\%$$</li>',
-      '  <li><strong>Classification DORA (4 pts) :</strong><br>' +
-      '    - <em>Deployment Frequency :</em> 1/jour &rarr; Niveau High (entre 1/jour et 1/semaine).<br>' +
-      '    - <em>Lead Time for Changes :</em> 14 heures &rarr; Niveau High (entre 1 jour et 1 semaine / &lt; 1 jour).<br>' +
-      '    - <em>Change Failure Rate :</em> 4.93% (&lt; 5%) &rarr; Niveau Elite / High (0-5%).<br>' +
-      '    - <em>MTTR :</em> 1 h 45 min &rarr; Niveau High (&lt; 1 jour).<br>' +
-      '    <strong>Conclusion :</strong> L’organisation se classe incontestablement au rang <strong>High Performer</strong> (proche de l’Élite sur le CFR).</li>',
+      '  <li><strong>Interprétation contextualisée (4 pts) :</strong> la fréquence indiquée est de 1 déploiement par jour et le CFR calculé est de 4,93 %. Le délai depuis une pull request ne donne pas forcément le délai depuis le commit ; le temps moyen de tous les incidents ne donne pas nécessairement le temps de rétablissement après un déploiement échoué. Le taux de reprises n’est pas fourni. Ces données ne permettent pas d’attribuer un classement universel.</li>',
       '</ul>',
       '<h4>Corrigé Partie 2 (8 points)</h4>',
       '<ul>',
@@ -154,9 +149,9 @@ function exercices(course, chapterList) {
       n: 1,
       title: 'Origines, Culture &amp; Principes Fondamentaux',
       items: [
-        { id: 'do3-c1-e1', title: 'Calcul des métriques Lean (Lead Time, Process Time &amp; Efficience)', goal: 'Calculer le Lead Time total, le Process Time et le ratio d’efficience de flux d’une chaîne de valeur logicielle.' },
-        { id: 'do3-c1-e2', title: 'Évaluateur de maturité de la culture DevOps (Modèle CALMS)', goal: 'Calculer le score moyen de maturité DevOps selon les 5 piliers CALMS et classifier la posture de l’organisation.' },
-        { id: 'do3-c1-e3', title: 'Analyseur des gaspillages Lean (Muda) et flux de valeur', goal: 'Classer les étapes d’une chaîne de livraison logicielle en valeur ajoutée utile vs gaspillage éliminable.' }
+        { id: 'do3-c1-e1', title: 'Évaluateur de maturité du modèle CALMS', goal: 'Appliquer les règles de la grille CALMS proposée.' },
+        { id: 'do3-c1-e2', title: 'Barème pédagogique fictif : quatre mesures de livraison', goal: 'Appliquer un barème fictif sans classer officiellement une équipe.' },
+        { id: 'do3-c1-e3', title: 'Simulateur de flux tiré Kanban et limitation du travail en cours', goal: 'Analyser les règles du modèle de flux Kanban proposé.' }
       ]
     },
     {
@@ -190,7 +185,7 @@ function exercices(course, chapterList) {
       n: 5,
       title: 'Métriques DORA, Fiabilité Opérationnelle &amp; Gestion des Incidents',
       items: [
-        { id: 'do3-c5-e1', title: 'Calculateur des 4 métriques DORA et classification d’équipe', goal: 'Calculer Deployment Frequency, Lead Time, Change Failure Rate et MTTR pour déterminer le niveau DORA.' },
+        { id: 'do3-c5-e1', title: 'Classificateur de paradigmes Infrastructure as Code', goal: 'Identifier les propriétés déclarées d’un outil IaC dans le modèle proposé.' },
         { id: 'do3-c5-e2', title: 'Calculateur de disponibilité MTBF, MTTR et taux de défaillance MTTF', goal: 'Calculer le temps moyen entre pannes, la durée moyenne de réparation et le taux de disponibilité global.' },
         { id: 'do3-c5-e3', title: 'Analyseur d’impact de défaillance (Blast Radius) et score de risque', goal: 'Évaluer le rayon d’impact et le score de risque d’une mise en production sur les microservices dépendants.' }
       ]

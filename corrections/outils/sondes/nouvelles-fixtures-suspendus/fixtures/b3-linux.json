@@ -1,0 +1,92 @@
+{
+  "lx3-c1-e1": {
+    "stdin": "PROC_STAT pid=731 comm=galerie state=T ppid=4 utime=19 stime=8 rss=37\nPROC_STAT pid=732 comm=service state=R ppid=1 utime=0 stime=3 rss=2",
+    "expected": "STAT_AUDIT pid=731 comm=galerie state_label=STOPPED total_ticks=27 mem_kb=148\nSTAT_AUDIT pid=732 comm=service state_label=RUNNING total_ticks=3 mem_kb=8",
+    "raison": "T=STOPPED, R=RUNNING ; les ticks s'additionnent et les pages sont multipliées par quatre."
+  },
+  "lx3-c1-e2": {
+    "stdin": "VMMAP pid=731 start=00001000 end=00002c00 perms=rwxs pathname=/opt/cartes\nVMMAP pid=732 start=00004000 end=00004800 perms=r--p pathname=/opt/notes",
+    "expected": "MAP_AUDIT pid=731 path=/opt/cartes size_kb=7 wx_violation=OUI\nMAP_AUDIT pid=732 path=/opt/notes size_kb=2 wx_violation=NON",
+    "raison": "Les tailles sont 0x1c00/1024=7 et 0x800/1024=2 ; seul rwxs contient w et x."
+  },
+  "lx3-c1-e3": {
+    "stdin": "SYSCALL pid=731 name=read args=\"fichier\" ret=EACCES time_us=5000\nSYSCALL pid=732 name=write args=\"sortie\" ret=8 time_us=5001",
+    "expected": "SYSCALL_PROFILE pid=731 name=read status=ERROR err=EACCES duration_us=5000 slow=NON\nSYSCALL_PROFILE pid=732 name=write status=SUCCESS err=NONE duration_us=5001 slow=OUI",
+    "raison": "EACCES est une erreur POSIX ; la lenteur commence strictement au-dessus de 5000 µs."
+  },
+  "lx3-c2-e1": {
+    "stdin": "SERVICE_DEF name=arc.service desc=NONE exec_start=rel wanted_by=NONE\nSERVICE_DEF name=porte.service desc=\"Portail\" exec_start=local/start wanted_by=multi-user.target\nSERVICE_DEF name=mesure.service desc=\"Mesure\" exec_start=/opt/measure wanted_by=NONE",
+    "expected": "SERVICE_VALIDATION name=arc.service valid=NON error=DESCRIPTION_MANQUANTE\nSERVICE_VALIDATION name=porte.service valid=NON error=EXECSTART_RELATIF\nSERVICE_VALIDATION name=mesure.service valid=NON error=WANTEDBY_MANQUANT",
+    "raison": "Les trois entrées isolent successivement les trois contrôles ordonnés."
+  },
+  "lx3-c2-e2": {
+    "stdin": "UNIT_DEP name=alpha.service requires=beta.service\nUNIT_DEP name=beta.service requires=alpha.service\nUNIT_DEP name=solo.service requires=solo.service\nUNIT_DEP name=lib.service requires=NONE",
+    "expected": "DEP_CHECK unit=alpha.service cycle=OUI reason=CYCLE_DIRECT\nDEP_CHECK unit=beta.service cycle=OUI reason=CYCLE_DIRECT\nDEP_CHECK unit=solo.service cycle=OUI reason=AUTO_DEPENDANCE\nDEP_CHECK unit=lib.service cycle=NON reason=OK",
+    "raison": "Deux dépendances inverses forment un cycle direct, une auto-dépendance forme son propre cycle."
+  },
+  "lx3-c2-e3": {
+    "stdin": "JOURNAL id=731 priority=3 unit=arc.service msg=\"Erreur\"\nJOURNAL id=732 priority=4 unit=porte.service msg=\"Attention\"",
+    "expected": "JOURNAL_AUDIT id=731 unit=arc.service level=ERROR alert=OUI\nJOURNAL_AUDIT id=732 unit=porte.service level=WARNING alert=NON",
+    "raison": "La priorité 3 est ERROR et alertée, la priorité 4 est WARNING et ne l'est pas."
+  },
+  "lx3-c3-e1": {
+    "stdin": "LVM_REQ vg=vg_mer pe_size_mb=8 total_pv_gb=3 lv_target_gb=2\nLVM_REQ vg=vg_ciel pe_size_mb=8 total_pv_gb=1 lv_target_gb=2",
+    "expected": "LVM_AUDIT vg=vg_mer status=ALLOCATED pe_used=256 pe_free_or_deficit=128\nLVM_AUDIT vg=vg_ciel status=INSUFFICIENT_SPACE pe_used=256 pe_free_or_deficit=128",
+    "raison": "Chaque Go donne 128 PE de 8 Mo : 256 demandés, sur 384 puis sur 128 disponibles."
+  },
+  "lx3-c3-e2": {
+    "stdin": "RAID_CONF device=md17 level=RAID5 total=5 active=3 failed=2 spares=2\nRAID_CONF device=md18 level=RAID6 total=6 active=4 failed=2 spares=0",
+    "expected": "RAID_DIAG dev=md17 level=RAID5 state=FAILED action=CRITICAL_DATA_LOSS\nRAID_DIAG dev=md18 level=RAID6 state=DEGRADED action=WARNING_NO_SPARE",
+    "raison": "RAID5 ne tolère qu'une panne ; RAID6 en tolère deux, ici sans disque de réserve."
+  },
+  "lx3-c3-e3": {
+    "stdin": "FS_METRICS mount=/archives blocks_total=200 blocks_used=185 inodes_total=50 inodes_used=49\nFS_METRICS mount=/images blocks_total=100 blocks_used=55 inodes_total=100 inodes_used=94",
+    "expected": "FS_STATUS mount=/archives block_pct=92% inode_pct=98% status=CRITICAL diag=TOTAL_EXHAUSTION\nFS_STATUS mount=/images block_pct=55% inode_pct=94% status=ALERT diag=INODE_EXHAUSTION",
+    "raison": "Les pourcentages entiers sont 92/98 puis 55/94 ; les deux seuils et leur priorité sont appliqués."
+  },
+  "lx3-c4-e1": {
+    "stdin": "NS_CHECK pid=731 ns_pid=12 ns_net=11 ns_mnt=13 host_pid=10 host_net=11 host_mnt=10\nNS_CHECK pid=732 ns_pid=20 ns_net=21 ns_mnt=22 host_pid=20 host_net=21 host_mnt=22",
+    "expected": "NS_STATUS pid=731 isolated=OUI isolated_count=2\nNS_STATUS pid=732 isolated=NON isolated_count=0",
+    "raison": "Deux différences PID/MNT puis aucune différence dans les trois espaces de noms."
+  },
+  "lx3-c4-e2": {
+    "stdin": "CGROUP group=atelier cpu_quota=125 cpu_period=100 mem_curr_mb=100 mem_max_mb=100\nCGROUP group=galerie cpu_quota=max cpu_period=100 mem_curr_mb=29 mem_max_mb=30",
+    "expected": "CGROUP_AUDIT group=atelier cpu_cores=1.3 mem_status=SATURATED\nCGROUP_AUDIT group=galerie cpu_cores=UNLIMITED mem_status=OK",
+    "raison": "1,25 s'arrondit à 1,3 et l'égalité mémoire sature ; max ne limite pas le CPU."
+  },
+  "lx3-c4-e3": {
+    "stdin": "OOM_PROC pid=731 comm=galerie mem_mb=702 oom_score_adj=300\nOOM_PROC pid=732 comm=gardien mem_mb=9999 oom_score_adj=-1000",
+    "expected": "OOM_TARGET pid=731 comm=galerie score=1002 risk=HIGH\nOOM_TARGET pid=732 comm=gardien score=IMMUNE risk=NONE",
+    "raison": "702+300=1002 dépasse 1000 ; un ajustement de -1000 rend immune."
+  },
+  "lx3-c5-e1": {
+    "stdin": "NET_IFACE name=br17 type=bridge master=br1 ip=NONE state=UP\nNET_IFACE name=veth17 type=veth master=NONE ip=NONE state=UP",
+    "expected": "NET_AUDIT iface=br17 valid=NON error=BRIDGE_CANNOT_HAVE_MASTER\nNET_AUDIT iface=veth17 valid=NON error=VETH_UNATTACHED",
+    "raison": "Le pont actif a un maître interdit ; le veth actif n'a ni maître ni IP."
+  },
+  "lx3-c5-e2": {
+    "stdin": "RULE prio=200 src=ANY dport=ANY table=main\nRULE prio=40 src=ANY dport=80 table=web\nPACKET id=731 src=10.9.0.2 dport=80\nPACKET id=732 src=10.9.0.3 dport=443",
+    "expected": "ROUTE_MATCH packet=731 matched_prio=40 table=web\nROUTE_MATCH packet=732 matched_prio=200 table=main",
+    "raison": "La priorité 40 est examinée avant 200 ; seul le premier paquet correspond au port 80."
+  },
+  "lx3-c5-e3": {
+    "stdin": "CONF_NSSWITCH order=dns,files,mdns4\nQUERY_HOST name=atlas.test in_files=OUI in_dns=OUI in_mdns=NON\nQUERY_HOST name=inconnu.test in_files=NON in_dns=NON in_mdns=NON",
+    "expected": "RESOLV_RESULT host=atlas.test resolved_by=dns status=SUCCESS\nRESOLV_RESULT host=inconnu.test resolved_by=NONE status=NOT_FOUND",
+    "raison": "DNS est prioritaire pour le premier nom ; aucune source ne répond pour le second."
+  },
+  "lx3-c6-e1": {
+    "stdin": "SYSCTL_CHECK key=kernel.trace current=007 recommended=7\nSYSCTL_CHECK key=kernel.audit current=3 recommended=3",
+    "expected": "SYSCTL_AUDIT key=kernel.trace current=007 target=7 status=HARDENING_REQUIRED\nSYSCTL_AUDIT key=kernel.audit current=3 target=3 status=COMPLIANT",
+    "raison": "La comparaison est textuelle : 007 diffère de 7, alors que 3 égale 3."
+  },
+  "lx3-c6-e2": {
+    "stdin": "PAM_STEP module=pam_zen.so control=required res=FAIL\nPAM_STEP module=pam_safe.so control=sufficient res=SUCCESS\nPAM_STEP module=pam_lock.so control=requisite res=FAIL",
+    "expected": "PAM_TRACE module=pam_zen.so control=required res=FAIL action=CONTINUE\nPAM_TRACE module=pam_safe.so control=sufficient res=SUCCESS action=CONTINUE\nPAM_TRACE module=pam_lock.so control=requisite res=FAIL action=ABORT_FAIL\nPAM_FINAL decision=DENIED",
+    "raison": "L'échec required empêche sufficient de court-circuiter ; requisite échoué interrompt avec refus."
+  },
+  "lx3-c6-e3": {
+    "stdin": "AUDIT_LOG id=731 uid=55 euid=0 exe=/usr/bin/su res=failed\nAUDIT_LOG id=732 uid=0 euid=0 exe=/usr/bin/id res=success\nAUDIT_LOG id=733 uid=88 euid=88 exe=/usr/bin/date res=success",
+    "expected": "AUDIT_REPORT id=731 exe=/usr/bin/su uid=55 euid=0 alert=BLOCKED_PRIVILEGE_ATTEMPT\nAUDIT_REPORT id=732 exe=/usr/bin/id uid=0 euid=0 alert=ROOT_NATIVE\nAUDIT_REPORT id=733 exe=/usr/bin/date uid=88 euid=88 alert=STANDARD_USER",
+    "raison": "Élévation non root échouée, root natif, puis utilisateur standard."
+  }
+}

@@ -167,13 +167,13 @@ module.exports = {
     }
   ],
   "flashcards": [
-    { "q": 'Qu’est-ce que « Tas binaire presque complet (Binary Heap) » ?', "a": 'Tas binaire presque complet (Binary Heap)' },
-    { "q": 'Qu’est-ce que « Représentation compacte en tableau 1D (parent, fils) » ?', "a": 'Représentation compacte en tableau 1D (parent, fils)' },
-    { "q": 'Qu’est-ce que « Invariant de Tas-Max (racine = maximum en O(1)) » ?', "a": 'Invariant de Tas-Max (racine = maximum en O(1))' },
-    { "q": 'Qu’est-ce que « Tamisage ascendant (sift-up) pour insertion en O(log n) » ?', "a": 'Tamisage ascendant (sift-up) pour insertion en O(log n)' },
-    { "q": 'Qu’est-ce que « Tamisage descendant (sift-down) pour extraction en O(log n) » ?', "a": 'Tamisage descendant (sift-down) pour extraction en O(log n)' },
-    { "q": 'Qu’est-ce que « Tri par tas (Heapsort) in-place en O(n log n) » ?', "a": 'Tri par tas (Heapsort) in-place en O(n log n)' },
-    { "q": 'Qu’est-ce que « File de priorité à clé dynamique (Priority Queue) » ?', "a": 'File de priorité à clé dynamique (Priority Queue)' },
+    { "q": 'Qu’est-ce que « Tas binaire presque complet (Binary Heap) » ?', "a": 'Arbre binaire dont tous les niveaux sont pleins sauf éventuellement le dernier, rempli de gauche à droite, et dont les parents respectent l’ordre de tas avec leurs enfants.' },
+    { "q": 'Qu’est-ce que « Représentation compacte en tableau 1D (parent, fils) » ?', "a": 'Dans un tableau indexé à 0 : parent(i)=⌊(i−1)/2⌋ pour i>0, fils gauche=2i+1 et fils droit=2i+2, si ces indices existent.' },
+    { "q": 'Qu’est-ce que « Invariant de Tas-Max (racine = maximum en O(1)) » ?', "a": 'Chaque parent a une clé supérieure ou égale à celles de ses enfants ; le maximum est donc à la racine et se consulte en O(1).' },
+    { "q": 'Qu’est-ce que « Tamisage ascendant (sift-up) pour insertion en O(log n) » ?', "a": 'Insérer à la fin puis échanger avec le parent tant que l’ordre du tas est violé ; la remontée coûte au plus O(log n).' },
+    { "q": 'Qu’est-ce que « Tamisage descendant (sift-down) pour extraction en O(log n) » ?', "a": 'Après retrait de la racine, placer le dernier élément à sa place puis l’échanger avec l’enfant prioritaire jusqu’à rétablir le tas : O(log n).' },
+    { "q": 'Qu’est-ce que « Tri par tas (Heapsort) in-place en O(n log n) » ?', "a": 'Construire un tas-max, échanger sa racine avec la fin de la partie non triée, réduire le tas puis le rétablir : O(n log n) et O(1) espace auxiliaire avec un tamisage itératif.' },
+    { "q": 'Qu’est-ce que « File de priorité à clé dynamique (Priority Queue) » ?', "a": 'Structure qui classe les éléments par priorité et permet leur insertion, la modification de leur clé et l’extraction de l’élément le plus prioritaire.' },
     {
       "q": "Comment accède-t-on au fils gauche et au fils droit d’un nœud à l’indice i dans un tas binaire ?",
       "a": "Fils gauche : 2*i + 1. Fils droit : 2*i + 2 (dans un tableau indexé à 0)."

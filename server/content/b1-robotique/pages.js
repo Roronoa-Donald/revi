@@ -54,9 +54,9 @@ function index(course, chapterList) {
       'circuits logiques (CircuitVerse) et le prototypage Arduino (Tinkercad). Ce cours en garde le plan ' +
       'mais simule chaque mécanisme <strong>de manière méthodique</strong> — le langage dont MicroPython est la copie ' +
       'portative : la boucle qui clignote, la table de vérité, le régulateur qui lit des relevés.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
-      'programme, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique ' +
-      'écrite ici se rejoue telle quelle sur la carte du club.</p>'
+      '    <p>Chaque chapitre se termine par <strong>trois études de cas</strong> : vous remplissez vraiment votre ' +
+      'grille d’analyse, elle est vérifiée par des critères que vous ne voyez pas. La logique ' +
+      'étudiée ici se rejoue telle quelle sur la carte du club.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
     '  <div class="toc">',
@@ -103,8 +103,8 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du premier programme jusqu’à la régulation ' +
     'd’un capteur. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou ' +
     'supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices de manière méthodique</strong> à écrire et à exécuter ' +
-    'dans la page : votre programme est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
+    '  <p>Chaque chapitre se termine par <strong>trois exercices de manière méthodique</strong> à analyser ' +
+    'dans la page : vous remplissez votre grille d’analyse, puis elle est vérifiée par des critères que vous ne voyez pas. ' +
     'L’<a href="atelier.html">atelier de simulation</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
@@ -114,7 +114,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s’auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo du roboticien</span><br><span class="toc__d">Boucles, seuils, opérateurs bit à bit, formats d’affichage sur une page.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Programmes gradués et projet final de télémétrie.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de simulation</span><br><span class="toc__d">Écrire et exécuter du Python directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de simulation</span><br><span class="toc__d">Analyser un cas de montage et valider votre grille directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches du TP noté, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -167,7 +167,7 @@ function atelier(course) {
       '(clignotement, seuil d’alerte, séquence de feux, chiffrement), programmez-le et testez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé lit une série de distances et déciderait la vitesse du robot. Modifiez les ' +
-      'seuils, change les états, ou remplace tout le script par le comportement que vous voulez vérifier.</p>',
+      'seuils, change les états, ou remplacez tout le script par le comportement que vous voulez vérifier.</p>',
       '      <p>Sur la carte, ce sera <code>digitalWrite</code> et des capteurs réels : la structure du ' +
       'programme — lire, décider, agir — reste exactement la même.</p>',
       '    </div>',

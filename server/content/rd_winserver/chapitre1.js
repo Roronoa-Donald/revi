@@ -146,7 +146,7 @@ module.exports = {
   ],
 
   checklist: [
-    'Je distingue les trois types sans hésiter.',
+    'Je distinguez les trois types sans hésiter.',
     'Je sais expliquer la restauration de chacun.',
     'J’applique la stratégie 3-2-1.',
     'Je prévois toujours un test de restauration.'
@@ -161,20 +161,6 @@ module.exports = {
   ],
 
   flashcards: [
-      { q: 'Qu’est-ce que « stratégie 3-2-1 » ?', a: 'appliquer la stratégie 3-2-1 ;' },
-      { q: 'Qu’est-ce que « basculement » ?', a: 'Failover (basculement) : transférer automatiquement l’activité d’un composant défaillant vers un composant redondant, sans intervention humaine.' },
-      { q: 'Qu’est-ce que « monitoring » ?', a: 'Supervision (monitoring) : surveiller en temps réel l’état des ressources pour détecter les anomalies et déclencher le basculement.' },
-      { q: 'Qu’est-ce que « quorum » ?', a: 'expliquer le rôle du quorum ;' },
-      { q: 'Qu’est-ce que « split brain » ?', a: 'Dans un cluster, le quorum est la majorité des nœuds nécessaire pour décider qui fait quoi. Si le quorum est perdu, le cluster cesse de rendre le service : c’est ce qui évite le « split brain », deux moitiés qui se croient seules.' },
-      { q: 'Qu’est-ce que « load balancing » ?', a: 'distinguer active-passive, active-active, load balancing, failover et grid ;' },
-      { q: 'Qu’est-ce que « mises à jour » ?', a: 'Elle couvre : les mises à jour (Windows Update, pilotes, BIOS, firmware), la surveillance de l’état du système, la vérification des sauvegardes , le contrôle de la sécurité (comptes inactifs, groupes sensibles, pare-feu, antivirus) et la vérification du matériel (température, ven' },
-      { q: 'Qu’est-ce que « Performance Monitor » ?', a: 'Performance Monitor, Disk Management' },
-      { q: 'Qu’est-ce que « hyperviseur » ?', a: 'Plutôt que d’installer un serveur par machine, on exécute plusieurs machines virtuelles sur un même hôte. Comprendre l’hyperviseur, les réseaux virtuels et l’allocation de ressources est la base de toute infrastructure moderne.' },
-      { q: 'Qu’est-ce que « bare-metal » ?', a: 'Le script lit le type de l’hyperviseur ( 1 ou 2 ), puis le nom du produit. Affichez produit : NOM (bare-metal) pour le type 1 et produit : NOM (heberge) pour le type 2.' },
-      { q: 'Qu’est-ce que « VMware ESXi » ?', a: 'VMware ESXi : situer ESXi, vCenter et vSphere Client ;' },
-      { q: 'Qu’est-ce que « instantané » ?', a: 'Un snapshot (instantané) capture l’état d’une VM à un instant donné : le contenu de la mémoire, l’état du processeur et l’état des disques virtuels. Il permet de revenir en arrière en cas de problème après un changement critique.' },
-      { q: 'Qu’est-ce que « linked clone » ?', a: 'Clone lié (linked clone) : la nouvelle VM partage une partie de ses fichiers disque avec l’originale. Moins gourmand en espace, mais dépendant de la source : si elle est supprimée, le clone lié ne fonctionne plus.' },
-      { q: 'Qu’est-ce que « template » ?', a: 'Avant une mise à jour risquée, on prend un snapshot ; pour déployer dix serveurs identiques, on clone ou on part d’un template ; pour équilibrer la charge, on migre une VM à chaud. Ces gestes du quotidien de l’administrateur ont chacun leurs règles.' },
     { q: 'Que copie une sauvegarde complète ?', a: 'L’intégralité des données, à chaque exécution.' },
     { q: 'Incrementielle : modifications depuis quoi ?', a: 'Depuis la dernière sauvegarde, complète ou incrémentielle.' },
     { q: 'Differentielle : modifications depuis quoi ?', a: 'Depuis la dernière sauvegarde complète.' },

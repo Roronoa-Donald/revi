@@ -120,7 +120,7 @@ function sommaire(course, chapterList) {
     '  <div class="grid grid-3">',
     '    <div class="card">',
     '      <h4>' + ic('terminal') + ' Bac à sable interactif</h4>',
-    '      <p>Testez vos scripts Python de validation d\'architectures, de calcul de coûts EC2/S3 et d\'adressage VPC dans l\'éditeur Monaco AMD.</p>',
+    '      <p>Entraînez-vous à analyser des architectures, des coûts EC2/S3 et l\'adressage VPC dans l\'éditeur d\'analyse.</p>',
     '      <p><a class="btn" href="atelier.html">Ouvrir l\'atelier</a></p>',
     '    </div>',
     '    <div class="card">',
@@ -157,41 +157,29 @@ function sommaire(course, chapterList) {
 function atelier(course) {
   const crumbs = crumb(course, [{ label: 'Accueil', href: 'index.html' }, { label: 'Sommaire', href: 'sommaire.html' }, { label: 'Atelier d’analyse' }]);
 
-  const defaultCode = `# Grille d’analyse libre — Architecture Cloud AWS
-# Évaluation de la résilience, du coût et de la conformité Well-Architected
-
-[Cas 1 — Dimensionnement Multi-AZ & Sécurité]
-ARCHITECTURE: Multi-AZ avec ALB et Auto Scaling
-CONFORMITE_VPC: 2 sous-réseaux publics, 2 sous-réseaux privés
-RESILIENCE: Tolérance à la perte d'un datacenter complet
-NOTE: Architecture hautement disponible et conforme aux bonnes pratiques AWS.
-`;
-
   const body = [
     crumbs,
     '  <header class="section-head">',
-    '    <h1>Atelier de Code Interactif — Services Cloud AWS</h1>',
-    '    <p class="section-head__lead">Expérimentez librement vos algorithmes d\'adressage VPC, de calcul de coûts EC2/S3/Lambda, de validation d\'ARN et d\'évaluation de politiques IAM selon les grilles d’analyse.</p>',
+    '    <h1>Atelier d’analyse — Services Cloud AWS</h1>',
+    '    <p class="section-head__lead">Préparez vos raisonnements sur les réseaux VPC, les coûts ou les politiques IAM dans la grille libre. Ce brouillon n’est ni exécuté ni corrigé automatiquement et ne se connecte pas à AWS.</p>',
     '  </header>',
     '',
     '  <div class="lab"',
     '       data-lab',
-    '       data-exercise-id="atelier-aws3"',
     '       data-language="analyse"',
-    '       data-height="420"',
-    '       data-stdin="aws ec2 describe-instances --region eu-west-3\narn:aws:s3:::mon-bucket-demo\naws s3 ls">',
-    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — b3-cloud-aws\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
+    '       data-height="420">',
+    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — Services Cloud AWS\n\n[Cas 1 — Étude préliminaire]\n# Données : décrivez la situation à étudier.\nA_COMPLETER\n</script>',
     '  </div>',
     '',
-    '  <h2>Suggestions d’expérimentations pratiques</h2>',
+    '  <h2>Pistes d’analyse à rédiger</h2>',
     '  <div class="grid grid-2">',
     '    <div class="card">',
-    '      <h4>Simulateur d\'Auto Scaling Multi-AZ</h4>',
-    '      <p>Modélisez la répartition équilibrée d\'une flotte d\'instances EC2 entre plusieurs zones de disponibilité lors d\'un pic de trafic.</p>',
+    '      <h4>Étude d’un groupe Auto Scaling multi-AZ</h4>',
+    '      <p>Décrivez une répartition possible d’instances EC2 entre plusieurs zones de disponibilité, puis discutez les limites de votre modèle.</p>',
     '    </div>',
     '    <div class="card">',
-    '      <h4>Calculateur d\'Adresses Réservées VPC</h4>',
-    '      <p>Validez vos plans d\'adressage CIDR en calculant automatiquement les 5 adresses IP réservées par sous-réseau dans AWS.</p>',
+    '      <h4>Étude des adresses réservées d’un VPC</h4>',
+    '      <p>Analysez des plans d\'adressage IPv4 CIDR et les adresses réservées dans le cas AWS usuel hors BYOIP.</p>',
     '    </div>',
     '  </div>',
     '',
@@ -203,7 +191,7 @@ NOTE: Architecture hautement disponible et conforme aux bonnes pratiques AWS.
   return {
     'atelier.html': {
       title: 'Atelier d’analyse interactif — ' + course.brand,
-      description: 'Console interactive Python 3 pour concevoir et tester des algorithmes de gestion Cloud AWS, dimensionnement et sécurité.',
+      description: 'Brouillon personnel pour analyser des situations Cloud AWS sans exécution ni correction automatique.',
       active: 'atelier',
       body
     }

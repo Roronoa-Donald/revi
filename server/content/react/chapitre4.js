@@ -119,7 +119,7 @@ module.exports = {
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise l’usage de map() et l’importance de la prop key.' },
     { cls: 'mid', text: '50–69 % — Entraînez-vous sur le rendu conditionnel et le piège du 0.' },
-    { cls: 'good', text: '70–94 % — Solide : vous gèrez les listes dynamiques et le filtrage réactif.' },
+    { cls: 'good', text: '70–94 % — Solide : vous gérez les listes dynamiques et le filtrage réactif.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe aux effets de bord et à useEffect dans le chapitre 5.' }
   ],
 

@@ -243,7 +243,7 @@ function exercices(course) {
 
     '  <h2>Projet intégrateur — « plan de dimensionnement »</h2>',
     box('situation', 'Cahier des charges', 'play', [
-      '    <p>On te confie un script de dimensionnement. Le script lit la <strong>RAM de l’hôte</strong> ' +
+      '    <p>On vous confie un script de dimensionnement. Le script lit la <strong>RAM de l’hôte</strong> ' +
       '(Go), la <strong>RAM réservée au système</strong> (Go), la <strong>RAM par VM</strong> (Go), puis ' +
       'le nombre total de <strong>vCPU</strong> alloués et le nombre de <strong>cœurs physiques</strong>. ' +
       'Il affiche la capacité de VM, détecte une surallocation de vCPU, et conclut : ' +

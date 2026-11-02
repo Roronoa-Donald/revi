@@ -19,7 +19,7 @@ module.exports = [
     free: true,
 
     situation:
-      'Le responsable pédagogique te remet la liste des notes obtenues par une promotion à un test : ' +
+      'Le responsable pédagogique vous remet la liste des notes obtenues par une promotion à un test : ' +
       'quarante-deux nombres, dans le désordre. Ce n’est pas encore une information, c’est une série brute. ' +
       'Avant de calculer quoi que ce soit, il faut nommer précisément ce qu’on observe — qui, quoi, combien ' +
       'de valeurs — sinon les résultats seront justes mais la conclusion fausse.',
@@ -72,7 +72,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « Qualitatif : on compte ; Quantitatif : on calcule »', 'pin',
             '    <p>Un caractère <strong>qualitatif</strong> ne permet que de <em>compter</em> des individus par ' +
             'modalité. Un caractère <strong>quantitatif</strong> permet en plus de <em>calculer</em> : moyenne, ' +
-            'écart-type. Si vous te demandes s’il faut une moyenne, la réponse vous indique le type.</p>'),
+            'écart-type. Si vous vous demandez s’il faut une moyenne, la réponse vous indique le type.</p>'),
           box('intuition', 'Attention aux nombres qui n’en sont pas', 'compass',
             '    <p>Un numéro de téléphone, un code postal ou un numéro d’étudiant s’écrivent avec des chiffres ' +
             'mais restent <strong>qualitatifs</strong> : additionner deux codes postaux n’a aucun sens. Le type ' +
@@ -94,9 +94,9 @@ module.exports = [
           '<p>Le nombre de valeurs distinctes est le nombre de <strong>modalités</strong> du caractère. Il est ' +
           'toujours inférieur ou égal à l’effectif total.</p>',
           box('standard', 'Modalités et effectifs d’un caractère', [
-      '<p>Pour une série brute $X = (x_1, x_2, \\\\dots, x_N)$, on ordonne les valeurs par ordre croissant :</p>',
-      '<div class="math-block">$x_{(1)} \\\\le x_{(2)} \\\\le \\\\dots \\\\le x_{(N)}$</div>',
-      '<p>L’ensemble des valeurs distinctes $\{x_1, \\\\dots, x_k\}$ forme les <strong>$k$ modalités</strong> ($k \\\\le N$).</p>'
+      '<p>Pour une série brute $X = (x_1, x_2, \\dots, x_N)$, on ordonne les valeurs par ordre croissant :</p>',
+      '<div class="math-block">$x_{(1)} \\le x_{(2)} \\le \\dots \\le x_{(N)}$</div>',
+      '<p>L’ensemble des valeurs distinctes $\{x_1, \\dots, x_k\}$ forme les <strong>$k$ modalités</strong> ($k \\le N$).</p>'
     ].join('\n'))
         ].join('\n')
       },
@@ -108,28 +108,30 @@ module.exports = [
           box('formula', 'Découpage en classes et amplitudes', [
       '<div class="box--formula">',
       '  <span class="formula-label">Amplitude d’une classe</span>',
-      '  <div class="math-block">$a = \\\\frac{x_{\\\\max} - x_{\\\\min}}{k}$</div>',
+      '  <div class="math-block">$a = \\frac{x_{\\max} - x_{\\min}}{k}$</div>',
       '</div>',
       '<div class="box--formula">',
       '  <span class="formula-label">Centre de la classe $[b_i, b_{i+1}[$</span>',
-      '  <div class="math-block">$c_i = \\\\frac{b_i + b_{i+1}}{2}$</div>',
+      '  <div class="math-block">$c_i = \\frac{b_i + b_{i+1}}{2}$</div>',
       '</div>'
     ].join('\n')),
-          '<p><strong>Exemple.</strong> Des tailles relevées entre 150 cm et 190 cm, découpées en 4 classes ' +
+          '<p><strong>Exemple.</strong> Des tailles relevées de 150 cm à 190 cm inclus, découpées en 4 classes ' +
           'd’amplitude 10 :</p>',
           '<table>\n' +
           '    <tr><th>Classe</th><th>Centre</th></tr>\n' +
           '    <tr><td>[150 ; 160[</td><td>155</td></tr>\n' +
           '    <tr><td>[160 ; 170[</td><td>165</td></tr>\n' +
           '    <tr><td>[170 ; 180[</td><td>175</td></tr>\n' +
-          '    <tr><td>[180 ; 190[</td><td>185</td></tr>\n' +
+          '    <tr><td>[180 ; 190]</td><td>185</td></tr>\n' +
           '  </table>',
+          '<p>Les classes incluent leur borne inférieure et excluent leur borne supérieure, sauf la ' +
+          '<strong>dernière classe</strong>, qui inclut aussi 190 cm pour conserver le maximum.</p>',
           '<p>Le <strong>centre de classe</strong> est la valeur que l’on utilisera pour tous les calculs : ' +
           'c’est le compromis qui représente la classe entière.</p>',
           box('pitfall', 'Piège — les bornes de classes', 'warning',
-            '    <p>Une valeur égale à une borne appartient à la classe suivante : <code>[150 ; 160[</code> ' +
-            'contient 150 mais pas 160. Sans cette règle, une même valeur pourrait être comptée deux fois, ou ' +
-            'pas du tout — et l’effectif total ne tomberait plus juste.</p>')
+            '    <p>Une borne intérieure appartient à la classe suivante : <code>[150 ; 160[</code> ' +
+            'contient 150 mais pas 160. La borne finale 190 appartient à <code>[180 ; 190]</code>. ' +
+            'Chaque valeur est ainsi comptée une seule fois.</p>')
         ].join('\n')
       }
     ],
@@ -140,7 +142,7 @@ module.exports = [
       { stem: 'Un numéro de téléphone est…', opts: ['quantitatif discret', 'qualitatif', 'quantitatif continu'], correct: 1, exp: 'Écrit avec des chiffres, il ne se calcule pas : il est qualitatif.' },
       { stem: 'Sur la série 3, 5, 5, 8, 5, 3, combien de modalités compte-t-elle ?', opts: ['2', '3', '6'], correct: 1, exp: 'Les valeurs distinctes sont 3, 5 et 8 : trois modalités.' },
       { stem: 'Qu’est-ce que le centre d’une classe [160 ; 170[ ?', opts: ['160', '165', '170'], correct: 1, exp: 'Le centre est la demi-somme des bornes : (160 + 170)/2 = 165.' },
-      { stem: 'Une valeur égale à 160 appartient à quelle classe ?', opts: ['[150 ; 160[', '[160 ; 170[', 'Les deux'], correct: 1, exp: 'La borne inférieure appartient à la classe ; la borne supérieure est exclue.' }
+      { stem: 'Une valeur égale à 160 appartient à quelle classe ?', opts: ['[150 ; 160[', '[160 ; 170[', 'Les deux'], correct: 1, exp: 'Une borne intérieure appartient à la classe qui commence par cette borne ; la dernière classe inclut aussi le maximum.' }
     ],
 
     pitfalls: [
@@ -165,7 +167,7 @@ module.exports = [
       'Caractère : ce qui est observé ; modalité : une valeur possible de ce caractère.',
       'Trois types : qualitatif, quantitatif discret, quantitatif continu (à regrouper en classes).',
       'Effectif n<sub>i</sub> : nombre d’individus portant la modalité ; effectif total N = Σ n<sub>i</sub>.',
-      'Le centre d’une classe est la demi-somme de ses bornes ; la borne inférieure appartient à la classe.'
+      'Le centre d’une classe est la demi-somme de ses bornes ; chaque borne inférieure est incluse et, dans cet exemple, la dernière borne supérieure aussi.'
     ],
 
     checklist: [
@@ -185,26 +187,11 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Qu’est-ce que « tableau statistique » ?', a: 'tableau statistique : Vous avez trié votre série : 42 notes. Personne ne peut lire une liste de 42 nombres dans un rapport. Pour décider, il faut la même information sous une forme condensée : combien d’élèves ont eu chaque note, quelle proportion cela représente, et combien d’élèves ont eu au moins telle no' },
-      { q: 'Qu’est-ce que « pourcentage » ?', a: 'calculer une fréquence relative et une fréquence en pourcentage ;' },
-      { q: 'Qu’est-ce que « fréquence cumulée » ?', a: 'fréquence cumulée : calculer une fréquence relative et une fréquence en pourcentage ;' },
-      { q: 'Qu’est-ce que « contrôle des sommes » ?', a: 'contrôle des sommes : Les deux contrôles à faire systématiquement : la somme de la colonne des effectifs doit valoir N, et la somme de la colonne des fréquences doit valoir 1 (ou 100 en pourcentage). Une erreur dans un tableau se repère presque toujours ainsi.' },
-      { q: 'Qu’est-ce que « comparaison de populations » ?', a: 'comparaison de populations' },
-      { q: 'Qu’est-ce que « quartiles » ?', a: 'déterminer médiane et quartiles avec la convention du cours ;' },
-      { q: 'Qu’est-ce que « distribution dissymétrique » ?', a: 'distribution dissymétrique' },
-      { q: 'Qu’est-ce que « étendue » ?', a: 'calculer l’étendue et l’écart interquartile ;' },
-      { q: 'Qu’est-ce que « coefficient de variation » ?', a: 'comparer deux séries par leur coefficient de variation.' },
-      { q: 'Qu’est-ce que « homogénéité » ?', a: 'homogénéité : Statistiques B1 › Sommaire › Chapitre 4' },
-      { q: 'Qu’est-ce que « diagramme en bâtons » ?', a: 'Un graphique bien choisi fait comprendre en deux secondes ce qu’un tableau met deux minutes à dire. Un graphique mal choisi fait croire le contraire de la vérité : un histogramme à classes inégales lu comme un diagramme en bâtons surestime les classes larges. Choisir la bonne rep' },
-      { q: 'Qu’est-ce que « diagramme en barres » ?', a: 'Diagramme en barres : barres plus larges, fréquemment horizontales, pratique quand les libellés sont longs (noms de filières, de villes).' },
-      { q: 'Qu’est-ce que « série double » ?', a: 'Quand deux caractères sont relevés sur les mêmes individus, on obtient une série double : un couple (x, y) par individu. On la représente par un nuage de points dans le plan.' },
-      { q: 'Qu’est-ce que « coefficient de corrélation » ?', a: 'calculer et interpréter un coefficient de corrélation linéaire ;' },
-      { q: 'Qu’est-ce que « prévision » ?', a: 'prévision : Un magasin relève, chaque jour, sa dépense publicitaire et son chiffre d’affaires. Les deux nombres ont-ils un lien, et si oui, peut-on prévoir le second à partir du premier ? Décrire une seule variable ne suffit plus : il faut étudier deux caractères ensemble , mesurer leur liai' },
-      { q: 'Qu’est-ce que « corrélation et causalité » ?', a: 'corrélation et causalité : calculer et interpréter un coefficient de corrélation linéaire ;' },
       { q: 'Définissez la population et l’échantillon.', a: 'La population est l’ensemble étudié ; l’échantillon est une partie de cette population.' },
-      { q: 'Quels sont les trois types de caractères ?', a: 'Qualitatif, quantitatif discret, quantitatif continu (regroupé en classes).' },
+      { q: 'Quels sont les trois types de caractères ?', a: 'Qualitatif, quantitatif discret et quantitatif continu ; ce dernier peut être regroupé en classes.' },
       { q: 'Qu’est-ce qu’une modalité ?', a: 'Une valeur possible du caractère (ou une classe, si le caractère est continu).' },
-      { q: 'Comment calcule-t-on le centre d’une classe ?', a: 'C’est la demi-somme des bornes inférieure et supérieure de la classe.' }
+      { q: 'Comment calcule-t-on le centre d’une classe ?', a: 'C’est la demi-somme des bornes inférieure et supérieure de la classe.' },
+      { q: 'Où ranger la borne maximale si les classes s’arrêtent au maximum ?', a: 'Dans la dernière classe, fermée à droite ; les bornes intérieures restent attribuées à la classe suivante.' }
     ]
   },
 
@@ -257,13 +244,13 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> La <strong>fréquence relative</strong> d’une modalité est la part ' +
           'de la population qui la porte :</p>',
-          '<div class="math-block">$f_i = \\\\frac{n_i}{N} \\\\quad \\\\text{avec} \\\\quad \\\\sum_{i=1}^k f_i = 1 \\\\quad (\\\\text{soit } 100\,\%)$</div>',
+          '<div class="math-block">$f_i = \\frac{n_i}{N} \\quad \\text{avec} \\quad \\sum_{i=1}^k f_i = 1 \\quad (\\text{soit } 100\\,\\%)$</div>',
           '<p>Contrairement à l’effectif, une fréquence permet de <strong>comparer deux populations de tailles ' +
           'différentes</strong> : 12 sur 30 et 20 sur 50 ne se comparent pas en effectifs, mais leurs ' +
           'fréquences (40 %) sont identiques.</p>',
           box('standard', 'Propriété des fréquences relatives', [
       '<p>La fréquence relative $f_i$ est un nombre sans dimension compris entre 0 et 1 :</p>',
-      '<div class="math-block">$0 \\\\le f_i \\\\le 1 \\\\quad \\forall i \\\\in \{1, \\\\dots, k\}$</div>',
+      '<div class="math-block">$0 \\le f_i \\le 1 \\quad \\forall i \\in \{1, \\dots, k\}$</div>',
       '<p>Elle mesure la proportion relative d’individus présentant la modalité $x_i$.</p>'
     ].join('\n'))
         ].join('\n')
@@ -274,7 +261,7 @@ module.exports = [
           '<p><strong>Définition.</strong> L’<strong>effectif cumulé croissant</strong> (ECC) de la modalité ' +
           'x<sub>i</sub> est le nombre d’individus dont la valeur est <em>inférieure ou égale</em> à ' +
           'x<sub>i</sub> :</p>',
-          '<div class="math-block">$ECC_i = \\\\sum_{j=1}^i n_j = n_1 + n_2 + \\\\dots + n_i$</div>',
+          '<div class="math-block">$ECC_i = \\sum_{j=1}^i n_j = n_1 + n_2 + \\dots + n_i$</div>',
           '<p>C’est la colonne qui répond à la question « combien de personnes ont au plus cette valeur ? ». ' +
           'Elle est <strong>croissante</strong> et se termine par l’effectif total N.</p>',
           '<p>Exemple d’énoncé classique : « Quel est le nombre d’élèves ayant eu au plus 12 ? » Réponse : ' +
@@ -291,7 +278,7 @@ module.exports = [
           '<p><strong>Définition.</strong> L’<strong>effectif cumulé décroissant</strong> (ECD) de la modalité ' +
           'x<sub>i</sub> est le nombre d’individus dont la valeur est <em>supérieure ou égale</em> à ' +
           'x<sub>i</sub> :</p>',
-          '<div class="math-block">$ECD_i = \\\\sum_{j=i}^k n_j = n_i + n_{i+1} + \\\\dots + n_k$</div>',
+          '<div class="math-block">$ECD_i = \\sum_{j=i}^k n_j = n_i + n_{i+1} + \\dots + n_k$</div>',
           '<p>Cette colonne est <strong>décroissante</strong> et commence par N. Elle répond aux questions ' +
           '« au moins » : « combien de personnes ont au moins 12 ? »</p>',
           '<table>\n' +
@@ -394,10 +381,10 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> La <strong>moyenne</strong> d’une série de n valeurs est la somme des ' +
           'valeurs divisée par leur nombre :</p>',
-          '<div class="math-block">$\\\\bar{x} = \\\\frac{1}{n} \\\\sum_{i=1}^n x_i$</div>',
+          '<div class="math-block">$\\bar{x} = \\frac{1}{n} \\sum_{i=1}^n x_i$</div>',
           '<p>Lorsque la série est donnée par un tableau d’effectifs, on pondère chaque modalité par son ' +
           'effectif, ce qui revient au même calcul :</p>',
-          '<div class="math-block">$\\\\bar{x} = \\\\frac{1}{N} \\\\sum_{i=1}^k n_i x_i = \\\\sum_{i=1}^k f_i x_i \\\\quad \\\\left(N = \\\\sum_{i=1}^k n_i\\\\right)$</div>',
+          '<div class="math-block">$\\bar{x} = \\frac{1}{N} \\sum_{i=1}^k n_i x_i = \\sum_{i=1}^k f_i x_i \\quad \\left(N = \\sum_{i=1}^k n_i\\right)$</div>',
           '<p><strong>Exemple.</strong> Effectifs 2, 4, 6, 5, 3 pour les notes 1 à 5 :</p>',
           '<pre><code>x̄ = (2·1 + 4·2 + 6·3 + 5·4 + 3·5) / 20\n' +
           '   = (2 + 8 + 18 + 20 + 15) / 20 = 63 / 20 = 3,15</code></pre>',
@@ -416,17 +403,17 @@ module.exports = [
           '    <li><strong>pondération par des coefficients</strong> : un contrôle de coefficient 2 compte deux ' +
           'fois plus qu’un contrôle de coefficient 1.</li>\n' +
           '  </ul>',
-          '<div class="math-block">$\\\\bar{x} = \\\\frac{\\\\sum w_i x_i}{\\\\sum w_i}$</div>',
+          '<div class="math-block">$\\bar{x} = \\frac{\\sum w_i x_i}{\\sum w_i}$</div>',
           '<p>Pour une série <strong>regroupée en classes</strong>, la moyenne se calcule sur les ' +
           '<strong>centres de classe</strong>, pondérés par les effectifs :</p>',
-          '<div class="math-block">$\\\\bar{x} = \\\\frac{1}{N} \\\\sum_{i=1}^k n_i c_i \\\\quad \\\\text{avec } c_i = \\\\frac{\\\\text{inf}_i + \\\\text{sup}_i}{2}$</div>',
+          '<div class="math-block">$\\bar{x} = \\frac{1}{N} \\sum_{i=1}^k n_i c_i \\quad \\text{avec } c_i = \\frac{\\text{inf}_i + \\text{sup}_i}{2}$</div>',
           box('tech', 'Exemple de calcul sur classes', 'terminal',
             '    <table>\n' +
             '      <tr><th>Classe</th><th>Centre</th><th>Effectif</th><th>n<sub>i</sub>·c<sub>i</sub></th></tr>\n' +
             '      <tr><td>[150 ; 160[</td><td>155</td><td>8</td><td>1 240</td></tr>\n' +
             '      <tr><td>[160 ; 170[</td><td>165</td><td>15</td><td>2 475</td></tr>\n' +
             '      <tr><td>[170 ; 180[</td><td>175</td><td>19</td><td>3 325</td></tr>\n' +
-            '      <tr><td>[180 ; 190[</td><td>185</td><td>8</td><td>1 480</td></tr>\n' +
+            '      <tr><td>[180 ; 190]</td><td>185</td><td>8</td><td>1 480</td></tr>\n' +
             '    </table>\n' +
             '    <p>x̄ = 8 520 / 50 = 170,4. Le résultat est une <em>approximation</em> : la série d’origine a ' +
             'été perdue en la regroupant.</p>')
@@ -452,6 +439,9 @@ module.exports = [
           'Q3      : r = 11 × 0,75 = 8,25 →  11 + 0,25 × (12 − 11) = 11,25</code></pre>',
           '<p>L’<strong>écart interquartile</strong> <code>EI = Q3 − Q1</code> contient les 50 % centraux de ' +
           'la série : c’est une mesure de dispersion, étudiée au chapitre suivant.</p>',
+          '<p>Pour une série symétrique autour de son centre, moyenne et médiane coïncident. ' +
+          'La réciproque est fausse : <strong>0, 1, 2, 2, 5</strong> a pour moyenne et médiane 2, ' +
+          'mais n’est pas symétrique autour de 2, car 5 n’a pas pour reflet −1 dans la série.</p>',
           box('intuition', 'Médiane ou moyenne ?', 'compass',
             '    <p>La médiane résiste aux valeurs extrêmes, la moyenne non. Un salaire moyen peut être tiré ' +
             'vers le haut par une seule très grosse rémunération ; la médiane, elle, ne bouge presque pas. ' +
@@ -484,16 +474,16 @@ module.exports = [
     questions: [
       { stem: 'La moyenne de la série 4, 6, 8, 10 vaut…', opts: ['6', '7', '8'], correct: 1, exp: '(4 + 6 + 8 + 10)/4 = 7.' },
       { stem: 'Calculer la moyenne des modalités sans pondérer est…', opts: ['correct si les effectifs sont égaux', 'toujours correct', 'toujours faux'], correct: 0, exp: 'Faire la moyenne des modalités revient à supposer des effectifs égaux.' },
-      { stem: 'Pour une série en classes, la moyenne utilise…', opts: ['les bornes', 'les centres de classe', 'les effectifs'], correct: 1, exp: 'Le centre de classe représente la classe dans le calcul.' },
+      { stem: 'Pour une série en classes, la moyenne utilise…', opts: ['les centres de classe pondérés par les effectifs', 'les centres seuls', 'les bornes seules'], correct: 0, exp: 'Chaque centre représente sa classe et est pondéré par son effectif : le résultat est approché.' },
       { stem: 'La médiane d’une série ordonnée de 9 valeurs est…', opts: ['la 4e', 'la 5e', 'la moyenne des 4e et 5e'], correct: 1, exp: 'Rang (9 + 1)/2 = 5 : la 5e valeur.' },
-      { stem: 'Le mode d’une série existe…', opts: ['toujours', 'si une modalité a un effectif maximal strict', 'si la moyenne est entière'], correct: 1, exp: 'Si toutes les modalités sont également fréquentes, il n’y a pas de mode.' },
+      { stem: 'Si des modalités se détachent, comment identifier le mode d’une série ?', opts: ['Toutes les modalités d’effectif maximal, même en cas d’égalité', 'Une seule modalité, obligatoirement', 'La moyenne si elle est entière'], correct: 0, exp: 'Plusieurs modalités peuvent partager l’effectif maximal ; si toutes ont le même effectif, aucune ne se détache et le cours ne retient pas de mode.' },
       { stem: 'Quel indicateur de position s’applique à un caractère qualitatif ?', opts: ['La moyenne', 'La médiane', 'Le mode'], correct: 2, exp: 'On ne peut pas ordonner un caractère qualitatif : seul le mode reste calculable.' }
     ],
 
     pitfalls: [
       '<strong>Moyenne des modalités au lieu de la moyenne pondérée</strong> quand les effectifs diffèrent.',
       '<strong>Médiane sur série non triée</strong> : le résultat est faux sans que rien ne le signale.',
-      '<strong>Confusion moyenne / médiane</strong> : elles ne coïncident que pour une distribution symétrique.',
+      '<strong>Confusion moyenne / médiane</strong> : leur égalité ne prouve pas la symétrie ; la réciproque est fausse.',
       '<strong>Rang de quantile mal appliqué</strong> : oublier le « +1 » de la formule (n + 1)·p.',
       '<strong>Mode annoncé sur série à effectifs égaux</strong> : il n’existe pas dans ce cas.'
     ],
@@ -501,15 +491,15 @@ module.exports = [
     methodTitle: 'Choisir et calculer un indicateur de position',
     method: [
       '<strong>Trier la série</strong> avant tout calcul de médiane ou de quartile.',
-      '<strong>Compter les effectifs</strong> par modalité, ou les centres de classe si la série est regroupée.',
+      '<strong>Compter les effectifs</strong> par modalité ou par classe ; relever aussi les centres des classes.',
       '<strong>Calculer la moyenne pondérée</strong> Σ n<sub>i</sub>x<sub>i</sub> / N.',
       '<strong>Appliquer le rang</strong> r = (n + 1)·p pour la médiane et les quartiles, en interpolant si besoin.',
-      '<strong>Comparer</strong> moyenne, médiane et mode : si elles s’écartent, la distribution est dissymétrique — dis-le.'
+      '<strong>Comparer</strong> moyenne et médiane : si elles diffèrent, la série n’est pas symétrique ; leur égalité ne garantit pas la symétrie.'
     ],
 
     summary: [
       'Moyenne : x̄ = Σ n<sub>i</sub>x<sub>i</sub> / N, pondérée par les effectifs (ou les coefficients).',
-      'Série regroupée : on calcule à partir des centres de classe (résultat approché).',
+      'Série regroupée : on pondère les centres de classe par leurs effectifs (résultat approché).',
       'Médiane : valeur de rang (n + 1)/2 dans la série ordonnée ; résiste aux valeurs extrêmes.',
       'Quartiles : rangs (n + 1)/4 et 3(n + 1)/4, avec interpolation si le rang n’est pas entier.',
       'Mode : modalité d’effectif maximal ; peut être absent, unique ou multiple.'
@@ -535,7 +525,8 @@ module.exports = [
       { q: 'Formule de la moyenne pondérée ?', a: '<code>x̄ = Σ n<sub>i</sub>·x<sub>i</sub> / N</code>, avec N = Σ n<sub>i</sub>.' },
       { q: 'Comment calcule-t-on la moyenne d’une série en classes ?', a: 'Avec les centres de classe pondérés par les effectifs ; le résultat est approché.' },
       { q: 'Quel est le rang de la médiane ?', a: '<code>(n + 1)/2</code> dans la série ordonnée ; on interpole si le rang n’est pas entier.' },
-      { q: 'Quand n’y a-t-il pas de mode ?', a: 'Quand toutes les modalités ont le même effectif : aucune ne se détache.' }
+      { q: 'Quand n’y a-t-il pas de mode ?', a: 'Quand toutes les modalités ont le même effectif : aucune ne se détache.' },
+      { q: 'Une moyenne égale à la médiane prouve-t-elle la symétrie ?', a: 'Non : la série 0, 1, 2, 2, 5 a une moyenne et une médiane égales à 2 mais elle est asymétrique.' }
     ]
   }
 ];

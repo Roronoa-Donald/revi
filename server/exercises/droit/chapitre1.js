@@ -15,8 +15,8 @@ module.exports = [
     brief: "<p>Pour chaque situation proposée : type vaut <code>d</code> (droit), <code>i</code> (informatique) ou <code>n</code> (droit du numérique). Pour chaque situation, indiquez <code>libelle : categorie</code>, où categorie vaut <code>droit</code>, <code>informatique</code> ou <code>droit du numerique</code>. Enfin Indiquez <code>bilan : X droit / Y informatique / Z numerique</code>.</p>",
     starter: "# Grille d'analyse (dr2-c1-e1) — Classer les notions\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Uniquement du droit]\n# Données : d code civil\n# Données : d constitution\nA_COMPLETER\n\n[Cas 2 — Uniquement de l informatique]\n# Données : i algorithme\nA_COMPLETER\n\n[Cas 3 — Cinq éléments mixtes]\n# Données : d regle de droit\n# Données : i logiciel\n# Données : n donnees personnelles\n# Données : d jurisprudence\n# Données : n droit de l internet\nA_COMPLETER\n",
     hints: [
-          "Trois compteurs posés à 0 avant la boucle, incrémentés selon les cas prévus.",
-          "Le bilan sort après la boucle, selon la syntaxe attendue « X droit / Y informatique / Z numerique »."
+          "Que signifie le code associé à chaque situation ?",
+          "Comptez séparément les situations de chaque catégorie."
     ],
     examples: [
           {
@@ -53,8 +53,8 @@ module.exports = [
     brief: "<p>Pour chaque situation proposée : <code>dp</code> (protection des données personnelles), <code>pi</code> (propriété intellectuelle), <code>ci</code> (contrats informatiques) ou <code>rc</code> (responsabilité civile). Pour chaque situation, indiquez <code>libelle : fondement</code> avec le libellé du fondement. Enfin Indiquez <code>fondements : X/n</code>.</p>",
     starter: "# Grille d'analyse (dr2-c1-e2) — Les fondements du droit du numérique\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Un contrat]\n# Données : ci licence logicielle\nA_COMPLETER\n\n[Cas 2 — Responsabilité]\n# Données : rc faille de securite\n# Données : rc systeme defaillant\nA_COMPLETER\n\n[Cas 3 — Quatre fondements]\n# Données : dp consentement\n# Données : pi marque deposee\n# Données : ci service cloud\n# Données : rc dommage\nA_COMPLETER\n",
     hints: [
-          "Quatre codes : dp → donnees personnelles, pi → propriete intellectuelle, ci → contrats informatiques, rc → responsabilite civile.",
-          "Le compteur « fondements » s'incrémente à chaque ligne traitée."
+          "Quel fondement juridique correspond au code de chaque situation ?",
+          "Vérifiez que chaque situation est prise en compte dans le bilan."
     ],
     examples: [
           {

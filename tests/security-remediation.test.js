@@ -16,117 +16,26 @@ const db = require('../server/db');
 const aiPool = require('../server/services/ai-pool');
 const { buildApp } = require('../server/app');
 
-describe('SEC-001 : Isolation de l’exécution locale (JS, Python, Analyse)', () => {
-  test('runJavaScript : impossible de lire les secrets de process.env via évasion de prototype VM', async () => {
-    process.env.TEST_HOST_SECRET = 'CANARY_SECRET_123';
-    try {
-      const escapeCode = `
-        const results = [];
-        try {
-          const fn = this.constructor.constructor;
-          const p = fn('return typeof process !== "undefined" ? process : null')();
-          results.push(p && p.env ? p.env.TEST_HOST_SECRET : 'NO_PROC');
-        } catch (e) {
-          results.push('BLOCKED_THIS');
-        }
-        try {
-          const fn2 = console.log.constructor;
-          const p2 = fn2('return typeof process !== "undefined" ? process : null')();
-          results.push(p2 && p2.env ? p2.env.TEST_HOST_SECRET : 'NO_PROC2');
-        } catch (e) {
-          results.push('BLOCKED_CONSOLE');
-        }
-        try {
-          const fn3 = readline.constructor;
-          const p3 = fn3('return typeof process !== "undefined" ? process : null')();
-          results.push(p3 && p3.env ? p3.env.TEST_HOST_SECRET : 'NO_PROC3');
-        } catch (e) {
-          results.push('BLOCKED_READLINE');
-        }
-        console.log(results.join('|'));
-      `;
-      const res = await localRunner.runJavaScript(escapeCode, '');
-      const combined = `${res.data.stdout || ''}\n${res.data.stderr || ''}`;
-      assert.ok(!combined.includes('CANARY_SECRET_123'), 'Le secret hôte ne doit jamais fuiter dans stdout/stderr');
-    } finally {
-      delete process.env.TEST_HOST_SECRET;
+describe('SEC-001 : refus de l’exécution locale de code', () => {
+  test('les interpréteurs locaux ne lancent aucun programme', async () => {
+    for (const method of ['runJavaScript', 'runPython', 'runSql', 'runPseudoCode']) {
+      const result = await localRunner[method]('texte de test', '');
+      assert.equal(result.ok, false, method);
+      assert.equal(result.httpStatus, 503, method);
+      assert.equal(result.data.stdout, '', method);
     }
   });
 
-  test('runJavaScript : accès interdit à process, require, fs, child_process et réseau (fetch, WebSocket)', async () => {
-    const probeCode = `
-      console.log('process:', typeof process);
-      console.log('require:', typeof require);
-      console.log('fetch:', typeof fetch);
-      console.log('WebSocket:', typeof WebSocket);
-    `;
-    const res = await localRunner.runJavaScript(probeCode, '');
-    assert.equal(res.ok, true);
-    assert.equal(res.data.exit_code, 0);
-    assert.match(res.data.stdout, /process: undefined/);
-    assert.match(res.data.stdout, /require: undefined/);
-    assert.match(res.data.stdout, /fetch: undefined/);
-    assert.match(res.data.stdout, /WebSocket: undefined/);
-  });
-
-  test('runPython : exécution isolée dans un sous-processus sans accès à TEST_HOST_SECRET', async () => {
-    process.env.TEST_HOST_SECRET = 'CANARY_SECRET_PYTHON_456';
-    try {
-      const pyCode = `
-import sys
-x = int(input())
-print("Carre:", x * x)
-`;
-      const res = await localRunner.runPython(pyCode, '12\n');
-      assert.equal(res.ok, true);
-      assert.equal(res.data.exit_code, 0);
-      assert.match(res.data.stdout, /Carre: 144/);
-      const combined = `${res.data.stdout}\n${res.data.stderr}`;
-      assert.ok(!combined.includes('CANARY_SECRET_PYTHON_456'));
-    } finally {
-      delete process.env.TEST_HOST_SECRET;
-    }
-  });
-
-  test('execution.execute (allowLocal) : isolation de bout en bout contre l’extraction de secrets', async () => {
-    process.env.TEST_HOST_SECRET = 'CANARY_EXECUTE_789';
-    try {
-      const res = await execution.execute(
-        {
-          language: 'javascript',
-          code: `
-            try {
-              const p = this.constructor.constructor('return process')();
-              console.log(p.env.TEST_HOST_SECRET);
-            } catch (e) {
-              console.log('ISOLATED');
-            }
-          `
-        },
-        { allowLocal: true }
+  test('sans fournisseur, allowLocal ne peut pas réactiver un interpréteur', async context => {
+    context.mock.method(execution.piston, 'isConfigured', () => false);
+    context.mock.method(execution.oanor, 'isConfigured', () => false);
+    for (const language of ['javascript', 'python', 'sql', 'shell', 'csharp']) {
+      await assert.rejects(
+        execution.execute({ language, code: 'texte de test' }, { allowLocal: true }),
+        error => error.code === 'not_configured'
       );
-      assert.ok(!res.stdout.includes('CANARY_EXECUTE_789'));
-      assert.ok(!res.stderr.includes('CANARY_EXECUTE_789'));
-    } finally {
-      delete process.env.TEST_HOST_SECRET;
     }
   });
-
-  test('runJavaScript & runPython : terminaison sur boucle infinie et plafonnement de sortie à 64 Ko', async () => {
-    const loopRes = await localRunner.runJavaScript('while (true) {}', '', 400);
-    assert.notEqual(loopRes.data.exit_code, 0, 'Une boucle infinie JS doit échouer par timeout');
-
-    const pyLoopRes = await localRunner.runPython('while True:\n    pass\n', '', 400);
-    assert.notEqual(pyLoopRes.data.exit_code, 0, 'Une boucle infinie Python doit échouer par timeout');
-
-    const floodRes = await localRunner.runJavaScript(
-      'for (let i = 0; i < 5000; i++) console.log("A".repeat(100));',
-      '',
-      3000
-    );
-    assert.ok(Buffer.byteLength(floodRes.data.stdout, 'utf8') <= 65536, 'stdout JS doit être plafonné à 64 Ko');
-  });
-
   test('Mode étude de cas (analyse) : support dans languages.js et localRunner.runAnalyse', async () => {
     const lang = languages.getLanguage('analyse');
     assert.ok(lang, 'Le langage analyse doit être déclaré dans languages.js');

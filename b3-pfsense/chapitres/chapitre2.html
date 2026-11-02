@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -51,7 +51,7 @@
 </div></nav>
 
 <main id="content" class="b3-pfsensewrap">
-<p class="crumb"><a href="../index.html">pfSense & Routage B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+<p class="crumb"><a href="../index.html">pfSense &amp; Routage B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
 
 <h1>Chapitre 2 — Règles de Pare-Feu, Aliases, États de Connexion (Stateful) &amp; Limiteurs</h1>
 
@@ -159,9 +159,11 @@ block in proto tcp to port 80 # &lt;-- C’est cette règle qui s’applique !</
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="pf3-c2-e1" data-lab
      data-exercise="pf3-c2-e1"
      data-language="analyse"
@@ -193,25 +195,27 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Résolveur d’alias d’adresses et de ports pfSense (Firewall Aliases)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Vérifier si un paquet correspond aux critères d’un Alias d’adresses IP ou de ports dans pfSense.</p>
-    <div class="lab__brief"><p>Les <strong>Alias</strong> dans pfSense simplifient la maintenance des règles de filtrage en regroupant des adresses IP, des réseaux ou des ports sous un nom unique (ex: <code>WEB_PORTS</code> pour <code>80,443</code>).<br><br>
-Analysez les paramètres du problème pour chaque cas...&gt;</code>.<br>
-Puis une série de vérifications :<br>
-<code>CHECK_ALIAS alias=&lt;nom&gt; target=&lt;valeur&gt;</code>.<br><br>
+    <p class="lab__formative-notice" id="pf3-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier si une valeur figure exactement dans un alias représenté par une liste simple.</p>
+    <div class="lab__brief"><p>Les <strong>Alias</strong> dans pfSense regroupent des adresses IP, des réseaux ou des ports sous un nom unique (ex: <code>WEB_PORTS</code> pour <code>80,443</code>). Dans ce <strong>modèle pédagogique</strong>, les valeurs sont des adresses IP ou des ports unitaires : on vérifie uniquement une égalité exacte, sans sous-réseaux ni plages.<br><br>
+Chaque cas définit un alias :<br>
+<code>ALIAS_DEF name=&lt;nom&gt; values=&lt;valeur1,valeur2,...&gt;</code>.<br>
+Les valeurs sont séparées par des virgules. Puis viennent les vérifications :<br>
+<code>CHECK_ALIAS alias=&lt;nom&gt; target=&lt;valeur&gt;</code>.<br>
+Chaque vérification utilise l'alias défini dans le cas. Si <code>target</code> est exactement égal à l'une de ses valeurs, indiquer <code>match=YES</code> ; sinon indiquer <code>match=NO</code>.<br><br>
 Pour chaque vérification, afficher :<br>
-<code>ALIAS_RESULT alias={alias} target={target} match={YES|NO}</code></p></div>
+<code>ALIAS_RESULT alias={alias} target={target} match={YES|NO}</code>.<br>
+Saisissez une ligne par vérification dans la zone du cas.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ALIAS_DEF name=WEB_PORTS values=80,443,8080
 CHECK_ALIAS alias=WEB_PORTS target=443
 CHECK_ALIAS alias=WEB_PORTS target=22</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ALIAS_RESULT alias=WEB_PORTS target=443 match=YES
-ALIAS_RESULT alias=WEB_PORTS target=22 match=NO</pre></div>
     </div>
-    <p class="lab__note">Le port 443 est dans l’alias, le port 22 n’y est pas.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -254,10 +258,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Moteur d’évaluation séquentielle de règles de filtrage (First-Match Wins)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="pf3-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Simuler l’évaluation ordonnée des règles dans pfSense : la première règle correspondante s’applique immédiatement.</p>
     <div class="lab__brief"><p>Contrairement au moteur PF brut sous OpenBSD (où la dernière règle gagne sauf directive <code>quick</code>), <strong>pfSense applique par défaut le comportement First-Match</strong> (toutes les règles graphiques portent implicitement l'option <code>quick</code>).<br><br>
 Analysez les paramètres du problème pour chaque cas.<br>
@@ -276,10 +282,7 @@ Pour chaque paquet, afficher :<br>
 RULE id=R2 action=BLOCK src=192.168.1.10 port=any
 EVAL_PKT pkt_id=P1 src=192.168.1.10 port=443
 EVAL_PKT pkt_id=P2 src=192.168.1.10 port=80</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PKT_DECISION pkt_id=P1 decision=PASS rule=R1
-PKT_DECISION pkt_id=P2 decision=BLOCK rule=R2</pre></div>
     </div>
-    <p class="lab__note">P1 correspond à R1 (port 443). P2 ne correspond pas à R1, mais correspond à R2 (port any).</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -295,16 +298,18 @@ PKT_DECISION pkt_id=P2 decision=BLOCK rule=R2</pre></div>
      data-language="analyse"
      data-height="300"
      data-stdin="STATE_ENTRY id=10 proto=tcp src=192.168.1.10:49152 dst=93.184.216.34:443 state=SYN_SENT age_sec=45">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c2-e3) — Parseur de table d’états PF et détection de connexions semi-ouvertes
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c2-e3) — Analyse pédagogique d’une table d’états simplifiée
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
 [Cas 1 — Session TCP normale établie]
 # Données : STATE_ENTRY id=20 proto=tcp src=10.0.0.5:52000 dst=1.1.1.1:443 state=ESTABLISHED age_sec=120
 A_COMPLETER
 
-[Cas 2 — Trafic UDP et session en fermeture]
+[Cas 2 — Trafic UDP, session en fermeture et seuils SYN_SENT]
 # Données : STATE_ENTRY id=30 proto=udp src=10.0.0.5:53000 dst=8.8.8.8:53 state=SINGLE age_sec=5
 # Données : STATE_ENTRY id=31 proto=tcp src=10.0.0.5:54000 dst=8.8.8.8:80 state=TIME_WAIT age_sec=15
+# Données : STATE_ENTRY id=41 proto=tcp src=192.168.1.16:4401 dst=10.0.0.1:80 state=SYN_SENT age_sec=30
+# Données : STATE_ENTRY id=42 proto=tcp src=192.168.1.17:4402 dst=10.0.0.1:80 state=SYN_SENT age_sec=31
 A_COMPLETER
 
 [Cas 3 — SYN_SENT récent sous le seuil d’alerte]
@@ -312,38 +317,44 @@ A_COMPLETER
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Parseur de table d’états PF et détection de connexions semi-ouvertes</h3>
+    <h3 class="lab__title">Exercice 3 — Analyse pédagogique d’une table d’états simplifiée</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser la table d’états du pare-feu (pfctl -ss) et détecter les attaques par saturation SYN Flood (états SYN_SENT semi-ouverts).</p>
-    <div class="lab__brief"><p>pfSense est un pare-feu à inspection d'états (Stateful Inspection). Lorsqu'un paquet traverse le filtre avec succès, une entrée est enregistrée dans la table d'états (State Table).<br><br>
-Analysez les paramètres du problème pour chaque cas.<br><br>
-Règles de diagnostic :<br>
-1. Une connexion TCP à l'état <code>SYN_SENT</code> durant depuis plus de 30 secondes (<code>age_sec &gt; 30</code>) traduit un serveur cible injoignable ou une attaque SYN Flood :<br>
-   <code>alert=HALF_OPEN_ATTACK_SUSPECT</code>.<br>
-2. Si <code>state == 'ESTABLISHED'</code> : <code>alert=HEALTHY_SESSION</code>.<br>
-3. Si <code>state in ['FIN_WAIT', 'TIME_WAIT']</code> : <code>alert=CLOSING_SESSION</code>.<br>
-4. Pour UDP (sans état natif) : <code>alert=STATELESS_UDP</code>.<br><br>
+    <p class="lab__formative-notice" id="pf3-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer des règles d'exercice à une table d'états simplifiée et repérer des connexions semi-ouvertes sans conclure à une attaque réelle.</p>
+    <div class="lab__brief"><p>Un pare-feu à états comme pfSense conserve des informations sur les flux. Ce <strong>modèle pédagogique</strong> est fictif : les lignes <code>STATE_ENTRY</code> et <code>STATE_DIAG</code> ne sont pas la sortie de <code>pfctl -ss</code>, et le seuil de 30 secondes ainsi que les étiquettes sont propres à cet exercice. Une entrée seule ne prouve pas une attaque ou une panne réelle.<br><br>
+Chaque cas contient des lignes :<br>
+<code>STATE_ENTRY id=&lt;id&gt; proto=&lt;tcp|udp&gt; src=&lt;ip:port&gt; dst=&lt;ip:port&gt; state=&lt;état&gt; age_sec=&lt;entier&gt;</code>.<br>
+Dans les données, <code>age_sec</code> est un entier positif ou nul. Les états possibles sont <code>SYN_SENT</code>, <code>ESTABLISHED</code>, <code>FIN_WAIT</code> et <code>TIME_WAIT</code> pour TCP, ou <code>SINGLE</code> pour UDP. Les autres protocoles et états sont hors périmètre. Les adresses ne changent pas la classification.<br><br>
+Règles du modèle :<br>
+1. Pour <code>proto=tcp</code> et <code>state=SYN_SENT</code> :<br>
+   - Si <code>age_sec &gt; 30</code> : <code>alert=HALF_OPEN_ATTACK_SUSPECT</code>.<br>
+   - Si <code>age_sec &lt;= 30</code> : <code>alert=HEALTHY_SESSION</code>.<br>
+2. Pour TCP et <code>state=ESTABLISHED</code> : <code>alert=HEALTHY_SESSION</code>.<br>
+3. Pour TCP et <code>state=FIN_WAIT</code> ou <code>state=TIME_WAIT</code> : <code>alert=CLOSING_SESSION</code>.<br>
+4. Pour UDP et <code>state=SINGLE</code> : <code>alert=STATELESS_UDP</code>.<br><br>
+Pour un <code>SYN_SENT</code>, <code>HEALTHY_SESSION</code> signifie seulement que le seuil n'est pas dépassé : cela ne garantit ni une connexion établie ni sa sécurité. <code>STATELESS_UDP</code> est une étiquette de sortie, pas une affirmation sur le suivi des flux UDP par pfSense.<br><br>
 Pour chaque ligne, afficher :<br>
-<code>STATE_DIAG id={id} proto={proto} state={state} alert={alert}</code></p></div>
+<code>STATE_DIAG id={id} proto={proto} state={state} alert={alert}</code>.<br>
+Saisissez une ligne de résultat par entrée dans la zone du cas.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>STATE_ENTRY id=10 proto=tcp src=192.168.1.10:49152 dst=93.184.216.34:443 state=SYN_SENT age_sec=45</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STATE_DIAG id=10 proto=tcp state=SYN_SENT alert=HALF_OPEN_ATTACK_SUSPECT</pre></div>
     </div>
-    <p class="lab__note">État SYN_SENT bloqué depuis 45s : suspicion d’attaque ou panne cible.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Tester d’abord si proto == "tcp" et state == "SYN_SENT" avec age_sec &gt; 30.</li>
-        <li>Classifier les autres états selon les règles.</li>
+        <li>Pour SYN_SENT, distinguer strictement plus de 30 secondes de 30 secondes ou moins.</li>
+        <li>Pour les autres cas, suivre les étiquettes du modèle selon le protocole et l'état.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -479,7 +490,7 @@ Pour chaque ligne, afficher :<br>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>First-Match Wins & Mot-Clé Quick</li><li>Hiérarchie Floating vs Interface Rules</li><li>Politique Implicite Default Deny</li><li>Aliases Récursifs & Tables Radix</li><li>Stateful Inspection & State Table</li><li>Machine à États TCP (SYN_SENT, ESTABLISHED)</li><li>Commandes pfctl -ss et pfctl -k</li><li>Limiters Dummynet (Pipes & Queues)</li>
+      <li>First-Match Wins &amp; Mot-Clé Quick</li><li>Hiérarchie Floating vs Interface Rules</li><li>Politique Implicite Default Deny</li><li>Aliases Récursifs &amp; Tables Radix</li><li>Stateful Inspection &amp; State Table</li><li>Machine à États TCP (SYN_SENT, ESTABLISHED)</li><li>Commandes pfctl -ss et pfctl -k</li><li>Limiters Dummynet (Pipes &amp; Queues)</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -491,9 +502,9 @@ Pour chaque ligne, afficher :<br>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à ordonner les règles de filtrage ou incompréhension de l’impact du mot-clé quick sur le First-Match.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Difficultés à ordonner les règles de filtrage ou incompréhension de l’impact du mot-clé quick sur le First-Match.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Création méthodique de jeux de règles d’interface, utilisation des Aliases et analyse de la table d’états pfctl.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Création méthodique de jeux de règles d’interface, utilisation des Aliases et analysez de la table d’états pfctl.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Conception d’architectures de filtrage complexes, mise en œuvre de Floating Rules, optimisation de tables radix et QoS par Dummynet.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>

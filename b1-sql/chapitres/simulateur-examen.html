@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -55,7 +55,7 @@
 
   <h1>Simulateur d’examen</h1>
 
-  <p class="lead">Deux sujets blancs chronométrés, dans l’esprit de l’épreuve (durée 2 h, /20). Écrivez les requêtes <strong>dans le simulateur</strong> pour vérifier vos réponses, puis corrigez-vous sévèrement avec les corrigés.</p>
+  <p class="lead">Deux sujets blancs chronométrés, dans l’esprit de l’épreuve (durée 2 h, /20). Vérifiez les requêtes SQLite sur le parc ou, si une base vierge est demandée, effacez le script de préparation dans la zone SQL libre. Les questions de droits MySQL ne s’exécutent pas dans SQLite. Corrigez-vous avec les corrigés.</p>
 
   <div class="box box--method" data-timer data-minutes="120">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> Chronomètre d’examen — 2 h</div>
@@ -71,7 +71,7 @@
   <div class="item">
     <div class="item__head"><span class="item__num">Exercice 1</span><span class="badge">/4 — Lecture filtrée</span></div>
     <p>Écrivez la requête qui liste les voitures diesel mises en circulation avant 2015, de la plus ancienne à la plus récente (immatriculation, marque, date).</p>
-    <details><summary>Corrigé</summary><div class="sol"><code>SELECT immat, marque, datecirc FROM Voiture<br>WHERE moteur = 'DIESEL' AND datecirc &lt; '2015-01-01'<br>ORDER BY datecirc;</code><br>Résultat : 4 lignes — TG-7854-Z (2000), TG-6733-AB (2002), TG-6733-AC (2012), TG-0020-AL (2014).</div></details>
+    <details><summary>Corrigé</summary><div class="sol"><code>SELECT immat, marque, datecirc FROM Voiture<br> WHERE moteur = 'DIESEL' AND datecirc &lt; '2015-01-01'<br> ORDER BY datecirc;</code><br>Résultat : 4 lignes — TG-7854-Z (2000), TG-6733-AB (2002), TG-6733-AC (2012), TG-0020-AL (2014).</div></details>
   </div>
 
   <div class="item">
@@ -83,13 +83,13 @@
   <div class="item">
     <div class="item__head"><span class="item__num">Exercice 3</span><span class="badge">/5 — Jointure</span></div>
     <p>Listez les voitures japonaises (immatriculation et marque), triées par immatriculation. Combien y en a-t-il ?</p>
-    <details><summary>Corrigé</summary><div class="sol"><code>SELECT V.immat, V.marque FROM Voiture V<br>INNER JOIN Marque M ON V.marque = M.nommarque<br>WHERE M.paysmarque = 'JAPON' ORDER BY V.immat;</code><br>10 voitures : les marques TOYOTA (5), SUZUKI (2), MITSUBISHI (1), MAZDA (1), NISSAN (1).</div></details>
+    <details><summary>Corrigé</summary><div class="sol"><code>SELECT V.immat, V.marque FROM Voiture V<br> INNER JOIN Marque M ON V.codemarque = M.codemarque<br> WHERE M.paysmarque = 'JAPON' ORDER BY V.immat;</code><br>10 voitures : les marques TOYOTA (5), SUZUKI (2), MITSUBISHI (1), MAZDA (1), NISSAN (1).</div></details>
   </div>
 
   <div class="item">
     <div class="item__head"><span class="item__num">Exercice 4</span><span class="badge">/6 — Analyse complète</span></div>
     <p>Quelles marques ont strictement plus de deux voitures dans le parc ? Donnez leur effectif, du plus grand au plus petit.</p>
-    <details><summary>Corrigé</summary><div class="sol"><code>SELECT marque, COUNT(*) AS nb FROM Voiture<br>GROUP BY marque HAVING COUNT(*) &gt; 2<br>ORDER BY nb DESC;</code><br>TOYOTA (5) et MERCEDES BENZ (4). Le filtre porte sur un groupe : HAVING, pas WHERE.</div></details>
+    <details><summary>Corrigé</summary><div class="sol"><code>SELECT marque, COUNT(*) AS nb FROM Voiture<br> GROUP BY marque HAVING COUNT(*) &gt; 2<br> ORDER BY nb DESC;</code><br>TOYOTA (5) et MERCEDES BENZ (4). Le filtre porte sur un groupe : HAVING, pas WHERE.</div></details>
   </div>
 
   <h2>Examen blanc n°2 — variante</h2>
@@ -98,19 +98,25 @@
 
   <div class="item">
     <div class="item__head"><span class="item__num">Exercice 1</span><span class="badge">/5 — Création</span></div>
-    <p>Écrivez le CREATE TABLE de la table Marque avec clé primaire, puis l’INSERT de TOYOTA (code TOY, Japon).</p>
-    <details><summary>Corrigé</summary><div class="sol"><code>CREATE TABLE Marque (<br>&nbsp;&nbsp;codemarque CHAR(3) PRIMARY KEY,<br>&nbsp;&nbsp;nommarque VARCHAR(20) NOT NULL,<br>&nbsp;&nbsp;paysmarque VARCHAR(15) NOT NULL<br>);</code><br><code>INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES ('TOY', 'TOYOTA', 'JAPON');</code></div></details>
+    <p>Dans une base SQLite vierge, créez la table Marque du parc avec ses contraintes, puis insérez TOYOTA (code TOY, Japon).</p>
+    <details><summary>Corrigé</summary><div class="sol"><pre><code>CREATE TABLE Marque (
+  codemarque TEXT NOT NULL PRIMARY KEY,
+  nommarque TEXT NOT NULL UNIQUE,
+  paysmarque TEXT NOT NULL,
+  UNIQUE (codemarque, nommarque)
+);
+INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES ('TOY', 'TOYOTA', 'JAPON');</code></pre></div></details>
   </div>
 
   <div class="item">
     <div class="item__head"><span class="item__num">Exercice 2</span><span class="badge">/5 — Modification</span></div>
-    <p>Le parc devient 100 % électrique : toutes les voitures de marque TOYOTA passent en moteur ELECTRIQUE. Écrivez l’UPDATE, puis expliquez pourquoi on teste d’abord par SELECT.</p>
-    <details><summary>Corrigé</summary><div class="sol"><code>UPDATE Voiture SET moteur = 'ELECTRIQUE' WHERE marque = 'TOYOTA';</code><br>Le SELECT avec le même WHERE ramène exactement les lignes qui seront modifiées (5 ici) : on voit avant de toucher. Sans WHERE, toute la table passerait en électrique.</div></details>
+    <p>Toutes les voitures de marque TOYOTA passent en moteur ELECTRIQUE. Écrivez l’UPDATE, puis expliquez pourquoi on teste d’abord par SELECT.</p>
+    <details><summary>Corrigé</summary><div class="sol"><code>UPDATE Voiture SET moteur = 'ELECTRIQUE' WHERE marque = 'TOYOTA';</code><br>Le SELECT avec le même WHERE repère les lignes visées (5 dans la base initiale). Contraintes ou changements concurrents peuvent ensuite modifier le résultat. Sans WHERE, toute la table passerait en électrique.</div></details>
   </div>
 
   <div class="item">
     <div class="item__head"><span class="item__num">Exercice 3</span><span class="badge">/5 — Droits</span></div>
-    <p>Créez l’utilisateur gestionnaire se connectant uniquement depuis localhost (mot de passe au choix) et accordez-lui la consultation de toute la base, mais l’écriture seulement sur Voiture.</p>
+    <p>En MySQL, créez l’utilisateur gestionnaire se connectant uniquement depuis localhost et accordez-lui la consultation de toute la base, mais l’écriture seulement sur Voiture. Cette partie ne s’exécute pas dans SQLite.</p>
     <details><summary>Corrigé</summary><div class="sol"><code>CREATE USER 'gestionnaire'@'localhost' IDENTIFIED BY '...mdp...';</code><br><code>GRANT SELECT ON parc_auto.* TO 'gestionnaire'@'localhost';</code><br><code>GRANT INSERT, UPDATE, DELETE ON parc_auto.Voiture TO 'gestionnaire'@'localhost';</code><br>Principe du moindre privilège : chaque GRANT donne le minimum nécessaire.</div></details>
   </div>
 
@@ -124,13 +130,13 @@
 
   <div class="qcm" data-mastery="1">
     <div class="q">
-      <p class="q__stem">Que vaut COUNT(immat) sur 34 lignes dont 9 immat NULL ?</p>
+      <p class="q__stem">Dans un jeu hypothétique de 34 voitures dont 9 dates sont NULL, que vaut COUNT(datecirc) ?</p>
       <div class="opts">
         <button class="opt">34</button>
         <button class="opt" data-correct="1">25</button>
         <button class="opt">9</button>
       </div>
-      <div class="q__exp">COUNT(colonne) ignore les NULL : 34 − 9 = 25.</div>
+      <div class="q__exp">COUNT(colonne) ignore les NULL : 34 − 9 = 25 ; ce jeu diffère des 23 voitures initiales.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment teste-t-on NULL dans WHERE ?</p>
@@ -169,22 +175,22 @@
       <div class="q__exp">HAVING porte sur le résultat du regroupement, souvent avec un agrégat.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Quel type pour un prix en francs ?</p>
+      <p class="q__stem">Dans le parc SQLite, quel type stocke le prix en francs entiers ?</p>
       <div class="opts">
         <button class="opt">FLOAT</button>
-        <button class="opt" data-correct="1">DECIMAL</button>
-        <button class="opt">INT</button>
+        <button class="opt">TEXT</button>
+        <button class="opt" data-correct="1">INTEGER</button>
       </div>
-      <div class="q__exp">DECIMAL calcule en décimal exact.</div>
+      <div class="q__exp">Le schéma déclare pxachat INTEGER ; les prix du parc sont des entiers en francs.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Un littéral DATE s’écrit…</p>
+      <p class="q__stem">Dans le parc SQLite, quelle chaîne représente le 21 novembre 2014 ?</p>
       <div class="opts">
         <button class="opt">'21/11/2014'</button>
         <button class="opt" data-correct="1">'2014-11-21'</button>
         <button class="opt">21-11-2014</button>
       </div>
-      <div class="q__exp">Année, mois, jour, quoté.</div>
+      <div class="q__exp">Le parc utilise une chaîne au format année, mois, jour.</div>
     </div>
     <div class="q">
       <p class="q__stem">UPDATE sans WHERE…</p>
@@ -196,16 +202,16 @@
       <div class="q__exp">La condition limite la modification ; sans elle, toute la table est touchée.</div>
     </div>
     <div class="q">
-      <p class="q__stem">'yeslows'@'%' permet de se connecter…</p>
+      <p class="q__stem">En MySQL 8.4, si le joker est actif, 'yeslows'@'%' utilise quel motif d’hôte ?</p>
       <div class="opts">
-        <button class="opt">depuis localhost seulement</button>
-        <button class="opt" data-correct="1">depuis n’importe quel hôte</button>
-        <button class="opt">sans mot de passe</button>
+        <button class="opt">localhost seulement</button>
+        <button class="opt" data-correct="1">tout hôte</button>
+        <button class="opt">aucun mot de passe</button>
       </div>
-      <div class="q__exp">Le joker % désigne tous les hôtes.</div>
+      <div class="q__exp">% désigne un motif d’hôte général ; son usage dans l’hôte est déprécié et ne garantit pas l’authentification.</div>
     </div>
     <div class="q">
-      <p class="q__stem">GRANT OPTION sert à…</p>
+      <p class="q__stem">En MySQL, GRANT OPTION sert à…</p>
       <div class="opts">
         <button class="opt">tout faire sur la base</button>
         <button class="opt" data-correct="1">transmettre ses propres privilèges à d’autres</button>
@@ -218,8 +224,8 @@
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Barème de maîtrise</div>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — reprenez les chapitres concernés avant un nouveau sujet.</div>
-      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>refaites les requêvos des chapitres faibles dans le simulateur.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>reprenez les chapitres concernés avant un nouveau sujet.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>refaites les requêtes des chapitres faibles dans le simulateur.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>bon niveau, ciblez les jointures externes et HAVING.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>niveau de maîtrise recherché avant l’épreuve réelle.</div>
     </div>
@@ -231,7 +237,7 @@
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sujets construits dans l’esprit des évaluations B1. Sources : le support B1 « Base de données & SQL » (IT-B1) et le jeu de données parc_auto du support (Marque, Voiture).</p>
+  Sujets construits dans l’esprit des évaluations B1. Sources : le support B1 « Base de données &amp; SQL » (IT-B1), le jeu de données parc_auto du support et la <a href="https://sqlite.org/docs.html">documentation officielle SQLite</a> (consultée le 29 octobre 2026 ; SELECT revérifié le 30 octobre 2026).</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

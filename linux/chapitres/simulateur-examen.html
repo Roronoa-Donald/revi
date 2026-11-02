@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -70,14 +70,14 @@
 
   <div class="item">
     <div class="item__head"><span class="item__num">Exercice 1</span><span class="badge">/5 — Arborescence</span></div>
-    <p>Où stocke-t-on les configurations système, les journaux des services, les répertoires personnels et les fichiers temporaires ? Justifier pourquoi /etc est le répertoire à sauvegarder, et dire ce que devient /tmp au redémarrage.</p>
-    <details><summary>Corrigé</summary><div class="sol">Configurations : <code>/etc</code>. Journaux et spools : <code>/var</code>. Répertoires personnels : <code>/home</code> (celui de root est <code>/root</code>). Temporaires : <code>/tmp</code>, <strong>effacé à chaque redémarrage</strong>.</div></details>
+    <p>Où stocke-t-on les configurations système, les journaux des services, les répertoires personnels et les fichiers temporaires ? Que sauvegarder en plus de /etc et que peut-il arriver à /tmp ?</p>
+    <details><summary>Corrigé</summary><div class="sol">Configurations : <code>/etc</code>. Sauvegarder aussi <code>/home</code> et les données applicatives, avec une restauration testée. Journaux : <code>/var</code>. Répertoires personnels : <code>/home</code> (root : <code>/root</code>). Temporaires : <code>/tmp</code>, sans garantie de conservation.</div></details>
   </div>
 
   <div class="item">
     <div class="item__head"><span class="item__num">Exercice 2</span><span class="badge">/5 — /etc/passwd</span></div>
-    <p>Décomposer la ligne caroline:x:1002:1000:Caroline TP:/home/caroline:/bin/bash champ par champ. Que signifie le champ x ? Cette utilisatrice est-elle humaine ou système ?</p>
-    <details><summary>Corrigé</summary><div class="sol">login=caroline ; mot-de-passe=x (empreinte dans <code>/etc/shadow</code>) ; UID=1002 ; GID=1000 ; info=Caroline TP ; maison=/home/caroline ; shell=/bin/bash.<br><code>x</code> ou <code>!</code> renvoient au shadow ; UID 1002 ≥ 1000 : <strong>compte humain</strong>.</div></details>
+    <p>Décomposer la ligne caroline:x:1002:1000:Caroline TP:/home/caroline:/bin/bash champ par champ. Que signifie x ? Dans une simulation classant comme humains les UID à partir de 1000, comment classer ce compte ?</p>
+    <details><summary>Corrigé</summary><div class="sol">login=caroline ; x renvoie au vérificateur dans <code>/etc/shadow</code> ; UID=1002 ; GID=1000 ; info=Caroline TP ; maison=/home/caroline ; shell=/bin/bash.<br>Dans cette simulation, 1002 est classé humain ; sur une machine réelle, les plages sont configurables et l’UID seul ne prouve pas la nature du compte.</div></details>
   </div>
 
   <div class="item">
@@ -104,8 +104,8 @@
 
   <div class="item">
     <div class="item__head"><span class="item__num">Exercice 2</span><span class="badge">/5 — SSH</span></div>
-    <p>Décoder la cible sam@serveur:2222 (utilisateur, hôte, port). Citer deux bonnes pratiques qui renforcent une connexion SSH.</p>
-    <details><summary>Corrigé</summary><div class="sol">utilisateur = sam ; hôte = serveur ; port = 2222.<br>Bonnes pratiques : authentification par <strong>clé</strong> plutôt que mot de passe ; changer le port par défaut et/ou restreindre les comptes autorisés.</div></details>
+    <p>Décoder la commande ssh -p 2222 sam@serveur (utilisateur, hôte, port). Citer deux bonnes pratiques qui renforcent une connexion SSH.</p>
+    <details><summary>Corrigé</summary><div class="sol">utilisateur = sam ; hôte = serveur ; port = 2222 grâce à <code>-p</code>.<br>Bonnes pratiques : authentification par <strong>clé</strong> et restriction des comptes autorisés. Changer le port seul ne remplace pas ces protections.</div></details>
   </div>
 
   <div class="item">
@@ -139,7 +139,7 @@
         <button class="opt">1</button>
         <button class="opt">1000</button>
       </div>
-      <div class="q__exp">root = UID 0 ; les comptes système sont en dessous de 1000.</div>
+      <div class="q__exp">root = UID 0 ; les autres plages dépendent de la configuration.</div>
     </div>
     <div class="q">
       <p class="q__stem">rwxr-x--- en octal ?</p>
@@ -160,13 +160,13 @@
       <div class="q__exp">Seules les plages 172.16 à 172.31 sont privées ; 172.32 est publique.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Format d’une cible SSH ?</p>
+      <p class="q__stem">Comment préciser un port SSH ?</p>
       <div class="opts">
-        <button class="opt">hote@user:port</button>
-        <button class="opt" data-correct="1">user@hote:port</button>
-        <button class="opt">user:hote@port</button>
+        <button class="opt">ssh user@hote:port</button>
+        <button class="opt" data-correct="1">ssh -p port user@hote</button>
+        <button class="opt">ssh -p user port@hote</button>
       </div>
-      <div class="q__exp">utilisateur@hote:port ; port 22 par défaut.</div>
+      <div class="q__exp">L’option -p indique le port ; sans configuration particulière, le port par défaut est 22.</div>
     </div>
     <div class="q">
       <p class="q__stem">chmod u+w f…</p>
@@ -218,7 +218,7 @@
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Barème de maîtrise</div>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — reprenez les chapitres concernés avant un nouveau sujet.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>reprenez les chapitres concernés avant un nouveau sujet.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>refaites les exercices des chapitres faibles.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>bon niveau, ciblez la conversion octale et la classification d’adresses.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>niveau de maîtrise recherché avant l’examen.</div>
@@ -227,7 +227,7 @@
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="../exercices/exercices.html">Exercices & projet <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="../exercices/exercices.html">Exercices &amp; projet <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.

@@ -1,0 +1,165 @@
+{
+  "exercices": [
+    {
+      "id": "vm2-c1-e1", "source": "admin-vm/chapitre1.js", "oracle": "vm2-c1-e1", "codec": "nombres",
+      "cas": [{"entree": "7\n0", "attendu": "vms : 0"}, {"entree": "2\n9", "attendu": "vms : 18"}],
+      "variantes": [
+        {"nom": "minimum_une_vm", "erreur": "Imposer au moins une VM par serveur.", "avant": "$total = $serveurs * $parServeur", "apres": "$total = $serveurs * [math]::Max(1, $parServeur)"},
+        {"nom": "place_reservee", "erreur": "Retirer une place à chaque serveur non vide.", "avant": "$total = $serveurs * $parServeur", "apres": "$total = $serveurs * [math]::Max(0, $parServeur - 1)"}
+      ]
+    },
+    {
+      "id": "vm2-c1-e2", "source": "admin-vm/chapitre1.js", "oracle": "vm2-c1-e2", "codec": "lignes",
+      "cas": [{"entree": "1\nHyper-A", "attendu": "solution : Hyper-A (production)"}, {"entree": "2\nHyper-B", "attendu": "solution : Hyper-B (test)"}],
+      "variantes": [
+        {"nom": "toujours_test", "erreur": "Attribuer le mode test au type 1.", "avant": "\" (production)\"", "apres": "\" (test)\""},
+        {"nom": "toujours_production", "erreur": "Attribuer la production au type 2.", "avant": "\" (test)\"", "apres": "\" (production)\""}
+      ]
+    },
+    {
+      "id": "vm2-c1-e3", "source": "admin-vm/chapitre1.js", "oracle": "vm2-c1-e3", "codec": "lignes_casse_ignoree",
+      "domaine_fini": ["serveur", "poste", "stockage", "reseau"],
+      "cas": [{"entree": "serveur", "attendu": "exemple : Proxmox"}, {"entree": "poste", "attendu": "exemple : VMware Horizon"}],
+      "variantes": [
+        {"nom": "serveur_vdi", "erreur": "Confondre la virtualisation des serveurs avec le VDI.", "avant": "\"exemple : Proxmox\"", "apres": "\"exemple : VMware Horizon\""},
+        {"nom": "poste_serveur", "erreur": "Associer les postes à un hyperviseur de serveur.", "avant": "\"exemple : VMware Horizon\"", "apres": "\"exemple : Proxmox\""}
+      ]
+    },
+    {
+      "id": "vm2-c2-e1", "source": "admin-vm/chapitre2.js", "oracle": "vm2-c2-e1", "codec": "lignes_casse_ignoree",
+      "cas": [{"entree": "non\n3", "attendu": "virtualisation : impossible"}, {"entree": "oui\n6", "attendu": "ram insuffisante"}],
+      "variantes": [
+        {"nom": "ram_prioritaire", "erreur": "Tester la RAM avant l'absence d'extensions.", "avant": "if ($extensions -eq \"non\") {", "apres": "if ($ram -lt 8) { Write-Output \"ram insuffisante\" } elseif ($extensions -eq \"non\") {"},
+        {"nom": "seuil_six", "erreur": "Admettre six Go au lieu du minimum de huit.", "avant": "$ram -ge 8", "apres": "$ram -ge 6"}
+      ]
+    },
+    {
+      "id": "vm2-c2-e2", "source": "admin-vm/chapitre2.js", "oracle": "vm2-c2-e2", "codec": "nombres",
+      "cas": [{"entree": "17\n6", "attendu": "vms possibles : 2"}, {"entree": "3\n7", "attendu": "vms possibles : 0"}],
+      "variantes": [
+        {"nom": "arrondi_proche", "erreur": "Convertir en entier en arrondissant au lieu de tronquer.", "avant": "[int]([math]::Floor($ramHote / $ramVm))", "apres": "[int]($ramHote / $ramVm)"},
+        {"nom": "minimum_une_vm", "erreur": "Imposer une VM même si la RAM est insuffisante.", "avant": "[int]([math]::Floor($ramHote / $ramVm))", "apres": "[int]([math]::Max(1, [math]::Floor($ramHote / $ramVm)))"}
+      ]
+    },
+    {
+      "id": "vm2-c2-e3", "source": "admin-vm/chapitre2.js", "oracle": "vm2-c2-e3", "codec": "lignes_casse_ignoree",
+      "domaine_fini": ["noyau", "qemu", "libvirt"],
+      "cas": [{"entree": "noyau", "attendu": "role : extensions CPU"}, {"entree": "qemu", "attendu": "role : execution des VM"}],
+      "variantes": [
+        {"nom": "noyau_qemu", "erreur": "Attribuer au noyau le rôle de QEMU.", "avant": "\"role : extensions CPU\"", "apres": "\"role : execution des VM\""},
+        {"nom": "qemu_noyau", "erreur": "Attribuer à QEMU le rôle du noyau.", "avant": "\"role : execution des VM\"", "apres": "\"role : extensions CPU\""}
+      ],
+      "alternatives_conformes": [
+        {"nom": "sans_defaut", "explication": "Répondre aux trois composants prévus sans imposer de sortie pour un composant non énoncé.", "avant": "    default { Write-Output \"role : inconnu\" }\n", "apres": ""}
+      ]
+    },
+    {
+      "id": "vm2-c3-e1", "source": "admin-vm/chapitre3.js", "oracle": "vm2-c3-e1", "codec": "nombres",
+      "cas": [{"entree": "13\n13", "attendu": "surallocation : non\nexces : 0"}, {"entree": "13\n11", "attendu": "surallocation : oui\nexces : 2"}],
+      "variantes": [
+        {"nom": "egalite_surcharge", "erreur": "Compter l'égalité comme une surallocation.", "avant": "$vcpu -gt $coeurs", "apres": "$vcpu -ge $coeurs"},
+        {"nom": "exces_moins_un", "erreur": "Retirer un vCPU de l'excès.", "avant": "($vcpu - $coeurs)", "apres": "($vcpu - $coeurs - 1)"}
+      ]
+    },
+    {
+      "id": "vm2-c3-e2", "source": "admin-vm/chapitre3.js", "oracle": "vm2-c3-e2", "codec": "lignes_casse_ignoree",
+      "cas": [{"entree": "maintenance curative", "attendu": "tache : inconnue"}, {"entree": "decommission immediate", "attendu": "tache : inconnue"}],
+      "variantes": [
+        {"nom": "assimile_maintenance", "erreur": "Assimiler les phases commençant par maintenance à l'exploitation.", "avant": "switch ($phase) {", "apres": "switch -Wildcard ($phase) {\n    \"maintenance*\" { Write-Output \"tache : superviser et sauvegarder\" }"},
+        {"nom": "assimile_decommission", "erreur": "Assimiler les phases commençant par decommission au retrait.", "avant": "switch ($phase) {", "apres": "switch -Wildcard ($phase) {\n    \"decommission*\" { Write-Output \"tache : archiver et nettoyer\" }"}
+      ]
+    },
+    {
+      "id": "vm2-c3-e3", "source": "admin-vm/chapitre3.js", "oracle": "vm2-c3-e3", "codec": "nombres",
+      "cas": [{"entree": "31\n7\n6", "attendu": "capacite : 4"}, {"entree": "24\n1\n5", "attendu": "capacite : 4"}],
+      "variantes": [
+        {"nom": "oublie_systeme", "erreur": "Oublier de réserver la RAM système.", "avant": "$utile = $ramHote - $ramSysteme", "apres": "$utile = $ramHote"},
+        {"nom": "arrondi_proche", "erreur": "Arrondir la division au lieu de prendre sa partie entière.", "avant": "[int]([math]::Floor($utile / $ramVm))", "apres": "[int]($utile / $ramVm)"}
+      ]
+    },
+    {
+      "id": "vm2-c4-e1", "source": "admin-vm/chapitre4.js", "oracle": "vm2-c4-e1", "codec": "lignes_casse_ignoree",
+      "domaine_fini": ["pv", "vg", "lv"],
+      "cas": [{"entree": "vg", "attendu": "vg : groupe de volumes"}, {"entree": "pv", "attendu": "pv : disque physique"}],
+      "variantes": [
+        {"nom": "vg_volume", "erreur": "Confondre groupe de volumes et volume logique.", "avant": "\"vg : groupe de volumes\"", "apres": "\"vg : volume logique\""},
+        {"nom": "pv_groupe", "erreur": "Confondre disque physique et groupe de volumes.", "avant": "\"pv : disque physique\"", "apres": "\"pv : groupe de volumes\""}
+      ],
+      "alternatives_conformes": [
+        {"nom": "sans_defaut", "explication": "Répondre aux trois éléments prévus sans imposer de sortie pour un élément non énoncé.", "avant": "    default { Write-Output ($element + \" : inconnu\") }\n", "apres": ""}
+      ]
+    },
+    {
+      "id": "vm2-c4-e2", "source": "admin-vm/chapitre4.js", "oracle": "vm2-c4-e2", "codec": "nombres",
+      "cas": [{"entree": "42\n32", "attendu": "libre : 10 Go"}, {"entree": "42\n34", "attendu": "libre : 8 Go\nalerte : espace faible"}],
+      "variantes": [
+        {"nom": "seuil_inclus", "erreur": "Inclure dix Go dans l'alerte.", "avant": "$libre -lt 10", "apres": "$libre -le 10"},
+        {"nom": "seuil_trop_bas", "erreur": "Déclencher l'alerte sous huit Go seulement.", "avant": "$libre -lt 10", "apres": "$libre -lt 8"}
+      ]
+    },
+    {
+      "id": "vm2-c4-e3", "source": "admin-vm/chapitre4.js", "oracle": "vm2-c4-e3", "codec": "lignes_casse_ignoree",
+      "domaine_fini": ["quotidien", "hebdo", "mensuel"],
+      "cas": [{"entree": "hebdo", "attendu": "retention : 4 semaines"}, {"entree": "quotidien", "attendu": "retention : 7 jours"}],
+      "variantes": [
+        {"nom": "hebdo_quotidien", "erreur": "Attribuer la rétention quotidienne à l'hebdomadaire.", "avant": "\"retention : 4 semaines\"", "apres": "\"retention : 7 jours\""},
+        {"nom": "quotidien_hebdo", "erreur": "Attribuer la rétention hebdomadaire au quotidien.", "avant": "\"retention : 7 jours\"", "apres": "\"retention : 4 semaines\""}
+      ],
+      "alternatives_conformes": [
+        {"nom": "sans_defaut", "explication": "Répondre aux trois fréquences prévues sans imposer de sortie pour une fréquence non énoncée.", "avant": "    default { Write-Output \"retention : inconnue\" }\n", "apres": ""}
+      ]
+    },
+    {
+      "id": "vm2-c5-e1", "source": "admin-vm/chapitre5.js", "oracle": "vm2-c5-e1", "codec": "lignes_casse_ignoree",
+      "domaine_fini": ["bridge", "nat", "vlan", "firewall"],
+      "cas": [{"entree": "bridge", "attendu": "role : switch virtuel"}, {"entree": "nat", "attendu": "role : acces Internet"}],
+      "variantes": [
+        {"nom": "bridge_vlan", "erreur": "Attribuer la segmentation VLAN au bridge.", "avant": "\"role : switch virtuel\"", "apres": "\"role : segmentation logique\""},
+        {"nom": "nat_bridge", "erreur": "Attribuer au NAT le rôle du bridge.", "avant": "\"role : acces Internet\"", "apres": "\"role : switch virtuel\""}
+      ]
+    },
+    {
+      "id": "vm2-c5-e2", "source": "admin-vm/chapitre5.js", "oracle": "vm2-c5-e2", "codec": "nombres",
+      "cas": [{"entree": "015", "attendu": "vlan : inconnu"}, {"entree": "025", "attendu": "vlan : inconnu"}],
+      "variantes": [
+        {"nom": "vlan_15_au_lieu_10", "erreur": "Utiliser 15 à la place de 10 dans le branchement.", "avant": "10 { Write-Output \"vlan 10 : utilisateurs\" }", "apres": "15 { Write-Output \"vlan 10 : utilisateurs\" }"},
+        {"nom": "vlan_25_au_lieu_20", "erreur": "Utiliser 25 à la place de 20 dans le branchement.", "avant": "20 { Write-Output \"vlan 20 : serveurs\" }", "apres": "25 { Write-Output \"vlan 20 : serveurs\" }"}
+      ]
+    },
+    {
+      "id": "vm2-c5-e3", "source": "admin-vm/chapitre5.js", "oracle": "vm2-c5-e3", "codec": "lignes_casse_ignoree",
+      "cas": [{"entree": "lan\nlan\n22", "attendu": "flux : autorise"}, {"entree": "autre\nautre\n80", "attendu": "flux : autorise"}],
+      "cas_complementaires": [{"entree": "dmz\nlan\n443", "attendu": "flux : autorise"}],
+      "variantes": [
+        {"nom": "interne_lan_filtre", "erreur": "Oublier l'autorisation des flux internes au LAN.", "avant": "$memeZone -or ($traversee -and $port -eq 443)", "apres": "($memeZone -and $source -ne \"lan\") -or ($traversee -and $port -eq 443)"},
+        {"nom": "interne_autre_filtre", "erreur": "Filtrer systématiquement les flux internes à la zone autre.", "avant": "$memeZone -or ($traversee -and $port -eq 443)", "apres": "($memeZone -and $source -ne \"autre\") -or ($traversee -and $port -eq 443)"},
+        {"nom": "aucune_traversee", "erreur": "N'autoriser que les flux dans la même zone.", "avant": "$memeZone -or ($traversee -and $port -eq 443)", "apres": "$memeZone", "complementaire": true},
+        {"nom": "traversee_sens_unique", "erreur": "N'autoriser que LAN vers DMZ sur le port 443.", "avant": "$traversee = (($source -eq \"lan\" -and $destination -eq \"dmz\") -or ($source -eq \"dmz\" -and $destination -eq \"lan\"))", "apres": "$traversee = ($source -eq \"lan\" -and $destination -eq \"dmz\")", "complementaire": true}
+      ]
+    },
+    {
+      "id": "vm2-c6-e1", "source": "admin-vm/chapitre6.js", "oracle": "vm2-c6-e1", "codec": "nombres",
+      "cas": [{"entree": "8\n4", "attendu": "quorum : perdu"}, {"entree": "7\n4", "attendu": "quorum : atteint"}],
+      "variantes": [
+        {"nom": "egalite_quorum", "erreur": "Accepter exactement la moitié des nœuds.", "avant": "$enLigne * 2 -gt $total", "apres": "$enLigne * 2 -ge $total"},
+        {"nom": "deux_tiers", "erreur": "Exiger deux tiers des nœuds au lieu d'une majorité simple.", "avant": "$enLigne * 2 -gt $total", "apres": "$enLigne * 3 -ge $total * 2"}
+      ]
+    },
+    {
+      "id": "vm2-c6-e2", "source": "admin-vm/chapitre6.js", "oracle": "vm2-c6-e2", "codec": "nombres",
+      "cas": [{"entree": "70\n70", "attendu": "etat : alerte"}, {"entree": "71\n70", "attendu": "etat : alerte"}],
+      "variantes": [
+        {"nom": "seuil_exclu", "erreur": "Exclure l'égalité du déclenchement.", "avant": "$valeur -ge $seuil", "apres": "$valeur -gt $seuil"},
+        {"nom": "egalite_seulement", "erreur": "Déclencher uniquement à l'égalité, pas au-dessus.", "avant": "$valeur -ge $seuil", "apres": "$valeur -eq $seuil"}
+      ]
+    },
+    {
+      "id": "vm2-c6-e3", "source": "admin-vm/chapitre6.js", "oracle": "vm2-c6-e3", "codec": "nombres",
+      "cas": [{"entree": "103\n50", "attendu": "apres dedup : 51 Go"}, {"entree": "20\n0", "attendu": "apres dedup : 20 Go"}],
+      "variantes": [
+        {"nom": "arrondi_proche", "erreur": "Arrondir au plus proche au lieu de la division entière.", "avant": "[int]([math]::Floor($brut * (100 - $taux) / 100))", "apres": "[int]($brut * (100 - $taux) / 100)"},
+        {"nom": "zero_dedup_sauvegarde_vide", "erreur": "Confondre l'absence de déduplication avec une sauvegarde vide.", "avant": "$restant = [int]([math]::Floor($brut * (100 - $taux) / 100))", "apres": "$restant = [int]([math]::Floor($brut * (100 - $taux) / 100))\nif ($taux -eq 0) { $restant = 0 }"}
+      ]
+    }
+  ]
+}

@@ -70,6 +70,14 @@ NOEUD id=4 val=55 g=- d=-
 NOEUD id=3 val=80 g=- d=-
 FIN`,
         expected: 'ABR: piege | VALIDE : NON (Violation propriete ABR)'
+      },
+      {
+        label: 'Ligne de commentaire initiale ignorée',
+        stdin: `IGNORE
+ARBRE nom=mono RACINE=1
+NOEUD id=1 val=42 g=- d=-
+FIN`,
+        expected: 'ABR: mono | VALIDE : OUI | INFIXE: 42'
       }
     ],
     solution: `import sys

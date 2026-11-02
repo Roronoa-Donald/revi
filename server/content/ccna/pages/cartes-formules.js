@@ -140,6 +140,7 @@ function formules(course) {
     '      <tr><td>Route par défaut &amp; flottante</td><td><code>ip route 0.0.0.0 0.0.0.0 198.51.100.1<br>ip route 0.0.0.0 0.0.0.0 203.0.113.1 10</code></td></tr>',
     '    </tbody>',
     '  </table>',
+    '  <p>Pour ces commandes, le type 7 est faible et réversible ; vérifiez les types de secrets disponibles selon la version et la politique de sécurité.</p>',
     '',
     '  <h2>6. Structure de la Balise IEEE 802.1Q (4 octets)</h2>',
     '  <table class="table">',

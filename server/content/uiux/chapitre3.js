@@ -9,7 +9,7 @@ module.exports = {
   n: 3,
   title: 'Lois Cognitives de l’UX &amp; Heuristiques d’Utilisabilité',
   short: 'Lois Cognitives &amp; Heuristiques',
-  toc: 'Psychologie de l’interaction, modélisations mathématiques de la loi de Fitts et de la loi de Hick-Hyman, capacité de mémoire de travail selon Miller (7 &plusmn; 2), les 10 heuristiques d’utilisabilité de Jakob Nielsen et les critères ergonomiques de Bastien &amp; Scapin.',
+  toc: 'Psychologie de l’interaction, modèles de Fitts et Hick-Hyman, repère historique de Miller et regroupement de l’information, heuristiques de Jakob Nielsen et critères ergonomiques de Bastien &amp; Scapin.',
   time: '≈ 2 h 45 de travail',
   free: false,
   lockLabel: 'Réservé B2 et plus',
@@ -18,17 +18,16 @@ module.exports = {
     'Sur le cockpit de commande d’une centrale électrique numérique, les opérateurs commettent des erreurs répétées : ' +
     'des boutons d’arrêt d’urgence minuscules sont logés à proximité immédiate d’interrupteurs secondaires, ' +
     'et les menus de régulation affichent plus de 40 options non hiérarchisées en cascade. ' +
-    'Lors d’un incident critique, l’opérateur met plus de 8 secondes à localiser la bonne commande au lieu des 2 secondes réglementaires. ' +
-    'L’audit ergonomique révèle une violation flagrante des lois fondamentales de la perception et de la cognition humaine. ' +
-    'Pour éliminer les risques d’erreur et concevoir des interfaces réactives et intuitives, ' +
-    'les designers doivent maîtriser les lois mathématiques de Fitts, Hick et Miller, ainsi que les 10 heuristiques de Nielsen. ' +
-    'Ce module formalise ces règles psychologiques universelles et apprend à conduire des audits ergonomiques méthodiques.',
+    'Dans cet exemple fictif, l’opérateur met plus de 8 secondes à localiser la bonne commande, alors que l’équipe vise 2 secondes. ' +
+    'L’audit ergonomique cherche à comprendre les difficultés observées. ' +
+    'Pour réduire les risques d’erreur, les designers peuvent mobiliser les modèles de Fitts et Hick, les travaux de Miller et les heuristiques de Nielsen. ' +
+    'Ce module présente leurs conditions d’utilisation et propose des audits ergonomiques méthodiques.',
 
   objectives: [
     'calculer l’indice de difficulté et le temps de mouvement d’un pointage selon la loi de Fitts (formulation de Shannon) ;',
     'exploiter les propriétés géométriques des bordures et coins d’écran (cibles de taille infinie sur desktop) ;',
     'modéliser le temps de décision cognitive en fonction du nombre d’alternatives avec la loi de Hick-Hyman ;',
-    'appliquer le principe de Miller (7 &plusmn; 2) et la technique de chunking pour soulager la mémoire de travail ;',
+    'contextualiser le repère historique de Miller et utiliser le regroupement sans supposer une capacité universelle ;',
     'évaluer une interface à l’aune des 10 heuristiques d’utilisabilité universelles de Jakob Nielsen ;',
     'connaître les 8 critères ergonomiques français de référence de Bastien &amp; Scapin (INRIA).'
   ],
@@ -65,25 +64,25 @@ module.exports = {
     {
       title: 'Lois de Hick-Hyman et de Miller : Charge Cognitive et Chunking',
       html: [
-        '<p>Tandis que la loi de Fitts traite de la motricité physique, les lois de Hick et Miller traitent de la vitesse du cerveau :</p>',
+        '<p>La loi de Hick-Hyman modélise certains temps de choix ; les travaux de Miller concernent notamment le regroupement de l’information :</p>',
 
         '<div class="grid grid-2">',
         '  <div class="card">',
         '    <h4 class="card-title">Loi de Hick-Hyman (Décision)</h4>',
-        '    <p>Le temps requis pour prendre une décision augmente logarithmiquement avec le nombre d’alternatives présentées :<br>' +
+        '    <p>Dans ce modèle simplifié, sans terme de base et pour un coefficient <code>b</code> fixé, le temps estimé augmente avec le nombre d’alternatives :<br>' +
         '    <code>T = b * log2(n + 1)</code></p>',
         '    <ul>',
-        '      <li>Présenter 64 options en vrac prend 6 fois plus de temps de décision que de faire un choix parmi 2 options.</li>',
+        '      <li>Dans ce modèle, 64 options donnent un temps estimé environ 3,8 fois plus élevé que 2 options, avec le même coefficient.</li>',
         '      <li><strong>Application :</strong> Diviser les parcours complexes en étapes progressives (Onboarding pas à pas, menus hiérarchisés).</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
         '    <h4 class="card-title">Loi de Miller et Chunking (Mémoire)</h4>',
-        '    <p>George Miller a démontré que la mémoire de travail à court terme humaine est limitée à <strong>7 &plusmn; 2 blocs d’information</strong> (chunks).</p>',
+        '    <p>George Miller a proposé en 1956 un ordre de grandeur de <strong>7 &plusmn; 2 groupes</strong> : ce repère historique ne fixe pas une capacité universelle. La mémoire dépend notamment de la tâche, des stratégies et des personnes.</p>',
         '    <ul>',
-        '      <li>Un numéro de téléphone en 10 chiffres continus (<code>0612345678</code>) sature la mémoire.</li>',
-        '      <li>Découpé en 5 blocs de 2 chiffres (<code>06 12 34 56 78</code>), il ne mobilise que 5 chunks et se retient sans effort.</li>',
-        '      <li>Même principe pour les numéros de carte bancaire (4 blocs de 4 chiffres).</li>',
+        '      <li>Un numéro en 10 chiffres (<code>0612345678</code>) peut être difficile à retenir.</li>',
+        '      <li>Le découpage en 5 blocs (<code>06 12 34 56 78</code>) peut aider, mais ne garantit pas une mémorisation sans effort.</li>',
+        '      <li>Le regroupement peut aussi s’appliquer aux numéros de carte bancaire.</li>',
         '    </ul>',
         '  </div>',
         '</div>'
@@ -173,7 +172,7 @@ module.exports = {
     'La loi de Fitts quantifie la vitesse de pointage : plus une cible est grande et proche, plus elle est atteinte rapidement.',
     'Les bords et coins d’un écran desktop possèdent une largeur virtuelle infinie facilitant leur sélection.',
     'La loi de Hick montre que multiplier les choix augmente le temps de décision de manière logarithmique.',
-    'La loi de Miller limite la mémoire de travail à 7 &plusmn; 2 blocs d’information, imposant la technique du chunking.',
+    'Le repère historique de Miller ne fixe pas de limite universelle ; le regroupement peut aider selon le contexte.',
     'Les 10 heuristiques de Nielsen constituent le référentiel international pour auditer la qualité ergonomique d’un produit.',
     'Un bon système prévient les erreurs (H5) avant d’avoir à les expliquer (H9).'
   ],
@@ -182,7 +181,7 @@ module.exports = {
     'Je sais appliquer la formule de Shannon de la loi de Fitts (ID = log2(D/W + 1)).',
     'Je comprends pourquoi les coins d’un écran desktop ont un temps d’accès minimal.',
     'Je sais expliquer la loi de Hick et son impact sur la conception des menus.',
-    'Je sais appliquer le chunking pour découper des données denses (Miller 7 &plusmn; 2).',
+    'Je sais proposer un regroupement de données et expliquer ses limites.',
     'Je connais par cœur les 10 heuristiques de Nielsen.',
     'Je sais classer une anomalie concrète dans l’heuristique appropriée.'
   ],
@@ -192,7 +191,7 @@ module.exports = {
     'Indice de difficulté (ID en bits)',
     'Coins et bords d’écran (taille infinie)',
     'Loi de Hick-Hyman (décision)',
-    'Loi de Miller (7 &plusmn; 2 items)',
+    'Repère historique de Miller',
     'Chunking (morcellement)',
     '10 heuristiques de Jakob Nielsen',
     'Critères de Bastien &amp; Scapin'
@@ -241,15 +240,15 @@ module.exports = {
       exp: 'La loi de Hick énonce que T = b * log2(n + 1) : plus il y a d’options en vrac, plus le cerveau met de temps à balayer et décider.'
     },
     {
-      stem: 'Quel est l’apport majeur de la loi de Miller (7 ± 2) dans la conception des interfaces ?',
+      stem: 'Comment utiliser avec prudence le repère historique de Miller dans la conception des interfaces ?',
       opts: [
         'Un site ne doit pas comporter plus de 7 pages au total',
-        'La mémoire de travail humaine étant limitée à 5-9 éléments, il faut structurer l’information en blocs digestes (chunking) et limiter les items de menus',
+        'Le regroupement peut aider à structurer l’information, sans fixer une limite universelle de capacité ou de nombre de menus',
         'Il faut 7 couleurs différentes par écran pour stimuler la créativité',
         'Les boutons doivent avoir 7 pixels d’épaisseur'
       ],
       correct: 1,
-      exp: 'Miller a démontré la limitation de la mémoire immédiate à court terme. Le découpage en blocs (chunking) évite la surcharge cognitive.'
+      exp: 'Le regroupement peut aider selon la tâche et les personnes ; le nombre historique ne garantit ni une capacité universelle ni l’absence de surcharge.'
     },
     {
       stem: 'Une application affiche un écran blanc statique pendant 10 secondes lors de l’export d’un rapport lourd. Quelle heuristique de Nielsen est violée ?',
@@ -311,16 +310,16 @@ module.exports = {
       a: 'Le temps de décision augmente avec le logarithme du nombre de choix disponibles (T = b * log2(n + 1)).'
     },
     {
-      q: 'Qu’est-ce que le «chunking» selon la loi de Miller ?',
-      a: 'Le regroupement d’informations en unités digestes (chunks) de 5 à 9 éléments pour ne pas saturer la mémoire de travail immédiate.'
+      q: 'Qu’est-ce que le regroupement d’informations (« chunking ») ?',
+      a: 'Le regroupement d’informations en unités signifiantes peut aider la mémorisation, sans garantir une capacité ni un résultat identiques pour tous.'
     },
     {
       q: 'Quelle est la première heuristique de Jakob Nielsen ?',
       a: 'H1 : La visibilité du statut du système (toujours informer l’utilisateur de ce qui se passe par des retours visuels réguliers).'
     },
     {
-      q: 'Pourquoi l’heuristique H5 (Prévention des erreurs) est-elle supérieure à H9 ?',
-      a: 'Parce qu’il est infiniment plus vertueux d’empêcher l’erreur en amont que de devoir en expliquer les conséquences en aval.'
+      q: 'Comment les heuristiques H5 et H9 se complètent-elles ?',
+      a: 'La prévention des erreurs réduit leur apparition ; aider à comprendre et corriger les erreurs reste nécessaire lorsqu’elles surviennent.'
     }
   ],
 

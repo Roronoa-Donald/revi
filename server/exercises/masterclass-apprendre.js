@@ -11,11 +11,11 @@ module.exports = [
     "language": "analyse",
     "title": "Typologie des mémoires",
     "goal": "Identifier le registre mnésique selon la durée et les caractéristiques de rétention.",
-    "brief": "<p>Le cerveau humain mobilise trois registres de mémoire distincts selon le modèle d’Atkinson et Shiffrin :</p><ul>  <li><strong>Sensorielle</strong> : persistance très brève (quelques centaines de millisecondes), automatique et non filtrée.</li>  <li><strong>Travail</strong> : mémoire à court terme manipulatrice, capacité limitée (30 secondes, empan de Miller).</li>  <li><strong>Long_Terme</strong> : stockage durable illimité (sémantique, épisodique ou procédurale).</li></ul><p>Analyse un identifiant de situation en minuscules fourni(e) dans les données du cas et affiche :<br>- <code>flash_visuel_200ms</code>, <code>echo_sonore_1s</code>, <code>image_retinienne</code> &rarr; <code>Memoire: Sensorielle</code><br>- <code>retenue_7_chiffres_30s</code>, <code>calcul_mental_intermediaire</code>, <code>phrase_en_cours_de_lecture</code> &rarr; <code>Memoire: Travail</code><br>- <code>souvenir_enfance_10_ans</code>, <code>syntaxe_langage_python</code>, <code>savoir_faire_du_velo</code> &rarr; <code>Memoire: Long_Terme</code><br>Pour toute autre valeur : <code>Memoire: Inconnu</code>.</p>",
-    "starter": "# Grille d'analyse (mc2-c1-e1) — Typologie des mémoires\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Mémoire de travail]\n# Données : calcul_mental_intermediaire\nA_COMPLETER\n\n[Cas 2 — Mémoire à long terme sémantique]\n# Données : syntaxe_langage_python\nA_COMPLETER\n\n[Cas 3 — Entrée inconnue]\n# Données : telepathie_quantique\nA_COMPLETER\n",
+    "brief": "<p>Cette grille distingue une mémoire <strong>Sensorielle</strong> très brève, une mémoire de <strong>Travail</strong> qui maintient et manipule temporairement l’information, et une mémoire à <strong>Long_Terme</strong> qui conserve des connaissances et expériences.</p><p>Classez chaque situation dans les données du cas : <code>Sensorielle</code>, <code>Travail</code>, <code>Long_Terme</code> ou <code>Inconnu</code> si elle ne correspond pas à un registre étudié. Répondez au format <code>Memoire: &lt;registre&gt;</code>.</p>",
+    "starter": "# Grille d'analyse (mc2-c1-e1) — Typologie des mémoires\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Situation 1]\n# Données : calcul_mental_intermediaire\nA_COMPLETER\n\n[Cas 2 — Situation 2]\n# Données : syntaxe_langage_python\nA_COMPLETER\n\n[Cas 3 — Situation 3]\n# Données : telepathie_quantique\nA_COMPLETER\n",
     "hints": [
-      "Associe chaque mot-clé à sa catégorie dans un la grille de critères.",
-      "Utilisez table.get(item, \"Inconnu\") pour la valeur de repli."
+      "Examinez la durée de rétention et le rôle de l’information dans la situation.",
+      "Ne rattachez pas une situation non étudiée à une catégorie par défaut."
     ],
     "examples": [
       {
@@ -26,100 +26,100 @@ module.exports = [
     ],
     "tests": [
       {
-        "label": "Mémoire de travail",
+        "label": "Situation 1",
         "stdin": "cas:1",
         "expected": "Memoire: Travail"
       },
       {
-        "label": "Mémoire à long terme sémantique",
+        "label": "Situation 2",
         "stdin": "cas:2",
         "expected": "Memoire: Long_Terme"
       },
       {
-        "label": "Entrée inconnue",
+        "label": "Situation 3",
         "stdin": "cas:3",
         "expected": "Memoire: Inconnu"
       }
     ],
-    "solution": "[Exemple]\nMemoire: Sensorielle\n\n[Cas 1 — Mémoire de travail]\nMemoire: Travail\n\n[Cas 2 — Mémoire à long terme sémantique]\nMemoire: Long_Terme\n\n[Cas 3 — Entrée inconnue]\nMemoire: Inconnu\n"
+    "solution": "[Exemple]\nMemoire: Sensorielle\n\n[Cas 1 — Situation 1]\nMemoire: Travail\n\n[Cas 2 — Situation 2]\nMemoire: Long_Terme\n\n[Cas 3 — Situation 3]\nMemoire: Inconnu\n"
   },
   {
     "id": "mc2-c1-e2",
     "chapter": 1,
     "level": "n2",
     "language": "analyse",
-    "title": "Théorie de la charge cognitive de Sweller",
-    "goal": "Calculer la charge cognitive totale et vérifier la disponibilité pour les apprentissages structurants.",
-    "brief": "<p>Selon John Sweller, la charge cognitive en mémoire de travail se compose de trois charges :</p><ul>  <li><strong>Intrinsèque (I)</strong> : complexité propre du concept (notée sur 10).</li>  <li><strong>Extrinsèque (E)</strong> : bruit parasite, mauvaise présentation, distractions (notée sur 10).</li>  <li><strong>Germane (G)</strong> : effort utile dédié à la construction de schémas mentaux durables (notée sur 10).</li></ul><p>La charge totale d’encombrement est $C = I + E$. La capacité maximale de la mémoire de travail est fixée à <strong>7</strong> points.</p><p>Analyse une ligne au format <code>I;E;G</code> fourni(e) dans les données du cas et affiche :<br>- Si $I + E &gt; 7$ : <code>SURCHARGE (Charge: &lt;C&gt;, Germane_possible: 0)</code><br>- Si $I + E \\le 7$ : calcul de la capacité restante disponible pour l’effort germane $G_{dispo} = \\min(G, 7 - C)$. Affichez <code>OPTIMAL (Charge: &lt;C&gt;, Germane_utile: &lt;G_dispo&gt;)</code>.</p>",
-    "starter": "# Grille d'analyse (mc2-c1-e2) — Théorie de la charge cognitive de Sweller\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Surcharge cognitive critique]\n# Données : 5;4;2\nA_COMPLETER\n\n[Cas 2 — Charge saturée exacte]\n# Données : 4;3;5\nA_COMPLETER\n\n[Cas 3 — Charge légère avec plein potentiel germane]\n# Données : 2;1;3\nA_COMPLETER\n",
+    "title": "Simulation arithmétique d’un seuil fictif",
+    "goal": "Appliquer un modèle arithmétique arbitraire sans diagnostiquer la mémoire de travail.",
+    "brief": "<p>Cette simulation attribue trois nombres entiers entre 0 et 10 à I, E et G et fixe arbitrairement un seuil de 7. Ce barème n’est pas une mesure de charge cognitive et ne permet pas de diagnostiquer une personne.</p><p>Pour une ligne <code>I;E;G</code>, calculer <code>S = I + E</code>. Si S &gt; 7, afficher <code>HORS_SEUIL (Somme: &lt;S&gt;, Reste: 0)</code>. Sinon, calculer <code>R = min(G, 7 - S)</code> et afficher <code>DANS_SEUIL (Somme: &lt;S&gt;, Reste: &lt;R&gt;)</code>.</p>",
+    "starter": "# Grille d'analyse (mc2-c1-e2) — Simulation arithmétique d’un seuil fictif\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Somme supérieure au seuil fictif]\n# Données : 5;4;2\nA_COMPLETER\n\n[Cas 2 — Somme égale au seuil fictif]\n# Données : 4;3;5\nA_COMPLETER\n\n[Cas 3 — Somme inférieure au seuil fictif]\n# Données : 2;1;3\nA_COMPLETER\n",
     "hints": [
-      "Découpez avec l’extraction des champs et convertis les trois valeurs en entiers.",
-      "Comparez la somme I + E au seuil critique de 7."
+      "Les nombres et le seuil appartiennent uniquement au modèle fictif.",
+      "Calculer la somme puis comparer au seuil de 7."
     ],
     "examples": [
       {
         "stdin": "3;2;4",
-        "expected": "OPTIMAL (Charge: 5, Germane_utile: 2)",
-        "note": "Charge de 5 <= 7, reste 2 points pour l effort germane."
+        "expected": "DANS_SEUIL (Somme: 5, Reste: 2)",
+        "note": "Dans ce modèle, 7 − 5 laisse deux points fictifs."
       }
     ],
     "tests": [
       {
-        "label": "Surcharge cognitive critique",
+        "label": "Somme supérieure au seuil fictif",
         "stdin": "cas:1",
-        "expected": "SURCHARGE (Charge: 9, Germane_possible: 0)"
+        "expected": "HORS_SEUIL (Somme: 9, Reste: 0)"
       },
       {
-        "label": "Charge saturée exacte",
+        "label": "Somme égale au seuil fictif",
         "stdin": "cas:2",
-        "expected": "OPTIMAL (Charge: 7, Germane_utile: 0)"
+        "expected": "DANS_SEUIL (Somme: 7, Reste: 0)"
       },
       {
-        "label": "Charge légère avec plein potentiel germane",
+        "label": "Somme inférieure au seuil fictif",
         "stdin": "cas:3",
-        "expected": "OPTIMAL (Charge: 3, Germane_utile: 3)"
+        "expected": "DANS_SEUIL (Somme: 3, Reste: 3)"
       }
     ],
-    "solution": "[Exemple]\nOPTIMAL (Charge: 5, Germane_utile: 2)\n\n[Cas 1 — Surcharge cognitive critique]\nSURCHARGE (Charge: 9, Germane_possible: 0)\n\n[Cas 2 — Charge saturée exacte]\nOPTIMAL (Charge: 7, Germane_utile: 0)\n\n[Cas 3 — Charge légère avec plein potentiel germane]\nOPTIMAL (Charge: 3, Germane_utile: 3)\n"
+    "solution": "[Exemple]\nDANS_SEUIL (Somme: 5, Reste: 2)\n\n[Cas 1 — Somme supérieure au seuil fictif]\nHORS_SEUIL (Somme: 9, Reste: 0)\n\n[Cas 2 — Somme égale au seuil fictif]\nDANS_SEUIL (Somme: 7, Reste: 0)\n\n[Cas 3 — Somme inférieure au seuil fictif]\nDANS_SEUIL (Somme: 3, Reste: 3)\n"
   },
   {
     "id": "mc2-c1-e3",
     "chapter": 1,
     "level": "n3",
     "language": "analyse",
-    "title": "Agrégation de Chunks (Loi de Miller)",
-    "goal": "Structurer une séquence linéaire d’éléments en blocs mnémotechniques pour contourner la limite de Miller.",
-    "brief": "<p>George A. Miller a démontré que la mémoire de travail ne peut retenir que $7 \\pm 2$ éléments isolés. Le <strong>chunking</strong> (morcellement) regroupe les symboles en paquets significatifs pour démultiplier la capacité de rétention.</p><p>Analyse une séquence de chiffres séparés par des espaces fourni(e) dans les données du cas (ex. <code>0 6 1 2 3 4 5 6 7 8</code>).<br>- Si le nombre d’éléments est $\\le 7$, affiche : <code>Empan respecte (&lt;N&gt; elements): &lt;elements sans espace&gt;</code>.<br>- Si le nombre d’éléments est $&gt; 7$, regroupe les éléments par blocs successifs de <strong>3 chiffres</strong> (le dernier bloc contenant le reste de 1, 2 ou 3 chiffres), reliés par des tirets <code>-</code>. Affiche : <code>Chunking requis (&lt;N&gt; elements -&gt; &lt;nb_chunks&gt; chunks): &lt;blocs&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (mc2-c1-e3) — Agrégation de Chunks (Loi de Miller)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Séquence courte respectant l empan]\n# Données : 4 8 1 5 1\nA_COMPLETER\n\n[Cas 2 — Séquence de 8 éléments]\n# Données : 1 2 3 4 5 6 7 8\nA_COMPLETER\n\n[Cas 3 — Séquence de 9 éléments]\n# Données : 9 8 7 6 5 4 3 2 1\nA_COMPLETER\n",
+    "title": "Regroupement de chiffres selon une règle fictive",
+    "goal": "Appliquer une règle de découpage sans attribuer une capacité universelle à la mémoire.",
+    "brief": "<p>Miller a discuté en 1956 des résultats de mémoire immédiate ; les capacités varient selon les tâches, les stratégies et les personnes. Cette grille utilise arbitrairement le nombre 7 et des groupes de trois chiffres : elle ne mesure pas la mémoire et ne garantit pas que ces groupes soient des unités significatives.</p><p>Pour une séquence de chiffres séparés par des espaces : si N &le; 7, afficher <code>COURTE (&lt;N&gt; elements): &lt;chiffres sans espace&gt;</code>. Sinon, regrouper les chiffres par trois avec un dernier groupe de un à trois chiffres, séparés par des tirets, et afficher <code>GROUPEMENT_MODELE (&lt;N&gt; elements -&gt; &lt;nombre&gt; groupes): &lt;groupes&gt;</code>.</p>",
+    "starter": "# Grille d'analyse (mc2-c1-e3) — Regroupement de chiffres selon une règle fictive\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Séquence de cinq chiffres]\n# Données : 4 8 1 5 1\nA_COMPLETER\n\n[Cas 2 — Séquence de huit chiffres]\n# Données : 1 2 3 4 5 6 7 8\nA_COMPLETER\n\n[Cas 3 — Séquence de neuf chiffres]\n# Données : 9 8 7 6 5 4 3 2 1\nA_COMPLETER\n",
     "hints": [
-      "Appliquez la stratégie de chunking : regroupez les items mémorisables en blocs homogènes de 3 ou 4 éléments.",
-      "Respectez la capacité limite de la mémoire de travail (loi de Miller : 7 ± 2 éléments)."
+      "Le seuil de 7 et les groupes de trois sont choisis pour cet exercice.",
+      "Compter les chiffres puis conserver leur ordre."
     ],
     "examples": [
       {
         "stdin": "0 6 1 2 3 4 5 6 7 8",
-        "expected": "Chunking requis (10 elements -> 4 chunks): 061-234-567-8",
-        "note": "10 chiffres dépassent l empan de 7 et sont découpés en 4 chunks."
+        "expected": "GROUPEMENT_MODELE (10 elements -> 4 groupes): 061-234-567-8",
+        "note": "Découpage selon la règle fictive, sans prédiction de mémorisation."
       }
     ],
     "tests": [
       {
-        "label": "Séquence courte respectant l empan",
+        "label": "Séquence de cinq chiffres",
         "stdin": "cas:1",
-        "expected": "Empan respecte (5 elements): 48151"
+        "expected": "COURTE (5 elements): 48151"
       },
       {
-        "label": "Séquence de 8 éléments",
+        "label": "Séquence de huit chiffres",
         "stdin": "cas:2",
-        "expected": "Chunking requis (8 elements -> 3 chunks): 123-456-78"
+        "expected": "GROUPEMENT_MODELE (8 elements -> 3 groupes): 123-456-78"
       },
       {
-        "label": "Séquence de 9 éléments",
+        "label": "Séquence de neuf chiffres",
         "stdin": "cas:3",
-        "expected": "Chunking requis (9 elements -> 3 chunks): 987-654-321"
+        "expected": "GROUPEMENT_MODELE (9 elements -> 3 groupes): 987-654-321"
       }
     ],
-    "solution": "[Exemple]\nChunking requis (10 elements -> 4 chunks): 061-234-567-8\n\n[Cas 1 — Séquence courte respectant l empan]\nEmpan respecte (5 elements): 48151\n\n[Cas 2 — Séquence de 8 éléments]\nChunking requis (8 elements -> 3 chunks): 123-456-78\n\n[Cas 3 — Séquence de 9 éléments]\nChunking requis (9 elements -> 3 chunks): 987-654-321\n"
+    "solution": "[Exemple]\nGROUPEMENT_MODELE (10 elements -> 4 groupes): 061-234-567-8\n\n[Cas 1 — Séquence de cinq chiffres]\nCOURTE (5 elements): 48151\n\n[Cas 2 — Séquence de huit chiffres]\nGROUPEMENT_MODELE (8 elements -> 3 groupes): 123-456-78\n\n[Cas 3 — Séquence de neuf chiffres]\nGROUPEMENT_MODELE (9 elements -> 3 groupes): 987-654-321\n"
   },
   {
     "id": "mc2-c2-e1",
@@ -128,7 +128,7 @@ module.exports = [
     "language": "analyse",
     "title": "Rappel actif vs Révision passive",
     "goal": "Distinguer les techniques passives illusoires des pratiques de rappel actif démontrées par la recherche.",
-    "brief": "<p>La recherche cognitive (Roediger, Karpicke) prouve que la simple relecture procure un sentiment trompeur de maîtrise sans ancrer l’information. Seul le <strong>rappel actif</strong> (l’effort d’extraction mnésique) renforce la trace synaptique.</p><p>Examine un intitulé de méthode en minuscules dans les données du cas et affiche son efficacité :<br>- <code>relecture_surlignee</code>, <code>feuilletage_notes</code>, <code>recopie_de_cours</code>, <code>ecoute_passive_cours</code> &rarr; <code>Methode: Passive (Faible retention)</code><br>- <code>flashcard_recto_verso</code>, <code>feuille_blanche_feynman</code>, <code>qcm_sans_aide</code>, <code>restitution_a_voix_haute</code> &rarr; <code>Methode: Active (Forte retention)</code><br>Pour toute autre valeur : <code>Methode: Inconnue</code>.</p>",
+    "brief": "<p>Le rappel actif sollicite l’extraction d’informations en mémoire ; une révision passive s’appuie surtout sur des informations déjà visibles.</p><p>Classez la méthode de chaque cas avec l’un des libellés <code>Passive (Faible retention)</code>, <code>Active (Forte retention)</code> ou <code>Inconnue</code> si la pratique n’est pas identifiable. Répondez au format <code>Methode: &lt;classification&gt;</code>.</p>",
     "starter": "# Grille d'analyse (mc2-c2-e1) — Rappel actif vs Révision passive\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Relecture surlignée]\n# Données : relecture_surlignee\nA_COMPLETER\n\n[Cas 2 — Technique Feynman feuille blanche]\n# Données : feuille_blanche_feynman\nA_COMPLETER\n\n[Cas 3 — Pratique inconnue]\n# Données : dormir_sur_son_livre\nA_COMPLETER\n",
     "hints": [
       "Créez deux ensembles (sets) pour les méthodes passives et actives.",
@@ -206,7 +206,7 @@ module.exports = [
     "language": "analyse",
     "title": "Audit de clarté Feynman",
     "goal": "Analyser une explication rédigée pour vérifier l’absence de jargon inutile selon la méthode Feynman.",
-    "brief": "<p>La <strong>technique de Richard Feynman</strong> stipule que l’on ne maîtrise un sujet que si l’on peut l’expliquer en termes simples à un novice de 12 ans. Un texte contenant plus de 20 % de mots complexes (définis comme des mots de <strong>strictement plus de 8 lettres</strong>) traduit souvent un jargon compensatoire.</p><p>Analyse une phrase ou paragraphe fourni(e) dans les données du cas.<br>Nettoie la ponctuation (<code>, . ! ? ; : ' \" ( )</code>), découpe en mots et calcule le ratio de mots complexes.<br>- Affiche le ratio sous forme : <code>Mots complexes: &lt;pourcentage&gt;% (&lt;nb_complexes&gt;/&lt;total&gt;)</code> (arrondi à 1 décimale).<br>- Si le ratio $&gt; 20{,}0\\,\\%$, affiche à la ligne : <code>Verdict: A vulgariser (Jargon excessif)</code>.<br>- Sinon, affichezz à la ligne : <code>Verdict: Feynman valide (Explication claire)</code>.</p>",
+    "brief": "<p>La <strong>technique de Richard Feynman</strong> stipule que l’on ne maîtrise un sujet que si l’on peut l’expliquer en termes simples à un novice de 12 ans. Un texte contenant plus de 20 % de mots complexes (définis comme des mots de <strong>strictement plus de 8 lettres</strong>) traduit souvent un jargon compensatoire.</p><p>Analyse une phrase ou paragraphe fourni(e) dans les données du cas.<br>Nettoie la ponctuation (<code>, . ! ? ; : ' \" ( )</code>), découpe en mots et calcule le ratio de mots complexes.<br>- Affiche le ratio sous forme : <code>Mots complexes: &lt;pourcentage&gt;% (&lt;nb_complexes&gt;/&lt;total&gt;)</code> (arrondi à 1 décimale).<br>- Si le ratio $&gt; 20{,}0\\,\\%$, affiche à la ligne : <code>Verdict: A vulgariser (Jargon excessif)</code>.<br>- Sinon, affiche à la ligne : <code>Verdict: Feynman valide (Explication claire)</code>.</p>",
     "starter": "# Grille d'analyse (mc2-c2-e3) — Audit de clarté Feynman\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Explication simple et claire]\n# Données : Le coeur pompe le sang pour nourrir tous les organes du corps humain.\nA_COMPLETER\n\n[Cas 2 — Texte équilibré sous le seuil]\n# Données : Un ordinateur utilise des bits binaires pour faire des calculs tres vite.\nA_COMPLETER\n\n[Cas 3 — Texte chargé de termes techniques]\n# Données : La neuroplasticite synaptique consolide durablement l information cerebrale.\nA_COMPLETER\n",
     "hints": [
       "Isolez les mots-clés conceptuels porteurs de sens dans le texte en écartant les mots de liaison.",
@@ -555,39 +555,39 @@ module.exports = [
     "chapter": 5,
     "level": "n3",
     "language": "analyse",
-    "title": "Zone d’apprentissage optimal (Règle des 85 %)",
-    "goal": "Calibrer la difficulté d’un entraînement selon la règle optimale d’apprentissage de Robert Wilson.",
-    "brief": "<p>Une étude scientifique de Robert Wilson (Nature Communications, 2019) a démontré que le taux d’apprentissage est maximal lorsque l’apprenant réussit environ <strong>85 %</strong> des exercices (soit 15 % d’erreurs stimulantes).</p><p>Lit une ligne avec <code>exercices_reussis;exercices_totaux</code> (entiers positifs).<br>Calculez le taux de réussite $T = reussis / totaux$. Affichez le taux en pourcentage : <code>Taux: &lt;T_pct&gt;%</code> (1 décimale).<br>- Si $T &gt; 90{,}0\\,\\%$ : <code>Niveau: Trop facile (Risque de stagnation, augmenter la difficulte)</code>.<br>- Si $80{,}0\\,\\% \\le T \\le 90{,}0\\,\\%$ : <code>Niveau: Zone optimale des 85% (Progression maximale)</code>.<br>- Si $T &lt; 80{,}0\\,\\%$ : <code>Niveau: Trop difficile (Risque de decouragement, decomposer les etapes)</code>.</p>",
-    "starter": "# Grille d'analyse (mc2-c5-e3) — Zone d’apprentissage optimal (Règle des 85 %)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Exercices trop faciles avec 95 % de réussite]\n# Données : 19;20\nA_COMPLETER\n\n[Cas 2 — Exercices trop difficiles avec 60 % de réussite]\n# Données : 12;20\nA_COMPLETER\n\n[Cas 3 — Borne basse de la zone optimale]\n# Données : 8;10\nA_COMPLETER\n",
+    "title": "Calcul d’un taux et classement dans des bandes fictives",
+    "goal": "Calculer un pourcentage et appliquer des seuils fictifs sans conclure sur un apprentissage individuel.",
+    "brief": "<p>Wilson et al. (2019) étudient des modèles de classification binaire sous certaines hypothèses. Leur résultat autour de 85 % ne constitue pas un optimum universel pour un étudiant. Les bandes de cette grille sont fictives : elles ne permettent ni de diagnostiquer la difficulté ni de prédire la progression.</p><p>Pour <code>reussis;total</code>, avec 0 &le; reussis &le; total et total &gt; 0, calculer le pourcentage exact T puis l’afficher à une décimale : <code>Taux: &lt;T&gt;%</code>. Comparer T avant arrondi : au-dessus de 90, afficher <code>BANDE: AU_DESSUS_90</code> ; de 80 à 90 inclus, <code>BANDE: DE_80_A_90</code> ; en dessous de 80, <code>BANDE: SOUS_80</code>.</p>",
+    "starter": "# Grille d'analyse (mc2-c5-e3) — Calcul d’un taux et classement dans des bandes fictives\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Taux de 95 pour cent]\n# Données : 19;20\nA_COMPLETER\n\n[Cas 2 — Taux de 60 pour cent]\n# Données : 12;20\nA_COMPLETER\n\n[Cas 3 — Borne basse de la bande fictive]\n# Données : 8;10\nA_COMPLETER\n",
     "hints": [
-      "Calculez round((reussis / totaux) * 100.0, 1).",
-      "Comparez aux bornes 80.0 et 90.0."
+      "Calculer 100 × réussis / total.",
+      "Comparer avant d’arrondir le taux affiché."
     ],
     "examples": [
       {
         "stdin": "17;20",
-        "expected": "Taux: 85.0%\nNiveau: Zone optimale des 85% (Progression maximale)",
-        "note": "17/20 = 85.0% : le niveau de difficulté est parfait pour progresser."
+        "expected": "Taux: 85.0%\nBANDE: DE_80_A_90",
+        "note": "Le taux est dans la bande fictive, sans conclusion sur la progression."
       }
     ],
     "tests": [
       {
-        "label": "Exercices trop faciles avec 95 % de réussite",
+        "label": "Taux de 95 pour cent",
         "stdin": "cas:1",
-        "expected": "Taux: 95.0%\nNiveau: Trop facile (Risque de stagnation, augmenter la difficulte)"
+        "expected": "Taux: 95.0%\nBANDE: AU_DESSUS_90"
       },
       {
-        "label": "Exercices trop difficiles avec 60 % de réussite",
+        "label": "Taux de 60 pour cent",
         "stdin": "cas:2",
-        "expected": "Taux: 60.0%\nNiveau: Trop difficile (Risque de decouragement, decomposer les etapes)"
+        "expected": "Taux: 60.0%\nBANDE: SOUS_80"
       },
       {
-        "label": "Borne basse de la zone optimale",
+        "label": "Borne basse de la bande fictive",
         "stdin": "cas:3",
-        "expected": "Taux: 80.0%\nNiveau: Zone optimale des 85% (Progression maximale)"
+        "expected": "Taux: 80.0%\nBANDE: DE_80_A_90"
       }
     ],
-    "solution": "[Exemple]\nTaux: 85.0%\nNiveau: Zone optimale des 85% (Progression maximale)\n\n[Cas 1 — Exercices trop faciles avec 95 % de réussite]\nTaux: 95.0%\nNiveau: Trop facile (Risque de stagnation, augmenter la difficulte)\n\n[Cas 2 — Exercices trop difficiles avec 60 % de réussite]\nTaux: 60.0%\nNiveau: Trop difficile (Risque de decouragement, decomposer les etapes)\n\n[Cas 3 — Borne basse de la zone optimale]\nTaux: 80.0%\nNiveau: Zone optimale des 85% (Progression maximale)\n"
+    "solution": "[Exemple]\nTaux: 85.0%\nBANDE: DE_80_A_90\n\n[Cas 1 — Taux de 95 pour cent]\nTaux: 95.0%\nBANDE: AU_DESSUS_90\n\n[Cas 2 — Taux de 60 pour cent]\nTaux: 60.0%\nBANDE: SOUS_80\n\n[Cas 3 — Borne basse de la bande fictive]\nTaux: 80.0%\nBANDE: DE_80_A_90\n"
   },
   {
     "id": "mc2-c6-e1",

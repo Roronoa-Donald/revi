@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -63,7 +63,7 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>La base du parc auto ne se remplit pas à la main : on la décrit d’abord. Chaque colonne reçoit un type — un entier, une chaîne, une date — et ce choix engage tout : la place en mémoire, les comparaisons possibles, les erreurs évitées. Déclarer « prix » en texte n’affiche pas d’erreur aujourd’hui, mais interdit toute moyenne demain.</p>
+    <p>La base du parc auto ne se remplit pas à la main : on la décrit d’abord. Chaque colonne reçoit un type — un entier, une chaîne, une date — et ce choix engage tout : la place en mémoire, les comparaisons possibles, les erreurs évitées. Avec un prix stocké en texte, les conversions et les comparaisons dépendent du SGBD ; dans SQLite, une moyenne peut convertir le texte de façon inattendue.</p>
   </div>
 
   <div class="box box--objectifs">
@@ -88,25 +88,26 @@
     <tr><td>INT</td><td>≈ −2,1 Md à 2,1 Md</td><td>un prix en francs, un kilométrage</td></tr>
     <tr><td>BIGINT</td><td>≈ ±9,2 × 10¹⁸</td><td>des identifiants mondiaux, des horodatages</td></tr>
   </table>
-<p>Deux précisions du support : la notation <code>INT(x)</code> ne change <strong>pas</strong> la capacité de stockage, seulement l’affichage (avec <code>ZEROFILL</code>, elle complète de zéros). Pour les décimaux, on utilise <code>DECIMAL(p, s)</code> — précision p, s décimales — pour l’argent, et <code>FLOAT</code>/<code>DOUBLE</code> pour les mesures scientifiques.</p>
+<p>Deux précisions du support MySQL : la notation <code>INT(x)</code> ne change <strong>pas</strong> la plage de valeurs ; elle indiquait une largeur d’affichage. Cette largeur et <code>ZEROFILL</code> sont dépréciés dans les versions récentes de MySQL. Pour les décimaux, on utilise <code>DECIMAL(p, s)</code> — précision p, s décimales — pour l’argent, et <code>FLOAT</code>/<code>DOUBLE</code> pour les mesures scientifiques.</p>
   <div class="box box--pitfall">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — l’argent en FLOAT</div>
-    <p><code>FLOAT</code> et <code>DOUBLE</code> arrondissent par nature : une somme de prix peut y perdre un franc. Pour toute valeur monétaire, le type exact est <strong>DECIMAL</strong> — c’est le seul qui calcule en décimal exact, comme un humain pose l’addition.</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — l’argent et les dialectes</div>
+    <p>Les nombres flottants peuvent produire des arrondis. Dans MySQL, <code>DECIMAL</code> sert aux valeurs décimales exactes. SQLite traite <code>DECIMAL</code> avec une affinité numérique et ne garantit pas ce calcul décimal exact. Dans notre parc, <code>pxachat</code> est un entier en francs : <code>INTEGER</code>.</p>
   </div>
 
 <h2>2. CHAR et VARCHAR</h2>
 
-<p>Les chaînes de longueur fixe ou variable s’écrivent avec un paramètre de taille :</p>
+<p>En MySQL, les chaînes de longueur fixe ou variable s’écrivent avec un paramètre de taille :</p>
 <table>
     <tr><th>Stocké</th><th>CHAR(5)</th><th>VARCHAR(5)</th></tr>
     <tr><td>« OK »</td><td>« OK&nbsp;&nbsp;&nbsp; » (complété d’espaces)</td><td>« OK » (tel quel)</td></tr>
-    <tr><td>Mémoire</td><td>toujours 5 caractères</td><td>le contenu + 1 octet de longueur</td></tr>
+    <tr><td>Stockage</td><td>complété jusqu’à 5 caractères</td><td>contenu + 1 ou 2 octets de longueur</td></tr>
   </table>
 <p><strong>CHAR(x)</strong> réserve toujours x caractères et complète les plus courts d’espaces : il convient quand la longueur est constante — un code de marque sur trois lettres, un code postal. <strong>VARCHAR(x)</strong> stocke jusqu’à x caractères, sans remplissage : c’est le choix par défaut pour un nom, une adresse, un immatriculé.</p>
+<p>Dans SQLite, <code>CHAR</code> et <code>VARCHAR</code> ont une affinité texte : la longueur entre parenthèses n’est pas une limite imposée par le type. Notre schéma utilise <code>TEXT</code>.</p>
 <p>Le support cite aussi les grands textes (<code>TEXT</code>) et les binaires (<code>BLOB</code>) pour les contenus longs — un commentaire, une image stockée en base.</p>
   <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Fixe = CHAR, variable = VARCHAR »</div>
-    <p>Un code de pays à trois lettres naît et meurt à trois lettres : <strong>CHAR(3)</strong>. Un nom de famille va de une lettre à vingt : <strong>VARCHAR(20)</strong>. Se tromper ne casse rien, mais gaspille — et un CHAR qui complète d’espaces surprend les comparaisons.</p>
+    <p>En MySQL, un code de pays à trois lettres naît et meurt à trois lettres : <strong>CHAR(3)</strong>. Un nom de famille va de une lettre à vingt : <strong>VARCHAR(20)</strong>. Se tromper ne casse rien, mais gaspille — et un CHAR qui complète d’espaces surprend les comparaisons.</p>
   </div>
 
 <h2>3. Les types temporels</h2>
@@ -120,82 +121,123 @@
     <tr><td>TIMESTAMP</td><td>date et heure (fuseau géré)</td><td>idem DATETIME</td></tr>
     <tr><td>YEAR</td><td>une année</td><td>'AAAA' ou AAAA</td></tr>
   </table>
-<p>Le format littéral n’est pas décoratif : <code>'2014-11-21'</code> est compris partout, mais <code>'21/11/2014'</code> est rejeté ou mal interprété selon le SGBD. On écrit toujours les dates en SQL <strong>année, mois, jour</strong>.</p>
-<p>Le parc auto du support utilise <code>DATETIME</code> pour la mise en circulation — d’où des valeurs comme <code>'2000-01-21 08:00:00'</code> — et des comparaisons directes sont possibles : <code>WHERE datecirc &lt; '2015-01-01'</code>.</p>
+<p>Le format littéral n’est pas décoratif : dans le parc, la date du 21 novembre 2014 s’écrit <code>'2014-11-21'</code>. La chaîne <code>'21/11/2014'</code> est valide comme texte SQL, mais ne respecte pas le format choisi pour les dates de ce parc.</p>
+<p>SQLite n’a pas de type de stockage spécifique aux dates. Dans notre parc, <code>datecirc</code> est un texte au format <code>AAAA-MM-JJ</code>, ou NULL si la date est inconnue. C’est une convention des données du parc : le type TEXT seul ne valide pas la date. Avec ce format homogène, on peut comparer : <code>SELECT immat FROM Voiture WHERE datecirc &lt; '2015-01-01';</code></p>
 
 <h2>4. CREATE TABLE et INSERT</h2>
 
 <p>La description d’une table passe par <code>CREATE TABLE</code> : chaque colonne reçoit un nom, un type, et des contraintes optionnelles (<code>NOT NULL</code>, <code>PRIMARY KEY</code>).</p>
-<pre><code>CREATE TABLE IF NOT EXISTS Voiture (
-    immat     VARCHAR(10) PRIMARY KEY,
-    marque    VARCHAR(20) NOT NULL,
-    moteur    VARCHAR(10) NOT NULL,
-    datecirc  DATETIME,
-    km        INT DEFAULT 0,
-    pxachat   INT NOT NULL,
-    nbreplace TINYINT NOT NULL
+<p>Voici le schéma exact du simulateur SQLite ; les tables existent déjà dans l’atelier. La première instruction active les clés étrangères pour cette connexion :</p>
+<pre><code>PRAGMA foreign_keys = ON;
+CREATE TABLE Marque (
+  codemarque TEXT NOT NULL PRIMARY KEY,
+  nommarque  TEXT NOT NULL UNIQUE,
+  paysmarque TEXT NOT NULL,
+  UNIQUE (codemarque, nommarque)
+);
+CREATE TABLE Voiture (
+  immat     TEXT NOT NULL PRIMARY KEY,
+  marque    TEXT NOT NULL,
+  codemarque TEXT NOT NULL,
+  moteur    TEXT NOT NULL,
+  datecirc  TEXT,
+  km        INTEGER NOT NULL,
+  pxachat   INTEGER NOT NULL,
+  nbreplace INTEGER NOT NULL,
+  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)
+);
+CREATE TABLE Equipement (
+  codeequipement TEXT NOT NULL PRIMARY KEY,
+  nomequipement TEXT NOT NULL UNIQUE,
+  prix INTEGER DEFAULT 0
+);
+CREATE TABLE VoitureEquipement (
+  immat TEXT NOT NULL,
+  codeequipement TEXT NOT NULL,
+  PRIMARY KEY (immat, codeequipement),
+  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,
+  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE
 );</code></pre>
-<p>Les lignes arrivent ensuite par <code>INSERT INTO</code>, en nommant les colonnes renseignées — celles qui manquent reçoivent NULL ou leur valeur par défaut :</p>
-<pre><code>INSERT INTO Voiture (immat, marque, moteur, datecirc, km, pxachat, nbreplace)
-VALUES ('TG-3733-AC', 'TOYOTA', 'HYBRIDE', '2010-01-21 18:00:00', 0, 20000000, 7);
-
--- plusieurs lignes d’un coup :
-INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
-('TOY', 'TOYOTA', 'JAPON'),
-('BMW', 'BMW', 'ALLEMAGNE');</code></pre>
+<p><code>immat</code> et <code>codemarque</code> sont des clés primaires non nulles. La clé étrangère composée assure que le code et le nom de chaque voiture désignent ensemble une marque existante. Seule <code>datecirc</code> peut manquer dans Voiture. Les tables <code>Equipement</code> et <code>VoitureEquipement</code> ajoutent des données fictives pour les jointures du chapitre 4. Dans Equipement, un prix omis vaut 0 par défaut ; un prix explicitement inconnu peut être NULL.</p>
+<p>Les lignes arrivent par <code>INSERT INTO</code>. Ajoutez d’abord deux marques fictives, puis une voiture dont la date est inconnue :</p>
+<pre><code>INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
+('TES', 'EXEMPLE', 'TOGO'),
+('ABC', 'ATELIER', 'BENIN');
+INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace)
+VALUES ('TG-0001-TEST', 'EXEMPLE', 'TES', 'ELECTRIQUE', NULL, 0, 12000000, 5);
+SELECT immat, datecirc FROM Voiture WHERE immat = 'TG-0001-TEST';</code></pre>
+<p>Résultat : <code>TG-0001-TEST | NULL</code>. Réinitialisez le simulateur avant de recommencer pour éviter les clés déjà présentes. Une colonne omise reçoit son <code>DEFAULT</code>, sinon NULL ; si une contrainte <code>NOT NULL</code> est violée, l’insertion échoue. Une clé <code>INTEGER PRIMARY KEY</code> omise dans une table ordinaire peut recevoir un entier généré par SQLite.</p>
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Le simulateur du cours</div>
-    <p>La page <a href="../atelier.html">atelier — simulateur SQL</a> contient ce schéma et ces données déjà chargés : chaque requête des chapitres suivants s’y exécute en réel. Le moteur est SQLite, qui accepte les mêmes requêtes SELECT que MySQL pour tout ce cours.</p>
+    <p>La page <a href="../atelier.html">atelier — simulateur SQL</a> charge ce schéma et les données du parc. SQLite et MySQL partagent de nombreuses syntaxes, mais leurs règles diffèrent notamment pour les types, les agrégats et l’administration.</p>
   </div>
 
+<h2>5. Ajouter une colonne avant de s’exercer</h2>
+
+<p><code>ALTER TABLE … ADD COLUMN</code> ajoute une colonne à une table existante. Dans une copie du parc, ajoutez provisoirement une garantie par défaut de 12 mois aux équipements :</p>
+<pre><code>ALTER TABLE Equipement ADD COLUMN garantie_mois INTEGER DEFAULT 12;
+SELECT codeequipement, garantie_mois FROM Equipement WHERE codeequipement = 'AIR';</code></pre>
+<p>Résultat : <code>AIR | 12</code>. La ligne existante reçoit cette valeur par défaut lors de sa lecture. Réinitialisez le simulateur pour retrouver le schéma de référence. Dans l’exercice, une version antérieure d’Equipement ne possède pas encore la colonne <code>prix</code> : vous l’ajouterez avec sa valeur par défaut. Au chapitre 6, vous étudierez d’autres évolutions de structure et leurs limites selon le SGBD.</p>
+
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <div id="exercices">
+  <h2>6. Exercices de code</h2>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="sq-c2-e1" data-lab
      data-exercise="sq-c2-e1"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
-     data-stdin="&#10;-- VERIFY:&#10;SELECT name, type, &quot;notnull&quot;, dflt_value, pk FROM pragma_table_info('salles') ORDER BY cid;&#10;-- exemple">
-  <script type="text/plain" data-lab-starter>-- Créez la table salles(numero, batiment, capacite)
-CREATE TABLE salles (
-  numero INT
-);</script>
+     data-stdin="PRAGMA foreign_keys = ON;&#10;-- VERIFY:&#10;SELECT name, type, &quot;notnull&quot;, dflt_value, pk FROM pragma_table_info('Marque') ORDER BY cid; SELECT codemarque, nommarque, paysmarque FROM Marque;">
+  <script type="text/plain" data-lab-starter>CREATE TABLE Marque (
+  codemarque TEXT NOT NULL PRIMARY KEY,
+  nommarque TEXT NOT NULL,
+  paysmarque TEXT NOT NULL
+);
+INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES ('BMW', 'BMW', '');</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Créer une table avec clé primaire</h3>
+    <h3 class="lab__title">Exercice 1 — Créer et initialiser la table Marque</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Écrire une instruction CREATE TABLE définissant des colonnes typées et une clé primaire.</p>
-    <div class="lab__brief"><p>Écrivez une instruction SQL <code>CREATE TABLE salles</code> comportant trois colonnes : <code>numero</code> (type <code>INT PRIMARY KEY</code>), <code>batiment</code> (type <code>TEXT NOT NULL</code>) et <code>capacite</code> (type <code>INT</code>), puis insérez les lignes fournies par le test.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Définir une table avec ses contraintes, puis insérer une marque.</p>
+    <p class="lab__note" id="sq-c2-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Sur une base vide, recréez la table <code>Marque</code> du simulateur : <code>codemarque TEXT NOT NULL PRIMARY KEY</code>, <code>nommarque TEXT NOT NULL UNIQUE</code> et <code>paysmarque TEXT NOT NULL</code>. Ajoutez aussi <code>UNIQUE (codemarque, nommarque)</code>, nécessaire à la clé étrangère composée de <code>Voiture</code>. Puis insérez la marque dont le code est <code>BMW</code>, le nom <code>BMW</code> et le pays <code>ALLEMAGNE</code>. La table existe déjà dans le simulateur initial : cet exercice utilise donc une base vide.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
 -- VERIFY:
-SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('salles') ORDER BY cid;
--- exemple</pre></div>
+SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('Marque') ORDER BY cid; SELECT codemarque, nommarque, paysmarque FROM Marque;</pre></div>
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (0 lignes modifiées).
 
-+----------+------+---------+------------+----+
-| name     | type | notnull | dflt_value | pk |
-+----------+------+---------+------------+----+
-| numero   | INT  | 0       | NULL       | 1  |
-| batiment | TEXT | 1       | NULL       | 0  |
-| capacite | INT  | 0       | NULL       | 0  |
-+----------+------+---------+------------+----+
-(3 lignes retournées)</pre></div>
+Instruction exécutée avec succès (1 ligne modifiée).
+
++------------+------+---------+------------+----+
+| name       | type | notnull | dflt_value | pk |
++------------+------+---------+------------+----+
+| codemarque | TEXT | 1       | NULL       | 1  |
+| nommarque  | TEXT | 1       | NULL       | 0  |
+| paysmarque | TEXT | 1       | NULL       | 0  |
++------------+------+---------+------------+----+
+(3 lignes retournées)
+
++------------+-----------+------------+
+| codemarque | nommarque | paysmarque |
++------------+-----------+------------+
+| BMW        | BMW       | ALLEMAGNE  |
++------------+-----------+------------+
+(1 ligne retournée)</pre></div>
     </div>
-    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
+    <p class="lab__note">La vérification affiche les colonnes de Marque et la ligne insérée sur une base initialement vide.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Déclarez numero INT PRIMARY KEY comme première colonne.</li>
-        <li>Déclarez batiment TEXT NOT NULL et capacite INT.</li>
+        <li>La clé primaire identifie chaque code ; le nom doit aussi être unique.</li>
+        <li>Après les colonnes, ajoutez la contrainte UNIQUE portant sur le couple de colonnes indiqué.</li>
+        <li>Complétez l’insertion avec le pays de la marque BMW.</li>
       </ol>
     </details>
   </div>
@@ -203,43 +245,59 @@ SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('salles') OR
 
 <div class="lab" id="sq-c2-e2" data-lab
      data-exercise="sq-c2-e2"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
-     data-stdin="&#10;-- VERIFY:&#10;SELECT name, type, &quot;notnull&quot;, dflt_value, pk FROM pragma_table_info('comptes') ORDER BY cid;&#10;-- exemple">
-  <script type="text/plain" data-lab-starter>-- Créez la table comptes avec actif INT DEFAULT 1
-CREATE TABLE comptes (id INT PRIMARY KEY, login TEXT NOT NULL, actif INT);</script>
+     data-stdin="PRAGMA foreign_keys = ON;&#10;-- VERIFY:&#10;SELECT name, type, &quot;notnull&quot;, dflt_value, pk FROM pragma_table_info('Equipement') ORDER BY cid; SELECT codeequipement, nomequipement, prix FROM Equipement;">
+  <script type="text/plain" data-lab-starter>CREATE TABLE Equipement (
+  codeequipement TEXT NOT NULL PRIMARY KEY,
+  nomequipement TEXT NOT NULL UNIQUE,
+  prix INTEGER
+);
+INSERT INTO Equipement (codeequipement, nomequipement) VALUES ('AIR', '');</script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Valeur par défaut (DEFAULT) et contrainte NOT NULL</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Utiliser la clause DEFAULT lors de la création d’une table SQL.</p>
-    <div class="lab__brief"><p>Créez la table <code>comptes(id INT PRIMARY KEY, login TEXT NOT NULL, actif INT DEFAULT 1)</code> pour que toute insertion omettant la colonne <code>actif</code> reçoive automatiquement la valeur <code>1</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Utiliser DEFAULT lors de la création d’une table et d’une insertion.</p>
+    <p class="lab__note" id="sq-c2-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Sur une base vide, créez la table du parc <code>Equipement</code> avec <code>codeequipement TEXT NOT NULL PRIMARY KEY</code>, <code>nomequipement TEXT NOT NULL UNIQUE</code> et <code>prix INTEGER DEFAULT 0</code>. Puis insérez l’équipement de code <code>AIR</code> et de nom <code>Climatisation</code> sans indiquer son prix. Un prix omis reçoit la valeur <code>0</code> ; un <code>NULL</code> explicitement fourni reste <code>NULL</code>. La table existe déjà dans le simulateur initial : cet exercice utilise une base vide.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
 -- VERIFY:
-SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('comptes') ORDER BY cid;
--- exemple</pre></div>
+SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('Equipement') ORDER BY cid; SELECT codeequipement, nomequipement, prix FROM Equipement;</pre></div>
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (0 lignes modifiées).
 
-+-------+------+---------+------------+----+
-| name  | type | notnull | dflt_value | pk |
-+-------+------+---------+------------+----+
-| id    | INT  | 0       | NULL       | 1  |
-| login | TEXT | 1       | NULL       | 0  |
-| actif | INT  | 0       | 1          | 0  |
-+-------+------+---------+------------+----+
-(3 lignes retournées)</pre></div>
+Instruction exécutée avec succès (1 ligne modifiée).
+
++----------------+---------+---------+------------+----+
+| name           | type    | notnull | dflt_value | pk |
++----------------+---------+---------+------------+----+
+| codeequipement | TEXT    | 1       | NULL       | 1  |
+| nomequipement  | TEXT    | 1       | NULL       | 0  |
+| prix           | INTEGER | 0       | 0          | 0  |
++----------------+---------+---------+------------+----+
+(3 lignes retournées)
+
++----------------+---------------+------+
+| codeequipement | nomequipement | prix |
++----------------+---------------+------+
+| AIR            | Climatisation | 0    |
++----------------+---------------+------+
+(1 ligne retournée)</pre></div>
     </div>
-    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
+    <p class="lab__note">La vérification affiche les colonnes et l’équipement inséré avec son prix par défaut.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Utilisez la syntaxe actif INT DEFAULT 1 dans la définition de colonne.</li>
-        <li>Assurez-vous que id est PRIMARY KEY et login est NOT NULL.</li>
+        <li>Précisez une valeur par défaut dans la définition de prix.</li>
+        <li>Vérifiez la clé primaire, le caractère obligatoire et l’unicité du nom.</li>
+        <li>Complétez le nom de l’équipement et omettez la colonne prix dans son insertion.</li>
       </ol>
     </details>
   </div>
@@ -247,147 +305,177 @@ SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('comptes') O
 
 <div class="lab" id="sq-c2-e3" data-lab
      data-exercise="sq-c2-e3"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
-     data-stdin="CREATE TABLE materiels (id INT PRIMARY KEY, designation TEXT);&#10;-- VERIFY:&#10;SELECT name, type, &quot;notnull&quot;, dflt_value, pk FROM pragma_table_info('materiels') ORDER BY cid;&#10;-- exemple">
-  <script type="text/plain" data-lab-starter>-- Ajoutez la colonne garantie_mois INT DEFAULT 12 à la table materiels
-SELECT * FROM materiels;</script>
+     data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;-- VERIFY:&#10;SELECT name, type, &quot;notnull&quot;, dflt_value, pk FROM pragma_table_info('Equipement') ORDER BY cid;">
+  <script type="text/plain" data-lab-starter>SELECT codeequipement, nomequipement FROM Equipement;</script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Ajouter une colonne avec ALTER TABLE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Faire évoluer le schéma d’une table existante avec ALTER TABLE ADD COLUMN.</p>
-    <div class="lab__brief"><p>La table <code>materiels(id INT PRIMARY KEY, designation TEXT)</code> existe déjà. Écrivez l’instruction SQL permettant de lui ajouter une colonne <code>garantie_mois INT DEFAULT 12</code>.</p></div>
+    <p class="lab__note" id="sq-c2-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans une version antérieure du parc, la table <code>Equipement(codeequipement TEXT NOT NULL PRIMARY KEY, nomequipement TEXT NOT NULL UNIQUE)</code> existe déjà, mais ne possède pas encore la colonne <code>prix</code>. Les autres tables ont les définitions du parc. Ajoutez <code>prix INTEGER DEFAULT 0</code> pour retrouver le schéma actuel du simulateur. La colonne existe déjà dans le simulateur initial : cet exercice utilise donc cet état antérieur.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE materiels (id INT PRIMARY KEY, designation TEXT);
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
+CREATE TABLE Marque (
+  codemarque TEXT NOT NULL PRIMARY KEY,
+  nommarque TEXT NOT NULL UNIQUE,
+  paysmarque TEXT NOT NULL,
+  UNIQUE (codemarque, nommarque)
+);
+CREATE TABLE Voiture (
+  immat TEXT NOT NULL PRIMARY KEY,
+  marque TEXT NOT NULL,
+  codemarque TEXT NOT NULL,
+  moteur TEXT NOT NULL,
+  datecirc TEXT,
+  km INTEGER NOT NULL,
+  pxachat INTEGER NOT NULL,
+  nbreplace INTEGER NOT NULL,
+  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)
+);
+CREATE TABLE Equipement (
+  codeequipement TEXT NOT NULL PRIMARY KEY,
+  nomequipement TEXT NOT NULL UNIQUE
+);
+CREATE TABLE VoitureEquipement (
+  immat TEXT NOT NULL,
+  codeequipement TEXT NOT NULL,
+  PRIMARY KEY (immat, codeequipement),
+  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,
+  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE
+);
 -- VERIFY:
-SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('materiels') ORDER BY cid;
--- exemple</pre></div>
+SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('Equipement') ORDER BY cid;</pre></div>
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>Instruction exécutée avec succès (0 lignes modifiées).
 
-+---------------+------+---------+------------+----+
-| name          | type | notnull | dflt_value | pk |
-+---------------+------+---------+------------+----+
-| id            | INT  | 0       | NULL       | 1  |
-| designation   | TEXT | 0       | NULL       | 0  |
-| garantie_mois | INT  | 0       | 12         | 0  |
-+---------------+------+---------+------------+----+
++----------------+---------+---------+------------+----+
+| name           | type    | notnull | dflt_value | pk |
++----------------+---------+---------+------------+----+
+| codeequipement | TEXT    | 1       | NULL       | 1  |
+| nomequipement  | TEXT    | 1       | NULL       | 0  |
+| prix           | INTEGER | 0       | 0          | 0  |
++----------------+---------+---------+------------+----+
 (3 lignes retournées)</pre></div>
     </div>
-    <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
+    <p class="lab__note">La base d’exemple contient la version antérieure d’Equipement, sans prix.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Utilisez la commande ALTER TABLE materiels ADD COLUMN ...</li>
-        <li>Précisez le type INT suivi de DEFAULT 12.</li>
+        <li>Modifiez la table existante avec ALTER TABLE et ADD COLUMN, sans la recréer.</li>
+        <li>Définissez la colonne prix avec le type et la valeur par défaut demandés.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
-      <p class="q__stem">Quel type choisir pour un prix en francs ?</p>
+      <p class="q__stem">En MySQL, quel type convient à un prix avec des centimes ?</p>
       <div class="opts">
         <button class="opt">FLOAT</button>
         <button class="opt" data-correct="1">DECIMAL</button>
         <button class="opt">VARCHAR</button>
       </div>
-      <div class="q__exp">DECIMAL calcule en décimal exact ; FLOAT arrondit et fausse l’argent.</div>
+      <div class="q__exp">MySQL propose DECIMAL pour les décimaux exacts ; un flottant peut arrondir et VARCHAR est du texte.</div>
     </div>
     <div class="q">
-      <p class="q__stem">INT(2) limite-t-il la valeur à deux chiffres ?</p>
+      <p class="q__stem">En MySQL, INT(2) limite-t-il la valeur à deux chiffres ?</p>
       <div class="opts">
         <button class="opt">Oui</button>
-        <button class="opt" data-correct="1">Non, seule l’affichage change</button>
-        <button class="opt">Cela dépend du SGBD</button>
+        <button class="opt" data-correct="1">Non, il ne limite pas la plage à deux chiffres</button>
+        <button class="opt">Oui, si la valeur est négative</button>
       </div>
-      <div class="q__exp">INT(x) ne change pas le stockage, seulement l’affichage éventuel avec ZEROFILL.</div>
+      <div class="q__exp">INT(x) ne change pas la capacité de stockage ; la largeur concerne un affichage éventuel avec ZEROFILL.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Un code de marque sur 3 lettres : quel type ?</p>
+      <p class="q__stem">En MySQL, quel type à longueur fixe choisir pour un code de 3 caractères ?</p>
       <div class="opts">
         <button class="opt">VARCHAR(3)</button>
         <button class="opt" data-correct="1">CHAR(3)</button>
         <button class="opt">TEXT</button>
       </div>
-      <div class="q__exp">Longueur constante : CHAR(3), qui réserve exactement la place.</div>
+      <div class="q__exp">CHAR(3) est le type fixe ; VARCHAR est variable et TEXT ne précise pas cette longueur.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Comment s’écrit le 21 novembre 2014 en littéral SQL ?</p>
+      <p class="q__stem">Dans le parc SQLite, quelle chaîne représente le 21 novembre 2014 ?</p>
       <div class="opts">
         <button class="opt">'21/11/2014'</button>
         <button class="opt" data-correct="1">'2014-11-21'</button>
         <button class="opt">'11-21-2014'</button>
       </div>
-      <div class="q__exp">Toujours année, mois, jour : AAAA-MM-JJ.</div>
+      <div class="q__exp">Le parc choisit le format texte année, mois, jour : AAAA-MM-JJ.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Dans INSERT INTO … (colonnes) VALUES (…), les colonnes non citées reçoivent…</p>
+      <p class="q__stem">En SQLite, que peut recevoir une colonne ordinaire omise dans INSERT ?</p>
       <div class="opts">
-        <button class="opt">une erreur</button>
-        <button class="opt" data-correct="1">NULL ou leur valeur par défaut</button>
-        <button class="opt">des zéros</button>
+        <button class="opt">Toujours zéro</button>
+        <button class="opt" data-correct="1">Son DEFAULT ou NULL, sous réserve des contraintes</button>
+        <button class="opt">Toujours une erreur</button>
       </div>
-      <div class="q__exp">C’est le sens du nommage explicite des colonnes.</div>
+      <div class="q__exp">Un DEFAULT fournit la valeur ; sinon c’est NULL, sauf si une contrainte comme NOT NULL interdit l’insertion. Une INTEGER PRIMARY KEY ordinaire peut être générée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que fait IF NOT EXISTS dans CREATE TABLE ?</p>
       <div class="opts">
         <button class="opt">Vide la table si elle existe</button>
         <button class="opt" data-correct="1">Évite une erreur si la table existe déjà</button>
-        <button class="opt">Créez la table en mémoire</button>
+        <button class="opt">Crée la table en mémoire</button>
       </div>
       <div class="q__exp">L’instruction devient sans effet (et sans erreur) si la table existe déjà.</div>
     </div>
   </div>
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
     <ul>
       <li><strong>Argent en FLOAT/DOUBLE</strong> : arrondis invisibles qui faussent totaux et moyennes.</li>
-      <li><strong>Dates en format local</strong> : '21/11/2014' n’est pas un littéral SQL valide.</li>
+      <li><strong>Dates en format local</strong> : '21/11/2014' est une chaîne SQL valide, mais pas une date au format du parc.</li>
       <li><strong>CHAR confondu avec VARCHAR</strong> : les espaces de complément surprennent les comparaisons.</li>
       <li><strong>Clé primaire oubliée</strong> : deux voitures avec la même immatriculation deviennent possibles.</li>
       <li><strong>INSERT sans colonnes nommées</strong> : tout repose sur l’ordre des colonnes, fragile au moindre changement.</li>
     </ul>
   </div>
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Déclarer une table proprement</div>
     <ol>
       <li><strong>Lister les colonnes</strong> et leur contenu réel (est-ce un nombre, un texte, une date ?).</li>
-      <li><strong>Choisir les types</strong> : DECIMAL pour l’argent, CHAR pour le fixe, VARCHAR pour le variable.</li>
+      <li><strong>Choisir les types</strong> selon le SGBD : DECIMAL exact en MySQL, INTEGER pour les francs entiers du parc SQLite.</li>
       <li><strong>Poser la clé primaire</strong> et les contraintes NOT NULL indispensables.</li>
       <li><strong>Insérer des lignes de test</strong> en nommant toujours les colonnes.</li>
       <li><strong>Vérifier</strong> avec SELECT * que la structure et les NULL sont conformes.</li>
     </ol>
   </div>
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
-      <li>Entiers : TINYINT à BIGINT selon la plage ; INT(x) ne change que l’affichage.</li>
-      <li>L’argent se stocke en DECIMAL, jamais en FLOAT.</li>
-      <li>CHAR pour la longueur fixe (complétée d’espaces), VARCHAR pour la longueur variable.</li>
-      <li>Dates au format 'AAAA-MM-JJ' ; DATETIME ajoute l’heure.</li>
+      <li>En MySQL, les entiers vont de TINYINT à BIGINT ; INT(x) ne change pas leur plage.</li>
+      <li>En MySQL, DECIMAL convient à l’argent ; dans le parc SQLite, les francs entiers sont en INTEGER.</li>
+      <li>En MySQL, CHAR est fixe et VARCHAR variable ; SQLite applique une affinité texte sans imposer leur longueur.</li>
+      <li>Dans le parc SQLite, les dates sont du texte au format 'AAAA-MM-JJ' ; en MySQL, DATETIME ajoute l’heure.</li>
       <li>CREATE TABLE décrit colonnes, types et clés ; INSERT nomme les colonnes renseignées.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
-      <li>Je choisis un type numérique adapté et je justifie DECIMAL pour l’argent.</li>
+      <li>Je choisis un type numérique adapté au SGBD et à la précision requise.</li>
       <li>Je distingue CHAR et VARCHAR avec un exemple de chaque.</li>
       <li>J’écris un CREATE TABLE complet avec clé primaire.</li>
       <li>J’insère des lignes en nommant les colonnes et je prévois les NULL.</li>
@@ -400,16 +488,16 @@ SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('materiels')
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
   </div>
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Relisez le tableau des types et associe chaque colonne du parc à son type.</div>
-      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Réécris CREATE TABLE Voiture sans regarder le cours.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : insère trois voitures dans le simulateur et vérifie les NULL.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : passez au chapitre 3, les requêvos SELECT.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Relisez le tableau des types et associe chaque colonne du parc à son type.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Réécrivez CREATE TABLE Voiture sans regarder le cours.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : insère trois voitures dans le simulateur et vérifiez les NULL.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : passez au chapitre 3, les requêtes SELECT.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -420,7 +508,7 @@ SELECT name, type, "notnull", dflt_value, pk FROM pragma_table_info('materiels')
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : le support B1 « Base de données & SQL » (IT-B1) et le jeu de données parc_auto du support (Marque, Voiture).</p>
+  Sources : le support B1 « Base de données &amp; SQL » (IT-B1), le jeu de données parc_auto du support et la <a href="https://sqlite.org/docs.html">documentation officielle SQLite</a> (consultée le 29 octobre 2026 ; SELECT revérifié le 30 octobre 2026).</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

@@ -105,7 +105,7 @@ function examens(course) {
       '  <li><strong>Plan d\'adressage CIDR (3 pts) :</strong> ' +
       '  - <em>AZ eu-west-3a :</em> Public Subnet 1 = <code>10.0.1.0/24</code> ; App Subnet 1 = <code>10.0.2.0/24</code> ; DB Subnet 1 = <code>10.0.3.0/24</code>. ' +
       '  - <em>AZ eu-west-3b :</em> Public Subnet 2 = <code>10.0.11.0/24</code> ; App Subnet 2 = <code>10.0.12.0/24</code> ; DB Subnet 2 = <code>10.0.13.0/24</code>. ' +
-      '  Pour chaque sous-réseau /24, le nombre total d\'IP est <code>2^(32-24) = 256</code>. AWS réservant obligatoirement 5 adresses (.0 réseau, .1 routeur VPC, .2 DNS AWS, .3 réservé futur, .255 broadcast), il y a exactement <strong>251 adresses IP assignables</strong> par sous-réseau.</li>',
+      '  Pour ces sous-réseaux IPv4 /24 hors BYOIP, il y a <code>2^(32-24) = 256</code> adresses ; AWS réserve les quatre premières et la dernière du CIDR, soit <strong>251 adresses assignables</strong>. L\'adresse base + 2 de chaque sous-réseau est réservée ; le résolveur dépend de la base du bloc principal du VPC.</li>',
       '  <li><strong>Routage Egress &amp; NAT (3 pts) :</strong> ' +
       '  - <em>Sous-réseaux publics :</em> Route Table avec <code>0.0.0.0/0 &rarr; igw-xxxx</code> (Internet Gateway). ' +
       '  - <em>Sous-réseaux applicatifs privés :</em> Route Table avec <code>0.0.0.0/0 &rarr; nat-xxxx</code> (NAT Gateway managée déployée dans un sous-réseau public). La NAT Gateway effectue une translation d\'adresses source (SNAT) permettant aux requêtes sortantes des VMs privées d\'accéder à Internet tout en bloquant toute tentative de connexion initiée depuis l\'extérieur. ' +
@@ -188,7 +188,7 @@ function exercices(course, chapterList) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers de Code Interactifs — Services Cloud AWS B3</h1>',
-    '  <p class="lead">L\'ensemble des 18 ateliers de programmation pratique de manière méthodique intégrés au cours, avec éditeur Monaco, tests automatisés cachés, correction instantanée et aide intelligente du tuteur pédagogique.</p>',
+    '  <p class="lead">L\'ensemble des 18 ateliers d\'étude de cas, d\'analyse d\'architecture et de dimensionnement cloud intégrés au cours, avec éditeur Monaco, tests automatisés cachés, correction instantanée et aide intelligente du tuteur pédagogique.</p>',
     '',
     listHtml,
     '',

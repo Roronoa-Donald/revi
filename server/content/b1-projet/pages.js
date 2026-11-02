@@ -55,8 +55,8 @@ function index(course, chapterList) {
       'Tkinter, opérations CRUD, puis améliorations et dépannage. Ce cours en garde l\'esprit et fait ' +
       'appliquer chaque règle <strong>dans des études de cas</strong> : prérequis de version, types de la table, ' +
       'requêtes du cycle CRUD, validation des champs, cascade de seuils, calcul de maximum.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
-      'script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique écrite ' +
+      '    <p>Chaque chapitre se termine par <strong>trois études de cas</strong> : vous remplissez vraiment votre ' +
+      'grille d’analyse, elle est vérifiée par des critères que vous ne voyez pas. La logique écrite ' +
       'ici se rejoue telle quelle sur les étapes du tutoriel (database.py, main.py, exports).</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -68,7 +68,7 @@ function index(course, chapterList) {
       '      <a class="btn" href="chapitres/chapitre1.html">' + ic('rocket') + ' Commencer le chapitre 1</a>',
       '      <a class="btn" href="chapitres/cartes.html">' + ic('cards') + ' Flashcards</a>',
       '      <a class="btn" href="chapitres/formules.html">' + ic('file') + ' Mémo Projet</a>',
-      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier de scripts</a>',
+      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier d’analyse</a>',
       '      <a class="btn" href="exercices/exercices.html">' + ic('blocks') + ' Exercices &amp; projet</a>',
       '      <a class="btn" href="chapitres/simulateur-examen.html">' + ic('clipboard') + ' Examens blancs</a>',
       '    </p>'
@@ -104,9 +104,9 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du cadrage jusqu\'au tableau de bord de ' +
     'soutenance. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou ' +
     'supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
-    'dans la page : votre script est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
-    'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à analyser ' +
+    'dans la page : vous remplissez votre grille d’analyse, puis elle est vérifiée par des critères que vous ne voyez pas. ' +
+    'L\'<a href="atelier.html">atelier d’analyse</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
     '  </div>',
@@ -115,7 +115,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s\'auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo Projet</span><br><span class="toc__d">Prérequis, table produits, requêtes CRUD, widgets Tkinter, seuils, export CSV.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Scripts gradués et projet final : la soutenance de bout en bout.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier d’analyse</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l\'épreuve, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -168,8 +168,8 @@ function atelier(course) {
       'testez-la sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé rejette un champ vide ou non numérique, comme la validation du tutoriel ' +
-      'avant INSERT. Transforme-le : fais-le dire la raison précise du refus (vide, non nombre, négatif), ' +
-      'ajoute le prix à valider, ou remplace tout le script par la règle que vous voulez vérifier.</p>',
+      'avant INSERT. Transformez-le : faites-le dire la raison précise du refus (vide, non nombre, négatif), ' +
+      'ajoutez le prix à valider, ou remplacez tout le script par la règle que vous voulez vérifier.</p>',
       '      <p>Dans l\'application réelle, ce contrôle vit dans ajouter_produit() : la structure du script — ' +
       'lire, décider, rapporter — reste exactement la même.</p>',
       '    </div>',
@@ -218,8 +218,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de scripts — projet tutoré | ' + course.brand,
-      description: 'Atelier de scripts du cours B1 : éditeur dans le navigateur, validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
+      title: 'Atelier d’analyse — projet tutoré | ' + course.brand,
+      description: 'Atelier d’analyse du cours B1 : éditeur dans le navigateur, validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
       active: 'atelier',
       body
     }
@@ -603,7 +603,7 @@ function render(kit, course, chapterList) {
     return Object.assign({}, chapitre, {
       next: next
         ? { href: 'chapitre' + next.n + '.html', label: 'Chapitre ' + next.n + ' — ' + next.title }
-        : { href: '../atelier.html', label: 'Atelier de scripts' }
+        : { href: '../atelier.html', label: 'Atelier d’analyse' }
     });
   });
 

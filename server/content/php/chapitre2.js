@@ -84,7 +84,7 @@ module.exports = {
     { stem: 'Une constante s’écrit…', opts: ['const $TVA = 18', 'const TVA = 18', 'static $TVA'], correct: 1, exp: 'Pas de $ pour une constante : const TVA = 18.' },
     { stem: 'Un membre static appartient…', opts: ['à chaque objet', 'à la classe', 'au constructeur'], correct: 1, exp: 'static est partagé par la classe et toutes ses instances.' },
     { stem: 'Que vaut $this dans une méthode statique ?', opts: ['L’objet', 'Rien, $this n’existe pas', 'La classe'], correct: 1, exp: 'Une méthode statique n’a pas d’instance : on utilise self.' },
-    { stem: 'Que fait `return $this` dans un setter ?', opts: ['Rien', 'Il permet l’enchaînement des appels', 'Il crée un objet'], correct: 1, exp: 'Renvoyer $this autorise $obj->a()->b(), une interface fluide.' }
+    { stem: 'Que fait `return $this` dans un setter ?', opts: ['Rien', 'Il permet l’enchaînement des appels', 'Il crée un objet'], correct: 1, exp: 'Renvoyer <code>$this</code> autorise <code>$obj->a()->b()</code>, une interface fluide.' }
   ],
 
   pitfalls: [
@@ -122,7 +122,7 @@ module.exports = {
   notions: ['encapsulation', 'public', 'private', 'protected', 'getter', 'setter', 'validation', 'const', 'self::', 'static', 'interface fluide'],
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Reprenez la visibilité : public, private, protected.' },
-    { cls: 'mid', text: '50–69 % — Réécris un getter et un setter qui valide.' },
+    { cls: 'mid', text: '50–69 % — Réécrivez un getter et un setter qui valide.' },
     { cls: 'good', text: '70–94 % — Solide : vous distinguez const, static et propriété.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : passe à l’héritage et aux interfaces, chapitre 3.' }
   ],

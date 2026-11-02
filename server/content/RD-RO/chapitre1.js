@@ -168,7 +168,7 @@ module.exports = {
       exp: 'George Dantzig a formalisé la programmation linéaire et publié l’algorithme du simplexe en 1947. John von Neumann a prouvé le théorème du minimax en théorie des jeux et formalisé la dualité forte, Alan Turing est le pionnier de l’informatique théorique et du cassage d’Enigma, et Claude Shannon est le père de la théorie de l’information.'
     },
     {
-      q: 'Dans un problème de programmation linéaire standard continu, quelle condition impérative doit toujours être posée sur les variables physiques de décision ?',
+      q: 'Dans le modèle de production du cours, les variables représentent des quantités fabriquées. Quelle condition leur impose-t-on ?',
       opts: [
         'x_j ≥ 0 (non-négativité)',
         'x_j ≤ 1 (normalisation)',
@@ -176,7 +176,7 @@ module.exports = {
         'x_j = 0 (tous les choix à zéro)'
       ],
       correct: 0,
-      exp: 'La règle de non-négativité ($x_j \\ge 0$) est une condition universelle : les grandeurs physiques réelles (volumes, durées, unités fabriquées) sont nécessairement positives ou nulles. La contrainte $x_j \\le 1$ est spécifique aux variables binaires de choix logique, $x_j \\in \\mathbb{Z}$ caractérise la programmation en nombres entiers (PLNE), et poser $x_j = 0$ supprimerait toute liberté d’action.'
+      exp: 'Dans ce modèle, la non-négativité impose des quantités fabriquées positives ou nulles. La borne 1 n’est pas demandée ici ; l’intégralité est une hypothèse supplémentaire et fixer toutes les quantités à zéro interdirait la production. D’autres modèles peuvent utiliser des variables signées.'
     },
     {
       q: 'Quelle expression mathématique est NON LINÉAIRE et donc formellement interdite dans un programme linéaire classique ?',
@@ -187,7 +187,7 @@ module.exports = {
         'x1 + x2 + x3'
       ],
       correct: 0,
-      exp: 'Le produit croisé de deux variables de décision ($x_1 \\cdot x_2$) est un terme bilinéaire quadratique qui détruit la propriété de proportionnalité et d’additivité. Les autres expressions sont toutes des combinaisons linéaires d’ordre 1 parfaitement admises.'
+      exp: 'Le produit croisé de deux variables de décision ($x_1 \\cdot x_2$) est bilinéaire et n’est pas une expression affine. Les trois autres expressions sont affines : une constante est admise dans un modèle linéaire.'
     },
     {
       q: 'Dans un problème de mélange (blending) où l’on cherche à satisfaire des teneurs nutritionnelles minimales, quel est le sens naturel des contraintes ?',
@@ -209,21 +209,21 @@ module.exports = {
         '60 m²'
       ],
       correct: 0,
-      exp: 'La consommation vaut 3 * 20 + 1 * 10 = 60 + 10 = 70 m², laissant une marge inemployée (slack) de s1 = 90 - 70 = 20 m². 90 m² correspond à la capacité plafond totale, 80 h à la capacité de main-d’œuvre, et 60 m² à la part consommée par les tables seules.'
+      exp: 'La consommation vaut 3 * 20 + 1 * 10 = 60 + 10 = 70 m², laissant 20 m² de marge. 90 m² est la capacité, 60 m² la part des tables seules ; 80 m² ne résulte pas de ce calcul.'
     },
     {
-      q: 'Comment qualifie-t-on une solution (x1, x2) qui respecte l’ensemble des contraintes du modèle ainsi que la non-négativité ?',
+      q: 'Un plan respecte toutes les contraintes et la non-négativité, sans autre information. Quelle conclusion est nécessairement vraie ?',
       opts: [
-        'Une solution réalisable (feasible)',
-        'Une solution optimale',
-        'Une solution dégénérée',
-        'Une solution duale'
+        'Il est réalisable (feasible)',
+        'Il est nécessairement optimal',
+        'Il est nécessairement dégénéré',
+        'Il est nécessairement une solution duale'
       ],
       correct: 0,
-      exp: 'Une solution réalisable se situe à l’intérieur ou sur la frontière du polyèdre des contraintes. Une solution optimale est la solution réalisable qui atteint la meilleure valeur de Z. Une solution dégénérée comporte une variable de base nulle, et une solution duale appartient au problème dual associé.'
+      exp: 'Le respect des contraintes définit la réalisabilité. Il ne prouve ni l’optimalité, ni la dégénérescence d’une solution de base ; une solution duale concerne un autre problème. Un plan réalisable peut aussi être optimal ou dégénéré, mais ce n’est pas garanti ici.'
     },
     {
-      q: 'Quel est l’objectif économique fondamental d’un problème de mix de production industriel ?',
+      q: 'Dans le modèle de mix de production présenté ici, quel objectif économique a été choisi ?',
       opts: [
         'Maximiser la marge contributive totale (profit sur coûts variables)',
         'Minimiser le nombre de machines mobilisées',
@@ -231,7 +231,7 @@ module.exports = {
         'Maximiser le volume des stocks résiduels'
       ],
       correct: 0,
-      exp: 'L’objectif premier du mix de production est d’allouer les ressources disponibles pour maximiser la marge sur coût variable générée par les ventes. Minimiser les machines ou équilibrer les temps relève de l’ordonnancement d’atelier, et accumuler des stocks résiduels est économiquement néfaste.'
+      exp: 'Le modèle présenté maximise la marge contributive. Le nombre de machines, l’équilibrage des postes et les stocks sont d’autres objectifs possibles, mais ne sont pas celui choisi dans cet exemple.'
     },
     {
       q: 'Quelle hypothèse fondamentale garantit que doubler le niveau d’une activité double exactement sa consommation de ressources et son apport au profit ?',
@@ -242,7 +242,7 @@ module.exports = {
         'L’hypothèse d’élasticité'
       ],
       correct: 0,
-      exp: 'La proportionnalité stipule que la contribution de chaque variable est strictement linéaire et proportionnelle à sa valeur, sans économie d’échelle ni coût fixe de lancement. La convexité est une propriété géométrique du domaine réalisable, et l’élasticité est un concept microéconomique.'
+      exp: 'La proportionnalité impose une contribution proportionnelle au niveau d’activité. La convexité est une propriété géométrique ; la séparabilité concerne la décomposition en contributions sans interaction ; l’élasticité mesure une sensibilité relative.'
     },
     {
       q: 'Dans quel cas doit-on modéliser une contrainte par une égalité stricte (=) plutôt que par une inéquation (≤ ou ≥) ?',
@@ -258,13 +258,13 @@ module.exports = {
     {
       q: 'Pourquoi l’introduction de variables de décision binaires (xj ∈ {0, 1}) empêche-t-elle l’utilisation directe de l’algorithme du simplexe standard ?',
       opts: [
-        'Parce que le domaine réalisable devient un ensemble fini de points isolés (discret et non convexe), brisant la continuité des arêtes du polyèdre',
+        'Parce que le simplexe résout la relaxation continue, qui peut fournir des valeurs non entières',
         'Parce qu’une variable binaire ne peut jamais être positive ou nulle',
         'Parce que le calcul de la fonction objectif devient obligatoirement non linéaire',
         'Parce que George Dantzig a interdit l’utilisation de nombres entiers dans son théorème de 1947'
       ],
       correct: 0,
-      exp: 'Le simplexe repose sur la convexité du polyèdre continu et parcourt ses arêtes sommet par sommet. Restreindre les variables à {0, 1} détruit la convexité et transforme le problème en optimisation combinatoire discrète (PLNE / MIP), requérant des algorithmes de séparation et évaluation (Branch & Bound).'
+      exp: 'Le simplexe appliqué à la relaxation continue peut donner des valeurs fractionnaires : il ne suffit donc pas en général pour garantir une solution binaire. Une variable binaire peut valoir 0 ou 1 ; la fonction objectif peut rester linéaire et aucune interdiction historique ne fonde cette limite. Des méthodes comme Branch & Bound traitent les contraintes entières.'
     }
   ],
 
@@ -325,27 +325,6 @@ module.exports = {
   ],
 
   flashcards: [
-      { q: 'Qu’est-ce que « Variables de décision » ?', a: 'identifier sans ambiguïté les variables de décision et leurs unités physiques en posant impérativement $x_j \\ge 0$ ;' },
-      { q: 'Qu’est-ce que « Contraintes de ressources » ?', a: "Objectif : Traduire un énoncé verbal industriel en composantes formelles : fonction objectif, contraintes de ressources, contrainte d'égalité stricte et positivité." },
-      { q: 'Qu’est-ce que « Contraintes de demande » ?', a: 'Contraintes de demande : Une menuiserie industrielle fabrique des tables et des chaises à partir de bois de chêne et d’heures d’assemblage limitées. Chaque table rapporte 50 € de marge et consomme 3 m² de bois et 2 heures d’ouvrier. Chaque chaise rapporte 30 € de marge et consomme 1 m² de bois et 2 heure' },
-      { q: 'Qu’est-ce que « Contraintes d’égalité » ?', a: 'Contraintes d’égalité : Une menuiserie industrielle fabrique des tables et des chaises à partir de bois de chêne et d’heures d’assemblage limitées. Chaque table rapporte 50 € de marge et consomme 3 m² de bois et 2 heures d’ouvrier. Chaque chaise rapporte 30 € de marge et consomme 1 m² de bois et 2 heure' },
-      { q: 'Qu’est-ce que « Variable d’excès (Surplus) » ?', a: 'Variable d’excès (Surplus)' },
-      { q: 'Qu’est-ce que « Droite d’iso-profit » ?', a: 'La droite d’iso-profit touche le polyèdre en exactement un sommet.' },
-      { q: 'Qu’est-ce que « Critère de Dantzig » ?', a: 'appliquer le critère de Dantzig pour désigner la variable entrante (colonne pivot) ;' },
-      { q: 'Qu’est-ce que « Variable entrante / sortante » ?', a: 'Variable entrante / sortante' },
-      { q: 'Qu’est-ce que « Règle de Bland » ?', a: 'Sinon, la variable entrante est celle qui possède le coût réduit le plus strictement positif $\\max \\bar{c}_j$ (règle de Dantzig). En cas d’égalité, on choisit l’indice le plus petit (règle de Bland pour éviter le cyclage).' },
-      { q: 'Qu’est-ce que « Méthode des Deux Phases » ?', a: 'Méthode des Deux Phases : Lorsque toutes les contraintes sont de type $\\le$ avec des seconds membres positifs, les variables d’écart forment immédiatement une base de départ triviale à l’origine ($s = b$). Mais dès qu’il existe des contraintes de type $\\ge$ ou $=$, l’origine n’est pas réalisable et aucune' },
-      { q: 'Qu’est-ce que « Programme Dual » ?', a: 'construire systématiquement le programme dual à partir de n’importe quel programme primal canonique ;' },
-      { q: 'Qu’est-ce que « Théorème faible de la dualité » ?', a: '1. Théorème faible de la dualité : pour toute solution réalisable $x$ du primal et toute solution réalisable $y$ du dual : $$Z(x) = c^T x \\le b^T y = W(y)$$ La valeur de tout plan primal réalisable est une borne inférieure pour le dual, et tout plan dual est un plafond pour le pr' },
-      { q: 'Qu’est-ce que « Coût d’opportunité » ?', a: 'Coût d’opportunité : Construire les contraintes duales en transposant la matrice $A$ : la colonne $j$ de $A$ devient les coefficients de la contrainte duale $j$, et le second membre est le coût primal $c_j$.' },
-      { q: 'Qu’est-ce que « Matrice équilibrée » ?', a: 'Matrice équilibrée : modéliser un réseau d’approvisionnement sous forme de matrice de transport équilibrée ($\\sum O_i = \\sum D_j$) ;' },
-      { q: 'Qu’est-ce que « Origine / Destination fictive » ?', a: 'Origine / Destination fictive' },
-      { q: 'Qu’est-ce que « Cycle du marchepied (Stepping-stone) » ?', a: 'comprendre le cycle du marchepied (stepping-stone) pour faire pivoter un flux vers une cellule améliorante ;' },
-      { q: 'Qu’est-ce que « Problème d’affectation » ?', a: 'Le problème d’affectation est le cas particulier où $m = n$ et toutes les offres et demandes valent exactement 1 (une personne par tâche, une tâche par personne). Les variables valent $x_{ij} \\in \\{0, 1\\}$.' },
-      { q: 'Qu’est-ce que « Graphe d’ordonnancement DAG » ?', a: 'Graphe d’ordonnancement DAG' },
-      { q: 'Qu’est-ce que « Méthode PERT / CPM » ?', a: 'Méthode PERT / CPM : Le déploiement d’une infrastructure cloud ou la construction d’un data center mobilise des dizaines d’équipes soumises à des contraintes d’antériorité strictes : impossible de couler la dalle avant d’avoir creusé, impossible d’installer les baies de serveurs avant d’avoir raccord' },
-      { q: 'Qu’est-ce que « Forward Pass / Backward Pass » ?', a: 'Forward Pass / Backward Pass' },
-      { q: 'Qu’est-ce que « Marge libre (ML) » ?', a: 'Marge Libre ($ML$) : retard maximal permis sans décaler le début au plus tôt d’aucun de ses successeurs immédiats : $$ML(i) = \\min_{s \\in Succ(i)} ES(s) - ES(i) - d_i$$' },
     { q: 'Qu’est-ce que la Recherche Opérationnelle ?', a: 'Une discipline scientifique appliquant des méthodes mathématiques et algorithmiques pour optimiser la prise de décision face à des ressources limitées.' },
     { q: 'Qu’est-ce qu’une variable de décision ?', a: 'Une quantité contrôlable inconnue (ex. unités produites/jour) dont on cherche la valeur optimale ($x_j \\ge 0$).' },
     { q: 'Quelle est la différence entre fonction objectif et contrainte ?', a: 'La fonction objectif mesure le critère de performance globale (profit ou coût), tandis que les contraintes délimitent ce qui est physiquement ou contractuellement possible.' },

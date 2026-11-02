@@ -56,7 +56,7 @@ function index(course, chapterList) {
       'l’industrialisation de l’Intégration Continue (CI) et la détection des tests instables (Flaky Tests), ' +
       'l’ingénierie des conteneurs Docker (optimisation des couches de cache, builds multi-étapes) et l’Infrastructure as Code (IaC) idempotente, ' +
       'les stratégies de Déploiement Continu (Blue/Green, Canary, Feature Flags), ' +
-      'le pilotage par les 4 métriques DORA et la modélisation du rayon d’impact (Blast Radius), ' +
+      'l’interprétation contextualisée des cinq métriques DORA et la modélisation du rayon d’impact (Blast Radius), ' +
       'ainsi que la gouvernance SRE par les SLI/SLO, les budgets d’erreur (Error Budgets) et l’amortissement des tempêtes d’alertes Prometheus. ' +
       'Chaque module comprend 3 exercices interactifs d’études de cas exécutables directement dans l’atelier, un QCM de 8 questions et des flashcards.</p>'
     ].join('\n')),

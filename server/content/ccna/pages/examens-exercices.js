@@ -80,7 +80,7 @@ function examens(course) {
     box('standard', 'Sujet de l’Examen Final — Sécurisation Cisco IOS, Routage IP &amp; VLANs ROAS', [
       '<h4>Partie 1 : Configuration &amp; Durcissement Cisco IOS (5 points)</h4>',
       '<ol>',
-      '  <li>Rédigez la séquence de commandes Cisco IOS permettant de : nommer le routeur <code>R-CAMPUS</code>, chiffrer les mots de passe locaux, configurer un mot de passe privilégié robuste haché <code>AdminC1sc0!</code>, et configurer une bannière légale avertissant de l’accès strictement réservé. (2.5 pts)</li>',
+      '  <li>Rédigez les commandes permettant de nommer le routeur <code>R-CAMPUS</code>, masquer certains mots de passe, configurer <code>enable secret</code> et une bannière d’avertissement. Précisez les limites du type 7 et le type de secret à vérifier selon la version. (2.5 pts)</li>',
       '  <li>Configurez l’accès à distance sécurisé SSH version 2 sur les 5 lignes VTY (génération de clé RSA 2048 bits, domaine <code>campus.local</code>, désactivation formelle de Telnet). (2.5 pts)</li>',
       '</ol>',
       '<h4>Partie 2 : Routage IPv4 &amp; Sélection de Routes (8 points)</h4>',
@@ -105,7 +105,7 @@ function examens(course) {
       '    <code>Router(config)# hostname R-CAMPUS<br>',
       '    R-CAMPUS(config)# service password-encryption<br>',
       '    R-CAMPUS(config)# enable secret AdminC1sc0!<br>',
-      '    R-CAMPUS(config)# banner motd #ACCES STRICTEMENT RESERVE AUX ADMINISTRATEURS AUTORISES#</code></li>',
+      '    R-CAMPUS(config)# banner motd #ACCES STRICTEMENT RESERVE AUX ADMINISTRATEURS AUTORISES#</code><br>Le type 7 est faible et réversible ; vérifiez le type de secret effectivement utilisé et la compatibilité des types 8 ou 9. Cette séquence ne constitue pas un audit complet.</li>',
       '  <li><strong>Configuration SSH v2 (2.5 pts) :</strong><br>',
       '    <code>R-CAMPUS(config)# ip domain-name campus.local<br>',
       '    R-CAMPUS(config)# crypto key generate rsa modulus 2048<br>',

@@ -66,13 +66,15 @@ module.exports = {
       html: [
         '<p>Le <strong>polymorphisme</strong> est la conséquence de l’abstraction : on appelle <code>aire()</code> ' +
         'sur un objet dont on ne connaît que le type de base, et chaque classe exécute sa version. Une ' +
-        '<strong>interface</strong> pousse l’idée plus loin : elle ne décrit qu’un contrat de méthodes, sans aucun ' +
-        'code, et une classe peut en implémenter plusieurs.</p>',
+        '<strong>interface</strong> décrit un contrat de méthodes ; depuis PHP 8.4, elle peut aussi déclarer ' +
+        'des propriétés publiques accessibles en lecture, en écriture ou les deux. Une classe peut ' +
+        'implémenter plusieurs interfaces.</p>',
         '<pre><code>interface Affichable {\n    public function afficher(): string;\n}\n\nclass Cercle extends Forme implements Affichable {\n    public function aire(): float { return 3.14 * $this->r * $this->r; }\n    public function afficher(): string { return "cercle"; }\n}</code></pre>',
         box('tech', 'Interface contre classe abstraite', 'layers',
           '    <p>Une classe abstraite peut contenir du code et n’en hérite qu’une seule (héritage simple). Une ' +
-          'interface ne contient <strong>que des signatures</strong> et on peut en implémenter autant qu’on veut : ' +
-          'elle sert à décrire une capacité (« est affichable », « est comparable »).</p>')
+          'interface décrit les signatures de méthodes, peut contenir des constantes et, depuis PHP 8.4, ' +
+          'exiger des propriétés publiques avec <code>{ get; }</code> et/ou <code>{ set; }</code>. ' +
+          'Elle ne fournit pas elle-même le stockage d’instance : la classe satisfait le contrat.</p>')
       ].join('\n')
     }
   ],
@@ -84,7 +86,7 @@ module.exports = {
     { stem: 'Une méthode abstraite…', opts: ['a un corps', 'n’a pas de corps', 'est statique'], correct: 1, exp: 'Elle déclare la signature ; chaque fille doit la définir.' },
     { stem: 'protected est visible…', opts: ['partout', 'dans la classe et ses filles', 'nulle part'], correct: 1, exp: 'protected ouvre l’accès à la classe et à ses descendantes.' },
     { stem: 'Combien d’interfaces peut implémenter une classe ?', opts: ['Une seule', 'Autant qu’on veut', 'Zéro'], correct: 1, exp: 'On peut implémenter plusieurs interfaces, séparées par des virgules.' },
-    { stem: 'Une interface contient…', opts: ['du code', 'des signatures de méthodes', 'des propriétés'], correct: 1, exp: 'L’interface n’est qu’un contrat : des signatures sans implémentation.' },
+    { stem: 'Depuis PHP 8.4, une interface peut-elle exiger une propriété publique ?', opts: ['Oui : en lecture { get; } et/ou écriture { set; }', 'Non, jamais', 'Oui, mais elle stocke toujours elle-même la valeur'], correct: 0, exp: 'Depuis PHP 8.4, une interface peut déclarer un accès public get et/ou set ; la classe implémentante satisfait le contrat.' },
     { stem: 'Le polymorphisme permet…', opts: ['d’appeler la même méthode sur des types différents', 'de copier une classe', 'd’interdire l’héritage'], correct: 0, exp: 'Chaque objet répond à la même méthode selon sa propre implémentation.' }
   ],
 

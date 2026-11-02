@@ -168,7 +168,7 @@ module.exports = [
     "title": "Fréquences en pourcentage",
     "goal": "Convertir des effectifs en fréquences exprimées en pourcentage.",
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs d’une série (une par ligne). Affichez, pour chaque modalité par ordre croissant, son pourcentage <code>100 × n<sub>i</sub> / N</code> arrondi à deux décimales, au format <code>valeur pourcentage</code>.</p>",
-    "starter": "# Grille de calcul (st-c2-e2) — Fréquences en pourcentage\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cinq valeurs, deux modalités]\n# Données : 5\n# Données : 1\n# Données : 2\n# Données : 2\n# Données : 3\n# Données : 3\nA_COMPLETER\n\n[Cas 2 — Une seule modalité]\n# Données : 2\n# Données : 7\n# Données : 7\nA_COMPLETER\n\n[Cas 3 — Quatre modalités équilibrées]\n# Données : 8\n# Données : 1\n# Données : 1\n# Données : 2\n# Données : 2\n# Données : 3\n# Données : 3\n# Données : 4\n# Données : 4\nA_COMPLETER\n",
+    "starter": "# Grille de calcul (st-c2-e2) — Fréquences en pourcentage\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cinq valeurs, trois modalités]\n# Données : 5\n# Données : 1\n# Données : 2\n# Données : 2\n# Données : 3\n# Données : 3\nA_COMPLETER\n\n[Cas 2 — Une seule modalité]\n# Données : 2\n# Données : 7\n# Données : 7\nA_COMPLETER\n\n[Cas 3 — Quatre modalités équilibrées]\n# Données : 8\n# Données : 1\n# Données : 1\n# Données : 2\n# Données : 2\n# Données : 3\n# Données : 3\n# Données : 4\n# Données : 4\nA_COMPLETER\n",
     "hints": [
       "Le pourcentage est le quotient effectif / effectif total, multiplié par 100.",
       "Pour formater deux décimales : f\"{valeur:.2f}\"."
@@ -182,7 +182,7 @@ module.exports = [
     ],
     "tests": [
       {
-        "label": "Cinq valeurs, deux modalités",
+        "label": "Cinq valeurs, trois modalités",
         "stdin": "cas:1",
         "expected": "1 20.00\n2 40.00\n3 40.00"
       },
@@ -197,7 +197,7 @@ module.exports = [
         "expected": "1 25.00\n2 25.00\n3 25.00\n4 25.00"
       }
     ],
-    "solution": "[Exemple]\n1 75.00\n2 25.00\n\n[Cas 1 — Cinq valeurs, deux modalités]\n1 20.00\n2 40.00\n3 40.00\n\n[Cas 2 — Une seule modalité]\n7 100.00\n\n[Cas 3 — Quatre modalités équilibrées]\n1 25.00\n2 25.00\n3 25.00\n4 25.00\n"
+    "solution": "[Exemple]\n1 75.00\n2 25.00\n\n[Cas 1 — Cinq valeurs, trois modalités]\n1 20.00\n2 40.00\n3 40.00\n\n[Cas 2 — Une seule modalité]\n7 100.00\n\n[Cas 3 — Quatre modalités équilibrées]\n1 25.00\n2 25.00\n3 25.00\n4 25.00\n"
   },
   {
     "id": "st-c2-e3",
@@ -326,7 +326,7 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs d’une série (une par ligne). Affichez la <strong>médiane</strong>, arrondie à deux décimales, avec la convention du cours : le rang de la médiane est <code>(n + 1)/2</code> dans la série ordonnée, avec interpolation linéaire si ce rang n’est pas entier.</p>",
     "starter": "# Grille de calcul (st-c3-e3) — Médiane\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Nombre pair de valeurs]\n# Données : 4\n# Données : 10\n# Données : 2\n# Données : 8\n# Données : 4\nA_COMPLETER\n\n[Cas 2 — Rang non entier]\n# Données : 6\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 4\n# Données : 5\n# Données : 6\nA_COMPLETER\n\n[Cas 3 — Trois valeurs]\n# Données : 3\n# Données : 5\n# Données : 1\n# Données : 9\nA_COMPLETER\n",
     "hints": [
-      "Commence par trier la série : sans cela, le rang n’a aucun sens.",
+      "Commencez par trier la série : sans cela, le rang n’a aucun sens.",
       "Si le rang r n’est pas entier, la valeur est x(bas) + (r − bas) × (x(bas+1) − x(bas)), où bas est la partie entière de r."
     ],
     "examples": [
@@ -444,7 +444,7 @@ module.exports = [
     "starter": "# Grille de calcul (st-c4-e3) — Variance pondérée par la formule de König\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux modalités]\n# Données : 2\n# Données : 10 1\n# Données : 20 3\nA_COMPLETER\n\n[Cas 2 — Effectifs unitaires]\n# Données : 4\n# Données : 0 1\n# Données : 1 1\n# Données : 2 1\n# Données : 3 1\nA_COMPLETER\n\n[Cas 3 — Variance faible]\n# Données : 3\n# Données : 4 2\n# Données : 5 3\n# Données : 6 5\nA_COMPLETER\n",
     "hints": [
       "König demande deux quantités : la moyenne des carrés, et le carré de la moyenne.",
-      "N est la somme des effectifs ; n’oublie pas de retrancher le carré de la moyenne à la fin."
+      "N est la somme des effectifs ; n’oubliez pas de retrancher le carré de la moyenne à la fin."
     ],
     "examples": [
       {
@@ -518,11 +518,11 @@ module.exports = [
     "language": "analyse",
     "title": "Effectifs par classe",
     "goal": "Compter les valeurs de chaque classe d’un histogramme, avec la convention des bornes.",
-    "brief": "<p>Dans cette étude, on considère une ligne <code>min max k</code>, puis un entier <code>n</code>, puis les <code>n</code> valeurs de la série (une par ligne). Toutes les valeurs sont dans l’intervalle <code>[min ; max]</code>. Affichez les <code>k</code> effectifs par classe, séparés par des espaces. La borne inférieure est incluse, la borne supérieure exclue.</p>",
-    "starter": "# Grille de calcul (st-c5-e2) — Effectifs par classe\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Quatre classes, une valeur chacune]\n# Données : 0 4 4\n# Données : 4\n# Données : 0\n# Données : 1\n# Données : 2\n# Données : 3\nA_COMPLETER\n\n[Cas 2 — Deux classes inégales]\n# Données : 0 10 2\n# Données : 6\n# Données : 0\n# Données : 4\n# Données : 5\n# Données : 9\n# Données : 2\n# Données : 3\nA_COMPLETER\n\n[Cas 3 — Classes de 5]\n# Données : 10 20 2\n# Données : 3\n# Données : 10\n# Données : 19\n# Données : 15\nA_COMPLETER\n",
+    "brief": "<p>Dans cette étude, on considère une ligne <code>min max k</code>, avec <code>min &lt; max</code> et <code>k ≥ 1</code>, puis un entier <code>n ≥ 1</code>, puis les <code>n</code> valeurs de la série (une par ligne). Toutes les valeurs sont dans l’intervalle <code>[min ; max]</code>. Partagez cet intervalle en <code>k</code> classes de même largeur et affichez leurs effectifs, séparés par des espaces. Chaque classe inclut sa borne inférieure et exclut sa borne supérieure, sauf la dernière classe : la dernière classe inclut aussi <code>max</code>.</p>",
+    "starter": "# Grille de calcul (st-c5-e2) — Effectifs par classe\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Quatre classes, une valeur chacune]\n# Données : 0 4 4\n# Données : 4\n# Données : 0\n# Données : 1\n# Données : 2\n# Données : 3\nA_COMPLETER\n\n[Cas 2 — Deux classes, effectifs inégaux]\n# Données : 0 10 2\n# Données : 6\n# Données : 0\n# Données : 4\n# Données : 5\n# Données : 9\n# Données : 2\n# Données : 3\nA_COMPLETER\n\n[Cas 3 — Classes de 5]\n# Données : 10 20 2\n# Données : 4\n# Données : 10\n# Données : 19\n# Données : 15\n# Données : 20\nA_COMPLETER\n",
     "hints": [
-      "Pour chaque valeur, calcule l’indice de sa classe puis incrémente le compteur de cette classe.",
-      "La convention « borne inférieure incluse, borne supérieure exclue » se traduit par min <= x < max — la dernière classe doit donc rattraper la borne maximale."
+      "Calculez la largeur (max − min) / k et comptez chaque valeur dans une classe.",
+      "Les classes sont fermées à gauche et ouvertes à droite, sauf la dernière qui inclut max."
     ],
     "examples": [
       {
@@ -538,17 +538,17 @@ module.exports = [
         "expected": "1 1 1 1"
       },
       {
-        "label": "Deux classes inégales",
+        "label": "Deux classes, effectifs inégaux",
         "stdin": "cas:2",
         "expected": "4 2"
       },
       {
         "label": "Classes de 5",
         "stdin": "cas:3",
-        "expected": "1 2"
+        "expected": "1 3"
       }
     ],
-    "solution": "[Exemple]\n1 1 2 1\n\n[Cas 1 — Quatre classes, une valeur chacune]\n1 1 1 1\n\n[Cas 2 — Deux classes inégales]\n4 2\n\n[Cas 3 — Classes de 5]\n1 2\n"
+    "solution": "[Exemple]\n1 1 2 1\n\n[Cas 1 — Quatre classes, une valeur chacune]\n1 1 1 1\n\n[Cas 2 — Deux classes, effectifs inégaux]\n4 2\n\n[Cas 3 — Classes de 5]\n1 3\n"
   },
   {
     "id": "st-c5-e3",
@@ -600,7 +600,7 @@ module.exports = [
     "starter": "# Grille de calcul (st-c6-e1) — Covariance\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Liaison positive]\n# Données : 4\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 4\n# Données : 2\n# Données : 4\n# Données : 6\n# Données : 8\nA_COMPLETER\n\n[Cas 2 — Liaison négative]\n# Données : 3\n# Données : 1\n# Données : 2\n# Données : 3\n# Données : 6\n# Données : 4\n# Données : 2\nA_COMPLETER\n\n[Cas 3 — Deux points]\n# Données : 2\n# Données : 0\n# Données : 10\n# Données : 0\n# Données : 10\nA_COMPLETER\n",
     "hints": [
       "La formule rapide évite de calculer chaque écart : cov = (1/n) × Σ xᵢyᵢ − x̄·ȳ.",
-      "Les deux moyennes se calculent avant la covariance ; n’oublie pas de les retrancher."
+      "Les deux moyennes se calculent avant la covariance ; n’oubliez pas de les retrancher."
     ],
     "examples": [
       {

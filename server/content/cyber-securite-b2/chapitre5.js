@@ -50,7 +50,7 @@ module.exports = {
         '    <h4 class="card-title">2. L’Épreuvage &amp; Résistance mémoire (Argon2id)</h4>',
         '    <p>Pour contrer les fermes de calcul GPU et ASIC, les fonctions modernes imposent un coût calculatoire et mémoire configurable :</p>',
         '    <ul>',
-        '      <li><strong>Argon2id :</strong> Standard recommandé mondialement (vainqueur du Password Hashing Competition), combinant résistance aux attaques par canal auxiliaire et aux ASICs.</li>',
+        '      <li><strong>Argon2id :</strong> Fonction de dérivation à coût mémoire et temps réglable, conçue pour augmenter le coût des attaques, y compris sur matériel spécialisé ; son efficacité dépend notamment des paramètres choisis.</li>',
         '      <li><strong>bcrypt :</strong> Standard historique robuste basé sur Blowfish avec coût temporel exponentiel.</li>',
         '      <li><strong>PBKDF2 :</strong> Recommandé par le NIST (avec &ge; 600 000 itérations de SHA-256).</li>',
         '    </ul>',
@@ -150,13 +150,13 @@ module.exports = {
     {
       stem: 'Pourquoi l’algorithme de hachage de mot de passe Argon2id est-il aujourd’hui recommandé plutôt qu’un simple SHA-256 ?',
       opts: [
-        'Parce qu’il est intentionnellement lent et consomme une quantité importante de mémoire vive (mémoire dure), paralysant les attaques par GPU et circuits ASIC',
+        'Parce que ses paramètres de temps et de mémoire augmentent le coût des essais, y compris sur GPU et ASIC, sans rendre une attaque impossible',
         'Parce que le SHA-256 a été mathématiquement cassé et ne produit plus d’empreintes',
         'Parce qu’Argon2id fonctionne sans aucun processeur physique',
         'Parce qu’il permet de se connecter sans avoir besoin de taper de mot de passe'
       ],
       correct: 0,
-      exp: 'SHA-256 est optimisé pour être extrêmement rapide (idéal pour vérifier l’intégrité d’un gros fichier). À l’inverse, une fonction KDF de mot de passe comme Argon2id doit être coûteuse en temps et en RAM pour rendre la force brute économiquement prohibitive.'
+      exp: 'SHA-256 est rapide et peut aider à vérifier l’intégrité d’un fichier si son empreinte de référence est fiable. Argon2id associe un sel et des paramètres de temps, mémoire et parallélisme afin d’augmenter le coût des essais ; aucune valeur ne rend toutes les attaques impossibles.'
     },
     {
       stem: 'Dans un jeton JWT valide, que garantit la troisième partie (la signature cryptographique) ?',
@@ -192,7 +192,7 @@ module.exports = {
 
   methodTitle: 'Protocole en 4 étapes pour sécuriser l’authentification et l’accès d’une API REST',
   method: [
-    'Hacher et saler les identifiants avec Argon2id ou bcrypt en calibrant le coût calculatoire sur le serveur (au moins 300 ms par hachage).',
+    'Hacher les mots de passe avec un sel individuel et une fonction adaptée comme Argon2id ou bcrypt ; calibrer les paramètres selon le matériel, la charge et la politique de sécurité.',
     'Activer le MFA obligatoire pour les comptes à privilèges avec validation de codes TOTP (RFC 6238).',
     'Émettre des jetons JWT à durée de vie courte (ex. 15 minutes) signés avec une clé asymétrique robuste (RS256 ou Ed25519) et forcer la vérification de la date d’expiration.',
     'Structurer les autorisations avec le modèle RBAC au niveau des routes et des contrôleurs d’accès aux entités métiers.'
@@ -200,7 +200,7 @@ module.exports = {
 
   summary: [
     'Le salage aléatoire individuel neutralise définitivement les tables arc-en-ciel lors d’une fuite de base de données.',
-    'Argon2id est le standard de référence mondial pour le hachage de mots de passe grâce à sa mémoire dure résistante aux attaques matérielles.',
+    'Argon2id augmente le coût des essais de mots de passe grâce à des paramètres de temps et de mémoire, sans empêcher toute attaque matérielle.',
     'Le MFA s’appuie sur au moins deux facteurs distincts (connaissance, possession, inhérence) et le protocole TOTP sur des pas de 30 secondes.',
     'Un jeton JWT comprend Header, Payload et Signature ; la signature doit être rigoureusement vérifiée et l’algorithme "none" formellement banni.',
     'Le contrôle d’accès d’entreprise repose majoritairement sur le modèle RBAC (rôles et permissions) complété par l’ABAC pour les règles contextuelles.'
@@ -235,16 +235,16 @@ module.exports = {
   ],
 
   flashcards: [
-    { "q": 'Qu’est-ce que « Salage cryptographique (Salt) » ?', "a": 'Salage cryptographique (Salt)' },
-    { "q": 'Qu’est-ce que « Fonctions de dérivation de clé (KDF) » ?', "a": 'Fonctions de dérivation de clé (KDF)' },
-    { "q": 'Qu’est-ce que « Algorithmes Argon2id, bcrypt, PBKDF2 » ?', "a": 'Algorithmes Argon2id, bcrypt, PBKDF2' },
-    { "q": 'Qu’est-ce que « Authentification multi-facteurs (MFA / 2FA) » ?', "a": 'Authentification multi-facteurs (MFA / 2FA)' },
-    { "q": 'Qu’est-ce que « Algorithme TOTP (RFC 6238) » ?', "a": 'Algorithme TOTP (RFC 6238)' },
-    { "q": 'Qu’est-ce que « Structure du JSON Web Token (JWT) » ?', "a": 'Structure du JSON Web Token (JWT)' },
-    { "q": 'Qu’est-ce que « Attaque JWT alg=none » ?', "a": 'Attaque JWT alg=none : Une base de données d’utilisateurs contenant 500 000 comptes est dérobée lors d’une brèche de sécurité. Si les mots de passe y sont stockés en clair ou avec un simple SHA-256 non salé, les pirates casseront 90 % d’entre eux en quelques heures à l’aide de tables arc-en-ciel (rainb' },
-    { "q": 'Qu’est-ce que « Contrôle d’accès discrétionnaire (DAC) » ?', "a": 'distinguer et implémenter les modèles de contrôle d’accès discrétionnaire (DAC), obligatoire (MAC) et basé sur les rôles (RBAC).' },
+    { "q": 'Qu’est-ce que « Salage cryptographique (Salt) » ?', "a": 'Valeur aléatoire propre à chaque mot de passe, stockée avec son empreinte ; elle rend les tables précalculées inefficaces et produit des empreintes différentes pour un même mot de passe.' },
+    { "q": 'Qu’est-ce que « Fonctions de dérivation de clé (KDF) » ?', "a": 'Fonction dérivant une clé à partir d’un secret ; pour les mots de passe, elle utilise un sel et un coût réglable pour freiner les attaques.' },
+    { "q": 'Qu’est-ce que « Algorithmes Argon2id, bcrypt, PBKDF2 » ?', "a": 'Fonctions adaptées au stockage des mots de passe, avec sel et coût réglable ; Argon2id impose aussi un coût mémoire.' },
+    { "q": 'Qu’est-ce que « Authentification multi-facteurs (MFA / 2FA) » ?', "a": 'Authentification par au moins deux facteurs de catégories distinctes : connaissance, possession ou inhérence ; deux mots de passe ne suffisent pas.' },
+    { "q": 'Qu’est-ce que « Algorithme TOTP (RFC 6238) » ?', "a": 'Algorithme qui calcule un code à usage unique par HMAC à partir d’un secret partagé et du temps, généralement par pas de 30 secondes.' },
+    { "q": 'Qu’est-ce que « Structure du JSON Web Token (JWT) » ?', "a": 'Un JWT signé au format compact comporte trois segments Base64URL : en-tête, revendications et signature ou MAC. Base64URL ne chiffre pas.' },
+    { "q": 'Qu’est-ce que « Attaque JWT alg=none » ?', "a": 'Un jeton non signé peut être falsifié si le serveur accepte alg=none alors qu’une signature est requise ; imposer l’algorithme attendu et vérifier la signature.' },
+    { "q": 'Qu’est-ce que « Contrôle d’accès discrétionnaire (DAC) » ?', "a": 'Le propriétaire d’une ressource, ou un utilisateur habilité, décide qui y accède et avec quels droits, par exemple via les permissions Unix.' },
     { q: 'Pourquoi le salage aléatoire unique par compte empêche-t-il les attaques par tables arc-en-ciel ?', a: 'Parce que les empreintes précalculées deviennent inutilisables : chaque mot de passe salé nécessiterait de recalculer une table complète pour ce sel précis.' },
-    { q: 'Quelle est la particularité d’Argon2id par rapport aux algorithmes classiques ?', a: 'Il est « à mémoire dure » (memory-hard), ce qui sature la mémoire vive et paralyse les puces d’attaque massivement parallèles (GPU, ASIC).' },
+    { q: 'Quelle est la particularité d’Argon2id par rapport aux algorithmes classiques ?', a: 'Son coût en temps et en mémoire est réglable ; des paramètres adaptés renchérissent les essais sur CPU, GPU ou ASIC sans les rendre impossibles.' },
     { q: 'Quels sont les trois types de facteurs d’authentification existants ?', a: 'Ce que je sais (connaissance), ce que j’ai (possession) et ce que je suis (inhérence/biométrie).' },
     { q: 'Quelles sont les trois composantes séparées par des points d’un jeton JWT ?', a: 'Header (en-tête), Payload (charge utile de données) et Signature cryptographique.' },
     { q: 'En quoi consiste la faille JWT « alg=none » ?', a: 'À envoyer un jeton sans signature en précisant alg: none dans l’en-tête, incitant un serveur mal configuré à accepter des privilèges falsifiés.' },

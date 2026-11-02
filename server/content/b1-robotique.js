@@ -38,12 +38,12 @@ const course = {
   description:
     'Cours complet du club de robotique niveau B1 : structure d’un programme, boucles et temporisations, ' +
     'conditions et fonctions, tableaux et algorithmes de tri et de recherche, portes logiques et ' +
-    'chiffrement, capteurs, seuils et régulation. Chaque mécanisme du robot est simulé de manière méthodiqueet ' +
+    'chiffrement, capteurs, seuils et régulation. Chaque mécanisme du robot est simulé de manière méthodique et ' +
     'réellement exécuté dans la page.',
   lead:
     'Une carte Arduino, un capteur de distance, une LED : le robot n’est qu’un programme qui lit des ' +
     'entrées, prend des décisions et agit dans une boucle sans fin. Six chapitres pour écrire ces ' +
-    'programmes — d’abord simulés de manière méthodiquedans la page, puis rejouables tels quels sur la vraie carte, ' +
+    'programmes — d’abord simulés de manière méthodique dans la page, puis rejouables tels quels sur la vraie carte, ' +
     'car la logique ne change pas quand on change de machine.',
 
   sources: 'le support du club « Séance TP — Club Robotique & Électronique » (programmation, CircuitVerse, Tinkercad) et le cours de logique fourni',

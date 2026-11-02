@@ -67,10 +67,14 @@ module.exports = [
           '/var     données variables : journaux, spools, bases\n' +
           '/home    répertoires personnels des utilisateurs\n' +
           '/root    maison du super-utilisateur (différent de /)\n' +
-          '/tmp     temporaires, effacés à chaque redémarrage\n' +
+          '/tmp     temporaires, pouvant être supprimés selon la politique locale\n' +
           '/usr     programmes et bibliothèques partagés\n' +
           '/bin /sbin  binaires essentiels (sbin : réservés à root)\n' +
           '/dev     fichiers de périphériques ; /proc : arborescence virtuelle du noyau</code></pre>',
+          '<p>Une <strong>sauvegarde</strong> comprend la configuration <code>/etc</code>, les données ' +
+          'personnelles comme <code>/home</code> et les données applicatives, par exemple dans ' +
+          '<code>/var/lib</code>, ainsi qu’une sauvegarde cohérente des bases. Une restauration testée ' +
+          'permet de vérifier que ces données sont récupérables : <code>/etc</code> seul ne suffit pas.</p>',
           box('mnemo', 'Rien ne se perd, tout est fichier', 'pin',
             '    <p>Sous Linux, « tout est fichier » : un disque, un terminal, une socket réseau apparaissent ' +
             'comme des fichiers dans <code>/dev</code>. Retenir trois pièges : <code>/</code> n’est pas ' +
@@ -118,10 +122,10 @@ module.exports = [
     questions: [
       { stem: 'Quelle commande affiche le répertoire courant ?', opts: ['cd', 'pwd', 'ls'], correct: 1, exp: 'pwd (print working directory) affiche le chemin absolu du répertoire courant.' },
       { stem: 'Un chemin qui commence par / est…', opts: ['relatif', 'absolu', 'un lien'], correct: 1, exp: 'Tout chemin partant de la racine est absolu ; sinon il est relatif au répertoire courant.' },
-      { stem: 'Où se trouvent les fichiers de configuration ?', opts: ['/var', '/etc', '/usr'], correct: 1, exp: '/etc contient la configuration du système : le sauvegarder, c’est sauvegarder la machine.' },
-      { stem: 'Que devient /tmp au redémarrage ?', opts: ['Il est effacé', 'Il est archivé', 'Il est conservé'], correct: 0, exp: '/tmp ne survit pas au reboot : il ne contient que des fichiers temporaires.' },
+      { stem: 'Où se trouvent les fichiers de configuration ?', opts: ['/var', '/etc', '/usr'], correct: 1, exp: '/etc contient la configuration du système ; une sauvegarde complète doit aussi couvrir les données et être testée.' },
+      { stem: 'Quelle précaution prendre avec /tmp ?', opts: ['Ne pas supposer que ses fichiers persistent', 'Y conserver la seule sauvegarde', 'Supposer un effacement garanti au redémarrage'], correct: 0, exp: 'Les fichiers sont temporaires et peuvent être supprimés selon la politique locale ; leur effacement au démarrage n’est pas garanti.' },
       { stem: 'Différence entre / et /root ?', opts: ['Aucune', '/ est la racine, /root la maison de root', '/root est un alias de /'], correct: 1, exp: '/ est l’origine de l’arborescence ; /root est le répertoire personnel du super-utilisateur.' },
-      { stem: 'Que fait echo \"x\" >> f ?', opts: ['Écrase f', 'Ajoutez x à la fin de f', 'Supprimez f'], correct: 1, exp: 'Deux chevrons ajoutent à la fin ; un seul chevron écrase tout le fichier.' },
+      { stem: 'Que fait echo \"x\" >> f ?', opts: ['Écrase f', 'Ajoute x à la fin de f', 'Supprime f'], correct: 1, exp: 'Deux chevrons ajoutent à la fin ; un seul chevron écrase tout le fichier.' },
       { stem: 'mkdir -p a/b/c sert à…', opts: ['créer les parents manquants', 'copier un dossier', 'protéger un dossier'], correct: 0, exp: 'L’option -p crée toute la chaîne de répertoires intermédiaires.' },
       { stem: 'Quelle commande renomme un fichier ?', opts: ['cp', 'mv', 'rm'], correct: 1, exp: 'mv déplace et, dans le même dossier, renomme : mv ancien nouveau.' }
     ],
@@ -162,29 +166,14 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Refaites le tour des répertoires FHS avec pwd, ls et cd.' },
-      { cls: 'mid', text: '50–69 % — Réécris de mémoire les commandes touch, mkdir, cp, mv, rm.' },
+      { cls: 'mid', text: '50–69 % — Réécrivez de mémoire les commandes touch, mkdir, cp, mv, rm.' },
       { cls: 'good', text: '70–94 % — Solide : distingue sans faute chemins absolus et relatifs.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 2, manipulation de fichiers et recherche.' }
     ],
 
     flashcards: [
-      { q: 'Qu’est-ce que « terminal » ?', a: 'Un serveur n’a ni souris ni fenêtres : tout passe par un terminal et une ligne de commande. Avant d’administrer quoi que ce soit, il faut savoir se déplacer dans l’arborescence, reconnaître un chemin absolu d’un chemin relatif et créer les fichiers et dossiers dont on a besoin.' },
-      { q: 'Qu’est-ce que « prompt » ?', a: 'Le prompt utilisateur@machine:dossier$ résume la situation : qui vous êtes, sur quelle machine, dans quel dossier. Le $ final signifie utilisateur normal ; un # signifie que vous êtes root — chaque commande est alors irréversible et dangereuse.' },
-      { q: 'Qu’est-ce que « pwd » ?', a: 'Trois commandes suffisent à s’orienter : pwd affiche le répertoire courant, ls liste son contenu, cd change de répertoire. cd sans argument ramène dans la maison de l’utilisateur ; cd .. remonte d’un niveau ; cd / va à la racine.' },
-      { q: 'Qu’est-ce que « FHS » ?', a: 'parcourir l’arborescence FHS et nommer le rôle de chaque répertoire ;' },
-      { q: 'Qu’est-ce que « permissions » ?', a: 'permissions : Administration Linux B2 › Sommaire › Chapitre 3' },
-      { q: 'Qu’est-ce que « trios u/g/o » ?', a: 'trios u/g/o : ls -l affiche une chaîne de dix caractères. Le premier est le type ( - fichier, d dossier, l lien) ; les neuf suivants sont trois trios : u (propriétaire), g (groupe), o (autres). Dans chaque trio, r lit, w écrit, x exécute.' },
-      { q: 'Qu’est-ce que « notation octale » ?', a: 'Objectif : Convertir une permission symbolique en notation octale.' },
-      { q: 'Qu’est-ce que « chgrp » ?', a: 'chown change le propriétaire , chgrp le groupe . chown sait faire les deux d’un coup avec utilisateur:groupe , et l’option -R rend le changement récursif.' },
-      { q: 'Qu’est-ce que « adresse IPv4 » ?', a: 'valider et classer une adresse IPv4 (privée ou publique) ;' },
-      { q: 'Qu’est-ce que « masque » ?', a: 'Une configuration IPv4 réunit quatre éléments : l’ adresse , le masque (qui délimite le réseau local), la passerelle (la sortie vers Internet) et le DNS (qui traduit les noms en adresses).' },
-      { q: 'Qu’est-ce que « shebang » ?', a: 'shebang : Administration Linux B2 › Sommaire › Chapitre 5' },
-      { q: 'Qu’est-ce que « $@ » ?', a: '$@ : Administration Linux B2 › Sommaire › Chapitre 5' },
-      { q: 'Qu’est-ce que « read » ?', a: 'lire l’entrée standard avec read dans une boucle ;' },
-      { q: 'Qu’est-ce que « systemd » ?', a: 'lire et changer l’état d’un service systemd ;' },
-      { q: 'Qu’est-ce que « top » ?', a: 'ps et top listent les processus. Un processus running s’exécute, sleeping attend, zombie est terminé mais non récupéré par son parent : il ne consomme plus de ressources mais occupe une entrée de la table des processus.' },
       { q: 'Syntaxe générale d’une commande ?', a: 'COMMANDE OPTIONS ARGUMENTS, par exemple ls -l /home.' },
-      { q: 'Rôle de /etc ?', a: 'La configuration du système ; c’est le répertoire à sauvegarder en priorité.' },
+      { q: 'Rôle de /etc ?', a: 'La configuration du système ; une sauvegarde doit aussi couvrir les données et sa restauration doit être testée.' },
       { q: 'Rôle de /var ?', a: 'Les données variables : journaux, spools, bases de données.' },
       { q: 'Qu’est-ce qu’un chemin absolu ?', a: 'Un chemin qui commence par / et décrit la position depuis la racine.' },
       { q: 'Différence entre > et >> ?', a: '> écrase le fichier, >> ajoute à la fin.' },
@@ -218,7 +207,8 @@ module.exports = [
         title: 'Copier, déplacer, supprimer proprement',
         html: [
           '<p><code>cp</code> et <code>mv</code> acceptent l’option <code>-i</code> (demander confirmation avant ' +
-          'd’écraser) et <code>-r</code> (récursif, pour un dossier). Le réflexe d’administration est de ' +
+          'd’écraser). Pour copier un dossier, <code>cp -r</code> parcourt son contenu ; <code>mv</code> ' +
+          'déplace déjà un dossier sans l’option <code>-r</code>, qu’il ne prend pas en charge. Le réflexe d’administration est de ' +
           'prévisualiser une suppression avec <code>ls</code> avant de lancer <code>rm</code>.</p>',
           '<pre><code>cp -r /etc/nginx /root/nginx.bak   # sauvegarder un dossier\n' +
           'mv rapport.txt /var/backups/       # déplacer\n' +
@@ -271,7 +261,7 @@ module.exports = [
           '<pre><code>grep "ERROR" /var/log/syslog      # lignes contenant ERROR\n' +
           'grep -c "ERROR" /var/log/syslog   # combien de lignes\n' +
           'grep -i "failed" /var/log/auth.log\n' +
-          'jourctl -p err -b                 # même idée avec journalctl (systemd)</code></pre>',
+          'journalctl -p err -b              # même idée avec journalctl (systemd)</code></pre>',
           box('mnemo', 'Lire un journal en trois temps', 'pin',
             '    <p>1) repérer le fichier concerné (<code>/var/log/syslog</code>, <code>auth.log</code>) ; ' +
             '2) <strong>filtrer</strong> par niveau (<code>ERROR</code>) ; 3) <strong>compter</strong> avec ' +
@@ -327,7 +317,7 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — Revois cp/mv/rm et enchaîne trois copies de sauvegarde.' },
-      { cls: 'mid', text: '50–69 % — Trace à la main un lien dur et un lien symbolique.' },
+      { cls: 'mid', text: '50–69 % — Tracez à la main un lien dur et un lien symbolique.' },
       { cls: 'good', text: '70–94 % — Solide : écris de mémoire quatre critères de find.' },
       { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 3, droits et comptes.' }
     ],
@@ -420,16 +410,20 @@ module.exports = [
         title: 'Comptes et groupes',
         html: [
           '<p>Trois fichiers font foi. <code>/etc/passwd</code> décrit les comptes (lisible par tous), ' +
-          '<code>/etc/shadow</code> contient les mots de passe chiffrés (root seul), <code>/etc/group</code> ' +
-          'les groupes.</p>',
+          '<code>/etc/shadow</code> contient généralement des vérificateurs de mots de passe issus d’un ' +
+          'hachage avec sel et reste à accès restreint ; <code>/etc/group</code> décrit les groupes. ' +
+          'On vérifie un mot de passe par comparaison, sans déchiffrer l’empreinte.</p>',
           '<pre><code>caroline:x:1002:1000:Caroline TP:/home/caroline:/bin/bash\n' +
           '  ^      ^  ^    ^     ^             ^            ^\n' +
           ' login mdp UID GID  info          maison       shell\n' +
           '/etc/shadow : login:empreinte:dates… (root uniquement)\n' +
           '/etc/group  : groupe:*:GID:utilisateurs</code></pre>',
-          '<p>root a l’UID 0 ; les comptes système sont sous 1000 ; les comptes humains commencent à 1000. ' +
-          'Dans <code>/etc/passwd</code>, <code>x</code> ou <code>!</code> renvoient au shadow ; ' +
-          '<code>*</code> interdit l’authentification ; <code>!!</code> désactive le compte.</p>',
+          '<p>root a l’UID 0 ; 1000 est une convention fréquente pour les comptes ordinaires, mais ' +
+          '<code>UID_MIN</code> et les autres plages sont configurables. Dans <code>/etc/passwd</code>, ' +
+          '<code>x</code> renvoie au champ de <code>/etc/shadow</code>. Dans ce dernier, un mot de passe ' +
+          'commençant par <code>!</code>, ou une valeur <code>*</code>, empêche l’authentification Unix par ' +
+          'mot de passe sans nécessairement empêcher d’autres moyens de connexion, comme une clé SSH ' +
+          'si la politique locale l’autorise.</p>',
           box('mnemo', 'Menus de gestion des comptes', 'pin',
             '    <p><code>useradd</code> crée, <code>usermod</code> modifie, <code>userdel -r</code> supprime ' +
             '(avec la maison), <code>groupadd</code>/<code>groupdel</code> gèrent les groupes, ' +
@@ -442,8 +436,8 @@ module.exports = [
       { stem: 'rwxr-x--- vaut en octal…', opts: ['754', '750', '705'], correct: 1, exp: 'rwx=7, r-x=5, ---=0 : 750, trio par trio.' },
       { stem: 'Que fait chmod o-r secret ?', opts: ['retire la lecture aux autres', 'retire la lecture au propriétaire', 'ajoute la lecture'], correct: 0, exp: 'o désigne les autres, - retire : la lecture leur est enlevée.' },
       { stem: 'Ug=rwx…', opts: ['ajoute rwx', 'fixe u et g exactement à rwx, o inchangé', 'supprime o'], correct: 1, exp: '= fixe exactement les classes visées ; les autres ne bougent pas.' },
-      { stem: 'Quel fichier contient les mots de passe chiffrés ?', opts: ['/etc/passwd', '/etc/shadow', '/etc/group'], correct: 1, exp: '/etc/shadow, lisible par root uniquement, contient les empreintes.' },
-      { stem: 'Un UID ≥ 1000 correspond à…', opts: ['un compte système', 'un compte humain', 'root'], correct: 1, exp: 'Les comptes humains commencent à 1000 ; en dessous, ce sont des comptes système.' },
+      { stem: 'Quel fichier contient généralement les vérificateurs de mots de passe ?', opts: ['/etc/passwd', '/etc/shadow', '/etc/group'], correct: 1, exp: '/etc/shadow, à accès restreint, contient généralement des vérificateurs hachés.' },
+      { stem: 'Si UID_MIN vaut 1000, que signifie cette configuration ?', opts: ['Tous les UID ≥ 1000 sont humains', 'La plage par défaut des nouveaux comptes ordinaires commence à 1000', 'root a l’UID 1000'], correct: 1, exp: 'UID_MIN définit une borne pour l’allocation ; il ne prouve pas la nature d’un compte particulier.' },
       { stem: 'Que fait userdel -r ?', opts: ['supprime le compte seul', 'supprime le compte et sa maison', 'désactive le compte'], correct: 1, exp: '-r retire aussi le répertoire personnel et la boîte aux lettres.' },
       { stem: 'chgrp agit sur…', opts: ['le propriétaire', 'le groupe', 'les droits'], correct: 1, exp: 'chgrp change le groupe propriétaire ; chown le propriétaire.' },
       { stem: 'groupdel échoue quand le groupe…', opts: ['est vide', 'sert de groupe principal à un utilisateur', 'a des fichiers'], correct: 1, exp: 'On ne supprime pas un groupe qui est le groupe principal d’un compte.' }
@@ -470,8 +464,8 @@ module.exports = [
       'Dix caractères : type + u + g + o ; r=4, w=2, x=1 par trio.',
       'chmod en octal (755) ou symbolique (u+x, o-rw, ug=rwx) ; -R pour récursif.',
       'chown change le propriétaire (ou utilisateur:groupe) ; chgrp le groupe.',
-      '/etc/passwd décrit les comptes, /etc/shadow les mots de passe, /etc/group les groupes.',
-      'UID 0 = root, < 1000 = système, ≥ 1000 = humain ; useradd, usermod, userdel -r.'
+      '/etc/passwd décrit les comptes, /etc/shadow les vérificateurs hachés, /etc/group les groupes.',
+      'UID 0 = root ; UID_MIN et les plages système sont configurables ; useradd, usermod, userdel -r.'
     ],
 
     checklist: [
@@ -496,7 +490,7 @@ module.exports = [
       { q: 'Différence entre + et = dans chmod ?', a: '+ ajoute un droit, = fixe la classe exactement.' },
       { q: 'Que fait chown user:group f ?', a: 'Il change à la fois le propriétaire et le groupe de f.' },
       { q: 'Champs de /etc/passwd ?', a: 'login:mot-de-passe:UID:GID:info:maison:shell.' },
-      { q: 'Que fait userdel -r ?', a: 'Supprimez le compte et son répertoire personnel.' }
+      { q: 'Que fait userdel -r ?', a: 'Supprime le compte et son répertoire personnel.' }
     ]
   }
 ];

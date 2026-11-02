@@ -80,11 +80,11 @@ module.exports = {
     {
       title: 'L’Estimation Relative : Story Points, Planning Poker et Suite de Fibonacci',
       html: [
-        '<p>Estimer une tâche logicielle en heures absolues est notoirement imprécis : deux développeurs (junior et senior) ne mettront jamais le même temps, mais ils s’accorderont sur le fait que la fonctionnalité B est deux fois plus complexe que la fonctionnalité A. L’agilité utilise l’<strong>effort relatif en Story Points</strong> :</p>',
+        '<p>Les durées individuelles peuvent varier. Une équipe peut comparer les tâches à des exemples de référence à l’aide d’une <strong>estimation relative en Story Points</strong> ; les désaccords sont discutés plutôt que supposés absents.</p>',
         '<div class="grid grid-2">',
         '  <div class="card">',
         '    <h4>1. La Suite de Fibonacci Modifiée</h4>',
-        '    <p>L’échelle de référence universelle est : <code>[0, 1, 2, 3, 5, 8, 13, 20, 40, 100]</code>.</p>',
+        '    <p>Une échelle possible est : <code>[0, 1, 2, 3, 5, 8, 13, 20, 40, 100]</code>. Chaque équipe choisit son référentiel.</p>',
         '    <p>Cette progression non linéaire reflète la <em>loi de Weber-Fechner</em> en psychophysique : plus un objet est grand, plus l’incertitude augmente. Discuter pour savoir si une tâche vaut 20 ou 21 points est une perte de temps stérile ; passer de 13 à 20 exprime un saut réel d’inconnu.</p>',
         '  </div>',
         '  <div class="card">',
@@ -251,7 +251,7 @@ module.exports = {
     },
     {
       q: 'Pourquoi estime-t-on en Story Points plutôt qu’en heures ?',
-      a: 'Parce que l’estimation relative de complexité est universelle et partagée, alors que le temps dépend de l’expérience de chaque individu.'
+      a: 'Pour comparer les tâches à des références choisies par l’équipe sans convertir directement chaque point en heures. L’échelle n’est pas universelle et les points de deux équipes ne sont pas directement comparables.'
     },
     {
       q: 'Quelle est la règle d’or en cas de désaccord au Planning Poker ?',

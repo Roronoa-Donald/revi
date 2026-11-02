@@ -1,5 +1,311 @@
 'use strict';
 
+function bashSolution(program) {
+  return String.raw`#!/usr/bin/env bash
+set -eu
+export LC_ALL=C
+awk '
+function read_fields(line, fields,    cursor, start, key, value, character, following) {
+  for (key in fields) delete fields[key]
+  cursor = 1
+  while (cursor <= length(line)) {
+    while (cursor <= length(line) && substr(line, cursor, 1) ~ /[[:space:]]/) cursor++
+    if (cursor > length(line)) break
+    start = cursor
+    while (cursor <= length(line) && substr(line, cursor, 1) !~ /[=[:space:]]/) cursor++
+    key = substr(line, start, cursor - start)
+    if (substr(line, cursor, 1) != "=") {
+      while (cursor <= length(line) && substr(line, cursor, 1) !~ /[[:space:]]/) cursor++
+      continue
+    }
+    cursor++
+    value = ""
+    if (substr(line, cursor, 1) == "\"") {
+      cursor++
+      while (cursor <= length(line)) {
+        character = substr(line, cursor++, 1)
+        if (character == "\"") break
+        following = substr(line, cursor, 1)
+        if (character == "\\" && (following == "\"" || following == "\\")) {
+          value = value following
+          cursor++
+        } else {
+          value = value character
+        }
+      }
+    } else {
+      start = cursor
+      while (cursor <= length(line) && substr(line, cursor, 1) !~ /[[:space:]]/) cursor++
+      value = substr(line, start, cursor - start)
+    }
+    fields[key] = value
+  }
+}
+${program}
+'
+`;
+}
+
+const LIN3_SOLUTIONS = {
+  'lx3-c1-e1': bashSolution(String.raw`
+BEGIN {
+  labels["R"] = "RUNNING"; labels["S"] = "SLEEPING"
+  labels["D"] = "UNINTERRUPTIBLE_DISK"; labels["Z"] = "ZOMBIE"; labels["T"] = "STOPPED"
+}
+$1 == "PROC_STAT" {
+  read_fields($0, fields)
+  printf "STAT_AUDIT pid=%s comm=%s state_label=%s total_ticks=%.0f mem_kb=%.0f\n", fields["pid"], fields["comm"], labels[fields["state"]], fields["utime"] + fields["stime"], fields["rss"] * 4
+}
+`),
+  'lx3-c1-e2': bashSolution(String.raw`
+function hex_value(character) {
+  return index("0123456789abcdef", tolower(character)) - 1
+}
+function decimal_times_sixteen(decimal, digit,    result, carry, position, value) {
+  result = ""
+  carry = digit
+  for (position = length(decimal); position > 0; position--) {
+    value = (substr(decimal, position, 1) + 0) * 16 + carry
+    result = (value % 10) result
+    carry = int(value / 10)
+  }
+  while (carry > 0) {
+    result = (carry % 10) result
+    carry = int(carry / 10)
+  }
+  sub(/^0+/, "", result)
+  return result == "" ? "0" : result
+}
+function range_kib(start, end,    width, position, right, left, value, borrow, difference, remainder, quotient, result) {
+  sub(/^0[xX]/, "", start); sub(/^0[xX]/, "", end)
+  width = length(start) > length(end) ? length(start) : length(end)
+  difference = ""; borrow = 0
+  for (position = 0; position < width; position++) {
+    right = length(end) - position > 0 ? hex_value(substr(end, length(end) - position, 1)) : 0
+    left = length(start) - position > 0 ? hex_value(substr(start, length(start) - position, 1)) : 0
+    value = right - left - borrow
+    borrow = value < 0
+    if (borrow) value += 16
+    difference = substr("0123456789abcdef", value + 1, 1) difference
+  }
+  result = "0"; remainder = 0
+  for (position = 1; position <= width; position++) {
+    remainder = remainder * 16 + hex_value(substr(difference, position, 1))
+    quotient = int(remainder / 1024)
+    remainder %= 1024
+    result = decimal_times_sixteen(result, quotient)
+  }
+  return result
+}
+$1 == "VMMAP" {
+  read_fields($0, fields)
+  violation = index(fields["perms"], "w") && index(fields["perms"], "x") ? "OUI" : "NON"
+  printf "MAP_AUDIT pid=%s path=%s size_kb=%s wx_violation=%s\n", fields["pid"], fields["pathname"], range_kib(fields["start"], fields["end"]), violation
+}
+`),
+  'lx3-c1-e3': bashSolution(String.raw`
+$1 == "SYSCALL" {
+  read_fields($0, fields)
+  failed = fields["ret"] ~ /^-/ || fields["ret"] ~ /^E[A-Z0-9_]+$/
+  status = failed ? "ERROR" : "SUCCESS"
+  error = failed ? fields["ret"] : "NONE"
+  slow = fields["time_us"] + 0 > 5000 ? "OUI" : "NON"
+  printf "SYSCALL_PROFILE pid=%s name=%s status=%s err=%s duration_us=%s slow=%s\n", fields["pid"], fields["name"], status, error, fields["time_us"], slow
+}
+`),
+  'lx3-c2-e1': bashSolution(String.raw`
+$1 == "SERVICE_DEF" {
+  read_fields($0, fields)
+  error = "OK"
+  if (fields["desc"] == "" || fields["desc"] == "NONE") error = "DESCRIPTION_MANQUANTE"
+  else if (substr(fields["exec_start"], 1, 1) != "/") error = "EXECSTART_RELATIF"
+  else if (fields["wanted_by"] == "" || fields["wanted_by"] == "NONE") error = "WANTEDBY_MANQUANT"
+  valid = error == "OK" ? "OUI" : "NON"
+  printf "SERVICE_VALIDATION name=%s valid=%s error=%s\n", fields["name"], valid, error
+}
+`),
+  'lx3-c2-e2': bashSolution(String.raw`
+$1 == "UNIT_DEP" {
+  read_fields($0, fields)
+  order[++count] = fields["name"]
+  dependency[fields["name"]] = fields["requires"]
+}
+END {
+  for (position = 1; position <= count; position++) {
+    name = order[position]; target = dependency[name]
+    reason = "OK"; cycle = "NON"
+    if (target != "NONE" && target == name) { reason = "AUTO_DEPENDANCE"; cycle = "OUI" }
+    else if (target != "NONE" && dependency[target] == name) { reason = "CYCLE_DIRECT"; cycle = "OUI" }
+    printf "DEP_CHECK unit=%s cycle=%s reason=%s\n", name, cycle, reason
+  }
+}
+`),
+  'lx3-c2-e3': bashSolution(String.raw`
+BEGIN {
+  labels[0] = "EMERGENCY"; labels[1] = "ALERT"; labels[2] = "CRITICAL"; labels[3] = "ERROR"
+  labels[4] = "WARNING"; labels[5] = "NOTICE"; labels[6] = "INFO"; labels[7] = "DEBUG"
+}
+$1 == "JOURNAL" {
+  read_fields($0, fields)
+  priority = fields["priority"] + 0
+  alert = priority <= 3 ? "OUI" : "NON"
+  printf "JOURNAL_AUDIT id=%s unit=%s level=%s alert=%s\n", fields["id"], fields["unit"], labels[priority], alert
+}
+`),
+  'lx3-c3-e1': bashSolution(String.raw`
+$1 == "LVM_REQ" {
+  read_fields($0, fields)
+  size = fields["pe_size_mb"] + 0
+  total = int(fields["total_pv_gb"] * 1024 / size)
+  needed = int((fields["lv_target_gb"] * 1024 + size - 1) / size)
+  status = needed <= total ? "ALLOCATED" : "INSUFFICIENT_SPACE"
+  difference = needed <= total ? total - needed : needed - total
+  printf "LVM_AUDIT vg=%s status=%s pe_used=%.0f pe_free_or_deficit=%.0f\n", fields["vg"], status, needed, difference
+}
+`),
+  'lx3-c3-e2': bashSolution(String.raw`
+$1 == "RAID_CONF" {
+  read_fields($0, fields)
+  failed = fields["failed"] + 0; active = fields["active"] + 0
+  state = "OPTIMAL"
+  if (fields["level"] == "RAID1") {
+    if (active == 0) state = "FAILED"
+    else if (failed > 0) state = "DEGRADED"
+  } else {
+    tolerance = fields["level"] == "RAID5" ? 1 : 2
+    if (failed > tolerance) state = "FAILED"
+    else if (failed > 0) state = "DEGRADED"
+  }
+  action = "NONE"
+  if (state == "FAILED") action = "CRITICAL_DATA_LOSS"
+  else if (state == "DEGRADED") action = fields["spares"] + 0 > 0 ? "REBUILD_SPARE" : "WARNING_NO_SPARE"
+  printf "RAID_DIAG dev=%s level=%s state=%s action=%s\n", fields["device"], fields["level"], state, action
+}
+`),
+  'lx3-c3-e3': bashSolution(String.raw`
+$1 == "FS_METRICS" {
+  read_fields($0, fields)
+  blocks = int(fields["blocks_used"] * 100 / fields["blocks_total"])
+  inodes = int(fields["inodes_used"] * 100 / fields["inodes_total"])
+  status = "HEALTHY"; diagnosis = "NORMAL"
+  if (blocks >= 90 && inodes >= 90) { status = "CRITICAL"; diagnosis = "TOTAL_EXHAUSTION" }
+  else if (inodes >= 90 && blocks < 60) { status = "ALERT"; diagnosis = "INODE_EXHAUSTION" }
+  else if (blocks >= 90 && inodes < 90) { status = "ALERT"; diagnosis = "DISK_SPACE_FULL" }
+  printf "FS_STATUS mount=%s block_pct=%.0f%% inode_pct=%.0f%% status=%s diag=%s\n", fields["mount"], blocks, inodes, status, diagnosis
+}
+`),
+  'lx3-c4-e1': bashSolution(String.raw`
+$1 == "NS_CHECK" {
+  read_fields($0, fields)
+  count = (fields["ns_pid"] + 0 != fields["host_pid"] + 0) + (fields["ns_net"] + 0 != fields["host_net"] + 0) + (fields["ns_mnt"] + 0 != fields["host_mnt"] + 0)
+  isolated = count > 0 ? "OUI" : "NON"
+  printf "NS_STATUS pid=%s isolated=%s isolated_count=%d\n", fields["pid"], isolated, count
+}
+`),
+  'lx3-c4-e2': bashSolution(String.raw`
+$1 == "CGROUP" {
+  read_fields($0, fields)
+  if (fields["cpu_quota"] == "max") cores = "UNLIMITED"
+  else {
+    tenths = int((fields["cpu_quota"] * 10 + fields["cpu_period"] / 2) / fields["cpu_period"])
+    cores = sprintf("%.0f.%d", int(tenths / 10), tenths % 10)
+  }
+  memory = fields["mem_curr_mb"] + 0 >= fields["mem_max_mb"] + 0 ? "SATURATED" : "OK"
+  printf "CGROUP_AUDIT group=%s cpu_cores=%s mem_status=%s\n", fields["group"], cores, memory
+}
+`),
+  'lx3-c4-e3': bashSolution(String.raw`
+$1 == "OOM_PROC" {
+  read_fields($0, fields)
+  adjustment = fields["oom_score_adj"] + 0
+  if (adjustment == -1000) { score = "IMMUNE"; risk = "NONE" }
+  else {
+    score = fields["mem_mb"] + adjustment
+    risk = score > 1000 ? "HIGH" : "LOW"
+  }
+  printf "OOM_TARGET pid=%s comm=%s score=%s risk=%s\n", fields["pid"], fields["comm"], score, risk
+}
+`),
+  'lx3-c5-e1': bashSolution(String.raw`
+$1 == "NET_IFACE" {
+  read_fields($0, fields)
+  error = "OK"
+  if (fields["state"] != "UP") error = "INTERFACE_DOWN"
+  else if (fields["type"] == "bridge" && fields["master"] != "NONE") error = "BRIDGE_CANNOT_HAVE_MASTER"
+  else if (fields["type"] == "veth" && fields["master"] == "NONE" && fields["ip"] == "NONE") error = "VETH_UNATTACHED"
+  valid = error == "OK" ? "OUI" : "NON"
+  printf "NET_AUDIT iface=%s valid=%s error=%s\n", fields["name"], valid, error
+}
+`),
+  'lx3-c5-e2': bashSolution(String.raw`
+$1 == "RULE" {
+  read_fields($0, fields)
+  count++
+  priority[count] = fields["prio"] + 0
+  source[count] = fields["src"]; port[count] = fields["dport"]; table[count] = fields["table"]
+}
+$1 == "PACKET" {
+  read_fields($0, fields)
+  best = 0
+  for (position = 1; position <= count; position++) {
+    if ((source[position] == "ANY" || source[position] == fields["src"]) && (port[position] == "ANY" || port[position] == fields["dport"]) && (best == 0 || priority[position] < priority[best])) best = position
+  }
+  matched = best ? priority[best] : "NONE"
+  selected = best ? table[best] : "NONE"
+  printf "ROUTE_MATCH packet=%s matched_prio=%s table=%s\n", fields["id"], matched, selected
+}
+`),
+  'lx3-c5-e3': bashSolution(String.raw`
+$1 == "CONF_NSSWITCH" {
+  read_fields($0, fields)
+  count = split(fields["order"], sources, ",")
+}
+$1 == "QUERY_HOST" {
+  read_fields($0, fields)
+  resolved = "NONE"; status = "NOT_FOUND"
+  for (position = 1; position <= count; position++) {
+    source = sources[position]
+    if (fields["in_" source] == "OUI") { resolved = source; status = "SUCCESS"; break }
+  }
+  printf "RESOLV_RESULT host=%s resolved_by=%s status=%s\n", fields["name"], resolved, status
+}
+`),
+  'lx3-c6-e1': bashSolution(String.raw`
+$1 == "SYSCTL_CHECK" {
+  read_fields($0, fields)
+  status = ("value:" fields["current"] == "value:" fields["recommended"]) ? "COMPLIANT" : "HARDENING_REQUIRED"
+  printf "SYSCTL_AUDIT key=%s current=%s target=%s status=%s\n", fields["key"], fields["current"], fields["recommended"], status
+}
+`),
+  'lx3-c6-e2': bashSolution(String.raw`
+$1 == "PAM_STEP" && !stopped {
+  read_fields($0, fields)
+  control = fields["control"]; result = fields["res"]; action = "CONTINUE"
+  if (control == "required" && result == "FAIL") failed = 1
+  if (control == "requisite" && result == "FAIL") { failed = 1; stopped = 1; action = "ABORT_FAIL" }
+  if (result == "SUCCESS") {
+    succeeded = 1
+    if (control == "sufficient" && !failed) { stopped = 1; action = "STOP_SUCCESS" }
+  }
+  printf "PAM_TRACE module=%s control=%s res=%s action=%s\n", fields["module"], control, result, action
+}
+END {
+  decision = succeeded && !failed ? "GRANTED" : "DENIED"
+  printf "PAM_FINAL decision=%s\n", decision
+}
+`),
+  'lx3-c6-e3': bashSolution(String.raw`
+$1 == "AUDIT_LOG" {
+  read_fields($0, fields)
+  uid = fields["uid"] + 0; euid = fields["euid"] + 0
+  if (uid != 0 && euid == 0) alert = fields["res"] == "success" ? "CRITICAL_ROOT_ELEVATION" : "BLOCKED_PRIVILEGE_ATTEMPT"
+  else if (uid == 0 && euid == 0) alert = "ROOT_NATIVE"
+  else alert = "STANDARD_USER"
+  printf "AUDIT_REPORT id=%s exe=%s uid=%s euid=%s alert=%s\n", fields["id"], fields["exe"], fields["uid"], fields["euid"], alert
+}
+`)
+};
+
 const LIN3_EXERCISES = [
   {
     "id": "lx3-c1-e1",
@@ -24,8 +330,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Processus actif en cours d’exécution (R)",
-        "stdin": "PROC_STAT pid=1250 comm=python3 state=R ppid=100 utime=320 stime=80 rss=1024",
-        "expected": "STAT_AUDIT pid=1250 comm=python3 state_label=RUNNING total_ticks=400 mem_kb=4096"
+        "stdin": "PROC_STAT pid=1250 comm=python3 state=R ppid=100 utime=320 stime=80 rss=1024\nPROC_STAT pid=2 comm=idle state=S ppid=1 utime=0 stime=0 rss=0",
+        "expected": "STAT_AUDIT pid=1250 comm=python3 state_label=RUNNING total_ticks=400 mem_kb=4096\nSTAT_AUDIT pid=2 comm=idle state_label=SLEEPING total_ticks=0 mem_kb=0"
       },
       {
         "label": "Processus zombie (Z) et attente disque ininterruptible (D)",
@@ -36,9 +342,24 @@ const LIN3_EXERCISES = [
         "label": "Processus stoppé par signal SIGSTOP (T)",
         "stdin": "PROC_STAT pid=999 comm=debugger state=T ppid=200 utime=10 stime=2 rss=128",
         "expected": "STAT_AUDIT pid=999 comm=debugger state_label=STOPPED total_ticks=12 mem_kb=512"
+      },
+      {
+        "label": "Champs réordonnés, nom cité et plusieurs états",
+        "stdin": "PROC_STAT rss=1 comm=\"worker x\" stime=2 pid=345 state=R utime=7 ppid=1\nPROC_STAT pid=346 comm=helper state=D ppid=1 utime=0 stime=1 rss=4",
+        "expected": "STAT_AUDIT pid=345 comm=worker x state_label=RUNNING total_ticks=9 mem_kb=4\nSTAT_AUDIT pid=346 comm=helper state_label=UNINTERRUPTIBLE_DISK total_ticks=1 mem_kb=16"
+      },
+      {
+        "label": "Temps système non nul et mémoire nulle",
+        "stdin": "PROC_STAT pid=41 comm=batch state=R ppid=1 utime=7 stime=3 rss=0",
+        "expected": "STAT_AUDIT pid=41 comm=batch state_label=RUNNING total_ticks=10 mem_kb=0"
+      },
+      {
+        "label": "Mémoire non nulle et temps système nul",
+        "stdin": "PROC_STAT pid=42 comm=idle state=S ppid=1 utime=7 stime=0 rss=3",
+        "expected": "STAT_AUDIT pid=42 comm=idle state_label=SLEEPING total_ticks=7 mem_kb=12"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c1-e1\n#!/usr/bin/env bash\n# Solution Bash — lx3-c1-e1 : Parseur et auditeur de métriques de processus (/proc/[pid]/stat)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"UFJPQ19TVEFUIHBpZD0xMDEgY29tbT1uZ2lueCBzdGF0ZT1TIHBwaWQ9MSB1dGltZT00NSBzdGltZT0xNSByc3M9MjU2\")\n    printf '%s\\n' \"U1RBVF9BVURJVCBwaWQ9MTAxIGNvbW09bmdpbnggc3RhdGVfbGFiZWw9U0xFRVBJTkcgdG90YWxfdGlja3M9NjAgbWVtX2tiPTEwMjQ=\" | base64 -d\n    echo \"\"\n    ;;\n  \"UFJPQ19TVEFUIHBpZD0xMjUwIGNvbW09cHl0aG9uMyBzdGF0ZT1SIHBwaWQ9MTAwIHV0aW1lPTMyMCBzdGltZT04MCByc3M9MTAyNA==\")\n    printf '%s\\n' \"U1RBVF9BVURJVCBwaWQ9MTI1MCBjb21tPXB5dGhvbjMgc3RhdGVfbGFiZWw9UlVOTklORyB0b3RhbF90aWNrcz00MDAgbWVtX2tiPTQwOTY=\" | base64 -d\n    echo \"\"\n    ;;\n  \"UFJPQ19TVEFUIHBpZD00NDAgY29tbT1kZWZ1bmN0X2pvYiBzdGF0ZT1aIHBwaWQ9MSB1dGltZT01IHN0aW1lPTEgcnNzPTAKUFJPQ19TVEFUIHBpZD04ODAgY29tbT1kZF9iYWNrdXAgc3RhdGU9RCBwcGlkPTUwMCB1dGltZT0xMjAgc3RpbWU9MzAwIHJzcz01MTI=\")\n    printf '%s\\n' \"U1RBVF9BVURJVCBwaWQ9NDQwIGNvbW09ZGVmdW5jdF9qb2Igc3RhdGVfbGFiZWw9Wk9NQklFIHRvdGFsX3RpY2tzPTYgbWVtX2tiPTAKU1RBVF9BVURJVCBwaWQ9ODgwIGNvbW09ZGRfYmFja3VwIHN0YXRlX2xhYmVsPVVOSU5URVJSVVBUSUJMRV9ESVNLIHRvdGFsX3RpY2tzPTQyMCBtZW1fa2I9MjA0OA==\" | base64 -d\n    echo \"\"\n    ;;\n  \"UFJPQ19TVEFUIHBpZD05OTkgY29tbT1kZWJ1Z2dlciBzdGF0ZT1UIHBwaWQ9MjAwIHV0aW1lPTEwIHN0aW1lPTIgcnNzPTEyOA==\")\n    printf '%s\\n' \"U1RBVF9BVURJVCBwaWQ9OTk5IGNvbW09ZGVidWdnZXIgc3RhdGVfbGFiZWw9U1RPUFBFRCB0b3RhbF90aWNrcz0xMiBtZW1fa2I9NTEy\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c1-e1"]
   },
   {
     "id": "lx3-c1-e2",
@@ -64,8 +385,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Segment de données non exécutable et pile sécurisée",
-        "stdin": "VMMAP pid=10 start=00600000 end=00610000 perms=rw-p pathname=[heap]\nVMMAP pid=10 start=7fff0000 end=7fff2000 perms=rw-p pathname=[stack]",
-        "expected": "MAP_AUDIT pid=10 path=[heap] size_kb=64 wx_violation=NON\nMAP_AUDIT pid=10 path=[stack] size_kb=8 wx_violation=NON"
+        "stdin": "VMMAP pid=10 start=00600000 end=00610000 perms=rw-p pathname=[heap]\nVMMAP pid=10 start=7fff0000 end=7fff2000 perms=rw-p pathname=[stack]\nVMMAP pid=12 start=0 end=03ff perms=rwxp pathname=[boundary]",
+        "expected": "MAP_AUDIT pid=10 path=[heap] size_kb=64 wx_violation=NON\nMAP_AUDIT pid=10 path=[stack] size_kb=8 wx_violation=NON\nMAP_AUDIT pid=12 path=[boundary] size_kb=0 wx_violation=OUI"
       },
       {
         "label": "Détection d’une violation critique W^X (page RWX inscriptible et exécutable)",
@@ -76,9 +397,24 @@ const LIN3_EXERCISES = [
         "label": "Bibliothèque partagée en lecture seule",
         "stdin": "VMMAP pid=500 start=7f800000 end=7fa00000 perms=r--p pathname=/lib/x86_64-linux-gnu/libc.so",
         "expected": "MAP_AUDIT pid=500 path=/lib/x86_64-linux-gnu/libc.so size_kb=2048 wx_violation=NON"
+      },
+      {
+        "label": "Bornes hexadécimales au-dessus de la précision flottante",
+        "stdin": "VMMAP pid=13 start=ffffffffff700000 end=ffffffffff700400 perms=rw-p pathname=[high]\nVMMAP pid=14 start=0 end=FFFFFFFFFFFFFFFF perms=r-xp pathname=[wide]",
+        "expected": "MAP_AUDIT pid=13 path=[high] size_kb=1 wx_violation=NON\nMAP_AUDIT pid=14 path=[wide] size_kb=18014398509481983 wx_violation=NON"
+      },
+      {
+        "label": "Page alignée inscriptible sans exécution",
+        "stdin": "VMMAP pid=81 start=0 end=0400 perms=rw-p pathname=[data]",
+        "expected": "MAP_AUDIT pid=81 path=[data] size_kb=1 wx_violation=NON"
+      },
+      {
+        "label": "Plage non alignée W et X",
+        "stdin": "VMMAP pid=82 start=0 end=03ff perms=rwxp pathname=[jit]",
+        "expected": "MAP_AUDIT pid=82 path=[jit] size_kb=0 wx_violation=OUI"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c1-e2\n#!/usr/bin/env bash\n# Solution Bash — lx3-c1-e2 : Analyseur de cartographie de mémoire virtuelle (/proc/[pid]/maps)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"Vk1NQVAgcGlkPTQyIHN0YXJ0PTAwNDAwMDAwIGVuZD0wMDQ1MDAwMCBwZXJtcz1yLXhwIHBhdGhuYW1lPS91c3IvYmluL2FwcA==\")\n    printf '%s\\n' \"TUFQX0FVRElUIHBpZD00MiBwYXRoPS91c3IvYmluL2FwcCBzaXplX2tiPTMyMCB3eF92aW9sYXRpb249Tk9O\" | base64 -d\n    echo \"\"\n    ;;\n  \"Vk1NQVAgcGlkPTEwIHN0YXJ0PTAwNjAwMDAwIGVuZD0wMDYxMDAwMCBwZXJtcz1ydy1wIHBhdGhuYW1lPVtoZWFwXQpWTU1BUCBwaWQ9MTAgc3RhcnQ9N2ZmZjAwMDAgZW5kPTdmZmYyMDAwIHBlcm1zPXJ3LXAgcGF0aG5hbWU9W3N0YWNrXQ==\")\n    printf '%s\\n' \"TUFQX0FVRElUIHBpZD0xMCBwYXRoPVtoZWFwXSBzaXplX2tiPTY0IHd4X3Zpb2xhdGlvbj1OT04KTUFQX0FVRElUIHBpZD0xMCBwYXRoPVtzdGFja10gc2l6ZV9rYj04IHd4X3Zpb2xhdGlvbj1OT04=\" | base64 -d\n    echo \"\"\n    ;;\n  \"Vk1NQVAgcGlkPTc3NyBzdGFydD0xMDAwMDAwMCBlbmQ9MTAwMDQwMDAgcGVybXM9cnd4cCBwYXRobmFtZT1baml0X2J1ZmZlcl0=\")\n    printf '%s\\n' \"TUFQX0FVRElUIHBpZD03NzcgcGF0aD1baml0X2J1ZmZlcl0gc2l6ZV9rYj0xNiB3eF92aW9sYXRpb249T1VJ\" | base64 -d\n    echo \"\"\n    ;;\n  \"Vk1NQVAgcGlkPTUwMCBzdGFydD03ZjgwMDAwMCBlbmQ9N2ZhMDAwMDAgcGVybXM9ci0tcCBwYXRobmFtZT0vbGliL3g4Nl82NC1saW51eC1nbnUvbGliYy5zbw==\")\n    printf '%s\\n' \"TUFQX0FVRElUIHBpZD01MDAgcGF0aD0vbGliL3g4Nl82NC1saW51eC1nbnUvbGliYy5zbyBzaXplX2tiPTIwNDggd3hfdmlvbGF0aW9uPU5PTg==\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c1-e2"]
   },
   {
     "id": "lx3-c1-e3",
@@ -103,8 +439,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Erreur de fichier introuvable (ENOENT ou code négatif)",
-        "stdin": "SYSCALL pid=101 name=openat args=\"AT_FDCWD,/tmp/missing.txt,O_RDONLY\" ret=-ENOENT time_us=80\nSYSCALL pid=101 name=read args=\"3,buf,1024\" ret=-1 time_us=12",
-        "expected": "SYSCALL_PROFILE pid=101 name=openat status=ERROR err=-ENOENT duration_us=80 slow=NON\nSYSCALL_PROFILE pid=101 name=read status=ERROR err=-1 duration_us=12 slow=NON"
+        "stdin": "SYSCALL pid=101 name=openat args=\"AT_FDCWD,/tmp/missing.txt,O_RDONLY\" ret=-ENOENT time_us=80\nSYSCALL pid=101 name=read args=\"3,buf,1024\" ret=-1 time_us=12\nSYSCALL pid=102 name=read args=\"4,buf,1\" ret=0 time_us=5000",
+        "expected": "SYSCALL_PROFILE pid=101 name=openat status=ERROR err=-ENOENT duration_us=80 slow=NON\nSYSCALL_PROFILE pid=101 name=read status=ERROR err=-1 duration_us=12 slow=NON\nSYSCALL_PROFILE pid=102 name=read status=SUCCESS err=NONE duration_us=5000 slow=NON"
       },
       {
         "label": "Appel bloquant avec latence excessive (SLOW=OUI)",
@@ -115,9 +451,14 @@ const LIN3_EXERCISES = [
         "label": "Refus de permission (EACCES)",
         "stdin": "SYSCALL pid=303 name=write args=\"1,data,512\" ret=EACCES time_us=150",
         "expected": "SYSCALL_PROFILE pid=303 name=write status=ERROR err=EACCES duration_us=150 slow=NON"
+      },
+      {
+        "label": "Seuil strict et autre constante d’erreur",
+        "stdin": "SYSCALL pid=90 name=read args=\"5,buf,8\" ret=EAGAIN time_us=5001\nSYSCALL pid=91 name=write args=\"1,buf,8\" ret=42 time_us=4999",
+        "expected": "SYSCALL_PROFILE pid=90 name=read status=ERROR err=EAGAIN duration_us=5001 slow=OUI\nSYSCALL_PROFILE pid=91 name=write status=SUCCESS err=NONE duration_us=4999 slow=NON"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c1-e3\n#!/usr/bin/env bash\n# Solution Bash — lx3-c1-e3 : Décodeur et profileur d’appels système (strace tracer)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"U1lTQ0FMTCBwaWQ9MTAxIG5hbWU9b3BlbmF0IGFyZ3M9IkFUX0ZEQ1dELC9ldGMvcGFzc3dkLE9fUkRPTkxZIiByZXQ9MyB0aW1lX3VzPTQ1\")\n    printf '%s\\n' \"U1lTQ0FMTF9QUk9GSUxFIHBpZD0xMDEgbmFtZT1vcGVuYXQgc3RhdHVzPVNVQ0NFU1MgZXJyPU5PTkUgZHVyYXRpb25fdXM9NDUgc2xvdz1OT04=\" | base64 -d\n    echo \"\"\n    ;;\n  \"U1lTQ0FMTCBwaWQ9MTAxIG5hbWU9b3BlbmF0IGFyZ3M9IkFUX0ZEQ1dELC90bXAvbWlzc2luZy50eHQsT19SRE9OTFkiIHJldD0tRU5PRU5UIHRpbWVfdXM9ODAKU1lTQ0FMTCBwaWQ9MTAxIG5hbWU9cmVhZCBhcmdzPSIzLGJ1ZiwxMDI0IiByZXQ9LTEgdGltZV91cz0xMg==\")\n    printf '%s\\n' \"U1lTQ0FMTF9QUk9GSUxFIHBpZD0xMDEgbmFtZT1vcGVuYXQgc3RhdHVzPUVSUk9SIGVycj0tRU5PRU5UIGR1cmF0aW9uX3VzPTgwIHNsb3c9Tk9OClNZU0NBTExfUFJPRklMRSBwaWQ9MTAxIG5hbWU9cmVhZCBzdGF0dXM9RVJST1IgZXJyPS0xIGR1cmF0aW9uX3VzPTEyIHNsb3c9Tk9O\" | base64 -d\n    echo \"\"\n    ;;\n  \"U1lTQ0FMTCBwaWQ9MjAyIG5hbWU9ZXBvbGxfd2FpdCBhcmdzPSI0LGV2ZW50cyw2NCwtMSIgcmV0PTEgdGltZV91cz0xMjAwMA==\")\n    printf '%s\\n' \"U1lTQ0FMTF9QUk9GSUxFIHBpZD0yMDIgbmFtZT1lcG9sbF93YWl0IHN0YXR1cz1TVUNDRVNTIGVycj1OT05FIGR1cmF0aW9uX3VzPTEyMDAwIHNsb3c9T1VJ\" | base64 -d\n    echo \"\"\n    ;;\n  \"U1lTQ0FMTCBwaWQ9MzAzIG5hbWU9d3JpdGUgYXJncz0iMSxkYXRhLDUxMiIgcmV0PUVBQ0NFUyB0aW1lX3VzPTE1MA==\")\n    printf '%s\\n' \"U1lTQ0FMTF9QUk9GSUxFIHBpZD0zMDMgbmFtZT13cml0ZSBzdGF0dXM9RVJST1IgZXJyPUVBQ0NFUyBkdXJhdGlvbl91cz0xNTAgc2xvdz1OT04=\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c1-e3"]
   },
   {
     "id": "lx3-c2-e1",
@@ -126,7 +467,7 @@ const LIN3_EXERCISES = [
     "level": "n1",
     "language": "shell",
     "goal": "Vérifier la conformité syntaxique et la validité des directives d’un fichier de service Systemd.",
-    "brief": "<p>Sous Linux, <strong>Systemd</strong> (PID 1) orchestre le démarrage des démons via des fichiers déclaratifs d'unités (<code>.service</code>) placés dans <code>/etc/systemd/system/</code> ou <code>/lib/systemd/system/</code>.<br><br>\nRègles de conformité strictes d'une unité de service :<br>\n1. <code>ExecStart</code> est obligatoire et doit impérativement spécifier un <strong>chemin absolu</strong> (commençant par <code>/</code>). Un binaire relatif (ex: <code>python app.py</code>) est rejeté avec l'erreur <code>EXECSTART_RELATIF</code>.<br>\n2. <code>Description</code> doit être non vide (sinon <code>DESCRIPTION_MANQUANTE</code>).<br>\n3. <code>WantedBy</code> dans la section <code>[Install]</code> doit référencer une cible valide (ex: <code>multi-user.target</code>). S'il est vide ou absent, erreur <code>WANTEDBY_MANQUANT</code>.<br><br>\nLe script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>\nPour chaque service, afficher :<br>\n<code>SERVICE_VALIDATION name={name} valid={OUI|NON} error={OK|motif_erreur}</code></p>",
+    "brief": "<p>Sous Linux, <strong>Systemd</strong> (PID 1) orchestre le démarrage des démons via des fichiers déclaratifs d'unités (<code>.service</code>) placés dans <code>/etc/systemd/system/</code> ou <code>/lib/systemd/system/</code>.<br><br>\nPour ce simulateur, contrôlez les champs dans cet ordre et affichez seulement la première erreur :<br>\n1. <code>Description</code> doit être renseignée (sinon <code>DESCRIPTION_MANQUANTE</code>).<br>\n2. <code>ExecStart</code> doit commencer par <code>/</code>, indiquant un chemin absolu (sinon <code>EXECSTART_RELATIF</code>).<br>\n3. <code>WantedBy</code> doit être renseigné (sinon <code>WANTEDBY_MANQUANT</code>).<br>\nDans les données de cet exercice, une valeur vide ou <code>NONE</code> représente un champ absent. Le simulateur ne vérifie ni l'existence du fichier exécutable ni celle de la cible, par exemple <code>multi-user.target</code>.<br><br>\nLe script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>\nPour chaque service, afficher :<br>\n<code>SERVICE_VALIDATION name={name} valid={OUI|NON} error={OK|motif_erreur}</code></p>",
     "starter": "#!/usr/bin/env bash\n# Atelier Bash (lx3-c2-e1) — Validateur d’unité de service Systemd ([Unit], [Service], [Install])\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
     "hints": [
       "Vérifier les critères dans l’ordre : Description non vide, ExecStart commençant par \"/\", WantedBy non vide.",
@@ -142,8 +483,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Rejet d’un exécutable avec chemin relatif",
-        "stdin": "SERVICE_DEF name=worker.service desc=\"Taches asynchrones\" exec_start=node wanted_by=multi-user.target",
-        "expected": "SERVICE_VALIDATION name=worker.service valid=NON error=EXECSTART_RELATIF"
+        "stdin": "SERVICE_DEF name=worker.service desc=\"Taches asynchrones\" exec_start=node wanted_by=multi-user.target\nSERVICE_DEF name=missing.service desc=NONE exec_start=relative wanted_by=NONE",
+        "expected": "SERVICE_VALIDATION name=worker.service valid=NON error=EXECSTART_RELATIF\nSERVICE_VALIDATION name=missing.service valid=NON error=DESCRIPTION_MANQUANTE"
       },
       {
         "label": "Rejet pour description manquante ou WantedBy manquant",
@@ -154,9 +495,19 @@ const LIN3_EXERCISES = [
         "label": "Service complexe valide avec arguments",
         "stdin": "SERVICE_DEF name=nginx.service desc=\"Serveur Web Nginx\" exec_start=/usr/sbin/nginx wanted_by=multi-user.target",
         "expected": "SERVICE_VALIDATION name=nginx.service valid=OUI error=OK"
+      },
+      {
+        "label": "Champs absents, vides, cités et priorité des contrôles",
+        "stdin": "SERVICE_DEF name=empty.service desc=\"\" exec_start=/bin/true wanted_by=multi-user.target\nSERVICE_DEF name=relative.service desc=\"Worker with spaces\" wanted_by=multi-user.target\nSERVICE_DEF name=target.service desc=\"Hello\" exec_start=/bin/true wanted_by=\"\"\nSERVICE_DEF name=valid.service desc=\"Background worker\" exec_start=/opt/run wanted_by=unlisted.target",
+        "expected": "SERVICE_VALIDATION name=empty.service valid=NON error=DESCRIPTION_MANQUANTE\nSERVICE_VALIDATION name=relative.service valid=NON error=EXECSTART_RELATIF\nSERVICE_VALIDATION name=target.service valid=NON error=WANTEDBY_MANQUANT\nSERVICE_VALIDATION name=valid.service valid=OUI error=OK"
+      },
+      {
+        "label": "WantedBy absent malgré les autres champs valides",
+        "stdin": "SERVICE_DEF name=cache.service desc=Cache exec_start=/bin/true wanted_by=NONE",
+        "expected": "SERVICE_VALIDATION name=cache.service valid=NON error=WANTEDBY_MANQUANT"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c2-e1\n#!/usr/bin/env bash\n# Solution Bash — lx3-c2-e1 : Validateur d’unité de service Systemd ([Unit], [Service], [Install])\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"U0VSVklDRV9ERUYgbmFtZT1hcGkuc2VydmljZSBkZXNjPSJCYWNrZW5kIEFQSSIgZXhlY19zdGFydD0vdXNyL2Jpbi9weXRob24zIHdhbnRlZF9ieT1tdWx0aS11c2VyLnRhcmdldA==\")\n    printf '%s\\n' \"U0VSVklDRV9WQUxJREFUSU9OIG5hbWU9YXBpLnNlcnZpY2UgdmFsaWQ9T1VJIGVycm9yPU9L\" | base64 -d\n    echo \"\"\n    ;;\n  \"U0VSVklDRV9ERUYgbmFtZT13b3JrZXIuc2VydmljZSBkZXNjPSJUYWNoZXMgYXN5bmNocm9uZXMiIGV4ZWNfc3RhcnQ9bm9kZSB3YW50ZWRfYnk9bXVsdGktdXNlci50YXJnZXQ=\")\n    printf '%s\\n' \"U0VSVklDRV9WQUxJREFUSU9OIG5hbWU9d29ya2VyLnNlcnZpY2UgdmFsaWQ9Tk9OIGVycm9yPUVYRUNTVEFSVF9SRUxBVElG\" | base64 -d\n    echo \"\"\n    ;;\n  \"U0VSVklDRV9ERUYgbmFtZT1hdWRpdC5zZXJ2aWNlIGRlc2M9Tk9ORSBleGVjX3N0YXJ0PS9vcHQvYmluL2FnZW50IHdhbnRlZF9ieT1tdWx0aS11c2VyLnRhcmdldApTRVJWSUNFX0RFRiBuYW1lPWNyb25fam9iLnNlcnZpY2UgZGVzYz0iVGFjaGUgcGxhbmlmaWVlIiBleGVjX3N0YXJ0PS9iaW4vYmFzaCB3YW50ZWRfYnk9Tk9ORQ==\")\n    printf '%s\\n' \"U0VSVklDRV9WQUxJREFUSU9OIG5hbWU9YXVkaXQuc2VydmljZSB2YWxpZD1OT04gZXJyb3I9REVTQ1JJUFRJT05fTUFOUVVBTlRFClNFUlZJQ0VfVkFMSURBVElPTiBuYW1lPWNyb25fam9iLnNlcnZpY2UgdmFsaWQ9Tk9OIGVycm9yPVdBTlRFREJZX01BTlFVQU5U\" | base64 -d\n    echo \"\"\n    ;;\n  \"U0VSVklDRV9ERUYgbmFtZT1uZ2lueC5zZXJ2aWNlIGRlc2M9IlNlcnZldXIgV2ViIE5naW54IiBleGVjX3N0YXJ0PS91c3Ivc2Jpbi9uZ2lueCB3YW50ZWRfYnk9bXVsdGktdXNlci50YXJnZXQ=\")\n    printf '%s\\n' \"U0VSVklDRV9WQUxJREFUSU9OIG5hbWU9bmdpbnguc2VydmljZSB2YWxpZD1PVUkgZXJyb3I9T0s=\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c2-e1"]
   },
   {
     "id": "lx3-c2-e2",
@@ -182,8 +533,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Détection d’auto-dépendance",
-        "stdin": "UNIT_DEP name=loop.service requires=loop.service",
-        "expected": "DEP_CHECK unit=loop.service cycle=OUI reason=AUTO_DEPENDANCE"
+        "stdin": "UNIT_DEP name=loop.service requires=loop.service\nUNIT_DEP name=isolated.service requires=NONE",
+        "expected": "DEP_CHECK unit=loop.service cycle=OUI reason=AUTO_DEPENDANCE\nDEP_CHECK unit=isolated.service cycle=NON reason=OK"
       },
       {
         "label": "Détection de cycle direct croisé entre deux services",
@@ -194,9 +545,14 @@ const LIN3_EXERCISES = [
         "label": "Chaîne saine à trois unités",
         "stdin": "UNIT_DEP name=redis.service requires=network.target\nUNIT_DEP name=network.target requires=NONE\nUNIT_DEP name=app.service requires=redis.service",
         "expected": "DEP_CHECK unit=redis.service cycle=NON reason=OK\nDEP_CHECK unit=network.target cycle=NON reason=OK\nDEP_CHECK unit=app.service cycle=NON reason=OK"
+      },
+      {
+        "label": "Cycle croisé, auto-dépendance et dépendance non déclarée",
+        "stdin": "UNIT_DEP name=beta2.service requires=alpha2.service\nUNIT_DEP name=alpha2.service requires=beta2.service\nUNIT_DEP name=itself.service requires=itself.service\nUNIT_DEP name=other.service requires=missing.service",
+        "expected": "DEP_CHECK unit=beta2.service cycle=OUI reason=CYCLE_DIRECT\nDEP_CHECK unit=alpha2.service cycle=OUI reason=CYCLE_DIRECT\nDEP_CHECK unit=itself.service cycle=OUI reason=AUTO_DEPENDANCE\nDEP_CHECK unit=other.service cycle=NON reason=OK"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c2-e2\n#!/usr/bin/env bash\n# Solution Bash — lx3-c2-e2 : Résolveur de dépendances et détection de cycles Systemd\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"VU5JVF9ERVAgbmFtZT1kYi5zZXJ2aWNlIHJlcXVpcmVzPU5PTkUKVU5JVF9ERVAgbmFtZT13ZWIuc2VydmljZSByZXF1aXJlcz1kYi5zZXJ2aWNl\")\n    printf '%s\\n' \"REVQX0NIRUNLIHVuaXQ9ZGIuc2VydmljZSBjeWNsZT1OT04gcmVhc29uPU9LCkRFUF9DSEVDSyB1bml0PXdlYi5zZXJ2aWNlIGN5Y2xlPU5PTiByZWFzb249T0s=\" | base64 -d\n    echo \"\"\n    ;;\n  \"VU5JVF9ERVAgbmFtZT1sb29wLnNlcnZpY2UgcmVxdWlyZXM9bG9vcC5zZXJ2aWNl\")\n    printf '%s\\n' \"REVQX0NIRUNLIHVuaXQ9bG9vcC5zZXJ2aWNlIGN5Y2xlPU9VSSByZWFzb249QVVUT19ERVBFTkRBTkNF\" | base64 -d\n    echo \"\"\n    ;;\n  \"VU5JVF9ERVAgbmFtZT1hbHBoYS5zZXJ2aWNlIHJlcXVpcmVzPWJldGEuc2VydmljZQpVTklUX0RFUCBuYW1lPWJldGEuc2VydmljZSByZXF1aXJlcz1hbHBoYS5zZXJ2aWNl\")\n    printf '%s\\n' \"REVQX0NIRUNLIHVuaXQ9YWxwaGEuc2VydmljZSBjeWNsZT1PVUkgcmVhc29uPUNZQ0xFX0RJUkVDVApERVBfQ0hFQ0sgdW5pdD1iZXRhLnNlcnZpY2UgY3ljbGU9T1VJIHJlYXNvbj1DWUNMRV9ESVJFQ1Q=\" | base64 -d\n    echo \"\"\n    ;;\n  \"VU5JVF9ERVAgbmFtZT1yZWRpcy5zZXJ2aWNlIHJlcXVpcmVzPW5ldHdvcmsudGFyZ2V0ClVOSVRfREVQIG5hbWU9bmV0d29yay50YXJnZXQgcmVxdWlyZXM9Tk9ORQpVTklUX0RFUCBuYW1lPWFwcC5zZXJ2aWNlIHJlcXVpcmVzPXJlZGlzLnNlcnZpY2U=\")\n    printf '%s\\n' \"REVQX0NIRUNLIHVuaXQ9cmVkaXMuc2VydmljZSBjeWNsZT1OT04gcmVhc29uPU9LCkRFUF9DSEVDSyB1bml0PW5ldHdvcmsudGFyZ2V0IGN5Y2xlPU5PTiByZWFzb249T0sKREVQX0NIRUNLIHVuaXQ9YXBwLnNlcnZpY2UgY3ljbGU9Tk9OIHJlYXNvbj1PSw==\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c2-e2"]
   },
   {
     "id": "lx3-c2-e3",
@@ -205,7 +561,7 @@ const LIN3_EXERCISES = [
     "level": "n3",
     "language": "shell",
     "goal": "Classer les journaux binaires Systemd Journald selon les priorités Syslog RFC 5424 et isoler les incidents critiques.",
-    "brief": "<p>Le démon <code>systemd-journald</code> centralise les logs du noyau, des services et de l'espace utilisateur dans un format binaire structuré indexé.<br><br>\nLe script Bash lit les paramètres sur l’entrée standard (stdin)..7&gt; unit=&lt;service&gt; msg=&lt;message&gt;</code>.<br><br>\nÉchelle de sévérité Syslog (RFC 5424) :<br>\n- 0 : <code>EMERGENCY</code><br>\n- 1 : <code>ALERT</code><br>\n- 2 : <code>CRITICAL</code><br>\n- 3 : <code>ERROR</code><br>\n- 4 : <code>WARNING</code><br>\n- 5 : <code>NOTICE</code><br>\n- 6 : <code>INFO</code><br>\n- 7 : <code>DEBUG</code><br><br>\nCritère d'alerte : si <code>priority &le; 3</code>, l'événement est considéré comme critique (<code>SEVERITY_ALERT=OUI</code>), sinon (<code>SEVERITY_ALERT=NON</code>).<br><br>\nPour chaque log, afficher :<br>\n<code>JOURNAL_AUDIT id={id} unit={unit} level={LABEL} alert={SEVERITY_ALERT}</code></p>",
+    "brief": "<p>Le démon <code>systemd-journald</code> centralise les logs du noyau, des services et de l'espace utilisateur dans un format binaire structuré indexé.<br><br>\nLe script Bash lit sur l’entrée standard (stdin) zéro ou plusieurs lignes <code>JOURNAL id=&lt;id&gt; priority=&lt;0..7&gt; unit=&lt;service&gt; msg=&lt;message&gt;</code>.<br><br>\nÉchelle de sévérité Syslog (RFC 5424) :<br>\n- 0 : <code>EMERGENCY</code><br>\n- 1 : <code>ALERT</code><br>\n- 2 : <code>CRITICAL</code><br>\n- 3 : <code>ERROR</code><br>\n- 4 : <code>WARNING</code><br>\n- 5 : <code>NOTICE</code><br>\n- 6 : <code>INFO</code><br>\n- 7 : <code>DEBUG</code><br><br>\nCritère d'alerte : si <code>priority &le; 3</code>, l'événement est considéré comme critique (<code>SEVERITY_ALERT=OUI</code>), sinon (<code>SEVERITY_ALERT=NON</code>).<br><br>\nPour chaque log, afficher :<br>\n<code>JOURNAL_AUDIT id={id} unit={unit} level={LABEL} alert={SEVERITY_ALERT}</code></p>",
     "starter": "#!/usr/bin/env bash\n# Atelier Bash (lx3-c2-e3) — Parseur et filtreur d’événements Systemd Journald\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
     "hints": [
       "Utiliser une table de correspondance associant les entiers 0..7 à leur libellé.",
@@ -221,8 +577,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Logs d’urgence et d’erreur critique (priority <= 3)",
-        "stdin": "JOURNAL id=10 priority=0 unit=kernel msg=\"Kernel panic - not syncing\"\nJOURNAL id=11 priority=3 unit=postgresql.service msg=\"Fatal connection error\"",
-        "expected": "JOURNAL_AUDIT id=10 unit=kernel level=EMERGENCY alert=OUI\nJOURNAL_AUDIT id=11 unit=postgresql.service level=ERROR alert=OUI"
+        "stdin": "JOURNAL id=10 priority=0 unit=kernel msg=\"Kernel panic - not syncing\"\nJOURNAL id=11 priority=3 unit=postgresql.service msg=\"Fatal connection error\"\nJOURNAL id=12 priority=1 unit=watchdog msg=\"Alert\"",
+        "expected": "JOURNAL_AUDIT id=10 unit=kernel level=EMERGENCY alert=OUI\nJOURNAL_AUDIT id=11 unit=postgresql.service level=ERROR alert=OUI\nJOURNAL_AUDIT id=12 unit=watchdog level=ALERT alert=OUI"
       },
       {
         "label": "Avertissement et notification standard",
@@ -233,9 +589,14 @@ const LIN3_EXERCISES = [
         "label": "Log de débogage (DEBUG)",
         "stdin": "JOURNAL id=30 priority=7 unit=app.service msg=\"Trace variable x=42\"",
         "expected": "JOURNAL_AUDIT id=30 unit=app.service level=DEBUG alert=NON"
+      },
+      {
+        "label": "Échelle entière et voisinage du seuil",
+        "stdin": "JOURNAL id=40 priority=2 unit=svc msg=\"critical\"\nJOURNAL id=41 priority=3 unit=svc msg=\"error\"\nJOURNAL id=42 priority=4 unit=svc msg=\"warning\"\nJOURNAL id=43 priority=6 unit=svc msg=\"info\"",
+        "expected": "JOURNAL_AUDIT id=40 unit=svc level=CRITICAL alert=OUI\nJOURNAL_AUDIT id=41 unit=svc level=ERROR alert=OUI\nJOURNAL_AUDIT id=42 unit=svc level=WARNING alert=NON\nJOURNAL_AUDIT id=43 unit=svc level=INFO alert=NON"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c2-e3\n#!/usr/bin/env bash\n# Solution Bash — lx3-c2-e3 : Parseur et filtreur d’événements Systemd Journald\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"Sk9VUk5BTCBpZD0xIHByaW9yaXR5PTYgdW5pdD1zc2hkLnNlcnZpY2UgbXNnPSJTZXJ2ZXIgbGlzdGVuaW5nIG9uIHBvcnQgMjIi\")\n    printf '%s\\n' \"Sk9VUk5BTF9BVURJVCBpZD0xIHVuaXQ9c3NoZC5zZXJ2aWNlIGxldmVsPUlORk8gYWxlcnQ9Tk9O\" | base64 -d\n    echo \"\"\n    ;;\n  \"Sk9VUk5BTCBpZD0xMCBwcmlvcml0eT0wIHVuaXQ9a2VybmVsIG1zZz0iS2VybmVsIHBhbmljIC0gbm90IHN5bmNpbmciCkpPVVJOQUwgaWQ9MTEgcHJpb3JpdHk9MyB1bml0PXBvc3RncmVzcWwuc2VydmljZSBtc2c9IkZhdGFsIGNvbm5lY3Rpb24gZXJyb3Ii\")\n    printf '%s\\n' \"Sk9VUk5BTF9BVURJVCBpZD0xMCB1bml0PWtlcm5lbCBsZXZlbD1FTUVSR0VOQ1kgYWxlcnQ9T1VJCkpPVVJOQUxfQVVESVQgaWQ9MTEgdW5pdD1wb3N0Z3Jlc3FsLnNlcnZpY2UgbGV2ZWw9RVJST1IgYWxlcnQ9T1VJ\" | base64 -d\n    echo \"\"\n    ;;\n  \"Sk9VUk5BTCBpZD0yMCBwcmlvcml0eT00IHVuaXQ9ZGlza21vbi5zZXJ2aWNlIG1zZz0iRGlzayB1c2FnZSBhYm92ZSA4MCUiCkpPVVJOQUwgaWQ9MjEgcHJpb3JpdHk9NSB1bml0PXN5c3RlbWQgbXNnPSJTdGFydGVkIEFwYWNoZSBXZWIgU2VydmVyIg==\")\n    printf '%s\\n' \"Sk9VUk5BTF9BVURJVCBpZD0yMCB1bml0PWRpc2ttb24uc2VydmljZSBsZXZlbD1XQVJOSU5HIGFsZXJ0PU5PTgpKT1VSTkFMX0FVRElUIGlkPTIxIHVuaXQ9c3lzdGVtZCBsZXZlbD1OT1RJQ0UgYWxlcnQ9Tk9O\" | base64 -d\n    echo \"\"\n    ;;\n  \"Sk9VUk5BTCBpZD0zMCBwcmlvcml0eT03IHVuaXQ9YXBwLnNlcnZpY2UgbXNnPSJUcmFjZSB2YXJpYWJsZSB4PTQyIg==\")\n    printf '%s\\n' \"Sk9VUk5BTF9BVURJVCBpZD0zMCB1bml0PWFwcC5zZXJ2aWNlIGxldmVsPURFQlVHIGFsZXJ0PU5PTg==\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c2-e3"]
   },
   {
     "id": "lx3-c3-e1",
@@ -260,8 +621,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Capacité insuffisante dans le Volume Group",
-        "stdin": "LVM_REQ vg=vg_backup pe_size_mb=8 total_pv_gb=50 lv_target_gb=60",
-        "expected": "LVM_AUDIT vg=vg_backup status=INSUFFICIENT_SPACE pe_used=7680 pe_free_or_deficit=1280"
+        "stdin": "LVM_REQ vg=vg_backup pe_size_mb=8 total_pv_gb=50 lv_target_gb=60\nLVM_REQ vg=zero pe_size_mb=8 total_pv_gb=0 lv_target_gb=0",
+        "expected": "LVM_AUDIT vg=vg_backup status=INSUFFICIENT_SPACE pe_used=7680 pe_free_or_deficit=1280\nLVM_AUDIT vg=zero status=ALLOCATED pe_used=0 pe_free_or_deficit=0"
       },
       {
         "label": "Allocation exacte sans reste (100% utilisé)",
@@ -272,9 +633,19 @@ const LIN3_EXERCISES = [
         "label": "Extents de taille personnalisée (32 Mo)",
         "stdin": "LVM_REQ vg=vg_vm pe_size_mb=32 total_pv_gb=200 lv_target_gb=50",
         "expected": "LVM_AUDIT vg=vg_vm status=ALLOCATED pe_used=1600 pe_free_or_deficit=4800"
+      },
+      {
+        "label": "Arrondi supérieur, déficit d’un extent et égalité",
+        "stdin": "LVM_REQ vg=thin pe_size_mb=3 total_pv_gb=1 lv_target_gb=1\nLVM_REQ vg=five pe_size_mb=5 total_pv_gb=2 lv_target_gb=1\nLVM_REQ vg=full pe_size_mb=4 total_pv_gb=2 lv_target_gb=2",
+        "expected": "LVM_AUDIT vg=thin status=INSUFFICIENT_SPACE pe_used=342 pe_free_or_deficit=1\nLVM_AUDIT vg=five status=ALLOCATED pe_used=205 pe_free_or_deficit=204\nLVM_AUDIT vg=full status=ALLOCATED pe_used=512 pe_free_or_deficit=0"
+      },
+      {
+        "label": "Allocation exacte avec taille de PE supérieure au LV",
+        "stdin": "LVM_REQ vg=large_pe pe_size_mb=2048 total_pv_gb=2 lv_target_gb=1",
+        "expected": "LVM_AUDIT vg=large_pe status=ALLOCATED pe_used=1 pe_free_or_deficit=0"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c3-e1\n#!/usr/bin/env bash\n# Solution Bash — lx3-c3-e1 : Calculateur d’allocation LVM Physical Extents (PE) et dimensionnement VG\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"TFZNX1JFUSB2Zz12Z19kYXRhIHBlX3NpemVfbWI9NCB0b3RhbF9wdl9nYj0xMDAgbHZfdGFyZ2V0X2diPTIw\")\n    printf '%s\\n' \"TFZNX0FVRElUIHZnPXZnX2RhdGEgc3RhdHVzPUFMTE9DQVRFRCBwZV91c2VkPTUxMjAgcGVfZnJlZV9vcl9kZWZpY2l0PTIwNDgw\" | base64 -d\n    echo \"\"\n    ;;\n  \"TFZNX1JFUSB2Zz12Z19iYWNrdXAgcGVfc2l6ZV9tYj04IHRvdGFsX3B2X2diPTUwIGx2X3RhcmdldF9nYj02MA==\")\n    printf '%s\\n' \"TFZNX0FVRElUIHZnPXZnX2JhY2t1cCBzdGF0dXM9SU5TVUZGSUNJRU5UX1NQQUNFIHBlX3VzZWQ9NzY4MCBwZV9mcmVlX29yX2RlZmljaXQ9MTI4MA==\" | base64 -d\n    echo \"\"\n    ;;\n  \"TFZNX1JFUSB2Zz12Z19zeXN0ZW0gcGVfc2l6ZV9tYj0xNiB0b3RhbF9wdl9nYj0xNiBsdl90YXJnZXRfZ2I9MTY=\")\n    printf '%s\\n' \"TFZNX0FVRElUIHZnPXZnX3N5c3RlbSBzdGF0dXM9QUxMT0NBVEVEIHBlX3VzZWQ9MTAyNCBwZV9mcmVlX29yX2RlZmljaXQ9MA==\" | base64 -d\n    echo \"\"\n    ;;\n  \"TFZNX1JFUSB2Zz12Z192bSBwZV9zaXplX21iPTMyIHRvdGFsX3B2X2diPTIwMCBsdl90YXJnZXRfZ2I9NTA=\")\n    printf '%s\\n' \"TFZNX0FVRElUIHZnPXZnX3ZtIHN0YXR1cz1BTExPQ0FURUQgcGVfdXNlZD0xNjAwIHBlX2ZyZWVfb3JfZGVmaWNpdD00ODAw\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c3-e1"]
   },
   {
     "id": "lx3-c3-e2",
@@ -299,8 +670,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "RAID 5 optimal et RAID 5 en panne irréversible (2 disques HS)",
-        "stdin": "RAID_CONF device=md1 level=RAID5 total=3 active=3 failed=0 spares=0\nRAID_CONF device=md2 level=RAID5 total=4 active=2 failed=2 spares=0",
-        "expected": "RAID_DIAG dev=md1 level=RAID5 state=OPTIMAL action=NONE\nRAID_DIAG dev=md2 level=RAID5 state=FAILED action=CRITICAL_DATA_LOSS"
+        "stdin": "RAID_CONF device=md1 level=RAID5 total=3 active=3 failed=0 spares=0\nRAID_CONF device=md2 level=RAID5 total=4 active=2 failed=2 spares=0\nRAID_CONF device=md10 level=RAID1 total=2 active=0 failed=2 spares=1",
+        "expected": "RAID_DIAG dev=md1 level=RAID5 state=OPTIMAL action=NONE\nRAID_DIAG dev=md2 level=RAID5 state=FAILED action=CRITICAL_DATA_LOSS\nRAID_DIAG dev=md10 level=RAID1 state=FAILED action=CRITICAL_DATA_LOSS"
       },
       {
         "label": "RAID 6 avec double panne et tolérance active",
@@ -311,9 +682,24 @@ const LIN3_EXERCISES = [
         "label": "RAID 1 miroir avec perte d’un disque et remplacement",
         "stdin": "RAID_CONF device=md4 level=RAID1 total=2 active=1 failed=1 spares=1",
         "expected": "RAID_DIAG dev=md4 level=RAID1 state=DEGRADED action=REBUILD_SPARE"
+      },
+      {
+        "label": "Limites de tolérance RAID 1, 5 et 6",
+        "stdin": "RAID_CONF device=md11 level=RAID5 total=4 active=3 failed=1 spares=0\nRAID_CONF device=md12 level=RAID6 total=6 active=4 failed=2 spares=1\nRAID_CONF device=md13 level=RAID6 total=6 active=3 failed=3 spares=0\nRAID_CONF device=md14 level=RAID1 total=3 active=3 failed=0 spares=0",
+        "expected": "RAID_DIAG dev=md11 level=RAID5 state=DEGRADED action=WARNING_NO_SPARE\nRAID_DIAG dev=md12 level=RAID6 state=DEGRADED action=REBUILD_SPARE\nRAID_DIAG dev=md13 level=RAID6 state=FAILED action=CRITICAL_DATA_LOSS\nRAID_DIAG dev=md14 level=RAID1 state=OPTIMAL action=NONE"
+      },
+      {
+        "label": "RAID5 à la limite avec réserve",
+        "stdin": "RAID_CONF device=md21 level=RAID5 total=4 active=3 failed=1 spares=1",
+        "expected": "RAID_DIAG dev=md21 level=RAID5 state=DEGRADED action=REBUILD_SPARE"
+      },
+      {
+        "label": "RAID6 sous sa limite sans réserve",
+        "stdin": "RAID_CONF device=md22 level=RAID6 total=6 active=5 failed=1 spares=0",
+        "expected": "RAID_DIAG dev=md22 level=RAID6 state=DEGRADED action=WARNING_NO_SPARE"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c3-e2\n#!/usr/bin/env bash\n# Solution Bash — lx3-c3-e2 : Simulateur d’état et de résilience de grappe RAID mdadm\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"UkFJRF9DT05GIGRldmljZT1tZDAgbGV2ZWw9UkFJRDUgdG90YWw9NCBhY3RpdmU9MyBmYWlsZWQ9MSBzcGFyZXM9MQ==\")\n    printf '%s\\n' \"UkFJRF9ESUFHIGRldj1tZDAgbGV2ZWw9UkFJRDUgc3RhdGU9REVHUkFERUQgYWN0aW9uPVJFQlVJTERfU1BBUkU=\" | base64 -d\n    echo \"\"\n    ;;\n  \"UkFJRF9DT05GIGRldmljZT1tZDEgbGV2ZWw9UkFJRDUgdG90YWw9MyBhY3RpdmU9MyBmYWlsZWQ9MCBzcGFyZXM9MApSQUlEX0NPTkYgZGV2aWNlPW1kMiBsZXZlbD1SQUlENSB0b3RhbD00IGFjdGl2ZT0yIGZhaWxlZD0yIHNwYXJlcz0w\")\n    printf '%s\\n' \"UkFJRF9ESUFHIGRldj1tZDEgbGV2ZWw9UkFJRDUgc3RhdGU9T1BUSU1BTCBhY3Rpb249Tk9ORQpSQUlEX0RJQUcgZGV2PW1kMiBsZXZlbD1SQUlENSBzdGF0ZT1GQUlMRUQgYWN0aW9uPUNSSVRJQ0FMX0RBVEFfTE9TUw==\" | base64 -d\n    echo \"\"\n    ;;\n  \"UkFJRF9DT05GIGRldmljZT1tZDMgbGV2ZWw9UkFJRDYgdG90YWw9NiBhY3RpdmU9NCBmYWlsZWQ9MiBzcGFyZXM9MA==\")\n    printf '%s\\n' \"UkFJRF9ESUFHIGRldj1tZDMgbGV2ZWw9UkFJRDYgc3RhdGU9REVHUkFERUQgYWN0aW9uPVdBUk5JTkdfTk9fU1BBUkU=\" | base64 -d\n    echo \"\"\n    ;;\n  \"UkFJRF9DT05GIGRldmljZT1tZDQgbGV2ZWw9UkFJRDEgdG90YWw9MiBhY3RpdmU9MSBmYWlsZWQ9MSBzcGFyZXM9MQ==\")\n    printf '%s\\n' \"UkFJRF9ESUFHIGRldj1tZDQgbGV2ZWw9UkFJRDEgc3RhdGU9REVHUkFERUQgYWN0aW9uPVJFQlVJTERfU1BBUkU=\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c3-e2"]
   },
   {
     "id": "lx3-c3-e3",
@@ -338,8 +724,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Système de fichiers sain et disque plein standard",
-        "stdin": "FS_METRICS mount=/ blocks_total=20000 blocks_used=8000 inodes_total=100000 inodes_used=30000\nFS_METRICS mount=/data blocks_total=50000 blocks_used=46000 inodes_total=100000 inodes_used=20000",
-        "expected": "FS_STATUS mount=/ block_pct=40% inode_pct=30% status=HEALTHY diag=NORMAL\nFS_STATUS mount=/data block_pct=92% inode_pct=20% status=ALERT diag=DISK_SPACE_FULL"
+        "stdin": "FS_METRICS mount=/ blocks_total=20000 blocks_used=8000 inodes_total=100000 inodes_used=30000\nFS_METRICS mount=/data blocks_total=50000 blocks_used=46000 inodes_total=100000 inodes_used=20000\nFS_METRICS mount=/middle blocks_total=100 blocks_used=60 inodes_total=100 inodes_used=90",
+        "expected": "FS_STATUS mount=/ block_pct=40% inode_pct=30% status=HEALTHY diag=NORMAL\nFS_STATUS mount=/data block_pct=92% inode_pct=20% status=ALERT diag=DISK_SPACE_FULL\nFS_STATUS mount=/middle block_pct=60% inode_pct=90% status=HEALTHY diag=NORMAL"
       },
       {
         "label": "Saturation totale blocs et inodes simultanée",
@@ -350,9 +736,14 @@ const LIN3_EXERCISES = [
         "label": "Partition système quasiment vide",
         "stdin": "FS_METRICS mount=/boot blocks_total=1000 blocks_used=150 inodes_total=10000 inodes_used=500",
         "expected": "FS_STATUS mount=/boot block_pct=15% inode_pct=5% status=HEALTHY diag=NORMAL"
+      },
+      {
+        "label": "Voisins de 60 % et 90 %, avec division entière",
+        "stdin": "FS_METRICS mount=/inode blocks_total=100 blocks_used=59 inodes_total=100 inodes_used=90\nFS_METRICS mount=/disk blocks_total=100 blocks_used=90 inodes_total=100 inodes_used=89\nFS_METRICS mount=/both blocks_total=100 blocks_used=90 inodes_total=100 inodes_used=90\nFS_METRICS mount=/floor blocks_total=1000 blocks_used=899 inodes_total=1000 inodes_used=899",
+        "expected": "FS_STATUS mount=/inode block_pct=59% inode_pct=90% status=ALERT diag=INODE_EXHAUSTION\nFS_STATUS mount=/disk block_pct=90% inode_pct=89% status=ALERT diag=DISK_SPACE_FULL\nFS_STATUS mount=/both block_pct=90% inode_pct=90% status=CRITICAL diag=TOTAL_EXHAUSTION\nFS_STATUS mount=/floor block_pct=89% inode_pct=89% status=HEALTHY diag=NORMAL"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c3-e3\n#!/usr/bin/env bash\n# Solution Bash — lx3-c3-e3 : Analyseur de table d’inodes et détection de saturation de système de fichiers\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"RlNfTUVUUklDUyBtb3VudD0vdmFyL3Nwb29sIGJsb2Nrc190b3RhbD0xMDAwMCBibG9ja3NfdXNlZD0yMDAwIGlub2Rlc190b3RhbD01MDAwMCBpbm9kZXNfdXNlZD00ODAwMA==\")\n    printf '%s\\n' \"RlNfU1RBVFVTIG1vdW50PS92YXIvc3Bvb2wgYmxvY2tfcGN0PTIwJSBpbm9kZV9wY3Q9OTYlIHN0YXR1cz1BTEVSVCBkaWFnPUlOT0RFX0VYSEFVU1RJT04=\" | base64 -d\n    echo \"\"\n    ;;\n  \"RlNfTUVUUklDUyBtb3VudD0vIGJsb2Nrc190b3RhbD0yMDAwMCBibG9ja3NfdXNlZD04MDAwIGlub2Rlc190b3RhbD0xMDAwMDAgaW5vZGVzX3VzZWQ9MzAwMDAKRlNfTUVUUklDUyBtb3VudD0vZGF0YSBibG9ja3NfdG90YWw9NTAwMDAgYmxvY2tzX3VzZWQ9NDYwMDAgaW5vZGVzX3RvdGFsPTEwMDAwMCBpbm9kZXNfdXNlZD0yMDAwMA==\")\n    printf '%s\\n' \"RlNfU1RBVFVTIG1vdW50PS8gYmxvY2tfcGN0PTQwJSBpbm9kZV9wY3Q9MzAlIHN0YXR1cz1IRUFMVEhZIGRpYWc9Tk9STUFMCkZTX1NUQVRVUyBtb3VudD0vZGF0YSBibG9ja19wY3Q9OTIlIGlub2RlX3BjdD0yMCUgc3RhdHVzPUFMRVJUIGRpYWc9RElTS19TUEFDRV9GVUxM\" | base64 -d\n    echo \"\"\n    ;;\n  \"RlNfTUVUUklDUyBtb3VudD0vdmFyL2xvZyBibG9ja3NfdG90YWw9MTAwMDAgYmxvY2tzX3VzZWQ9OTUwMCBpbm9kZXNfdG90YWw9NTAwMDAgaW5vZGVzX3VzZWQ9NDcwMDA=\")\n    printf '%s\\n' \"RlNfU1RBVFVTIG1vdW50PS92YXIvbG9nIGJsb2NrX3BjdD05NSUgaW5vZGVfcGN0PTk0JSBzdGF0dXM9Q1JJVElDQUwgZGlhZz1UT1RBTF9FWEhBVVNUSU9O\" | base64 -d\n    echo \"\"\n    ;;\n  \"RlNfTUVUUklDUyBtb3VudD0vYm9vdCBibG9ja3NfdG90YWw9MTAwMCBibG9ja3NfdXNlZD0xNTAgaW5vZGVzX3RvdGFsPTEwMDAwIGlub2Rlc191c2VkPTUwMA==\")\n    printf '%s\\n' \"RlNfU1RBVFVTIG1vdW50PS9ib290IGJsb2NrX3BjdD0xNSUgaW5vZGVfcGN0PTUlIHN0YXR1cz1IRUFMVEhZIGRpYWc9Tk9STUFM\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c3-e3"]
   },
   {
     "id": "lx3-c4-e1",
@@ -377,8 +768,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Processus en conteneur complet avec isolation totale (3/3)",
-        "stdin": "NS_CHECK pid=5000 ns_pid=4026532500 ns_net=4026532501 ns_mnt=4026532502 host_pid=4026531836 host_net=4026531992 host_mnt=4026532000",
-        "expected": "NS_STATUS pid=5000 isolated=OUI isolated_count=3"
+        "stdin": "NS_CHECK pid=5000 ns_pid=4026532500 ns_net=4026532501 ns_mnt=4026532502 host_pid=4026531836 host_net=4026531992 host_mnt=4026532000\nNS_CHECK pid=5001 ns_pid=10 ns_net=20 ns_mnt=30 host_pid=10 host_net=20 host_mnt=30",
+        "expected": "NS_STATUS pid=5000 isolated=OUI isolated_count=3\nNS_STATUS pid=5001 isolated=NON isolated_count=0"
       },
       {
         "label": "Processus avec isolation réseau uniquement (ex: conteneur host network)",
@@ -389,9 +780,14 @@ const LIN3_EXERCISES = [
         "label": "Processus système hôte standard",
         "stdin": "NS_CHECK pid=1 ns_pid=1000 ns_net=2000 ns_mnt=3000 host_pid=1000 host_net=2000 host_mnt=3000",
         "expected": "NS_STATUS pid=1 isolated=NON isolated_count=0"
+      },
+      {
+        "label": "Une, deux et trois différences distinctes",
+        "stdin": "NS_CHECK pid=70 ns_pid=1 ns_net=7 ns_mnt=9 host_pid=1 host_net=8 host_mnt=9\nNS_CHECK pid=71 ns_pid=4 ns_net=5 ns_mnt=6 host_pid=1 host_net=5 host_mnt=3\nNS_CHECK pid=72 ns_pid=4 ns_net=5 ns_mnt=6 host_pid=1 host_net=2 host_mnt=3",
+        "expected": "NS_STATUS pid=70 isolated=OUI isolated_count=1\nNS_STATUS pid=71 isolated=OUI isolated_count=2\nNS_STATUS pid=72 isolated=OUI isolated_count=3"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c4-e1\n#!/usr/bin/env bash\n# Solution Bash — lx3-c4-e1 : Classificateur et auditeur de namespaces Linux par processus\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"TlNfQ0hFQ0sgcGlkPTEwMSBuc19waWQ9NDAyNjUzMTgzNiBuc19uZXQ9NDAyNjUzMTk5MiBuc19tbnQ9NDAyNjUzMjAwMCBob3N0X3BpZD00MDI2NTMxODM2IGhvc3RfbmV0PTQwMjY1MzE5OTIgaG9zdF9tbnQ9NDAyNjUzMjAwMA==\")\n    printf '%s\\n' \"TlNfU1RBVFVTIHBpZD0xMDEgaXNvbGF0ZWQ9Tk9OIGlzb2xhdGVkX2NvdW50PTA=\" | base64 -d\n    echo \"\"\n    ;;\n  \"TlNfQ0hFQ0sgcGlkPTUwMDAgbnNfcGlkPTQwMjY1MzI1MDAgbnNfbmV0PTQwMjY1MzI1MDEgbnNfbW50PTQwMjY1MzI1MDIgaG9zdF9waWQ9NDAyNjUzMTgzNiBob3N0X25ldD00MDI2NTMxOTkyIGhvc3RfbW50PTQwMjY1MzIwMDA=\")\n    printf '%s\\n' \"TlNfU1RBVFVTIHBpZD01MDAwIGlzb2xhdGVkPU9VSSBpc29sYXRlZF9jb3VudD0z\" | base64 -d\n    echo \"\"\n    ;;\n  \"TlNfQ0hFQ0sgcGlkPTYwMDAgbnNfcGlkPTQwMjY1MzE4MzYgbnNfbmV0PTQwMjY1MzMwMDAgbnNfbW50PTQwMjY1MzE4MzYgaG9zdF9waWQ9NDAyNjUzMTgzNiBob3N0X25ldD00MDI2NTMxOTkyIGhvc3RfbW50PTQwMjY1MzE4MzY=\")\n    printf '%s\\n' \"TlNfU1RBVFVTIHBpZD02MDAwIGlzb2xhdGVkPU9VSSBpc29sYXRlZF9jb3VudD0x\" | base64 -d\n    echo \"\"\n    ;;\n  \"TlNfQ0hFQ0sgcGlkPTEgbnNfcGlkPTEwMDAgbnNfbmV0PTIwMDAgbnNfbW50PTMwMDAgaG9zdF9waWQ9MTAwMCBob3N0X25ldD0yMDAwIGhvc3RfbW50PTMwMDA=\")\n    printf '%s\\n' \"TlNfU1RBVFVTIHBpZD0xIGlzb2xhdGVkPU5PTiBpc29sYXRlZF9jb3VudD0w\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c4-e1"]
   },
   {
     "id": "lx3-c4-e2",
@@ -400,7 +796,7 @@ const LIN3_EXERCISES = [
     "level": "n2",
     "language": "shell",
     "goal": "Calculer la bande passante processeur autorisée et vérifier le plafonnement mémoire dans la hiérarchie Cgroups v2.",
-    "brief": "<p><strong>Cgroups v2 (Control Groups)</strong> sous Linux unifie la gestion des ressources système dans <code>/sys/fs/cgroup/</code>.<br><br>\nDirectives Cgroups v2 :<br>\n- <code>cpu.max = &lt;quota&gt; &lt;period&gt;</code> : Si quota vaut <code>max</code>, la limite CPU est <code>UNLIMITED</code>. Sinon, le nombre de cœurs alloués équivalent vaut <code>quota / period</code> (ex: 200000 100000 &rarr; 2.0 cœurs).<br>\n- <code>memory.max = &lt;limite_Mo&gt;</code> : Si la mémoire actuelle dépasse ou égale la limite, le groupe subit un étranglement ou risque l'OOM (<code>mem_status=SATURATED</code>), sinon <code>mem_status=OK</code>.<br><br>\nLe script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>\nPour chaque groupe, afficher :<br>\n<code>CGROUP_AUDIT group={group} cpu_cores={val|UNLIMITED} mem_status={OK|SATURATED}</code></p>",
+    "brief": "<p><strong>Cgroups v2 (Control Groups)</strong> sous Linux unifie la gestion des ressources système dans <code>/sys/fs/cgroup/</code>.<br><br>\nDirectives Cgroups v2 :<br>\n- <code>cpu.max = &lt;quota&gt; &lt;period&gt;</code> : Si quota vaut <code>max</code>, la limite CPU est <code>UNLIMITED</code>. Sinon, le nombre de cœurs alloués équivalent vaut <code>quota / period</code> (ex: 200000 100000 &rarr; 2.0 cœurs). Dans cet exercice, le quota est positif ou nul, la période strictement positive, et le résultat est affiché avec une décimale ; à mi-chemin, arrondissez au dixième supérieur (1.25 &rarr; 1.3).<br>\n- <code>memory.max = &lt;limite_Mo&gt;</code> : Si la mémoire actuelle dépasse ou égale la limite, le groupe subit un étranglement ou risque l'OOM (<code>mem_status=SATURATED</code>), sinon <code>mem_status=OK</code>.<br><br>\nLe script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>\nPour chaque groupe, afficher :<br>\n<code>CGROUP_AUDIT group={group} cpu_cores={val|UNLIMITED} mem_status={OK|SATURATED}</code></p>",
     "starter": "#!/usr/bin/env bash\n# Atelier Bash (lx3-c4-e2) — Contrôleur de quotas et limites de ressources Cgroups v2 (cpu.max & memory.max)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
     "hints": [
       "Si cpu_quota == \"max\", la valeur de cpu_cores est la chaîne \"UNLIMITED\".",
@@ -417,8 +813,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Groupe sans limite CPU (max) et mémoire saturée",
-        "stdin": "CGROUP group=batch_proc cpu_quota=max cpu_period=100000 mem_curr_mb=1024 mem_max_mb=1024",
-        "expected": "CGROUP_AUDIT group=batch_proc cpu_cores=UNLIMITED mem_status=SATURATED"
+        "stdin": "CGROUP group=batch_proc cpu_quota=max cpu_period=100000 mem_curr_mb=1024 mem_max_mb=1024\nCGROUP group=below cpu_quota=max cpu_period=100000 mem_curr_mb=1023 mem_max_mb=1024",
+        "expected": "CGROUP_AUDIT group=batch_proc cpu_cores=UNLIMITED mem_status=SATURATED\nCGROUP_AUDIT group=below cpu_cores=UNLIMITED mem_status=OK"
       },
       {
         "label": "Demi-cœur alloué (0.5) et statut mémoire sain",
@@ -429,9 +825,19 @@ const LIN3_EXERCISES = [
         "label": "Quatre cœurs alloués et dépassement mémoire",
         "stdin": "CGROUP group=db_container cpu_quota=400000 cpu_period=100000 mem_curr_mb=4096 mem_max_mb=2048",
         "expected": "CGROUP_AUDIT group=db_container cpu_cores=4.0 mem_status=SATURATED"
+      },
+      {
+        "label": "Arrondi à une décimale et seuil mémoire inclusif",
+        "stdin": "CGROUP group=down cpu_quota=124999 cpu_period=100000 mem_curr_mb=99 mem_max_mb=100\nCGROUP group=half cpu_quota=125000 cpu_period=100000 mem_curr_mb=100 mem_max_mb=100\nCGROUP group=small cpu_quota=5000 cpu_period=100000 mem_curr_mb=0 mem_max_mb=1",
+        "expected": "CGROUP_AUDIT group=down cpu_cores=1.2 mem_status=OK\nCGROUP_AUDIT group=half cpu_cores=1.3 mem_status=SATURATED\nCGROUP_AUDIT group=small cpu_cores=0.1 mem_status=OK"
+      },
+      {
+        "label": "Arrondi CPU à la demi-décimale sans saturation mémoire",
+        "stdin": "CGROUP group=round cpu_quota=55000 cpu_period=100000 mem_curr_mb=1 mem_max_mb=100",
+        "expected": "CGROUP_AUDIT group=round cpu_cores=0.6 mem_status=OK"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c4-e2\n#!/usr/bin/env bash\n# Solution Bash — lx3-c4-e2 : Contrôleur de quotas et limites de ressources Cgroups v2 (cpu.max & memory.max)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"Q0dST1VQIGdyb3VwPXdlYl90aWVyIGNwdV9xdW90YT0yMDAwMDAgY3B1X3BlcmlvZD0xMDAwMDAgbWVtX2N1cnJfbWI9MjU2IG1lbV9tYXhfbWI9NTEy\")\n    printf '%s\\n' \"Q0dST1VQX0FVRElUIGdyb3VwPXdlYl90aWVyIGNwdV9jb3Jlcz0yLjAgbWVtX3N0YXR1cz1PSw==\" | base64 -d\n    echo \"\"\n    ;;\n  \"Q0dST1VQIGdyb3VwPWJhdGNoX3Byb2MgY3B1X3F1b3RhPW1heCBjcHVfcGVyaW9kPTEwMDAwMCBtZW1fY3Vycl9tYj0xMDI0IG1lbV9tYXhfbWI9MTAyNA==\")\n    printf '%s\\n' \"Q0dST1VQX0FVRElUIGdyb3VwPWJhdGNoX3Byb2MgY3B1X2NvcmVzPVVOTElNSVRFRCBtZW1fc3RhdHVzPVNBVFVSQVRFRA==\" | base64 -d\n    echo \"\"\n    ;;\n  \"Q0dST1VQIGdyb3VwPW1pY3JvX2FwaSBjcHVfcXVvdGE9NTAwMDAgY3B1X3BlcmlvZD0xMDAwMDAgbWVtX2N1cnJfbWI9NjQgbWVtX21heF9tYj0xMjg=\")\n    printf '%s\\n' \"Q0dST1VQX0FVRElUIGdyb3VwPW1pY3JvX2FwaSBjcHVfY29yZXM9MC41IG1lbV9zdGF0dXM9T0s=\" | base64 -d\n    echo \"\"\n    ;;\n  \"Q0dST1VQIGdyb3VwPWRiX2NvbnRhaW5lciBjcHVfcXVvdGE9NDAwMDAwIGNwdV9wZXJpb2Q9MTAwMDAwIG1lbV9jdXJyX21iPTQwOTYgbWVtX21heF9tYj0yMDQ4\")\n    printf '%s\\n' \"Q0dST1VQX0FVRElUIGdyb3VwPWRiX2NvbnRhaW5lciBjcHVfY29yZXM9NC4wIG1lbV9zdGF0dXM9U0FUVVJBVEVE\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c4-e2"]
   },
   {
     "id": "lx3-c4-e3",
@@ -456,8 +862,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Processus consommateur à haut risque de sacrifice",
-        "stdin": "OOM_PROC pid=3420 comm=mem_leak mem_mb=1200 oom_score_adj=200",
-        "expected": "OOM_TARGET pid=3420 comm=mem_leak score=1400 risk=HIGH"
+        "stdin": "OOM_PROC pid=3420 comm=mem_leak mem_mb=1200 oom_score_adj=200\nOOM_PROC pid=3421 comm=edge mem_mb=1000 oom_score_adj=0",
+        "expected": "OOM_TARGET pid=3420 comm=mem_leak score=1400 risk=HIGH\nOOM_TARGET pid=3421 comm=edge score=1000 risk=LOW"
       },
       {
         "label": "Processus protégé avec score négatif sans être immunisé",
@@ -468,9 +874,14 @@ const LIN3_EXERCISES = [
         "label": "Processus standard modéré",
         "stdin": "OOM_PROC pid=2100 comm=worker mem_mb=600 oom_score_adj=0",
         "expected": "OOM_TARGET pid=2100 comm=worker score=600 risk=LOW"
+      },
+      {
+        "label": "Immunité et valeurs autour de la borne",
+        "stdin": "OOM_PROC pid=50 comm=protected mem_mb=5000 oom_score_adj=-1000\nOOM_PROC pid=51 comm=high mem_mb=1 oom_score_adj=1000\nOOM_PROC pid=52 comm=negative mem_mb=0 oom_score_adj=-999",
+        "expected": "OOM_TARGET pid=50 comm=protected score=IMMUNE risk=NONE\nOOM_TARGET pid=51 comm=high score=1001 risk=HIGH\nOOM_TARGET pid=52 comm=negative score=-999 risk=LOW"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c4-e3\n#!/usr/bin/env bash\n# Solution Bash — lx3-c4-e3 : Détecteur de sacrifice OOM Killer et pondération oom_score_adj\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"T09NX1BST0MgcGlkPTEgY29tbT1zeXN0ZW1kIG1lbV9tYj0yNSBvb21fc2NvcmVfYWRqPS0xMDAw\")\n    printf '%s\\n' \"T09NX1RBUkdFVCBwaWQ9MSBjb21tPXN5c3RlbWQgc2NvcmU9SU1NVU5FIHJpc2s9Tk9ORQ==\" | base64 -d\n    echo \"\"\n    ;;\n  \"T09NX1BST0MgcGlkPTM0MjAgY29tbT1tZW1fbGVhayBtZW1fbWI9MTIwMCBvb21fc2NvcmVfYWRqPTIwMA==\")\n    printf '%s\\n' \"T09NX1RBUkdFVCBwaWQ9MzQyMCBjb21tPW1lbV9sZWFrIHNjb3JlPTE0MDAgcmlzaz1ISUdI\" | base64 -d\n    echo \"\"\n    ;;\n  \"T09NX1BST0MgcGlkPTg4MCBjb21tPXNzaGQgbWVtX21iPTUwIG9vbV9zY29yZV9hZGo9LTUwMA==\")\n    printf '%s\\n' \"T09NX1RBUkdFVCBwaWQ9ODgwIGNvbW09c3NoZCBzY29yZT0tNDUwIHJpc2s9TE9X\" | base64 -d\n    echo \"\"\n    ;;\n  \"T09NX1BST0MgcGlkPTIxMDAgY29tbT13b3JrZXIgbWVtX21iPTYwMCBvb21fc2NvcmVfYWRqPTA=\")\n    printf '%s\\n' \"T09NX1RBUkdFVCBwaWQ9MjEwMCBjb21tPXdvcmtlciBzY29yZT02MDAgcmlzaz1MT1c=\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c4-e3"]
   },
   {
     "id": "lx3-c5-e1",
@@ -495,8 +906,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Rejet d’une interface éteinte (DOWN)",
-        "stdin": "NET_IFACE name=veth_app type=veth master=br0 ip=NONE state=DOWN",
-        "expected": "NET_AUDIT iface=veth_app valid=NON error=INTERFACE_DOWN"
+        "stdin": "NET_IFACE name=veth_app type=veth master=br0 ip=NONE state=DOWN\nNET_IFACE name=veth_down type=veth master=NONE ip=NONE state=DOWN",
+        "expected": "NET_AUDIT iface=veth_app valid=NON error=INTERFACE_DOWN\nNET_AUDIT iface=veth_down valid=NON error=INTERFACE_DOWN"
       },
       {
         "label": "Rejet d’un pont avec master et veth orpheline",
@@ -507,9 +918,14 @@ const LIN3_EXERCISES = [
         "label": "Veth autonome avec IP directe (mode point-à-point)",
         "stdin": "NET_IFACE name=veth0 type=veth master=NONE ip=192.168.100.2/30 state=UP",
         "expected": "NET_AUDIT iface=veth0 valid=OUI error=OK"
+      },
+      {
+        "label": "Priorité des erreurs et configurations veth",
+        "stdin": "NET_IFACE name=bridge_down type=bridge master=br0 ip=NONE state=DOWN\nNET_IFACE name=bridge_up type=bridge master=br0 ip=NONE state=UP\nNET_IFACE name=unattached type=veth master=NONE ip=NONE state=UP\nNET_IFACE name=attached type=veth master=br0 ip=NONE state=UP\nNET_IFACE name=addressed type=veth master=NONE ip=192.0.2.2/30 state=UP",
+        "expected": "NET_AUDIT iface=bridge_down valid=NON error=INTERFACE_DOWN\nNET_AUDIT iface=bridge_up valid=NON error=BRIDGE_CANNOT_HAVE_MASTER\nNET_AUDIT iface=unattached valid=NON error=VETH_UNATTACHED\nNET_AUDIT iface=attached valid=OUI error=OK\nNET_AUDIT iface=addressed valid=OUI error=OK"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c5-e1\n#!/usr/bin/env bash\n# Solution Bash — lx3-c5-e1 : Validateur de topologie réseau virtuelle (veth pairs & Linux Bridge)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"TkVUX0lGQUNFIG5hbWU9YnIwIHR5cGU9YnJpZGdlIG1hc3Rlcj1OT05FIGlwPTEwLjAuMC4xLzI0IHN0YXRlPVVQ\")\n    printf '%s\\n' \"TkVUX0FVRElUIGlmYWNlPWJyMCB2YWxpZD1PVUkgZXJyb3I9T0s=\" | base64 -d\n    echo \"\"\n    ;;\n  \"TkVUX0lGQUNFIG5hbWU9dmV0aF9hcHAgdHlwZT12ZXRoIG1hc3Rlcj1icjAgaXA9Tk9ORSBzdGF0ZT1ET1dO\")\n    printf '%s\\n' \"TkVUX0FVRElUIGlmYWNlPXZldGhfYXBwIHZhbGlkPU5PTiBlcnJvcj1JTlRFUkZBQ0VfRE9XTg==\" | base64 -d\n    echo \"\"\n    ;;\n  \"TkVUX0lGQUNFIG5hbWU9YnIxIHR5cGU9YnJpZGdlIG1hc3Rlcj1icjAgaXA9Tk9ORSBzdGF0ZT1VUApORVRfSUZBQ0UgbmFtZT12ZXRoX29ycGhhbiB0eXBlPXZldGggbWFzdGVyPU5PTkUgaXA9Tk9ORSBzdGF0ZT1VUA==\")\n    printf '%s\\n' \"TkVUX0FVRElUIGlmYWNlPWJyMSB2YWxpZD1OT04gZXJyb3I9QlJJREdFX0NBTk5PVF9IQVZFX01BU1RFUgpORVRfQVVESVQgaWZhY2U9dmV0aF9vcnBoYW4gdmFsaWQ9Tk9OIGVycm9yPVZFVEhfVU5BVFRBQ0hFRA==\" | base64 -d\n    echo \"\"\n    ;;\n  \"TkVUX0lGQUNFIG5hbWU9dmV0aDAgdHlwZT12ZXRoIG1hc3Rlcj1OT05FIGlwPTE5Mi4xNjguMTAwLjIvMzAgc3RhdGU9VVA=\")\n    printf '%s\\n' \"TkVUX0FVRElUIGlmYWNlPXZldGgwIHZhbGlkPU9VSSBlcnJvcj1PSw==\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c5-e1"]
   },
   {
     "id": "lx3-c5-e2",
@@ -534,8 +950,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Aiguillage selon le port de destination (trafic web vs standard)",
-        "stdin": "RULE prio=200 src=ANY dport=80 table=proxy_table\nRULE prio=300 src=ANY dport=443 table=proxy_table\nRULE prio=32766 src=ANY dport=ANY table=main\nPACKET id=10 src=10.0.0.5 dport=80\nPACKET id=11 src=10.0.0.5 dport=22",
-        "expected": "ROUTE_MATCH packet=10 matched_prio=200 table=proxy_table\nROUTE_MATCH packet=11 matched_prio=32766 table=main"
+        "stdin": "RULE prio=200 src=ANY dport=80 table=proxy_table\nRULE prio=300 src=ANY dport=443 table=proxy_table\nRULE prio=32766 src=ANY dport=ANY table=main\nPACKET id=10 src=10.0.0.5 dport=80\nPACKET id=11 src=10.0.0.5 dport=22\nPACKET id=12 src=10.0.0.5 dport=443",
+        "expected": "ROUTE_MATCH packet=10 matched_prio=200 table=proxy_table\nROUTE_MATCH packet=11 matched_prio=32766 table=main\nROUTE_MATCH packet=12 matched_prio=300 table=proxy_table"
       },
       {
         "label": "Aiguillage par IP source prioritaire sur la table par défaut",
@@ -546,9 +962,19 @@ const LIN3_EXERCISES = [
         "label": "Règle par défaut (catch-all) de priorité maximale",
         "stdin": "RULE prio=32766 src=ANY dport=ANY table=default_wan\nPACKET id=99 src=1.2.3.4 dport=53",
         "expected": "ROUTE_MATCH packet=99 matched_prio=32766 table=default_wan"
+      },
+      {
+        "label": "Priorités non triées, égalité et absence de correspondance",
+        "stdin": "RULE prio=80 src=ANY dport=443 table=web\nRULE prio=7 src=198.51.100.1 dport=443 table=secure\nRULE prio=7 src=198.51.100.1 dport=443 table=second\nPACKET id=31 src=198.51.100.1 dport=443\nPACKET id=32 src=198.51.100.2 dport=443\nPACKET id=33 src=198.51.100.1 dport=22",
+        "expected": "ROUTE_MATCH packet=31 matched_prio=7 table=secure\nROUTE_MATCH packet=32 matched_prio=80 table=web\nROUTE_MATCH packet=33 matched_prio=NONE table=NONE"
+      },
+      {
+        "label": "Priorités concurrentes avec source exacte",
+        "stdin": "RULE prio=100 src=192.0.2.5 dport=443 table=slow\nRULE prio=10 src=192.0.2.5 dport=443 table=fast\nPACKET id=44 src=192.0.2.5 dport=443",
+        "expected": "ROUTE_MATCH packet=44 matched_prio=10 table=fast"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c5-e2\n#!/usr/bin/env bash\n# Solution Bash — lx3-c5-e2 : Moteur d’évaluation de Policy-Based Routing (ip rule & multi-tables)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"UlVMRSBwcmlvPTEwMCBzcmM9MTkyLjE2OC4xLjUwIGRwb3J0PUFOWSB0YWJsZT12cG5fdHVubmVsClJVTEUgcHJpbz0zMjc2NiBzcmM9QU5ZIGRwb3J0PUFOWSB0YWJsZT1tYWluClBBQ0tFVCBpZD0xIHNyYz0xOTIuMTY4LjEuNTAgZHBvcnQ9NDQz\")\n    printf '%s\\n' \"Uk9VVEVfTUFUQ0ggcGFja2V0PTEgbWF0Y2hlZF9wcmlvPTEwMCB0YWJsZT12cG5fdHVubmVs\" | base64 -d\n    echo \"\"\n    ;;\n  \"UlVMRSBwcmlvPTIwMCBzcmM9QU5ZIGRwb3J0PTgwIHRhYmxlPXByb3h5X3RhYmxlClJVTEUgcHJpbz0zMDAgc3JjPUFOWSBkcG9ydD00NDMgdGFibGU9cHJveHlfdGFibGUKUlVMRSBwcmlvPTMyNzY2IHNyYz1BTlkgZHBvcnQ9QU5ZIHRhYmxlPW1haW4KUEFDS0VUIGlkPTEwIHNyYz0xMC4wLjAuNSBkcG9ydD04MApQQUNLRVQgaWQ9MTEgc3JjPTEwLjAuMC41IGRwb3J0PTIy\")\n    printf '%s\\n' \"Uk9VVEVfTUFUQ0ggcGFja2V0PTEwIG1hdGNoZWRfcHJpbz0yMDAgdGFibGU9cHJveHlfdGFibGUKUk9VVEVfTUFUQ0ggcGFja2V0PTExIG1hdGNoZWRfcHJpbz0zMjc2NiB0YWJsZT1tYWlu\" | base64 -d\n    echo \"\"\n    ;;\n  \"UlVMRSBwcmlvPTUwIHNyYz0xNzIuMTYuMC4xMCBkcG9ydD1BTlkgdGFibGU9YWRtaW5fZ2F0ZXdheQpSVUxFIHByaW89MzI3NjYgc3JjPUFOWSBkcG9ydD1BTlkgdGFibGU9bWFpbgpQQUNLRVQgaWQ9MjAgc3JjPTE3Mi4xNi4wLjEwIGRwb3J0PTgwODAKUEFDS0VUIGlkPTIxIHNyYz0xNzIuMTYuMC45OSBkcG9ydD04MDgw\")\n    printf '%s\\n' \"Uk9VVEVfTUFUQ0ggcGFja2V0PTIwIG1hdGNoZWRfcHJpbz01MCB0YWJsZT1hZG1pbl9nYXRld2F5ClJPVVRFX01BVENIIHBhY2tldD0yMSBtYXRjaGVkX3ByaW89MzI3NjYgdGFibGU9bWFpbg==\" | base64 -d\n    echo \"\"\n    ;;\n  \"UlVMRSBwcmlvPTMyNzY2IHNyYz1BTlkgZHBvcnQ9QU5ZIHRhYmxlPWRlZmF1bHRfd2FuClBBQ0tFVCBpZD05OSBzcmM9MS4yLjMuNCBkcG9ydD01Mw==\")\n    printf '%s\\n' \"Uk9VVEVfTUFUQ0ggcGFja2V0PTk5IG1hdGNoZWRfcHJpbz0zMjc2NiB0YWJsZT1kZWZhdWx0X3dhbg==\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c5-e2"]
   },
   {
     "id": "lx3-c5-e3",
@@ -573,8 +999,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Résolution par DNS distant lorsque le fichier local échoue",
-        "stdin": "CONF_NSSWITCH order=files,dns\nQUERY_HOST name=api.github.com in_files=NON in_dns=OUI in_mdns=NON",
-        "expected": "RESOLV_RESULT host=api.github.com resolved_by=dns status=SUCCESS"
+        "stdin": "CONF_NSSWITCH order=files,dns\nQUERY_HOST name=api.github.com in_files=NON in_dns=OUI in_mdns=NON\nQUERY_HOST name=both.example in_files=OUI in_dns=OUI in_mdns=NON",
+        "expected": "RESOLV_RESULT host=api.github.com resolved_by=dns status=SUCCESS\nRESOLV_RESULT host=both.example resolved_by=files status=SUCCESS"
       },
       {
         "label": "Hôte introuvable dans toutes les sources déclarées",
@@ -585,9 +1011,19 @@ const LIN3_EXERCISES = [
         "label": "Priorité inversée (dns avant files)",
         "stdin": "CONF_NSSWITCH order=dns,files\nQUERY_HOST name=internal.test in_files=OUI in_dns=OUI in_mdns=NON",
         "expected": "RESOLV_RESULT host=internal.test resolved_by=dns status=SUCCESS"
+      },
+      {
+        "label": "Trois sources, première réponse et absence de réponse",
+        "stdin": "CONF_NSSWITCH order=mdns,dns,files\nQUERY_HOST name=printer.local in_files=OUI in_dns=OUI in_mdns=OUI\nQUERY_HOST name=web.example in_files=OUI in_dns=OUI in_mdns=NON\nQUERY_HOST name=hosts.example in_files=OUI in_dns=NON in_mdns=NON\nQUERY_HOST name=missing.example in_files=NON in_dns=NON in_mdns=NON",
+        "expected": "RESOLV_RESULT host=printer.local resolved_by=mdns status=SUCCESS\nRESOLV_RESULT host=web.example resolved_by=dns status=SUCCESS\nRESOLV_RESULT host=hosts.example resolved_by=files status=SUCCESS\nRESOLV_RESULT host=missing.example resolved_by=NONE status=NOT_FOUND"
+      },
+      {
+        "label": "Réponse mDNS unique",
+        "stdin": "CONF_NSSWITCH order=mdns,dns\nQUERY_HOST name=atelier.local in_files=NON in_dns=NON in_mdns=OUI",
+        "expected": "RESOLV_RESULT host=atelier.local resolved_by=mdns status=SUCCESS"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c5-e3\n#!/usr/bin/env bash\n# Solution Bash — lx3-c5-e3 : Parseur et simulateur de résolution NSSwitch (/etc/nsswitch.conf)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"Q09ORl9OU1NXSVRDSCBvcmRlcj1maWxlcyxkbnMKUVVFUllfSE9TVCBuYW1lPWxvY2FsaG9zdCBpbl9maWxlcz1PVUkgaW5fZG5zPU5PTiBpbl9tZG5zPU5PTg==\")\n    printf '%s\\n' \"UkVTT0xWX1JFU1VMVCBob3N0PWxvY2FsaG9zdCByZXNvbHZlZF9ieT1maWxlcyBzdGF0dXM9U1VDQ0VTUw==\" | base64 -d\n    echo \"\"\n    ;;\n  \"Q09ORl9OU1NXSVRDSCBvcmRlcj1maWxlcyxkbnMKUVVFUllfSE9TVCBuYW1lPWFwaS5naXRodWIuY29tIGluX2ZpbGVzPU5PTiBpbl9kbnM9T1VJIGluX21kbnM9Tk9O\")\n    printf '%s\\n' \"UkVTT0xWX1JFU1VMVCBob3N0PWFwaS5naXRodWIuY29tIHJlc29sdmVkX2J5PWRucyBzdGF0dXM9U1VDQ0VTUw==\" | base64 -d\n    echo \"\"\n    ;;\n  \"Q09ORl9OU1NXSVRDSCBvcmRlcj1maWxlcyxkbnMsbWRucwpRVUVSWV9IT1NUIG5hbWU9dW5rbm93bi5jb3JwIGluX2ZpbGVzPU5PTiBpbl9kbnM9Tk9OIGluX21kbnM9Tk9O\")\n    printf '%s\\n' \"UkVTT0xWX1JFU1VMVCBob3N0PXVua25vd24uY29ycCByZXNvbHZlZF9ieT1OT05FIHN0YXR1cz1OT1RfRk9VTkQ=\" | base64 -d\n    echo \"\"\n    ;;\n  \"Q09ORl9OU1NXSVRDSCBvcmRlcj1kbnMsZmlsZXMKUVVFUllfSE9TVCBuYW1lPWludGVybmFsLnRlc3QgaW5fZmlsZXM9T1VJIGluX2Rucz1PVUkgaW5fbWRucz1OT04=\")\n    printf '%s\\n' \"UkVTT0xWX1JFU1VMVCBob3N0PWludGVybmFsLnRlc3QgcmVzb2x2ZWRfYnk9ZG5zIHN0YXR1cz1TVUNDRVNT\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c5-e3"]
   },
   {
     "id": "lx3-c6-e1",
@@ -596,7 +1032,7 @@ const LIN3_EXERCISES = [
     "level": "n1",
     "language": "shell",
     "goal": "Vérifier la conformité des paramètres de sécurité du noyau Linux par rapport aux recommandations ANSSI / CIS Benchmark.",
-    "brief": "<p>Le fichier <code>/etc/sysctl.conf</code> et l'interface <code>/proc/sys/</code> permettent d'ajuster dynamiquement les options de sécurité du noyau Linux (randomisation ASLR, restriction des pointeurs mémoire, protection des liens durs et protection contre les attaques SYN Flood).<br><br>\nLe script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>\nRègles :<br>\n- Si <code>current == recommended</code> : <code>status=COMPLIANT</code>.<br>\n- Sinon : <code>status=HARDENING_REQUIRED</code>.<br><br>\nPour chaque paramètre, afficher :<br>\n<code>SYSCTL_AUDIT key={key} current={val} target={recommended} status={COMPLIANT|HARDENING_REQUIRED}</code></p>",
+    "brief": "<p>Le fichier <code>/etc/sysctl.conf</code> et l'interface <code>/proc/sys/</code> permettent d'ajuster dynamiquement les options de sécurité du noyau Linux (randomisation ASLR, restriction des pointeurs mémoire, protection des liens durs et protection contre les attaques SYN Flood).<br><br>\nLe script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>\nRègles :<br>\n- Comparez <code>current</code> et <code>recommended</code> comme des chaînes, en respectant la casse et les zéros initiaux : <code>01</code> diffère de <code>1</code>.<br>\n- Si les deux chaînes sont identiques : <code>status=COMPLIANT</code>.<br>\n- Sinon : <code>status=HARDENING_REQUIRED</code>.<br><br>\nPour chaque paramètre, afficher :<br>\n<code>SYSCTL_AUDIT key={key} current={val} target={recommended} status={COMPLIANT|HARDENING_REQUIRED}</code></p>",
     "starter": "#!/usr/bin/env bash\n# Atelier Bash (lx3-c6-e1) — Auditeur de paramètres de durcissement du noyau (/etc/sysctl.conf)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
     "hints": [
       "Comparer les chaînes current et recommended.",
@@ -612,8 +1048,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Paramètres nécessitant un durcissement (non conformes)",
-        "stdin": "SYSCTL_CHECK key=kernel.kptr_restrict current=0 recommended=2\nSYSCTL_CHECK key=net.ipv4.tcp_syncookies current=0 recommended=1",
-        "expected": "SYSCTL_AUDIT key=kernel.kptr_restrict current=0 target=2 status=HARDENING_REQUIRED\nSYSCTL_AUDIT key=net.ipv4.tcp_syncookies current=0 target=1 status=HARDENING_REQUIRED"
+        "stdin": "SYSCTL_CHECK key=kernel.kptr_restrict current=0 recommended=2\nSYSCTL_CHECK key=net.ipv4.tcp_syncookies current=0 recommended=1\nSYSCTL_CHECK key=kernel.leading_zero current=01 recommended=1",
+        "expected": "SYSCTL_AUDIT key=kernel.kptr_restrict current=0 target=2 status=HARDENING_REQUIRED\nSYSCTL_AUDIT key=net.ipv4.tcp_syncookies current=0 target=1 status=HARDENING_REQUIRED\nSYSCTL_AUDIT key=kernel.leading_zero current=01 target=1 status=HARDENING_REQUIRED"
       },
       {
         "label": "Protection contre les liens durs et dmesg restreint conformes",
@@ -624,9 +1060,19 @@ const LIN3_EXERCISES = [
         "label": "Vérification de désactivation du routage IP (ip_forward)",
         "stdin": "SYSCTL_CHECK key=net.ipv4.ip_forward current=1 recommended=0",
         "expected": "SYSCTL_AUDIT key=net.ipv4.ip_forward current=1 target=0 status=HARDENING_REQUIRED"
+      },
+      {
+        "label": "Égalité textuelle stricte et respect de la casse",
+        "stdin": "SYSCTL_CHECK key=demo.case current=enabled recommended=ENABLED\nSYSCTL_CHECK key=demo.same current=enabled recommended=enabled\nSYSCTL_CHECK key=demo.zero current=0 recommended=00",
+        "expected": "SYSCTL_AUDIT key=demo.case current=enabled target=ENABLED status=HARDENING_REQUIRED\nSYSCTL_AUDIT key=demo.same current=enabled target=enabled status=COMPLIANT\nSYSCTL_AUDIT key=demo.zero current=0 target=00 status=HARDENING_REQUIRED"
+      },
+      {
+        "label": "Comparaison textuelle sensible à la casse",
+        "stdin": "SYSCTL_CHECK key=demo.mode current=enabled recommended=ENABLED",
+        "expected": "SYSCTL_AUDIT key=demo.mode current=enabled target=ENABLED status=HARDENING_REQUIRED"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c6-e1\n#!/usr/bin/env bash\n# Solution Bash — lx3-c6-e1 : Auditeur de paramètres de durcissement du noyau (/etc/sysctl.conf)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"U1lTQ1RMX0NIRUNLIGtleT1rZXJuZWwucmFuZG9taXplX3ZhX3NwYWNlIGN1cnJlbnQ9MiByZWNvbW1lbmRlZD0y\")\n    printf '%s\\n' \"U1lTQ1RMX0FVRElUIGtleT1rZXJuZWwucmFuZG9taXplX3ZhX3NwYWNlIGN1cnJlbnQ9MiB0YXJnZXQ9MiBzdGF0dXM9Q09NUExJQU5U\" | base64 -d\n    echo \"\"\n    ;;\n  \"U1lTQ1RMX0NIRUNLIGtleT1rZXJuZWwua3B0cl9yZXN0cmljdCBjdXJyZW50PTAgcmVjb21tZW5kZWQ9MgpTWVNDVExfQ0hFQ0sga2V5PW5ldC5pcHY0LnRjcF9zeW5jb29raWVzIGN1cnJlbnQ9MCByZWNvbW1lbmRlZD0x\")\n    printf '%s\\n' \"U1lTQ1RMX0FVRElUIGtleT1rZXJuZWwua3B0cl9yZXN0cmljdCBjdXJyZW50PTAgdGFyZ2V0PTIgc3RhdHVzPUhBUkRFTklOR19SRVFVSVJFRApTWVNDVExfQVVESVQga2V5PW5ldC5pcHY0LnRjcF9zeW5jb29raWVzIGN1cnJlbnQ9MCB0YXJnZXQ9MSBzdGF0dXM9SEFSREVOSU5HX1JFUVVJUkVE\" | base64 -d\n    echo \"\"\n    ;;\n  \"U1lTQ1RMX0NIRUNLIGtleT1mcy5wcm90ZWN0ZWRfaGFyZGxpbmtzIGN1cnJlbnQ9MSByZWNvbW1lbmRlZD0xClNZU0NUTF9DSEVDSyBrZXk9a2VybmVsLmRtZXNnX3Jlc3RyaWN0IGN1cnJlbnQ9MSByZWNvbW1lbmRlZD0x\")\n    printf '%s\\n' \"U1lTQ1RMX0FVRElUIGtleT1mcy5wcm90ZWN0ZWRfaGFyZGxpbmtzIGN1cnJlbnQ9MSB0YXJnZXQ9MSBzdGF0dXM9Q09NUExJQU5UClNZU0NUTF9BVURJVCBrZXk9a2VybmVsLmRtZXNnX3Jlc3RyaWN0IGN1cnJlbnQ9MSB0YXJnZXQ9MSBzdGF0dXM9Q09NUExJQU5U\" | base64 -d\n    echo \"\"\n    ;;\n  \"U1lTQ1RMX0NIRUNLIGtleT1uZXQuaXB2NC5pcF9mb3J3YXJkIGN1cnJlbnQ9MSByZWNvbW1lbmRlZD0w\")\n    printf '%s\\n' \"U1lTQ1RMX0FVRElUIGtleT1uZXQuaXB2NC5pcF9mb3J3YXJkIGN1cnJlbnQ9MSB0YXJnZXQ9MCBzdGF0dXM9SEFSREVOSU5HX1JFUVVJUkVE\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c6-e1"]
   },
   {
     "id": "lx3-c6-e2",
@@ -656,16 +1102,21 @@ const LIN3_EXERCISES = [
       },
       {
         "label": "Échec d’un module required avec exécution complète de la suite",
-        "stdin": "PAM_STEP module=pam_tally.so control=required res=FAIL\nPAM_STEP module=pam_unix.so control=required res=SUCCESS",
-        "expected": "PAM_TRACE module=pam_tally.so control=required res=FAIL action=CONTINUE\nPAM_TRACE module=pam_unix.so control=required res=SUCCESS action=CONTINUE\nPAM_FINAL decision=DENIED"
+        "stdin": "PAM_STEP module=pam_tally.so control=required res=FAIL\nPAM_STEP module=pam_unix.so control=required res=SUCCESS\nPAM_STEP module=pam_totp.so control=sufficient res=SUCCESS",
+        "expected": "PAM_TRACE module=pam_tally.so control=required res=FAIL action=CONTINUE\nPAM_TRACE module=pam_unix.so control=required res=SUCCESS action=CONTINUE\nPAM_TRACE module=pam_totp.so control=sufficient res=SUCCESS action=CONTINUE\nPAM_FINAL decision=DENIED"
       },
       {
         "label": "Succès complet sur tous les modules required",
         "stdin": "PAM_STEP module=pam_env.so control=required res=SUCCESS\nPAM_STEP module=pam_unix.so control=required res=SUCCESS",
         "expected": "PAM_TRACE module=pam_env.so control=required res=SUCCESS action=CONTINUE\nPAM_TRACE module=pam_unix.so control=required res=SUCCESS action=CONTINUE\nPAM_FINAL decision=GRANTED"
+      },
+      {
+        "label": "Aucun module suffisant ne réussit",
+        "stdin": "PAM_STEP module=shadow.so control=sufficient res=FAIL\nPAM_STEP module=token.so control=sufficient res=FAIL",
+        "expected": "PAM_TRACE module=shadow.so control=sufficient res=FAIL action=CONTINUE\nPAM_TRACE module=token.so control=sufficient res=FAIL action=CONTINUE\nPAM_FINAL decision=DENIED"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c6-e2\n#!/usr/bin/env bash\n# Solution Bash — lx3-c6-e2 : Évaluateur de chaîne de modules d’authentification PAM (required vs sufficient)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"UEFNX1NURVAgbW9kdWxlPXBhbV91bml4LnNvIGNvbnRyb2w9c3VmZmljaWVudCByZXM9U1VDQ0VTUw==\")\n    printf '%s\\n' \"UEFNX1RSQUNFIG1vZHVsZT1wYW1fdW5peC5zbyBjb250cm9sPXN1ZmZpY2llbnQgcmVzPVNVQ0NFU1MgYWN0aW9uPVNUT1BfU1VDQ0VTUwpQQU1fRklOQUwgZGVjaXNpb249R1JBTlRFRA==\" | base64 -d\n    echo \"\"\n    ;;\n  \"UEFNX1NURVAgbW9kdWxlPXBhbV9mYWlsbG9jay5zbyBjb250cm9sPXJlcXVpc2l0ZSByZXM9RkFJTApQQU1fU1RFUCBtb2R1bGU9cGFtX3VuaXguc28gY29udHJvbD1yZXF1aXJlZCByZXM9U1VDQ0VTUw==\")\n    printf '%s\\n' \"UEFNX1RSQUNFIG1vZHVsZT1wYW1fZmFpbGxvY2suc28gY29udHJvbD1yZXF1aXNpdGUgcmVzPUZBSUwgYWN0aW9uPUFCT1JUX0ZBSUwKUEFNX0ZJTkFMIGRlY2lzaW9uPURFTklFRA==\" | base64 -d\n    echo \"\"\n    ;;\n  \"UEFNX1NURVAgbW9kdWxlPXBhbV90YWxseS5zbyBjb250cm9sPXJlcXVpcmVkIHJlcz1GQUlMClBBTV9TVEVQIG1vZHVsZT1wYW1fdW5peC5zbyBjb250cm9sPXJlcXVpcmVkIHJlcz1TVUNDRVNT\")\n    printf '%s\\n' \"UEFNX1RSQUNFIG1vZHVsZT1wYW1fdGFsbHkuc28gY29udHJvbD1yZXF1aXJlZCByZXM9RkFJTCBhY3Rpb249Q09OVElOVUUKUEFNX1RSQUNFIG1vZHVsZT1wYW1fdW5peC5zbyBjb250cm9sPXJlcXVpcmVkIHJlcz1TVUNDRVNTIGFjdGlvbj1DT05USU5VRQpQQU1fRklOQUwgZGVjaXNpb249REVOSUVE\" | base64 -d\n    echo \"\"\n    ;;\n  \"UEFNX1NURVAgbW9kdWxlPXBhbV9lbnYuc28gY29udHJvbD1yZXF1aXJlZCByZXM9U1VDQ0VTUwpQQU1fU1RFUCBtb2R1bGU9cGFtX3VuaXguc28gY29udHJvbD1yZXF1aXJlZCByZXM9U1VDQ0VTUw==\")\n    printf '%s\\n' \"UEFNX1RSQUNFIG1vZHVsZT1wYW1fZW52LnNvIGNvbnRyb2w9cmVxdWlyZWQgcmVzPVNVQ0NFU1MgYWN0aW9uPUNPTlRJTlVFClBBTV9UUkFDRSBtb2R1bGU9cGFtX3VuaXguc28gY29udHJvbD1yZXF1aXJlZCByZXM9U1VDQ0VTUyBhY3Rpb249Q09OVElOVUUKUEFNX0ZJTkFMIGRlY2lzaW9uPUdSQU5URUQ=\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c6-e2"]
   },
   {
     "id": "lx3-c6-e3",
@@ -690,8 +1141,8 @@ const LIN3_EXERCISES = [
     "tests": [
       {
         "label": "Tentative d’élévation bloquée (res=failed)",
-        "stdin": "AUDIT_LOG id=202 uid=1001 euid=0 exe=/usr/bin/su res=failed",
-        "expected": "AUDIT_REPORT id=202 exe=/usr/bin/su uid=1001 euid=0 alert=BLOCKED_PRIVILEGE_ATTEMPT"
+        "stdin": "AUDIT_LOG id=202 uid=1001 euid=0 exe=/usr/bin/su res=failed\nAUDIT_LOG id=203 uid=0 euid=0 exe=/usr/bin/tool res=failed",
+        "expected": "AUDIT_REPORT id=202 exe=/usr/bin/su uid=1001 euid=0 alert=BLOCKED_PRIVILEGE_ATTEMPT\nAUDIT_REPORT id=203 exe=/usr/bin/tool uid=0 euid=0 alert=ROOT_NATIVE"
       },
       {
         "label": "Activité native de root et activité utilisateur normale",
@@ -702,9 +1153,14 @@ const LIN3_EXERCISES = [
         "label": "Binaire setuid non standard exécuté avec succès",
         "stdin": "AUDIT_LOG id=404 uid=1005 euid=0 exe=/tmp/exploit res=success",
         "expected": "AUDIT_REPORT id=404 exe=/tmp/exploit uid=1005 euid=0 alert=CRITICAL_ROOT_ELEVATION"
+      },
+      {
+        "label": "Branches du modèle et comparaison des identifiants",
+        "stdin": "AUDIT_LOG id=51 uid=1000 euid=0 exe=/usr/bin/sudo res=success\nAUDIT_LOG id=52 uid=1000 euid=0 exe=/usr/bin/su res=failed\nAUDIT_LOG id=53 uid=0 euid=0 exe=/usr/bin/id res=success\nAUDIT_LOG id=54 uid=0 euid=1000 exe=/usr/bin/id res=success",
+        "expected": "AUDIT_REPORT id=51 exe=/usr/bin/sudo uid=1000 euid=0 alert=CRITICAL_ROOT_ELEVATION\nAUDIT_REPORT id=52 exe=/usr/bin/su uid=1000 euid=0 alert=BLOCKED_PRIVILEGE_ATTEMPT\nAUDIT_REPORT id=53 exe=/usr/bin/id uid=0 euid=0 alert=ROOT_NATIVE\nAUDIT_REPORT id=54 exe=/usr/bin/id uid=0 euid=1000 alert=STANDARD_USER"
       }
     ],
-    "solution": "# Corrigé officiel lx3-c6-e3\n#!/usr/bin/env bash\n# Solution Bash — lx3-c6-e3 : Parseur de journaux d’audit Linux auditd et détection d’élévation de privilèges\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"QVVESVRfTE9HIGlkPTEwMSB1aWQ9MTAwMCBldWlkPTAgZXhlPS91c3IvYmluL3N1ZG8gcmVzPXN1Y2Nlc3M=\")\n    printf '%s\\n' \"QVVESVRfUkVQT1JUIGlkPTEwMSBleGU9L3Vzci9iaW4vc3VkbyB1aWQ9MTAwMCBldWlkPTAgYWxlcnQ9Q1JJVElDQUxfUk9PVF9FTEVWQVRJT04=\" | base64 -d\n    echo \"\"\n    ;;\n  \"QVVESVRfTE9HIGlkPTIwMiB1aWQ9MTAwMSBldWlkPTAgZXhlPS91c3IvYmluL3N1IHJlcz1mYWlsZWQ=\")\n    printf '%s\\n' \"QVVESVRfUkVQT1JUIGlkPTIwMiBleGU9L3Vzci9iaW4vc3UgdWlkPTEwMDEgZXVpZD0wIGFsZXJ0PUJMT0NLRURfUFJJVklMRUdFX0FUVEVNUFQ=\" | base64 -d\n    echo \"\"\n    ;;\n  \"QVVESVRfTE9HIGlkPTMwMyB1aWQ9MCBldWlkPTAgZXhlPS91c3Ivc2Jpbi9jcm9uIHJlcz1zdWNjZXNzCkFVRElUX0xPRyBpZD0zMDQgdWlkPTEwMDAgZXVpZD0xMDAwIGV4ZT0vdXNyL2Jpbi9scyByZXM9c3VjY2Vzcw==\")\n    printf '%s\\n' \"QVVESVRfUkVQT1JUIGlkPTMwMyBleGU9L3Vzci9zYmluL2Nyb24gdWlkPTAgZXVpZD0wIGFsZXJ0PVJPT1RfTkFUSVZFCkFVRElUX1JFUE9SVCBpZD0zMDQgZXhlPS91c3IvYmluL2xzIHVpZD0xMDAwIGV1aWQ9MTAwMCBhbGVydD1TVEFOREFSRF9VU0VS\" | base64 -d\n    echo \"\"\n    ;;\n  \"QVVESVRfTE9HIGlkPTQwNCB1aWQ9MTAwNSBldWlkPTAgZXhlPS90bXAvZXhwbG9pdCByZXM9c3VjY2Vzcw==\")\n    printf '%s\\n' \"QVVESVRfUkVQT1JUIGlkPTQwNCBleGU9L3RtcC9leHBsb2l0IHVpZD0xMDA1IGV1aWQ9MCBhbGVydD1DUklUSUNBTF9ST09UX0VMRVZBVElPTg==\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": LIN3_SOLUTIONS["lx3-c6-e3"]
   }
 ];
 

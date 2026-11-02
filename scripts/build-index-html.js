@@ -20,8 +20,8 @@ const indexHtml = `<!DOCTYPE html>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&amp;display=swap">
 
     <link rel="stylesheet" href="assets/css/tokens.css">
     <link rel="stylesheet" href="assets/css/base.css">
@@ -73,13 +73,13 @@ const indexHtml = `<!DOCTYPE html>
         <!-- Message si redirection atelier verrouillé (?preparation=locked) -->
         <div id="prepLockedMsg" class="prep-locked-msg" hidden role="status">
             <strong><svg class="ic" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-lock"></use></svg> L'atelier est protégé.</strong>
-            Connecte-toi, saisis le mot de passe de section dans l'atelier, puis accède à tes projets.
+            Connectez-vous, saisissez le mot de passe de section dans l'atelier, puis accédez à vos projets.
             <button type="button" class="prep-locked-msg__close" aria-label="Fermer" onclick="this.parentElement.hidden = true"><svg class="ic" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-x"></use></svg></button>
         </div>
 
         <!-- Hero -->
         <section class="portal-hero">
-            <h1 class="portal-hero__title">Apprends en codant.</h1>
+            <h1 class="portal-hero__title">Apprenez en codant.</h1>
             <p class="portal-hero__subtitle">71 cours interactifs d'informatique — Licence 1, 2 et 3. Théorie rigoureuse, exécution de code en direct, QCM interactifs, flashcards et ateliers pratiques.</p>
 
             <!-- Accès libre gratuit chapitre 1 -->
@@ -90,7 +90,7 @@ const indexHtml = `<!DOCTYPE html>
 
             <!-- Choix du Niveau (B1 / B2 / B3 / Tous) -->
             <div class="portal-level-section" role="region" aria-label="Sélection du niveau d'études">
-                <div class="portal-level-label">Choisis ton niveau :</div>
+                <div class="portal-level-label">Choisissez votre niveau :</div>
                 <div class="portal-level-tabs" role="tablist" aria-label="Niveau académique">
                     <button class="level-tab is-active" type="button" role="tab" data-level="b1" id="tab-b1" aria-selected="true">
                         <span class="level-tab__badge">B1</span>

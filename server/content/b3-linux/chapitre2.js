@@ -20,7 +20,7 @@ module.exports = {
     'concevoir et valider des fichiers d’unités Systemd (.service, .socket, .timer, .target) conformes aux exigences d’entreprise ;',
     'maîtriser le graphe de dépendances (Requires, Wants, After, Before) et prévenir les blocages circulaires (deadlocks) ;',
     'exploiter l’activation par socket (Socket Activation) pour éliminer les dépendances d’ordre et démarrer les démons à la demande ;',
-    'développer en Python 3 des validateurs d’unités de service, des détecteurs de cycles de dépendances et des parseurs d’événements Journald.'
+    'développer en scripts Bash et commandes système des validateurs d’unités de service, des détecteurs de cycles de dépendances et des parseurs d’événements Journald.'
   ],
   sections: [
     {
@@ -31,7 +31,7 @@ module.exports = {
         '  <div class="card">',
         '    <h4>1. Matériel &amp; Chargeur d’Amorçage (GRUB2)</h4>',
         '    <ul>',
-        '      <li><strong>UEFI / BIOS :</strong> Initialisez le matériel physique (POST) et lit la partition système EFI (ESP) pour charger le gestionnaire d’amorçage.</li>',
+        '      <li><strong>UEFI / BIOS :</strong> Initialise le matériel physique (POST) et lit la partition système EFI (ESP) pour charger le gestionnaire d’amorçage.</li>',
         '      <li><strong>GRUB2 (Grand Unified Bootloader) :</strong> Présente le menu de boot, charge l’image compressée du noyau (<code>vmlinuz</code>) et le disque mémoire initial (<code>initramfs</code>) en RAM, puis passe la main au noyau en Ring 0.</li>',
         '    </ul>',
         '  </div>',

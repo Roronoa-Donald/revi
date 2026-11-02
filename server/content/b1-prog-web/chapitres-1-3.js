@@ -25,7 +25,7 @@ module.exports = [
     free: true,
 
     situation:
-      'Vous tapez une adresse dans la barre du navigateur et la page apparaît. Entrez ces deux instants, il y a ' +
+      'Vous tapez une adresse dans la barre du navigateur et la page apparaît. Entre ces deux instants, il y a ' +
       'un dialogue complet entre deux ordinateurs : une demande précise, une réponse, puis un document qu’il ' +
       'faut interpréter. Quand une page affiche « 404 » ou charge des images cassées, toute la lecture du ' +
       'problème se fait dans ce dialogue. Ce chapitre vous apprend à le voir.',
@@ -44,12 +44,11 @@ module.exports = [
         html: [
           '<p><strong>Le client</strong> est le programme qui demande (le navigateur, un script, une ' +
           'application mobile). <strong>Le serveur</strong> est le programme qui répond, en attendant les ' +
-          'demandes sur un port. Entre les deux circule du texte : la requête du client, puis la réponse du ' +
-          'serveur. Le protocole qui fixe la forme de ces messages s’appelle <strong>HTTP</strong>.</p>',
-          '<p>Une requête HTTP contient toujours trois choses : une <strong>méthode</strong> (ce qu’on veut ' +
-          'faire), une <strong>ressource</strong> (le chemin demandé) et des <strong>en-têtes</strong> ' +
-          '(métadonnées : langue, type de contenu accepté, cookies). La réponse contient un <strong>code de ' +
-          'statut</strong>, ses propres en-têtes et un <strong>corps</strong> — le plus souvent du HTML.</p>',
+          'demandes sur un port. Le protocole <strong>HTTP</strong> décrit la requête du client et la réponse ' +
+          'du serveur ; selon la version, leur représentation sur le réseau peut être textuelle ou binaire.</p>',
+          '<p>Une requête indique une <strong>méthode</strong> et une cible ; des <strong>en-têtes</strong> ' +
+          'apportent éventuellement des métadonnées, et un corps peut transmettre des données. La réponse ' +
+          'contient un <strong>code de statut</strong> et peut avoir des en-têtes et un corps.</p>',
           code([
             'GET /cours/index.html HTTP/1.1        ← la requête du client',
             'Host: campus.exemple.fr',
@@ -62,15 +61,15 @@ module.exports = [
           ]),
           box('intuition', 'Intuition — le serveur ne devine rien', 'compass',
             '    <p>Un serveur ne « sait » pas ce que vous regardez à l’écran. Il reçoit un chemin et rend un ' +
-            'fichier. Si les images ne s’affichent pas, c’est souvent que le navigateur a redemandé une ' +
-            'ressource dont l’adresse était fausse : autant de requêtes, autant de réponses.</p>')
+            'contenu ou un résultat produit par une application. Si les images ne s’affichent pas, vérifiez ' +
+            'notamment l’adresse des ressources demandées.</p>')
         ].join('\n')
       },
       {
         title: 'Anatomie d’une URL',
         html: [
-          '<p>Une <strong>URL</strong> (Uniform Resource Locator) désigne une ressource de façon unique. Elle ' +
-          'se lit toujours dans le même ordre :</p>',
+          '<p>Une <strong>URL</strong> (Uniform Resource Locator) désigne une ressource. Voici les composantes ' +
+          'possibles d’une adresse HTTPS absolue ; plusieurs peuvent être absentes :</p>',
           code([
             'https://campus.exemple.fr:443/cours/index.html?page=2&tri=asc#section-3',
             '└┬─┘   └───────┬───────┘└┬┘└────────┬────────┘└─────┬─────┘└───┬────┘',
@@ -86,7 +85,7 @@ module.exports = [
           '    <tr><td>fragment</td><td>une ancre dans la page, jamais envoyée au serveur</td><td><code>#section-3</code></td></tr>\n' +
           '  </table>',
           '<p>Deux points se retiennent : le <strong>chemin</strong> commence toujours par une barre oblique, ' +
-          'même quand vous ne l’écris pas (taper <code>https://exemple.fr</code> demande en réalité ' +
+          'même quand vous ne l’écrivez pas (taper <code>https://exemple.fr</code> demande en réalité ' +
           '<code>/</code>) ; et le <strong>fragment</strong> reste dans le navigateur — le serveur ne le ' +
           'reçoit jamais.</p>',
           box('pitfall', 'Piège — paramètres de requête et chemins différents', 'warning',
@@ -102,20 +101,24 @@ module.exports = [
           '<table>\n' +
           '    <tr><th>Méthode</th><th>Ce qu’elle demande</th><th>Idempotente ?</th></tr>\n' +
           '    <tr><td><code>GET</code></td><td>lire une ressource, sans la modifier</td><td>oui</td></tr>\n' +
-          '    <tr><td><code>POST</code></td><td>créer une ressource, envoyer des données</td><td>non</td></tr>\n' +
+          '    <tr><td><code>POST</code></td><td>soumettre des données à un traitement</td><td>non garanti</td></tr>\n' +
           '    <tr><td><code>PUT</code></td><td>remplacer une ressource par celle envoyée</td><td>oui</td></tr>\n' +
-          '    <tr><td><code>PATCH</code></td><td>modifier une partie d’une ressource</td><td>non</td></tr>\n' +
+          '    <tr><td><code>PATCH</code></td><td>modifier une partie d’une ressource</td><td>non garanti</td></tr>\n' +
           '    <tr><td><code>DELETE</code></td><td>supprimer une ressource</td><td>oui</td></tr>\n' +
           '  </table>',
-          '<p>Une méthode est <strong>idempotente</strong> quand rejouer la même requête laisse le serveur ' +
-          'dans le même état que de l’avoir envoyée une fois. Refaire <code>DELETE /notes/12</code> ne ' +
-          'supprime rien de plus ; refaire <code>POST /notes</code> crée une deuxième note. C’est ce qui rend ' +
-          'une requête rejouable sans crainte après une coupure réseau — et ce qui oblige à protéger les ' +
-          '<code>POST</code>.</p>',
+          '<p>Une méthode est <strong>idempotente</strong> lorsque plusieurs requêtes identiques ont le même ' +
+          'effet demandé sur le serveur qu’une seule. Les réponses peuvent différer et des effets auxiliaires, ' +
+          'comme les journaux, peuvent subsister. Refaire <code>DELETE /notes/12</code> ne demande pas une ' +
+          'suppression supplémentaire ; un <code>POST</code> de création peut ajouter une deuxième note. ' +
+          'POST et PATCH ne garantissent pas cette propriété, même si une opération particulière peut être ' +
+          'idempotente. Une reprise automatique doit aussi tenir compte de l’application et de la panne. ' +
+          'Les méthodes <code>HEAD</code>, <code>OPTIONS</code> et <code>TRACE</code> sont également définies ' +
+          'comme idempotentes : HEAD demande les en-têtes sans le corps, OPTIONS les possibilités de ' +
+          'communication, TRACE un diagnostic de la requête reçue.</p>',
           box('mnemo', 'Mnémotechnique — « POST pousse, PUT pose »', 'pin',
             '    <p><code>PUT</code> <em>pose</em> la ressource complète : deux fois la même requête donnent ' +
-            'exactement le même résultat. <code>POST</code> <em>pousse</em> quelque chose de neuf dans la ' +
-            'collection : chaque envoi ajoute une ligne.</p>')
+            'le même effet attendu sur la ressource. <code>POST</code> soumet des données à un traitement : ' +
+            'selon l’application, il peut notamment créer une nouvelle entrée.</p>')
         ].join('\n')
       },
       {
@@ -129,17 +132,17 @@ module.exports = [
           '    <tr><td><code>1xx</code></td><td>information : la demande est en cours de traitement</td><td>100, 101</td></tr>\n' +
           '    <tr><td><code>2xx</code></td><td>succès : la demande a abouti</td><td>200, 201, 204</td></tr>\n' +
           '    <tr><td><code>3xx</code></td><td>redirection : voir ailleurs</td><td>301, 302, 304</td></tr>\n' +
-          '    <tr><td><code>4xx</code></td><td>erreur du client (la demande est fautive)</td><td>400, 403, 404, 422</td></tr>\n' +
-          '    <tr><td><code>5xx</code></td><td>erreur du serveur (la demande était valable)</td><td>500, 502, 503</td></tr>\n' +
+          '    <tr><td><code>4xx</code></td><td>réponse de la famille erreur client</td><td>400, 403, 404, 422</td></tr>\n' +
+          '    <tr><td><code>5xx</code></td><td>réponse de la famille erreur serveur</td><td>500, 502, 503</td></tr>\n' +
           '  </table>',
           '<p>La frontière entre <code>4xx</code> et <code>5xx</code> est la plus utile à connaître : ' +
-          '<code>404</code> signifie « cette adresse n’existe pas chez moi », <code>500</code> signifie « mon ' +
-          'code a planté pendant que je traitais votre demande valable ». Corriger une <code>404</code> se fait ' +
-          'dans l’adresse ; corriger une <code>500</code> se fait dans le serveur.</p>',
+          '<code>404</code> indique que le serveur ne trouve pas de représentation disponible ou ne souhaite ' +
+          'pas en révéler l’existence. <code>500</code> signale une situation inattendue côté serveur. ' +
+          'Le code oriente le diagnostic mais ne prouve ni la cause exacte ni la validité de la demande.</p>',
           box('pitfall', 'Piège — confondre 401 et 403', 'warning',
-            '    <p><code>401 Unauthorized</code> veut dire « je ne sais pas qui vous êtes » : il manque une ' +
-            'identification. <code>403 Forbidden</code> veut dire « je sais qui vous êtes, et vous n’avez pas le ' +
-            'droit ». La première invite à se connecter ; la seconde interdit d’insister.</p>')
+            '    <p><code>401 Unauthorized</code> indique que la requête n’a pas de justificatifs ' +
+            'd’authentification valides. <code>403 Forbidden</code> indique un refus d’autoriser la requête ; ' +
+            'cela ne prouve pas que l’identité du client soit connue.</p>')
         ].join('\n')
       },
       {
@@ -184,8 +187,8 @@ module.exports = [
           'développement du navigateur (touche <kbd>F12</kbd>) contiennent un onglet <strong>Réseau</strong> ' +
           'qui liste chaque requête, son statut, son type et sa durée.</p>',
           '<table>\n' +
-          '    <tr><th>Ce que tu observes</th><th>Ce que cela signifie</th></tr>\n' +
-          '    <tr><td>une ligne rouge en 404</td><td>le chemin demandé n’existe pas sur le serveur</td></tr>\n' +
+          '    <tr><th>Ce que vous observez</th><th>Ce que cela signifie</th></tr>\n' +
+          '    <tr><td>une ligne rouge en 404</td><td>aucune représentation disponible n’est déclarée pour cette demande</td></tr>\n' +
           '    <tr><td>une ligne en 500</td><td>le serveur a échoué pendant le traitement</td></tr>\n' +
           '    <tr><td>une ligne en 304</td><td>la ressource n’a pas changé : le navigateur réutilise sa copie</td></tr>\n' +
           '    <tr><td>une ressource en « (blocked) »</td><td>une règle de sécurité ou une extension l’a refusée</td></tr>\n' +
@@ -201,9 +204,9 @@ module.exports = [
     questions: [
       { stem: 'Dans le dialogue HTTP, qui envoie la requête ?', opts: ['Le serveur web', 'Le client (navigateur)', 'Le système DNS'], correct: 1, exp: 'Le client demande la ressource ; le serveur y répond.' },
       { stem: 'Dans l’URL https://campus.fr/cours/a.html?page=2, que vaut l’hôte ?', opts: ['campus.fr', '/cours/a.html', 'page=2'], correct: 0, exp: 'L’hôte suit le protocole et se termine avant la première barre oblique.' },
-      { stem: 'Quel élément du chemin est réellement envoyé au serveur ?', opts: ['le fragment #ancre', 'les paramètres après le ?', 'aucun des deux'], correct: 1, exp: 'Le fragment reste dans le navigateur ; les paramètres font partie de la requête.' },
-      { stem: 'Quelle méthode est idempotente ?', opts: ['POST', 'PATCH', 'PUT'], correct: 2, exp: 'PUT remplace la ressource : la rejouer ne change pas l’état final. POST crée à chaque appel.' },
-      { stem: 'Le serveur renvoie 503. De quelle famille s’agit-il ?', opts: ['erreur du client', 'erreur du serveur', 'redirection'], correct: 1, exp: '5xx : la demande était valable mais le serveur n’a pas pu y répondre.' },
+      { stem: 'Pour une URL HTTP, quelle composante est incluse dans la cible transmise au serveur ?', opts: ['le fragment #ancre', 'la requête après le ?', 'aucune des deux'], correct: 1, exp: 'La requête fait partie de la cible HTTP ; le fragment n’y est pas inclus.' },
+      { stem: 'Quelle méthode est définie comme idempotente par HTTP ?', opts: ['POST', 'PATCH', 'PUT'], correct: 2, exp: 'PUT est défini comme idempotent. POST et PATCH ne le garantissent pas, même si une opération précise peut l’être.' },
+      { stem: 'Le serveur renvoie 503. De quelle famille s’agit-il ?', opts: ['erreur du client', 'erreur du serveur', 'redirection'], correct: 1, exp: '503 appartient à la famille 5xx ; ce code ne prouve pas à lui seul que la demande était valide.' },
       { stem: 'Quel langage décrit la structure du contenu ?', opts: ['CSS', 'HTML', 'JavaScript'], correct: 1, exp: 'HTML structure et donne du sens ; CSS présente ; JavaScript anime.' }
     ],
 
@@ -228,8 +231,8 @@ module.exports = [
       'Le client demande, le serveur répond ; HTTP fixe la forme des messages.',
       'Une URL se lit : protocole, hôte, port, chemin, requête, fragment — le fragment ne part pas au serveur.',
       'Cinq méthodes suffisent : GET lire, POST créer, PUT remplacer, PATCH modifier, DELETE supprimer.',
-      'Idempotente = rejouable sans effet supplémentaire : GET, PUT, DELETE le sont ; POST et PATCH non.',
-      'Le premier chiffre du statut donne la famille : 2xx succès, 3xx redirection, 4xx faute du client, 5xx faute du serveur.',
+      'Idempotence : les requêtes identiques ont le même effet demandé ; GET, PUT et DELETE le sont par définition, contrairement à POST et PATCH qui ne le garantissent pas.',
+      'Le premier chiffre du statut donne la famille : 2xx succès, 3xx redirection, 4xx erreur client, 5xx erreur serveur.',
       'HTML structure, CSS présente, JavaScript anime — trois rôles, trois fichiers.'
     ],
 
@@ -250,34 +253,10 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Qu’est-ce que « paramètre de requête » ?', a: 'paramètre de requête : décomposer une URL en protocole, hôte, chemin et paramètres de requête ;' },
-      { q: 'Qu’est-ce que « idempotence » ?', a: 'idempotence : Prog. Web B1 › Sommaire › Chapitre 1' },
-      { q: 'Qu’est-ce que « DOCTYPE » ?', a: 'Tout document commence par <!DOCTYPE html> et déclare son encodage et sa langue.' },
-      { q: 'Qu’est-ce que « head et body » ?', a: 'head et body : Tout document HTML suit le même squelette. Rien n’est facultatif : l’en-tête ( head ) déclare les métadonnées, le corps ( body ) porte le contenu visible.' },
-      { q: 'Qu’est-ce que « sémantique » ?', a: 'Les balises sémantiques décrivent le rôle : header, nav, main, article, section, aside, footer.' },
-      { q: 'Qu’est-ce que « liste » ?', a: 'Les listes existent en trois formes, selon ce que vous énumèrez :' },
-      { q: 'Qu’est-ce que « action » ?', a: 'Un formulaire décrit ce qui sera envoyé au serveur : où ( action ), comment ( method ) et quoi (chaque champ qui porte un attribut name ). Sans name , un champ est visible mais jamais transmis.' },
-      { q: 'Qu’est-ce que « label et for » ?', a: 'label et for : Un formulaire est la seule porte d’entrée du site : ce qui vient de l’utilisateur est, par définition, imprévisible. Le navigateur peut aider à filtrer, mais il ne protège rien : n’importe qui peut envoyer ce qu’il veut, avec ou sans navigateur. Écrire un formulaire, c’est donc é' },
-      { q: 'Qu’est-ce que « fieldset et legend » ?', a: 'Un placeholder disparaît dès la première frappe et n’est pas toujours lu par les lecteurs d’écran : c’est une aide, jamais une étiquette. Pour un groupe de cases à cocher, on encadre l’ensemble avec <fieldset> et <legend> .' },
-      { q: 'Qu’est-ce que « types d’input » ?', a: 'types d’input : Un formulaire utilisable se construit dans un ordre stable : structure, étiquettes, types, validation, puis messages d’erreur.' },
-      { q: 'Qu’est-ce que « règle CSS » ?', a: 'écrire une règle CSS et choisir le bon sélecteur ;' },
-      { q: 'Qu’est-ce que « sélecteur de classe » ?', a: 'sélecteur de classe : écrire une règle CSS et choisir le bon sélecteur ;' },
-      { q: 'Qu’est-ce que « sélecteur d’identifiant » ?', a: 'sélecteur d’identifiant : écrire une règle CSS et choisir le bon sélecteur ;' },
-      { q: 'Qu’est-ce que « sélecteur descendant » ?', a: 'sélecteur descendant : écrire une règle CSS et choisir le bon sélecteur ;' },
-      { q: 'Qu’est-ce que « héritage » ?', a: 'Vous écrivez une règle, la page ignore votre style. Ce n’est presque jamais un bug de navigateur : c’est une règle concurrente qui gagne. CSS applique ses décisions selon des règles précises — spécificité, ordre d’apparition, héritage — et savoir prédire laquelle gagne évite de tout ré' },
-      { q: 'Qu’est-ce que « modèle de boîte » ?', a: 'calculer la largeur réelle d’un élément avec le modèle de boîte ;' },
-      { q: 'Qu’est-ce que « flux normal » ?', a: 'Le contenu s’empile verticalement, et c’est normal : c’est le flux normal du document. Toute mise en page commence par une décision — sortir du flux ou le réorganiser. Flexbox range des éléments sur une ligne ou une colonne, la grille place des cellules dans un tableau virtuel, e' },
-      { q: 'Qu’est-ce que « display » ?', a: 'display décide du comportement de l’élément dans le flux. Les valeurs qui comptent :' },
-      { q: 'Qu’est-ce que « flex-direction » ?', a: 'Un conteneur flex range ses enfants sur un axe principal, dont l’orientation se choisit avec flex-direction . Deux axes sont concernés : le principal ( row par défaut) et le transversal.' },
-      { q: 'Qu’est-ce que « justify-content » ?', a: 'En row : justify-content répartit horizontalement, align-items centre verticalement. En column , les deux rôles s’échangent — d’où l’intérêt de raisonner en axes plutôt qu’en horizontal/vertical.' },
-      { q: 'Qu’est-ce que « grid-template-columns » ?', a: 'La grille organise deux dimensions : grid-template-columns , fr , gap , placement par lignes.' },
-      { q: 'Qu’est-ce que « const et let » ?', a: 'const et let : Dans la console du navigateur, écris le nom d’une fonction de ton script : si elle n’est pas définie, le fichier n’a pas été chargé (chemin faux) ou a produit une erreur avant sa déclaration. L’onglet Console affiche cette erreur en rouge, avec sa ligne.' },
-      { q: 'Qu’est-ce que « égalité stricte » ?', a: 'Quelques réflexes : préférer const par défaut, comparer avec === (égalité stricte, sans conversion de type), et tester les longueurs ( length ) plutôt que la vérité d’un tableau vide.' },
-      { q: 'Qu’est-ce que « fonction fléchée » ?', a: 'fonction fléchée : écrire des variables, conditions et fonctions lisibles ;' },
-      { q: 'Que contient une requête HTTP ?', a: 'Une méthode, une ressource (chemin), des en-têtes — et parfois un corps.' },
-      { q: 'Quelles parties d’une URL ne partent pas au serveur ?', a: 'Le fragment (après #). Le port, le chemin et la requête, eux, en font partie.' },
-      { q: 'Qu’est-ce qu’une méthode idempotente ?', a: 'Une méthode que l’on peut rejouer sans changer l’état final du serveur : GET, PUT, DELETE, HEAD, OPTIONS, TRACE.' },
-      { q: 'Que signifie un 4xx ? Un 5xx ?', a: '4xx : la demande du client est fautive. 5xx : la demande était valable mais le serveur a échoué.' },
+      { q: 'Que contient une requête HTTP ?', a: 'Une méthode et une cible ; des en-têtes et un corps peuvent aussi être présents.' },
+      { q: 'Quelle partie d’une URL HTTP ne figure pas dans la cible de requête ?', a: 'Le fragment après #. Le chemin et la requête figurent dans la cible ; le port sert à joindre le service.' },
+      { q: 'Qu’est-ce qu’une méthode idempotente ?', a: 'Des requêtes identiques ont le même effet demandé qu’une seule : GET, PUT, DELETE, HEAD, OPTIONS et TRACE sont ainsi définies.' },
+      { q: 'Que signifie un 4xx ? Un 5xx ?', a: '4xx appartient à la famille erreur client, 5xx à la famille erreur serveur ; le code seul ne prouve pas la cause précise.' },
       { q: 'À quoi sert l’attribut defer sur un script ?', a: 'À différer l’exécution du script après l’analyse complète du HTML.' }
     ]
   },
@@ -360,7 +339,7 @@ module.exports = [
             '  <main>',
             '    <section id="semestre1">',
             '      <h2>Semestre 1</h2>',
-            '      <article><h3>Algorithmique</h3><p>Notez obtenue : 16.</p></article>',
+            '      <article><h3>Algorithmique</h3><p>Note obtenue : 16.</p></article>',
             '    </section>',
             '  </main>',
             '  <footer><p>Relevé non officiel.</p></footer>',
@@ -379,7 +358,7 @@ module.exports = [
           '<p>Les titres <code>h1</code> à <code>h6</code> forment une hiérarchie, pas une échelle de ' +
           'tailles. Un seul <code>h1</code> par page, et l’on ne descend jamais de plus d’un niveau à la ' +
           'fois : <code>h1 → h2 → h3</code> est correct, <code>h1 → h3</code> ne l’est pas.</p>',
-          '<p>Les listes existent en trois formes, selon ce que vous énumèrez :</p>',
+          '<p>Les listes existent en trois formes, selon ce que vous énumérez :</p>',
           code([
             '<ul>                    <ol>                    <dl>',
             '  <li>Python</li>         <li>Analyser</li>       <dt>HTTP</dt>',
@@ -459,7 +438,7 @@ module.exports = [
           'surprises.</p>',
           '<ul>\n' +
           '    <li><strong>La structure des titres</strong> : un seul <code>h1</code>, et une descente d’un ' +
-          'niveau à la fois. C’est vérifiable par programme — l’exercice 3 du module te demande de l’écrire.</li>\n' +
+          'niveau à la fois. C’est vérifiable par programme — l’exercice 3 du module vous demande de l’écrire.</li>\n' +
           '    <li><strong>Les balises fermées</strong> : toute balise ouverte non auto-fermante doit être ' +
           'refermée dans le bon ordre.</li>\n' +
           '  </ul>',
@@ -471,7 +450,7 @@ module.exports = [
           '    <tr><td><code>alt</code> absent</td><td>l’image disparaît pour les lecteurs d’écran</td></tr>\n' +
           '  </table>',
           box('method', 'Réflexe de relecture', 'compass',
-            '    <p>Relis une page en masquant le CSS (les outils de développement le permettent) : si la ' +
+            '    <p>Relisez une page en masquant le CSS (les outils de développement le permettent) : si la ' +
             'page reste compréhensible, la structure HTML est bonne. C’est le test le plus rapide et le plus ' +
             'exigeant.</p>')
         ].join('\n')
@@ -498,10 +477,10 @@ module.exports = [
     methodTitle: 'Écrire une page que tout le monde peut lire',
     method: [
       '<strong>Écrivez d’abord la structure</strong> (header, main, sections, footer) avant toute décoration.',
-      '<strong>Donne un seul titre principal</strong> et descends niveau par niveau.',
+      '<strong>Donnez un seul titre principal</strong> et descends niveau par niveau.',
       '<strong>Choisissez la balise qui nomme le rôle</strong> : liste, tableau, citation, abréviation.',
-      '<strong>Décris chaque image</strong> avec un <code>alt</code> utile, ou vide si elle est purement décorative.',
-      '<strong>Relis sans CSS</strong> : si le document reste compréhensible, la structure tient.'
+      '<strong>Décrivez chaque image</strong> avec un <code>alt</code> utile, ou vide si elle est purement décorative.',
+      '<strong>Relisez sans CSS</strong> : si le document reste compréhensible, la structure tient.'
     ],
 
     summary: [
@@ -718,7 +697,7 @@ module.exports = [
           '  </table>',
           box('method', 'La règle des deux validations', 'compass',
             '    <p>Écrivez la règle une fois pour l’utilisateur (HTML, messages clairs) et une fois pour le ' +
-            'système (serveur, refus silencieux). Si vous ne dois en garder qu’une, garde celle du serveur : ' +
+            'système (serveur, refus silencieux). Si vous ne devez en garder qu’une, gardez celle du serveur : ' +
             'elle est la seule que personne ne peut contourner.</p>')
 
         ].join('\n')

@@ -134,7 +134,7 @@ module.exports = {
 
   checklist: [
     'Je définis le clustering et ses bénéfices.',
-    'Je distingue les cinq types de clusters.',
+    'Je distinguez les cinq types de clusters.',
     'J’explique le rôle du quorum.',
     'Je choisis un type adapté à un besoin.'
   ],

@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -112,14 +112,14 @@
 <h2>3. Partitionner pour Debian</h2>
 
 <p>Le partitionnement est l’étape où le chapitre 2 s’applique. L’installateur propose : disque entier, disque entier avec LVM, ou manuel. Un schéma pédagogique courant pour un TP :</p>
-<pre><code>partition   taille        point de montage
+<pre><code>partition   taille        usage
 /dev/sda1   ~30 Go        /          (racine, ext4)
-/dev/sda2   ~2× la RAM    swap       (échange mémoire)
+/dev/sda2   selon besoins swap       (échange mémoire)
 /dev/sda3   le reste      /home      (données personnelles)</code></pre>
-<p>Chaque partition reçoit un <strong>système de fichiers</strong> (ext4 en pratique : journalisé et optimisé) et un <strong>point de montage</strong>. Séparer <code>/home</code> permet de réinstaller le système sans perdre les données personnelles ; le <strong>swap</strong> (échange) est l’espace disque où le noyau déborde quand la mémoire vive sature.</p>
+<p>Les partitions de <code>/</code> et <code>/home</code> reçoivent ici un système de fichiers ext4 monté sur leur point de montage. Une partition <strong>swap</strong> est initialisée comme espace d’échange puis activée ; elle n’est pas montée comme un système de fichiers ext4. Sa taille dépend des besoins. Séparer <code>/home</code> peut faciliter une réinstallation sans reformatage de cette partition, mais ne remplace pas une sauvegarde.</p>
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Après l’installation : vérifier le montage</div>
-    <p><code>df -h</code> liste les partitions montées et leur occupation ; <code>lsblk</code> montre l’arbre des disques et partitions. Si une partition attendue n’y figure pas, c’est qu’elle n’est pas montée — revérifier <code>/etc/fstab</code>.</p>
+    <p><code>df -h</code> liste les partitions montées et leur occupation ; <code>lsblk</code> montre l’arbre des disques et partitions et <code>swapon --show</code> les espaces d’échange actifs. Vérifiez les montages attendus dans <code>/etc/fstab</code>.</p>
   </div>
 
 <h2>4. Dépôts, sources.list et mise à jour</h2>
@@ -131,6 +131,7 @@ apt install X   installe le paquet X et ses dépendances</code></pre>
 <p>Après installation, le rituel est immuable : <code>apt update</code> puis <code>apt upgrade</code>. C’est aussi le moment d’installer les outils du cours (vim, git, curl…). La gestion des <strong>utilisateurs et des groupes</strong> — le sujet du chapitre suivant — se fait alors sur un système à jour, en root ou avec <code>sudo</code>.</p>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
   <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
   et la validation fait tourner des jeux de tests indépendants :
@@ -171,7 +172,7 @@ run.sh : -rwxr-xr-x</pre></div>
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
         <li>Pour un chiffre : le 4 vaut r, le 2 vaut w, le 1 vaut x — construire le triplet caractère par caractère.</li>
-        <li>Isoler chaque chiffre avec ${octal:0:1}, ${octal:1:1}, ${octal:2:1} et une petite fonction ou trois tests.</li>
+        <li>Isoler chaque chiffre avec <code>${octal:0:1}</code>, <code>${octal:1:1}</code>, <code>${octal:2:1}</code> et une petite fonction ou trois tests.</li>
       </ol>
     </details>
   </div>
@@ -196,8 +197,8 @@ done
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Appliquer une modification symbolique (u/g/o suivi de + ou - et de rwx) à des droits existants.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> <code>DROITS MODIF</code> où DROITS est une chaîne de neuf caractères (sans le type) et MODIF s'écrit <code>classe action lettres</code> — classe vaut <code>u</code>, <code>g</code>, <code>o</code> ou <code>a</code> (toutes), action vaut <code>+</code> ou <code>-</code>, lettres valent une à trois lettres parmi r, w, x (ex. <code>o-r</code>, <code>ug+x</code>). Il applique la modification et affiche les neuf nouveaux caractères.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer une modification symbolique (une ou plusieurs classes u/g/o/a, suivies de + ou - et de rwx) à des droits existants.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> <code>DROITS MODIF</code> où DROITS est une chaîne de neuf caractères (sans le type) et MODIF s'écrit <code>classe action lettres</code>, sans espaces : classe est composée d'une ou plusieurs lettres <code>u</code>, <code>g</code>, <code>o</code> ou <code>a</code> (toutes), dans n'importe quel ordre ; les répétitions sont sans effet. Action vaut <code>+</code> ou <code>-</code>, lettres valent une à trois lettres parmi r, w, x (ex. <code>o-r</code>, <code>ug+x</code>). Il applique la modification et affiche les neuf nouveaux caractères.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
 rw-r--r-- o-r
@@ -210,7 +211,7 @@ rwxrwxrwx</pre></div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Positions des classes : u = 0-2, g = 3-5, o = 6-8. Construire un masque des positions touchées.</li>
+        <li>Positions des classes : u = 0-2, g = 3-5, o = 6-8 ; a désigne les trois. Combiner les positions de toutes les lettres de classe.</li>
         <li>Pour + : poser la lettre si la position correspond ; pour - : la remplacer par -. Parcourir les lettres demandées une à une.</li>
       </ol>
     </details>
@@ -262,6 +263,7 @@ refusé</pre></div>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -294,22 +296,22 @@ refusé</pre></div>
       <div class="q__exp">Root pour l’administration (maison /root) et un utilisateur ordinaire pour le quotidien (/home/login).</div>
     </div>
     <div class="q">
-      <p class="q__stem">Où place-t-on traditionnellement la partition /home ?</p>
+      <p class="q__stem">Quel intérêt peut avoir une partition /home séparée ?</p>
       <div class="opts">
-        <button class="opt">Sur la même partition que /</button>
-        <button class="opt" data-correct="1">Sur une partition séparée pour survivre à une réinstallation</button>
-        <button class="opt">Dans /tmp</button>
+        <button class="opt">Rendre une sauvegarde inutile</button>
+        <button class="opt" data-correct="1">Faciliter une réinstallation sans reformater les données personnelles</button>
+        <button class="opt">Rendre le swap inutile</button>
       </div>
-      <div class="q__exp">Séparer /home permet de réinstaller le système sans toucher aux données personnelles.</div>
+      <div class="q__exp">À condition de ne pas reformater /home, la séparation peut faciliter la réinstallation ; une sauvegarde reste nécessaire.</div>
     </div>
     <div class="q">
       <p class="q__stem">À quoi sert le swap ?</p>
       <div class="opts">
         <button class="opt">À stocker les journaux</button>
-        <button class="opt" data-correct="1">D’espace d’échange disque quand la RAM sature</button>
+        <button class="opt" data-correct="1">D’espace d’échange pour certaines pages mémoire</button>
         <button class="opt">À accélérer le réseau</button>
       </div>
-      <div class="q__exp">Le swap (typiquement deux fois la RAM) est l’espace où le noyau déborde de la mémoire vive.</div>
+      <div class="q__exp">Le noyau peut utiliser le swap selon ses besoins ; sa taille dépend du système et de l’usage.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que fait apt update ?</p>
@@ -373,15 +375,15 @@ refusé</pre></div>
     <ul>
       <li>Debian 12 « Bookworm » s’installe depuis une ISO netinst, sur clé USB ou en machine virtuelle.</li>
       <li>L’installateur crée root (maison /root) et un utilisateur ordinaire (maison /home/login).</li>
-      <li>Le partitionnement associe à chaque partition un FS (ext4) et un point de montage : /, swap, /home.</li>
-      <li>Séparer /home survit à une réinstallation ; le swap est l’échange mémoire-disque.</li>
+      <li>Les FS de / et /home sont montés ; le swap est initialisé puis activé comme espace d’échange.</li>
+      <li>Séparer /home peut faciliter une réinstallation sans reformatage ; sauvegarder reste indispensable.</li>
       <li>Les dépôts se déclarent dans /etc/apt/sources.list ; le rituel est apt update puis apt upgrade.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
       <li>Je déroule l’installateur en citant chaque étape dans l’ordre.</li>
       <li>Je justifie un schéma de partitionnement complet avec tailles et points de montage.</li>
-      <li>Je distingue les comptes root et utilisateur ordinaire et leurs maisons.</li>
+      <li>Je distinguez les comptes root et utilisateur ordinaire et leurs maisons.</li>
       <li>J’explique sources.list et le couple apt update / apt upgrade.</li>
     </ul>
     <h3>Les 10 notions à connaître absolument</h3>
@@ -398,9 +400,9 @@ refusé</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Redéroule l’installation en machine virtuelle en prenant des notes.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Redéroule l’installation en machine virtuelle en prenant des notes.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Refaites le schéma de partitionnement avec les tailles justifiées.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : explique sources.list ligne par ligne et le couple update/upgrade.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : expliquez sources.list ligne par ligne et le couple update/upgrade.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : passez au chapitre 5, les utilisateurs et les groupes.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>

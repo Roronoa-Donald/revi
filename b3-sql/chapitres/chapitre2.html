@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -63,7 +63,7 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Sur une base de données de production atteignant des centaines de gigaoctets ou des téraoctets, exécuter un balayage séquentiel complet (Sequential Scan) pour retrouver quelques enregistrements parmi 50 millions de lignes immobilise le disque, sature le buffer pool et génère des temps de réponse inacceptables de plusieurs secondes. Pour garantir des temps d’accès sub-millisecondes, les moteurs relationnels s’appuient sur des structures d’indexation physique sophistiquées. L’ingénieur de données de niveau Bachelor 3 doit comprendre l’anatomie des blocs disques de 8 Ko, la traversée logarithmique des arbres équilibrés B-Tree, maîtriser les index spécialisés pour le JSONB et le texte intégral (GIN), dimensionner le facteur de remplissage (Fill Factor) pour prévenir la fragmentation et concevoir des index couvrants (Index-Only Scan) éliminant tout accès superflu à la table.</p>
+    <p>Sur une base de données de production atteignant des centaines de gigaoctets ou des téraoctets, un balayage séquentiel complet (Sequential Scan) pour retrouver quelques enregistrements parmi 50 millions de lignes peut solliciter fortement le disque et le buffer pool. Les index peuvent accélérer certaines requêtes, selon les données et le plan choisi. L’ingénieur de données de niveau Bachelor 3 doit comprendre l’anatomie des blocs disques de 8 Ko, la traversée logarithmique des arbres équilibrés B-Tree, maîtriser les index spécialisés pour le JSONB et le texte intégral (GIN), dimensionner le facteur de remplissage (Fill Factor) et concevoir des index couvrants susceptibles de limiter les accès à la table selon la visibilité MVCC.</p>
   </div>
 
   <div class="box box--objectifs">
@@ -75,11 +75,11 @@
       <li>dimensionner précisément l’empreinte disque et mémoire d’un index en fonction du Fill Factor ;</li>
       <li>comparer les familles d’index : B-Tree, Hash, GiST (géospatial) et GIN (JSONB, tableaux) ;</li>
       <li>concevoir des index partiels (Partial Indexes) et des index couvrants (Covering Indexes avec INCLUDE) ;</li>
-      <li>développer en Python 3 des simulateurs de traversée B-Tree, des calculateurs d’empreinte mémoire et des conseillers d’indexation (Index Advisor).</li>
+      <li>développer en requêtes SQL avancées et scripts d’analyse des simulateurs de traversée B-Tree, des calculateurs d’empreinte mémoire et des conseillers d’indexation (Index Advisor).</li>
     </ol>
   </div>
 
-<h2>1. Organisation Physique des Pages Disques & Anatomie du B-Tree</h2>
+<h2>1. Organisation Physique des Pages Disques &amp; Anatomie du B-Tree</h2>
 
 <p>Dans PostgreSQL, la mémoire et le stockage persistant sont segmentés en blocs de taille fixe appelés <strong>pages</strong> (par défaut 8 192 octets soit 8 Ko). Une page de données ou d’index comporte une structure millimétrée :</p>
 <div class="grid grid-2">
@@ -111,7 +111,7 @@
   <tbody>
     <tr><td><strong>B-Tree</strong></td><td>Égalités et intervalles (<code>=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>BETWEEN</code>, <code>ORDER BY</code>)</td><td>Arbre n-aire équilibré trié</td><td>Standard universel, supporte les index composites et couvrants.</td></tr>
     <tr><td><strong>HASH</strong></td><td>Égalité stricte uniquement (<code>=</code>)</td><td>Table de hachage sur disque</td><td>Recherche $O(1)$ très compacte ; ne supporte aucun tri ni recherche d'intervalle.</td></tr>
-    <tr><td><strong>GIN (Generalized Inverted Index)</strong></td><td>Documents JSONB (<code>?</code>, <code>@&gt;</code>), tableaux (<code>&&</code>), recherche plein texte</td><td>Index inversé associant chaque élément interne aux TIDs des lignes</td><td>Recherches multi-clés fulgurantes dans les données semi-structurées ; coût d'écriture élevé.</td></tr>
+    <tr><td><strong>GIN (Generalized Inverted Index)</strong></td><td>Documents JSONB (<code>?</code>, <code>@&gt;</code>), tableaux (<code>&amp;&amp;</code>), recherche plein texte</td><td>Index inversé associant chaque élément interne aux TIDs des lignes</td><td>Recherches multi-clés fulgurantes dans les données semi-structurées ; coût d'écriture élevé.</td></tr>
     <tr><td><strong>GiST (Generalized Search Tree)</strong></td><td>Données géospatiales PostGIS, plages de valeurs (<code>daterange</code>), géométrie</td><td>Arbre R-Tree hiérarchique englobant (Bounding Boxes)</td><td>Permet l'indexation d'objets multi-dimensionnels et les contraintes d'exclusion sans chevauchement.</td></tr>
   </tbody>
 </table>
@@ -119,10 +119,10 @@
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Index Couvrants (Covering Indexes) &amp; Index Only Scan</div>
 <p>Dans un <code>Index Scan</code> classique, le moteur parcourt l’arbre d’index pour récupérer le tuple ID (TID), puis doit lire le bloc de la table pour extraire les colonnes non indexées. Grâce à la clause <code>INCLUDE</code> (introduite dans PostgreSQL 11), on peut stocker des colonnes supplémentaires dans les feuilles de l’index sans les inclure dans l’arbre de tri :</p>
 <pre><code>CREATE INDEX idx_cmd_client_date ON commandes (client_id) INCLUDE (total_ttc, date_cmd);</code></pre>
-<p>Une requête interrogeant <code>client_id</code>, <code>total_ttc</code> et <code>date_cmd</code> réalise alors un <strong>Index Only Scan</strong> : elle lit 100 % des données dans l’index sans jamais toucher la table physique, divisant les I/O disque par dix.</p>
+<p>Une requête interrogeant ces colonnes peut bénéficier d’un <strong>Index Only Scan</strong> si le planificateur le choisit. PostgreSQL peut toutefois consulter la table pour vérifier la visibilité MVCC ; le gain dépend du plan et des données.</p>
   </div>
 
-<h2>3. Fill Factor, Fragmentation & Maintenance Physique (REINDEX)</h2>
+<h2>3. Fill Factor, Fragmentation &amp; Maintenance Physique (REINDEX)</h2>
 
 <p>L’activité transactionnelle intensive (insertions, mises à jour et suppressions) altère l’organisation physique des index :</p>
 <div class="grid grid-2">
@@ -139,21 +139,19 @@
     <h4>Reconstruction Concurrente via REINDEX CONCURRENTLY</h4>
     <p>Au fil du temps, un index fragmenté (index bloat) consomme une mémoire RAM démesurée et ralentit les lectures :</p>
     <ul>
-      <li>Un <code>REINDEX</code> standard pose un verrou exclusif <code>AccessExclusiveLock</code> qui bloque toutes les lectures et écritures sur la table.</li>
-      <li>La commande <code>REINDEX TABLE CONCURRENTLY &lt;nom&gt;;</code> reconstruit le nouvel index en tâche de fond en plusieurs passes sans interrompre la production.</li>
+      <li>Dans PostgreSQL, <code>REINDEX INDEX</code> standard pose un verrou <code>SHARE</code> sur la table parente et <code>ACCESS EXCLUSIVE</code> sur l’index. Les écritures attendent ; le planificateur prenant des verrous sur les index, des lectures peuvent aussi attendre.</li>
+      <li>La commande <code>REINDEX TABLE CONCURRENTLY &lt;nom&gt;;</code> reconstruit les index en plusieurs passes sans verrou empêchant les écritures concurrentes sur la table, mais elle peut attendre d’autres transactions et consomme des ressources.</li>
     </ul>
   </div>
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="sql3-c2-e1" data-lab
      data-exercise="sql3-c2-e1"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE commandes (id INT, code_pays TEXT, email_client TEXT); INSERT INTO commandes VALUES (1, 'TG', 'a@x.tg'), (2, 'TG', 'b@x.tg'), (3, 'SN', 'c@x.sn'), (4, 'TG', 'a@x.tg');&#10;-- exemple">
@@ -163,11 +161,13 @@ SELECT COUNT(*) FROM commandes;</script>
     <h3 class="lab__title">Exercice 1 — Calcul du ratio de sélectivité d’une colonne pour le choix d’un index</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la cardinalité distincte et la sélectivité d’une colonne.</p>
+    <p class="lab__note" id="sql3-c2-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans la table <code>commandes(id, code_pays, email_client)</code>, calculez le nombre total de lignes (<code>COUNT(*) AS total_lignes</code>), le nombre de pays distincts (<code>COUNT(DISTINCT code_pays) AS card_pays</code>) et le nombre d’emails distincts (<code>COUNT(DISTINCT email_client) AS card_email</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE commandes (id INT, code_pays TEXT, email_client TEXT); INSERT INTO commandes VALUES (1, 'TG', 'a@x.tg'), (2, 'TG', 'b@x.tg'), (3, 'SN', 'c@x.sn'), (4, 'TG', 'a@x.tg');
@@ -192,6 +192,7 @@ SELECT COUNT(*) FROM commandes;</script>
 
 <div class="lab" id="sql3-c2-e2" data-lab
      data-exercise="sql3-c2-e2"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE commandes (id INT, client_id INT, statut TEXT, montant INT); INSERT INTO commandes VALUES (1, 10, 'ARCHIVEE', 5000), (2, 10, 'EN_COURS', 12000), (3, 20, 'EN_COURS', 8000);&#10;-- exemple">
@@ -201,11 +202,13 @@ SELECT id, montant FROM commandes;</script>
     <h3 class="lab__title">Exercice 2 — Index partiel (CREATE INDEX ... WHERE) sur les commandes actives</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Créer un index partiel filtré pour réduire l’empreinte mémoire de l’index B-Tree.</p>
+    <p class="lab__note" id="sql3-c2-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Sur la table <code>commandes(id INT, client_id INT, statut TEXT, montant INT)</code>, créez un index partiel nommé <code>idx_cmd_en_cours</code> sur <code>(client_id)</code> filtré uniquement sur <code>WHERE statut = 'EN_COURS'</code>, puis sélectionnez <code>id</code> et <code>montant</code> des commandes de <code>client_id = 10</code> ayant <code>statut = 'EN_COURS'</code> triées par <code>id</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE commandes (id INT, client_id INT, statut TEXT, montant INT); INSERT INTO commandes VALUES (1, 10, 'ARCHIVEE', 5000), (2, 10, 'EN_COURS', 12000), (3, 20, 'EN_COURS', 8000);
@@ -232,6 +235,7 @@ SELECT id, montant FROM commandes;</script>
 
 <div class="lab" id="sql3-c2-e3" data-lab
      data-exercise="sql3-c2-e3"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE pg_stat_user_tables_sim (relname TEXT, n_live_tup INT, n_dead_tup INT); INSERT INTO pg_stat_user_tables_sim VALUES ('commandes', 1000, 300), ('clients', 1000, 100), ('sessions', 200, 120);&#10;-- exemple">
@@ -241,11 +245,13 @@ SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;</script>
     <h3 class="lab__title">Exercice 3 — Estimation du taux de tuples morts (Dead Tuples / Bloat) pour VACUUM</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Identifier les tables nécessitant un VACUUM selon le seuil d’autovacuum PostgreSQL.</p>
+    <p class="lab__note" id="sql3-c2-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans PostgreSQL, l’autovacuum se déclenche lorsque <code>n_dead_tup &gt; 50 + 0.20 * n_live_tup</code>. À partir de la table de statistiques <code>pg_stat_user_tables_sim(relname TEXT, n_live_tup INT, n_dead_tup INT)</code>, affichez <code>relname</code>, <code>n_live_tup</code> et <code>n_dead_tup</code> des tables qui dépassent strictement ce seuil, triées par <code>n_dead_tup</code> décroissant.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE pg_stat_user_tables_sim (relname TEXT, n_live_tup INT, n_dead_tup INT); INSERT INTO pg_stat_user_tables_sim VALUES ('commandes', 1000, 300), ('clients', 1000, 100), ('sessions', 200, 120);
@@ -268,6 +274,7 @@ SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;</script>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -290,7 +297,7 @@ SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;</script>
         <button class="opt" data-correct="1">Index GIN (Generalized Inverted Index)</button>
         <button class="opt">Index BRIN</button>
       </div>
-      <div class="q__exp">L’index GIN décompose les clés et valeurs du document JSONB en index inversé, permettant des recherches instantanées avec l’opérateur @>.</div>
+      <div class="q__exp">L’index GIN décompose les clés et valeurs du document JSONB en index inversé, permettant des recherches instantanées avec l’opérateur @&gt;.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l’intérêt majeur de la clause INCLUDE lors de la création d’un index B-Tree ?</p>
@@ -300,7 +307,7 @@ SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;</script>
         <button class="opt">Empêcher les suppressions de lignes dans la table</button>
         <button class="opt">Traduire les colonnes en minuscules</button>
       </div>
-      <div class="q__exp">La clause INCLUDE intègre des données complémentaires dans les feuilles de l’index, permettant au moteur d’exécuter la requête sans accéder à la table.</div>
+      <div class="q__exp">La clause INCLUDE ajoute des données aux feuilles de l’index et peut permettre un Index Only Scan. PostgreSQL peut néanmoins consulter la table pour vérifier la visibilité ou choisir un autre plan.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que se produit-il lorsqu’une page feuille B-Tree atteint 100 % de sa capacité et reçoit une nouvelle clé ?</p>
@@ -313,7 +320,7 @@ SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;</script>
       <div class="q__exp">Le Page Split sépare la page en deux pour insérer la nouvelle valeur, un mécanisme coûteux en I/O atténué par le paramètre fillfactor.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Pour une requête filtrant sur « WHERE client_id = 42 AND date_cmd >= '2025-01-01' », quel ordre de colonnes dans l’index composite est optimal ?</p>
+      <p class="q__stem">Pour une requête filtrant sur « WHERE client_id = 42 AND date_cmd &gt;= '2025-01-01' », quel ordre de colonnes dans l’index composite est optimal ?</p>
       <div class="opts">
         <button class="opt">(date_cmd, client_id)</button>
         <button class="opt" data-correct="1">(client_id, date_cmd)</button>
@@ -323,14 +330,14 @@ SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;</script>
       <div class="q__exp">Règle d’or : les colonnes à égalité stricte (client_id) doivent toujours être placées avant les colonnes à intervalle (date_cmd).</div>
     </div>
     <div class="q">
-      <p class="q__stem">Quelle commande PostgreSQL permet de reconstruire un index sans bloquer les opérations de lecture et d’écriture concurrentes ?</p>
+      <p class="q__stem">Quelle commande PostgreSQL reconstruit les index sans verrou empêchant les écritures concurrentes sur la table ?</p>
       <div class="opts">
         <button class="opt">REINDEX TABLE commandes;</button>
         <button class="opt">VACUUM FULL commandes;</button>
         <button class="opt" data-correct="1">REINDEX TABLE CONCURRENTLY commandes;</button>
         <button class="opt">ALTER INDEX commandes RESTART;</button>
       </div>
-      <div class="q__exp">L’option CONCURRENTLY évite le verrou exclusif lourd et permet à la production de continuer pendant la reconstruction de l’index.</div>
+      <div class="q__exp">CONCURRENTLY autorise les écritures concurrentes sur la table, mais nécessite plusieurs passes et peut attendre d’autres transactions.</div>
     </div>
     <div class="q">
       <p class="q__stem">Qu’est-ce qu’un index partiel (Partial Index) dans PostgreSQL ?</p>
@@ -362,7 +369,7 @@ SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;</script>
       <li>Créer un index sur chaque colonne individuelle d’une table, provoquant un effondrement dramatique des performances d’INSERT et d’UPDATE.</li>
       <li>Inverser l’ordre des colonnes dans un index composite (placer la colonne d’intervalle avant la colonne d’égalité), empêchant l’index d’être pleinement exploité.</li>
       <li>Indexer une colonne JSONB avec un index B-Tree ordinaire plutôt qu’un index GIN, rendant impossible la recherche par clés internes.</li>
-      <li>Oublier le mot-clé CONCURRENTLY lors d’un REINDEX en production, figeant l’ensemble de l’application sous un verrou exclusif.</li>
+      <li>Oublier le mot-clé CONCURRENTLY lors d’un REINDEX en production, ce qui peut bloquer des écritures et des lectures sur les objets concernés.</li>
     </ul>
   </div>
 
@@ -375,7 +382,7 @@ SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;</script>
       <li>Étape 2 : Vérifier la sélectivité des colonnes : ne jamais indexer une colonne à très faible cardinalité (ex: booléen ou statut binaire) avec un B-Tree complet.</li>
       <li>Étape 3 : Créer des index composites en respectant la règle d’or : colonnes d’égalité stricte en premier, suivies des colonnes d’intervalle ou de tri.</li>
       <li>Étape 4 : Déployer des index partiels (WHERE actif = true) sur les tables volumineuses pour réduire l’empreinte mémoire de 80 %.</li>
-      <li>Étape 5 : Exploiter la clause INCLUDE pour concevoir des index couvrants permettant l’exécution en Index Only Scan.</li>
+      <li>Étape 5 : Exploiter la clause INCLUDE pour concevoir des index couvrants susceptibles de permettre un Index Only Scan si le planificateur le choisit.</li>
       <li>Étape 6 : Planifier périodiquement une maintenance des index fragmentés via REINDEX CONCURRENTLY lors des heures creuses.</li>
     </ol>
   </div>
@@ -388,22 +395,22 @@ SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;</script>
       <li>Le stockage PostgreSQL repose sur des pages de 8 Ko contenant un en-tête fixe, des ItemIds et des tuples.</li>
       <li>L’index B-Tree organise les clés dans un arbre n-aire équilibré assurant une traversée en temps logarithmique O(log N).</li>
       <li>L’index GIN est le choix indispensable pour indexer les documents semi-structurés JSONB, les tableaux et le texte intégral.</li>
-      <li>Les index couvrants (clause INCLUDE) permettent au moteur de satisfaire la requête par un Index Only Scan sans toucher la table.</li>
+      <li>Un index couvrant peut permettre un Index Only Scan ; PostgreSQL consulte encore la table si la carte de visibilité ne suffit pas, et l’optimiseur peut choisir un autre plan.</li>
       <li>Le paramètre fillfactor réserve de l’espace libre dans les pages d’index pour prévenir les coûteuses divisions de pages (Page Splits).</li>
-      <li>La maintenance d’un index fragmenté s’opère sans verrouillage applicatif via la commande REINDEX CONCURRENTLY.</li>
+      <li>REINDEX CONCURRENTLY permet les écritures concurrentes sur la table pendant la reconstruction, avec des attentes et des coûts à prévoir.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
       <li>Je comprends la découpe interne d’une page PostgreSQL de 8 192 octets.</li>
       <li>Je sais expliquer pourquoi un arbre B-Tree n’a généralement que 3 à 4 niveaux de profondeur.</li>
       <li>Je maîtrise les cas d’usage distincts de B-Tree, HASH, GIN et GiST.</li>
-      <li>Je sais concevoir un index couvrant avec la clause INCLUDE pour déclencher un Index Only Scan.</li>
+      <li>Je sais concevoir un index couvrant avec la clause INCLUDE et expliquer les conditions d’un Index Only Scan.</li>
       <li>Je comprends le rôle du Fill Factor dans la prévention des divisions de pages lors d’insertions massives.</li>
-      <li>Je sais pourquoi REINDEX CONCURRENTLY est obligatoire sur une base en production 24/7.</li>
+      <li>Je sais comparer REINDEX et REINDEX CONCURRENTLY selon leurs verrous, attentes et restrictions.</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>Pages Disques de 8 Ko & PageHeaderData</li><li>Arbre Équilibré B-Tree & Fan-Out</li><li>Index Hash & Accès O(1)</li><li>Generalized Inverted Index (GIN) pour JSONB</li><li>Index Couvrants & Clause INCLUDE</li><li>Index Partiels (Partial Indexes)</li><li>Divisions de Pages (Page Splits) & Fill Factor</li><li>Maintenance Reindex Concurrently</li>
+      <li>Pages Disques de 8 Ko &amp; PageHeaderData</li><li>Arbre Équilibré B-Tree &amp; Fan-Out</li><li>Index Hash &amp; Accès O(1)</li><li>Generalized Inverted Index (GIN) pour JSONB</li><li>Index Couvrants &amp; Clause INCLUDE</li><li>Index Partiels (Partial Indexes)</li><li>Divisions de Pages (Page Splits) &amp; Fill Factor</li><li>Maintenance Reindex Concurrently</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -415,10 +422,10 @@ SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;</script>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à identifier le bon type d’index ou confusion sur le fonctionnement des index composites.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Difficultés à identifier le bon type d’index ou confusion sur le fonctionnement des index composites.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne compréhension des arbres B-Tree, dimensionnement avec Fill Factor et utilisation des index GIN pour le JSONB.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise approfondie des index couvrants (INCLUDE), élimination des accès tables via Index Only Scan et maintenance non bloquante en production.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise approfondie des index couvrants (INCLUDE), analysez des accès à la table avec Index Only Scan et maintenance tenant compte des verrous et des attentes.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

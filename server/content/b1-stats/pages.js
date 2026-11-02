@@ -51,9 +51,9 @@ function index(course, chapterList) {
     box('method', 'Comment ce cours s’articule', 'compass', [
       '    <p>Chaque chapitre part d’un jeu de données concret, pose le vocabulaire, montre un calcul ' +
       'détaillé ligne à ligne, puis se termine par <strong>trois études de cas statistiques</strong> : ' +
-      'vous écrivez vraiment un programme qui résume une série (effectifs, moyenne, médiane, variance, ' +
-      'coefficient de corrélation), il est réellement exécuté puis corrigé par des tests que vous ne voyez pas.</p>',
-      '    <p>Python sert ici de <em>démarche méthodologique</em> : les formules restent celles du support, ' +
+      'vous complétez une grille d’analyse qui résume une série (effectifs, moyenne, médiane, variance, ' +
+      'coefficient de corrélation), puis elle est vérifiée par des critères que vous ne voyez pas.</p>',
+      '    <p>La <em>démarche méthodologique</em> prime : les formules restent celles du support, ' +
       'en notation statistique. Chaque énoncé précise si la variance se divise par N ou par N − 1.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -101,8 +101,8 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du vocabulaire statistique jusqu’à la droite de ' +
     'régression. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou ' +
     'supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois études de cas statistiques</strong> à écrire et à exécuter ' +
-    'dans la page : votre programme est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas statistiques</strong> à analyser ' +
+    'dans la page : vous remplissez votre grille d’analyse, puis elle est vérifiée par des critères que vous ne voyez pas. ' +
     'L’<a href="atelier.html">atelier de calcul</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
@@ -134,77 +134,75 @@ function sommaire(course, chapterList) {
 function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
-    '  <h1>Atelier d’analyse &amp; Bac à sable</h1>',
-    '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Python derrière. Donne une série de ' +
-    'valeurs au programme, exécutez-le et lisez ce qu’il affiche : c’est ici qu’une formule devient un réflexe.</p>',
+    '  <h1>Atelier d’analyse statistique</h1>',
+    '  <p class="lead">Entraînez-vous à expliquer vos calculs dans les études de cas. La zone libre ' +
+    'ci-dessous permet de préparer votre raisonnement sans exécuter de programme.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
-      '      <li><strong>Exécuter</strong> fait tourner votre code Python tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
-      '      <li><strong>Données du cas</strong> contient les paramètres soumis à l’étude.</li>',
-      '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n’écrit jamais de code à votre place.</li>',
-      '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l’éditeur.</li>',
-      '      <li>Votre code est conservé dans ce navigateur, par exercice et par cours.</li>',
+      '      <li>Dans la <strong>zone libre</strong>, rédigez un brouillon : il n’est ni exécuté ni corrigé.</li>',
+      '      <li>Dans une étude de cas, les <strong>données du cas</strong> précisent la situation à analyser.</li>',
+      '      <li>Pour les exercices qui le proposent, <strong>Vérifier mes réponses</strong> compare vos réponses aux cas prévus, sans attribuer de note.</li>',
+      '      <li>Le navigateur peut conserver vos brouillons localement, par exercice et par cours.</li>',
       '    </ul>'
     ].join('\n')),
     '  <h2>Zone libre</h2>',
     [
       '<div class="lab" data-lab',
       '     data-language="analyse"',
-      '     data-height="360"',
-      '     data-languages="1"',
-      '     data-stdin="">',
+      '     data-height="360">',
       '  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie du cours.\n# Rédigez votre analyse sous forme de grille structurée.\n\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
       '  <div class="lab__head">',
       '    <h3 class="lab__title">Zone libre — moyenne et dispersion</h3>',
       '    <div class="lab__meta">',
-      '      <span class="lab__lang">' + ic('terminal') + ' Python</span>',
+      '      <span class="lab__lang">' + ic('terminal') + ' Brouillon</span>',
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez une notion du cours ' +
-      '(fréquence, médiane, quartile, variance, corrélation), programmez-la et testez-la sur des cas limites.</p>',
+      '    <p class="lab__formative-notice">Ce brouillon n’est ni exécuté ni corrigé.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> s’entraîner avec des données fictives. Prenez une notion du cours ' +
+      '(fréquence, médiane, quartile, variance, corrélation) et détaillez votre calcul.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le script proposé calcule la moyenne et l’écart-type de la série fournie dans les données du cas. ' +
-      'Modifiez la série, change la formule, ou remplace tout le script par le calcul que vous voulez vérifier.</p>',
-      '      <p>Une erreur n’est pas un échec : c’est le message que Python te laisse pour comprendre ce qu’il attendait.</p>',
+      '      <p>Pour la série ci-dessous, calculez la moyenne et l’écart-type de population, puis comparez votre démarche ' +
+      'à l’exemple public. Vous pouvez ensuite choisir d’autres valeurs fictives.</p>',
       '    </div>',
       '    <div class="lab__sample">',
-      '      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3',
-      '2',
+      '      <div class="lab__sample-part"><b>Valeurs de l’exemple</b><pre>2',
       '4',
       '6</pre></div>',
-      '      <div class="lab__sample-part"><b>Résolution attendue</b><pre>moyenne : 4.00',
-      'ecart-type : 1.63</pre></div>',
+      '      <div class="lab__sample-part"><b>Résultat de l’exemple</b><pre>moyenne : 4,00',
+      'écart-type de population : 1,63</pre></div>',
       '    </div>',
-      '    <p class="lab__note">Quatre lignes attendues : déplie « Entrée du programme » et saisis-les avant d’exécuter.</p>',
+      '    <p class="lab__note">Saisissez votre démarche dans le brouillon : aucune vérification automatique ne sera lancée ici.</p>',
       '  </div>',
       '</div>'
     ].join('\n'),
     '  <h2>Du calcul à la décision</h2>',
     '  <p>Décrire une série, ce n’est pas seulement produire des nombres : c’est choisir les bons. Une ' +
     'moyenne et une médiane très différentes signalent une distribution dissymétrique ; un coefficient de ' +
-    'variation supérieur à 25 % signale une dispersion forte ; un coefficient de corrélation proche de 0 ' +
-    'interdit de conclure à une influence. Chaque formule du cours sert cette lecture.</p>',
-    box('pitfall', 'Les trois erreurs que l’atelier révèle immédiatement', 'warning', [
+    'variation rapporte l’écart-type à la moyenne. Celle-ci doit être positive, suffisamment éloignée de zéro ' +
+    'au regard de la précision des mesures, pour une grandeur à zéro naturel. Aucun seuil universel ne qualifie ' +
+    'la dispersion : son interprétation dépend du contexte ; un coefficient de corrélation proche de 0 ' +
+    'ne permet pas de conclure à l’absence ou à la présence d’une influence. Chaque formule du cours sert cette lecture.</p>',
+    box('pitfall', 'Trois erreurs à surveiller', 'warning', [
       '    <ul>',
       '      <li><strong>Division par N ou par N − 1</strong> : les deux existent, mais elles ne donnent pas le même résultat. L’énoncé dit toujours laquelle utiliser.</li>',
-      '      <li><strong>Moyenne d’une série regroupée</strong> : on travaille sur les centres de classe, jamais sur les bornes.</li>',
+      '      <li><strong>Moyenne d’une série regroupée</strong> : on pondère les centres de classe par les effectifs, sans utiliser les bornes comme valeurs.</li>',
       '      <li><strong>Somme des carrés mal répartie</strong> : la variance utilise les écarts à la moyenne, au carré — pas la somme des valeurs au carré divisée par N.</li>',
       '    </ul>'
     ].join('\n')),
     box('tech', 'Ce que fait l’atelier, côté technique', 'terminal', [
       '    <ul>',
-      '      <li>Votre code est envoyé à ce serveur, qui le transmet à un service d’exécution isolé : rien ne tourne sur votre machine, et aucun accès au système n’est possible.</li>',
-      '      <li>La clé du service reste sur le serveur ; le navigateur ne la voit jamais.</li>',
-      '      <li>Le nombre d’exécutions est limité par jour, pour tout le monde. L’atelier n’exécute donc que sur un clic.</li>',
+      '      <li>Dans un exercice, lorsque vous demandez leur vérification, vos réponses sont transmises au serveur. Ne saisissez ni données personnelles ni secrets.</li>',
+      '      <li>Les grilles d’analyse de ce cours sont traitées côté serveur ; leur vérification dépend de sa disponibilité.</li>',
+      '      <li>Les vérifications sont soumises à des limites quotidiennes et lancées à votre demande.</li>',
       '    </ul>'
     ].join('\n')),
     '  <h2>Ensuite</h2>',
-    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois études de cas statistiques corrigées ' +
-    'automatiquement dans la page. Une fois l’atelier apprivoisé, ils sont la meilleure façon de vérifier ' +
-    'que le cours est vraiment acquis.</p>',
+    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois études de cas statistiques. La correction automatique ' +
+    'compare les réponses aux résultats attendus pour les cas proposés : elle ne garantit pas la maîtrise du cours. ' +
+    'Expliquez votre démarche et entraînez-vous sur d’autres situations.</p>',
     chnav({ href: 'sommaire.html', label: 'Sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Chapitre 1 — Vocabulaire' }),
-    disclaimer(course, 'L’exécution repose sur un service distant : en cas d’indisponibilité, l’atelier le ' +
+    disclaimer(course, 'La vérification dépend du serveur : en cas d’indisponibilité, l’atelier le ' +
       'signale et les exercices papier restent utilisables.')
   ].join('\n\n');
 
@@ -231,7 +229,8 @@ function cartes(course, chapterList) {
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Cartes' }]),
     '  <h1>Cartes de révision</h1>',
     '  <p class="lead">Cliquez sur une carte pour révéler la réponse. Objectif : répondre sans hésiter, dans les ' +
-    'deux sens. Revenez à J+1, J+3, J+7 pour ancrer durablement.</p>',
+    'deux sens. Vous pouvez espacer vos révisions, par exemple à J+1, J+3 et J+7 ; adaptez ce calendrier, ' +
+    'qui ne garantit pas à lui seul la mémorisation.</p>',
     cards(modules),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'formules.html', label: 'Mémo des formules' })
   ].join('\n\n');
@@ -295,13 +294,13 @@ function formules(course) {
       '<pre><code>étendue                e = x<sub>max</sub> − x<sub>min</sub>\n',
       'variance (div. par N)  V = (1/N) · Σ n<sub>i</sub> (x<sub>i</sub> − x̄)²\n',
       'écart-type             σ = √V\n',
-      'coefficient de variation  CV = σ / x̄        (en %, si x̄ > 0)\n',
+      'coefficient de variation  CV = σ / x̄        (× 100 pour l’exprimer en %)\n',
       '\n',
       'formule de König (calcul rapide, identique) :\n',
       'V = (1/N) · Σ n<sub>i</sub> · x<sub>i</sub>²  −  x̄²</code></pre>',
-      '<p>L’écart-type s’exprime dans l’unité des données, le coefficient de variation non : c’est lui qui',
-      'permet de comparer deux séries d’unités ou de niveaux différents. Ordre de grandeur : CV &gt; 25 % =',
-      'dispersion forte.</p>'
+      '<p>Le CV est sans unité. Il peut comparer des dispersions relatives si les grandeurs ont un zéro naturel',
+      'et des moyennes positives suffisamment éloignées de zéro. L’interprétation dépend du contexte :',
+      'aucun seuil universel ne qualifie une dispersion de forte.</p>'
     ].join('\n')),
 
     bloc('Représentations graphiques', [
@@ -320,7 +319,7 @@ function formules(course) {
       '<pre><code>moyenne de x      x̄        moyenne de y      ȳ\n',
       'covariance        cov(x, y) = (1/N) · Σ n<sub>ij</sub> (x<sub>i</sub> − x̄)(y<sub>j</sub> − ȳ)\n',
       'coefficient de corrélation linéaire\n',
-      '                  r = cov(x, y) / (σ<sub>x</sub> · σ<sub>y</sub>)        −1 ≤ r ≤ 1\n',
+      '                  r = cov(x, y) / (σ<sub>x</sub> · σ<sub>y</sub>)        −1 ≤ r ≤ 1 si σ<sub>x</sub> et σ<sub>y</sub> sont non nuls\n',
       '\n',
       'droite des moindres carrés   y = a·x + b\n',
       '                  a = cov(x, y) / V(x)        b = ȳ − a·x̄</code></pre>',
@@ -331,7 +330,7 @@ function formules(course) {
     bloc('Erreurs fréquentes à éviter', [
       '<ul>',
       '    <li>Confondre effectif (un nombre d’individus) et fréquence (une proportion).</li>',
-      '    <li>Calculer une moyenne de classes à partir des bornes au lieu des centres.</li>',
+      '    <li>Calculer une moyenne de classes à partir des bornes ou oublier de pondérer les centres par les effectifs.</li>',
       '    <li>Utiliser la médiane d’une série non triée.</li>',
       '    <li>Diviser par N − 1 quand l’énoncé demande une variance de population (division par N).</li>',
       '    <li>Comparer deux écarts-types de séries d’unités différentes au lieu des coefficients de variation.</li>',
@@ -384,16 +383,17 @@ function examens(course) {
           text: 'Calculez la variance (division par N), l’écart-type et le coefficient de variation de la série de l’exercice 1.',
           sol: 'Σ nᵢxᵢ² = 1·2 + 4·4 + 9·6 + 16·5 + 25·3 = 2 + 16 + 54 + 80 + 75 = 227.\n' +
             'König : V = 227/20 − 3,15² = 11,35 − 9,9225 = <strong>1,4275</strong>.\n' +
-            'σ = √1,4275 ≈ <strong>1,195</strong>. CV = 1,195/3,15 ≈ <strong>0,379</strong>, soit 37,9 % : dispersion forte.'
+            'σ = √1,4275 ≈ <strong>1,195</strong>. CV = 1,195/3,15 ≈ <strong>0,379</strong>, soit 37,9 %.\n' +
+            'Ce rapport dépend du barème : une note de 0 ne signifie pas nécessairement une absence de compétence ; son interprétation exige un contexte.'
         },
         {
           num: 'Exercice 4',
           badge: '/5 — Interprétation',
           text: 'La moyenne et la médiane de deux séries valent toutes deux 12. La série A a un écart-type de 0,5, la série B de 4,1. ' +
             'Que pouvez-vous dire des deux séries ?',
-          sol: 'Même centre, dispersions très différentes : la série A est resserrée autour de 12, la série B très étalée.\n' +
-            'Le coefficient de variation (égal ici, les moyennes étant égales) vaut 0,042 pour A et 0,34 pour B.\n' +
-            'Conclusion : décrire une série par sa seule moyenne est insuffisant — il faut toujours donner une mesure de dispersion.'
+          sol: 'Même moyenne et même médiane ; l’écart-type est plus élevé pour B (4,1 contre 0,5).\n' +
+            'Si le zéro est naturel et la moyenne pertinente, les CV valent environ 4,2 % pour A et 34,2 % pour B : la dispersion relative de B est supérieure.\n' +
+            'Leur appréciation dépend du contexte : une moyenne seule ne suffit pas à décrire la dispersion.'
         }
       ]
     },
@@ -404,11 +404,11 @@ function examens(course) {
         {
           num: 'Exercice 1',
           badge: '/5 — Classes et centres',
-          text: 'Un relevé donne les tailles de 50 personnes regroupées en classes : [150;160[ : 8, [160;170[ : 15, [170;180[ : 19, [180;190[ : 8. ' +
+          text: 'Un relevé donne les tailles de 50 personnes regroupées en classes : [150;160[ : 8, [160;170[ : 15, [170;180[ : 19, [180;190] : 8. ' +
             'Calculez la taille moyenne.',
           sol: 'Centres de classe : 155, 165, 175, 185.\n' +
             'Moyenne = (8·155 + 15·165 + 19·175 + 8·185)/50 = (1 240 + 2 475 + 3 325 + 1 480)/50 = 8 520/50 = <strong>170,4 cm</strong>.\n' +
-            'On travaille toujours sur les centres, jamais sur les bornes.'
+            'On pondère les centres par les effectifs ; la moyenne est approchée.'
         },
         {
           num: 'Exercice 2',
@@ -448,10 +448,10 @@ function examens(course) {
   const mastery = [
     { stem: 'Qu’appelle-t-on effectif d’une modalité ?', opts: ['Sa proportion', 'Le nombre d’individus qui la portent', 'Sa valeur'], correct: 1, exp: 'L’effectif est un comptage ; la fréquence est une proportion.' },
     { stem: 'La somme des fréquences relatives vaut…', opts: ['N', '1', '100'], correct: 1, exp: 'La somme des fréquences relatives vaut 1 (et 100 pour les pourcentages).' },
-    { stem: 'Pour une série regroupée en classes, la moyenne se calcule avec…', opts: ['les bornes des classes', 'les centres des classes', 'les effectifs seuls'], correct: 1, exp: 'On remplace chaque classe par son centre.' },
+    { stem: 'Pour une série regroupée en classes, la moyenne se calcule avec…', opts: ['les bornes seules', 'les centres des classes pondérés par les effectifs', 'les effectifs seuls'], correct: 1, exp: 'On pondère chaque centre par l’effectif de sa classe ; le résultat est approché.' },
     { stem: 'Quelle mesure est la moins sensible aux valeurs extrêmes ?', opts: ['La moyenne', 'La médiane', 'L’étendue'], correct: 1, exp: 'La médiane ne dépend que du rang, pas de la valeur des extrêmes.' },
     { stem: 'Que mesure l’écart-type ?', opts: ['Le centre de la série', 'La dispersion autour de la moyenne', 'L’effectif total'], correct: 1, exp: 'σ = √V, la racine de la variance : dispersion dans l’unité des données.' },
-    { stem: 'Quel indicateur compare la dispersion de deux séries d’unités différentes ?', opts: ['L’écart-type', 'Le coefficient de variation', 'L’étendue'], correct: 1, exp: 'CV = σ/x̄ est sans unité : c’est lui qui permet la comparaison.' },
+    { stem: 'Quel indicateur peut comparer des dispersions relatives si ses conditions sont réunies ?', opts: ['L’écart-type', 'Le coefficient de variation', 'L’étendue'], correct: 1, exp: 'Le CV est sans unité, mais requiert une moyenne positive, suffisamment éloignée de zéro et une grandeur à zéro naturel ; interprétez-le selon le contexte.' },
     { stem: 'Formule de König ?', opts: ['V = Σ nᵢxᵢ²/N − x̄²', 'V = x̄² − Σ nᵢxᵢ²/N', 'V = Σ nᵢ(xᵢ − x̄)²'], correct: 0, exp: 'Elle évite de calculer chaque écart à la moyenne.' },
     { stem: 'Dans un histogramme à classes de même amplitude, la hauteur est proportionnelle…', opts: ['à l’effectif', 'à la fréquence cumulée', 'à la variance'], correct: 0, exp: 'Mêmes amplitudes : la hauteur est proportionnelle à l’effectif.' },
     { stem: 'Que signifie r = −0,95 ?', opts: ['Une liaison linéaire forte et négative', 'Aucune liaison', 'Une erreur de calcul'], correct: 0, exp: '|r| proche de 1 et signe négatif : liaison linéaire forte décroissante.' },
@@ -545,12 +545,12 @@ function exercices(course) {
     item('Raisonnement', 'n3', [
       'Calculer la covariance $\\operatorname{cov}(X, Y)$ et le coefficient de corrélation linéaire $r$.',
       'Déterminer la droite de régression des moindres carrés $y = ax + b$.',
-      'Comparer deux séries par leur coefficient de variation $CV = \\frac{\\sigma}{\\bar{x}}$.',
+      'Comparer deux séries par leur coefficient de variation $CV = \\frac{\\sigma}{\\bar{x}}$ lorsque le zéro et les moyennes sont pertinents.',
       'Découper une série continue en classes de même amplitude et calculer les centres de classe.'
     ], [
       '<p><strong>1. Corrélation :</strong> $\\operatorname{cov}(X,Y) = \\frac{1}{n}\\sum x_i y_i - \\bar{x}\\bar{y}$, d’où $r = \\frac{\\operatorname{cov}(X,Y)}{\\sigma_x \\sigma_y} \\in [-1, 1]$.</p>',
       '<p><strong>2. Droite de régression :</strong> Pente $a = \\frac{\\operatorname{cov}(X,Y)}{V(X)}$ et ordonnée à l’origine $b = \\bar{y} - a\\bar{x}$.</p>',
-      '<p><strong>3. Coefficient de variation :</strong> $CV = \\frac{\\sigma}{\\bar{x}}$ permet de comparer la dispersion relative de deux distributions d’unités ou d’ordres de grandeur différents.</p>',
+      '<p><strong>3. Coefficient de variation :</strong> $CV = \\frac{\\sigma}{\\bar{x}}$ permet de comparer des dispersions relatives si les grandeurs ont un zéro naturel et des moyennes positives suffisamment éloignées de zéro. Interprétez la comparaison selon le contexte.</p>',
       '<p><strong>4. Classes :</strong> Pour une classe $[b_i, b_{i+1}[$, amplitude $a_i = b_{i+1} - b_i$ et centre $c_i = \\frac{b_i + b_{i+1}}{2}$.</p>'
     ].join('\n')),
 

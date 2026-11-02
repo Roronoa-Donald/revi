@@ -22,7 +22,7 @@ module.exports = {
   objectives: [
     'Maîtriser la syntaxe et la structure des contextes, extensions et priorités dans le fichier extensions.conf.',
     'Employer les applications fondamentales du Dialplan Asterisk : Answer(), Playback(), Background(), WaitExten(), Dial(), VoiceMail() et Hangup().',
-    'Concevoir des règles de routage condensées et évolutives avec les masques de numérotation (_X, _Z, _N) et les variables de canaux (${EXTEN}, ${CALLERID(num)}).',
+    'Concevoir des règles de routage condensées et évolutives avec les masques de numérotation (_X, _Z, _N) et les variables de canaux (<code>${EXTEN}</code>, <code>${CALLERID(num)}</code>).',
     'Programmer un serveur vocal interactif (SVI/IVR) avec arborescence DTMF, extensions spéciales de secours (t pour Timeout, i pour Invalid) et renvoi sur messagerie.'
   ],
 

@@ -779,8 +779,8 @@ async function updateUserPassword(userId, passwordHash) {
 
 async function createPayment(data = {}) {
   const result = await query(
-    `INSERT INTO payments (user_id, fedapay_transaction_id, fedapay_customer_id, amount, currency, description, status, months_granted, metadata)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+    `INSERT INTO payments (user_id, fedapay_transaction_id, fedapay_customer_id, amount, currency, description, status, months_granted, merchant_reference, plan, metadata)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
     [
       data.userId || null,
       data.fedapayTransactionId || null,
@@ -790,6 +790,8 @@ async function createPayment(data = {}) {
       data.description || null,
       data.status || 'pending',
       Number(data.monthsGranted || 1),
+      data.merchantReference || null,
+      data.plan || 'monthly',
       data.metadata ? JSON.stringify(data.metadata) : null
     ]
   );
@@ -798,6 +800,12 @@ async function createPayment(data = {}) {
 
 async function getPaymentByTxId(fedapayTransactionId) {
   const result = await query('SELECT * FROM payments WHERE fedapay_transaction_id = $1', [String(fedapayTransactionId)]);
+  return result.rows[0] || null;
+}
+
+async function getPaymentByMerchantRef(merchantReference) {
+  if (!merchantReference) return null;
+  const result = await query('SELECT * FROM payments WHERE merchant_reference = $1', [String(merchantReference)]);
   return result.rows[0] || null;
 }
 
@@ -814,9 +822,10 @@ async function updatePaymentStatus(id, status, extra = {}) {
          fedapay_customer_id = COALESCE($3, fedapay_customer_id),
          period_start = COALESCE($4, period_start),
          period_end = COALESCE($5, period_end),
+         merchant_reference = COALESCE($6, merchant_reference),
          updated_at = CURRENT_TIMESTAMP
-     WHERE id = $6 RETURNING *`,
-    [status, extra.fedapayTransactionId || null, extra.fedapayCustomerId || null, extra.periodStart || null, extra.periodEnd || null, id]
+     WHERE id = $7 RETURNING *`,
+    [status, extra.fedapayTransactionId || null, extra.fedapayCustomerId || null, extra.periodStart || null, extra.periodEnd || null, extra.merchantReference || null, id]
   );
   return result.rows[0];
 }
@@ -825,6 +834,38 @@ async function getLatestPaymentForUser(userId) {
   const result = await query(
     'SELECT * FROM payments WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1',
     [userId]
+  );
+  return result.rows[0] || null;
+}
+
+async function recordWebhookEvent(data = {}) {
+  const result = await query(
+    `INSERT INTO payment_webhook_events (event_id, event_name, transaction_id, payload, processed_at)
+     VALUES ($1, $2, $3, $4, $5)
+     ON CONFLICT (event_id) DO NOTHING
+     RETURNING *`,
+    [
+      data.eventId,
+      data.eventName || null,
+      data.transactionId || null,
+      data.payload ? JSON.stringify(data.payload) : null,
+      data.processedAt || null
+    ]
+  );
+  return result.rows[0] || null;
+}
+
+async function getWebhookEvent(eventId) {
+  if (!eventId) return null;
+  const result = await query('SELECT * FROM payment_webhook_events WHERE event_id = $1', [String(eventId)]);
+  return result.rows[0] || null;
+}
+
+async function markWebhookEventProcessed(eventId) {
+  if (!eventId) return null;
+  const result = await query(
+    'UPDATE payment_webhook_events SET processed_at = CURRENT_TIMESTAMP WHERE event_id = $1 RETURNING *',
+    [String(eventId)]
   );
   return result.rows[0] || null;
 }
@@ -877,9 +918,13 @@ module.exports = {
   // Payments
   createPayment,
   getPaymentByTxId,
+  getPaymentByMerchantRef,
   getPaymentById,
   getLatestPaymentForUser,
   updatePaymentStatus,
+  recordWebhookEvent,
+  getWebhookEvent,
+  markWebhookEventProcessed,
   // Class-filtered variants for B1/B2 separation
   getAllKeysByClass,
   getStatsByClass,

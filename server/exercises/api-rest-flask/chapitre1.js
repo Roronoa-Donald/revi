@@ -153,6 +153,11 @@ else:
         label: 'En-têtes vides ou neutres',
         stdin: 'Host: localhost\nUser-Agent: Mozilla/5.0',
         expected: 'Format non supporte'
+      },
+      {
+        label: 'En-tête Content-Type strict et deux-points multiples',
+        stdin: 'Authorization: Bearer token:abc:123\nContent-Type: application/json\n',
+        expected: 'JSON supporte'
       }
     ],
     solution: `import sys

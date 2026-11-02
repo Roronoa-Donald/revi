@@ -178,7 +178,8 @@ module.exports = [
     situation:
       'Un circuit combinatoire oublie tout : ses sorties ne dépendent que de ses entrées présentes. Or une ' +
       'machine doit mémoriser — un bit, un mot, un compteur d\'instructions. Les circuits séquentiels ' +
-      'ajoutent l\'horloge et la mémoire : la sortie dépend des entrées ET de l\'état antérieur.',
+      'ajoutent un état mémorisé : la sortie dépend des entrées ET de l\'état antérieur. Certains sont ' +
+      'cadencés par une horloge, d\'autres fonctionnent sans horloge.',
 
     objectives: [
       'distinguer circuit combinatoire et séquentiel ;',
@@ -192,13 +193,15 @@ module.exports = [
       {
         title: 'Les bascules RS et D',
         html: [
-          'Un circuit est <strong>séquentiel</strong> quand sa sortie dépend des entrées présentes et de ' +
-          'l\'état mémorisé, synchronisé par une <strong>horloge</strong> (front montant ou descendant). La ' +
-          '<strong>bascule RS</strong> : R (reset) met Q à 0, S (set) met Q à 1, R=S=0 mémorise — et ' +
-          '<strong>R=S=1 est interdit</strong> : les deux sorties deviennent identiques, ce que la logique ' +
-          'prohibe. Les entrées <strong>set/reset asynchrones</strong> agissent immédiatement, hors horloge.</p>',
+          '<p>Un circuit est <strong>séquentiel</strong> quand sa sortie dépend des entrées présentes et de ' +
+          'l\'état mémorisé. Il peut être synchrone, cadencé par une <strong>horloge</strong>, ou asynchrone. ' +
+          'Le <strong>verrou RS</strong> étudié ici fonctionne sans horloge : ses entrées actives à 1 ' +
+          'commandent l\'état. R (reset) met Q à 0, S (set) met Q à 1, R=S=0 mémorise — et ' +
+          '<strong>R=S=1 est interdit</strong> : les deux sorties deviennent identiques. Une entrée ' +
+          '<strong>set/reset asynchrone</strong> agit sans attendre de front d\'horloge, après le délai du circuit.</p>',
           '<p>La <strong>bascule D</strong> élimine le cas interdit : une seule entrée D, recopiée sur Q à ' +
-          'chaque front d\'horloge actif — « D comme Data ». Entre deux fronts, l\'état se fige : c\'est le ' +
+          'chaque front d\'horloge actif — « D comme Data ». Entre deux fronts, si aucune entrée asynchrone ' +
+          'n\'est activée, l\'état se fige : c\'est le ' +
           'constituant de base des registres et des mémoires.</p>',
           box('mnemo', 'Mnémotechnique — « RS obéit et se dispute, D recopie, JK sait tout faire »', 'pin',
             '    <p>Trois bascules, trois caractères : RS (deux ordres qui peuvent se contredire), D ' +
@@ -215,9 +218,9 @@ module.exports = [
           'câblé en J=K=1 divise la fréquence par 2.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
             '    <ul>\n' +
-            '      <li>R=S=1 reste interdit pour RS ; J=K=1 est au contraire le mode bascule de la JK.</li>\n' +
+            '      <li>R=S=1 reste interdit pour le verrou RS étudié à entrées actives à 1 ; J=K=1 est au contraire le mode bascule de la JK.</li>\n' +
             '      <li>Front montant ≠ descendant : le moment d\'échantillonnage change, pas la table.</li>\n' +
-            '      <li>Asynchrone = hors horloge (set/reset immédiats), pas « sans ordre ».</li>\n' +
+            '      <li>Asynchrone = sans attendre un front d\'horloge, pas « sans ordre » ni « sans délai ».</li>\n' +
             '      <li>La bascule D ne change pas d\'état entre deux fronts : elle recopie au front.</li>\n' +
             '    </ul>')
         ].join('\n')
@@ -243,14 +246,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Un circuit séquentiel dépend…', opts: ['des entrées présentes seulement', 'des entrées ET de l\'état antérieur', 'de l\'horloge seulement'], correct: 1, exp: 'Il mémorise : l\'histoire compte, l\'horloge cadence.' },
-      { q: 'La combinaison R=S=1 est…', opts: ['le mode bascule', 'interdite', 'la mémorisation'], correct: 1, exp: 'Sorties identiques Q=Q&#772; : interdit pour RS.' },
+      { q: 'Un circuit séquentiel dépend…', opts: ['des entrées présentes seulement', 'des entrées ET de l\'état antérieur', 'de l\'horloge seulement'], correct: 1, exp: 'Il mémorise : l\'histoire compte ; il peut être synchrone ou asynchrone.' },
+      { q: 'Pour le verrou RS à entrées actives à 1, la combinaison R=S=1 est…', opts: ['le mode bascule', 'interdite', 'la mémorisation'], correct: 1, exp: 'Sorties identiques Q=Q&#772; : interdit pour ce verrou RS.' },
       { q: 'J=K=1 fait…', opts: ['mémoriser', 'basculer Q', 'interdire'], correct: 1, exp: 'Mode toggle : Q prend son complément — cœur des compteurs.' },
-      { q: 'La bascule D recopie D sur Q…', opts: ['en continu', 'au front d\'horloge actif', 'quand R est actif'], correct: 1, exp: 'Échantillonnage au front ; entre deux fronts, état figé.' },
+      { q: 'La bascule D recopie D sur Q, si son reset asynchrone est inactif…', opts: ['en continu', 'au front d\'horloge actif', 'quand R est actif'], correct: 1, exp: 'Échantillonnage au front ; entre deux fronts, état figé si aucune entrée asynchrone n\'agit.' },
       { q: 'Un compteur modulo 8 sur 3 bits revient à 000 après…', opts: ['7 fronts', '8 fronts', '16 fronts'], correct: 1, exp: 'Il parcourt 0 à 7 : huit valeurs, retour au front suivant.' },
       { q: 'Un registre à décalage sert à…', opts: ['convertir série en parallèle (et inversement)', 'comparer deux bits', 'décoder une adresse'], correct: 0, exp: 'Les bits glissent de bascule en bascule à chaque front.' },
       { q: 'Un étage JK en J=K=1 divisé par 2 sert de…', opts: ['additionneur', 'diviseur de fréquence', 'multiplexeur'], correct: 1, exp: 'Un front sur deux change Q : fréquence divisée par 2.' },
-      { q: 'Les entrées set/reset asynchrones agissent…', opts: ['au front montant', 'immédiatement, hors horloge', 'au front descendant'], correct: 1, exp: 'Asynchrone = hors horloge, effet immédiat.' }
+      { q: 'Les entrées set/reset asynchrones agissent…', opts: ['au front montant', 'sans attendre un front d\'horloge', 'au front descendant'], correct: 1, exp: 'Asynchrone signifie sans attendre l\'horloge ; le circuit possède néanmoins un délai de propagation.' }
     ],
 
     pitfalls: [
@@ -268,8 +271,8 @@ module.exports = [
     ],
 
     summary: [
-      'Séquentiel = entrées + état mémorisé, cadencé par l\'horloge (front montant ou descendant).',
-      'RS : set, reset, mémoire — R=S=1 interdit ; set/reset asynchrones hors horloge.',
+      'Séquentiel = entrées + état mémorisé ; le circuit peut être synchrone ou asynchrone.',
+      'Verrou RS étudié : set, reset, mémoire — R=S=1 interdit pour ses entrées actives à 1.',
       'D : recopie au front ; JK : mémoriser, set, reset, basculer.',
       'Registre à décalage pour série/parallèle ; compteur modulo 2^n et décompteur.'
     ],
@@ -287,7 +290,7 @@ module.exports = [
       '<strong>Bascule RS</strong> : set, reset, mémoire ; R=S=1 interdit.',
       '<strong>Bascule D</strong> : recopie D sur Q au front d\'horloge.',
       '<strong>Bascule JK</strong> : 00 mémoire, 10 set, 01 reset, 11 bascule.',
-      '<strong>Asynchrone</strong> : agit hors horloge (set/reset immédiats).',
+      '<strong>Asynchrone</strong> : agit sans attendre l\'horloge, avec un délai de propagation.',
       '<strong>Registre à décalage</strong> : n bascules enchaînées, décalage à chaque front.',
       '<strong>Compteur modulo 2^n</strong> : compte de 0 à 2^n-1 puis repart à 0.'
     ],
@@ -300,9 +303,9 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Différence combinatoire / séquentiel ?', a: 'Combinatoire : sortie = f(entrées présentes). Séquentiel : sortie = f(entrées, état antérieur), cadencée par l\'horloge.' },
+      { q: 'Différence combinatoire / séquentiel ?', a: 'Combinatoire : sortie = f(entrées présentes). Séquentiel : sortie = f(entrées, état antérieur) ; il peut être synchrone ou asynchrone.' },
       { q: 'La table de la bascule JK ?', a: 'J=0 K=0 : mémoire. J=1 K=0 : set. J=0 K=1 : reset. J=1 K=1 : bascule (toggle).' },
-      { q: 'Pourquoi R=S=1 est-il interdit ?', a: 'Les deux sorties deviennent égales (Q = Q&#772;), ce que la logique prohibe.' },
+      { q: 'Pourquoi R=S=1 est-il interdit pour le verrou RS étudié à entrées actives à 1 ?', a: 'Les deux sorties deviennent égales (Q = Q&#772;), ce que la logique prohibe.' },
       { q: 'Rôle du registre à décalage ?', a: 'Décaler les bits de bascule en bascule à chaque front : conversion série/parallèle.' },
       { q: 'Fonctionnement d\'un compteur modulo 8 ?', a: 'Il compte 0 à 7 puis repart à 0 ; valeur = (départ + fronts) mod 8.' }
     ]

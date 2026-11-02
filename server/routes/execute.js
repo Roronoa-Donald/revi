@@ -11,7 +11,7 @@ const { requireUser, quotaKey } = require('../utils/auth');
 
 async function executeRoutes(fastify) {
   // Catalogue affiché dans le sélecteur de langage. Recoupé avec ce que le
-  // fournisseur annonce réellement, avec repli local s'il est injoignable.
+  // fournisseur annonce réellement, ou le catalogue statique s'il est injoignable.
   fastify.get('/execute/languages', {
     config: { rateLimit: { max: 30, timeWindow: '1 minute' } }
   }, async (request, reply) => {

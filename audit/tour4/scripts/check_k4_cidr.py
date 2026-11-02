@@ -16,7 +16,7 @@ PAT = re.compile(
 hits = []
 for root, dirs, files in os.walk(ROOT):
     rel_dir = os.path.relpath(root, ROOT)
-    if rel_dir.startswith(("audit", "dist", ".git", "node_modules", "revi-cours-html")):
+    if rel_dir.startswith(("audit", "dist", ".git", "node_modules")):
         continue
     for f in sorted(files):
         if not f.endswith((".js", ".html", ".md")):

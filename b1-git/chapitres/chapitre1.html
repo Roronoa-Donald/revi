@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -127,8 +127,13 @@ git config --list</code></pre>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « la table, le plateau, l'armoire »</div>
     <p>La <strong>table</strong> (copie de travail) accueille tout ce qu'on bricole ; le <strong>plateau</strong> (index) n'embarque que ce qu'on a posé exprès ; l'<strong>armoire</strong> (dépôt) archive pour de bon. add pose sur le plateau, commit range dans l'armoire, reset repose sur la table.</p>
   </div>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Prérequis Bash pour les ateliers de code</div>
+    <p>Les ateliers pratiques de ce chapitre simulent les états de Git à l'aide de scripts en <strong>Bash</strong> (boucles <code>for ((i=0; i&lt;n; i++))</code>, lecture avec <code>read -r op reste</code>, conditions <code>if [ "$op" = "init" ]</code>). Si vous débutez en Bash, appuyez-vous sur l’amorce de code fournie dans chaque exercice ou consultez les bases du cours <a href="/b1-linux/">Administration Linux B1</a>.</p>
+  </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
   <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
   et la validation fait tourner des jeux de tests indépendants :
@@ -223,15 +228,15 @@ commit second
      data-language="shell"
      data-height="300"
      data-stdin="6&#10;cree main.py&#10;cree README.md&#10;add main.py&#10;modifie main.py&#10;status&#10;add README.md&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+  <script type="text/plain" data-lab-starter>read -r nombre
+declare -A etat modification
 non_suivis=0
 modifies=0
 indexes=0
-for ((i=0; i<n; i++)); do
+for ((numero=0; numero<nombre; numero++)); do
   read -r op fichier
   # À compléter : suivre l'état de chaque fichier et les trois comptes.
 done
-# À compléter : afficher les trois comptes.
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — git status classé</h3>
@@ -241,8 +246,8 @@ done
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Classer les fichiers en non suivis, modifiés ou indexés, comme la sortie de git status.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>cree fichier</code> (fichier non suivi), <code>modifie fichier</code> (valide pour un fichier créé ou indexé ; ignoré sinon), <code>add fichier</code>, ou <code>status</code>. Le status affiche trois lignes : <code>non suivis : K</code>, <code>modifies : K</code>, <code>indexes : K</code> — K étant le nombre de fichiers de chaque catégorie. Un <code>modifie</code> sur un fichier non suivi ou inconnu est ignoré. Un <code>add</code> enlève le fichier des autres catégories et le compte une seule fois.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler des compteurs de fichiers non suivis, modifiés et indexés inspirés de git status.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>cree fichier</code> (fichier non suivi), <code>modifie fichier</code>, <code>add fichier</code>, ou <code>status</code>. Le status affiche trois lignes : <code>non suivis : K</code>, <code>modifies : K</code>, <code>indexes : K</code> — K étant le nombre de fichiers de chaque catégorie. Une modification d’un fichier non suivi ne change pas sa catégorie ; un fichier inconnu est ignoré. Après <code>add</code>, une nouvelle modification laisse le fichier indexé et le compte aussi parmi les modifiés ; un nouvel <code>add</code> efface cette modification. Les catégories indexé et modifié peuvent donc se recouper. Ce modèle ne représente ni les commits ni les suppressions.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
 cree main.py
@@ -254,18 +259,19 @@ add README.md
 </pre></div>
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>non suivis : 1
 modifies : 1
-indexes : 0</pre></div>
+indexes : 1</pre></div>
     </div>
-    <p class="lab__note">main.py indexé puis modifié repasse en « modifies » ; README.md reste non suivi au status.</p>
+    <p class="lab__note">main.py reste indexé et possède aussi une modification ; README.md reste non suivi au status.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Trois comptes et trois règles de passage : cree → non suivi, modifie → modifié, add → indexé.</li>
-        <li>add depuis une autre catégorie doit décrémenter l’ancienne catégorie, sinon les comptes doublent.</li>
+        <li>Un fichier peut avoir une version indexée et, en même temps, une modification dans la copie de travail.</li>
+        <li>Une modification sur un fichier non suivi le laisse non suivi ; un nouvel add actualise sa version indexée.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -329,7 +335,7 @@ indexes : 0</pre></div>
       <div class="opts">
         <button class="opt">Rien de plus</button>
         <button class="opt" data-correct="1">Télécharge le projet et tout son historique, et crée le lien origin</button>
-        <button class="opt">Créez un .gitignore</button>
+        <button class="opt">Crée un .gitignore</button>
       </div>
       <div class="q__exp">Le clone reconstruit l'historique complet et le lien vers le dépôt distant.</div>
     </div>
@@ -402,9 +408,9 @@ indexes : 0</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Refaites le TP1 ligne par ligne, en expliquant chaque commande.</div>
-      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Dessine les trois espaces et les flèches add/commit/reset de mémoire.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : simule un refus de commit sans identité et corrige-le.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Refaites le TP1 ligne par ligne, en expliquant chaque commande.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Dessinez les trois espaces et les flèches add/commit/reset de mémoire.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : simulez un refus de commit sans identité et corrige-le.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : passez au chapitre 2, l'index et les commits.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>

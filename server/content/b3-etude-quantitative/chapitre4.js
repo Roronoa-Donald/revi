@@ -19,7 +19,7 @@ module.exports = {
     'concevoir un guide d’entretien semi-directif complet : phase d’accueil, consignes d’introduction, thèmes pivots, relances neutres et clôture ;',
     'appliquer les techniques d’animation et de relance non directives (miroir, écho, clarification, relance interrogative sans influence) ;',
     'organiser et modérer un Focus Group (table ronde qualitative) : sélection du panel (6 à 10 participants), gestion des temps de parole et régulation du leader dominant ;',
-    'déployer des grilles d’observation in situ (participante vs non participante) et mesurer l’accord inter-observateurs (critère de Miles &amp; Huberman) ;',
+    'déployer des grilles d’observation in situ et interpréter l’accord brut et le kappa inter-observateurs avec leurs limites ;',
     'analyser et résoudre méthodologiquement des auditeurs de guides d’entretien, des analyseurs de monopole de parole et des calculateurs de taux de concordance d’observation.'
   ],
   sections: [
@@ -87,7 +87,7 @@ module.exports = {
       ].join('\n')
     },
     {
-      title: 'Observation in Situ &amp; Accord Inter-Observateurs (Miles &amp; Huberman)',
+      title: 'Observation in Situ &amp; Accord Inter-Observateurs',
       html: [
         '<p>L’observation directe permet de confronter ce que les acteurs <em>disent</em> faire (discours) avec ce qu’ils <em>font réellement</em> (pratiques effectives) :</p>',
         '<div class="grid grid-2">',
@@ -96,12 +96,15 @@ module.exports = {
         '    <p>Dans l’observation non participante, l’enquêteur est un témoin extérieur silencieux muni d’une <strong>grille d’observation systématique</strong> (horodatage, comportements, interactions). Dans l’observation participante, l’enquêteur est intégré dans l’équipe de projet comme développeur ou stagiaire.</p>',
         '  </div>',
         '  <div class="card">',
-        '    <h4>Indice de Fiabilité Inter-Observateurs</h4>',
-        '    <p>Pour valider l’objectivité de la grille, au moins deux observateurs codent simultanément la même session. Le taux d’accord brut est :</p>',
-        '    <p>$$P_0 = \\frac{\\text{Nombre d’accords concordants}}{\\text{Nombre total d’unités d’observation}} \\times 100$$</p>',
-        '    <p>Selon Matthew Miles et A. Michael Huberman, un seuil $P_0 \\ge 85.0\\%$ est le gage scientifique d’une grille robuste et reproductible.</p>',
+        '    <h4>Accord brut et kappa de Cohen</h4>',
+        '    <p>Deux observateurs codent indépendamment les mêmes unités. L’accord brut $P_0$ est la proportion de codages identiques. Un repère tel que 85% ne garantit ni l’objectivité ni l’absence d’ambiguïté.</p>',
+        '    <p>Pour des catégories nominales, le kappa de Cohen non pondéré est $\\kappa = (P_0 - P_e)/(1 - P_e)$, où $P_e$ est l’accord attendu calculé à partir des proportions marginales des deux observateurs.</p>',
+        '    <p>Le kappa dépend des marges et de la prévalence des catégories ; il est indéfini si $P_e = 1$. Présenter aussi le tableau croisé, l’accord brut, les désaccords et une revue des définitions et du protocole.</p>',
         '  </div>',
-        '</div>'
+        '</div>',
+        '<p><strong>Contre-exemple synthétique, 100 unités :</strong> lignes = observateur 1, colonnes = observateur 2 ; O = présence, N = absence.</p>',
+        '<table><tr><th></th><th>O</th><th>N</th></tr><tr><th>O</th><td>90</td><td>5</td></tr><tr><th>N</th><td>5</td><td>0</td></tr></table>',
+        '<p>$P_0 = 90/100 = 0,90$ ; $P_e = (95/100)^2 + (5/100)^2 = 0,905$ ; $\\kappa = (0,90 - 0,905)/(1 - 0,905) \\approx -0,053$. Un accord brut de 90% coexiste donc ici avec un kappa négatif.</p>'
       ].join('\n')
     }
   ],
@@ -112,7 +115,7 @@ module.exports = {
     '3. Adopter une posture d’écoute active : Éviter d’interrompre, bannir tout jugement de valeur (« C’est bien », « Vous avez tort ») et privilégier les relances ouvertes.',
     '4. Animer le focus group de manière équilibrée : Surveiller les temps de parole individuels et solliciter activement les participants discrets pour neutraliser l’effet de conformisme.',
     '5. Transcrire fidèlement les enregistrements : Établir une retranscription intégrale (verbatim) mot à mot pour préparer la phase d’analyse de contenu thématique.',
-    '6. Calculer l’accord inter-observateurs : Sur les séances d’observation, comparer le codage indépendant de deux évaluateurs pour vérifier la convergence au-delà de 85%.'
+    '6. Examiner l’accord inter-observateurs : rapporter le tableau croisé, l’accord brut et, si pertinent et défini, le kappa ; revoir les désaccords et les consignes de codage.'
   ],
   summary: [
     'Les approches qualitatives permettent d’accéder au sens, aux motivations profondes et à la complexité des dynamiques humaines en entreprise IT.',
@@ -120,7 +123,7 @@ module.exports = {
     'Les relances doivent être strictement neutres (écho, demande d’illustration, silence attentif) pour ne jamais biaiser le discours produit.',
     'Le focus group produit une émulation collective mais exige une modération ferme pour empêcher un leader dominant d’imposer une pensée unique.',
     'L’observation in situ confronte les discours aux comportements réels sur le terrain opérationnel.',
-    'Le coefficient d’accord inter-observateurs (seuil de 85% de Miles & Huberman) garantit la fiabilité scientifique des grilles d’observation.'
+    'Un accord brut élevé ne garantit ni l’objectivité ni l’absence d’ambiguïté ; le kappa et les marges apportent un éclairage complémentaire, avec leurs propres limites.'
   ],
   checklist: [
     'Le guide d’entretien comporte-t-il au moins 70% de questions ouvertes invitant à la narration ?',
@@ -128,7 +131,7 @@ module.exports = {
     'Les relances prévues sont-elles dénuées de toute orientation ou jugement subjectif ?',
     'Le focus group réunit-il entre 6 et 10 participants de profils complémentaires ?',
     'Le modérateur a-t-il prévu des techniques d’animation pour neutraliser le monopole de parole d’un participant ?',
-    'La grille d’observation comportementale a-t-elle été testée par deux évaluateurs indépendants avec un taux d’accord supérieur à 85% ?'
+    'La grille a-t-elle été testée par deux évaluateurs indépendants et les accords, marges, désaccords et limites ont-ils été examinés ?'
   ],
   notions: [
     'Typologie des entretiens de recherche',
@@ -138,22 +141,23 @@ module.exports = {
     'Effet Asch et biais de conformisme',
     'Leader d’opinion et monopole de parole',
     'Observation participante et non participante',
-    'Accord inter-observateurs de Miles &amp; Huberman'
+    'Accord brut et kappa de Cohen'
   ],
   pitfalls: [
     'Transformer un entretien semi-directif en interrogatoire policier en lisant mécaniquement une liste de 30 questions fermées.',
     'Donner son propre avis ou contredire l’enquêté lors d’un entretien sous prétexte d’expertise technique personnelle.',
     'Laisser un manager ou un collègue dominant monopoliser 60% du temps d’un focus group, réduisant les autres au silence.',
-    'Rédiger les conclusions qualitatives de mémoire sans avoir enregistré ni retranscrit fidèlement les verbatim originaux.'
+    'Rédiger les conclusions qualitatives de mémoire sans avoir enregistré ni retranscrit fidèlement les verbatim originaux.',
+    'Déduire l’absence d’ambiguïté d’un seul seuil d’accord brut sans examiner les marges et les désaccords.'
   ],
   questions: [
     {
       stem: 'Quelle est la caractéristique distinctive majeure d’un entretien semi-directif par rapport à un entretien directif ?',
       opts: [
-        'L’entretien semi-directif ne dure que 30 secondes',
+        'Il impose une formulation et un ordre stricts de questions fermées sans aucune liberté d’improvisation',
         'L’entretien semi-directif s’appuie sur un guide de thèmes prédéfinis mais laisse l’enquêté libre de développer sa pensée et d’aborder les sujets dans son propre ordre',
-        'L’entretien semi-directif est obligatoirement anonyme pour l’enquêteur également',
-        'Il est interdit d’utiliser un dictaphone en entretien semi-directif'
+        'Il se déroule sans aucun guide préalable en laissant l’enquêté choisir entièrement les thèmes d’étude',
+        'Il exclut toute relance de l’enquêteur pour préserver une observation purement passive'
       ],
       correct: 1,
       exp: 'Le semi-directif allie la directivité sur les thèmes (le guide) et la non-directivité sur les réponses et le cheminement discursif de l’interviewé.'
@@ -161,10 +165,10 @@ module.exports = {
     {
       stem: 'Lors d’un entretien de recherche, qu’appelle-t-on une relance « en écho » (ou relance miroir) ?',
       opts: [
-        'Crier très fort dans un mégaphone',
+        'Reformuler le discours de l’enquêté avec des concepts théoriques nouveaux introduits par le chercheur',
         'Répéter le dernier mot ou la dernière idée formulée par l’enquêté avec une intonation interrogative neutre pour l’inviter à expliciter sa pensée',
-        'Répéter la question du début toutes les cinq minutes',
-        'Imiter la voix de l’enquêté'
+        'Poser une question alternative fermée pour contraindre l’enquêté à trancher entre deux interprétations',
+        'Résumer les trois dernières réponses avant de passer au thème suivant du guide'
       ],
       correct: 1,
       exp: 'La relance en écho renvoie à l’informateur son propre mot sans introduire aucun vocabulaire nouveau, l’encourageant à approfondir en toute neutralité.'
@@ -172,10 +176,10 @@ module.exports = {
     {
       stem: 'Dans un focus group, quel risque méthodologique survient lorsqu’un participant charismatique ou hiérarchiquement supérieur accapare plus de 40% du temps de parole ?',
       opts: [
-        'Le micro de la salle explose',
+        'Le biais de désirabilité sociale où l’ensemble du groupe cherche à flatter l’animateur de la session',
         'Le biais de dominance étouffe la parole divergente et provoque un effet de conformisme (effet Asch), faussant la représentativité des opinions du groupe',
-        'La réunion se termine avec deux heures d’avance',
-        'Les autres participants s’endorment obligatoirement'
+        'L’effet de halo où l’enquêteur attribue une valeur disproportionnée aux premières minutes de l’enregistrement',
+        'Le biais d’attrition où les participants quittent prématurément la salle avant la fin du protocole'
       ],
       correct: 1,
       exp: 'La domination par un leader crée une autocensure chez les autres participants qui s’alignent par conformisme social, masquant les dissensus réels du terrain.'
@@ -183,32 +187,32 @@ module.exports = {
     {
       stem: 'Quelle est la taille idéale d’un panel pour un Focus Group réussi selon les standards méthodologiques ?',
       opts: [
-        '1 à 2 personnes',
+        '2 à 3 personnes pour éviter toute divergence d’opinion',
         '6 à 10 personnes',
-        '50 à 100 personnes',
-        'Exactement 1 000 personnes'
+        '15 à 25 personnes pour maximiser la représentativité statistique de l’échantillon',
+        'Plus de 30 personnes pour appliquer le théorème central limite'
       ],
       correct: 1,
       exp: 'Entre 6 et 10 participants, le groupe est assez grand pour générer des échanges dynamiques et assez restreint pour que chacun puisse s’exprimer en profondeur.'
     },
     {
-      stem: 'Selon le référentiel méthodologique de Miles & Huberman, quel seuil minimal de concordance inter-observateurs P0 atteste de la fiabilité d’une grille d’observation ?',
+      stem: 'Que peut-on conclure d’un accord brut de 90% entre deux observateurs ?',
       opts: [
-        '50.0%',
-        '85.0%',
-        '10.0%',
-        '99.9%'
+        'La grille est nécessairement objective et sans ambiguïté',
+        'Il faut aussi examiner les marges, les désaccords et, si défini, le kappa',
+        'Le kappa est nécessairement égal à 0,90',
+        'Aucun désaccord n’est possible'
       ],
       correct: 1,
-      exp: 'Miles & Huberman fixent le standard de fiabilité inter-observateurs à 85% d’accords concordants pour attester que la grille est dépourvue d’ambiguïtés sémantiques.'
+      exp: 'Avec le tableau 90, 5, 5, 0, l’accord brut vaut 90% mais le kappa non pondéré vaut environ −0,053 ; aucun seuil brut ne garantit l’absence d’ambiguïté.'
     },
     {
       stem: 'Pourquoi le silence de 4 à 5 secondes de l’enquêteur après une réponse est-il considéré comme un outil puissant en entretien qualitatif ?',
       opts: [
-        'Car cela permet à l’enquêteur de consulter ses réseaux sociaux',
+        'Car il signale à l’enquêté que sa réponse est jugée insuffisante ou erronée',
         'Car ce temps de pause incite naturellement l’enquêté à combler le vide en approfondissant sa pensée et en livrant souvent des éléments plus intimes et révélateurs',
-        'Car cela fait baisser la température de la pièce',
-        'Car c’est une obligation imposée par le droit du travail'
+        'Car il permet à l’enquêteur de vérifier si l’enquêté maintient une cohérence logique parfaite',
+        'Car il marque formellement la transition obligatoire vers le thème suivant du protocole'
       ],
       correct: 1,
       exp: 'La gestion du silence tolère le temps de réflexion de l’interlocuteur et l’invite à dépasser la réponse superficielle convenue pour livrer des anecdotes plus riches.'
@@ -216,10 +220,10 @@ module.exports = {
     {
       stem: 'Quelle est la différence fondamentale entre l’observation participante et l’observation non participante ?',
       opts: [
-        'L’observation participante se fait les yeux fermés',
+        'L’observation participante implique un enregistrement vidéo continu, tandis que la non participante repose uniquement sur des notes manuscrites différées',
         'Dans l’observation participante, le chercheur s’intègre activement au groupe et participe à ses tâches quotidiennes, tandis que dans la non participante, il reste un témoin passif extérieur',
-        'L’observation non participante est obligatoirement illégale',
-        'Il n’y a aucune différence'
+        'L’observation non participante implique une intervention directe du chercheur lors des conflits organisationnels',
+        'L’observation participante s’applique exclusivement aux études quantitatives de laboratoire'
       ],
       correct: 1,
       exp: 'L’immersion active dans l’action définit l’observation participante (ethnographie organisationnelle) par opposition à la posture distanciée de l’observateur extérieur.'
@@ -227,10 +231,10 @@ module.exports = {
     {
       stem: 'Quelle est la première étape indispensable à respecter lors de la phase d’accueil d’un entretien qualitatif ?',
       opts: [
-        'Demander le numéro de carte bancaire de l’enquêté',
+        'Exposer en détail les hypothèses théoriques de la recherche et les résultats attendus du projet',
         'Présenter les objectifs scientifiques, rappeler la garantie d’anonymat et recueillir le consentement éclairé pour l’enregistrement audio',
-        'Lui faire passer un test technique de programmation',
-        'Lui demander de rédiger le compte-rendu lui-même'
+        'Faire signer une clause de non-divulgation interdisant à l’enquêté de reparler du sujet abordé',
+        'Commencer immédiatement par la question la plus controversée du guide pour tester la réactivité de l’enquêté'
       ],
       correct: 1,
       exp: 'Le cadrage éthique et la garantie d’anonymat instaurent la relation de confiance indispensable pour obtenir un discours authentique et dénué d’autocensure.'
@@ -254,8 +258,8 @@ module.exports = {
       a: 'Confisquer la parole et induire un effet de conformisme (effet Asch), réduisant les autres participants au silence ou à l’alignement superficiel.'
     },
     {
-      q: 'Quel est le seuil d’accord inter-observateurs de Miles & Huberman ?',
-      a: 'Au moins 85% de concordances exactes (P0 ≥ 85%) pour valider l’objectivité et la reproductibilité d’une grille d’observation.'
+      q: 'Un accord brut élevé suffit-il à valider une grille d’observation ?',
+      a: 'Non. Examiner aussi les désaccords, les marges et le kappa de Cohen lorsqu’il est défini ; un seuil ne garantit pas l’objectivité ou l’absence d’ambiguïté.'
     },
     {
       q: 'Pourquoi l’anonymisation des verbatim est-elle cruciale ?',
@@ -269,7 +273,7 @@ module.exports = {
     },
     {
       cls: 'medium',
-      text: 'Entre 5/8 et 7/8 : Bon niveau, approfondissez le biais de dominance, la gestion des silences et l’accord de Miles & Huberman.'
+      text: 'Entre 5/8 et 7/8 : Bon niveau, approfondissez le biais de dominance, la gestion des silences et les indicateurs d’accord inter-observateurs.'
     },
     {
       cls: 'high',

@@ -84,41 +84,40 @@ module.exports = [
   {
     "id": "hk3-c2-e3",
     "chapter": 2,
-    "title": "Moteur de Découverte de Sous-Domaines par Fuzzing et Filtrage Wildcard",
+    "title": "Comparaison de réponses DNS avec une adresse témoin",
     "level": "n3",
     "language": "analyse",
-    "goal": "Identifier les sous-domaines légitimes actifs en éliminant les faux positifs causés par les DNS wildcards.",
-    "brief": "<p>Lors de l'énumération par dictionnaire (subdomain brute-forcing), une réponse wildcard DNS redirige tous les sous-domaines inexistants vers une IP par défaut, générant des milliers de faux positifs.<br><br>\nAlgorithme de filtrage :<br>\n1. Si <code>wildcard_ip != 'NONE'</code>, toute entrée dont l'IP correspond à <code>wildcard_ip</code> est classée comme faux positif wildcard.<br>\n2. Les entrées dont l'IP diffère de <code>wildcard_ip</code> sont des sous-domaines actifs validés.<br>\n3. Les sous-domaines valides sont ordonnés alphabétiquement sous la forme <code>&lt;sub&gt;.&lt;domain&gt;</code>.<br><br>\nDonnées du cas : <code>SUBDOMAIN_FUZZ domain=&lt;dom&gt; wildcard_ip=&lt;ip|NONE&gt; responses=&lt;sub1:ip1,sub2:ip2,...&gt;</code>.<br>\nRésultat d’analyse attendu :<br>\n<code>SUBDOMAINS: domain=&lt;dom&gt; total_scanned=&lt;N&gt; wildcards_filtered=&lt;W&gt; valid_found=&lt;V&gt; active=&lt;s1.dom,s2.dom|NONE&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c2-e3) — Moteur de Découverte de Sous-Domaines par Fuzzing et Filtrage Wildcard\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Aucun wildcard configuré sur le domaine cible]\n# Données : SUBDOMAIN_FUZZ domain=corp.org wildcard_ip=NONE responses=vpn:10.0.0.1,api:10.0.0.2\nA_COMPLETER\n\n[Cas 2 — Toutes les réponses sont des faux positifs vers le wildcard]\n# Données : SUBDOMAIN_FUZZ domain=wildcard-all.net wildcard_ip=172.16.0.50 responses=a:172.16.0.50,b:172.16.0.50,c:172.16.0.50\nA_COMPLETER\n\n[Cas 3 — Multiples sous-domaines valides ordonnés alphabétiquement]\n# Données : SUBDOMAIN_FUZZ domain=cloud.dev wildcard_ip=1.1.1.1 responses=gitlab:10.1.1.5,bogus:1.1.1.1,auth:10.1.1.2,monitor:10.1.1.9\nA_COMPLETER\n",
+    "goal": "Regrouper des réponses DNS sans conclure à la légitimité des noms.",
+    "brief": "<p>Dans ce modèle, une adresse témoin est fournie avec des réponses DNS fictives. Classez les noms selon que leur adresse est égale ou non à cette adresse ; si le témoin vaut <code>NONE</code>, tous les noms vont dans la seconde liste. L’égalité d’IP ne prouve pas qu’un nom soit fictif : un nom réel peut partager cette adresse. Une IP différente ne prouve pas non plus la légitimité ou l’existence d’un service. Recoupez les observations dans le cadre autorisé.</p><p>Pour <code>SUBDOMAIN_FUZZ domain=&lt;dom&gt; wildcard_ip=&lt;ip|NONE&gt; responses=&lt;nom:ip,...&gt;</code>, trier chaque liste de noms complets et afficher <code>SUBDOMAIN_GROUP: domain=&lt;dom&gt; total=&lt;N&gt; meme_ip=&lt;M&gt; noms_meme=&lt;liste|NONE&gt; autre_ip=&lt;A&gt; noms_autres=&lt;liste|NONE&gt;</code>.</p>",
+    "starter": "# Grille d'analyse (hk3-c2-e3) — Comparaison de réponses DNS avec une adresse témoin\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Aucune adresse témoin]\n# Données : SUBDOMAIN_FUZZ domain=corp.org wildcard_ip=NONE responses=vpn:10.0.0.1,api:10.0.0.2\nA_COMPLETER\n\n[Cas 2 — Trois réponses à la même adresse]\n# Données : SUBDOMAIN_FUZZ domain=wildcard-all.net wildcard_ip=172.16.0.50 responses=a:172.16.0.50,b:172.16.0.50,c:172.16.0.50\nA_COMPLETER\n\n[Cas 3 — Adresses mélangées et ordre alphabétique]\n# Données : SUBDOMAIN_FUZZ domain=cloud.dev wildcard_ip=1.1.1.1 responses=gitlab:10.1.1.5,bogus:1.1.1.1,auth:10.1.1.2,monitor:10.1.1.9\nA_COMPLETER\n",
     "hints": [
-      "Parcourez chaque couple sub:ip dans responses.",
-      "Si wildcard_ip != \"NONE\" et ip == wildcard_ip, incrémentez wildcards_filtered.",
-      "Triez la liste des sous-domaines valides alphabétiquement avant l'affichage."
+      "Comparer les adresses seulement ; ne pas décider si un nom est réel ou fictif.",
+      "Trier chaque liste alphabétiquement et écrire NONE pour une liste vide."
     ],
     "examples": [
       {
         "stdin": "SUBDOMAIN_FUZZ domain=example.com wildcard_ip=192.168.1.100 responses=admin:192.168.1.5,fake99:192.168.1.100,mail:192.168.1.6,testabc:192.168.1.100",
-        "expected": "SUBDOMAINS: domain=example.com total_scanned=4 wildcards_filtered=2 valid_found=2 active=admin.example.com,mail.example.com",
-        "note": "Les deux sous-domaines aléatoires pointant vers l'IP wildcard sont éliminés."
+        "expected": "SUBDOMAIN_GROUP: domain=example.com total=4 meme_ip=2 noms_meme=fake99.example.com,testabc.example.com autre_ip=2 noms_autres=admin.example.com,mail.example.com",
+        "note": "Les deux listes sont des regroupements, pas des verdicts sur les noms."
       }
     ],
     "tests": [
       {
-        "label": "Aucun wildcard configuré sur le domaine cible",
+        "label": "Aucune adresse témoin",
         "stdin": "cas:1",
-        "expected": "SUBDOMAINS: domain=corp.org total_scanned=2 wildcards_filtered=0 valid_found=2 active=api.corp.org,vpn.corp.org"
+        "expected": "SUBDOMAIN_GROUP: domain=corp.org total=2 meme_ip=0 noms_meme=NONE autre_ip=2 noms_autres=api.corp.org,vpn.corp.org"
       },
       {
-        "label": "Toutes les réponses sont des faux positifs vers le wildcard",
+        "label": "Trois réponses à la même adresse",
         "stdin": "cas:2",
-        "expected": "SUBDOMAINS: domain=wildcard-all.net total_scanned=3 wildcards_filtered=3 valid_found=0 active=NONE"
+        "expected": "SUBDOMAIN_GROUP: domain=wildcard-all.net total=3 meme_ip=3 noms_meme=a.wildcard-all.net,b.wildcard-all.net,c.wildcard-all.net autre_ip=0 noms_autres=NONE"
       },
       {
-        "label": "Multiples sous-domaines valides ordonnés alphabétiquement",
+        "label": "Adresses mélangées et ordre alphabétique",
         "stdin": "cas:3",
-        "expected": "SUBDOMAINS: domain=cloud.dev total_scanned=4 wildcards_filtered=1 valid_found=3 active=auth.cloud.dev,gitlab.cloud.dev,monitor.cloud.dev"
+        "expected": "SUBDOMAIN_GROUP: domain=cloud.dev total=4 meme_ip=1 noms_meme=bogus.cloud.dev autre_ip=3 noms_autres=auth.cloud.dev,gitlab.cloud.dev,monitor.cloud.dev"
       }
     ],
-    "solution": "[Exemple]\nSUBDOMAINS: domain=example.com total_scanned=4 wildcards_filtered=2 valid_found=2 active=admin.example.com,mail.example.com\n\n[Cas 1 — Aucun wildcard configuré sur le domaine cible]\nSUBDOMAINS: domain=corp.org total_scanned=2 wildcards_filtered=0 valid_found=2 active=api.corp.org,vpn.corp.org\n\n[Cas 2 — Toutes les réponses sont des faux positifs vers le wildcard]\nSUBDOMAINS: domain=wildcard-all.net total_scanned=3 wildcards_filtered=3 valid_found=0 active=NONE\n\n[Cas 3 — Multiples sous-domaines valides ordonnés alphabétiquement]\nSUBDOMAINS: domain=cloud.dev total_scanned=4 wildcards_filtered=1 valid_found=3 active=auth.cloud.dev,gitlab.cloud.dev,monitor.cloud.dev"
+    "solution": "[Exemple]\nSUBDOMAIN_GROUP: domain=example.com total=4 meme_ip=2 noms_meme=fake99.example.com,testabc.example.com autre_ip=2 noms_autres=admin.example.com,mail.example.com\n\n[Cas 1 — Aucune adresse témoin]\nSUBDOMAIN_GROUP: domain=corp.org total=2 meme_ip=0 noms_meme=NONE autre_ip=2 noms_autres=api.corp.org,vpn.corp.org\n\n[Cas 2 — Trois réponses à la même adresse]\nSUBDOMAIN_GROUP: domain=wildcard-all.net total=3 meme_ip=3 noms_meme=a.wildcard-all.net,b.wildcard-all.net,c.wildcard-all.net autre_ip=0 noms_autres=NONE\n\n[Cas 3 — Adresses mélangées et ordre alphabétique]\nSUBDOMAIN_GROUP: domain=cloud.dev total=4 meme_ip=1 noms_meme=bogus.cloud.dev autre_ip=3 noms_autres=auth.cloud.dev,gitlab.cloud.dev,monitor.cloud.dev\n"
   }
 ];

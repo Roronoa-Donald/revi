@@ -130,7 +130,7 @@ const defined_exercises = [
 {id:'m5q2',type:'qcm',chapter:5,question:'copy run start sauvegarde où ?',options:['RAM','Flash','NVRAM','ROM'],correct:2},
 {id:'m5q3',type:'qcm',chapter:5,question:'Quelle mémoire est volatile ?',options:['NVRAM','Flash','ROM','RAM'],correct:3},
 {id:'m5q4',type:'qcm',chapter:5,question:'transport input ssh fait ?',options:['Active SSH','Autorise SSH sur VTY','Désactive Telnet partout','Génère les clés'],correct:1},
-{id:'m5q5',type:'qcm',chapter:5,question:'enable secret vs enable password ?',options:['Pareil','secret = MD5 hash','password = plus sécurisé','Aucun lien'],correct:1},
+{id:'m5q5',type:'qcm',chapter:5,question:'enable secret vs enable password ?',options:['Pareil','secret : type de hachage selon la version et la configuration','password = plus sécurisé','Aucun lien'],correct:1},
 {id:'m5q6',type:'qcm',chapter:5,question:'Tab fait quoi ?',options:['Aide','Auto-complétion','Annule','Historique'],correct:1},
 {id:'m5q7',type:'qcm',chapter:5,question:'Ctrl+C fait quoi ?',options:['Copier','Annuler la commande','Retour au #','Fermer session'],correct:1},
 {id:'m5q8',type:'qcm',chapter:5,question:'do show ip int brief fonctionne depuis ?',options:['User >','Tous les modes','Mode config','Privileged #'],correct:2},

@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Module 6 — Protocoles Cryptographiques Sécurisés (TLS, SSH, IPsec) &amp; Post-Quantique | Cryptographie &amp; PKI B3</title>
-<meta name="description" content="Module 6 du cours Cryptographie &amp; PKI B3 : Protocole TLS 1.3 (RFC 8446) et refonte architecturale par rapport à TLS 1.2, optimisation du handshake (1-RTT et 0-RTT Early Data), confidentialité persistante (Perfect Forward Secrecy - PFS), anatomie et audit des suites cryptographiques (Cipher Suites), protocoles d'infrastructure SSHv2 et IPsec (AH/ESP, IKEv2, modes Transport et Tunnel), impact de l'ordinateur quantique (algorithmes de Shor et Grover), et standards post-quantiques du NIST (FIPS 203 ML-KEM, FIPS 204 ML-DSA, cryptographie hybride). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta name="description" content="Module 6 du cours Cryptographie &amp; PKI B3 : Protocole TLS 1.3 (RFC 9846 ; RFC 8446 historique) et refonte architecturale par rapport à TLS 1.2, handshake 1-RTT et données 0-RTT, confidentialité persistante (PFS) selon la phase et le mode négocié, anatomie des suites cryptographiques, protocoles SSHv2 et IPsec (AH/ESP, IKEv2, modes Transport et Tunnel), et standards post-quantiques du NIST. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b3-cryptographie/chapitres/chapitre6.html">
 <meta property="og:title" content="Module 6 — Protocoles Cryptographiques Sécurisés (TLS, SSH, IPsec) &amp; Post-Quantique | Cryptographie &amp; PKI B3">
-<meta property="og:description" content="Module 6 du cours Cryptographie &amp; PKI B3 : Protocole TLS 1.3 (RFC 8446) et refonte architecturale par rapport à TLS 1.2, optimisation du handshake (1-RTT et 0-RTT Early Data), confidentialité persistante (Perfect Forward Secrecy - PFS), anatomie et audit des suites cryptographiques (Cipher Suites), protocoles d'infrastructure SSHv2 et IPsec (AH/ESP, IKEv2, modes Transport et Tunnel), impact de l'ordinateur quantique (algorithmes de Shor et Grover), et standards post-quantiques du NIST (FIPS 203 ML-KEM, FIPS 204 ML-DSA, cryptographie hybride). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:description" content="Module 6 du cours Cryptographie &amp; PKI B3 : Protocole TLS 1.3 (RFC 9846 ; RFC 8446 historique) et refonte architecturale par rapport à TLS 1.2, handshake 1-RTT et données 0-RTT, confidentialité persistante (PFS) selon la phase et le mode négocié, anatomie des suites cryptographiques, protocoles SSHv2 et IPsec (AH/ESP, IKEv2, modes Transport et Tunnel), et standards post-quantiques du NIST. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -51,9 +51,9 @@
 </div></nav>
 
 <main id="content" class="b3-cryptographiewrap">
-<p class="crumb"><a href="../index.html">Cryptographie & PKI B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+<p class="crumb"><a href="../index.html">Cryptographie &amp; PKI B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
 
-<h1>Chapitre 6 — Protocoles Cryptographiques Sécurisés (TLS, SSH, IPsec) & Post-Quantique</h1>
+<h1>Chapitre 6 — Protocoles Cryptographiques Sécurisés (TLS, SSH, IPsec) &amp; Post-Quantique</h1>
 
 <div class="chapmeta">
     <span class="tag">Module 6</span>
@@ -79,24 +79,24 @@
     </ol>
   </div>
 
-<h2>1. Protocole TLS 1.3 (RFC 8446) &amp; Confidentialité Persistante (PFS)</h2>
+<h2>1. Protocole TLS 1.3 (RFC 9846) &amp; Confidentialité Persistante (PFS)</h2>
 
-<p>Le protocole TLS (Transport Layer Security) sécurise l'écrasante majorité du trafic Internet moderne (HTTPS, SMTPS, DNS-over-TLS). Publié en août 2018 (RFC 8446), TLS 1.3 représente la plus importante refonte de sécurité et de performance de l'histoire du protocole :</p>
+<p>Le protocole TLS (Transport Layer Security) sécurise notamment HTTPS, SMTPS et DNS-over-TLS. TLS 1.3 a été publié initialement dans la RFC 8446 en août 2018 ; la RFC 9846 de juillet 2026 la remplace et constitue le standard actuel. Cette mise à jour ne rend pas caduques toutes les explications historiques.</p>
 <div class="grid grid-2">
   <div class="card">
     <h4>Ruptures Fondamentales de TLS 1.3</h4>
     <ul>
       <li><strong>Suppression radicale de l'obsolescence :</strong> exclusion totale de RSA pour l'échange de clés, des modes CBC (vulnérables aux attaques par oracle), de RC4, de 3DES, de MD5 et de SHA-1.</li>
       <li><strong>Chiffrement AEAD exclusif :</strong> seuls les chiffrements authentifiés (AES-GCM, AES-CCM, ChaCha20-Poly1305) sont autorisés.</li>
-      <li><strong>PFS obligatoire (Perfect Forward Secrecy) :</strong> l'échange de clés doit impérativement utiliser Diffie-Hellman éphémère (DHE ou ECDHE). Même si la clé privée du serveur est volée plus tard, les sessions passées interceptées restent indéchiffrables.</li>
+      <li><strong>Confidentialité persistante (PFS) conditionnelle :</strong> un échange éphémère authentifié, par exemple ECDHE, peut protéger les données 1-RTT si les secrets éphémères sont effacés. Une reprise en mode PSK seul (<code>psk_ke</code>) ne fournit pas cette propriété par son échange de clés ; avec <code>psk_dhe_ke</code>, un échange asymétrique est ajouté.</li>
     </ul>
   </div>
   <div class="card">
     <h4>Optimisation de la Poignée de Mains (Handshake)</h4>
     <ul>
-      <li><strong>TLS 1.2 (2-RTT) :</strong> nécessitait 2 allers-retours réseau complets avant que les données applicatives ne puissent transiter en sécurité.</li>
-      <li><strong>TLS 1.3 (1-RTT) :</strong> le client envoie dès son <code>ClientHello</code> ses propositions de groupes de clés éphémères (<em>key shares</em>). La connexion sécurisée est établie en un seul aller-retour.</li>
-      <li><strong>Mode 0-RTT (Early Data) :</strong> lors d'une reconnexion avec un serveur déjà visité (PSK), le client peut envoyer des données applicatives chiffrées dès le tout premier paquet (attention au risque de rejeu).</li>
+      <li><strong>TLS 1.2 :</strong> une poignée de mains initiale classique nécessite généralement 2 allers-retours ; les reprises et les configurations particulières peuvent différer.</li>
+      <li><strong>TLS 1.3 (1-RTT) :</strong> une poignée de mains initiale peut s'achever en un aller-retour lorsque les paramètres proposés conviennent ; un échange supplémentaire peut être nécessaire.</li>
+      <li><strong>Données 0-RTT (Early Data) :</strong> avec un PSK utilisable pour une reprise, le client peut envoyer des données avant la fin de la poignée de mains. Leur confidentialité persistante n'est pas garantie par le protocole et elles présentent un risque de rejeu ; le serveur peut les refuser.</li>
     </ul>
   </div>
 </div>
@@ -109,7 +109,7 @@
     <h4>Syntaxe TLS 1.2 (Complexe)</h4>
     <pre><code>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</code></pre>
     <ul>
-      <li><strong>Échange de clés :</strong> <code>ECDHE</code> (éphémère sur courbe elliptique, garantit le PFS).</li>
+      <li><strong>Échange de clés :</strong> <code>ECDHE</code> (éphémère sur courbe elliptique, peut fournir la PFS si les secrets éphémères sont effacés).</li>
       <li><strong>Authentification :</strong> <code>RSA</code> (signature du certificat serveur).</li>
       <li><strong>Chiffrement symétrique :</strong> <code>AES_128_GCM</code> (bloc 128 bits, mode AEAD).</li>
       <li><strong>Fonction de hachage :</strong> <code>SHA256</code> (PRF et dérivation des clés).</li>
@@ -119,9 +119,9 @@
     <h4>Syntaxe TLS 1.3 (Compacte &amp; Sécurisée)</h4>
     <pre><code>TLS_AES_256_GCM_SHA384</code></pre>
     <ul>
-      <li>TLS 1.3 dissocie totalement l'échange de clés et les certificats de la suite cryptographique.</li>
+      <li>En TLS 1.3, le mode et le groupe d'échange de clés ainsi que l'authentification sont négociés séparément de la suite ; son nom seul ne détermine pas la PFS.</li>
       <li>La suite ne spécifie que le chiffrement symétrique et la fonction de hachage de dérivation.</li>
-      <li>Seulement 5 suites standardisées : <code>TLS_AES_128_GCM_SHA256</code>, <code>TLS_AES_256_GCM_SHA384</code>, <code>TLS_CHACHA20_POLY1305_SHA256</code>, <code>TLS_AES_128_CCM_SHA256</code>, <code>TLS_AES_128_CCM_8_SHA256</code>.</li>
+      <li>La RFC 9846 définit cinq suites : <code>TLS_AES_128_GCM_SHA256</code>, <code>TLS_AES_256_GCM_SHA384</code>, <code>TLS_CHACHA20_POLY1305_SHA256</code>, <code>TLS_AES_128_CCM_SHA256</code>, <code>TLS_AES_128_CCM_8_SHA256</code>. Le registre IANA référence aussi d'autres suites.</li>
     </ul>
   </div>
 </div>
@@ -152,8 +152,8 @@
     <ul>
       <li>Opère au niveau de la couche réseau IP (couche 3 du modèle OSI), rendant le chiffrement transparent pour les applications.</li>
       <li><strong>AH (Authentication Header - protocole IP 51) :</strong> garantit l'intégrité et l'authentification de l'en-tête IP et des données, mais <em>sans aucun chiffrement</em> (obsolète en pratique).</li>
-      <li><strong>ESP (Encapsulating Security Payload - protocole IP 50) :</strong> fournit confidentialité, intégrité et authentification des données.</li>
-      <li><strong>Mode Transport :</strong> ne chiffre que la charge utile (payload) IP (communication hôte à hôte).</li>
+      <li><strong>ESP (Encapsulating Security Payload - protocole IP 50) :</strong> selon l'association de sécurité (SA), il peut fournir la confidentialité seule, l'intégrité seule avec authentification de l'origine, ou les deux. Au moins un des deux services doit être sélectionné (RFC 4303).</li>
+      <li><strong>Mode Transport :</strong> protège la charge utile IP selon les services ESP sélectionnés (communication hôte à hôte).</li>
       <li><strong>Mode Tunnel :</strong> encapsule le paquet IP d'origine entier dans un nouvel en-tête IP externe (interconnexion de réseaux VPN passerelle à passerelle).</li>
       <li><strong>IKEv2 (Internet Key Exchange v2) :</strong> négocie automatiquement les associations de sécurité (SA) et les clés.</li>
     </ul>
@@ -187,9 +187,11 @@
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="cr3-c6-e1" data-lab
      data-exercise="cr3-c6-e1"
      data-language="analyse"
@@ -198,7 +200,7 @@
   <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c6-e1) — Analyseur de Suite Cryptographique TLS (Cipher Suite Parser)
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
-[Cas 1 — Suite standard TLS 1.3]
+[Cas 1 — Suite TLS 1.3 sans paramètres négociés]
 # Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384
 A_COMPLETER
 
@@ -206,41 +208,51 @@ A_COMPLETER
 # Données : PARSE_SUITE suite=TLS_RSA_WITH_AES_256_CBC_SHA256
 A_COMPLETER
 
-[Cas 3 — Suite TLS dépréciée et vulnérable]
+[Cas 3 — Suite TLS avec chiffrement déprécié]
 # Données : PARSE_SUITE suite=TLS_RSA_WITH_RC4_128_SHA
+A_COMPLETER
+
+[Cas 4 — TLS 1.3 avec PSK seul en 1-RTT]
+# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384 mode=psk_ke group=none phase=1-rtt
+A_COMPLETER
+
+[Cas 5 — TLS 1.3 avec PSK et échange éphémère en 1-RTT]
+# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384 mode=psk_dhe_ke group=x25519 phase=1-rtt
+A_COMPLETER
+
+[Cas 6 — Même suite et échange, données anticipées 0-RTT]
+# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384 mode=psk_dhe_ke group=x25519 phase=0-rtt
+A_COMPLETER
+
+[Cas 7 — Handshake initial TLS 1.3 avec échange éphémère]
+# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384 mode=dhe group=x25519 phase=1-rtt
 A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Analyseur de Suite Cryptographique TLS (Cipher Suite Parser)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser une suite cryptographique TLS pour déterminer sa version, ses primitives, sa garantie de confidentialité persistante (PFS) et sa conformité.</p>
-    <div class="lab__brief"><p>Une suite TLS définit l'assemblage de primitives cryptographiques pour une session.<br>
-Règles :<br>
-1. Suites TLS 1.3 : (ex: <code>TLS_AES_256_GCM_SHA384</code>, <code>TLS_AES_128_GCM_SHA256</code>, <code>TLS_CHACHA20_POLY1305_SHA256</code>) :<br>
-   <code>ver=TLS1.3 kex=ECDHE/DHE enc=&lt;algo&gt; pfs=YES status=SECURE</code>.<br>
-2. Suites TLS 1.2 : comportent <code>_WITH_</code> :<br>
-   - <code>pfs=YES</code> si l'échange contient <code>DHE</code> ou <code>ECDHE</code>, sinon <code>pfs=NO</code>.<br>
-   - Si le chiffrement contient <code>RC4</code>, <code>DES</code>, <code>3DES</code>, <code>NULL</code> ou <code>EXPORT</code> :<br>
-     <code>status=INSECURE (deprecated cipher)</code><br>
-   - Sinon si <code>pfs == NO</code> : <code>status=WEAK (no forward secrecy)</code><br>
-   - Sinon : <code>status=SECURE</code>.<br><br>
-Commande : <code>PARSE_SUITE suite=&lt;nom_suite&gt;</code>.<br>
-Résultat d’analyse attendu : <code>SUITE: &lt;nom&gt; ver=&lt;ver&gt; kex=&lt;kex&gt; enc=&lt;enc&gt; pfs=&lt;pfs&gt; status=&lt;status&gt;</code>.</p></div>
+    <p class="lab__formative-notice" id="cr3-c6-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une suite et les paramètres TLS négociés sans déduire la PFS du seul nom TLS 1.3.</p>
+    <div class="lab__brief"><p>En TLS 1.3, la suite indique l’AEAD et la fonction de hachage HKDF ; elle ne détermine ni le mode d’échange, ni le groupe, ni la PFS. Le mode, le groupe et la phase doivent être connus séparément. Ce modèle traite les paramètres des cas sans vérifier une négociation réelle ni la sécurité globale. <code>dhe</code> désigne ici un échange éphémère sans PSK ; ce n’est pas un mode PSK TLS.<br><br>
+Pour les suites TLS 1.3 du modèle, analyser <code>PARSE_SUITE suite=&lt;nom&gt; mode=&lt;mode&gt; group=&lt;groupe&gt; phase=&lt;phase&gt;</code>. Pour chaque paramètre absent, afficher <code>UNKNOWN</code> ; si des informations nécessaires manquent, afficher <code>pfs=UNKNOWN status=PARAMETERS_REQUIRED</code>.<br>
+En <code>phase=1-rtt</code>, <code>mode=psk_ke group=none</code> donne <code>pfs=NO</code> dans ce modèle ; <code>mode=dhe</code> ou <code>mode=psk_dhe_ke</code> avec un groupe éphémère donne <code>pfs=CONDITIONAL</code>, sous réserve d’authentification et d’effacement des secrets éphémères. En <code>phase=0-rtt</code>, la PFS est <code>NOT_GUARANTEED</code>, quel que soit le mode ultérieur ; les données anticipées présentent un risque de rejeu. Lorsque ces paramètres sont indiqués, <code>status=PARAMETERS_ONLY</code> n’est pas une certification de sécurité.<br>
+Pour les suites avec <code>_WITH_</code>, on suppose TLS 1.2 : leur nom ne prouve pas la version négociée. Extraire échange, chiffrement et hachage. Un échange ECDHE/DHE indique <code>pfs=CONDITIONAL status=PARAMETERS_ONLY</code> ; RSA statique indique <code>pfs=NO status=WEAK_NO_PFS</code>. RC4, DES, 3DES, NULL ou EXPORT conduit à <code>status=INSECURE</code>.<br><br>
+Format TLS 1.3 : <code>SUITE: &lt;nom&gt; ver=TLS1.3 kex=&lt;mode&gt; group=&lt;groupe&gt; phase=&lt;phase&gt; enc=&lt;algorithme&gt; hash=&lt;hachage&gt; pfs=&lt;pfs&gt; status=&lt;statut&gt;</code>.<br>
+Format TLS 1.2 : <code>SUITE: &lt;nom&gt; ver=TLS1.2 kex=&lt;échange&gt; enc=&lt;algorithme&gt; hash=&lt;hachage&gt; pfs=&lt;pfs&gt; status=&lt;statut&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PARSE_SUITE suite=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUITE: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 ver=TLS1.2 kex=ECDHE_RSA enc=AES_128_GCM_SHA256 pfs=YES status=SECURE</pre></div>
     </div>
-    <p class="lab__note">Suite TLS 1.2 moderne avec échange ECDHE apportant la confidentialité persistante.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Identifiez d abord si la suite est TLS 1.3 via sa présence dans la liste blanche TLS 1.3.</li>
-        <li>Pour TLS 1.2, découpez sur "_WITH_" pour isoler kex_part et l algorithme de chiffrement.</li>
+        <li>Le nom TLS 1.3 indique l’AEAD et le hachage, mais ne révèle pas le mode d’échange ni le groupe.</li>
+        <li>Distinguez les données 0-RTT, le mode PSK seul et le mode PSK avec échange éphémère en 1-RTT ; ne concluez pas à une sécurité globale.</li>
       </ol>
     </details>
   </div>
@@ -250,49 +262,65 @@ Résultat d’analyse attendu : <code>SUITE: &lt;nom&gt; ver=&lt;ver&gt; kex=&lt
      data-exercise="cr3-c6-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 psk_mode=none">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c6-e2) — Simulateur de Négociation TLS 1.3 et Validation de Confidentialité Persistante (PFS)
+     data-stdin="TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 mode=dhe phase=1-rtt">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c6-e2) — Analyse illustrative des phases TLS 1.3 et de la confidentialité persistante (PFS)
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
-[Cas 1 — Reprise de session TLS 1.3 en mode 0-RTT]
-# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 psk_mode=0-rtt
+[Cas 1 — Données anticipées 0-RTT avec PSK et échange ultérieur]
+# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 mode=psk_dhe_ke phase=0-rtt
 A_COMPLETER
 
-[Cas 2 — Négociation de repli en TLS 1.2]
-# Données : TLS_HANDSHAKE client_version=TLSv1.2 server_version=TLSv1.2 group=secp256r1 client_share=A1B2 server_share=C3D4 psk_mode=none
+[Cas 2 — Handshake initial TLS 1.2 avec RSA statique]
+# Données : TLS_HANDSHAKE client_version=TLSv1.2 server_version=TLSv1.2 group=none client_share=none server_share=none mode=rsa phase=1-rtt
 A_COMPLETER
 
 [Cas 3 — Rejet version obsolète TLS 1.0]
-# Données : TLS_HANDSHAKE client_version=TLSv1.0 server_version=TLSv1.0 group=none client_share=none server_share=none psk_mode=none
+# Données : TLS_HANDSHAKE client_version=TLSv1.0 server_version=TLSv1.0 group=none client_share=none server_share=none mode=none phase=1-rtt
+A_COMPLETER
+
+[Cas 4 — Données 1-RTT avec PSK et échange éphémère]
+# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 mode=psk_dhe_ke phase=1-rtt
+A_COMPLETER
+
+[Cas 5 — Données 1-RTT avec PSK seul]
+# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=none client_share=none server_share=none mode=psk_ke phase=1-rtt
+A_COMPLETER
+
+[Cas 6 — Données anticipées 0-RTT avec PSK seul]
+# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=none client_share=none server_share=none mode=psk_ke phase=0-rtt
+A_COMPLETER
+
+[Cas 7 — Groupe non pris en charge par le modèle]
+# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=legacy1024 client_share=A1B2 server_share=C3D4 mode=dhe phase=1-rtt
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Simulateur de Négociation TLS 1.3 et Validation de Confidentialité Persistante (PFS)</h3>
+    <h3 class="lab__title">Exercice 2 — Analyse illustrative des phases TLS 1.3 et de la confidentialité persistante (PFS)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'établissement de session TLS 1.3 (1-RTT et 0-RTT PSK) et dériver le secret maître éphémère.</p>
-    <div class="lab__brief"><p>TLS 1.3 (RFC 8446) accélère la poignée de mains à 1 aller-retour (1-RTT) ou 0 aller-retour (0-RTT avec risque de rejeu) :<br>
-Règles :<br>
-- Si <code>server_version == 'TLSv1.2'</code> : <code>TLS1.2: rtt=2-RTT pfs=CONDITIONAL status=LEGACY_HANDSHAKE</code>.<br>
-- Si version autre : <code>STATUS=REJECTED (TLS version unsupported: &lt;v&gt;)</code>.<br>
-- Pour TLSv1.3, groupes autorisés : <code>x25519</code>, <code>secp256r1</code>, <code>secp384r1</code>.<br>
-- Si non supporté : <code>STATUS=REJECTED (unsupported elliptic group: &lt;grp&gt;)</code>.<br>
-- Dériver <code>master_secret</code> sur 16 caractères hexadécimaux de <code>sha256(client_share:server_share:group)</code>.<br><br>
-Résultat d’analyse attendu : <code>TLS1.3: rtt=&lt;rtt&gt; group=&lt;grp&gt; pfs=PERFECT_FORWARD_SECRECY master_secret=&lt;ms&gt; status=ESTABLISHED</code>.</p></div>
+    <p class="lab__formative-notice" id="cr3-c6-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer les phases TLS 1.3 et calculer un identifiant public purement illustratif, sans dériver de secret TLS.</p>
+    <div class="lab__brief"><p>TLS 1.3 (RFC 9846 ; RFC 8446 historique) peut transmettre des données 0-RTT avant la fin de la poignée de mains : leur confidentialité persistante n’est pas garantie par le protocole et elles peuvent être rejouées. En 1-RTT, un échange éphémère authentifié peut fournir la PFS si les secrets éphémères sont effacés ; le mode PSK seul ne la fournit pas par son échange. Le serveur peut refuser les données anticipées.<br><br>
+Ce modèle ne simule pas le protocole réel, ni la validation des pairs. Les cas 0-RTT supposent un PSK ; <code>dhe</code> désigne ici un échange éphémère sans PSK, pas un mode PSK TLS. TLS dérive ses secrets avec HKDF à partir notamment du PSK et/ou d’un secret d’échange, selon la phase et le transcript. On calcule ici seulement <code>demo_id = sha256(client_share:server_share:group)[:16]</code> sur la chaîne encodée en UTF-8, puis en conservant les 16 premiers caractères hexadécimaux. Il n’est pas un secret, une clé ou une dérivation TLS ; les valeurs sont publiques et synthétiques. En 0-RTT, les parts éventuelles sont données après coup pour cet identifiant, pas pour dériver les données anticipées.<br><br>
+Règles du modèle :<br>
+- Pour un handshake initial TLSv1.2, <code>mode=dhe</code> donne <code>pfs=CONDITIONAL</code> sous les hypothèses ci-dessus ; <code>mode=rsa</code> (RSA statique) donne <code>pfs=NO</code>, sinon <code>pfs=UNKNOWN</code>. Format : <code>TLS1.2: rtt=2-RTT pfs=&lt;pfs&gt; status=MODEL_ONLY</code>.<br>
+- Pour une autre version que TLSv1.2 ou TLSv1.3 : <code>STATUS=REJECTED (TLS version unsupported: &lt;v&gt;)</code>.<br>
+- Pour TLSv1.3 en mode <code>dhe</code> ou <code>psk_dhe_ke</code>, accepter seulement <code>x25519</code>, <code>secp256r1</code>, <code>secp384r1</code> ; sinon <code>STATUS=REJECTED (unsupported elliptic group: &lt;grp&gt;)</code>. En mode <code>psk_ke</code>, il n’y a ni groupe ni parts : utiliser <code>none</code>.<br>
+- En <code>phase=0-rtt</code>, afficher <code>pfs=NOT_GUARANTEED</code>. En <code>phase=1-rtt</code>, afficher <code>pfs=NO</code> pour <code>psk_ke</code>, sinon <code>pfs=CONDITIONAL</code> sous les hypothèses ci-dessus.<br>
+Format : <code>TLS1.3: phase=&lt;phase&gt; mode=&lt;mode&gt; group=&lt;grp&gt; pfs=&lt;pfs&gt; demo_id=&lt;id&gt; status=MODEL_ONLY</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 psk_mode=none</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TLS1.3: rtt=1-RTT group=x25519 pfs=PERFECT_FORWARD_SECRECY master_secret=f91a13a53fa8daae status=ESTABLISHED</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 mode=dhe phase=1-rtt</pre></div>
     </div>
-    <p class="lab__note">Poignée de mains 1-RTT avec échange éphémère x25519 garantissant le PFS.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Validez d abord server_version avant de tester les groupes de négociation.</li>
-        <li>Concaténez f"{client_share}:{server_share}:{group}".encode("utf-8") et prenez hexdigest()[:16] pour master_secret.</li>
+        <li>Distinguez la phase des données du mode d’échange négocié ; 0-RTT ne termine pas le handshake et ne garantit pas la PFS.</li>
+        <li>Pour l’identifiant public uniquement, concaténez client_share, server_share et group avec « : », puis prenez les 16 premiers caractères hexadécimaux de SHA-256.</li>
       </ol>
     </details>
   </div>
@@ -326,10 +354,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Auditeur de Conformité Cryptographique et Transition Post-Quantique (NIST PQC)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="cr3-c6-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Auditer l'inventaire cryptographique d'une organisation et planifier la migration vers les standards post-quantiques NIST.</p>
     <div class="lab__brief"><p>L'ordinateur quantique menace les fondations asymétriques (Shor) et affaiblit les clés symétriques (Grover) :<br>
 Règles d'audit :<br>
@@ -340,9 +370,7 @@ Règles d'audit :<br>
 Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt; key_size=&lt;key_size&gt; pqc_ready=&lt;pqc&gt; status=&lt;status&gt; action=&lt;action&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AUDIT_ALGO name=RSA key_size=2048 type=ASYMMETRIC</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT: algo=RSA type=ASYMMETRIC key_size=2048 pqc_ready=NO status=VULNERABLE_QUANTUM action=MIGRATE_TO_ML_KEM_OR_ML_DSA</pre></div>
     </div>
-    <p class="lab__note">RSA repose sur la factorisation entière cassée par l algorithme de Shor.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -352,6 +380,7 @@ Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt;
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -364,17 +393,17 @@ Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt;
         <button class="opt">Parce que RSA consomme trop d'électricité</button>
         <button class="opt">Parce que RSA a été racheté par une entreprise privée</button>
       </div>
-      <div class="q__exp">Avec RSA statique, le client chiffre le secret pré-maître avec la clé publique du serveur. Si la clé privée du serveur est volée des années plus tard, tous les enregistrements passés peuvent être déchiffrés. TLS 1.3 impose le PFS avec ECDHE/DHE éphémère.</div>
+      <div class="q__exp">Avec RSA statique, une fuite ultérieure de la clé privée peut exposer les sessions enregistrées. TLS 1.3 retire cet échange ; sa PFS reste conditionnée au mode négocié et à la phase des données.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Combien d'allers-retours réseau (RTT) sont nécessaires pour établir une connexion complète et sécurisée en TLS 1.3 lors d'une première visite ?</p>
+      <p class="q__stem">Lors d'une connexion TLS 1.3 initiale, combien d'allers-retours réseau (RTT) sont nécessaires si les paramètres proposés conviennent dès le départ, sans HelloRetryRequest ?</p>
       <div class="opts">
         <button class="opt">0-RTT</button>
         <button class="opt" data-correct="1">1-RTT</button>
         <button class="opt">2-RTT</button>
         <button class="opt">3-RTT</button>
       </div>
-      <div class="q__exp">En TLS 1.3, le client envoie ses parts de clés éphémères dès le premier paquet ClientHello, permettant au serveur de répondre et de finaliser la clé en 1-RTT (contre 2-RTT en TLS 1.2).</div>
+      <div class="q__exp">Dans ce cas, la poignée de mains initiale prend 1-RTT. Un HelloRetryRequest ajoute un aller-retour : elle peut alors nécessiter 2-RTT.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans le protocole IPsec, quel mode d'encapsulation permet de créer un tunnel VPN reliant deux réseaux distants en encapsulant le paquet IP complet ?</p>
@@ -384,7 +413,7 @@ Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt;
         <button class="opt">Mode Loopback avec ICMP</button>
         <button class="opt">Mode Broadcast avec ARP</button>
       </div>
-      <div class="q__exp">Le mode Tunnel encapsule l'intégralité du paquet IP d'origine (en-tête IP d'origine + données) dans un nouvel en-tête IP routable entre les deux passerelles VPN, et le protocole ESP assure le chiffrement et l'intégrité.</div>
+      <div class="q__exp">Le mode Tunnel encapsule le paquet IP d'origine dans un nouvel en-tête IP. ESP peut fournir le chiffrement, l'intégrité ou les deux selon la configuration de l'association de sécurité.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel algorithme quantique constitue une menace existentielle pour RSA et les courbes elliptiques (ECC) en résolvant la factorisation et le logarithme discret en temps polynomial ?</p>
@@ -414,7 +443,7 @@ Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt;
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
     <ul>
       <li>Conserver des suites cryptographiques TLS sans Forward Secrecy (comme TLS_RSA_WITH_AES_256_CBC_SHA) : l'interception du trafic permet son déchiffrement rétroactif si la clé privée fuite.</li>
-      <li>Activer le mode 0-RTT dans TLS 1.3 pour des requêtes HTTP non idempotentes (ex: POST de virement bancaire) : un attaquant peut rejouer la requête à volonté.</li>
+      <li>Activer les données 0-RTT pour des requêtes HTTP non idempotentes (ex: POST de virement bancaire) : elles présentent un risque de rejeu entre connexions.</li>
       <li>Utiliser le protocole IPsec AH en croyant chiffrer le trafic : AH n'assure que l'intégrité et laisse l'intégralité des données en clair sur le réseau.</li>
       <li>Croire que doubler la taille d'une clé RSA (passer de 2048 à 4096 bits) suffira face à l'ordinateur quantique : Shor casse RSA en temps polynomial quelle que soit sa taille.</li>
     </ul>
@@ -426,7 +455,7 @@ Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt;
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
     <ol>
       <li>Audit de configuration des protocoles réseau : vérifier l'exclusion définitive de SSL v3, TLS 1.0 et TLS 1.1 sur les répartiteurs de charge et serveurs web, et imposer TLS 1.3 comme protocole privilégié.</li>
-      <li>Analyse rigoureuse des suites cryptographiques : inspecter les paramètres d'échange de clés, vérifier la garantie de confidentialité persistante (PFS avec ECDHE) et valider l'utilisation de chiffrements AEAD (AES-GCM ou ChaCha20-Poly1305).</li>
+      <li>Analyse rigoureuse des suites cryptographiques : inspecter le mode et le groupe négociés, la phase des données et les hypothèses de PFS, puis vérifier les chiffrements AEAD.</li>
       <li>Sécurisation des accès d'infrastructure SSH et VPN IPsec : configurer des clés d'hôtes et d'utilisateurs Ed25519 pour SSH, et déployer des tunnels IPsec ESP en mode Tunnel avec IKEv2 et groupes Diffie-Hellman modernes.</li>
       <li>Planification de la feuille de route post-quantique : inventorier les actifs cryptographiques asymétriques, migrer les clés symétriques vers AES-256 pour contrer Grover, et tester les suites hybrides (X25519 + ML-KEM-768).</li>
     </ol>
@@ -437,23 +466,23 @@ Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt;
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
-      <li>TLS 1.3 (RFC 8446) accélère le handshake à 1-RTT (voire 0-RTT), supprime les algorithmes vulnérables et rend la confidentialité persistante (PFS) obligatoire.</li>
+      <li>TLS 1.3 (RFC 9846 ; RFC 8446 historique) permet une poignée de mains initiale en 1-RTT et des données anticipées 0-RTT ; la PFS dépend de la phase et du mode de négociation.</li>
       <li>Les suites TLS 1.3 se limitent à la définition de l'AEAD et de la fonction de hachage, isolant l'échange de clés et les certificats.</li>
-      <li>SSHv2 sécurise l'administration système via des clés publiques (Ed25519 recommandée), tandis qu'IPsec ESP chiffre la couche réseau en mode Transport ou Tunnel.</li>
+      <li>SSHv2 sécurise l'administration système ; IPsec ESP protège les paquets en mode Transport ou Tunnel selon les services choisis pour la SA.</li>
       <li>L'algorithme de Shor brise théoriquement tous les cryptosystèmes asymétriques actuels (RSA, ECC), tandis que Grover exige le passage à AES-256.</li>
       <li>Le NIST a standardisé en août 2024 les premiers algorithmes post-quantiques (FIPS 203 ML-KEM et FIPS 204 ML-DSA), préconisés en mode hybride.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
-      <li>Savez-vous expliquer pourquoi TLS 1.3 impose la confidentialité persistante (PFS) et interdit les échanges de clés RSA statiques ?</li>
-      <li>Comprenez-vous la différence de durée de handshake entre TLS 1.2 (2-RTT) et TLS 1.3 (1-RTT) ?</li>
+      <li>Savez-vous distinguer la PFS avec échange éphémère, le mode PSK seul et les données 0-RTT en TLS 1.3 ?</li>
+      <li>Comprenez-vous les durées habituelles des handshakes TLS et l’effet éventuel d’un HelloRetryRequest ?</li>
       <li>Pouvez-vous décortiquer une suite cryptographique TLS 1.2 et déterminer si elle procure ou non le PFS ?</li>
       <li>Connaissez-vous la différence entre les protocoles AH et ESP d'IPsec et entre le mode Transport et le mode Tunnel ?</li>
       <li>Savez-vous citer les impacts respectifs de l'algorithme de Shor (ruine d'asymétrique) et de Grover (racine carrée sur le symétrique) ?</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li><strong>Confidentialité Persistante (PFS) :</strong> Propriété d'un protocole garantissant que la compromission ultérieure de la clé privée à long terme du serveur ne permettra pas de déchiffrer les sessions passées.</li><li><strong>Chiffrement Authentifié (AEAD) :</strong> Mode de chiffrement symétrique (ex: GCM) fournissant simultanément la confidentialité des données et la preuve formelle de leur intégrité.</li><li><strong>IPsec ESP (Encapsulating Security Payload) :</strong> Protocole IPsec fournissant l'authentification, l'intégrité et le chiffrement des paquets réseau en mode Transport ou Tunnel.</li><li><strong>Algorithme de Shor :</strong> Algorithme quantique résolvant la factorisation et le logarithme discret en temps polynomial, cassant RSA et les courbes elliptiques.</li><li><strong>ML-KEM (FIPS 203) :</strong> Standard post-quantique du NIST pour l'encapsulation de clés basé sur les réseaux euclidiens (anciennement Crystals-Kyber).</li><li>TLS 1.3 (RFC 8446) accélère le handshake à 1-RTT (voire 0-RTT), supprime les algorithmes vulnérables et rend la confidentialité persistante (PFS) obligatoire.</li><li>Les suites TLS 1.3 se limitent à la définition de l'AEAD et de la fonction de hachage, isolant l'échange de clés et les certificats.</li><li>SSHv2 sécurise l'administration système via des clés publiques (Ed25519 recommandée), tandis qu'IPsec ESP chiffre la couche réseau en mode Transport ou Tunnel.</li>
+      <li><strong>Confidentialité Persistante (PFS) :</strong> Propriété protégeant les données passées contre la compromission ultérieure des secrets à long terme, sous les hypothèses du mode négocié et de l'effacement des secrets éphémères.</li><li><strong>Chiffrement Authentifié (AEAD) :</strong> Mode de chiffrement symétrique (ex: GCM) fournissant simultanément la confidentialité des données et la preuve formelle de leur intégrité.</li><li><strong>IPsec ESP (Encapsulating Security Payload) :</strong> Protocole IPsec offrant confidentialité seule, intégrité seule ou les deux selon l'association de sécurité, en mode Transport ou Tunnel.</li><li><strong>Algorithme de Shor :</strong> Algorithme quantique résolvant la factorisation et le logarithme discret en temps polynomial, cassant RSA et les courbes elliptiques.</li><li><strong>ML-KEM (FIPS 203) :</strong> Standard post-quantique du NIST pour l'encapsulation de clés basé sur les réseaux euclidiens (anciennement Crystals-Kyber).</li><li>TLS 1.3 (RFC 9846 ; RFC 8446 historique) permet une poignée de mains initiale en 1-RTT et des données anticipées 0-RTT ; la PFS dépend de la phase et du mode de négociation.</li><li>Les suites TLS 1.3 se limitent à la définition de l'AEAD et de la fonction de hachage, isolant l'échange de clés et les certificats.</li><li>SSHv2 sécurise l'administration système ; IPsec ESP protège les paquets en mode Transport ou Tunnel selon les services choisis pour la SA.</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -465,7 +494,7 @@ Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt;
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong><strong>Audit et analyse automatique de suites TLS de manière méthodique :</strong> Développer des parsers inspectant les versions TLS, les algorithmes de chiffrement et la présence du Forward Secrecy.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong><strong>Audit et analysez automatique de suites TLS de manière méthodique :</strong> Développer des parsers inspectant les versions TLS, les algorithmes de chiffrement et la présence du Forward Secrecy.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong><strong>Configuration et durcissement de serveurs TLS 1.3 :</strong> Mettre en œuvre les recommandations ANSSI/NIST sur les passerelles web et les répartiteurs de charge en production.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong><strong>Évaluation des vulnérabilités face à l'ordinateur quantique :</strong> Classifier l'exposition des parcs applicatifs aux algorithmes de Shor et de Grover et planifier la migration symétrique.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong><strong>Mise en œuvre des standards post-quantiques NIST PQC :</strong> Intégrer les mécanismes ML-KEM et ML-DSA en mode hybride pour immuniser les communications à long terme.</div>
@@ -479,7 +508,7 @@ Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt;
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : Supports de cours officiels Cryptographie L3/B3 (Enseignant : M. Djiwa N’tèla OGA, PolyCrypto2010), Standards RFC 5280 (X.509), RFC 8446 (TLS 1.3), RFC 2104 (HMAC), RFC 8017 (PKCS#1 v2.2) et Référentiels NIST Post-Quantum Cryptography (FIPS 203, FIPS 204).</p>
+  Sources : Supports de cours officiels Cryptographie L3/B3 (Enseignant : M. Djiwa N’tèla OGA, PolyCrypto2010), RFC 5280 (X.509), RFC 9525 (identité TLS), RFC 4303 (ESP), RFC 9846 (TLS 1.3, juillet 2026 ; RFC 8446 historique), RFC 2104 (HMAC), RFC 8017 (PKCS#1 v2.2) et Référentiels NIST Post-Quantum Cryptography (FIPS 203, FIPS 204).</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

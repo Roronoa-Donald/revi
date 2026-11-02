@@ -146,13 +146,6 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Qu’est-ce que « Loi organique » ?', a: 'Loi organique : fixe le statut des pouvoirs publics.' },
-      { q: 'Qu’est-ce que « Hiérarchie des normes » ?', a: 'Hiérarchie des normes : Constitution, traités, lois, règlements.' },
-      { q: 'Qu’est-ce que « Conseil Supérieur de la Magistrature » ?', a: "Conseil Supérieur de la Magistrature : gardien de l'indépendance." },
-      { q: 'Qu’est-ce que « Enfant simplement conçu » ?', a: 'Enfant simplement conçu : personnalité repoussée à la conception, dans son intérêt.' },
-      { q: 'Qu’est-ce que « Situation juridique » ?', a: 'Situation juridique : rapport de droit né à une date, avec effets.' },
-      { q: 'Qu’est-ce que « Exécution forcée » ?', a: 'Exécution forcée : contraindre le débiteur à exécuter.' },
-      { q: 'Qu’est-ce que « Responsabilité délictuelle » ?', a: 'Responsabilité délictuelle : réparer le dommage causé sans contrat.' },
       { q: 'Droit objectif vs droits subjectifs ?', a: 'Objectif : ensemble des règles sanctionnées par l\'autorité publique. Subjectifs : prérogatives que ces règles reconnaissent à un individu.' },
       { q: 'La formule de Carbonnier ?', a: '« Si le droit (objectif) nous permet de faire quelque chose, nous avons le droit (subjectif) de le faire. »' },
       { q: 'Les deux caractères de la règle de droit ?', a: 'Générale et abstraite (vise des situations) ; obligatoire et coercitive (sanction étatique).' },

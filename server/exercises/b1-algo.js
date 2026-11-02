@@ -19,6 +19,8 @@
  * diffèrent de l'exemple visible : recopier l'exemple ne suffit pas.
  */
 
+const methodNotice = '<p>La validation vérifie la méthode sur des cas limités et analyse une forme simple de Python : pas d’import ni d’appel indirect ; seules les méthodes <code>append</code> et <code>join</code> sont prises en charge. Une solution hors de ce cadre ou dont la méthode ne peut pas être établie ne reçoit pas de note : demandez une relecture. Ces contrôles ne prouvent pas tous les cas.</p>';
+
 module.exports = [
   // ═══════════════════════════════════════════════════════════════════════
   // Module 1 — Introduction à l'algorithmique
@@ -116,7 +118,8 @@ print(total)
     tests: [
       { label: 'Moins d’une minute', stdin: '59', expected: '0 h 0 min 59 s' },
       { label: 'Pile une heure', stdin: '3600', expected: '1 h 0 min 0 s' },
-      { label: 'Plusieurs heures', stdin: '7325', expected: '2 h 2 min 5 s' }
+      { label: 'Plusieurs heures', stdin: '7325', expected: '2 h 2 min 5 s' },
+      { label: 'Borne pile une minute', stdin: '60', expected: '0 h 1 min 0 s' }
     ],
     solution: `total = int(input())
 
@@ -276,7 +279,7 @@ else:
     language: 'python',
     title: 'Le plus grand de trois',
     goal: 'Enchaîner des comparaisons pour désigner un maximum.',
-    brief: '<p>Le programme reçoit trois entiers, chacun sur une ligne. Affichez le plus grand, suivi d’un deux-points et d’une espace, puis sa position (<code>1</code>, <code>2</code> ou <code>3</code>). En cas d’égalité, gardez la première position atteinte.</p>',
+    brief: '<p>Le programme reçoit trois entiers, chacun sur une ligne. Affichez le maximum et sa position (<code>1</code>, <code>2</code> ou <code>3</code>) au format de l’exemple : <code>Max : 9 (position 2)</code>. En cas d’égalité, gardez la première position atteinte.</p>',
     starter: `a = int(input())
 b = int(input())
 c = int(input())
@@ -333,7 +336,8 @@ print("Max :", maximum, "(position", str(position) + ")")
     tests: [
       { label: 'Siècle non bissextile', stdin: '1900', expected: 'ordinaire' },
       { label: 'Exception du millénaire', stdin: '2000', expected: 'bissextile' },
-      { label: 'Année commune', stdin: '2023', expected: 'ordinaire' }
+      { label: 'Année commune', stdin: '2023', expected: 'ordinaire' },
+      { label: 'Année bissextile ordinaire', stdin: '2028', expected: 'bissextile' }
     ],
     solution: `annee = int(input())
 
@@ -566,7 +570,7 @@ print(etapes)
     language: 'python',
     title: 'Somme et maximum d’un tableau',
     goal: 'Parcourir un tableau une seule fois pour deux résultats.',
-    brief: '<p>Le programme reçoit un entier n, puis n entiers. Affichez la somme sur une ligne, puis le maximum sur la suivante, en un seul parcours.</p>',
+    brief: '<p>Le programme reçoit un entier <code>n ≥ 1</code>, puis n entiers : le tableau contient donc au moins une valeur. Affichez la somme sur une ligne, puis le maximum sur la suivante, en un seul parcours.</p>',
     starter: `n = int(input())
 tableau = []
 for i in range(n):
@@ -655,7 +659,7 @@ else:
     language: 'python',
     title: 'Tri par sélection',
     goal: 'Implémenter un tri simple du cours, sans sort().',
-    brief: '<p>Le programme reçoit un entier n, puis n entiers. Triez le tableau par sélection (repeatedly : chercher le minimum de la partie non triée et l’échanger), <strong>sans</strong> utiliser <code>sort()</code> ni <code>sorted()</code>. Affichez les valeurs triées sur une ligne, séparées par des espaces.</p>',
+    brief: '<p>Le programme reçoit un entier n, puis n entiers. Triez le tableau par sélection : cherchez le minimum de la partie non triée et échangez-le, puis recommencez, <strong>sans</strong> utiliser <code>sort()</code> ni <code>sorted()</code>. Affichez les valeurs triées sur une ligne, séparées par des espaces.</p>' + methodNotice,
     starter: `n = int(input())
 tableau = []
 for i in range(n):
@@ -671,6 +675,7 @@ for i in range(n):
       { stdin: '5\n5\n2\n8\n1\n9', expected: '1 2 5 8 9', note: 'Tri croissant complet.' }
     ],
     tests: [
+      { label: 'Deux valeurs à échanger', stdin: '2\n5\n1', expected: '1 5' },
       { label: 'Déjà trié', stdin: '3\n1\n2\n3', expected: '1 2 3' },
       { label: 'Ordre inverse', stdin: '4\n4\n3\n2\n1', expected: '1 2 3 4' },
       { label: 'Doublons', stdin: '5\n3\n1\n3\n1\n2', expected: '1 1 2 3 3' }
@@ -968,7 +973,7 @@ print(inverse)
     language: 'python',
     title: 'Tri à bulles',
     goal: 'Implémenter le tri à bulles avec arrêt anticipé.',
-    brief: '<p>Le programme reçoit un entier n, puis n entiers. Triez-les par la méthode des bulles : répétez des passages qui échangent les paires voisines mal ordonnées. Optimisez avec un indicateur d’échange : si un passage complet n’échange rien, le tableau est trié et le tri s’arrête. Interdits : <code>sort()</code>, <code>sorted()</code>. Affichez les valeurs triées sur une ligne, séparées par des espaces, suivies du nombre de passages effectués sur la ligne suivante.</p>',
+    brief: '<p>Le programme reçoit un entier n, puis n entiers. Triez-les par la méthode des bulles : répétez des passages qui échangent les paires voisines mal ordonnées. Après chaque passage, réduisez d’une case la partie encore à comparer. Arrêtez dès qu’un passage n’échange rien ou que cette partie compte au plus une case. Interdits : <code>sort()</code>, <code>sorted()</code>. Affichez les valeurs triées sur une ligne, séparées par des espaces, suivies du nombre de passages effectués sur la ligne suivante.</p>' + methodNotice,
     starter: `n = int(input())
 tableau = []
 for i in range(n):
@@ -1068,7 +1073,7 @@ else:
     language: 'python',
     title: 'Récursivité — puissance et PGCD',
     goal: 'Écrire deux fonctions récursives et les combiner.',
-    brief: '<p>Écrivez deux fonctions récursives (aucune boucle) : <code>puissance(base, exposant)</code> qui renvoie base élevé à l’exposant (exposant ≥ 0), et <code>pgcd(a, b)</code> par l’algorithme d’Euclide. Le programme lit base, exposant, puis deux entiers a et b, et affiche les deux résultats sur deux lignes.</p>',
+    brief: '<p>Écrivez deux fonctions récursives (aucune boucle) : <code>puissance(base, exposant)</code> renvoie base élevé à l’exposant, et <code>pgcd(a, b)</code> applique l’algorithme d’Euclide. Les quatre entrées sont des entiers garantis dans les bornes <code>|base| ≤ 100</code>, <code>0 ≤ exposant ≤ 200</code> et <code>|a|, |b| ≤ 1000000000000</code>. Le PGCD est positif ou nul, y compris pour les entiers négatifs ; on adopte <code>0 ** 0 == 1</code> et <code>pgcd(0, 0) = 0</code>. Dans le corrigé proposé, la puissance nécessite au plus 201 appels imbriqués, le PGCD au plus 81, et le résultat de la puissance au plus 401 chiffres. Avec une limite de récursion Python usuelle de 1000, ces bornes laissent une marge ; la limite effective dépend de l’environnement. Le programme lit base, exposant, puis a et b, et affiche les deux résultats sur deux lignes.</p>' + methodNotice,
     starter: `def puissance(base, exposant):
     # À compléter : version récursive, sans boucle.
     pass
@@ -1095,8 +1100,12 @@ print(pgcd(a, b))
     ],
     tests: [
       { label: 'Exposant nul et PGCD égal', stdin: '5\n0\n7\n7', expected: '1\n7' },
-      { label: 'Exposant un', stdin: '9\n1\n100\n75', expected: '9\n25' },
-      { label: 'Nombres premiers entre eux', stdin: '3\n4\n8\n9', expected: '81\n1' }
+      { label: 'Exposant un et bornes opposées', stdin: '100\n1\n1000000000000\n-1000000000000', expected: '100\n1000000000000' },
+      { label: 'Exposant maximal et PGCD de Fibonacci', stdin: '100\n200\n956722026041\n591286729879', expected: '1' + '0'.repeat(400) + '\n1' },
+      { label: 'Base négative, entier négatif et zéro', stdin: '-2\n3\n-8\n0', expected: '-8\n8' },
+      { label: 'Second entier négatif', stdin: '2\n3\n48\n-36', expected: '8\n12' },
+      { label: 'Deux entiers négatifs', stdin: '2\n3\n-48\n-36', expected: '8\n12' },
+      { label: 'Puissance zéro et deux zéros', stdin: '0\n0\n0\n0', expected: '1\n0' }
     ],
     solution: `def puissance(base, exposant):
     if exposant == 0:
@@ -1106,7 +1115,7 @@ print(pgcd(a, b))
 
 def pgcd(a, b):
     if b == 0:
-        return a
+        return abs(a)
     return pgcd(b, a % b)
 
 
@@ -1147,6 +1156,10 @@ print(total)
       { stdin: '200\n60', expected: '10800', note: '60 × 200 = 12000 ; remise 10 % = 1200 ; total 10800.' }
     ],
     tests: [
+      { label: 'Exactement dix articles', stdin: '100\n10', expected: '1000' },
+      { label: 'Onze articles', stdin: '100\n11', expected: '1045' },
+      { label: 'Exactement cinquante articles', stdin: '100\n50', expected: '4750' },
+      { label: 'Cinquante et un articles', stdin: '100\n51', expected: '4590' },
       { label: 'Petite quantité, pas de remise', stdin: '150\n5', expected: '750' },
       { label: 'Remise intermédiaire', stdin: '100\n20', expected: '1900' },
       { label: 'Grosse quantité', stdin: '50\n100', expected: '4500' }
@@ -1206,7 +1219,7 @@ print(somme)
     language: 'python',
     title: 'Synthèse — gestion d’une file d’attente',
     goal: 'Combiner tableau, boucle, fonction et condition sur un problème complet.',
-    brief: '<p>Le programme reçoit un entier n, puis n durées de traitement (entiers, en minutes) dans l’ordre d’arrivée. Calculez avec des fonctions : l’attente totale (somme des durées des personnes précédentes, cumulée pour tout le monde) et le temps moyen d’attente avec deux décimales. Affichez l’attente totale (entier) sur une ligne, puis la moyenne sur la suivante. Aucune boucle dans le programme principal : tout passe par des fonctions.</p>',
+    brief: '<p>Le programme reçoit un entier n, puis n durées de traitement (entiers, en minutes) dans l’ordre d’arrivée. Utilisez les fonctions <code>attente_totale(durees)</code> et <code>temps_moyen(durees)</code> pour calculer l’attente totale (somme des durées des personnes précédentes, cumulée pour tout le monde) et le temps moyen d’attente avec deux décimales. Affichez l’attente totale (entier) sur une ligne, puis la moyenne sur la suivante. La lecture des durées peut utiliser une compréhension dans le programme principal ; les boucles de calcul doivent se trouver dans les fonctions.</p>' + methodNotice,
     starter: `def attente_totale(durees):
     # À compléter : somme des attentes cumulées.
     return 0

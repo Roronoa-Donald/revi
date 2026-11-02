@@ -39,11 +39,11 @@ const course = {
     'prototypage du croquis Lo-Fi au mockup Hi-Fi, système de grille 8pt, échelles modulaires typographiques, ' +
     'méthodologie Atomic Design de Brad Frost (Atomes, Molécules, Organismes, Templates, Pages) et Design Tokens, ' +
     'philosophie Mobile-First, grilles fluides par breakpoints (&lt;640, 640-1023, &gt;=1024px), Thumb Zone de Steven Hoober, ' +
-    'dimensionnement ergonomique des cibles tactiles (48x48 px), et accessibilité numérique universelle (WCAG 2.1 niveau AA, ' +
+    'dimensionnement ergonomique des cibles tactiles selon les référentiels et leurs unités, et accessibilité numérique (WCAG 2.1 niveau AA, ' +
     'formule de luminance relative et ratios de contraste 4.5:1 / 3:1, navigation clavier intégrale et gestion du focus tabindex).',
   lead:
     'Concevez des interfaces élégantes, intuitives, accessibles et fondées sur la psychologie cognitive et la rigueur scientifique. ' +
-    'Six chapitres complets alliant théorie ergonomique, méthodes industrielles, 18 ateliers de programmation Python et QCM d’évaluation.',
+    'Six chapitres alliant théorie ergonomique, méthodes industrielles, 18 études de cas formatives et QCM d’évaluation.',
 
   sources: 'la norme ISO 9241-210, le Design Council (Double Diamant), le Nielsen Norman Group (NN/g), les standards W3C WCAG 2.1, Material Design et Apple HIG',
 

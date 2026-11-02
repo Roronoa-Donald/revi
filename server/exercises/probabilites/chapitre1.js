@@ -12,11 +12,11 @@ module.exports = [
     "language": "analyse",
     "title": "Probabilité d’un événement",
     "goal": "Calculer la probabilité d’un événement sur un univers fini équiprobable.",
-    "brief": "<p>Dans cette étude, on considère deux entiers : <code>n</code> (nombre d’issues de l’univers) puis <code>k</code> (nombre de cas favorables). Sur un univers équiprobable, la probabilité vaut <code>k/n</code>. Calculez et indiquez cette probabilité sous forme de <strong>fraction réduite</strong> <code>p/q</code> (par exemple <code>1/2</code>).</p>",
-    "starter": "# Grille de calcul (pb2-c1-e1) — Probabilité d’un événement\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux sur huit]\n# Données : 8\n# Données : 2\nA_COMPLETER\n\n[Cas 2 — Sept sur dix]\n# Données : 10\n# Données : 7\nA_COMPLETER\n\n[Cas 3 — Deux sur quatre]\n# Données : 4\n# Données : 2\nA_COMPLETER\n",
+    "brief": "<p>Dans cette étude, on considère deux entiers : <code>n</code> (nombre d’issues de l’univers, strictement positif) puis <code>k</code> (nombre de cas favorables, entre 0 et n inclus). Sur un univers équiprobable, la probabilité vaut <code>k/n</code>. Calculez et indiquez cette probabilité sous forme de <strong>fraction réduite</strong> <code>p/q</code>, avec un dénominateur strictement positif, y compris lorsque la probabilité est un nombre entier ou nul.</p>",
+    "starter": "# Grille de calcul (pb2-c1-e1) — Probabilité d’un événement\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux sur huit]\n# Données : 8\n# Données : 2\nA_COMPLETER\n\n[Cas 2 — Sept sur dix]\n# Données : 10\n# Données : 7\nA_COMPLETER\n\n[Cas 3 — Deux sur quatre]\n# Données : 4\n# Données : 2\nA_COMPLETER\n\n[Cas 4 — Aucun cas favorable]\n# Données : 9\n# Données : 0\nA_COMPLETER\n\n[Cas 5 — Toutes les issues favorables]\n# Données : 9\n# Données : 9\nA_COMPLETER\n",
     "hints": [
-      "Réduire une fraction demande de diviser numérateur et dénominateur par leur pgcd : gcd(k, n).",
-      "Simplifiez la fraction jusqu'à obtenir des entiers premiers entre eux."
+      "Quel rapport relie les cas favorables au total des issues et comment le simplifier ?",
+      "Pour réduire une fraction, divisez son numérateur et son dénominateur par leur plus grand diviseur commun (PGCD)."
     ],
     "examples": [
       {
@@ -29,20 +29,35 @@ module.exports = [
       {
         "label": "Deux sur huit",
         "stdin": "cas:1",
-        "expected": "1/4"
+        "expected": "1/4",
+        "comparator": "fraction_reduite"
       },
       {
         "label": "Sept sur dix",
         "stdin": "cas:2",
-        "expected": "7/10"
+        "expected": "7/10",
+        "comparator": "fraction_reduite"
       },
       {
         "label": "Deux sur quatre",
         "stdin": "cas:3",
-        "expected": "1/2"
+        "expected": "1/2",
+        "comparator": "fraction_reduite"
+      },
+      {
+        "label": "Aucun cas favorable",
+        "stdin": "cas:4",
+        "expected": "0/1",
+        "comparator": "fraction_reduite"
+      },
+      {
+        "label": "Toutes les issues favorables",
+        "stdin": "cas:5",
+        "expected": "1/1",
+        "comparator": "fraction_reduite"
       }
     ],
-    "solution": "[Exemple]\n1/2\n\n[Cas 1 — Deux sur huit]\n1/4\n\n[Cas 2 — Sept sur dix]\n7/10\n\n[Cas 3 — Deux sur quatre]\n1/2\n"
+    "solution": "[Exemple]\n1/2\n\n[Cas 1 — Deux sur huit]\n1/4\n\n[Cas 2 — Sept sur dix]\n7/10\n\n[Cas 3 — Deux sur quatre]\n1/2\n\n[Cas 4 — Aucun cas favorable]\n0/1\n\n[Cas 5 — Toutes les issues favorables]\n1/1\n"
   },
   {
     "id": "pb2-c1-e2",
@@ -54,7 +69,7 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère trois nombres décimaux, un par ligne : <code>pA</code>, <code>pB</code> et <code>pAB</code> (probabilité de l’intersection). Indiquez <code>P(A∪B)</code> arrondie à 4 décimales.</p><p>Rappel : <code>P(A∪B) = P(A) + P(B) − P(A∩B)</code>.</p>",
     "starter": "# Grille de calcul (pb2-c1-e2) — Formule de la réunion\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Événements symétriques]\n# Données : 0.3\n# Données : 0.3\n# Données : 0.1\nA_COMPLETER\n\n[Cas 2 — Fort recouvrement]\n# Données : 0.9\n# Données : 0.8\n# Données : 0.75\nA_COMPLETER\n\n[Cas 3 — Intersection faible]\n# Données : 0.2\n# Données : 0.5\n# Données : 0.1\nA_COMPLETER\n",
     "hints": [
-      "Additionne pA et pB, puis retranche une seule fois pAB : sans cela, on compte deux fois l’intersection.",
+      "Additionnez pA et pB, puis retranchez une seule fois pAB : sans cela, on compte deux fois l’intersection.",
       "Arrondissez le résultat final à 4 décimales."
     ],
     "examples": [

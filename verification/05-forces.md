@@ -1,0 +1,13 @@
+# Points solides à préserver et à généraliser
+
+Ces observations sont locales et ne constituent pas une validation générale des cours.
+
+1. **Une mise en situation compréhensible en Merise.** `b1-merise/chapitres/chapitre1.html:66` part de valeurs sans contexte pour introduire la différence entre donnée et information ; les objectifs `:73` demandent de distinguer et classer. À généraliser : situation concrète, question, puis critères de réussite. Vérifier ensuite que chaque objectif est réellement évalué.
+2. **Une exception réseau explicitée.** `b3-pfsense/chapitres/chapitre1.html:173` tient compte des préfixes `/31` sur les liens point à point. À généraliser à la carte CCNA qui l'omet ; voir F12. Référence : https://www.rfc-editor.org/rfc/rfc3021.html, consultée le 29 octobre 2026.
+3. **L'apport d'une seconde représentation.** Le produit matriciel de `b1-algebre/chapitres/chapitre2.html:89` est accompagné d'un tableau détaillant les coefficients à `:91`. Ce tableau reste utile même si la formule doit être réparée (F25). À généraliser : calcul complet, puis exercice voisin avec moins d'aide.
+4. **Un simulateur SQL local immédiatement manipulable.** `b1-sql/assets/js/sql-simulator.js:21` charge un jeu de données et l'atelier permet de l'interroger sans installation. À préserver en alignant les noms de colonnes et les contraintes avec le cours (F05/F06) et en vérifiant la réactivité aux requêtes coûteuses.
+5. **Des cartes utilisables au clavier dans un cas observé.** Sur `b1-linux/chapitres/cartes.html`, les 28 cartes sont focalisables ; Entrée retourne la première et modifie `aria-pressed`. Ce comportement mérite d'être étendu et contrôlé sur tous les cours : il ne fonctionne pas sur la page de veille cassée (F01).
+6. **Des cas d'évaluation et des paliers vérifiables.** Les 180 corrigés échantillonnés passent les tests du harnais local ; les 454 échelles reconnues partagent les mêmes seuils calculés après arrondi. À renforcer : cas indépendants pour éviter les corrigés mémorisés (F03), déduplication visuelle des libellés (F30), contrôle de la justesse réelle plutôt que présence d'une seule réponse marquée.
+7. **Une inversion utile entre cours et sources est documentée.** Les supports Linux placent l'installation avant les commandes ; le site fait l'inverse entre `b1-linux/chapitres/chapitre3.html:56` et `b1-linux/chapitres/chapitre4.html:56`. Ce constat est transparent et ne prouve pas, seul, que le choix est mauvais : expliquer le choix aux étudiants et vérifier les prérequis pratiques.
+
+Pour les exemples résolus puis progressivement estompés, la littérature sur les exemples travaillés peut éclairer la conception sans imposer une recette universelle : https://doi.org/10.1207/s1532690xci0201_3, consulté le 29 octobre 2026.

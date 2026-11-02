@@ -86,8 +86,8 @@ module.exports = [
     "title": "Évaluateur de modèles de déploiement Cloud (Public, Privé, Hybride, Communautaire)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Qualifier automatiquement le modèle de déploiement Cloud cible d’une organisation selon ses contraintes de colocation, connectivité et criticité des données.",
-    "brief": "<p>Analysez les paramètres du problème pour chaque cas.<br>\nArbre de qualification déterministe :<br>\n1. Si <code>PARTAGE == COMMUNAUTE</code> -&gt; <code>MODELE=COMMUNAUTAIRE</code>.<br>\n2. Sinon si <code>RESEAU == HYBRIDE</code> -&gt; <code>MODELE=HYBRIDE</code>.<br>\n3. Sinon si <code>TENANT == DEDIE</code> ou <code>DONNEES == SECRET</code> ou <code>PARTAGE == EXCLUSIF</code> -&gt; <code>MODELE=PRIVE</code>.<br>\n4. Sinon si <code>TENANT == MULTI</code> et <code>RESEAU == INTERNET</code> -&gt; <code>MODELE=PUBLIC</code>.<br>\n5. Sinon -&gt; <code>MODELE=PRIVE</code>.<br><br>\nDéterminer également le <code>NIVEAU_ISOLATION</code> :<br>\n- Si <code>MODELE == PRIVE</code> : <code>ISOLE_PHYSIQUE</code><br>\n- Si <code>MODELE == HYBRIDE</code> : <code>SEGMENTE_VPN</code><br>\n- Si <code>MODELE == COMMUNAUTAIRE</code> : <code>RESTREINT_PAIRS</code><br>\n- Si <code>MODELE == PUBLIC</code> : <code>LOGIQUE_MULTI_TENANT</code><br><br>\nAfficher :<br>\n<code>MODELE: &lt;nom&gt; -&gt; DEPL=&lt;MODELE&gt; | ISOLATION=&lt;NIVEAU_ISOLATION&gt;</code></p>",
+    "goal": "Appliquer une classification fictive sans inférer une isolation réelle.",
+    "brief": "<p>Ce modèle applique des conventions fictives : les niveaux sont des hypothèses qui ne prouvent ni une isolation physique, ni une sécurité effective. Les attributs d’entrée ne suffisent pas à déterminer à eux seuls le modèle réel de déploiement.<br>Analysez les paramètres du problème pour chaque cas.<br>\nArbre de qualification déterministe :<br>\n1. Si <code>PARTAGE == COMMUNAUTE</code> -&gt; <code>MODELE=COMMUNAUTAIRE</code>.<br>\n2. Sinon si <code>RESEAU == HYBRIDE</code> -&gt; <code>MODELE=HYBRIDE</code>.<br>\n3. Sinon si <code>TENANT == DEDIE</code> ou <code>DONNEES == SECRET</code> ou <code>PARTAGE == EXCLUSIF</code> -&gt; <code>MODELE=PRIVE</code>.<br>\n4. Sinon si <code>TENANT == MULTI</code> et <code>RESEAU == INTERNET</code> -&gt; <code>MODELE=PUBLIC</code>.<br>\n5. Sinon -&gt; <code>MODELE=PRIVE</code>.<br><br>\nDéterminer également le <code>NIVEAU_ISOLATION</code> :<br>\n- Si <code>MODELE == PRIVE</code> : <code>ISOLE_PHYSIQUE</code><br>\n- Si <code>MODELE == HYBRIDE</code> : <code>SEGMENTE_VPN</code><br>\n- Si <code>MODELE == COMMUNAUTAIRE</code> : <code>RESTREINT_PAIRS</code><br>\n- Si <code>MODELE == PUBLIC</code> : <code>LOGIQUE_MULTI_TENANT</code><br><br>\nAfficher :<br>\n<code>MODELE: &lt;nom&gt; -&gt; DEPL=&lt;MODELE&gt; | HYPOTHESE_ISOLATION=&lt;NIVEAU_ISOLATION&gt;</code></p>",
     "starter": "# Grille d'analyse (cc3-c1-e3) — Évaluateur de modèles de déploiement Cloud (Public, Privé, Hybride, Communautaire)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Groupement inter-hospitalier communautaire]\n# Données : DEPL nom=sante_region TENANT=MULTI RESEAU=VPN_PRIVE DONNEES=SENSIBLE PARTAGE=COMMUNAUTE\nA_COMPLETER\n\n[Cas 2 — Environnement de dev public]\n# Données : DEPL nom=dev_sandbox TENANT=MULTI RESEAU=INTERNET DONNEES=STANDARD PARTAGE=OUVERT\nA_COMPLETER\n\n[Cas 3 — Système d’armes militaire dédié]\n# Données : DEPL nom=defense_ops TENANT=DEDIE RESEAU=VPN_PRIVE DONNEES=SECRET PARTAGE=EXCLUSIF\nA_COMPLETER\n",
     "hints": [
       "Appliquer les règles dans l’ordre strict : Communauté puis Hybride puis Privé puis Public.",
@@ -96,7 +96,7 @@ module.exports = [
     "examples": [
       {
         "stdin": "DEPL nom=startup_web TENANT=MULTI RESEAU=INTERNET DONNEES=STANDARD PARTAGE=OUVERT\nDEPL nom=hopital_chru TENANT=DEDIE RESEAU=VPN_PRIVE DONNEES=SECRET PARTAGE=EXCLUSIF\nDEPL nom=banque_core TENANT=MULTI RESEAU=HYBRIDE DONNEES=SENSIBLE PARTAGE=OUVERT",
-        "expected": "MODELE: startup_web -> DEPL=PUBLIC | ISOLATION=LOGIQUE_MULTI_TENANT\nMODELE: hopital_chru -> DEPL=PRIVE | ISOLATION=ISOLE_PHYSIQUE\nMODELE: banque_core -> DEPL=HYBRIDE | ISOLATION=SEGMENTE_VPN",
+        "expected": "MODELE: startup_web -> DEPL=PUBLIC | HYPOTHESE_ISOLATION=LOGIQUE_MULTI_TENANT\nMODELE: hopital_chru -> DEPL=PRIVE | HYPOTHESE_ISOLATION=ISOLE_PHYSIQUE\nMODELE: banque_core -> DEPL=HYBRIDE | HYPOTHESE_ISOLATION=SEGMENTE_VPN",
         "note": "Le Cloud hybride articule des ressources privées locales et des extensions élastiques publiques."
       }
     ],
@@ -104,19 +104,19 @@ module.exports = [
       {
         "label": "Groupement inter-hospitalier communautaire",
         "stdin": "cas:1",
-        "expected": "MODELE: sante_region -> DEPL=COMMUNAUTAIRE | ISOLATION=RESTREINT_PAIRS"
+        "expected": "MODELE: sante_region -> DEPL=COMMUNAUTAIRE | HYPOTHESE_ISOLATION=RESTREINT_PAIRS"
       },
       {
         "label": "Environnement de dev public",
         "stdin": "cas:2",
-        "expected": "MODELE: dev_sandbox -> DEPL=PUBLIC | ISOLATION=LOGIQUE_MULTI_TENANT"
+        "expected": "MODELE: dev_sandbox -> DEPL=PUBLIC | HYPOTHESE_ISOLATION=LOGIQUE_MULTI_TENANT"
       },
       {
         "label": "Système d’armes militaire dédié",
         "stdin": "cas:3",
-        "expected": "MODELE: defense_ops -> DEPL=PRIVE | ISOLATION=ISOLE_PHYSIQUE"
+        "expected": "MODELE: defense_ops -> DEPL=PRIVE | HYPOTHESE_ISOLATION=ISOLE_PHYSIQUE"
       }
     ],
-    "solution": "[Exemple]\nMODELE: startup_web -> DEPL=PUBLIC | ISOLATION=LOGIQUE_MULTI_TENANT\nMODELE: hopital_chru -> DEPL=PRIVE | ISOLATION=ISOLE_PHYSIQUE\nMODELE: banque_core -> DEPL=HYBRIDE | ISOLATION=SEGMENTE_VPN\n\n[Cas 1 — Groupement inter-hospitalier communautaire]\nMODELE: sante_region -> DEPL=COMMUNAUTAIRE | ISOLATION=RESTREINT_PAIRS\n\n[Cas 2 — Environnement de dev public]\nMODELE: dev_sandbox -> DEPL=PUBLIC | ISOLATION=LOGIQUE_MULTI_TENANT\n\n[Cas 3 — Système d’armes militaire dédié]\nMODELE: defense_ops -> DEPL=PRIVE | ISOLATION=ISOLE_PHYSIQUE"
+    "solution": "[Exemple]\nMODELE: startup_web -> DEPL=PUBLIC | HYPOTHESE_ISOLATION=LOGIQUE_MULTI_TENANT\nMODELE: hopital_chru -> DEPL=PRIVE | HYPOTHESE_ISOLATION=ISOLE_PHYSIQUE\nMODELE: banque_core -> DEPL=HYBRIDE | HYPOTHESE_ISOLATION=SEGMENTE_VPN\n\n[Cas 1 — Groupement inter-hospitalier communautaire]\nMODELE: sante_region -> DEPL=COMMUNAUTAIRE | HYPOTHESE_ISOLATION=RESTREINT_PAIRS\n\n[Cas 2 — Environnement de dev public]\nMODELE: dev_sandbox -> DEPL=PUBLIC | HYPOTHESE_ISOLATION=LOGIQUE_MULTI_TENANT\n\n[Cas 3 — Système d’armes militaire dédié]\nMODELE: defense_ops -> DEPL=PRIVE | HYPOTHESE_ISOLATION=ISOLE_PHYSIQUE"
   }
 ];

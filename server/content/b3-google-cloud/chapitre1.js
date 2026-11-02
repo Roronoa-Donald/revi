@@ -34,8 +34,8 @@ module.exports = {
         '  </div>',
         '  <div class="card">',
         '    <h4>Zones de Disponibilité (AZ)</h4>',
-        '    <p>Chaque région comprend <strong>au moins 3 zones</strong> indépendantes (ex: <code>europe-west9-a</code>, <code>b</code>, <code>c</code>).</p>',
-        '    <p>Chaque zone dispose de son propre réseau électrique, de son propre système de refroidissement et de liaisons réseau redondantes pour éliminer tout point unique de défaillance (SPOF).</p>',
+        '    <p>Chaque région comprend <strong>au moins 3 zones</strong> (ex: <code>europe-west9-a</code>, <code>b</code>, <code>c</code>). Certaines zones peuvent partager un centre de données : consultez la <a href="https://cloud.google.com/about/locations">carte Google Cloud</a>, consultée le 30 octobre 2026.</p>',
+        '    <p>Les zones sont conçues comme des domaines de défaillance distincts. Répartir les composants et examiner leurs dépendances reste nécessaire : cette organisation ne supprime pas automatiquement tous les points uniques de défaillance (SPOF).</p>',
         '  </div>',
         '  <div class="card">',
         '    <h4>Réseau Mondial Privé (Edge)</h4>',
@@ -76,7 +76,8 @@ module.exports = {
         '  </div>',
         '</div>',
         box('warning', 'Héritage des Politiques IAM dans la Hiérarchie', [
-          '<p>Les autorisations IAM sont cumulatives et descendantes. Si un utilisateur reçoit le rôle <code>roles/viewer</code> au niveau d\'un dossier, il possède ce droit sur <strong>tous les projets</strong> et toutes les ressources contenus dans ce dossier, sans possibilité de révocation sélective au niveau inférieur (règle du « Least Privilege » à la racine).</p>'
+          '<p>Une autorisation <em>allow</em> accordée sur un dossier est héritée par ses descendants : supprimer une liaison <em>allow</em> au niveau d\'un projet ne retire pas le rôle accordé par le dossier. Toutefois, une politique IAM <em>deny</em> applicable, attachée à une organisation, un dossier ou un projet, peut refuser des permissions prises en charge pour le principal ciblé, même si un rôle hérité les accorde. Le refus ne supprime pas le rôle ; il prime sur les autorisations.</p>',
+          '<p>Une règle <em>deny</em> peut prévoir des exceptions de principaux ou de permissions ; une autre règle applicable reste évaluée. Sa condition porte sur les tags de ressource : si elle est vraie ou ne peut pas être évaluée, le refus s\'applique. La propagation des changements n\'est pas instantanée. Référence consultée le 30 octobre 2026 : <a href="https://docs.cloud.google.com/iam/docs/deny-overview">politiques IAM deny</a>.</p>'
         ])
       ].join('\n')
     },
@@ -135,7 +136,7 @@ module.exports = {
   ],
   summary: [
     'Google Cloud déploie ses services sur des Régions géographiques indépendantes comprenant chacune au moins 3 Zones de disponibilité reliées par un réseau en fibre privé.',
-    'La hiérarchie des ressources suit l\'ordre strict : Organisation (0) > Dossiers (1) > Projets (2) > Ressources (3), avec propagation descendante des autorisations IAM.',
+    'La hiérarchie des ressources suit l\'ordre Organisation > Dossiers > Projets > Ressources : les autorisations IAM allow sont héritées, mais une politique deny applicable peut refuser des permissions prises en charge.',
     'Le Project ID est l\'identifiant unique permanent mondial (6 à 30 caractères, conforme RFC 1035), tandis que le Project Name est modifiable et le Project Number est généré par Google.',
     'Les comptes de facturation (Cloud Billing) alimentent les projets, et les quotas protègent l\'infrastructure contre les emballements de consommation.',
     'Le SDK gcloud CLI et Cloud Shell constituent les outils standards d\'ingénierie pour piloter, configurer et automatiser les déploiements GCP.'
@@ -156,7 +157,7 @@ module.exports = {
   ],
   pitfalls: [
     'Tenter de modifier le Project ID après la création d\'un projet : le Project ID est strictement immuable, seul le Project Name peut être changé.',
-    'Attribuer des rôles IAM trop permissifs au niveau de l\'Organisation en supposant qu\'on pourra les révoquer au niveau d\'un projet inférieur (l\'héritage IAM est irréversible vers le bas).',
+    'Attribuer des rôles IAM trop permissifs à l\'Organisation en supposant qu\'une modification allow au niveau d\'un projet supprime le rôle hérité ; un deny applicable peut refuser certaines permissions, sous conditions.',
     'Oublier de relier un projet à un compte de facturation actif : toutes les API de calcul, de stockage et de bases de données restent bloquées.',
     'Travailler dans la mauvaise configuration gcloud CLI sans vérifier le projet actif, risquant de supprimer accidentellement des ressources de production.'
   ],
@@ -177,7 +178,7 @@ module.exports = {
       stem: 'Combien de zones de disponibilité au minimum une région Google Cloud contient-elle ?',
       opts: ['1 zone', '2 zones', '3 zones', '5 zones'],
       correct: 2,
-      exp: 'Toutes les régions Google Cloud sont composées d\'au moins 3 zones de disponibilité physiques indépendantes pour garantir la haute résilience zonale.'
+      exp: 'Une région comprend au moins 3 zones. Leur présence ne garantit pas à elle seule la haute disponibilité : celle-ci dépend notamment de la redondance des composants et du basculement.'
     },
     {
       stem: 'Quelle commande gcloud permet de définir le projet actif dans la configuration courante ?',
@@ -187,43 +188,21 @@ module.exports = {
     },
     {
       stem: 'Que se passe-t-il si un utilisateur reçoit le rôle Viewer au niveau d\'un dossier contenant 5 projets ?',
-      opts: ['L\'utilisateur doit demander une validation pour chaque projet', 'L\'utilisateur hérite automatiquement des droits de lecture sur les 5 projets sans exception', 'L\'utilisateur ne peut lire que le premier projet créé', 'Le rôle est bloqué car il doit être attribué à l\'organisation'],
+      opts: ['L\'utilisateur doit demander une validation pour chaque projet', 'Le rôle allow est hérité, mais un deny applicable peut refuser certaines permissions', 'L\'utilisateur ne peut lire que le premier projet créé', 'Le rôle est bloqué car il doit être attribué à l\'organisation'],
       correct: 1,
-      exp: 'Les politiques IAM dans la hiérarchie GCP sont descendantes et additives : un rôle accordé sur un dossier s\'applique automatiquement à tous les projets contenus.'
+      exp: 'La liaison allow est héritée par les projets descendants. Une règle deny applicable au principal et aux permissions prises en charge peut toutefois les refuser ; ses conditions et exceptions doivent être vérifiées, ainsi que les autres règles deny applicables.'
     }
   ],
   flashcards: [
-      { q: 'Qu’est-ce que « Région GCP » ?', a: "Région GCP : Emplacement géographique indépendant composé d'au moins trois zones de disponibilité isolées et reliées par un réseau à très faible latence." },
-      { q: 'Qu’est-ce que « Hiérarchie Organisationnelle » ?', a: "Hiérarchie Organisationnelle : Arborescence GCP structurée en Organisation, Dossiers, Projets et Ressources permettant la délégation et l'héritage des politiques de sécurité." },
-      { q: 'Qu’est-ce que « SDK gcloud CLI » ?', a: 'SDK gcloud CLI : Outil officiel en ligne de commande permettant de gérer et automatiser les ressources et configurations Google Cloud.' },
-      { q: 'Qu’est-ce que « Google Cloud déploie ses services sur des Régions géographiques indépendantes comprenant chacune au moins 3 Zones de disponibilité reliées par un réseau en fibre privé. » ?', a: 'Google Cloud déploie ses services sur des Régions géographiques indépendantes comprenant chacune au moins 3 Zones de disponibilité reliées par un réseau en fibre privé.' },
-      { q: "Qu’est-ce que « La hiérarchie des ressources suit l'ordre strict » ?", a: "La hiérarchie des ressources suit l'ordre strict : Organisation (0) > Dossiers (1) > Projets (2) > Ressources (3), avec propagation descendante des autorisations IAM." },
-      { q: "Qu’est-ce que « Le Project ID est l'identifiant unique permanent mondial (6 à 30 caractères, conforme RFC 1035), tandis que le Project Name est modifiable et le Project Number est généré par Google. » ?", a: "Le Project ID est l'identifiant unique permanent mondial (6 à 30 caractères, conforme RFC 1035), tandis que le Project Name est modifiable et le Project Number est généré par Google." },
-      { q: 'Qu’est-ce que « Rôle Prédéfini (Predefined Role) » ?', a: 'Rôle Prédéfini (Predefined Role) : Rôle managé par Google offrant un ensemble précis de permissions adaptées à un métier ou un service particulier.' },
-      { q: 'Qu’est-ce que « Conditions IAM (CEL) » ?', a: "Conditions IAM (CEL) : Expressions logiques basées sur Common Expression Language conditionnant l'application d'un rôle à des critères temporels ou de contexte." },
-      { q: 'Qu’est-ce que « Workload Identity Federation » ?', a: "Workload Identity Federation : Mécanisme permettant à des charges de travail externes ou conteneurisées d'accéder aux ressources GCP sans manipuler de clés privées statiques." },
-      { q: 'Qu’est-ce que « Cloud IAM applique le principe du moindre privilège en liant des Membres à des Rôles sur des Ressources ciblées. » ?', a: 'Cloud IAM applique le principe du moindre privilège en liant des Membres à des Rôles sur des Ressources ciblées.' },
-      { q: 'Qu’est-ce que « Les rôles primitifs (Viewer, Editor, Owner) sont trop permissifs et proscrits en production au profit des rôles prédéfinis ou sur mesure (Custom Roles). » ?', a: 'Les rôles primitifs (Viewer, Editor, Owner) sont trop permissifs et proscrits en production au profit des rôles prédéfinis ou sur mesure (Custom Roles).' },
-      { q: 'Qu’est-ce que « Les rôles personnalisés se composent de permissions atomiques au format service.resource.action et suivent un cycle de vie contrôlé. » ?', a: 'Les rôles personnalisés se composent de permissions atomiques au format service.resource.action et suivent un cycle de vie contrôlé.' },
-      { q: 'Qu’est-ce que « Managed Instance Group (MIG) » ?', a: "Managed Instance Group (MIG) : Groupe de machines virtuelles identiques gérées automatiquement avec fonctions d'auto-scaling, d'auto-healing et de mises à jour progressives." },
-      { q: 'Qu’est-ce que « Google Compute Engine propose des séries adaptées (E2 économique, N2 équilibrée, C2 calcul) avec un SLA atteignant 99.99% en déploiement multi-zones. » ?', a: 'Google Compute Engine propose des séries adaptées (E2 économique, N2 équilibrée, C2 calcul) avec un SLA atteignant 99.99% en déploiement multi-zones.' },
-      { q: "Qu’est-ce que « Les Groupes d'Instances Gérés (MIG) garantissent l'élasticité automatique (Auto-scaling) et la tolérance aux pannes (Auto-healing) via des sondes de santé. » ?", a: "Les Groupes d'Instances Gérés (MIG) garantissent l'élasticité automatique (Auto-scaling) et la tolérance aux pannes (Auto-healing) via des sondes de santé." },
-      { q: "Qu’est-ce que « GKE Autopilot décharge l'équipe de la maintenance des nœuds Kubernetes et facture uniquement les ressources réellement allouées aux Pods. » ?", a: "GKE Autopilot décharge l'équipe de la maintenance des nœuds Kubernetes et facture uniquement les ressources réellement allouées aux Pods." },
-      { q: 'Qu’est-ce que « Virtual Private Cloud (VPC) » ?', a: 'Virtual Private Cloud (VPC) : Réseau virtuel privé mondial logiciel (SDN) fournissant connectivité et isolation aux ressources Google Cloud.' },
-      { q: 'Qu’est-ce que « URL Map » ?', a: "URL Map : Composant de routage du Load Balancer Google Cloud acheminant le trafic vers différents services backend selon l'hôte et le chemin HTTP." },
-      { q: 'Qu’est-ce que « Un réseau VPC Google Cloud est mondial par défaut, composé de sous-réseaux régionaux indépendants. » ?', a: 'Un réseau VPC Google Cloud est mondial par défaut, composé de sous-réseaux régionaux indépendants.' },
-      { q: "Qu’est-ce que « Chaque sous-réseau réserve 4 adresses IP (.0, .1, .2 et .255), ramenant le nombre d'hôtes disponibles à 2^(32-prefix) - 4. » ?", a: "Chaque sous-réseau réserve 4 adresses IP (.0, .1, .2 et .255), ramenant le nombre d'hôtes disponibles à 2^(32-prefix) - 4." },
-      { q: "Qu’est-ce que « Cloud NAT permet aux instances privées d'accéder à Internet en toute sécurité sans exposer d'adresses IP publiques. » ?", a: "Cloud NAT permet aux instances privées d'accéder à Internet en toute sécurité sans exposer d'adresses IP publiques." },
-      { q: 'Qu’est-ce que « Firestore » ?', a: 'Firestore : Base de données NoSQL orientée documents offrant une synchronisation en temps réel et un support hors-ligne pour applications web et mobiles.' },
-      { q: 'Qu’est-ce que « Cloud Storage offre 11 9s de durabilité avec 4 classes de stockage optimisées pour le coût (Standard, Nearline, Coldline, Archive). » ?', a: 'Cloud Storage offre 11 9s de durabilité avec 4 classes de stockage optimisées pour le coût (Standard, Nearline, Coldline, Archive).' },
-      { q: "Qu’est-ce que « L'Object Lifecycle Management migre automatiquement les objets sans intervention humaine selon des règles d'âge. » ?", a: "L'Object Lifecycle Management migre automatiquement les objets sans intervention humaine selon des règles d'âge." },
-      { q: 'Qu’est-ce que « Cloud SQL gère MySQL, PostgreSQL et SQL Server en régional avec HA, tandis que Cloud Spanner fournit du NewSQL mondial à cohérence stricte avec 99.999% de SLA. » ?', a: 'Cloud SQL gère MySQL, PostgreSQL et SQL Server en régional avec HA, tandis que Cloud Spanner fournit du NewSQL mondial à cohérence stricte avec 99.999% de SLA.' },
-      { q: 'Qu’est-ce que « Cloud Operations Suite » ?', a: "Cloud Operations Suite : Ensemble unifié d'outils d'observabilité Google Cloud regroupant Monitoring, Logging, Trace, Profiler et Error Reporting." },
-      { q: 'Qu’est-ce que « Committed Use Discount (CUD) » ?', a: "Committed Use Discount (CUD) : Remise contractuelle substantielle accordée par Google en échange d'un engagement d'utilisation continue de ressources sur 1 ou 3 ans." },
-      { q: 'Qu’est-ce que « Backend Terraform GCS » ?', a: "Backend Terraform GCS : Configuration stockant le fichier d'état terraform.tfstate dans un bucket Google Cloud Storage avec gestion des versions et verrouillage automatique." },
-      { q: 'Qu’est-ce que « Cloud Monitoring supervise les métriques système et déclenche des alertes configurées vers Slack, PagerDuty ou Email. » ?', a: 'Cloud Monitoring supervise les métriques système et déclenche des alertes configurées vers Slack, PagerDuty ou Email.' },
-      { q: "Qu’est-ce que « Cloud Logging centralise tous les événements d'infrastructure et permet l'archivage à long terme via des Log Sinks vers BigQuery ou Cloud Storage. » ?", a: "Cloud Logging centralise tous les événements d'infrastructure et permet l'archivage à long terme via des Log Sinks vers BigQuery ou Cloud Storage." },
-      { q: "Qu’est-ce que « Cloud Trace et Cloud Profiler identifient avec précision les goulots d'étranglement de latence et de mémoire dans le code applicatif. » ?", a: "Cloud Trace et Cloud Profiler identifient avec précision les goulots d'étranglement de latence et de mémoire dans le code applicatif." },
+      { q: "Qu’est-ce que « La hiérarchie des ressources suit l'ordre strict » ?", a: "Organisation > Dossiers > Projets > Ressources : les autorisations allow sont héritées, mais un deny applicable peut refuser des permissions prises en charge." },
+      { q: "Comment distinguer Project ID, Project Name et Project Number dans Google Cloud ?", a: "L'ID est mondial et immuable, de 6 à 30 caractères avec une syntaxe de type RFC 1035 ; le nom est modifiable et le numéro est attribué par Google." },
+      { q: "Comment les groupes d'instances gérés (MIG) améliorent-ils l'élasticité et la disponibilité ?", a: "L'autoscaling ajuste le nombre de VM ; l'autohealing configuré utilise une sonde de santé pour recréer une instance défaillante." },
+      { q: "Que prend en charge GKE Autopilot et comment sont facturées ses ressources ?", a: "Google gère les nœuds ; la facturation porte généralement sur les ressources demandées par les Pods, parfois sur les nœuds, avec d'éventuels frais de cluster." },
+      { q: "Quelles adresses IPv4 une plage principale de sous-réseau Google Cloud réserve-t-elle ?", a: "Les deux premières et les deux dernières : en /24, .0, .1, .254 et .255. Il reste 2^(32-p) - 4 adresses utilisables pour un préfixe /p autorisé ; la plage comporte au moins huit adresses." },
+      { q: "Comment Public Cloud NAT donne-t-il un accès sortant aux VM sans IP publique ?", a: "Il traduit leur adresse privée en une adresse IP publique du NAT pour les connexions sortantes, sans exposer directement les VM." },
+      { q: "Que peut automatiser Object Lifecycle Management dans Cloud Storage ?", a: "Selon des règles comme l'âge, il peut changer la classe de stockage ou supprimer des objets." },
+      { q: "Comment Cloud Logging peut-il conserver ou analyser durablement des journaux ?", a: "Il collecte les journaux configurés et des sinks peuvent les router vers Cloud Storage ou BigQuery." },
+      { q: "Comment Cloud Trace et Cloud Profiler aident-ils à diagnostiquer les performances ?", a: "Trace mesure la latence des requêtes ; Profiler échantillonne notamment l'utilisation du processeur et de la mémoire par le code." },
     {
       q: 'Quels sont les 4 niveaux de la hiérarchie Google Cloud ?',
       a: '1. Organisation (racine liée au domaine) ; 2. Dossiers (Folders) ; 3. Projets ; 4. Ressources.'
@@ -242,7 +221,7 @@ module.exports = {
     },
     {
       q: 'Comment s\'applique l\'héritage des autorisations IAM dans la hiérarchie ?',
-      a: 'L\'héritage est descendant et cumulatif : un rôle accordé à un niveau parent s\'applique obligatoirement à tous les enfants.'
+      a: 'Une liaison allow est héritée par les descendants. Une règle deny applicable peut refuser des permissions prises en charge pour le principal, sous réserve de ses conditions et exceptions.'
     },
     {
       q: 'Quelle est la différence entre le niveau réseau Premium Tier et Standard Tier dans GCP ?',

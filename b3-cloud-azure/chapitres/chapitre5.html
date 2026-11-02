@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -131,11 +131,9 @@
     <h4>Signatures d'Accès Partagé (SAS Tokens)</h4>
     <ul>
       <li><strong>Principe :</strong> URL signée temporaire accordant un accès granulaire sans divulguer la clé maîtresse du compte de stockage.</li>
-      <li><strong>Paramètres clés :</strong>
-        <br>- <code>sp</code> (Permissions) : <code>r</code> (read), <code>w</code> (write), <code>d</code> (delete), <code>l</code> (list).
-        <br>- <code>st</code> / <code>se</code> : date de début et d'expiration stricte.
-        <br>- <code>spr=https</code> : impose le protocole HTTPS sécurisé.
-      <li><strong>User Delegation SAS :</strong> signée avec une identité Entra ID pour une traçabilité totale des accès dans les logs d'audit.</li>
+      <li><strong>SAS de compte :</strong> les champs requis sont <code>sv</code> (version), <code>ss</code> (services), <code>srt</code> (types de ressources), <code>sp</code> (permissions), <code>se</code> (expiration UTC) et <code>sig</code> (signature calculée avec une clé du compte). Voir la <a href="https://learn.microsoft.com/en-us/rest/api/storageservices/create-account-sas">référence Microsoft</a>.</li>
+      <li><strong>Restrictions facultatives :</strong> <code>st</code> fixe le début de validité ; sans ce champ, l'accès commence à la réception de la requête. <code>spr</code> est également facultatif : par défaut il autorise <code>https,http</code>, sous réserve des règles du compte ; <code>spr=https</code> limite le jeton à HTTPS.</li>
+      <li><strong>Autres types :</strong> un SAS de service peut cibler un blob précis. Un SAS de délégation utilisateur est signé avec une clé de délégation obtenue grâce à une identité Microsoft Entra ; ses champs diffèrent de ceux du SAS de compte.</li>
     </ul>
   </div>
   <div class="card">
@@ -148,9 +146,11 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="az3-c5-e1" data-lab
      data-exercise="az3-c5-e1"
      data-language="analyse"
@@ -176,10 +176,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Simulateur de cycle de vie Azure Blob Storage</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="az3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Appliquer des règles de gestion automatique du cycle de vie des données Blob Storage (Hot -&gt; Cool -&gt; Archive -&gt; Delete) et mesurer les économies financières.</p>
     <div class="lab__brief"><p>Azure Blob Lifecycle Management permet de transférer automatiquement des données froides vers des paliers de stockage moins coûteux ou de les purger.<br><br>
 Tarification de référence mensuelle par Go :<br>
@@ -208,13 +210,7 @@ BLOB name=log-recent.csv size_gb=10 age_days=10
 BLOB name=backup-q1.bak size_gb=100 age_days=45
 BLOB name=archive-2023.tar size_gb=500 age_days=120
 BLOB name=temp-2022.tmp size_gb=50 age_days=400</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BLOB log-recent.csv: age=10d TARGET_TIER=HOT COST=$0.1840
-BLOB backup-q1.bak: age=45d TARGET_TIER=COOL COST=$1.0000
-BLOB archive-2023.tar: age=120d TARGET_TIER=ARCHIVE COST=$0.4950
-BLOB temp-2022.tmp: age=400d TARGET_TIER=DELETED COST=$0.0000
-TOTAL_HOT=$12.14 TOTAL_OPTIMIZED=$1.68 SAVINGS=86.2%</pre></div>
     </div>
-    <p class="lab__note">Migration vers Cool, Archive et suppression générant 86.2% d'économies.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -230,7 +226,7 @@ TOTAL_HOT=$12.14 TOTAL_OPTIMIZED=$1.68 SAVINGS=86.2%</pre></div>
      data-language="analyse"
      data-height="300"
      data-stdin="SAS_CONFIG sp=rw st=100 se=200 spr=https&#10;REQUEST method=GET time=150 proto=https&#10;REQUEST method=DELETE time=150 proto=https">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c5-e2) — Validateur de requêtes avec jetons SAS
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c5-e2) — Validateur de requêtes avec jetons SAS (modèle fictif)
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
 [Cas 1 — Vérification normale des permissions PUT et LIST]
@@ -256,12 +252,14 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Validateur de requêtes avec jetons SAS</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Valider la conformité d’appels API clients face aux permissions, plages horaires et protocoles imposés par un jeton de signature d’accès partagé (SAS).</p>
-    <div class="lab__brief"><p>Les jetons de signature d'accès partagé (Azure SAS Tokens) délèguent un accès restreint aux ressources de stockage en précisant les permissions accordées, une fenêtre temporelle et un protocole strict.<br><br>
+    <p class="lab__formative-notice" id="az3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser un modèle fictif de permissions, dates et protocoles, sans valider une signature SAS réelle.</p>
+    <div class="lab__brief"><p>Ce modèle fictif examine seulement des permissions, des horaires et un protocole : il ne vérifie pas la signature et ne valide pas un vrai jeton SAS. Un SAS de compte réel requiert sv, ss, srt, sp, se et sig ; st et spr sont optionnels, même si les deux sont fournis dans tous les cas de cet exercice. Sans spr, le SAS de compte autorise par défaut https,http, sous réserve des règles du compte.<br><br>
 Format d'entrée :<br>
 Ligne 1 : Configuration du jeton SAS :<br>
 <code>SAS_CONFIG sp=&lt;perms&gt; st=&lt;int&gt; se=&lt;int&gt; spr=&lt;protocol&gt;</code><br>
@@ -269,9 +267,9 @@ Ligne 1 : Configuration du jeton SAS :<br>
 - <code>st</code> : horodatage début de validité (entier)<br>
 - <code>se</code> : horodatage fin de validité (entier)<br>
 - <code>spr</code> : protocole imposé (<code>https</code> ou <code>https,http</code>)<br><br>
-Lignes suivantes : Requêtes HTTP clientes :<br>
+Lignes suivantes : opérations clientes fictives (LIST est ici une étiquette, pas une méthode HTTP) :<br>
 <code>REQUEST method=&lt;GET|PUT|DELETE|LIST&gt; time=&lt;int&gt; proto=&lt;http|https&gt;</code><br><br>
-Correspondance des méthodes HTTP avec les permissions SAS :<br>
+Correspondance des opérations fictives avec les permissions du modèle :<br>
 - <code>GET</code> requiert <code>r</code><br>
 - <code>PUT</code> requiert <code>w</code><br>
 - <code>DELETE</code> requiert <code>d</code><br>
@@ -291,14 +289,11 @@ Ordre strict d'évaluation de la requête :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SAS_CONFIG sp=rw st=100 se=200 spr=https
 REQUEST method=GET time=150 proto=https
 REQUEST method=DELETE time=150 proto=https</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>REQUEST GET at 150: ALLOWED
-REQUEST DELETE at 150: DENIED (reason=INSUFFICIENT_PERMISSIONS)</pre></div>
     </div>
-    <p class="lab__note">Lecture autorisée mais suppression interdite par le jeton SAS (permissions rw uniquement).</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Créer un dictionnaire associant chaque méthode HTTP à sa lettre de permission (GET: r, PUT: w, DELETE: d, LIST: l).</li>
+        <li>Associez chaque opération fictive à sa lettre de permission : GET à r, PUT à w, DELETE à d et LIST à l.</li>
         <li>Respecter l'ordre prescrit des contrôles d'erreur : protocole, puis anticipé, puis expiré, puis permissions.</li>
       </ol>
     </details>
@@ -331,10 +326,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Sélecteur d'architecture de données Azure</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="az3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Analyser les besoins fonctionnels et recommander le service de stockage ou de base de données managé Azure adéquat.</p>
     <div class="lab__brief"><p>Azure dispose d'une gamme diversifiée de services de données managés. Le choix dépend du modèle de données (relationnel, NoSQL, fichiers, objets) et des contraintes d'infrastructure.<br><br>
 Matrice de décision Azure :<br>
@@ -354,10 +351,7 @@ Format de sortie attendu :<br>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REQUIREMENT workload=app-erp model=RELATIONAL
 REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DECISION workload=app-erp: SERVICE=Azure_SQL_Database JUSTIFICATION="Moteur relationnel transactionnel ACID et compatibilité T-SQL"
-DECISION workload=mobile-cart: SERVICE=Azure_Cosmos_DB JUSTIFICATION="Base NoSQL multi-modèle distribuée mondialement avec latence garantie &lt; 10ms"</pre></div>
     </div>
-    <p class="lab__note">Sélection d'Azure SQL pour l'ERP et Cosmos DB pour le panier mobile.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -367,6 +361,7 @@ DECISION workload=mobile-cart: SERVICE=Azure_Cosmos_DB JUSTIFICATION="Base NoSQL
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -409,7 +404,7 @@ DECISION workload=mobile-cart: SERVICE=Azure_Cosmos_DB JUSTIFICATION="Base NoSQL
         <button class="opt">tls=1.3</button>
         <button class="opt">secure=yes</button>
       </div>
-      <div class="q__exp">Le paramètre spr (Signed Protocol) configuré à spr=https contraint le client à utiliser uniquement le protocole HTTPS, rejetant toute requête transmise en HTTP non sécurisé.</div>
+      <div class="q__exp">Le paramètre spr est facultatif ; sans lui, le SAS de compte autorise par défaut https,http, sous réserve des règles du compte. spr=https limite ce SAS à HTTPS.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans quelles circonstances devez-vous recommander Azure Cosmos DB plutôt qu'Azure SQL Database ?</p>
@@ -493,7 +488,7 @@ DECISION workload=mobile-cart: SERVICE=Azure_Cosmos_DB JUSTIFICATION="Base NoSQL
       <li>Savez-vous dans quels cas utiliser Azure Files (SMB/NFS) plutôt qu'un conteneur Azure Blob ?</li>
       <li>Connaissez-vous les durées minimales de facturation associées aux paliers Cool (30 j), Cold (90 j) et Archive (180 j) ?</li>
       <li>Pouvez-vous expliquer le phénomène de réhydratation lors de la lecture d'un blob archivé ?</li>
-      <li>Savez-vous composer les paramètres obligatoires d'un jeton SAS sécurisé (sp=r, spr=https, fenêtre temporelle courte) ?</li>
+      <li>Savez-vous distinguer les champs requis d'un SAS de compte des restrictions facultatives recommandées, comme spr=https ?</li>
       <li>Quand devez-vous choisir Azure Cosmos DB plutôt qu'Azure SQL Database ?</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
@@ -510,7 +505,7 @@ DECISION workload=mobile-cart: SERVICE=Azure_Cosmos_DB JUSTIFICATION="Base NoSQL
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong><strong>Conception de politiques de cycle de vie de stockage d'entreprise :</strong> Définir des règles déclaratives Azure Blob Lifecycle automatisant la descente en Cool, Cold et Archive pour optimiser le TCO de pétaoctets de logs.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong><strong>Conception de politiques de cycle de vie de stockage d'entreprise :</strong> Définir des règles déclaratives Azure Blob Lifecycle automatisant la descente en Cool, Cold et Archive pour optimiser le TCO de pétaoctets de logs.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong><strong>Architecture sécurisée avec Private Endpoints et SAS User Delegation :</strong> Bannir l'accès public Internet aux comptes de stockage et déléguer des autorisations de téléchargement sécurisées via Entra ID.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong><strong>Plan de reprise d'activité (PRA) avec réplication GZRS :</strong> Configurer la réplication géo-redondante inter-régions et simuler le basculement d'un compte de stockage en cas de sinistre continental.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong><strong>Développement d'outils d'analyse de stockage de manière méthodique :</strong> Concevoir des calculateurs de coûts de transition, des validateurs de syntaxe SAS et des sélecteurs de moteurs de base de données.</div>

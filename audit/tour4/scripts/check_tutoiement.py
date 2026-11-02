@@ -63,7 +63,7 @@ total_tu_occurrences = 0
 
 for p in sorted(glob.glob(os.path.join(ROOT, "*/*.html")) + glob.glob(os.path.join(ROOT, "*/chapitres/*.html")) + glob.glob(os.path.join(ROOT, "*/exercices/*.html"))):
     rel = os.path.relpath(p, ROOT)
-    if rel.startswith(("audit/", "dist/", "node_modules/", "_auth/", "revi-cours-html/", "roadmap/")):
+    if rel.startswith(("audit/", "dist/", "node_modules/", "_auth/")):
         continue
     html = open(p, encoding="utf-8", errors="ignore").read()
     blocks = visible_text_blocks(html)

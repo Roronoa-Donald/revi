@@ -32,7 +32,7 @@ module.exports = [
       'définir entité, occurrence, association et propriété dans le formalisme entité-association ;',
       'choisir un identifiant stable, minimal et univalué ;',
       'poser les cardinalités (min,max) correctes des deux côtés d\'une association ;',
-      'distinguer association hiérarchique et association porteuse de données.'
+      'distinguer les cardinalités d’une association et les propriétés qu’elle porte.'
     ],
 
     sections: [
@@ -60,8 +60,9 @@ module.exports = [
           'AdrClt         (QteCdée)     PrixPrdt\n',
           'TelClt\n',
           '\n',
-          'association hiérarchique : aucune donnée portée\n',
-          'association porteuse     : des données (QteCdée, Montant...)</code></pre>',
+          'association hiérarchique : maximum 1 sur au moins un côté\n',
+          'association porteuse     : des données (QteCdée, Montant...)\n',
+          'Les deux notions ne sont pas exclusives.</code></pre>',
           box('mnemo', 'Mnémotechnique — « lire la cardinalité depuis l\'entité »', 'pin',
             '    <p>La cardinalité se lit <strong>depuis l\'entité qu\'elle orne</strong> : côté Client, ' +
             '(0,n) Commander signifie « un client commande zéro ou plusieurs produits ». En examen, pose ' +
@@ -74,19 +75,19 @@ module.exports = [
           '<p>Méthode du support : partir des règles de gestion, les traduire en cardinalités, puis dessiner. ' +
           'Application TogoMall : « un client est considéré comme tel à partir de sa première facture » et ' +
           '« une facture concerne un et un seul client ».</p>',
-          '<p>Traduction : CLIENT <strong>1,1 — émettre — 1,n</strong> FACTURE. Le côté facture porte 1,1 ' +
+          '<p>Traduction : CLIENT <strong>1,n — émettre — 1,1</strong> FACTURE. Le côté facture porte 1,1 ' +
           '(une facture a exactement un client) ; le côté client porte 1,n (un client a au moins une ' +
           'facture — c\'est ce qui le définit). Si l\'énoncé disait « un prospect peut exister sans facture », ' +
           'le min passerait à 0 : 0,n.</p>',
           '<p>Vérifications systématiques avant de rendre le schéma : chaque entité a un identifiant ; ' +
-          'chaque association porteuse liste ses données (Qté commandée, montant) ; les associations ' +
-          'hiérarchiques (Appartenir entre Produit et Catégorie) ne portent rien ; aucune donnée ne ' +
+          'chaque association liste ses éventuelles données (Qté commandée, montant), indépendamment ' +
+          'de ses cardinalités ; aucune donnée ne ' +
           'apparaît deux fois ; les cardinalités se justifient chacune par une phrase du métier.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
             '    <ul>\n' +
             '      <li>Cardinalité posée du mauvais côté : elle se lit depuis l\'entité qu\'elle orne.</li>\n' +
             '      <li>Identifiant instable (un numéro de téléphone) ou non univalué : il ne distingue plus les occurrences.</li>\n' +
-            '      <li>Données portées sur une association hiérarchique : Appartenir ne porte rien, Commander porte QtéCdée.</li>\n' +
+            '      <li>Déduire les cardinalités de la présence ou non de données portées.</li>\n' +
             '      <li>Entité sans identifiant : toute entité du MCD en possède un, sans exception.</li>\n' +
             '    </ul>')
         ].join('\n')
@@ -99,15 +100,15 @@ module.exports = [
       { q: '(0,n) côté Client sur Commander signifie…', opts: ['un client commande au moins un produit', 'un client commande zéro ou plusieurs produits', 'un produit a plusieurs clients'], correct: 1, exp: 'La cardinalité se lit depuis l\'entité qu\'elle orne : zéro à plusieurs.' },
       { q: '« Une facture concerne un et un seul client » se traduit par…', opts: ['1,n côté Facture', '1,1 côté Facture', '0,1 côté Facture'], correct: 1, exp: 'Exactement un client par facture : (1,1).' },
       { q: '« Un client existe dès sa première facture » donne côté Client…', opts: ['0,n', '1,n', '1,1'], correct: 1, exp: 'Au moins une facture : min = 1 ; plusieurs possibles : max = n.' },
-      { q: 'L\'association Commander porte QtéCdée : elle est…', opts: ['hiérarchique', 'porteuse', 'réflexive'], correct: 1, exp: 'Une association avec des données portées est non hiérarchique (porteuse).' },
-      { q: 'Appartenir (Produit — Catégorie) sans donnée portée est…', opts: ['hiérarchique', 'porteuse', 'invalide'], correct: 0, exp: 'Sans donnée portée, l\'association est hiérarchique.' },
+      { q: 'L\'association Commander porte QtéCdée : que peut-on en déduire ?', opts: ['Ses deux maximums sont forcément n', 'Elle porte une propriété', 'Elle est forcément réflexive'], correct: 1, exp: 'La propriété portée ne détermine pas les cardinalités.' },
+      { q: 'Une association sans donnée portée peut-elle avoir deux maximums n ?', opts: ['Oui', 'Non', 'Seulement si elle est réflexive'], correct: 0, exp: 'Une association n–n peut être sans propriété : ses cardinalités restent déterminantes.' },
       { q: 'Un identifiant composé est…', opts: ['interdit', 'constitué de plusieurs propriétés élémentaires', 'une clé étrangère'], correct: 1, exp: 'Plusieurs propriétés élémentaires forment ensemble l\'identifiant (NumCde + RefPdt).' }
     ],
 
     pitfalls: [
       'Poser (1,1) côté client quand l\'énoncé dit « un et un seul client par facture » : le (1,1) est côté facture.',
       'Oublier le min de la cardinalité : (n) seul ne veut rien dire, il faut (min,max).',
-      'Porter des données sur une association hiérarchique ou inversement.',
+      'Déduire les cardinalités de la seule présence de données portées.',
       'Choisir un identifiant mutable (téléphone, e-mail) : il doit rester stable.'
     ],
 
@@ -123,7 +124,7 @@ module.exports = [
       'Le MCD (MEA) organise propriétés en entités reliées par des associations.',
       'Identifiant : stable, minimal, univalué ; simple ou composé.',
       'Cardinalités (min,max) : 0,1 ; 1,1 ; 0,n ; 1,n — lues depuis l\'entité qu\'elles ornent.',
-      'Association hiérarchique : sans données portées. Porteuse : avec données (Qté, montant).'
+      'Une association peut porter des données ; sa traduction dépend aussi des cardinalités.'
     ],
 
     checklist: [
@@ -141,7 +142,7 @@ module.exports = [
       '<strong>Identifiant</strong> : propriété(s) discriminante(s), stable, minimale, univaluée.',
       '<strong>Cardinalité</strong> : couple (min,max) posé de chaque côté d\'une association.',
       '<strong>Association porteuse</strong> : porte des données (QtéCdée, Montant).',
-      '<strong>Association hiérarchique</strong> : ne porte aucune donnée.'
+      '<strong>Association hiérarchique</strong> : maximum 1 sur au moins un côté ; elle peut porter des données.'
     ],
 
     mastery: [
@@ -156,7 +157,7 @@ module.exports = [
       { q: 'Les trois qualités d\'un identifiant ?', a: 'Stable, minimal, univalué (il distingue chaque occurrence sans ambiguïté).' },
       { q: 'Les quatre cardinalités usuelles ?', a: '(0,1) au plus une ; (1,1) exactement une ; (0,n) zéro à plusieurs ; (1,n) au moins une.' },
       { q: 'Comment se lit une cardinalité ?', a: 'Depuis l\'entité qu\'elle orne : (0,n) sur Commander côté Client = un client commande zéro ou plusieurs produits.' },
-      { q: 'Association porteuse vs hiérarchique ?', a: 'Porteuse : elle porte des données (QtéCdée) et deviendra une table au MLD ; hiérarchique : rien à porter.' }
+      { q: 'Association porteuse vs hiérarchique ?', a: 'Porteuse décrit des propriétés ; hiérarchique décrit une cardinalité maximale à 1. Une association peut réunir les deux.' }
     ]
   },
 
@@ -170,7 +171,7 @@ module.exports = [
 
     situation:
       'Le MCD est validé par le métier, mais l\'ordinateur ne comprend pas les bulles et les patates. ' +
-      'Le MLD traduit : chaque entité devient une table, chaque association porteuse aussi, et les ' +
+      'Le MLD traduit : chaque entité devient une table, une association n–n une table de liaison, et les ' +
       'cardinalités deviennent des clés primaires et étrangères. C\'est la forme machinale du modèle — ' +
       'celle que le SGBD exécutera.',
 
@@ -183,10 +184,6 @@ module.exports = [
 
     sections: [
       {
-        "title": "Repère autonome : Lire et comprendre les mots-clés SQL du MLD (CREATE TABLE, PRIMARY KEY, REFERENCES)",
-        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Comprendre la traduction SQL sans attendre le cours de SQL</div><p>Lorsqu’un Modèle Logique de Données (MLD) est traduit en script de création de table, seules trois expressions du langage SQL (approfondies dans le cours <em>SQL B1</em>) sont utilisées :</p><ul><li><code>CREATE TABLE NomTable (...)</code> : crée une relation (table) dont chaque colonne est suivie de son type (<code>INT</code> pour un entier, <code>VARCHAR(n)</code> pour un texte) ;</li><li><code>PRIMARY KEY</code> : désigne l’identifiant unique de la table (souligné dans le MLD) ;</li><li><code>FOREIGN KEY (col) REFERENCES AutreTable(id)</code> : matérialise une clé étrangère (précédée de <code>#</code> dans le MLD) qui pointe vers la clé primaire d’une table parente.</li></ul></div>"
-      },
-      {
         title: 'Tables, clés et règles de passage',
         html: [
           '<p>Le <strong>MLD</strong> est la forme machinale du MCD : il s\'appuie sur le modèle ' +
@@ -194,20 +191,20 @@ module.exports = [
           'd\'information manipulable ; la <strong>table</strong> (ou relation) est un ensemble d\'attributs ' +
           'significativement associés ; chaque ligne (tuple) est distinguée par une <strong>clé</strong>.</p>',
           '<p>Deux types de clés : la <strong>clé primaire</strong> (simple ou composée) identifie chaque ' +
-          'ligne ; la <strong>clé étrangère</strong> est un attribut qui est clé primaire d\'une autre table ' +
-          '— elle porte les liens du système d\'information et se note avec un # :</p>',
+          'ligne ; la <strong>clé étrangère</strong> est un ou plusieurs attributs qui référencent une clé primaire ou unique ' +
+          'de la table cible, éventuellement la même table. Elle porte un lien et se note avec un # :</p>',
           '<pre><code>CLIENT (NumClt, NomClt, AdrClt)\n',
           'COMMANDE (NumCde, DateCde, #NumClt)\n',
           'LIGNE_CDE (#NumCde, #RefPdt, Quantite)</code></pre>',
           '<p>Les règles de passage du MCD au MLD :</p>',
           '<ul>\n' +
           '    <li><strong>Règle 1</strong> : toute entité devient une table ; son identifiant devient clé primaire, ses propriétés deviennent des attributs.</li>\n' +
-          '    <li><strong>Règle 2</strong> : toute association non hiérarchique (porteuse, max = n) devient une table ; sa clé primaire est la concaténation des identifiants des entités participantes.</li>\n' +
-          '    <li><strong>Règle 3</strong> : toute association hiérarchique avec une cardinalité (0,1) ou (1,1) migre sa clé comme étrangère dans la table côté (0,1)/(1,1) — pas de table nouvelle.</li>\n' +
+          '    <li><strong>Règle 2</strong> : une association binaire n–n devient une table de liaison, même sans propriété ; si chaque couple est unique, les deux identifiants forment sa clé composée.</li>\n' +
+          '    <li><strong>Règle 3</strong> : pour une association 1–n, la clé migre dans la table du côté de maximum 1, avec les éventuelles propriétés de l’association. Pour 1–1, choisir le côté selon les contraintes et ajouter l’unicité nécessaire.</li>\n' +
           '  </ul>',
-          box('mnemo', 'Mnémotechnique — « entité = table, porteuse = table, (x,1) = # »', 'pin',
-            '    <p>Deux règles créent des tables (entité, association porteuse) ; la troisième déplace une ' +
-            'clé. Un # dans le schéma = un lien vers une autre table, donc une intégrité à surveiller.</p>')
+          box('mnemo', 'Mnémotechnique — « entité = table, n–n = liaison, 1–n = # »', 'pin',
+            '    <p>Ce sont les cardinalités, et non la seule présence de propriétés, qui guident la traduction. ' +
+            'Un # indique un lien dont l’intégrité reste à contrôler.</p>')
         ].join('\n')
       },
       {
@@ -217,7 +214,7 @@ module.exports = [
           '<ul>\n' +
           '    <li><strong>Intégrité de domaine</strong> : chaque attribut respecte son domaine de valeurs (une quantité est un entier positif).</li>\n' +
           '    <li><strong>Intégrité de relation</strong> : la clé primaire est unique et non nulle — deux clients ne peuvent porter le même numéro, aucun client ne va sans numéro.</li>\n' +
-          '    <li><strong>Intégrité référentielle</strong> : une clé étrangère doit référencer une clé primaire existante — pas de NumClt 25 dans COMMANDE si les clients vont de 1 à 15.</li>\n' +
+          '    <li><strong>Intégrité référentielle</strong> : une clé étrangère référence une clé primaire ou unique existante, sous réserve des règles propres à NULL — pas de NumClt 25 dans COMMANDE si les clients vont de 1 à 15.</li>\n' +
           '  </ul>',
           '<p>Le MLD peut ensuite être transformé en fichiers et en base de données (MPD) : choix du SGBD, ' +
           'des types SQL, des index. Le schéma relationnel textuel est le document de passage entre ' +
@@ -225,22 +222,26 @@ module.exports = [
           box('pitfall', 'Confusions d\'examen', 'warning',
             '    <ul>\n' +
             '      <li>Oublier le # sur une clé étrangère : le lien disparaît du schéma.</li>\n' +
-            '      <li>Créer une table pour une association hiérarchique (x,1) : sa clé migre comme étrangère, point.</li>\n' +
+            '      <li>Oublier une table de liaison n–n parce que l’association ne porte aucune donnée.</li>\n' +
             '      <li>Confondre intégrité de relation (clé unique) et référentielle (fk existe dans la table référencée).</li>\n' +
             '      <li>MLD ≠ MPD : le MLD est logique (tables), le MPD est physique (SGBD, index, fichiers).</li>\n' +
             '    </ul>')
         ].join('\n')
+      },
+      {
+        "title": "Pour aller plus loin : Lire et comprendre les mots-clés SQL du MLD (CREATE TABLE, PRIMARY KEY, REFERENCES)",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Comprendre la traduction SQL sans attendre le cours de SQL</div><p>Exemples de mots-clés SQL (approfondis dans le cours <em>SQL B1</em>) :</p><ul><li><code>CREATE TABLE NomTable (...)</code> : crée une table ;</li><li><code>PRIMARY KEY</code> : désigne la clé primaire ;</li><li><code>FOREIGN KEY (col) REFERENCES AutreTable(code)</code> : référence une clé primaire ou une clé unique admissible de la table cible. Une clé étrangère peut comporter plusieurs colonnes.</li></ul></div>"
       }
     ],
 
     questions: [
       { q: 'Le MLD est…', opts: ['la forme machinale du MCD', 'une copie du MCD', 'le modèle physique'], correct: 0, exp: 'Le MCD n\'est pas compréhensible par l\'ordinateur ; le MLD est sa forme machinale (relationnelle).' },
-      { q: 'Une clé étrangère est…', opts: ['une clé primaire d\'une autre table', 'un attribut décoratif', 'toujours composée'], correct: 0, exp: 'Elle est clé primaire ailleurs et crée le lien entre les tables.' },
+      { q: 'Une clé étrangère est…', opts: ['un ou plusieurs attributs référençant une clé primaire ou unique', 'un attribut décoratif', 'toujours composée'], correct: 0, exp: 'Elle référence une clé primaire ou unique admissible, dans la même table ou une autre ; elle peut être simple ou composée.' },
       { q: 'Le symbole # marque…', opts: ['la clé primaire', 'la clé étrangère', 'un commentaire'], correct: 1, exp: 'COMMANDE (NumCde, DateCde, #NumClt) : NumClt référence CLIENT.' },
       { q: 'Règle 1 du passage MCD → MLD :', opts: ['toute entité devient une table', 'toute association devient une table', 'rien ne change'], correct: 0, exp: 'L\'identifiant devient clé primaire, les propriétés deviennent attributs.' },
-      { q: 'Une association porteuse (max n) devient…', opts: ['une table dont la clé est la concaténation des identifiants', 'un attribut', 'une vue'], correct: 0, exp: 'Règle 2 : clé primaire = concaténation des identifiants des entités participantes.' },
-      { q: 'Une association hiérarchique (0,1)…', opts: ['devient une table', 'migre sa clé comme étrangère', 'disparaît sans trace'], correct: 1, exp: 'Sa clé devient étrangère dans la table côté (0,1)/(1,1) : pas de table nouvelle.' },
-      { q: 'L\'intégrité référentielle impose…', opts: ['que la fk référence une pk existante', 'que la table soit triée', 'que les champs soient textes'], correct: 0, exp: 'Pas de NumClt 25 si les clients s\'arrêtent à 15.' },
+      { q: 'Une association binaire n–n sans propriété devient…', opts: ['une table de liaison', 'rien', 'une vue obligatoire'], correct: 0, exp: 'La table de liaison est nécessaire même sans propriété portée ; le couple d’identifiants peut être sa clé.' },
+      { q: 'Pour une association 1–n, où migre la clé étrangère ?', opts: ['Dans une table de liaison obligatoire', 'Dans la table côté maximum 1', 'Nulle part'], correct: 1, exp: 'La clé de l’autre entité migre côté maximum 1 avec les éventuelles propriétés de l’association.' },
+      { q: 'L\'intégrité référentielle impose…', opts: ['que la fk référence une clé primaire ou unique existante, sous réserve des règles NULL', 'que la table soit triée', 'que les champs soient textes'], correct: 0, exp: 'Pas de NumClt 25 si les clients s\'arrêtent à 15 ; une clé unique admissible peut aussi être référencée.' },
       { q: 'L\'intégrité de relation impose…', opts: ['clé primaire unique et non nulle', 'une fk par table', 'des index partout'], correct: 0, exp: 'Pas de doublon de clé, pas de ligne sans clé.' }
     ],
 
@@ -254,16 +255,16 @@ module.exports = [
     methodTitle: 'Méthode — du MCD au schéma',
     method: [
       'Une table par entité (règle 1) : clé primaire = identifiant.',
-      'Une table par association porteuse (règle 2) : clé = concaténation des identifiants.',
-      'Les associations (0,1)/(1,1) migrent leur clé en # (règle 3).',
+      'Une table de liaison par association binaire n–n, même sans propriété.',
+      'En 1–n, migrer la clé et les propriétés côté maximum 1 ; en 1–1, choisir le côté et imposer l’unicité.',
       'Vérifier les trois intégrités sur le schéma final.'
     ],
 
     summary: [
       'MLD = forme machinale du MCD, en tables relationnelles.',
       'Clé primaire (simple ou composée) identifie chaque ligne ; clé étrangère (#) porte le lien.',
-      'Règles de passage : entité → table ; association porteuse → table (clé concaténée) ; (0,1)/(1,1) → #.',
-      'Trois intégrités : de domaine, de relation (pk unique non nulle), référentielle (fk → pk existante).'
+      'Règles de passage : entité → table ; n–n → liaison ; 1–n → clé étrangère côté maximum 1.',
+      'Trois intégrités : de domaine, de relation (pk unique non nulle), référentielle (fk → clé admissible existante, sous réserve de NULL).'
     ],
 
     checklist: [
@@ -277,11 +278,11 @@ module.exports = [
       '<strong>Attribut</strong> : plus petit élément d\'information manipulable.',
       '<strong>Table (relation)</strong> : ensemble d\'attributs significativement associés.',
       '<strong>Clé primaire</strong> : identifie chaque ligne, simple ou composée.',
-      '<strong>Clé étrangère</strong> : pk d\'une autre table, notée #.',
+      '<strong>Clé étrangère</strong> : un ou plusieurs attributs référençant une clé primaire ou unique admissible, notés #.',
       '<strong>Règle 1</strong> : entité → table.',
-      '<strong>Règle 2</strong> : association porteuse → table, clé concaténée.',
+      '<strong>Règle 2</strong> : association binaire n–n → table de liaison, même sans propriété.',
       '<strong>Intégrité de relation</strong> : pk unique et non nulle.',
-      '<strong>Intégrité référentielle</strong> : fk référence une pk existante.'
+      '<strong>Intégrité référentielle</strong> : fk référence une clé admissible existante, sous réserve des règles NULL.'
     ],
 
     mastery: [
@@ -293,9 +294,9 @@ module.exports = [
 
     flashcards: [
       { q: 'MLD vs MCD ?', a: 'Le MCD est conceptuel (bulles et associations) ; le MLD est sa forme machinale : tables relationnelles compréhensibles par le SGBD.' },
-      { q: 'Les deux types de clés ?', a: 'Clé primaire (identifie la ligne, simple ou composée) ; clé étrangère (pk d\'une autre table, notée #).' },
-      { q: 'Les règles de passage MCD → MLD ?', a: '1) entité → table. 2) association porteuse → table (clé = concaténation des identifiants). 3) association (0,1)/(1,1) → clé étrangère.' },
-      { q: 'Les trois intégrités ?', a: 'De domaine (valeurs admises), de relation (pk unique non nulle), référentielle (fk existe comme pk dans la table référencée).' },
+      { q: 'Les deux types de clés ?', a: 'Clé primaire : identifie la ligne. Clé étrangère, simple ou composée : référence une clé primaire ou unique admissible, dans la même table ou une autre.' },
+      { q: 'Les règles de passage MCD → MLD ?', a: 'Entité → table ; n–n → table de liaison ; 1–n → clé étrangère et propriétés côté maximum 1 ; 1–1 → choix du côté et unicité.' },
+      { q: 'Les trois intégrités ?', a: 'De domaine (valeurs admises), de relation (pk unique non nulle), référentielle (fk vers une clé admissible existante, sous réserve des règles NULL).' },
       { q: 'Écrire le schéma de la commande ?', a: 'COMMANDE (NumCde, DateCde, #NumClt) : NumCde pk, NumClt fk vers CLIENT.' }
     ]
   },

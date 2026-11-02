@@ -159,7 +159,7 @@ function exercices(course, chapterList) {
       '      <h4 class="card__title">' + e.title + '</h4>',
       '      <p class="card__desc">' + e.goal + '</p>',
       '      <div class="card__foot">',
-      '        <a class="btn btn--sm" href="chapitre' + ch.n + '.html#exo-' + e.id + '">' + ic('play') + ' Résoudre dans le cours</a>',
+      '        <a class="btn btn--sm" href="chapitre' + ch.n + '.html#' + e.id + '">' + ic('play') + ' Résoudre dans le cours</a>',
       '      </div>',
       '    </div>'
     ].join('\n')).join('\n');

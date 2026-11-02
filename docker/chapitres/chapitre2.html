@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -167,14 +167,12 @@ Exemples :
 </ul>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="dk2-c2-e1" data-lab
      data-exercise="dk2-c2-e1"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="NodeApp : base_os:100 , node_runtime:80 , app_code:20&#10;PythonApp : base_os:100 , python_runtime:70 , app_code_py:15">
@@ -188,12 +186,14 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 1 — Calculateur de taille d’image et déduplication des Layers (OverlayFS)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer le stockage réel consommé sur le démon Docker grâce au partage de couches en lecture seule (UnionFS).</p>
-    <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin)...</code>.<br>
+    <p class="lab__note" id="dk2-c2-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Le script Bash lit une image par ligne sur l’entrée standard (stdin), au format <code>NomImage : id_couche:taille , id_couche:taille</code>. Les tailles sont des entiers positifs ou nuls en Mo ; un même identifiant de couche a toujours la même taille.<br>
 Dans le pilote de stockage Overlay2, chaque couche en lecture seule (identifiée par son ID unique) n'est stockée qu'une seule fois sur le disque hôte, quel que soit le nombre d'images qui s'appuient dessus.<br>
 Calculer :<br>
 1. La taille apparente de chaque image (somme de ses couches).<br>
@@ -224,6 +224,7 @@ TOTAL_BRUT: 385 Mo | TOTAL_REEL: 285 Mo | ECONOMIE_DEDUPLICATION: -100 Mo</pre><
 
 <div class="lab" id="dk2-c2-e2" data-lab
      data-exercise="dk2-c2-e2"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="nginx&#10;ubuntu:22.04&#10;myorg/backend:v1.0&#10;ghcr.io/dev/api:latest@sha256:abcd1234ef">
@@ -237,19 +238,22 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 2 — Parseur canonique de références d’images et de tags</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Décomposer une référence d’image Docker en ses composantes normalisées : registre, namespace/nom, tag et digest SHA256.</p>
+    <p class="lab__note" id="dk2-c2-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
 Règles de normalisation canonique :<br>
 1. <strong>Digest</strong> : si la référence contient <code>@sha256:...</code>, l'extraire (sinon <code>NONE</code>).<br>
-2. <strong>Tag</strong> : si la référence contient <code>:&lt;tag&gt;</code> (hors du digest), l'extraire (sinon valeur par défaut <code>latest</code>).<br>
+2. <strong>Tag</strong> : si le dernier segment après le dernier slash contient <code>:&lt;tag&gt;</code> (hors du digest), l'extraire (sinon valeur par défaut <code>latest</code>).<br>
 3. <strong>Registre &amp; Nom</strong> :<br>
-   - Si l'image contient un nom de domaine avec point (ex: <code>ghcr.io/org/app</code> ou <code>docker.elastic.co/...</code>), le registre est le premier segment avant le slash.<br>
+   - Si le premier segment avant un slash contient un point ou un port, ou vaut <code>localhost</code>, il désigne le registre (ex. <code>localhost:5000/org/app</code>).<br>
    - Si l'image est officielle sans slash (ex: <code>nginx</code>, <code>ubuntu</code>), le registre est <code>docker.io/library</code> et le nom est l'image.<br>
    - Si l'image a un namespace simple (ex: <code>monorg/monapp</code>), le registre est <code>docker.io</code> et le nom est <code>monorg/monapp</code>.<br>
+Le modèle affiche <code>latest</code> pour un tag absent, même en présence d'un digest ; il ne valide pas la longueur des exemples de digest et ne réécrit pas la référence.<br>
 Pour chaque référence, afficher :<br>
 <code>REF: &lt;entree&gt; -&gt; REGISTRE: &lt;reg&gt; | IMAGE: &lt;nom&gt; | TAG: &lt;tag&gt; | DIGEST: &lt;digest&gt;</code></p></div>
     <div class="lab__sample">
@@ -276,6 +280,7 @@ REF: ghcr.io/dev/api:latest@sha256:abcd1234ef -&gt; REGISTRE: ghcr.io | IMAGE: d
 
 <div class="lab" id="dk2-c2-e3" data-lab
      data-exercise="dk2-c2-e3"
+     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="/etc/app.conf, /usr/bin/python, /var/log/old.log&#10;READ /etc/app.conf&#10;WRITE /etc/app.conf&#10;READ /etc/app.conf&#10;DELETE /var/log/old.log&#10;READ /var/log/old.log">
@@ -289,13 +294,17 @@ echo "A_COMPLETER"
     <h3 class="lab__title">Exercice 3 — Simulateur de stratégie Copy-On-Write (CoW) et couche conteneur</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler le fonctionnement du pilote de stockage OverlayFS lors des opérations de lecture, écriture et suppression.</p>
+    <p class="lab__note" id="dk2-c2-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>
+- Première ligne : chemins de l'image séparés par des virgules ; cette liste peut être vide.<br>
 - Lignes suivantes : opérations au format <code>&lt;ACTION&gt; &lt;CheminFichier&gt;</code> où ACTION vaut <code>READ</code>, <code>WRITE</code>, <code>CREATE</code> ou <code>DELETE</code>.<br>
+Dans ce modèle, CREATE vise un fichier absent et DELETE un fichier présent ; les autres cas ne sont pas définis.<br>
 Comportement OverlayFS :<br>
 - <code>READ</code> :<br>
   * Si le fichier a déjà été modifié dans le conteneur : <code>ACCES: Container Layer (Version modifiee)</code><br>
@@ -334,6 +343,7 @@ READ /var/log/old.log -&gt; ERREUR: Fichier introuvable (404 ENOENT)</pre></div>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -481,7 +491,7 @@ READ /var/log/old.log -&gt; ERREUR: Fichier introuvable (404 ENOENT)</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Révisez la structure des layers, Overlay2 et les risques du tag latest.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Révisez la structure des layers, Overlay2 et les risques du tag latest.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Bonnes notions de stockage. Approfondissez le Copy-On-Write et les fichiers whiteout.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Très bonne maîtrise des systèmes de fichiers en couches et des registres d’images.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Score parfait ! Vous optimisez et sécurisez les images Docker selon les standards industriels les plus stricts.</div>

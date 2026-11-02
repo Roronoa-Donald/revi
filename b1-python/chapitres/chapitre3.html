@@ -8,7 +8,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
   <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -44,8 +44,8 @@
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
     <p>Votre script de gestion de notes fonctionne… mais vous avez copié-collé le calcul de moyenne <strong>quatre fois</strong>.
-    Une règle change ? Vous devez corriger quatre endroits, et vous oubliez le quatrième. Votre chef te dit :
-    « fais-en une <em>fonction</em> ». Une fonction, c'est ce que vous écrivez <strong>une fois</strong> et appelles
+    Une règle change ? Vous devez corriger quatre endroits, et vous oubliez le quatrième. Votre chef vous dit :
+    « faites-en une <em>fonction</em> ». Une fonction, c'est ce que vous écrivez <strong>une fois</strong> et appelles
     <strong>partout</strong>. Ce chapitre vous apprend à décomposer un problème en fonctions testables — la
     compétence n°1 attendue en examen et en entreprise.</p>
   </div>
@@ -109,8 +109,15 @@ def total(*args):          # nombre variable d'arguments
 total(1, 2, 3)             # 6</code></pre>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Valeur par défaut mutable</div>
-    <p>N'utilise <strong>jamais</strong> une liste comme valeur par défaut :
-    <code>def f(items=[])</code> conserve la même liste entre les appels. Écrivez <code>def f(items=None): items = items or []</code>.</p>
+    <p>Évitez une liste mutable comme valeur par défaut lorsque chaque appel doit disposer d'une nouvelle liste :
+    <code>def f(items=[])</code> conserve la même liste entre les appels. Utilisez <code>None</code> comme valeur par défaut
+    et créez une liste seulement si <code>items</code> vaut <code>None</code>, par défaut ou parce que <code>None</code> a été explicitement fourni :</p>
+    <pre><code>def ajouter(element, items=None):
+    if items is None:
+        items = []
+    items.append(element)
+    return items</code></pre>
+    <p>Ainsi, une liste vide fournie par l'appelant reste la même liste et peut être modifiée.</p>
   </div>
 
   <h2>4. Portée des variables</h2>
@@ -183,7 +190,7 @@ print("Moyenne :", moy, "Max :", top)</code></pre>
     <div class="item__head"><span class="item__num">Exemple C</span><span class="badge badge--n3">Difficile</span></div>
     <p><strong>Énoncé.</strong> Fonction <code>est_premier(n)</code> sans liste ni import.</p>
     <pre><code>def est_premier(n):
-    if n < 2:
+    if n &lt; 2:
         return False
     for d in range(2, int(n ** 0.5) + 1):
         if n % d == 0:
@@ -216,7 +223,7 @@ print(convertir_temperature(25))   # 77.0</code></pre></div></details>
 
   <div class="item">
     <div class="item__head"><span class="badge badge--n3">Niveau 3 — Raisonnement</span></div>
-    <p><strong>4.</strong> Explique pourquoi <code>x = f()</code> vaut <code>None</code> si <code>f</code> ne contient qu'un <code>print</code>.</p>
+    <p><strong>4.</strong> Expliquez pourquoi <code>x = f()</code> vaut <code>None</code> si <code>f</code> ne contient qu'un <code>print</code>.</p>
     <p><strong>5.</strong> Que vaut <code>total(1, 2, 3)</code> avec <code>def total(*args): return sum(args)</code> ?</p>
     <details><summary>Correction</summary><div class="sol">4. <code>print</code> affiche mais ne <em>renvoie</em> rien : toute fonction sans <code>return</code> renvoie <code>None</code>.
     5. <code>args</code> = (1, 2, 3), <code>sum</code> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> 6.</div></details>
@@ -252,14 +259,12 @@ print(compte_mots("le chat le chien le rat"))
 # {'le': 3, 'chat': 1, 'chien': 1, 'rat': 1}</code></pre></div></details>
   </div>
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>9. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="py-c3-e1" data-lab
      data-exercise="py-c3-e1"
+     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="5&#10;12&#10;15&#10;14&#10;9&#10;18">
@@ -281,11 +286,13 @@ print(f"{moyenne:.2f} {maximum}")
     <h3 class="lab__title">Exercice 1 — calcul_statistiques — sujet d’examen</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Écrire une fonction qui renvoie plusieurs valeurs et la consommer depuis le programme principal.</p>
+    <p class="lab__note" id="py-c3-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Écrivez <code>calcul_statistiques(liste_notes)</code> qui renvoie un couple <code>(moyenne, max_note)</code> en parcourant la liste une seule fois, sans utiliser <code>sum()</code> ni <code>max()</code>.</p><p>Le programme lit un entier n, puis n notes, et affiche la moyenne avec deux décimales suivie du maximum, séparés par un espace.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
@@ -309,6 +316,7 @@ print(f"{moyenne:.2f} {maximum}")
 
 <div class="lab" id="py-c3-e2" data-lab
      data-exercise="py-c3-e2"
+     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="10&#10;2">
@@ -325,11 +333,13 @@ print(diviser(a, b))
     <h3 class="lab__title">Exercice 2 — Division qui ne plante pas</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Empêcher une exception de faire planter le programme.</p>
+    <p class="lab__note" id="py-c3-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Écrivez <code>diviser(a, b)</code> qui renvoie le résultat de <code>a / b</code>, ou la chaîne <code>erreur</code> si b vaut 0. Aucune exception ne doit remonter : le programme doit se terminer normalement dans tous les cas.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>10
@@ -349,6 +359,7 @@ print(diviser(a, b))
 
 <div class="lab" id="py-c3-e3" data-lab
      data-exercise="py-c3-e3"
+     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="17">
@@ -364,11 +375,13 @@ print("oui" if est_premier(n) else "non")
     <h3 class="lab__title">Exercice 3 — est_premier — sujet d’examen</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n4">Niveau 4 — Examen</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Écrire une fonction booléenne avec sortie anticipée.</p>
+    <p class="lab__note" id="py-c3-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Écrivez <code>est_premier(n)</code> qui renvoie <code>True</code> ou <code>False</code>. Le programme lit un entier et affiche <code>oui</code> ou <code>non</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>17</pre></div>
@@ -384,6 +397,7 @@ print("oui" if est_premier(n) else "non")
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>10. QCM — niveau examen</h2>
   <div class="qcm" data-mastery="1">
@@ -478,7 +492,7 @@ print("oui" if est_premier(n) else "non")
       <div class="q__exp"><code>random.randint(a, b)</code> inclut les deux bornes. <code>math</code> n'a pas de <code>randint</code>.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Pourquoi éviter <code>def f(items=[])</code> ?</p>
+      <p class="q__stem">Pourquoi éviter <code>def f(items=[]): ...</code> si chaque appel doit avoir une liste indépendante ?</p>
       <div class="opts">
         <button class="opt">C'est une erreur de syntaxe</button>
         <button class="opt" data-correct="1">La liste par défaut est partagée entre les appels</button>
@@ -544,7 +558,7 @@ print("oui" if est_premier(n) else "non")
     <div class="bands">
       <div class="bandrow bandrow--low">&lt; 50 % — Reprenez les sections 2 et 4.</div>
       <div class="bandrow bandrow--mid">50–69 % — Refaites les exemples A/B et les niveaux 1-2.</div>
-      <div class="bandrow bandrow--good">70–94 % — Travaille <code>return</code> vs <code>print</code> et la portée.</div>
+      <div class="bandrow bandrow--good">70–94 % — Travaillez <code>return</code> vs <code>print</code> et la portée.</div>
       <div class="bandrow bandrow--top">≥ 95 % — Passez au chapitre 4.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Chapitre 3 maîtrisé (≥ 95 %).</span></label></p>

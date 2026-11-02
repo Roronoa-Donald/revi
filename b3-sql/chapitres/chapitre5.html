@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 5 — Procédures Stockées PL/pgSQL, Déclencheurs (Triggers) &amp;amp; Row-Level Security (RLS) | SQL Avancé B3</title>
-<meta name="description" content="Chapitre 5 du cours SQL Avancé B3 : Langage procédural PL/pgSQL, blocs d’exécution et gestion des exceptions, déclencheurs (Triggers) BEFORE / AFTER sur INSERT, UPDATE, DELETE, pseudo-enregistrements NEW et OLD, tables d’audit immuables, sécurité au niveau de la ligne (Row-Level Security - RLS) avec politiques CREATE POLICY, et prévention absolue des injections SQL (SQLi). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta name="description" content="Chapitre 5 du cours SQL Avancé B3 : Langage procédural PL/pgSQL, blocs d’exécution et gestion des exceptions, déclencheurs (Triggers) BEFORE / AFTER sur INSERT, UPDATE, DELETE, pseudo-enregistrements NEW et OLD, journalisation d’audit, sécurité au niveau de la ligne (Row-Level Security - RLS) avec politiques CREATE POLICY, et prévention des injections SQL (SQLi). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b3-sql/chapitres/chapitre5.html">
 <meta property="og:title" content="Chapitre 5 — Procédures Stockées PL/pgSQL, Déclencheurs (Triggers) &amp;amp; Row-Level Security (RLS) | SQL Avancé B3">
-<meta property="og:description" content="Chapitre 5 du cours SQL Avancé B3 : Langage procédural PL/pgSQL, blocs d’exécution et gestion des exceptions, déclencheurs (Triggers) BEFORE / AFTER sur INSERT, UPDATE, DELETE, pseudo-enregistrements NEW et OLD, tables d’audit immuables, sécurité au niveau de la ligne (Row-Level Security - RLS) avec politiques CREATE POLICY, et prévention absolue des injections SQL (SQLi). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:description" content="Chapitre 5 du cours SQL Avancé B3 : Langage procédural PL/pgSQL, blocs d’exécution et gestion des exceptions, déclencheurs (Triggers) BEFORE / AFTER sur INSERT, UPDATE, DELETE, pseudo-enregistrements NEW et OLD, journalisation d’audit, sécurité au niveau de la ligne (Row-Level Security - RLS) avec politiques CREATE POLICY, et prévention des injections SQL (SQLi). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -63,7 +63,7 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Dans les architectures d’entreprise modernes et les environnements multi-tenants (SaaS), la sécurité et l’intégrité des données ne peuvent reposer uniquement sur la couche applicative backend. Si une faille d’injection SQL ou un bug de code survient, la base de données doit constituer le rempart ultime. PostgreSQL offre un moteur d’exécution procédurale puissant (PL/pgSQL) permettant d’exécuter des règles métier complexes directement au plus près des données. Les déclencheurs (Triggers) garantissent une traçabilité d’audit infalsifiable en interceptant chaque mutation physique via les pseudo-enregistrements NEW et OLD. Enfin, le mécanisme de Row-Level Security (RLS) applique un cloisonnement cryptographique et logique strict, garantissant qu’un utilisateur ne puisse jamais lire ou modifier les données d’une autre organisation.</p>
+    <p>Dans les architectures d’entreprise modernes et les environnements multi-tenants (SaaS), la sécurité et l’intégrité des données ne peuvent reposer uniquement sur la couche applicative backend. PostgreSQL permet d’exécuter des règles métier près des données grâce à PL/pgSQL. Les déclencheurs peuvent journaliser des modifications avec les pseudo-enregistrements NEW et OLD, mais la protection du journal demande des mesures distinctes. Row-Level Security (RLS) permet de filtrer les lignes selon des politiques ; son efficacité dépend notamment des rôles et du contexte de confiance configurés.</p>
   </div>
 
   <div class="box box--objectifs">
@@ -75,11 +75,11 @@
       <li>exploiter rigoureusement les pseudo-enregistrements NEW et OLD pour journaliser les modifications d’attributs ;</li>
       <li>activer et configurer la sécurité au niveau de la ligne (Row-Level Security) avec CREATE POLICY ;</li>
       <li>différencier les clauses de politique RLS : USING (filtrage en lecture) et WITH CHECK (validation en écriture) ;</li>
-      <li>développer en Python 3 des simulateurs de déclencheurs d’audit, des moteurs d’évaluation RLS et des détecteurs d’injections SQL.</li>
+      <li>développer en requêtes SQL avancées et scripts d’analyse des simulateurs de déclencheurs d’audit, des moteurs d’évaluation RLS et des détecteurs d’injections SQL.</li>
     </ol>
   </div>
 
-<h2>1. Le Langage Procédural PL/pgSQL & Les Fonctions Déclencheurs</h2>
+<h2>1. Le Langage Procédural PL/pgSQL &amp; Les Fonctions Déclencheurs</h2>
 
 <p>PL/pgSQL est un langage procédural structuré par blocs intégré au moteur PostgreSQL. Il permet de combiner des requêtes relationnelles avec des variables typées, des boucles (<code>LOOP</code>, <code>WHILE</code>, <code>FOR</code>) et des structures conditionnelles (<code>IF/THEN/ELSE</code>) :</p>
 <div class="grid grid-2">
@@ -91,12 +91,21 @@
 DECLARE
     solde_dispo NUMERIC;
 BEGIN
+    IF montant IS NULL OR montant IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric) OR montant &lt;= 0 THEN
+        RAISE EXCEPTION 'Le montant doit être positif et fini';
+    END IF;
     SELECT solde INTO solde_dispo FROM comptes WHERE id = compte_src FOR UPDATE;
-    IF solde_dispo &lt; montant THEN
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Compte source absent';
+    END IF;
+    IF solde_dispo IS NULL OR solde_dispo IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric) OR solde_dispo &lt; montant THEN
         RAISE EXCEPTION 'Fonds insuffisants : disponible %', solde_dispo;
     END IF;
     UPDATE comptes SET solde = solde - montant WHERE id = compte_src;
-    UPDATE comptes SET solde = solde + montant WHERE id = compte_dest;
+    UPDATE comptes SET solde = solde + montant WHERE id = compte_dest AND solde IS NOT NULL AND solde NOT IN ('NaN'::numeric, 'Infinity'::numeric, '-Infinity'::numeric);
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Compte destinataire absent ou solde invalide';
+    END IF;
 EXCEPTION
     WHEN OTHERS THEN
         RAISE NOTICE 'Erreur transactionnelle : %', SQLERRM;
@@ -108,14 +117,15 @@ $$ LANGUAGE plpgsql;</code></pre>
     <h4>Cycle de Vie et Types de Triggers</h4>
     <p>Un déclencheur intercepte une mutation (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>TRUNCATE</code>) :</p>
     <ul>
-      <li><strong>BEFORE :</strong> Déclenché <em>avant</em> l’écriture sur disque. Permet de modifier ou normaliser les données arrivantes, ou d’avorter l’opération (<code>RETURN NULL</code> ou <code>RAISE EXCEPTION</code>).</li>
-      <li><strong>AFTER :</strong> Déclenché <em>après</em> la validation physique. Idéal pour propager des actions secondaires ou alimenter un journal d’audit infalsifiable.</li>
+      <li><strong>BEFORE :</strong> Déclenché <em>avant</em> l’opération sur la ligne. Permet de modifier ou normaliser les données arrivantes, ou d’avorter l’opération (<code>RETURN NULL</code> ou <code>RAISE EXCEPTION</code>).</li>
+      <li><strong>AFTER :</strong> Déclenché <em>après</em> l’opération, dans la même transaction et avant le COMMIT. Une contrainte différée peut encore entraîner l’échec de celui-ci.</li>
       <li><strong>FOR EACH ROW vs FOR EACH STATEMENT :</strong> S’exécute soit pour chaque ligne altérée individuellement, soit une seule fois pour toute la commande SQL.</li>
     </ul>
+    <p>Dans PostgreSQL, BEFORE comme AFTER peuvent écrire dans un journal de la même transaction : ROLLBACK annule ces écritures. AFTER FOR EACH ROW convient pour tracer chaque ligne après sa modification, pas pour garantir une trace indépendante du COMMIT.</p>
   </div>
 </div>
 
-<h2>2. Pseudo-Enregistrements NEW / OLD & Tables d’Audit Immuables</h2>
+<h2>2. Pseudo-Enregistrements NEW / OLD &amp; Journalisation d’Audit</h2>
 
 <p>Au sein d’un déclencheur s’exécutant au niveau de la ligne (<code>FOR EACH ROW</code>), le moteur PostgreSQL met à disposition deux variables d’enregistrement spéciales :</p>
 <div class="grid grid-2">
@@ -132,7 +142,7 @@ $$ LANGUAGE plpgsql;</code></pre>
     <p>La variable <code>TG_OP</code> contient le type d’opération (<code>'INSERT'</code>, <code>'UPDATE'</code>, <code>'DELETE'</code>).</p>
   </div>
   <div class="card">
-    <h4>Patron de Conception : Table d’Audit Infalsifiable</h4>
+    <h4>Patron de Conception : Journal d’Audit</h4>
     <pre><code>CREATE OR REPLACE FUNCTION audit_employes_trigger()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -147,14 +157,15 @@ BEGIN
     END IF;
     RETURN NEW;
 END; $$ LANGUAGE plpgsql;</code></pre>
+    <p>Cette fonction peut journaliser les modifications ; elle ne rend pas à elle seule la table infalsifiable.</p>
   </div>
 </div>
   <div class="box box--tip">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <strong>Règle d’or des Triggers AFTER :</strong> Les triggers d’audit doivent toujours être de type <code>AFTER ... FOR EACH ROW</code> pour s’assurer que les données ont passé toutes les contraintes d’intégrité (clés étrangères, check, unicités) avant d’être enregistrées dans le journal.</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <strong>Triggers AFTER et contraintes :</strong> Un trigger <code>AFTER ... FOR EACH ROW</code> peut journaliser chaque ligne après l’opération, dans la même transaction. Une contrainte différée peut encore faire échouer le <code>COMMIT</code> ; un rollback annule alors aussi l’écriture du journal.</div>
 
   </div>
 
-<h2>3. Sécurité au Niveau de la Ligne (Row-Level Security - RLS) & Prévention SQLi</h2>
+<h2>3. Sécurité au Niveau de la Ligne (Row-Level Security - RLS) &amp; Prévention SQLi</h2>
 
 <p>La <strong>Row-Level Security (RLS)</strong> est une fonctionnalité de sécurité avancée intégrée dans le noyau du SGBD. Elle filtre de manière invisible les lignes accessibles par chaque utilisateur de base de données :</p>
 <div class="grid grid-2">
@@ -186,34 +197,34 @@ EXECUTE 'SELECT * FROM users WHERE nom = $1' USING entree;</code></pre>
   </div>
 </div>
   <div class="box box--danger">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <strong>Les super-utilisateurs contournent RLS par défaut :</strong> Dans PostgreSQL, l’utilisateur <code>postgres</code> (superuser) ainsi que le propriétaire de la table ignorent les politiques RLS sauf si la table est explicitement configurée avec <code>ALTER TABLE table_name FORCE ROW LEVEL SECURITY;</code>. Dans une architecture applicative sécurisée, l’application doit toujours se connecter avec un rôle sans privilèges superuser.</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <strong>Contournement de RLS :</strong> Les super-utilisateurs et les rôles <code>BYPASSRLS</code> contournent toujours RLS, même avec <code>ALTER TABLE table_name FORCE ROW LEVEL SECURITY;</code>. Le propriétaire ordinaire contourne RLS par défaut, mais FORCE peut le soumettre aux politiques. L’application doit utiliser un rôle sans ces privilèges, distinct du propriétaire.</div>
 
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="sql3-c5-e1" data-lab
      data-exercise="sql3-c5-e1"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE comptes (id INT, solde INT); CREATE TABLE alertes_fraude (compte_id INT, montant_tente INT); INSERT INTO comptes VALUES (1, 5000), (2, 10000);&#10;-- VERIFY:&#10;UPDATE comptes SET solde = -2000 WHERE id = 1; UPDATE comptes SET solde = 4000 WHERE id = 2; SELECT compte_id, montant_tente FROM alertes_fraude ORDER BY compte_id;&#10;-- exemple">
   <script type="text/plain" data-lab-starter>-- Créez le trigger conditionnel trg_alerte_decouvert avec WHEN NEW.solde < 0
 SELECT * FROM comptes;</script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Déclencheur de protection contre les soldes négatifs (AFTER UPDATE + WHEN)</h3>
+    <h3 class="lab__title">Exercice 1 — Alerte sur solde négatif (AFTER UPDATE + WHEN)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Déclencher une alerte automatique sur condition métier dans un trigger SQL.</p>
-    <div class="lab__brief"><p>Soient <code>comptes(id INT, solde INT)</code> et <code>alertes_fraude(compte_id INT, montant_tente INT)</code>. Créez un trigger <code>trg_alerte_decouvert</code> qui, <code>AFTER UPDATE ON comptes WHEN NEW.solde &lt; 0</code>, insère <code>(NEW.id, NEW.solde)</code> dans <code>alertes_fraude</code>.</p></div>
+    <p class="lab__note" id="sql3-c5-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans cet atelier SQLite, soient <code>comptes(id INT, solde INT)</code> et <code>alertes_fraude(compte_id INT, montant_tente INT)</code>. Créez un trigger <code>trg_alerte_decouvert</code> qui, <code>AFTER UPDATE ON comptes WHEN NEW.solde &lt; 0</code>, insère <code>(NEW.id, NEW.solde)</code> dans <code>alertes_fraude</code>. Ce déclencheur alerte sans empêcher le solde négatif ; un ROLLBACK annule la mise à jour et l’alerte dans la même transaction.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE comptes (id INT, solde INT); CREATE TABLE alertes_fraude (compte_id INT, montant_tente INT); INSERT INTO comptes VALUES (1, 5000), (2, 10000);
 -- VERIFY:
@@ -245,6 +256,7 @@ Instruction exécutée avec succès (1 ligne modifiée).
 
 <div class="lab" id="sql3-c5-e2" data-lab
      data-exercise="sql3-c5-e2"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE contexte_session (tenant_actif TEXT, role_actif TEXT); CREATE TABLE dossiers_patients (id INT, tenant_id TEXT, patient TEXT); INSERT INTO contexte_session VALUES ('clinique_a', 'MEDECIN'); INSERT INTO dossiers_patients VALUES (1, 'clinique_a', 'Koffi'), (2, 'clinique_b', 'Amina');&#10;-- VERIFY:&#10;SELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;&#10;-- exemple">
@@ -254,11 +266,13 @@ CREATE VIEW v_dossiers_rls AS SELECT id, tenant_id, patient FROM dossiers_patien
     <h3 class="lab__title">Exercice 2 — Isolation multi-locataires (Row-Level Security / Politique RLS)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler une politique d’isolation Row-Level Security filtrant selon le contexte de session.</p>
+    <p class="lab__note" id="sql3-c5-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans une architecture SaaS multi-tenant, la table <code>contexte_session(tenant_actif TEXT, role_actif TEXT)</code> contient 1 ligne décrivant l’utilisateur connecté, et la table <code>dossiers_patients(id INT, tenant_id TEXT, patient TEXT)</code> contient les données. Créez une vue sécurisée <code>v_dossiers_rls</code> qui renvoie <code>id</code>, <code>tenant_id</code> et <code>patient</code> uniquement lorsque <code>tenant_id = (SELECT tenant_actif FROM contexte_session)</code> OU lorsque <code>(SELECT role_actif FROM contexte_session) = 'SUPERADMIN'</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE contexte_session (tenant_actif TEXT, role_actif TEXT); CREATE TABLE dossiers_patients (id INT, tenant_id TEXT, patient TEXT); INSERT INTO contexte_session VALUES ('clinique_a', 'MEDECIN'); INSERT INTO dossiers_patients VALUES (1, 'clinique_a', 'Koffi'), (2, 'clinique_b', 'Amina');
@@ -287,6 +301,7 @@ SELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;
 
 <div class="lab" id="sql3-c5-e3" data-lab
      data-exercise="sql3-c5-e3"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE commandes (id INT, client_id INT, montant INT); CREATE TABLE stats_clients (client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT); INSERT INTO stats_clients VALUES (1, 0, 0), (2, 1, 10000);&#10;-- VERIFY:&#10;INSERT INTO commandes VALUES (100, 1, 25000), (101, 2, 15000); SELECT client_id, nb_cmd, cumul_montant FROM stats_clients ORDER BY client_id;&#10;-- exemple">
@@ -296,11 +311,13 @@ SELECT * FROM stats_clients;</script>
     <h3 class="lab__title">Exercice 3 — Maintien automatique d’une table de matérialisation par Trigger</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Maintenir un compteur dénormalisé en temps réel à chaque insertion.</p>
+    <p class="lab__note" id="sql3-c5-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Soient <code>commandes(id INT, client_id INT, montant INT)</code> et la table de synthèse <code>stats_clients(client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT)</code>. Créez un trigger <code>trg_maj_stats</code> qui, <code>AFTER INSERT ON commandes</code>, met à jour <code>stats_clients</code> (<code>SET nb_cmd = nb_cmd + 1, cumul_montant = cumul_montant + NEW.montant WHERE client_id = NEW.client_id</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE commandes (id INT, client_id INT, montant INT); CREATE TABLE stats_clients (client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT); INSERT INTO stats_clients VALUES (1, 0, 0), (2, 1, 10000);
@@ -329,6 +346,7 @@ Instruction exécutée avec succès (2 lignes modifiées).
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -344,14 +362,14 @@ Instruction exécutée avec succès (2 lignes modifiées).
       <div class="q__exp">Lors d’un INSERT, aucune ligne préalable n’existait dans la table : la variable OLD vaut donc strictement NULL.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Quel type de déclencheur est recommandé pour modifier ou normaliser les données d’une ligne avant son écriture sur disque ?</p>
+      <p class="q__stem">Dans PostgreSQL, quel type de déclencheur permet de modifier ou normaliser une ligne avant son insertion ou sa mise à jour ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">BEFORE INSERT OR UPDATE FOR EACH ROW</button>
         <button class="opt">AFTER INSERT FOR EACH STATEMENT</button>
         <button class="opt">INSTEAD OF TABLE</button>
         <button class="opt">DEFERRED TRANSACTION TRIGGER</button>
       </div>
-      <div class="q__exp">Un trigger BEFORE FOR EACH ROW s’exécute avant l’écriture disque et permet de modifier les attributs du tuple NEW avant persistance.</div>
+      <div class="q__exp">Dans PostgreSQL, une fonction BEFORE FOR EACH ROW peut modifier NEW puis le retourner avant l’opération ; la persistance dépend ensuite du COMMIT.</div>
     </div>
     <div class="q">
       <p class="q__stem">Si une fonction déclencheur BEFORE INSERT retourne NULL, que se passe-t-il pour la ligne en cours d’insertion ?</p>
@@ -381,7 +399,7 @@ Instruction exécutée avec succès (2 lignes modifiées).
         <button class="opt">Parce que RLS est désactivé sur le port 5432</button>
         <button class="opt">C’est un bogue connu corrigé en version 17</button>
       </div>
-      <div class="q__exp">Dans la conception PostgreSQL, les super-utilisateurs ignorent les politiques de sécurité sauf si la directive FORCE ROW LEVEL SECURITY est appliquée.</div>
+      <div class="q__exp">Les super-utilisateurs et les rôles BYPASSRLS contournent toujours RLS. FORCE soumet le propriétaire ordinaire aux politiques, mais ne limite pas ces rôles privilégiés.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle instruction PL/pgSQL permet d’exécuter une requête dynamique sécurisée contre les injections SQL ?</p>
@@ -404,14 +422,14 @@ Instruction exécutée avec succès (2 lignes modifiées).
       <div class="q__exp">TG_OP contient sous forme de chaîne de caractères l’événement SQL ayant déclenché l’exécution (INSERT, UPDATE, DELETE ou TRUNCATE).</div>
     </div>
     <div class="q">
-      <p class="q__stem">Pour garantir qu’un journal d’audit ne conserve que les transactions ayant réellement réussi, quel trigger privilégier ?</p>
+      <p class="q__stem">Quel trigger permet de journaliser chaque ligne après sa modification, dans la même transaction ?</p>
       <div class="opts">
         <button class="opt">BEFORE ... FOR EACH STATEMENT</button>
         <button class="opt" data-correct="1">AFTER ... FOR EACH ROW</button>
         <button class="opt">INSTEAD OF VIEW</button>
         <button class="opt">BEFORE ... FOR EACH ROW</button>
       </div>
-      <div class="q__exp">Un trigger AFTER ... FOR EACH ROW garantit que la modification a passé toutes les contraintes de table avant d’écrire l’audit.</div>
+      <div class="q__exp">Dans PostgreSQL, AFTER ... FOR EACH ROW trace la ligne après sa modification. BEFORE peut aussi écrire dans la même transaction : un ROLLBACK annule les écritures des deux, et une contrainte différée peut encore faire échouer le COMMIT.</div>
     </div>
   </div>
 
@@ -420,7 +438,7 @@ Instruction exécutée avec succès (2 lignes modifiées).
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
     <ul>
-      <li>Utiliser un trigger BEFORE au lieu d’un AFTER pour alimenter une table d’audit, risquant de journaliser une transaction qui va ensuite échouer.</li>
+      <li>Supposer qu’un trigger AFTER rend le journal infalsifiable ou conserve une tentative annulée par rollback.</li>
       <li>Oublier de retourner NEW dans une fonction trigger BEFORE INSERT/UPDATE, ce qui supprime silencieusement la ligne.</li>
       <li>Tester la Row-Level Security en se connectant en tant que superuser postgres, masquant ainsi l’inactivité des règles.</li>
       <li>Concaténer des entrées utilisateur dans un bloc EXECUTE en PL/pgSQL, ouvrant une faille critique d’injection SQL.</li>
@@ -435,7 +453,7 @@ Instruction exécutée avec succès (2 lignes modifiées).
       <li>1. Déterminer si la règle métier doit être garantie dans la base (PL/pgSQL/Trigger) ou dans l’application cliente.</li>
       <li>2. Choisir le moment du trigger : BEFORE pour nettoyer/valider des données, AFTER pour journaliser ou synchroniser.</li>
       <li>3. Isoler le code procédural dans des blocs BEGIN...EXCEPTION pour garantir des rollbacks propres en cas d’anomalie.</li>
-      <li>4. Mettre en place une table d’audit immuable avec stockage JSON des états OLD et NEW.</li>
+      <li>4. Journaliser en JSON les états OLD et NEW et définir séparément la protection du journal.</li>
       <li>5. Activer systématiquement ENABLE ROW LEVEL SECURITY sur toutes les tables contenant des données multi-tenants ou confidentielles.</li>
       <li>6. Bannir toute concaténation de chaînes dans les requêtes dynamiques au profit de requêtes préparées avec clause USING.</li>
     </ol>
@@ -447,11 +465,11 @@ Instruction exécutée avec succès (2 lignes modifiées).
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
       <li>PL/pgSQL apporte la puissance procédurale au moteur relationnel avec une gestion fine des exceptions et des curseurs.</li>
-      <li>Les triggers interceptent les opérations INSERT, UPDATE et DELETE soit avant validation physique (BEFORE), soit après (AFTER).</li>
+      <li>Les triggers BEFORE et AFTER interviennent respectivement avant et après l’opération, dans la même transaction et avant le COMMIT ; ROLLBACK annule leurs écritures.</li>
       <li>NEW représente l’état résultant d’une modification, OLD l’état antérieur ; NEW est NULL lors d’un DELETE, OLD est NULL lors d’un INSERT.</li>
       <li>Row-Level Security (RLS) applique un filtrage transparent et imperméable au niveau des tuples sans modifier le code SQL applicatif.</li>
       <li>La clause USING d’une politique RLS filtre les lignes visibles en lecture ; la clause WITH CHECK valide les insertions et modifications.</li>
-      <li>La prévention absolue contre les injections SQL exige des requêtes paramétrées avec substitution typée ($1, $2).</li>
+      <li>Les requêtes paramétrées avec substitution des valeurs (<code>$1</code>, <code>$2</code>) protègent ces valeurs contre l’injection SQL. Les noms de tables ou de colonnes non paramétrables doivent être choisis dans une liste autorisée.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
@@ -464,7 +482,7 @@ Instruction exécutée avec succès (2 lignes modifiées).
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>Langage PL/pgSQL (DECLARE, BEGIN, EXCEPTION)</li><li>Déclencheurs (Triggers) BEFORE vs AFTER</li><li>Pseudo-enregistrements NEW & OLD</li><li>Opération TG_OP & variable TG_TABLE_NAME</li><li>Tables d’audit immuables (Audit Logging)</li><li>Row-Level Security (RLS) & ALTER TABLE ... ENABLE RLS</li><li>Politiques de sécurité (CREATE POLICY ... USING / WITH CHECK)</li><li>Prévention des injections SQL & requêtes paramétrées (USING)</li>
+      <li>Langage PL/pgSQL (DECLARE, BEGIN, EXCEPTION)</li><li>Déclencheurs (Triggers) BEFORE vs AFTER</li><li>Pseudo-enregistrements NEW &amp; OLD</li><li>Opération TG_OP &amp; variable TG_TABLE_NAME</li><li>Journalisation et protection de l’audit (Audit Logging)</li><li>Row-Level Security (RLS) &amp; ALTER TABLE ... ENABLE RLS</li><li>Politiques de sécurité (CREATE POLICY ... USING / WITH CHECK)</li><li>Prévention des injections SQL &amp; requêtes paramétrées (USING)</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -476,10 +494,10 @@ Instruction exécutée avec succès (2 lignes modifiées).
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à structurer une fonction PL/pgSQL ou confusion entre pseudo-variables NEW et OLD.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Difficultés à structurer une fonction PL/pgSQL ou confusion entre pseudo-variables NEW et OLD.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne maîtrise de l’écriture de déclencheurs d’audit et configuration de politiques simples de Row-Level Security.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Architecture de sécurité complète : RLS multi-tenant étanche avec FORCE RLS, audit infalsifiable et élimination totale des risques SQLi.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Configurer les rôles et le contexte de confiance de RLS, protéger le journal d’audit et réduire les risques d’injection SQL.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

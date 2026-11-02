@@ -81,7 +81,7 @@ function examens(course) {
       '</ol>',
       '<h4>Partie 2 : Support Technique &amp; Post-Mortem Blameless (7 points)</h4>',
       '<ol>',
-      '  <li>Traduisez le message d’erreur technique suivant en une explication bienveillante et orientée utilisateur final (Support Client) : <i>"Fatal Error 502: Bad Gateway. Connection pool to upstream microservice exhausted after socket timeout."</i> Quels sont les 3 principes d’empathie à respecter ? (3 pts)</li>',
+      '  <li>Une personne vient de tenter un paiement et reçoit cette erreur : <i>"Fatal Error 502: Bad Gateway. Connection pool to upstream microservice exhausted after socket timeout."</i> Rédigez en anglais une réponse bienveillante, sans supposer que le paiement a échoué, et expliquez trois principes à respecter. (3 pts)</li>',
       '  <li>Expliquez pourquoi les géants de la tech (Google, AWS, Netflix) imposent des <i>Blameless Post-Mortems</i>. Appliquez la méthode des 5 Pourquoi (<i>5-Whys</i>) à un incident de certificat SSL expiré pour remonter de la panne initiale jusqu’au défaut d’architecture systémique sans jamais incriminer d’individu. (4 pts)</li>',
       '</ol>',
       '<h4>Partie 3 : Présentation Technique &amp; Méthode STAR (7 points)</h4>',
@@ -106,8 +106,8 @@ function examens(course) {
       '<h4>Corrigé Partie 2 (7 points)</h4>',
       '<ul>',
       '  <li><strong>Traduction de message d’erreur support (3 pts) :</strong><br>' +
-      '  Message utilisateur bienveillant : <i>"Our payment service is temporarily unavailable due to high demand. No charges have been made to your payment card. Please wait a few moments and refresh the page, or try again shortly."</i> ' +
-      '  Les 3 principes d’empathie sont : 1. Rassurer l’usager (aucune perte d’argent ni de données) ; 2. Éviter tout jargon technique (pas de socket, gateway ou microservice) ; 3. Fournir une consigne d’action claire (patienter et rafraîchir).</li>',
+      '  Exemple de réponse : <i lang="en">"We could not confirm your payment status. Please check it or contact support before trying again."</i> ' +
+      '  Trois principes : 1. Reconnaître l’incertitude sans garantir l’absence de débit ; 2. Éviter le jargon technique ; 3. Faire vérifier le statut avant toute nouvelle tentative, selon la procédure du prestataire. D’autres formulations respectant ces principes conviennent.</li>',
       '  <li><strong>Post-Mortem Blameless et 5 Pourquoi (4 pts) :</strong><br>' +
       '  Le principe <em>blameless</em> stipule que blâmer un ingénieur masque les vulnérabilités de l’infrastructure et crée une culture de la dissimulation. ' +
       '  Exemple des 5 Pourquoi : ' +

@@ -15,7 +15,7 @@ module.exports = {
   lockLabel: 'Réservé B2 et plus',
 
   situation:
-    'Les utilisateurs finaux ne savent pas toujours formuler précisément ce dont ils ont besoin. Entrez ce qu’un client ' +
+    'Les utilisateurs finaux ne savent pas toujours formuler précisément ce dont ils ont besoin. Entre ce qu’un client ' +
     'dit, ce qu’il fait réellement et ce dont il a besoin, il existe souvent un fossé considérable. L’ingénieur ' +
     'des exigences doit déployer une palette de techniques d’élicitation complémentaires pour faire émerger ' +
     'les besoins tacites et surmonter les biais cognitifs.',

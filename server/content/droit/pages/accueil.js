@@ -38,7 +38,7 @@ function index(course, chapterList) {
       'et enjeux, réglementations. Ce cours les reprend en six chapitres, du vocabulaire jusqu’aux sanctions. ' +
       'Le chapitre 1 est en accès libre.</p>',
       '    <p>Chaque chapitre se termine par <strong>trois études de cas</strong> : vous complétez une grille d’analyse qui applique le raisonnement du juriste (classer, compter, qualifier, calculer une ' +
-      'peine), il est réellement exécuté dans la page, puis corrigé par des tests que vous ne voyez pas.</p>'
+      'peine), puis elle est vérifiée dans la page par des critères que vous ne voyez pas.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
     '  <div class="toc">',
@@ -85,9 +85,9 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, des notions générales du droit de l’informatique ' +
     'jusqu’aux sanctions pénales. Le chapitre 1 est en accès libre ; les suivants requièrent un compte ' +
     'de niveau B2 ou supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices par études de cas</strong> à écrire et à exécuter ' +
-    'dans la page : votre script est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
-    'L’<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
+    '  <p>Chaque chapitre se termine par <strong>trois exercices par études de cas</strong> à analyser ' +
+    'dans la page : vous remplissez votre grille d’analyse, puis elle est vérifiée par des critères que vous ne voyez pas. ' +
+    'L’<a href="atelier.html">atelier d’analyse</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
     '  </div>',
@@ -152,7 +152,7 @@ function atelier(course) {
       'droit (peine, conformité d’un traitement, classement d’une source), formalisez votre analyse et testez-la sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé retient la plus lourde des deux sanctions européennes : 20 000 000 d’euros ou ' +
-      '4 % du chiffre d’affaires. Testez-le avec 100 000 000 puis 2 000 000 000, ou remplace tout le script par le ' +
+      '4 % du chiffre d’affaires. Testez-le avec 100 000 000 puis 2 000 000 000, ou remplacez tout le script par le ' +
       'mécanisme que vous voulez vérifier.</p>',
       '      <p>Dans un vrai dossier de conformité, ce sera un contrôle automatisé des traitements : la ' +
       'structure du script (lire, comparer, rapporter) reste exactement la même.</p>',

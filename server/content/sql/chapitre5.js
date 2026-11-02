@@ -46,7 +46,7 @@ module.exports = {
         '      <li><strong>A - Atomicité (Tout ou rien) :</strong> Soit toutes les opérations de la transaction sont enregistrées, soit aucune ne l’est. En cas d’erreur au milieu, le SGBD annule tout (ROLLBACK).</li>',
         '      <li><strong>C - Cohérence (Consistency) :</strong> La transaction fait passer la base d’un état valide à un autre état valide, en respectant l’intégralité des contraintes d’intégrité (clés, CHECK, triggers).</li>',
         '      <li><strong>I - Isolation :</strong> Les transactions concurrentes s’exécutent sans interférences mutuelles néfastes, comme si elles étaient séquentielles.</li>',
-        '      <li><strong>D - Durabilité :</strong> Une fois le COMMIT confirmé, les modifications sont écrites de façon permanente dans le journal non volatil (WAL), résistant même à une coupure électrique immédiate.</li>',
+        '      <li><strong>D - Durabilité :</strong> Les transactions validées doivent survivre à un crash lorsque la configuration et le stockage assurent la synchronisation durable du journal. Dans PostgreSQL, <code>synchronous_commit = off</code> peut acquitter avant cette synchronisation. Les sauvegardes indépendantes restent nécessaires si le stockage est détruit.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
@@ -97,7 +97,7 @@ module.exports = {
         '    <h4 class="card-title">Types de verrous</h4>',
         '    <ul>',
         '      <li><strong>Verrou Partagé (Shared Lock - S) :</strong> Posé en lecture (<code>SELECT ... FOR SHARE</code>). Plusieurs transactions peuvent lire la même ressource en parallèle.</li>',
-        '      <li><strong>Verrou Exclusif (Exclusive Lock - X) :</strong> Posé en écriture (<code>UPDATE</code>, <code>DELETE</code>, <code>SELECT ... FOR UPDATE</code>). Une seule transaction peut détenir ce verrou ; tout autre accès est suspendu.</li>',
+        '      <li><strong>Verrou de ligne exclusif :</strong> Dans PostgreSQL, <code>SELECT ... FOR UPDATE</code> et les écritures posent des verrous de ligne qui bloquent les écritures ou verrous conflictuels. Un <code>SELECT</code> ordinaire peut lire une version visible grâce à MVCC ; un verrou <code>ACCESS EXCLUSIVE</code> de table peut, lui, bloquer cette lecture.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
@@ -228,11 +228,11 @@ module.exports = {
   ],
 
   flashcards: [
-    { q: 'Que garantit la propriété de Durabilité (D) d’ACID ?', a: 'Elle garantit que dès qu’un COMMIT est confirmé, les données sont écrites de façon permanente dans le journal non volatil (WAL) et ne seront pas perdues même en cas de crash serveur.' },
+    { q: 'Que garantit la propriété de Durabilité (D) d’ACID ?', a: 'Une transaction validée doit survivre à un crash si le journal est synchronisé sur un stockage fiable. Dans PostgreSQL, synchronous_commit = off peut acquitter avant synchronisation ; des sauvegardes indépendantes restent nécessaires contre la perte du stockage.' },
     { q: 'Qu’est-ce qu’un SAVEPOINT ?', a: 'C’est un point de repère intermédiaire dans une transaction permettant d’annuler les actions récentes via ROLLBACK TO sans annuler toute la transaction.' },
     { q: 'En quoi consiste une lecture sale (Dirty Read) ?', a: 'À lire des données modifiées par une autre transaction qui n’a pas encore validé son COMMIT, au risque qu’elles soient ensuite annulées par ROLLBACK.' },
     { q: 'Qu’est-ce qu’une lecture fantôme (Phantom Read) ?', a: 'C’est lorsqu’une transaction réexécute une requête avec un critère de plage (WHERE) et découvre de nouvelles lignes insérées et validées par une transaction concurrente.' },
-    { q: 'Quelle est la différence entre un verrou partagé (S) et un verrou exclusif (X) ?', a: 'Un verrou partagé autorise plusieurs lectures simultanées, alors qu’un verrou exclusif réserve la ressource à une seule transaction en écriture et bloque tout autre accès.' },
+    { q: 'Quelle est la différence entre un verrou partagé (S) et un verrou exclusif (X) ?', a: 'Les verrous partagés sont compatibles entre eux, contrairement aux verrous exclusifs sur la même ressource. Dans PostgreSQL, un verrou exclusif de ligne bloque les écritures et verrous conflictuels, mais un SELECT ordinaire peut lire une version visible grâce à MVCC ; les verrous de table ont d’autres règles.' },
     { q: 'Comment éviter les Deadlocks dans une application bancaire ?', a: 'En accédant toujours aux comptes dans le même ordre déterministe (ex: toujours trier les identifiants par ordre croissant avant de poser les verrous).' }
   ]
 };

@@ -44,10 +44,11 @@ module.exports = [
           'routage), <strong>transport</strong> (TCP, UDP, ports) et <strong>application</strong> (session + ' +
           'présentation + application : HTTP, messagerie, FTP). C\'est le modèle des produits réels — OSI ' +
           'reste le référentiel de discussion.</p>',
-          '<p>Le support rappelle les normes IEEE : <strong>802.3</strong> définit le contrôle d\'accès au ' +
-          'support (MAC) de l\'Ethernet filaire — <strong>CSMA/CD</strong> — employé dans les réseaux locaux ' +
-          'et certaines applications WAN ; <strong>802.11</strong> (avec <strong>CSMA/CA</strong>) définit les ' +
+          '<p>Le support rappelle les normes IEEE : <strong>802.3</strong> définit Ethernet. Sur un support ' +
+          'partagé en <strong>half-duplex</strong>, <strong>CSMA/CD</strong> détecte les collisions ; en ' +
+          '<strong>full-duplex</strong>, la détection de collisions est désactivée. <strong>802.11</strong> (avec <strong>CSMA/CA</strong>) définit les ' +
           'réseaux locaux sans fil, de la couche physique à la sous-couche MAC.</p>',
+          '<p>Source : <a href="https://www.cisco.com/c/en/us/support/docs/lan-switching/ethernet/10561-3.html">documentation Cisco sur les modes duplex Ethernet</a>, consultée le 30 octobre 2026.</p>',
           box('mnemo', 'Mnémotechnique — « Accès, Internet, Transport, Application : AITA »', 'pin',
             '    <p>Les trois couches hautes d\'OSI fusionnent en une seule « application » ; les deux basses ' +
             'fusionnent en « accès réseau ». Le transport reste seul : c\'est lui qui choisit TCP ou UDP.</p>')
@@ -72,7 +73,7 @@ module.exports = [
             '      <li>Le SYN-ACK porte deux numéros : l\'acquittement (A + 1) et une nouvelle séquence (B).</li>\n' +
             '      <li>Sans les trois étapes, pas de connexion TCP : SYN, SYN-ACK, ACK dans l\'ordre.</li>\n' +
             '      <li>UDP n\'est pas « pire » que TCP : il est adapté aux flux temps réel.</li>\n' +
-            '      <li>CSMA/CD (Ethernet filaire, 802.3) et CSMA/CA (Wi-Fi, 802.11) ne sont pas interchangeables.</li>\n' +
+            '      <li>CSMA/CD concerne Ethernet half-duplex ; le full-duplex ne détecte pas de collision.</li>\n' +
             '    </ul>')
         ].join('\n')
       }
@@ -86,7 +87,7 @@ module.exports = [
       { q: 'Après le handshake, la communication est…', opts: ['half-duplex', 'full-duplex', 'fermée'], correct: 1, exp: 'Séquences définies dans les deux sens.' },
       { q: 'La voix sur IP utilise plutôt…', opts: ['TCP', 'UDP', 'FTP'], correct: 1, exp: 'UDP : rapidité, tolérance aux pertes.' },
       { q: 'Un courriel voyage en…', opts: ['UDP', 'TCP', 'ICMP'], correct: 1, exp: 'Fiabilité exigée : TCP avec accusés.' },
-      { q: 'L\'Ethernet filaire (802.3) utilise…', opts: ['CSMA/CA', 'CSMA/CD', 'token'], correct: 1, exp: 'CSMA/CD ; le Wi-Fi 802.11 utilise CSMA/CA.' }
+      { q: 'En Ethernet full-duplex, que devient CSMA/CD ?', opts: ['La détection de collision est désactivée', 'Les collisions sont systématiques', 'CSMA/CA devient obligatoire'], correct: 0, exp: 'CSMA/CD s’applique au half-duplex partagé ; le full-duplex ne nécessite pas la détection de collisions.' }
     ],
 
     pitfalls: [
@@ -105,7 +106,7 @@ module.exports = [
 
     summary: [
       'Quatre couches : accès réseau, internet, transport, application.',
-      'IEEE 802.3 : Ethernet filaire CSMA/CD ; 802.11 : Wi-Fi CSMA/CA.',
+      'Ethernet half-duplex : CSMA/CD ; full-duplex : sans détection de collisions ; Wi-Fi : CSMA/CA.',
       'Handshake TCP : SYN (A), SYN-ACK (A+1, B), ACK (B+1) — full-duplex.',
       'TCP = fiable (courriels, web) ; UDP = rapide (voix, DNS).'
     ],
@@ -124,7 +125,7 @@ module.exports = [
       '<strong>Application</strong> : HTTP, messagerie, FTP — fusion des couches 5-7.',
       '<strong>SYN</strong> : premier paquet, séquence aléatoire A.',
       '<strong>SYN-ACK</strong> : ACK = A + 1, séquence B.',
-      '<strong>CSMA/CD</strong> : contrôle d\'accès Ethernet filaire (802.3).',
+      '<strong>CSMA/CD</strong> : détection de collisions en Ethernet half-duplex partagé.',
       '<strong>CSMA/CA</strong> : contrôle d\'accès Wi-Fi (802.11).'
     ],
 
@@ -139,7 +140,7 @@ module.exports = [
       { q: 'Les quatre couches TCP/IP ?', a: 'Accès réseau, internet, transport, application (AITA).' },
       { q: 'Le three-way handshake ?', a: 'SYN (séquence A), SYN-ACK (ACK = A+1, séquence B), ACK (B+1) : communication full-duplex établie.' },
       { q: 'TCP ou UDP pour la voix ?', a: 'UDP : rapidité avant tout, pertes tolérables. TCP réémettrait trop lentement.' },
-      { q: 'CSMA/CD contre CSMA/CA ?', a: 'CD (détection de collision) : Ethernet filaire 802.3. CA (évitement) : Wi-Fi 802.11.' },
+      { q: 'CSMA/CD contre CSMA/CA ?', a: 'CSMA/CD : Ethernet half-duplex ; en full-duplex, détection de collisions désactivée. CSMA/CA : Wi-Fi.' },
       { q: 'Correspondance TCP/IP - OSI ?', a: 'Accès réseau = OSI 1+2 ; internet = OSI 3 ; transport = OSI 4 ; application = OSI 5+6+7.' }
     ]
   },
@@ -153,12 +154,12 @@ module.exports = [
     time: '≈ 2 h de travail',
 
     situation:
-      'Deux adresses identifient chaque machine : la MAC, numéro de série de la carte réseau, et l\'IP, adresse ' +
+      'Deux adresses interviennent dans la communication : la MAC, adresse de liaison de l\'interface, et l\'IP, adresse ' +
       'logique routable. Le support les fait collaborer — « l\'adresse IP dirige le paquet de réseau en réseau, ' +
       'la MAC de dispositif en dispositif » — puis introduit le masque et les classes A, B, C.',
 
     objectives: [
-      'décrire l\'adresse MAC : 48 bits, OUI du fabricant, portée limitée au LAN ;',
+      'décrire une adresse MAC Ethernet de 48 bits et distinguer adresse attribuée et adresse locale ;',
       'décomposer l\'adresse IPv4 en partie réseau et partie hôte grâce au masque ;',
       'expliquer la coopération ARP (même réseau) et routage (réseaux distants) ;',
       'classifier une adresse par son premier octet : classes A, B, C, D, E.'
@@ -168,12 +169,16 @@ module.exports = [
       {
         title: 'MAC, IP, ARP',
         html: [
-          '<p>L\'<strong>adresse MAC</strong> (Media Access Control) opère en couche 2 : elle identifie ' +
-          ' unique la carte réseau (NIC). Format : <strong>48 bits</strong>, soit 12 chiffres hexadécimaux ' +
-          '(00:1A:2B:3C:4D:5E). Les 6 premiers chiffres (24 bits) forment l\'<strong>OUI</strong> ' +
-          '(Organizationally Unique Identifier) du fabricant ; les 6 derniers sont le numéro de série du ' +
-          'fabricant. Portée : le segment local uniquement — <strong>une MAC n\'est jamais routée au-delà ' +
-          'd\'un routeur</strong>.</p>',
+          '<p>L\'<strong>adresse MAC</strong> (Media Access Control) est une adresse de liaison de couche 2. ' +
+          'Une adresse Ethernet courante comporte <strong>48 bits</strong>, soit 12 chiffres hexadécimaux. ' +
+          'Une adresse peut être administrée localement ou choisie de manière aléatoire ; elle ne prouve donc ' +
+          'ni l\'identité immuable de la carte ni une unicité garantie. Pour un bloc global MA-L, ' +
+          'l\'<strong>OUI</strong> attribué à une organisation occupe 24 bits et le suffixe est attribué par ' +
+          'cette organisation ; d\'autres blocs utilisent des préfixes de 28 ou 36 bits. Le suffixe n\'est ' +
+          'pas nécessairement un numéro de série. Sur un chemin routé ordinaire, la trame locale est remplacée ' +
+          'par une nouvelle trame sur la liaison suivante.</p>',
+          '<p>Référence : <a href="https://www.rfc-editor.org/rfc/rfc9542">RFC 9542, adresses et préfixes Ethernet</a>, ' +
+          'consultée le 30 octobre 2026.</p>',
           '<p>L\'<strong>adresse IP</strong> opère en couche 3 : identité logique et routable. <strong>IPv4</strong> : ' +
           '32 bits en quatre octets décimaux (192.168.1.10), composée d\'une partie <strong>réseau</strong> et ' +
           'd\'une partie <strong>hôte</strong>, séparées par le masque ; dynamique (DHCP) ou statique. ' +
@@ -213,8 +218,8 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Une adresse MAC compte…', opts: ['32 bits', '48 bits (12 hexadécimaux)', '128 bits'], correct: 1, exp: '12 chiffres hexadécimaux : 6 OUI + 6 série.' },
-      { q: 'L\'OUI d\'une MAC identifie…', opts: ['le réseau', 'le fabricant de la carte', 'l\'utilisateur'], correct: 1, exp: 'Organizationally Unique Identifier : 24 premiers bits.' },
+      { q: 'Une adresse MAC Ethernet courante compte…', opts: ['32 bits', '48 bits (12 chiffres hexadécimaux)', '128 bits'], correct: 1, exp: 'Une adresse Ethernet de ce format comporte 12 chiffres hexadécimaux ; sa syntaxe ne prouve pas son origine.' },
+      { q: 'Dans un bloc MA-L, l\'OUI attribué désigne…', opts: ['le nom de l\'utilisateur', 'l\'organisation ayant reçu le bloc', 'le débit du réseau'], correct: 1, exp: 'L\'OUI de 24 bits identifie l\'organisation attributaire, pas nécessairement le fabricant de l\'appareil ni son utilisateur.' },
       { q: 'Une MAC est routée…', opts: ['sur Internet', 'jamais au-delà d\'un routeur', 'dans toute l\'entreprise'], correct: 1, exp: 'Portée : le segment local uniquement.' },
       { q: 'IPv4 fait 32 bits, IPv6 fait…', opts: ['48 bits', '64 bits', '128 bits'], correct: 2, exp: 'Huit groupes hexadécimaux, contre la pénurie IPv4.' },
       { q: 'ARP sert à…', opts: ['router les paquets', 'traduire une IP en MAC locale', 'attribuer des IP'], correct: 1, exp: 'Address Resolution Protocol, sur le même réseau.' },
@@ -238,7 +243,7 @@ module.exports = [
     ],
 
     summary: [
-      'MAC : 48 bits, OUI + série, couche 2, jamais routée.',
+      'MAC Ethernet courante : 48 bits en couche 2 ; elle peut être administrée localement.',
       'IP : 32 bits (IPv4) réseau + hôte ; IPv6 : 128 bits.',
       'ARP traduit IP en MAC localement ; le routeur enchaîne à distance.',
       'Masque : bits 1 = réseau, 0 = hôte. Classes A (1-126), B (128-191), C (192-223).'
@@ -252,8 +257,8 @@ module.exports = [
     ],
 
     notions: [
-      '<strong>MAC</strong> : 48 bits hexadécimaux, identité physique de la carte.',
-      '<strong>OUI</strong> : 24 premiers bits, fabricant de la carte.',
+      '<strong>MAC</strong> : adresse de liaison, souvent 48 bits, pas nécessairement immuable.',
+      '<strong>OUI</strong> : identifiant de 24 bits attribué à une organisation, utilisé notamment dans un bloc MA-L.',
       '<strong>IPv4</strong> : 32 bits, quatre octets décimaux, réseau + hôte.',
       '<strong>IPv6</strong> : 128 bits, huit groupes hexadécimaux.',
       '<strong>ARP</strong> : traduction IP en MAC sur le segment local.',
@@ -270,7 +275,7 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Structure d\'une MAC ?', a: '48 bits = 12 chiffres hexadécimaux ; 6 premiers : OUI du fabricant, 6 derniers : numéro de série. Non routée.' },
+      { q: 'Structure d\'une MAC ?', a: 'Une adresse Ethernet courante a 48 bits ; un bloc MA-L associe un OUI de 24 bits à un suffixe. Elle peut aussi être administrée localement ; d\'autres préfixes existent.' },
       { q: 'Que fait ARP ?', a: 'Sur un même réseau, il traduit l\'adresse IP de destination en adresse MAC pour l\'encapsulation locale.' },
       { q: 'Rôle du masque ?', a: 'Séparer la partie réseau (bits à 1) de la partie hôte (bits à 0) d\'une adresse IP.' },
       { q: 'Plages des classes A, B, C ?', a: 'A : 1-126 (255.0.0.0) ; B : 128-191 (255.255.0.0) ; C : 192-223 (255.255.255.0).' },
@@ -287,8 +292,9 @@ module.exports = [
     time: '≈ 2 h de travail',
 
     situation:
-      'Un /24 offre 254 hôtes ; quatre bureaux de 30 postes ne peuvent pas partager le même identifiant réseau — ' +
-      'et quatre classes C complètes gaspilleraient ~896 adresses. Le sous-réseautage « divise pour régner » : ' +
+      'Quatre bureaux de 30 postes, soit 120 hôtes, peuvent partager un /24 de 254 adresses utilisables. ' +
+      'On peut cependant isoler leurs réseaux pour organiser les accès ou limiter les domaines de diffusion. ' +
+      'Le sous-réseautage « divise pour régner » : ' +
       'emprunter des bits, recalculer le masque, dimensionner chaque bloc — VLSM et CIDR en font le standard.',
 
     objectives: [
@@ -305,8 +311,8 @@ module.exports = [
           '<p>Créer des sous-réseaux, c\'est <strong>emprunter des bits à la partie hôte</strong> en les mettant ' +
           'à 1 dans le masque. Les <strong>bits empruntés</strong> déterminent le nombre de sous-réseaux : ' +
           '2^emprunt (3 bits = 8 sous-réseaux). Les <strong>bits restants</strong> déterminent les hôtes valides ' +
-          'de chaque sous-réseau : 2^(bits restants) - 2 (5 bits restants = 30 hôtes valides — l\'adresse réseau ' +
-          'et l\'adresse de diffusion sont retirées).</p>',
+          'de chaque sous-réseau IPv4 ordinaire jusqu’à /30 : 2^(bits restants) - 2 (5 bits restants = 30 hôtes valides — l\'adresse réseau ' +
+          'et l\'adresse de diffusion sont retirées). Une liaison /31 point-à-point fait exception.</p>',
           '<p>Le <strong>nouveau masque</strong> se lit sur le dernier octet : 3 bits empruntés donnent ' +
           '11100000, soit 128 + 64 + 32 = <strong>224</strong> — masque 255.255.255.224, ou <strong>/27</strong> ' +
           'en notation CIDR. Deux bits donnent 192 (/26), un bit 128 (/25), quatre bits 240 (/28).</p>',
@@ -321,17 +327,19 @@ module.exports = [
           '<p>Avec le découpage classique, tous les sous-réseaux d\'un réseau portaient le même masque : ' +
           'inefficace quand un bureau n\'a besoin que de 5 hôtes et un autre de 50. Le <strong>VLSM</strong> ' +
           '(Variable Length Subnet Masking) permet <strong>différents masques au sein du même réseau ' +
-          'principal</strong> : /30 pour les liaisons point-à-point (2 hôtes), /26 pour les gros bureaux — ' +
-          'efficacité maximale. Le routeur doit comprendre le masque de chaque sous-réseau.</p>',
+          'principal</strong> : /30 pour les liaisons point-à-point (2 hôtes), /26 pour les gros bureaux. ' +
+          'Sur une liaison <strong>/31 point-à-point</strong> compatible avec la RFC 3021, les deux adresses ' +
+          'sont utilisables comme adresses d’interface. Un /32 désigne une adresse unique, souvent une route d’hôte. ' +
+          'Source : <a href="https://www.rfc-editor.org/rfc/rfc3021">RFC 3021</a>, consultée le 30 octobre 2026.</p>',
           '<p>Le <strong>CIDR</strong> (Classless Inter-Domain Routing), adopté au début des années 90, rend ' +
           'obsolète le système de classes et standardise le VLSM. La <strong>notation CIDR</strong> écrit le ' +
           'nombre de bits réseau après un slash : 192.168.1.0/27 — ancienne classe C sous-réseautée ; 10.0.0.0/30 ' +
           '— liaison point-à-point. Le choix de la taille exacte optimise l\'espace d\'adressage global.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
             '    <ul>\n' +
-            '      <li>Les hôtes valides retirent deux adresses : réseau et diffusion — 2^k - 2, jamais 2^k.</li>\n' +
+            '      <li>Dans le cas ordinaire, on retire réseau et diffusion ; /31 point-à-point fait exception.</li>\n' +
             '      <li>3 bits empruntés sur /24 donnent /27, pas /3 : on additionne au préfixe de départ.</li>\n' +
-            '      <li>/30 = 2 hôtes valides : c\'est le bloc des liaisons point-à-point.</li>\n' +
+            '      <li>/30 offre deux hôtes ; /31 offre aussi deux adresses sur une liaison point-à-point compatible.</li>\n' +
             '      <li>Le VLSM exige que le routeur connaisse chaque masque : « diviser pour régner » se route.</li>\n' +
             '    </ul>')
         ].join('\n')
@@ -345,12 +353,12 @@ module.exports = [
       { q: 'Emprunter 2 bits donne un dernier octet de…', opts: ['192', '224', '240'], correct: 0, exp: '11000000 = 128 + 64 = 192.' },
       { q: 'Le VLSM permet…', opts: ['un masque unique par réseau', 'des masques différents dans un même réseau', 'd\'ignorer le routage'], correct: 1, exp: 'Tailles variées : /30 pour les liaisons, /26 pour les bureaux.' },
       { q: 'Le CIDR a remplacé…', opts: ['le VLSM', 'le système de classes', 'DHCP'], correct: 1, exp: 'Routage sans classe : notation /n, fin des classes A-B-C.' },
-      { q: 'Une liaison point-à-point se dimensionne en…', opts: ['/24', '/28', '/30'], correct: 2, exp: '2 hôtes valides : exactement deux routeurs.' },
+      { q: 'Une liaison /31 point-à-point compatible RFC 3021 utilise…', opts: ['ses deux adresses pour les interfaces', 'aucune adresse utilisable', 'une adresse pour diffusion obligatoire'], correct: 0, exp: 'La RFC 3021 autorise les deux adresses sur une liaison point-à-point compatible ; /30 reste une option classique.' },
       { q: '192.168.1.0/27 offre par sous-réseau…', opts: ['30 hôtes', '62 hôtes', '126 hôtes'], correct: 0, exp: '27 bits réseau, 5 bits hôte : 2^5 - 2 = 30.' }
     ],
 
     pitfalls: [
-      'Oublier de retirer 2 aux hôtes : l\'adresse réseau et la diffusion ne sont pas attribuables.',
+      'Appliquer 2^k - 2 à un /31 point-à-point : ses deux adresses sont utilisables.',
       'Calculer le masque sans convertir le binaire : 11100000 = 224, pas 223.',
       'Confondre nombre de sous-réseaux (2^emprunt) et hôtes par sous-réseau (2^restants - 2).',
       'Appliquer le même masque partout quand le VLSM est demandé.'
@@ -359,12 +367,12 @@ module.exports = [
     methodTitle: 'Méthode — dimensionner un sous-réseau en trois gestes',
     method: [
       'Compter les hôtes nécessaires, ajouter le marge de croissance.',
-      'Choisir k bits d\'hôte tel que 2^k - 2 couvre le besoin ; préfixe = 32 - k.',
+      'Pour un sous-réseau IPv4 ordinaire jusqu’à /30, choisir k tel que 2^k - 2 couvre le besoin ; considérer /31 pour une liaison point-à-point compatible.',
       'Convertir le masque : bits à 1 = réseau — 128, 192, 224, 240, 248, 252, 254.'
     ],
 
     summary: [
-      'Emprunt de bits : 2^emprunt sous-réseaux, 2^(restants) - 2 hôtes valides.',
+      'Jusqu’à /30 : 2^(restants) - 2 hôtes usuels ; /31 point-à-point : deux adresses utilisables.',
       'Nouveau masque : dernier octet 128, 192, 224, 240, 248, 252 — /25 à /30.',
       'VLSM : masques différents dans un même réseau, efficacité maximale.',
       'CIDR : notation /n, fin des classes, standard de l\'adressage IPv4.'
@@ -380,12 +388,12 @@ module.exports = [
     notions: [
       '<strong>Sous-réseautage</strong> : diviser un réseau en empruntant des bits d\'hôte.',
       '<strong>Bits empruntés</strong> : déterminent 2^emprunt sous-réseaux.',
-      '<strong>Hôtes valides</strong> : 2^k - 2 (réseau et diffusion exclus).',
+      '<strong>Hôtes valides</strong> : 2^k - 2 dans le cas ordinaire ; exception /31 point-à-point.',
       '<strong>/27</strong> : 255.255.255.224, 30 hôtes valides.',
       '<strong>/30</strong> : 255.255.255.252, 2 hôtes — liaison point-à-point.',
       '<strong>VLSM</strong> : masques de longueurs variables dans un même réseau.',
       '<strong>CIDR</strong> : routage sans classe, notation IP/n.',
-      '<strong>Diffusion</strong> : dernière adresse du bloc, non attribuable.'
+      '<strong>Diffusion</strong> : dernière adresse du bloc IPv4 ordinaire ; /31 point-à-point est un cas particulier.'
     ],
 
     mastery: [
@@ -397,7 +405,7 @@ module.exports = [
 
     flashcards: [
       { q: '3 bits empruntés sur /24 ?', a: '8 sous-réseaux, 30 hôtes valides chacun, masque 255.255.255.224, notation /27.' },
-      { q: 'Pourquoi 2^k - 2 ?', a: 'On retire l\'adresse du réseau (première) et celle de diffusion (dernière) des 2^k combinaisons.' },
+      { q: 'Pourquoi 2^k - 2 ?', a: 'Dans le cas ordinaire, on retire réseau et diffusion. Sur un /31 point-à-point compatible RFC 3021, les deux adresses sont utilisables.' },
       { q: 'Qu\'apporte le VLSM ?', a: 'Des masques différents dans un même réseau principal : /30 pour les liaisons, /26 pour les gros bureaux.' },
       { q: 'La notation CIDR ?', a: 'Adresse IP/nombre de bits réseau : 192.168.1.0/27 ; elle remplace les classes depuis les années 90.' },
       { q: 'Le masque /28 en décimal ?', a: '255.255.255.240 (4 bits empruntés : 128+64+32+16) — 14 hôtes valides.' }

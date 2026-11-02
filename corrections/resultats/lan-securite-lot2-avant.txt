@@ -1,0 +1,208 @@
+TAP version 13
+# Subtest: F182 : les deux sources de la grille distinguent le scénario du rétablissement réel
+not ok 1 - F182 : les deux sources de la grille distinguent le scénario du rétablissement réel
+  ---
+  duration_ms: 1.056569
+  type: 'test'
+  location: '/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/lan-securite-lot2.test.js:10:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input was expected to not match the regular expression /irrécupérable/i. Input:
+    
+    "<p>La fonctionnalité <strong>Port Security</strong> sur les commutateurs de niveau 2 restreint l'accès d'un port aux seules adresses MAC approuvées (statiques ou apprises dynamiquement jusqu'à un quota <code>max_mac</code>).<br><br>\n" +
+      "Modes de violation lorsqu'une adresse MAC non autorisée émet une trame :<br>\n" +
+      '- <strong>protect :</strong> Détruit silencieusement la trame sans générer de log ni incrémenter de compteur ; le port reste opérationnel pour les MACs légitimes (&rarr; <code>action=DROP_SILENT state=UP</code>).<br>\n' +
+      '- <strong>restrict :</strong> Détruit la trame, incrémente le compteur de violations et émet un piège SNMP / log syslog ; le port reste UP (&rarr; <code>action=DROP_ALERT state=UP</code>).<br>\n' +
+      "- <strong>shutdown :</strong> Désactive immédiatement le port physique qui passe en état d'erreur irrécupérable <code>ERR_DISABLE</code> (&rarr; <code>action=PORT_SHUTDOWN state=ERR_DISABLE</code>). Toutes les trames suivantes reçues sur ce port sont rejetées (&rarr; <code>action=DROP state=ERR_DISABLE</code>).<br><br>\n" +
+      'Analysez les paramètres du problème pour chaque cas...|NONE&gt;</code><br>\n' +
+      '- Les trames arrivant sur le port :<br>\n' +
+      '  <code>FRAME id=&lt;nom&gt; src_mac=&lt;mac&gt;</code><br><br>\n' +
+      'Pour chaque trame, afficher :<br>\n' +
+      '<code>PORT_SEC_REPORT id={id} port={port} mac={src_mac} status={PERMIT|VIOLATION|PORT_DOWN} action={action} state={state}</code></p>'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    <p>La fonctionnalité <strong>Port Security</strong> sur les commutateurs de niveau 2 restreint l'accès d'un port aux seules adresses MAC approuvées (statiques ou apprises dynamiquement jusqu'à un quota <code>max_mac</code>).<br><br>
+    Modes de violation lorsqu'une adresse MAC non autorisée émet une trame :<br>
+    - <strong>protect :</strong> Détruit silencieusement la trame sans générer de log ni incrémenter de compteur ; le port reste opérationnel pour les MACs légitimes (&rarr; <code>action=DROP_SILENT state=UP</code>).<br>
+    - <strong>restrict :</strong> Détruit la trame, incrémente le compteur de violations et émet un piège SNMP / log syslog ; le port reste UP (&rarr; <code>action=DROP_ALERT state=UP</code>).<br>
+    - <strong>shutdown :</strong> Désactive immédiatement le port physique qui passe en état d'erreur irrécupérable <code>ERR_DISABLE</code> (&rarr; <code>action=PORT_SHUTDOWN state=ERR_DISABLE</code>). Toutes les trames suivantes reçues sur ce port sont rejetées (&rarr; <code>action=DROP state=ERR_DISABLE</code>).<br><br>
+    Analysez les paramètres du problème pour chaque cas...|NONE&gt;</code><br>
+    - Les trames arrivant sur le port :<br>
+      <code>FRAME id=&lt;nom&gt; src_mac=&lt;mac&gt;</code><br><br>
+    Pour chaque trame, afficher :<br>
+    <code>PORT_SEC_REPORT id={id} port={port} mac={src_mac} status={PERMIT|VIOLATION|PORT_DOWN} action={action} state={state}</code></p>
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/lan-securite-lot2.test.js:14:12)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: La conservation des adresses sticky est conditionnée à la sauvegarde de configuration
+not ok 2 - La conservation des adresses sticky est conditionnée à la sauvegarde de configuration
+  ---
+  duration_ms: 0.356699
+  type: 'test'
+  location: '/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/lan-securite-lot2.test.js:23:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /sauvegard[^.]*startup-config/i. Input:
+    
+    '<p>Historiquement conçu sans préoccupation de sécurité cryptographique, le standard Ethernet considère que tout port physique connecté est légitime. Les attaquants exploitent cette confiance aveugle par deux techniques offensives classiques :</p>\n' +
+      '<div class="grid grid-2">\n' +
+      '  <div class="card">\n' +
+      '    <h4>1. Saturation de Table CAM (MAC Address Flooding)</h4>\n' +
+      '    <p>La table de commutation (Content Addressable Memory - CAM) possède une mémoire finie (typiquement 8 000 à 32 000 entrées). Un outil offensif (ex: <code>macof</code>) injecte des dizaines de milliers de trames Ethernet forgées avec des adresses MAC sources aléatoires par seconde :</p>\n' +
+      '    <ul>\n' +
+      '      <li>La table CAM sature en quelques fractions de seconde.</li>\n' +
+      '      <li>Incapable d’apprendre les adresses légitimes, le commutateur passe en <strong>mode fail-open (Unicast Flooding)</strong> : il diffuse chaque trame reçue sur tous ses ports comme un simple hub.</li>\n' +
+      '      <li>L’attaquant positionné sur son port capture l’intégralité des flux du VLAN en clair.</li>\n' +
+      '    </ul>\n' +
+      '  </div>\n' +
+      '  <div class="card">\n' +
+      '    <h4>2. Serveur DHCP Pirate (Rogue DHCP Server)</h4>\n' +
+      '    <p>Lorsqu’un poste client démarre, il émet une diffusion <code>DHCPDISCOVER</code>. Un attaquant déployant un serveur DHCP pirate répond plus rapidement que le serveur officiel (<code>DHCPOFFER</code>) :</p>\n' +
+      '    <ul>\n' +
+      '      <li>Il fournit une adresse IP valide au client.</li>\n' +
+      '      <li>Il positionne sa propre machine comme <strong>passerelle par défaut</strong> et <strong>serveur DNS</strong>.</li>\n' +
+      '      <li>Tout le trafic sortant du poste client est intercepté, analysé et modifié avant d’être relayé.</li>\n' +
+      '    </ul>\n' +
+      '  </div>\n' +
+      '</div> <p>La fonctionnalité <strong>Port Security</strong> permet de restreindre le nombre d’adresses MAC autorisées à émettre sur une interface d’accès et d’associer des adresses MAC matérielles spécifiques :</p>\n' +
+      '<div class="grid grid-2">\n' +
+      '  <div class="card">\n' +
+      "    <h4>Apprentissage et Types d'Adresses MAC</h4>\n" +
+      '    <ul>\n' +
+      '      <li><strong>Statique :</strong> Configurée manuellement par l’administrateur (<code>switchport port-security mac-address &lt;mac&gt;</code>).</li>\n' +
+      '      <li><strong>Dynamique :</strong> Apprise au vol par le commutateur et oubliée au redémarrage.</li>\n' +
+      '      <li><strong>Sticky MAC :</strong> Apprise dynamiquement sur la première trame reçue et automatiquement inscrite dans la configuration courante (<code>running-config</code>) pour persister après redémarrage.</li>\n' +
+      '    </ul>\n' +
+      '  </div>\n' +
+      '  <div class="card">\n' +
+      '    <h4>Les Trois Modes de Violation</h4>\n' +
+      '    <table class="table">\n' +
+      '      <thead><tr><th>Mode</th><th>Trafic Inconnu</th><th>Notification Syslog / SNMP</th><th>État du Port</th></tr></thead>\n' +
+      '      <tbody>\n' +
+      '        <tr><td><code>protect</code></td><td>Détruit (Drop)</td><td>Non (silencieux)</td><td>Reste Up</td></tr>\n' +
+      '        <tr><td><code>restrict</code></td><td>Détruit (Drop)</td><td>Oui (compteur incrémenté)</td><td>Reste Up</td></tr>\n' +
+      '        <tr><td><code>shutdown</code></td><td>Détruit (Drop)</td><td>Oui (alerte critique)</td><td><strong>err-disable (désactivé)</strong></td></tr>\n' +
+      '      </tbody>\n' +
+      '    </table>\n' +
+      '  </div>\n' +
+      '</div>\n' +
+      '  <div class="box box--standard">\n' +
+      `    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Rétablissement d'un Port en état err-disable</div>\n` +
+      '<p>Lorsqu’un port passe en état <code>err-disable</code> suite à une violation en mode shutdown, il ne se réactive pas automatiquement par défaut. L’administrateur doit intervenir manuellement (<code>shutdown</code> puis <code>no shutdown</code>), ou activer le redémarrage temporisé automatique : <code>errdisable recovery cause psecure-violation</code> avec un intervalle configuré (ex: 300 secondes).</p>\n' +
+      '  </div> <p>Pour contrer les attaques de type Rogue DHCP et Man-In-The-Middle par usurpation ARP (ARP Poisoning), les commutateurs combinent deux technologies complémentaires de filtrage dynamique :</p>\n' +
+      '<div class="grid grid-2">\n' +
+      '  <div class="card">\n' +
+      '    <h4>1. DHCP Snooping</h4>\n' +
+      '    <p>Agit comme un pare-feu applicatif de niveau 2 pour les messages DHCP :</p>\n' +
+      '    <ul>\n' +
+      '      <li><strong>Ports de Confiance (Trusted) :</strong> Reliés aux serveurs DHCP légitimes et liaisons montantes (uplinks). Les messages serveurs (DHCPOFFER, DHCPACK) y sont autorisés.</li>\n' +
+      '      <li><strong>Ports Non Approuvés (Untrusted) :</strong> Reliés aux utilisateurs. Tout message serveur émis depuis ces ports est <strong>immédiatement bloqué</strong>.</li>\n' +
+      '      <li><strong>DHCP Snooping Binding Table :</strong> Construit une table dynamique liant : <em>Adresse MAC</em>, <em>Adresse IP attribuée</em>, <em>Durée du bail</em>, <em>VLAN</em> et <em>Port physique</em>.</li>\n' +
+      '    </ul>\n' +
+      '  </div>\n' +
+      '  <div class="card">\n' +
+      '    <h4>2. Dynamic ARP Inspection (DAI) &amp; IP Source Guard</h4>\n' +
+      '    <p>Exploite directement la base construite par le DHCP Snooping :</p>\n' +
+      '    <ul>\n' +
+      '      <li><strong>Dynamic ARP Inspection (DAI) :</strong> Intercepte toutes les requêtes et réponses ARP sur les ports untrusted. Si le couple IP/MAC ne figure pas dans la table DHCP Snooping, la trame ARP est détruite, neutralisant totalement l’usurpation de passerelle.</li>\n' +
+      '      <li><strong>IP Source Guard (IPSG) :</strong> Filtre tous les paquets IP au niveau matériel : si un utilisateur change manuellement son adresse IP sans passer par le DHCP légitime, le commutateur bloque immédiatement ses paquets.</li>\n' +
+      '    </ul>\n' +
+      '  </div>\n' +
+      '</div>'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    <p>Historiquement conçu sans préoccupation de sécurité cryptographique, le standard Ethernet considère que tout port physique connecté est légitime. Les attaquants exploitent cette confiance aveugle par deux techniques offensives classiques :</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h4>1. Saturation de Table CAM (MAC Address Flooding)</h4>
+        <p>La table de commutation (Content Addressable Memory - CAM) possède une mémoire finie (typiquement 8 000 à 32 000 entrées). Un outil offensif (ex: <code>macof</code>) injecte des dizaines de milliers de trames Ethernet forgées avec des adresses MAC sources aléatoires par seconde :</p>
+        <ul>
+          <li>La table CAM sature en quelques fractions de seconde.</li>
+          <li>Incapable d’apprendre les adresses légitimes, le commutateur passe en <strong>mode fail-open (Unicast Flooding)</strong> : il diffuse chaque trame reçue sur tous ses ports comme un simple hub.</li>
+          <li>L’attaquant positionné sur son port capture l’intégralité des flux du VLAN en clair.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>2. Serveur DHCP Pirate (Rogue DHCP Server)</h4>
+        <p>Lorsqu’un poste client démarre, il émet une diffusion <code>DHCPDISCOVER</code>. Un attaquant déployant un serveur DHCP pirate répond plus rapidement que le serveur officiel (<code>DHCPOFFER</code>) :</p>
+        <ul>
+          <li>Il fournit une adresse IP valide au client.</li>
+          <li>Il positionne sa propre machine comme <strong>passerelle par défaut</strong> et <strong>serveur DNS</strong>.</li>
+          <li>Tout le trafic sortant du poste client est intercepté, analysé et modifié avant d’être relayé.</li>
+        </ul>
+      </div>
+    </div> <p>La fonctionnalité <strong>Port Security</strong> permet de restreindre le nombre d’adresses MAC autorisées à émettre sur une interface d’accès et d’associer des adresses MAC matérielles spécifiques :</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h4>Apprentissage et Types d'Adresses MAC</h4>
+        <ul>
+          <li><strong>Statique :</strong> Configurée manuellement par l’administrateur (<code>switchport port-security mac-address &lt;mac&gt;</code>).</li>
+          <li><strong>Dynamique :</strong> Apprise au vol par le commutateur et oubliée au redémarrage.</li>
+          <li><strong>Sticky MAC :</strong> Apprise dynamiquement sur la première trame reçue et automatiquement inscrite dans la configuration courante (<code>running-config</code>) pour persister après redémarrage.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Les Trois Modes de Violation</h4>
+        <table class="table">
+          <thead><tr><th>Mode</th><th>Trafic Inconnu</th><th>Notification Syslog / SNMP</th><th>État du Port</th></tr></thead>
+          <tbody>
+            <tr><td><code>protect</code></td><td>Détruit (Drop)</td><td>Non (silencieux)</td><td>Reste Up</td></tr>
+            <tr><td><code>restrict</code></td><td>Détruit (Drop)</td><td>Oui (compteur incrémenté)</td><td>Reste Up</td></tr>
+            <tr><td><code>shutdown</code></td><td>Détruit (Drop)</td><td>Oui (alerte critique)</td><td><strong>err-disable (désactivé)</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+      <div class="box box--standard">
+        <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Rétablissement d'un Port en état err-disable</div>
+    <p>Lorsqu’un port passe en état <code>err-disable</code> suite à une violation en mode shutdown, il ne se réactive pas automatiquement par défaut. L’administrateur doit intervenir manuellement (<code>shutdown</code> puis <code>no shutdown</code>), ou activer le redémarrage temporisé automatique : <code>errdisable recovery cause psecure-violation</code> avec un intervalle configuré (ex: 300 secondes).</p>
+      </div> <p>Pour contrer les attaques de type Rogue DHCP et Man-In-The-Middle par usurpation ARP (ARP Poisoning), les commutateurs combinent deux technologies complémentaires de filtrage dynamique :</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h4>1. DHCP Snooping</h4>
+        <p>Agit comme un pare-feu applicatif de niveau 2 pour les messages DHCP :</p>
+        <ul>
+          <li><strong>Ports de Confiance (Trusted) :</strong> Reliés aux serveurs DHCP légitimes et liaisons montantes (uplinks). Les messages serveurs (DHCPOFFER, DHCPACK) y sont autorisés.</li>
+          <li><strong>Ports Non Approuvés (Untrusted) :</strong> Reliés aux utilisateurs. Tout message serveur émis depuis ces ports est <strong>immédiatement bloqué</strong>.</li>
+          <li><strong>DHCP Snooping Binding Table :</strong> Construit une table dynamique liant : <em>Adresse MAC</em>, <em>Adresse IP attribuée</em>, <em>Durée du bail</em>, <em>VLAN</em> et <em>Port physique</em>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>2. Dynamic ARP Inspection (DAI) &amp; IP Source Guard</h4>
+        <p>Exploite directement la base construite par le DHCP Snooping :</p>
+        <ul>
+          <li><strong>Dynamic ARP Inspection (DAI) :</strong> Intercepte toutes les requêtes et réponses ARP sur les ports untrusted. Si le couple IP/MAC ne figure pas dans la table DHCP Snooping, la trame ARP est détruite, neutralisant totalement l’usurpation de passerelle.</li>
+          <li><strong>IP Source Guard (IPSG) :</strong> Filtre tous les paquets IP au niveau matériel : si un utilisateur change manuellement son adresse IP sans passer par le DHCP légitime, le commutateur bloque immédiatement ses paquets.</li>
+        </ul>
+      </div>
+    </div>
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/lan-securite-lot2.test.js:26:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 50.962782

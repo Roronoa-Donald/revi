@@ -38,7 +38,7 @@ function index(course, chapterList) {
     '',
     '  <section class="statbar">',
     '    <div class="stat"><span class="stat__val">6</span><span class="stat__lbl">Modules approfondis</span></div>',
-    '    <div class="stat"><span class="stat__val">18</span><span class="stat__lbl">Exercices de code exécutables</span></div>',
+    '    <div class="stat"><span class="stat__val">18</span><span class="stat__lbl">Exercices SQL</span></div>',
     '    <div class="stat"><span class="stat__val">48</span><span class="stat__lbl">Questions de QCM corrigées</span></div>',
     '    <div class="stat"><span class="stat__val">2</span><span class="stat__lbl">Examens blancs d\'ingénierie</span></div>',
     '  </section>',
@@ -48,9 +48,9 @@ function index(course, chapterList) {
     '',
     '  <h2>Ingénierie des Bases de Données &amp; Performance SQL en Troisième Année</h2>',
     box('standard', 'Du Simple CRUD aux Moteurs Relationnels Haute Scalabilité &amp; ACID', [
-      '<p>En troisième année de Bachelor en Ingénierie des Données et Systèmes d\'Information, la maîtrise du SQL ne se résume pas à écrire des requêtes <code>SELECT</code> et <code>JOIN</code> élémentaires. L\'ingénieur base de données (DBA / Data Engineer) doit comprendre la cinématique interne des moteurs transactionnels ACID (contrôle de concurrence multiversion MVCC, verrous partagés/exclusifs, graphes d\'attente anti-deadlock), auditer l\'empreinte physique des structures d\'indexation (B-Tree, Hash, GiST, GIN, index couvrants), et disséquer les plans d\'exécution CBO via <code>EXPLAIN (ANALYZE, BUFFERS)</code> pour éliminer les goulots d\'étranglement sur des volumétries massives.</p>',
-      '<p>Ce cours approfondit l\'intégralité des standards industriels PostgreSQL et ANSI SQL : ' +
-      'les transactions ACID et les 4 niveaux d\'isolation ANSI avec résolution des anomalies de concurrence (Dirty Read, Non-Repeatable Read, Phantom Read) et gestion des verrous 2PL, ' +
+      '<p>En troisième année de Bachelor en Ingénierie des Données et Systèmes d\'Information, la maîtrise du SQL ne se résume pas à écrire des requêtes <code>SELECT</code> et <code>JOIN</code> élémentaires. Ce cours présente notamment le contrôle de concurrence multiversion (MVCC), les verrous et les graphes d\'attente pour analyser les interblocages. Il aborde aussi les structures d\'indexation et la lecture des plans d\'exécution via <code>EXPLAIN (ANALYZE, BUFFERS)</code> pour rechercher les causes de lenteur.</p>',
+      '<p>Ce cours présente des notions de SQL et des fonctionnalités de PostgreSQL : ' +
+      'les transactions ACID, les niveaux d\'isolation et les anomalies de concurrence (Dirty Read, Non-Repeatable Read, Phantom Read), avec les particularités de PostgreSQL, ' +
       'les structures d\'index physiques et leur dimensionnement mémoire (Fill Factor, fragmentation, index partiels et sélecteurs d\'index Index Advisor), ' +
       'l\'optimisation par les coûts (CBO) et le diagnostic des nœuds de plan (Seq Scan vs Index Scan, jointures Nested Loop, Hash Join, Merge Join et dérives de cardinalité statistiques), ' +
       'la puissance analytique des fonctions de fenêtrage (ROW_NUMBER, RANK, DENSE_RANK, fenêtres glissantes) et des expressions de table communes récursives (WITH RECURSIVE), ' +
@@ -62,9 +62,9 @@ function index(course, chapterList) {
     '  <div class="grid grid-2">',
     '    <div class="card">',
     '      <div class="card__head"><span class="badge">Laboratoire Code Lab</span></div>',
-    '      <h3>18 Ateliers Pratiques Python</h3>',
-    '      <p>Simulez et auditez directement dans le navigateur l\'isolation ACID, les cycles de verrous, le dimensionnement B-Tree, l\'analyse de plans EXPLAIN et l\'élagage de partitions.</p>',
-    '      <a class="btn btn--sm" href="atelier.html">Ouvrir le laboratoire</a>',
+    '      <h3>18 exercices SQL</h3>',
+    '      <p>Les exercices proposent des données et des modèles pédagogiques. Leur correction automatique est temporairement suspendue.</p>',
+    '      <a class="btn btn--sm" href="chapitres/exercices.html">Voir les exercices</a>',
     '    </div>',
     '    <div class="card">',
     '      <div class="card__head"><span class="badge">Certification &amp; Évaluation</span></div>',
@@ -102,7 +102,7 @@ function sommaire(course, chapterList) {
 
   const body = [
     '  <h1>Sommaire Général — ' + course.brand + '</h1>',
-    '  <p class="lead">Programme officiel d\'ingénierie des bases de données relationnelles avancées et performance SQL découpé en six modules d\'apprentissage approfondis.</p>',
+    '  <p class="lead">Parcours d\'ingénierie des bases de données relationnelles avancées et performance SQL découpé en six modules d\'apprentissage.</p>',
     '',
     '  <div class="sommaire-list">' + listHtml + '</div>',
     '',
@@ -153,25 +153,27 @@ function atelier(course) {
 
   const body = [
     crumbs,
-    '  <h1>Laboratoire Interactif &amp; Bac à Sable SQL Avancé</h1>',
-    '  <p class="lead">Expérimentez et validez vos scripts d\'ingénierie base de données en Python 3 : simulation de transactions ACID, calcul d\'empreinte B-Tree, analyse de plans EXPLAIN et fenêtrage analytique.</p>',
+    '  <h1>Éditeur SQL libre</h1>',
+    '  <p class="lead">Rédigez une requête SQL. Le bouton Exécuter utilise un service externe, s\'il est configuré ; sa disponibilité et son dialecte dépendent du service. Cet éditeur ne fournit pas une base PostgreSQL de production. La correction automatique des exercices du cours est temporairement suspendue.</p>',
+    '  <p>La requête initiale est un exemple autonome compatible avec SQLite. Utilisez une base de test adaptée pour les commandes propres à PostgreSQL.</p>',
     '',
     '  <div class="lab" data-lab',
     '       data-language="sql"',
     '       data-height="420"',
-    '       data-stdin="TX_BEGIN id=1\nTX_UPDATE id=1 table=comptes solde=100\nTX_COMMIT id=1">',
-    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — b3-sql\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
+    '       data-stdin="">',
+    '    <script type="text/plain" data-lab-starter>-- Exemple autonome compatible SQLite\nSELECT 1 AS exemple;\n</script>',
     '  </div>',
     '',
-    '  <h2>Suggestions d’expérimentations pratiques</h2>',
+    '  <h2>Pistes de travail sur une base de test adaptée</h2>',
+    '  <p>Ces pistes nécessitent vos propres données et outils ; aucun simulateur spécialisé n’est fourni dans cet éditeur.</p>',
     '  <div class="grid grid-2">',
     '    <div class="card">',
-    '      <h4>Simulateur d\'Arbre B-Tree</h4>',
-    '      <p>Modélisez les divisions de pages (page splits) lors d\'insertions massives et mesurez l\'impact du paramètre Fill Factor.</p>',
+    '      <h4>Index B-Tree</h4>',
+    '      <p>Étudiez les divisions de pages lors d\'insertions et l\'effet du paramètre Fill Factor sur une base de test.</p>',
     '    </div>',
     '    <div class="card">',
-    '      <h4>Analyseur de Coût CBO</h4>',
-    '      <p>Comparez les coûts de démarrage (startup cost) et totaux d\'un Index Scan face à un Sequential Scan selon la sélectivité.</p>',
+    '      <h4>Plans d\'exécution</h4>',
+    '      <p>Sur PostgreSQL, comparez les coûts estimés de plans selon les données et la sélectivité.</p>',
     '    </div>',
     '  </div>',
     '',
@@ -183,7 +185,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire SQL libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos algorithmes de base de données et transactions SQL.',
+      description: 'Éditeur SQL libre : exécution selon le service configuré, correction des exercices suspendue.',
       active: 'atelier',
       body
     }

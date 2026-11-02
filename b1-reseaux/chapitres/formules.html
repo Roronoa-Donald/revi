@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -69,14 +69,14 @@ gestion: poste-a-poste = chaque machine partage ses ressources (petit groupe)
 
 
 specialises : CAN (campus) / SAN (stockage en mode bloc)</code></pre>
-<p>Si le réseau tient dans des murs, c'est un LAN ; s'il emprunte des liaisons louées, c'est un WAN.</p>
+<p>Un LAN est local ; un WAN relie des réseaux de sites distants. Ni distance minimale ni location ne définissent à elles seules un WAN.</p>
 
   <h2>Topologies et supports</h2>
 <pre><code>bus    : un seul cable, 10Base2, UNE coupure = tout tombe
 
-anneau : jeton (Token Ring, 16 Mbit/s), 2 chemins,
+anneau : jeton (Token Ring, 16 Mbit/s) ; pas toujours redondant
 
-         double anneau = bascule sur le secondaire
+         double anneau compatible = reconfiguration possible
 
 etoile : noeud central, coupure = 1 poste isole, beaucoup de cables
 
@@ -116,17 +116,19 @@ depannage : remonter depuis la couche 1 (cables, alimentation)</code></pre>
 
 
 
-802.3 Ethernet filaire : CSMA/CD     802.11 Wi-Fi : CSMA/CA
+Ethernet half-duplex : CSMA/CD ; full-duplex : pas de detection de collisions
+
+802.11 Wi-Fi : CSMA/CA
 
 
 
 three-way handshake :
 
-  1. SYN     client -> serveur, sequence aleatoire A
+  1. SYN     client -&gt; serveur, sequence aleatoire A
 
-  2. SYN-ACK serveur -> client, ACK = A+1, sequence B
+  2. SYN-ACK serveur -&gt; client, ACK = A+1, sequence B
 
-  3. ACK     client -> serveur, B+1   (full-duplex etabli)
+  3. ACK     client -&gt; serveur, B+1   (full-duplex etabli)
 
 
 
@@ -134,7 +136,9 @@ TCP fiable : courriels, web, fichiers   UDP rapide : voix, DNS</code></pre>
 <p>Sans les trois étapes, pas de connexion TCP : SYN, SYN-ACK, ACK dans l'ordre.</p>
 
   <h2>Adressage : MAC, IP, classes</h2>
-<pre><code>MAC   : 48 bits = 12 hexa ; 6 OUI fabricant + 6 serie ;
+<pre><code>MAC   : souvent 48 bits ; adresse locale possible ;
+
+        bloc MA-L : OUI 24 bits + suffixe ; autres préfixes possibles
 
         couche 2, JAMAIS routee au-dela du LAN
 
@@ -158,32 +162,32 @@ classes : A 1-126 /8    B 128-191 /16    C 192-223 /24
   <h2>Sous-réseautage : VLSM et CIDR</h2>
 <pre><code>emprunt de bits (sur /24) :
 
-  sous-reseaux = 2^emprunt        hotes valides = 2^restants - 2
+  sous-reseaux = 2^emprunt ; jusqu a /30 : hotes = 2^restants - 2
 
   dernier octet du masque : 1 bit=128  2=192  3=224  4=240
 
-  prefixe : /24 + emprunt   (3 bits empruntes -> /27)
+  prefixe : /24 + emprunt   (3 bits empruntes -&gt; /27)
 
 
 
 VLSM : masques differents dans un meme reseau
 
-       /30 = 2 hotes = liaison point-a-point
+       /30 = 2 hotes ; /31 point-à-point compatible = 2 adresses
 
 CIDR : notation /n, fin des classes A-B-C, standard actuel</code></pre>
-<p>Les hôtes valides retirent deux adresses : réseau et diffusion — 2^k - 2, jamais 2^k.</p>
+<p>Dans le cas ordinaire, on retire réseau et diffusion. Une liaison /31 point-à-point compatible RFC 3021 utilise ses deux adresses.</p>
 
   <h2>Erreurs fréquentes à éviter</h2>
 <ul>
     <li>Appeler WAN un Wi-Fi de campus : le WLAN reste un réseau local.</li>
     <li>Promettre la continuité de service en bus : une coupure arrête tout.</li>
     <li>Placer le routeur en couche 2 ou le commutateur en couche 3.</li>
-    <li>Chercher le chiffrement en couche 7 : il se fait en couche 6.</li>
+    <li>Supposer que tout chiffrement se limite à la couche 6 : IPsec agit au niveau IP.</li>
     <li>Router une adresse MAC : elle s'arrête au premier routeur.</li>
     <li>Ranger 127 en classe B : c'est la boucle locale.</li>
     <li>Démarrer un handshake par SYN-ACK : l'ordre est SYN, SYN-ACK, ACK.</li>
     <li>Choisir TCP pour la voix : le retard de réémission dégrade l'appel.</li>
-    <li>Oublier de retirer 2 aux hôtes : réseau et diffusion ne sont pas attribuables.</li>
+    <li>Appliquer la règle réseau/diffusion à un /31 point-à-point sans tenir compte de son exception.</li>
     <li>Appliquer le même masque partout quand le VLSM est demandé.</li>
   </ul>
 

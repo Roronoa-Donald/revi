@@ -81,13 +81,13 @@ module.exports = {
     {
       title: 'Le Système de Grille 8pt et Échelles Typographiques',
       html: [
-        '<p>Le secret d’un design visuel harmonieux réside dans la discipline mathématique de ses espacements. ' +
-        'Le <strong>système de grille 8pt (8-point Grid System)</strong> standardisé par Google (Material Design) et Apple :</p>',
+        '<p>Une échelle d’espacement partagée peut faciliter la cohérence visuelle. ' +
+        'La <strong>grille 8pt (8-point Grid System)</strong> est une convention de projet parmi d’autres :</p>',
 
         '<ul>',
-        '  <li><strong>La règle des multiples de 8 :</strong> Toutes les dimensions d’éléments (largeurs, hauteurs) et tous les espacements (marges internes <code>padding</code>, marges externes <code>margin</code>) doivent être des multiples exacts de 8 pixels : <code>8, 16, 24, 32, 40, 48, 64, 80 px</code>.</li>',
-        '  <li><strong>La demi-grille 4pt :</strong> Tolérée exclusivement pour les micro-espacements (espacement entre une icône et son libellé, badges compacts, bordures fines) : <code>4, 12, 20 px</code>.</li>',
-        '  <li><strong>Pourquoi 8 ?</strong> Presque toutes les résolutions d’écrans modernes (1920x1080, 1440x900, 1280x720, 384x854) sont divisibles par 8, évitant le flou de rendu sous-pixel (sub-pixel rendering) lors du redimensionnement sur écrans Retina @2x ou @3x.</li>',
+        '  <li><strong>Multiples de 8 :</strong> une équipe peut choisir des espacements tels que <code>8, 16, 24, 32, 40 ou 48 px</code> pour composer son interface.</li>',
+        '  <li><strong>Demi-grille de 4 :</strong> selon les règles du projet, une échelle de 4 px peut servir à des ajustements plus fins, par exemple entre une icône et son libellé.</li>',
+        '  <li><strong>Limites :</strong> ces valeurs ne garantissent pas un rendu net : la densité, le zoom, les transformations et les besoins d’accessibilité comptent aussi. Elles ne sont pas imposées universellement.</li>',
         '</ul>',
 
         '<p><strong>L’Échelle Modulaire Typographique (Modular Scale) :</strong><br>' +
@@ -138,7 +138,7 @@ module.exports = {
 
   summary: [
     'Le cycle de design progresse du croquis papier rapide au prototype interactif haute fidélité.',
-    'Le système de grille 8pt garantit un rythme visuel cohérent et évite les anomalies de rendu sous-pixel.',
+    'Une grille 8pt peut faciliter un rythme d’espacement cohérent, sans garantir le rendu sur tous les écrans.',
     'Une échelle typographique modulaire repose sur une taille de base multipliée par un ratio harmonique.',
     'L’Atomic Design décompose l’interface en 5 niveaux hiérarchiques : Atomes, Molécules, Organismes, Templates et Pages.',
     'Les Design Tokens encapsulent les décisions de design dans des variables transverses réutilisables entre Figma et le code.',
@@ -175,26 +175,26 @@ module.exports = {
 
   questions: [
     {
-      stem: 'Quel est l’avantage technique principal d’utiliser un système de grille basé sur des multiples de 8 pixels (8pt Grid System) ?',
+      stem: 'Quel est un intérêt possible d’une échelle d’espacement partagée, telle qu’une grille 8pt ?',
       opts: [
         'Le chiffre 8 porte bonheur selon la tradition typographique',
-        'La quasi-totalité des résolutions d’écrans modernes et des facteurs d’échelle (x1, x2, x3) divisent parfaitement 8, évitant le flou de rendu sous-pixel',
+        'Elle facilite la cohérence des espacements entre les composants du projet',
         'Cela permet de compresser les images au format JPEG plus rapidement',
         'C’est le seul système accepté par le W3C pour valider le code HTML'
       ],
       correct: 1,
-      exp: 'Sur les écrans Retina ou haute densité (échelles @1.5x, @2x, @3x), les dimensions basées sur des multiples de 8 ne produisent jamais de demi-pixels flous.'
+      exp: 'Une échelle partagée facilite les choix cohérents ; elle ne garantit pas le rendu sur tous les écrans.'
     },
     {
-      stem: 'Dans quelle situation la demi-grille de 4px est-elle formellement autorisée dans un système 8pt ?',
+      stem: 'Quand une équipe peut-elle utiliser une demi-grille de 4 px ?',
       opts: [
         'Pour les marges de toutes les grandes cartes de contenu',
-        'Exclusivement pour les micro-espacements (espacement texte-icône, badges très compacts, bordures)',
+        'Lorsque la convention de son projet prévoit ces espacements, par exemple pour un ajustement fin',
         'Uniquement sur les écrans de télévision 4K',
         'Elle est formellement interdite sans exception'
       ],
       correct: 1,
-      exp: 'La demi-grille de 4px permet d’ajuster les micro-détails fins où un saut de 8px serait visuellement trop béant (ex: l’écart entre une icône et son libellé).'
+      exp: 'Une échelle de 4 px peut servir à des ajustements fins si l’équipe la retient ; ses usages ne sont pas universels.'
     },
     {
       stem: 'Dans l’Atomic Design de Brad Frost, à quelle strate appartient une barre de navigation complète comprenant un logo, une barre de recherche et un menu profil ?',
@@ -262,11 +262,11 @@ module.exports = {
   flashcards: [
     {
       q: 'Qu’est-ce que le système de grille 8pt ?',
-      a: 'Une règle de conception où toutes les dimensions et espacements sont des multiples de 8 pixels pour garantir harmonie et netteté d’affichage.'
+      a: 'Une convention de projet qui utilise notamment des multiples de 8 pour les espacements ; elle peut faciliter la cohérence sans garantir la netteté du rendu.'
     },
     {
       q: 'Quand utilise-t-on la demi-grille de 4px ?',
-      a: 'Uniquement pour les micro-espacements (écart texte-icône, bordures fines, badges compacts).'
+      a: 'Selon la convention du projet, pour des ajustements plus fins, par exemple entre une icône et son libellé.'
     },
     {
       q: 'Quels sont les 5 niveaux de l’Atomic Design de Brad Frost ?',

@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Module 5 — Stockage Distribué, Bases de Données &amp; Pipeline Big Data | Google Cloud Platform B3</title>
-<meta name="description" content="Module 5 du cours Google Cloud Platform B3 : Google Cloud Storage (GCS, durabilité 11 9s, classes Standard, Nearline, Coldline, Archive et règles de cycle de vie), bases relationnelles managées (Cloud SQL avec réplication HA vs Cloud Spanner NewSQL mondial à cohérence stricte et horloges TrueTime), bases NoSQL managées (Firestore orienté document vs Cloud Bigtable large-colonne sub-milliseconde) et ingestion de flux asynchrone avec Cloud Pub/Sub. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta name="description" content="Module 5 du cours Google Cloud Platform B3 : Google Cloud Storage (classes Standard, Rapid, Nearline, Coldline et Archive et règles de cycle de vie), bases relationnelles managées (Cloud SQL HA et Cloud Spanner, SLA selon la configuration), bases NoSQL managées et ingestion de flux asynchrone avec Cloud Pub/Sub. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b3-google-cloud/chapitres/chapitre5.html">
 <meta property="og:title" content="Module 5 — Stockage Distribué, Bases de Données &amp; Pipeline Big Data | Google Cloud Platform B3">
-<meta property="og:description" content="Module 5 du cours Google Cloud Platform B3 : Google Cloud Storage (GCS, durabilité 11 9s, classes Standard, Nearline, Coldline, Archive et règles de cycle de vie), bases relationnelles managées (Cloud SQL avec réplication HA vs Cloud Spanner NewSQL mondial à cohérence stricte et horloges TrueTime), bases NoSQL managées (Firestore orienté document vs Cloud Bigtable large-colonne sub-milliseconde) et ingestion de flux asynchrone avec Cloud Pub/Sub. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:description" content="Module 5 du cours Google Cloud Platform B3 : Google Cloud Storage (classes Standard, Rapid, Nearline, Coldline et Archive et règles de cycle de vie), bases relationnelles managées (Cloud SQL HA et Cloud Spanner, SLA selon la configuration), bases NoSQL managées et ingestion de flux asynchrone avec Cloud Pub/Sub. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -53,7 +53,7 @@
 <main id="content" class="b3-google-cloudwrap">
 <p class="crumb"><a href="../index.html">Google Cloud Platform B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
 
-<h1>Chapitre 5 — Stockage Distribué, Bases de Données & Pipeline Big Data</h1>
+<h1>Chapitre 5 — Stockage Distribué, Bases de Données &amp; Pipeline Big Data</h1>
 
 <div class="chapmeta">
     <span class="tag">Module 5</span>
@@ -72,7 +72,7 @@
     <ol>
       <li>maîtriser Google Cloud Storage (GCS) : nommage mondial unique, niveaux de redondance et 11 9s de durabilité ;</li>
       <li>configurer des règles d'Object Lifecycle Management pour migrer automatiquement les données vers Nearline, Coldline et Archive ;</li>
-      <li>comparer Cloud SQL (MySQL, PostgreSQL, SQL Server) et Cloud Spanner (NewSQL mondial avec SLA 99.999% et horloges TrueTime) ;</li>
+      <li>comparer Cloud SQL (MySQL, PostgreSQL, SQL Server) et Cloud Spanner en tenant compte de leurs configurations et SLA ;</li>
       <li>différencier les moteurs NoSQL managés : Firestore (documents temps réel) versus Cloud Bigtable (large-colonne sub-milliseconde) ;</li>
       <li>concevoir une architecture d'ingestion asynchrone découplée avec Cloud Pub/Sub (Topics, Subscriptions Pull/Push et Ack Deadlines) ;</li>
       <li>analyser et résoudre méthodologiquement des moteurs de cycle de vie GCS, des matrices de sélection de bases de données et des simulateurs Pub/Sub.</li>
@@ -81,20 +81,21 @@
 
 <h2>1. Google Cloud Storage (GCS) : Classes d'Objets &amp; Cycle de Vie</h2>
 
-<p>Google Cloud Storage (GCS) est le service de stockage d'objets non structurés (blobs) hautement résilient, offrant une durabilité annuelle de 99.999999999% (11 9s). Les fichiers sont organisés dans des conteneurs appelés <strong>Buckets</strong> dont le nom doit être <strong>unique au monde</strong> :</p>
+<p>Google Cloud Storage (GCS) stocke des objets dans des conteneurs appelés <strong>buckets</strong>, dont le nom doit être unique au monde. Google indique une durabilité annuelle de 99.999999999% (11 9s) : ce chiffre est distinct du SLA de disponibilité et la redondance dépend de l'emplacement choisi.</p>
 <div class="grid grid-2">
   <div class="card">
-    <h4>Les 4 Classes de Stockage</h4>
+    <h4>Les 5 classes principales au 30 octobre 2026</h4>
     <ul>
       <li><strong>Standard Storage :</strong> Données actives fréquemment consultées (sites web, vidéos en streaming, données courantes). Pas de durée minimale de conservation.</li>
+      <li><strong>Rapid Storage :</strong> classe pour charges à E/S intensives, disponible uniquement dans les zones prises en charge avec <em>Rapid Bucket</em>, espace de noms hiérarchique et accès uniforme au niveau du bucket activés. Une panne de la zone peut affecter la disponibilité.</li>
       <li><strong>Nearline Storage :</strong> Données consultées au maximum une fois par mois (sauvegardes mensuelles, rapports périodiques). Durée minimale de facturation : <strong>30 jours</strong>.</li>
       <li><strong>Coldline Storage :</strong> Données consultées au plus une fois par trimestre (archivage intermédiaire, plans de reprise d'activité DRP). Durée minimale : <strong>90 jours</strong>.</li>
-      <li><strong>Archive Storage :</strong> Données froides rarement accédées (&lt; 1 fois par an, conformité fiscale ou juridique). Coût au Go le plus bas du marché. Durée minimale : <strong>365 jours</strong>.</li>
+      <li><strong>Archive Storage :</strong> Données froides rarement accédées (&lt; 1 fois par an, conformité fiscale ou juridique). Durée minimale de facturation : <strong>365 jours</strong> ; des frais de lecture et d'opération peuvent s'ajouter.</li>
     </ul>
   </div>
   <div class="card">
     <h4>Gestion Automatisée du Cycle de Vie (Lifecycle Rules)</h4>
-    <p>Une politique de cycle de vie applique automatiquement des actions selon des conditions d'âge :</p>
+    <p>Pour les buckets non zonaux compatibles, une politique de cycle de vie peut appliquer des actions selon des conditions d'âge :</p>
     <pre><code>{
   "action": {"type": "SetStorageClass", "storageClass": "NEARLINE"},
   "condition": {"age": 30}
@@ -103,9 +104,10 @@
   "action": {"type": "SetStorageClass", "storageClass": "ARCHIVE"},
   "condition": {"age": 365}
 }</code></pre>
-    <p>Cette automatisation réduit la facture de stockage de plus de 80% sans modifier le moindre code applicatif.</p>
+    <p>Les économies dépendent notamment des tarifs, des lectures et des transitions. L'action <code>SetStorageClass</code> n'est pas compatible avec les buckets Rapid, dont les objets restent en classe Rapid.</p>
   </div>
 </div>
+<p>Pour Rapid, le quota de stockage est partagé par projet et par zone entre les buckets zonaux : la valeur par défaut indiquée est de 1 To, mais elle peut varier selon l'usage. Le trafic sortant vers les services Google a aussi un quota par projet et zone. Vérifier les quotas et les zones proposées avant tout déploiement. Sources consultées le 30 octobre 2026 : <a href="https://docs.cloud.google.com/storage/docs/storage-classes">classes de stockage</a>, <a href="https://docs.cloud.google.com/storage/docs/rapid/rapid-bucket">Rapid Bucket</a>, <a href="https://docs.cloud.google.com/storage/docs/locations#location-z">zones disponibles</a> et <a href="https://docs.cloud.google.com/storage/quotas">quotas Cloud Storage</a>.</p>
   <div class="box box--standard">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Contrôle d'Accès : Uniform Bucket-Level Access vs Signed URLs</div>
 <p>Par défaut, Google Cloud préconise <strong>Uniform Bucket-Level Access</strong> qui unifie le contrôle d'accès uniquement au niveau IAM (éliminant les ACLs complexes objet par objet). Pour permettre à un utilisateur externe de téléverser ou télécharger un fichier temporairement sans compte Google, on génère une <strong>URL signée (Signed URL)</strong> avec une durée de validité limitée (ex: 15 minutes).</p>
@@ -120,16 +122,19 @@
     <ul>
       <li>Moteurs compatibles standards : MySQL, PostgreSQL et SQL Server.</li>
       <li>Gestion automatique des sauvegardes, correctifs d'OS et réplicas de lecture (Read Replicas).</li>
-      <li><strong>Haute Disponibilité (HA) :</strong> basculement automatique vers une instance standby synchrone dans une zone secondaire en cas de sinistre zonal (SLA 99.95%).</li>
-      <li>Limite : stockage plafonné à 64 To et montée en charge verticale (scale-up).</li>
+      <li><strong>Haute disponibilité (HA) :</strong> une instance de secours dans une autre zone permet le basculement automatique en cas de panne admissible.</li>
+      <li>Au 30 octobre 2026, l'objectif mensuel du SLA est de <strong>99.95 % pour Enterprise en HA</strong> et <strong>99.99 % pour Enterprise Plus en HA</strong>, pour MySQL, PostgreSQL et SQL Server. Enterprise Plus couvre aussi les pools de lecture MySQL ou PostgreSQL avec au moins deux nœuds.</li>
+      <li>Les instances à cœurs partagés ou mono-zone et les pools à un nœud sont exclus. Le calcul est effectué par instance et par mois calendaire ; les périodes admissibles correspondent à au moins une minute pendant laquelle toutes les requêtes valides échouent. La maintenance planifiée d'Enterprise et notamment les erreurs dues aux quotas sont exclues.</li>
+      <li>La capacité dépend du moteur, de l'édition et des quotas. Le SLA prévoit un crédit sous conditions et sur demande, pas une promesse d'absence de panne. <a href="https://cloud.google.com/sql/sla">SLA Cloud SQL</a>, consulté le 30 octobre 2026.</li>
     </ul>
   </div>
   <div class="card">
     <h4>Cloud Spanner (NewSQL Mondial Distribué)</h4>
     <ul>
-      <li>Base de données relationnelle distribuée à l'échelle de la planète avec montée en charge horizontale illimitée (scale-out).</li>
+      <li>Base de données relationnelle distribuée avec montée en charge horizontale et configurations régionales ou multirégionales.</li>
       <li><strong>Cohérence stricte ACID mondiale</strong> garantie par la technologie d'horloges matérielles synchronisées <strong>Google TrueTime</strong> (combinaison d'horloges atomiques et de récepteurs GPS dans chaque datacenter).</li>
-      <li>Disponibilité record de <strong>99.999%</strong> (moins de 5 minutes d'indisponibilité par an). Moteur officiel de Google Play, Google Ads et des plus grandes banques mondiales.</li>
+      <li>Au 30 octobre 2026, l'objectif mensuel du SLA est de <strong>99.999 % en configuration multirégionale ou birégionale</strong>, <strong>99.99 % en configuration régionale hors Stockholm</strong>, et <strong>99.95 % pour une instance régionale à Stockholm</strong>.</li>
+      <li>Le calcul est effectué par projet et région, sur le mois calendaire, selon les requêtes valides et les conditions du SLA. Les exclusions incluent notamment les erreurs dues aux quotas ; un crédit éventuel doit être demandé. Ces objectifs ne garantissent pas une disponibilité continue. <a href="https://cloud.google.com/spanner/sla">SLA Spanner</a>, consulté le 30 octobre 2026.</li>
     </ul>
   </div>
 </div>
@@ -169,7 +174,8 @@
       <li><strong>Subscription (Abonnement) :</strong> file de réception dédiée rattachée à un topic. Chaque abonnement reçoit une copie de tous les messages publiés.</li>
       <li><strong>Mode Pull :</strong> le consommateur interroge activement Pub/Sub pour récupérer des lots de messages.</li>
       <li><strong>Mode Push :</strong> Pub/Sub envoie immédiatement une requête HTTP POST webhook à un endpoint (ex: service Cloud Run).</li>
-      <li><strong>Ack Deadline :</strong> délai maximal accordé au consommateur pour acquitter le traitement (défaut 10s). Si le délai expire sans accusé de réception, Pub/Sub renvoie le message.</li>
+      <li><strong>Ack Deadline :</strong> délai d'acquittement configurable, initialement de 10 secondes par défaut, que le client peut prolonger. S'il expire sans acquittement ni prolongation, Pub/Sub peut tenter une relivraison, au même client ou à un autre, selon la politique de retry et la rétention ; cela ne prouve pas une panne du consommateur.</li>
+      <li>En livraison standard, des doublons peuvent aussi survenir après un acquittement réussi : prévoir un traitement idempotent. La relivraison immédiate est le comportement par défaut ; un délai exponentiel peut être configuré et s'applique au mieux. Références consultées le 30 octobre 2026 : <a href="https://docs.cloud.google.com/pubsub/docs/subscription-retry-policy">retry</a>, <a href="https://docs.cloud.google.com/pubsub/docs/lease-management">prolongation du délai</a> et <a href="https://docs.cloud.google.com/pubsub/docs/subscription-overview">abonnements</a>.</li>
     </ul>
   </div>
   <div class="card">
@@ -183,56 +189,64 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="gcp3-c5-e1" data-lab
      data-exercise="gcp3-c5-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="LIFECYCLE_EVAL current_class=STANDARD age_days=35 target_class=NEARLINE min_age=30">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c5-e1) — Moteur de Transition de Cycle de Vie Cloud Storage (Lifecycle Management)
+     data-stdin="LIFECYCLE_EVAL bucket_type=NON_ZONAL current_class=STANDARD age_days=35 target_class=NEARLINE min_age=30">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c5-e1) — Analyse du cycle de vie et des classes Cloud Storage
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
 [Cas 1 — Condition d âge non atteinte]
-# Données : LIFECYCLE_EVAL current_class=NEARLINE age_days=60 target_class=COLDLINE min_age=90
+# Données : LIFECYCLE_EVAL bucket_type=NON_ZONAL current_class=NEARLINE age_days=60 target_class=COLDLINE min_age=90
 A_COMPLETER
 
-[Cas 2 — Transition vers Archive pour objet ancien]
-# Données : LIFECYCLE_EVAL current_class=COLDLINE age_days=400 target_class=ARCHIVE min_age=365
+[Cas 2 — Objet ancien admissible à une transition vers Archive]
+# Données : LIFECYCLE_EVAL bucket_type=NON_ZONAL current_class=COLDLINE age_days=400 target_class=ARCHIVE min_age=365
+A_COMPLETER
+
+[Cas 3 — Transition impossible depuis un bucket Rapid]
+# Données : LIFECYCLE_EVAL bucket_type=RAPID current_class=RAPID age_days=100 target_class=NEARLINE min_age=30
+A_COMPLETER
+
+[Cas 4 — Rapid ne constitue pas une cible de transition non zonale]
+# Données : LIFECYCLE_EVAL bucket_type=NON_ZONAL current_class=STANDARD age_days=100 target_class=RAPID min_age=30
+A_COMPLETER
+
+[Cas 5 — Condition satisfaite exactement au seuil]
+# Données : LIFECYCLE_EVAL bucket_type=NON_ZONAL current_class=STANDARD age_days=30 target_class=NEARLINE min_age=30
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Moteur de Transition de Cycle de Vie Cloud Storage (Lifecycle Management)</h3>
+    <h3 class="lab__title">Exercice 1 — Analyse du cycle de vie et des classes Cloud Storage</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler les règles d'archivage et de transition automatique de classes d'objets dans Google Cloud Storage.</p>
-    <div class="lab__brief"><p>Google Cloud Storage propose 4 classes de stockage à coûts décroissants :<br>
-- <code>STANDARD</code> : accès chaud fréquent (durée minimale 0 jour)<br>
-- <code>NEARLINE</code> : consultation mensuelle (durée minimale 30 jours)<br>
-- <code>COLDLINE</code> : consultation trimestrielle (durée minimale 90 jours)<br>
-- <code>ARCHIVE</code> : archivage à long terme (durée minimale 365 jours)<br><br>
-Paramètres soumis à l’analyse :<br>
-<code>LIFECYCLE_EVAL current_class=&lt;class&gt; age_days=&lt;N&gt; target_class=&lt;class&gt; min_age=&lt;M&gt;</code>.<br>
-Résultats d’analyse attendus :<br>
-- Si <code>age_days &gt;= min_age</code> :<br>
-  <code>LIFECYCLE: current=&lt;cur&gt; target=&lt;target&gt; age=&lt;N&gt; action=TRANSITION_APPLIED status=SUCCESS</code><br>
-- Sinon :<br>
-  <code>LIFECYCLE: current=&lt;cur&gt; target=&lt;target&gt; age=&lt;N&gt; action=NONE status=CONDITION_NOT_MET</code></p></div>
+    <p class="lab__formative-notice" id="gcp3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Évaluer une condition de cycle de vie sans assimiler une simulation à une transition réelle.</p>
+    <div class="lab__brief"><p>Pour cette grille, les quatre classes <code>STANDARD</code>, <code>NEARLINE</code>, <code>COLDLINE</code> et <code>ARCHIVE</code> sont utilisées dans des buckets non zonaux compatibles. Les durées minimales de facturation de Nearline, Coldline et Archive sont respectivement de 30, 90 et 365 jours ; ce ne sont pas automatiquement les seuils d’âge des règles.<br>
+La classe <code>RAPID</code> est la cinquième classe : elle est réservée à Rapid Bucket zonal. L’action de cycle de vie <code>SetStorageClass</code> n’est pas prise en charge sur ces buckets et ne permet pas d’y faire transiter des objets depuis les autres classes via cette action.<br><br>
+Pour <code>LIFECYCLE_EVAL bucket_type=&lt;NON_ZONAL|RAPID&gt; current_class=&lt;class&gt; age_days=&lt;N&gt; target_class=&lt;class&gt; min_age=&lt;M&gt;</code>, afficher <code>LIFECYCLE: current=&lt;cur&gt; target=&lt;target&gt; age=&lt;N&gt; action=&lt;action&gt; status=&lt;statut&gt;</code>.<br>
+- Si le bucket ou l’une des classes est Rapid : <code>action=NONE status=UNSUPPORTED_SET_STORAGE_CLASS</code>.<br>
+- Pour les transitions non zonales compatibles présentées ici, si <code>age_days &gt;= min_age</code> : <code>action=TRANSITION_ELIGIBLE status=CONDITION_MET</code> ; sinon : <code>action=NONE status=CONDITION_NOT_MET</code>.<br>
+Cette grille ne vérifie ni les autres conditions ni les frais, et ne réalise pas de transition. Une règle de cycle de vie est exécutée de façon asynchrone ; une condition remplie ne prouve pas qu’une transition a déjà eu lieu. Sources : <a href="https://docs.cloud.google.com/storage/docs/storage-classes">classes de stockage</a> et <a href="https://docs.cloud.google.com/storage/docs/rapid/rapid-bucket">Rapid Bucket</a>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>LIFECYCLE_EVAL current_class=STANDARD age_days=35 target_class=NEARLINE min_age=30</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LIFECYCLE: current=STANDARD target=NEARLINE age=35 action=TRANSITION_APPLIED status=SUCCESS</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>LIFECYCLE_EVAL bucket_type=NON_ZONAL current_class=STANDARD age_days=35 target_class=NEARLINE min_age=30</pre></div>
     </div>
-    <p class="lab__note">Objet âgé de 35 jours dépassant le seuil de 30 jours pour transition vers Nearline.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Comparez int(age_days) &gt;= int(min_age).</li>
-        <li>Affichez les sorties formatées avec statut SUCCESS ou CONDITION_NOT_MET.</li>
+        <li>Écartez d’abord les scénarios Rapid pour SetStorageClass, puis comparez l’âge de l’objet au seuil de la règle.</li>
+        <li>Une condition satisfaite indique une éligibilité dans la grille, pas une transition réellement exécutée.</li>
       </ol>
     </details>
   </div>
@@ -242,56 +256,69 @@ Résultats d’analyse attendus :<br>
      data-exercise="gcp3-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="SELECT_DB model=RELATIONAL scale=GLOBAL latency=STANDARD acid=STRICT">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c5-e2) — Sélecteur d'Architecture de Données GCP (Decision Matrix)
+     data-stdin="SELECT_DB model=RELATIONAL scale=GLOBAL choice=SPANNER config=MULTI_REGION eligible=YES">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c5-e2) — Sélecteur de données GCP et objectifs de disponibilité
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
-[Cas 1 — Base relationnelle régionale Cloud SQL]
-# Données : SELECT_DB model=RELATIONAL scale=REGIONAL latency=STANDARD acid=STRICT
+[Cas 1 — Cloud SQL Enterprise en haute disponibilité]
+# Données : SELECT_DB model=RELATIONAL scale=REGIONAL choice=SQL edition=ENTERPRISE availability=HA instance=DEDICATED eligible=YES
 A_COMPLETER
 
-[Cas 2 — Base NoSQL large-colonne ultra-faible latence Bigtable]
-# Données : SELECT_DB model=NOSQL_WIDE_COLUMN scale=REGIONAL latency=SUB_MILLISECOND acid=EVENTUAL
+[Cas 2 — Cloud SQL Enterprise Plus en haute disponibilité]
+# Données : SELECT_DB model=RELATIONAL scale=REGIONAL choice=SQL edition=ENTERPRISE_PLUS availability=HA instance=DEDICATED eligible=YES
 A_COMPLETER
 
-[Cas 3 — Base documentaire NoSQL Firestore]
-# Données : SELECT_DB model=NOSQL_DOCUMENT scale=REGIONAL latency=LOW acid=STRICT
+[Cas 3 — Couverture Cloud SQL absente ou inconnue]
+# Données : SELECT_DB model=RELATIONAL scale=REGIONAL choice=SQL edition=ENTERPRISE availability=HA instance=SHARED_CORE eligible=NO
+# Données : SELECT_DB model=RELATIONAL scale=REGIONAL choice=SQL edition=ENTERPRISE availability=SINGLE_ZONE instance=DEDICATED eligible=NO
+# Données : SELECT_DB model=RELATIONAL scale=REGIONAL choice=SQL edition=ENTERPRISE availability=HA instance=DEDICATED eligible=UNKNOWN
 A_COMPLETER
 
-[Cas 4 — Stockage d objets non structurés Cloud Storage]
-# Données : SELECT_DB model=OBJECT_STORAGE scale=GLOBAL latency=STANDARD acid=STRICT
+[Cas 4 — Spanner régional hors Stockholm et birégional]
+# Données : SELECT_DB model=RELATIONAL choice=SPANNER config=REGIONAL region=PARIS eligible=YES
+# Données : SELECT_DB model=RELATIONAL choice=SPANNER config=DUAL_REGION eligible=YES
+A_COMPLETER
+
+[Cas 5 — Spanner régional à Stockholm]
+# Données : SELECT_DB model=RELATIONAL choice=SPANNER config=REGIONAL region=STOCKHOLM eligible=YES
+A_COMPLETER
+
+[Cas 6 — Configuration Spanner non précisée]
+# Données : SELECT_DB model=RELATIONAL choice=SPANNER config=UNKNOWN eligible=UNKNOWN
+# Données : SELECT_DB model=RELATIONAL choice=SPANNER config=REGIONAL region=UNKNOWN eligible=YES
+A_COMPLETER
+
+[Cas 7 — Trois modèles non relationnels]
+# Données : SELECT_DB model=NOSQL_WIDE_COLUMN
+# Données : SELECT_DB model=NOSQL_DOCUMENT
+# Données : SELECT_DB model=OBJECT_STORAGE
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Sélecteur d'Architecture de Données GCP (Decision Matrix)</h3>
+    <h3 class="lab__title">Exercice 2 — Sélecteur de données GCP et objectifs de disponibilité</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Déterminer le service de stockage ou de base de données Google Cloud optimal selon le modèle de données, l'échelle et les contraintes de latence.</p>
-    <div class="lab__brief"><p>Google Cloud propose une vaste gamme de moteurs de persistance de données :<br>
-Matrice de décision :<br>
-- <code>model=RELATIONAL scale=GLOBAL acid=STRICT</code> -&gt; <code>service=Cloud_Spanner type=NEW_SQL sla=99.999%</code><br>
-- <code>model=RELATIONAL scale=REGIONAL</code> -&gt; <code>service=Cloud_SQL type=RDBMS sla=99.95%</code><br>
-- <code>model=NOSQL_DOCUMENT</code> -&gt; <code>service=Firestore type=DOCUMENT_DB latency=LOW</code><br>
-- <code>model=NOSQL_WIDE_COLUMN latency=SUB_MILLISECOND</code> -&gt; <code>service=Cloud_Bigtable type=WIDE_COLUMN usecase=IOT_ANALYTICS</code><br>
-- <code>model=OBJECT_STORAGE</code> -&gt; <code>service=Cloud_Storage type=BLOB_STORE scale=EXABYTE</code><br><br>
-Paramètres soumis à l’analyse :<br>
-<code>SELECT_DB model=&lt;model&gt; scale=&lt;scale&gt; latency=&lt;lat&gt; acid=&lt;acid&gt;</code>.<br>
-Résultat d’analyse attendu :<br>
-<code>RECOMMENDATION: service=&lt;name&gt; &lt;attributs...&gt;</code> (ou <code>RECOMMENDATION: status=UNKNOWN_COMBINATION</code>).</p></div>
+    <p class="lab__formative-notice" id="gcp3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer des services candidats et conditionner les objectifs SLA à la configuration donnée.</p>
+    <div class="lab__brief"><p>Cette matrice pédagogique propose un service à étudier ; elle ne démontre pas qu’il est le seul choix adapté. Un objectif mensuel de disponibilité (SLO du SLA) ne garantit pas l’absence de panne et reste soumis aux conditions du contrat.<br><br>
+Pour les cas relationnels, <code>SELECT_DB model=RELATIONAL choice=&lt;SQL|SPANNER&gt; ... eligible=&lt;YES|NO|UNKNOWN&gt;</code> désigne le service étudié. <code>eligible=YES</code> suppose ici que les conditions de couverture du SLA sont réunies ; en cas de données insuffisantes ou de non-couverture, afficher <code>slo_mensuel=NON_DETERMINE</code> plutôt qu’inventer un objectif.<br>
+Cloud SQL : pour une instance HA admissible à cœurs dédiés, <code>edition=ENTERPRISE</code> donne <code>99.95%</code> et <code>edition=ENTERPRISE_PLUS</code> donne <code>99.99%</code>. Le SLA exclut notamment les instances à cœurs partagés et mono-zone ; son calcul est par instance et mois calendaire. Vérifier aussi moteur, maintenance et autres exclusions.<br>
+Spanner : une configuration <code>MULTI_REGION</code> ou <code>DUAL_REGION</code> admissible a un objectif de <code>99.999%</code> ; une configuration <code>REGIONAL</code> a un objectif de <code>99.99%</code> hors Stockholm et <code>99.95%</code> à Stockholm. Si la configuration ou la région nécessaire manque, l’objectif est non déterminé. Le calcul est mensuel par projet et région.<br>
+Pour les autres modèles de cette grille, proposer Firestore pour <code>NOSQL_DOCUMENT</code>, Bigtable pour <code>NOSQL_WIDE_COLUMN</code>, ou Cloud Storage pour <code>OBJECT_STORAGE</code>.<br>
+Retourner <code>RECOMMENDATION: service=&lt;nom&gt; &lt;attributs...&gt;</code>. Références consultées le 30 octobre 2026 : <a href="https://cloud.google.com/sql/sla">SLA Cloud SQL</a> et <a href="https://cloud.google.com/spanner/sla">SLA Spanner</a>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SELECT_DB model=RELATIONAL scale=GLOBAL latency=STANDARD acid=STRICT</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RECOMMENDATION: service=Cloud_Spanner type=NEW_SQL sla=99.999%</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SELECT_DB model=RELATIONAL scale=GLOBAL choice=SPANNER config=MULTI_REGION eligible=YES</pre></div>
     </div>
-    <p class="lab__note">Base NewSQL mondiale avec cohérence stricte ACID et haute disponibilité.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifiez d abord si model == "RELATIONAL" : différenciez selon scale == "GLOBAL" et acid == "STRICT" vs scale == "REGIONAL".</li>
-        <li>Testez ensuite "NOSQL_DOCUMENT", "NOSQL_WIDE_COLUMN" et "OBJECT_STORAGE".</li>
+        <li>Ne déduisez pas le SLO de la seule échelle régionale ou mondiale : vérifiez l’édition, la haute disponibilité, la configuration et la couverture.</li>
+        <li>Distinguez l’objectif contractuel mensuel d’une garantie de fonctionnement continu.</li>
       </ol>
     </details>
   </div>
@@ -301,62 +328,76 @@ Résultat d’analyse attendu :<br>
      data-exercise="gcp3-c5-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="CREATE_SUB sub=order-processor ack_deadline=10&#10;DELIVER_MSG sub=order-processor msg_id=ORD-999 elapsed_time=6&#10;DELIVER_MSG sub=order-processor msg_id=ORD-1000 elapsed_time=14">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c5-e3) — Simulateur de Pipeline d'Ingestion Cloud Pub/Sub (Topics & Subscriptions)
+     data-stdin="CREATE_SUB sub=order-processor ack_deadline=10&#10;DELIVER_MSG sub=order-processor msg_id=ORD-999 elapsed_time=6 effective_deadline=10 ack=YES&#10;DELIVER_MSG sub=order-processor msg_id=ORD-1000 elapsed_time=14 effective_deadline=10 ack=NO">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c5-e3) — Analyse de messages et de relivraison Pub/Sub
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
-[Cas 1 — Acquittement exact à la limite de la deadline]
-# Données : CREATE_SUB sub=analytics-sink ack_deadline=30
-# Données : DELIVER_MSG sub=analytics-sink msg_id=LOG-1 elapsed_time=30
+[Cas 1 — Prolongation du délai encore en cours]
+# Données : CREATE_SUB sub=analytics-sink ack_deadline=10
+# Données : DELIVER_MSG sub=analytics-sink msg_id=LOG-1 elapsed_time=14 effective_deadline=30 ack=NO
 A_COMPLETER
 
 [Cas 2 — Abonnement inconnu]
-# Données : DELIVER_MSG sub=unknown-sub msg_id=MSG-1 elapsed_time=5
+# Données : DELIVER_MSG sub=unknown-sub msg_id=MSG-1 elapsed_time=5 effective_deadline=10 ack=NO
+A_COMPLETER
+
+[Cas 3 — Délai atteint sans acquittement connu]
+# Données : CREATE_SUB sub=analytics-sink ack_deadline=30
+# Données : DELIVER_MSG sub=analytics-sink msg_id=LOG-2 elapsed_time=30 effective_deadline=30 ack=NO
+A_COMPLETER
+
+[Cas 4 — Refus explicite du message]
+# Données : CREATE_SUB sub=analytics-sink ack_deadline=30
+# Données : DELIVER_MSG sub=analytics-sink msg_id=LOG-3 elapsed_time=3 effective_deadline=30 ack=NACK
+A_COMPLETER
+
+[Cas 5 — Acquittement explicitement accepté]
+# Données : CREATE_SUB sub=analytics-sink ack_deadline=30
+# Données : DELIVER_MSG sub=analytics-sink msg_id=LOG-4 elapsed_time=6 effective_deadline=30 ack=YES
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Simulateur de Pipeline d'Ingestion Cloud Pub/Sub (Topics &amp; Subscriptions)</h3>
+    <h3 class="lab__title">Exercice 3 — Analyse de messages et de relivraison Pub/Sub</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler le cycle de publication, de délivrance et d'acquittement de messages dans Google Cloud Pub/Sub.</p>
-    <div class="lab__brief"><p>Google Cloud Pub/Sub est le service d'ingestion et de messagerie asynchrone haute cadence mondial :<br><br>
-Opérations soumises à l’analyse :<br>
-1. <code>CREATE_SUB sub=&lt;nom&gt; ack_deadline=&lt;sec&gt;</code> :<br>
-   Enregistre un abonnement avec un délai maximal d'acquittement <code>ack_deadline</code> (ex: 10s).<br>
-   Indiquez <code>SUB_READY: name=&lt;nom&gt; ack_deadline=&lt;sec&gt;s</code>.<br>
-2. <code>DELIVER_MSG sub=&lt;nom&gt; msg_id=&lt;id&gt; elapsed_time=&lt;sec&gt;</code> :<br>
-   - Si <code>elapsed_time &lt;= ack_deadline</code> :<br>
-     <code>DELIVERY: sub=&lt;nom&gt; msg_id=&lt;id&gt; status=ACKNOWLEDGED action=REMOVED_FROM_QUEUE</code><br>
-   - Si <code>elapsed_time &gt; ack_deadline</code> :<br>
-     <code>DELIVERY: sub=&lt;nom&gt; msg_id=&lt;id&gt; status=DEADLINE_EXCEEDED action=REDELIVERED_TO_CONSUMER</code></p></div>
+    <p class="lab__formative-notice" id="gcp3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Distinguer acquittement observé, délai en cours et possibilité de relivraison.</p>
+    <div class="lab__brief"><p>Cette grille représente un abonnement Pub/Sub standard et un message encore retenu, sans simuler de file de lettres mortes ni de requête réelle.<br>
+<code>CREATE_SUB sub=&lt;nom&gt; ack_deadline=&lt;secondes&gt;</code> retourne <code>SUB_READY: name=&lt;nom&gt; ack_deadline=&lt;secondes&gt;s</code>.<br>
+<code>DELIVER_MSG sub=&lt;nom&gt; msg_id=&lt;id&gt; elapsed_time=&lt;secondes&gt; effective_deadline=&lt;secondes&gt; ack=&lt;YES|NO|NACK&gt;</code> décrit une observation. <code>effective_deadline</code> est le délai effectif fourni dans le cas, compte tenu d’une éventuelle prolongation ; <code>ack=YES</code> signifie qu’un acquittement a déjà été accepté, <code>ack=NO</code> qu’aucun n’est connu, et <code>ack=NACK</code> qu’un refus a été émis.<br>
+Pour un abonnement connu, retourner <code>DELIVERY: sub=&lt;nom&gt; msg_id=&lt;id&gt; status=&lt;statut&gt; action=&lt;action&gt;</code> :<br>
+- acquittement accepté : <code>status=ACKNOWLEDGED action=NONE</code> ; cela ne prouve pas l’absence de doublons dans une livraison standard ;<br>
+- sans acquittement avant le délai effectif : <code>status=WAITING_FOR_ACK action=NONE</code> ;<br>
+- sans acquittement à partir du délai effectif : <code>status=DEADLINE_EXPIRED action=REDELIVERY_POSSIBLE</code> ;<br>
+- refus explicite : <code>status=NACKED action=REDELIVERY_POSSIBLE</code>.<br>
+Si l’abonnement est inconnu, retourner <code>DELIVERY: sub=&lt;nom&gt; status=ERROR_SUBSCRIPTION_NOT_FOUND</code>.<br><br>
+Une nouvelle tentative peut cibler le même client ou un autre ; elle n’est ni la preuve d’une panne ni une livraison immédiate garantie. La politique de retry, les prolongations, la rétention et une éventuelle file de lettres mortes influencent le parcours. Voir la <a href="https://docs.cloud.google.com/pubsub/docs/subscription-retry-policy">politique de retry Pub/Sub</a>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CREATE_SUB sub=order-processor ack_deadline=10
-DELIVER_MSG sub=order-processor msg_id=ORD-999 elapsed_time=6
-DELIVER_MSG sub=order-processor msg_id=ORD-1000 elapsed_time=14</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUB_READY: name=order-processor ack_deadline=10s
-DELIVERY: sub=order-processor msg_id=ORD-999 status=ACKNOWLEDGED action=REMOVED_FROM_QUEUE
-DELIVERY: sub=order-processor msg_id=ORD-1000 status=DEADLINE_EXCEEDED action=REDELIVERED_TO_CONSUMER</pre></div>
+DELIVER_MSG sub=order-processor msg_id=ORD-999 elapsed_time=6 effective_deadline=10 ack=YES
+DELIVER_MSG sub=order-processor msg_id=ORD-1000 elapsed_time=14 effective_deadline=10 ack=NO</pre></div>
     </div>
-    <p class="lab__note">Le message 999 est acquitté en 6s (conforme) ; le message 1000 dépasse la deadline (réexpédié).</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Stockez les abonnements dans un dictionnaire sub_name -&gt; int(ack_deadline).</li>
-        <li>Comparez int(elapsed_time) &lt;= ack_deadline pour valider l acquittement.</li>
+        <li>Ne supposez jamais qu’un message est acquitté à partir du seul temps écoulé : l’état ack est fourni.</li>
+        <li>Comparez elapsed_time au délai effectif, éventuellement prolongé ; une relivraison est possible, pas certaine.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
-      <p class="q__stem">Quelle est la durée minimale de conservation et de facturation associée à la classe de stockage Cloud Storage Nearline ?</p>
+      <p class="q__stem">Quelle est la durée minimale de facturation associée à la classe de stockage Cloud Storage Nearline ?</p>
       <div class="opts">
         <button class="opt">0 jour</button>
         <button class="opt" data-correct="1">30 jours</button>
@@ -386,14 +427,14 @@ DELIVERY: sub=order-processor msg_id=ORD-1000 status=DEADLINE_EXCEEDED action=RE
       <div class="q__exp">Cloud Bigtable est le moteur NoSQL large-colonne conçu pour absorber des débits colossaux d'écriture et de lecture avec des temps de réponse sub-millisecondes constants.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Dans Cloud Pub/Sub, que se passe-t-il si un consommateur met 25 secondes à traiter un message alors que l'Ack Deadline est configurée à 10 secondes ?</p>
+      <p class="q__stem">Avec un abonnement Pub/Sub standard, que peut-il se passer si un message retenu reste non acquitté après expiration de son Ack Deadline, sans prolongation ?</p>
       <div class="opts">
-        <button class="opt">Le message est détruit définitivement</button>
-        <button class="opt" data-correct="1">Pub/Sub considère le consommateur en panne et réexpédie le message à un autre consommateur</button>
-        <button class="opt">La base de données est verrouillée</button>
-        <button class="opt">Le consommateur reçoit une amende financière</button>
+        <button class="opt">Le message est détruit immédiatement</button>
+        <button class="opt" data-correct="1">Pub/Sub peut tenter de le relivrer au même client ou à un autre</button>
+        <button class="opt">Pub/Sub prouve que le consommateur est en panne</button>
+        <button class="opt">Le message est forcément livré immédiatement à un autre client</button>
       </div>
-      <div class="q__exp">Dès que l'Ack Deadline expire sans accusé de réception formel (ack), Pub/Sub remet immédiatement le message dans la file de distribution pour qu'il soit retraité.</div>
+      <div class="q__exp">Après expiration sans acquittement ni prolongation, une tentative de relivraison est possible ; elle dépend notamment de la politique de retry et peut viser le même client. Le délai, la rétention et la présence d'une file de lettres mortes influencent le parcours.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle méthode de contrôle d'accès Cloud Storage permet de donner à un utilisateur externe un accès temporaire en écriture ou lecture à un objet précis sans qu'il ne possède de compte Google ?</p>
@@ -415,7 +456,7 @@ DELIVERY: sub=order-processor msg_id=ORD-1000 status=DEADLINE_EXCEEDED action=RE
       <li>Supprimer des objets dans Nearline ou Coldline avant leur durée minimale de conservation (30 ou 90 jours), déclenchant des frais de suppression anticipée (Early Deletion Fees).</li>
       <li>Rendre un bucket public via allUsers pour distribuer un fichier temporaire au lieu de générer une URL signée (Signed URL) avec expiration courte.</li>
       <li>Utiliser Cloud Spanner pour un petit projet d'application interne : le coût de démarrage d'un nœud Spanner est disproportionné face à une petite instance Cloud SQL.</li>
-      <li>Oublier d'acquitter un message Pub/Sub dans l'Ack Deadline impartie, provoquant des réexpéditions infinies et des doublons de traitement applicatif.</li>
+      <li>Supposer qu'un message non acquitté est relivré immédiatement et à un autre client, ou ignorer les doublons possibles et la durée de rétention.</li>
     </ul>
   </div>
 
@@ -424,7 +465,7 @@ DELIVERY: sub=order-processor msg_id=ORD-1000 status=DEADLINE_EXCEEDED action=RE
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
     <ol>
-      <li>Élaboration de la stratégie de stockage Cloud Storage : choisir l'emplacement (Multi-Region vs Region) et paramétrer les règles de cycle de vie pour basculer automatiquement les données vers les classes économiques.</li>
+      <li>Élaboration de la stratégie Cloud Storage : choisir une région, une double région, une multirégion ou une zone Rapid prise en charge ; vérifier les quotas et la compatibilité des règles de cycle de vie.</li>
       <li>Sélection du moteur relationnel selon le SLA : déployer Cloud SQL pour les applications standards et migrer vers Cloud Spanner dès que les exigences de scalabilité horizontale et de cohérence mondiale stricte s'imposent.</li>
       <li>Dimensionnement des moteurs NoSQL : arbitrer entre Firestore pour les applications applicatives réactives et Cloud Bigtable pour l'ingestion massive de télémétrie en temps réel.</li>
       <li>Architecture de découplage avec Pub/Sub : dimensionner les délais d'acquittement (Ack Deadline) et implémenter des files de lettres mortes (Dead Letter Topics) pour traiter les messages en échec.</li>
@@ -436,9 +477,9 @@ DELIVERY: sub=order-processor msg_id=ORD-1000 status=DEADLINE_EXCEEDED action=RE
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
-      <li>Cloud Storage offre 11 9s de durabilité avec 4 classes de stockage optimisées pour le coût (Standard, Nearline, Coldline, Archive).</li>
-      <li>L'Object Lifecycle Management migre automatiquement les objets sans intervention humaine selon des règles d'âge.</li>
-      <li>Cloud SQL gère MySQL, PostgreSQL et SQL Server en régional avec HA, tandis que Cloud Spanner fournit du NewSQL mondial à cohérence stricte avec 99.999% de SLA.</li>
+      <li>Au 30 octobre 2026, les cinq classes principales Cloud Storage sont Standard, Rapid, Nearline, Coldline et Archive ; Rapid nécessite un bucket zonal compatible.</li>
+      <li>L'Object Lifecycle Management peut migrer les objets selon des règles d'âge dans les buckets compatibles ; SetStorageClass ne s'applique pas aux buckets Rapid.</li>
+      <li>Les objectifs de disponibilité mensuelle de Cloud SQL et de Spanner dépendent de l'édition, de la configuration et de la région ; consulter les exclusions de chaque SLA.</li>
       <li>Firestore est optimisé pour les documents temps réel et mobiles, alors que Cloud Bigtable traite des téraoctets de données large-colonne avec latence sub-milliseconde.</li>
       <li>Cloud Pub/Sub fournit une messagerie asynchrone mondiale scalable reliant les producteurs et les consommateurs en mode Pull ou Push.</li>
     </ul>
@@ -452,7 +493,7 @@ DELIVERY: sub=order-processor msg_id=ORD-1000 status=DEADLINE_EXCEEDED action=RE
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li><strong>Cloud Storage (GCS) :</strong> Service de stockage d'objets non structurés mondialement résilient offrant 11 9s de durabilité et des classes tarifaires adaptées au cycle de vie.</li><li><strong>Cloud Spanner :</strong> Base de données relationnelle NewSQL distribuée mondialement combinant transactions ACID strictes, horloges TrueTime et SLA 99.999%.</li><li><strong>Cloud Bigtable :</strong> Base de données NoSQL large-colonne massivement distribuée fournissant une latence sub-milliseconde pour les très grands volumes de données.</li><li><strong>Firestore :</strong> Base de données NoSQL orientée documents offrant une synchronisation en temps réel et un support hors-ligne pour applications web et mobiles.</li><li><strong>Cloud Pub/Sub :</strong> Service de messagerie asynchrone mondial hautement scalable permettant le découplage fiable entre producteurs et consommateurs d'événements.</li><li>Cloud Storage offre 11 9s de durabilité avec 4 classes de stockage optimisées pour le coût (Standard, Nearline, Coldline, Archive).</li><li>L'Object Lifecycle Management migre automatiquement les objets sans intervention humaine selon des règles d'âge.</li><li>Cloud SQL gère MySQL, PostgreSQL et SQL Server en régional avec HA, tandis que Cloud Spanner fournit du NewSQL mondial à cohérence stricte avec 99.999% de SLA.</li>
+      <li><strong>Cloud Storage (GCS) :</strong> Service de stockage d'objets dont la redondance, les classes disponibles et les quotas dépendent notamment de l'emplacement et du type de bucket.</li><li><strong>Cloud Spanner :</strong> Base de données relationnelle distribuée à cohérence forte ; son objectif SLA mensuel dépend de la configuration et de la région.</li><li><strong>Cloud Bigtable :</strong> Base de données NoSQL large-colonne massivement distribuée fournissant une latence sub-milliseconde pour les très grands volumes de données.</li><li><strong>Firestore :</strong> Base de données NoSQL orientée documents offrant une synchronisation en temps réel et un support hors-ligne pour applications web et mobiles.</li><li><strong>Cloud Pub/Sub :</strong> Service de messagerie asynchrone mondial hautement scalable permettant le découplage fiable entre producteurs et consommateurs d'événements.</li><li>Au 30 octobre 2026, les cinq classes principales Cloud Storage sont Standard, Rapid, Nearline, Coldline et Archive ; Rapid nécessite un bucket zonal compatible.</li><li>L'Object Lifecycle Management peut migrer les objets selon des règles d'âge dans les buckets compatibles ; SetStorageClass ne s'applique pas aux buckets Rapid.</li><li>Les objectifs de disponibilité mensuelle de Cloud SQL et de Spanner dépendent de l'édition, de la configuration et de la région ; consulter les exclusions de chaque SLA.</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -464,7 +505,7 @@ DELIVERY: sub=order-processor msg_id=ORD-1000 status=DEADLINE_EXCEEDED action=RE
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong><strong>Automatisation du cycle de vie des objets Cloud Storage :</strong> Définir des politiques de cycle de vie en JSON pour optimiser automatiquement les coûts d'archivage.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong><strong>Automatisation du cycle de vie des objets Cloud Storage :</strong> Définir des politiques de cycle de vie en JSON pour optimiser automatiquement les coûts d'archivage.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong><strong>Sélection et dimensionnement de bases de données GCP :</strong> Arbitrer entre Cloud SQL, Spanner, Firestore et Bigtable selon les exigences de cohérence et de latence.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong><strong>Sécurisation des accès aux données avec Signed URLs :</strong> Générer des URLs temporaires signées pour autoriser les téléversements directs sécurisés vers GCS.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong><strong>Mise en œuvre de la haute disponibilité sur Cloud SQL :</strong> Déployer des instances avec réplication zonale synchrone et tester les basculements automatiques sans perte de données.</div>
@@ -474,11 +515,11 @@ DELIVERY: sub=order-processor msg_id=ORD-1000 status=DEADLINE_EXCEEDED action=RE
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Observabilité (Operations Suite), FinOps & Infrastructure as Code (Terraform) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Observabilité (Operations Suite), FinOps &amp; Infrastructure as Code (Terraform) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : Supports de cours officiels Services Cloud (Google Cloud) B3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja), Documentation officielle Google Cloud Architecture Center, Référentiels d'examen Google Cloud Certified Associate Cloud Engineer (ACE) et Professional Cloud Architect (PCA).</p>
+  Sources : Supports de cours officiels Services Cloud (Google Cloud) B3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja), documentation officielle Google Cloud consultée le 30 octobre 2026, référentiels d'examen Google Cloud Certified Associate Cloud Engineer (ACE) et Professional Cloud Architect (PCA).</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

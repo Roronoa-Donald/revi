@@ -10,12 +10,12 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "title": "Calculateur de risque",
-    "goal": "Appliquer la formule Risque = Menace × Vulnérabilité × Impact sur une liste d’actifs.",
-    "brief": "<p>Analysez chaque ligne proposée « menace vulnérabilité » (deux entiers de 1 à 3). Pour chaque actif il calcule la somme et Indiquez <code>actif K : niveau</code>, où K est le numéro de la ligne (à partir de 1) et niveau vaut <code>Faible</code> (somme 2 ou 3), <code>Moyenne</code> (somme 4 ou 5) ou <code>Critique</code> (somme 6).</p>",
-    "starter": "# Grille d'analyse (cy-c1-e1) — Calculateur de risque\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Faible et moyen]\n# Données : 2\n# Données : 1 1\n# Données : 2 3\nA_COMPLETER\n\n[Cas 2 — Quatre actifs mixtes]\n# Données : 4\n# Données : 2 2\n# Données : 1 3\n# Données : 3 3\n# Données : 1 1\nA_COMPLETER\n\n[Cas 3 — Cinq actifs]\n# Données : 5\n# Données : 3 2\n# Données : 2 2\n# Données : 1 1\n# Données : 2 3\n# Données : 3 3\nA_COMPLETER\n",
+    "goal": "Appliquer à des actifs un barème fictif fondé sur la somme de deux indices.",
+    "brief": "<p>La première donnée donne le nombre d’actifs. Pour chacun, deux entiers de 1 à 3 représentent des indices de menace et de vulnérabilité. Dans ce barème fictif, additionnez les deux indices : une somme de 2 ou 3 donne <code>Faible</code>, de 4 ou 5 <code>Moyenne</code>, et 6 <code>Critique</code>. Ce score ne tient pas compte de l’impact et ne constitue pas une évaluation complète du risque.</p><p>Pour chaque ligne, indiquez <code>actif K : niveau</code>, K étant le numéro de l’actif à partir de 1.</p>",
+    "starter": "# Grille d'analyse (cy-c1-e1) — Calculateur de risque\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Série A]\n# Données : 2\n# Données : 1 1\n# Données : 2 3\nA_COMPLETER\n\n[Cas 2 — Quatre actifs mixtes]\n# Données : 4\n# Données : 2 2\n# Données : 1 3\n# Données : 3 3\n# Données : 1 1\nA_COMPLETER\n\n[Cas 3 — Cinq actifs]\n# Données : 5\n# Données : 3 2\n# Données : 2 2\n# Données : 1 1\n# Données : 2 3\n# Données : 3 3\nA_COMPLETER\n",
     "hints": [
-      "Le numéro de l’actif est déjà la variable i de la boucle : inutile de le lire.",
-      "Trois plages de somme : 2-3, 4-5, 6. Un if/elif/else suffit après avoir calculé somme=$((menace + vuln))."
+      "Pour chaque actif, quelles sont les deux valeurs à combiner ?",
+      "Comparez la somme au barème fictif, puis numérotez les actifs dans l’ordre."
     ],
     "examples": [
       {
@@ -48,37 +48,37 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "title": "Police de la triade CIA",
-    "goal": "Classer des menaces selon la composante de la triade CIA qu’elles violent, puis dresser le bilan.",
-    "brief": "<p>Analysez chaque ligne proposée « lettre menace » : lettre vaut C (confidentialité), I (intégrité) ou D (disponibilité). Pour chaque ligne il Indiquez <code>lettre : menace</code>. Enfin il Indiquez <code>bilan : X/n protégées</code>, X étant le nombre de lettres <em>distinctes</em> rencontrées : une menace n’est contenue que si la composante visée est protégée.</p>",
-    "starter": "# Grille d'analyse (cy-c1-e2) — Police de la triade CIA\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Une seule menace]\n# Données : 1\n# Données : C ecoute\nA_COMPLETER\n\n[Cas 2 — Deux composantes]\n# Données : 3\n# Données : C vol\n# Données : C vol\n# Données : I altération\nA_COMPLETER\n\n[Cas 3 — Deux composantes, autre répartition]\n# Données : 4\n# Données : D panne\n# Données : D panne\n# Données : I fuite\n# Données : I fuite\nA_COMPLETER\n",
+    "goal": "Recenser les composantes CIA mentionnées dans une liste d’incidents, sans en déduire leur protection.",
+    "brief": "<p>La première donnée indique le nombre d’incidents. Chaque ligne « lettre menace » comporte une lettre déjà attribuée : C (confidentialité), I (intégrité) ou D (disponibilité). Pour chaque ligne, indiquez <code>lettre : menace</code>.</p><p>Terminez par <code>bilan : composantes=&lt;nombre de composantes distinctes&gt; incidents=&lt;nombre d’incidents&gt;</code>. Ce décompte ne démontre pas qu’une composante est protégée ou qu’une menace est contenue.</p>",
+    "starter": "# Grille d'analyse (cy-c1-e2) — Police de la triade CIA\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Une seule menace]\n# Données : 1\n# Données : C ecoute\nA_COMPLETER\n\n[Cas 2 — Série B]\n# Données : 3\n# Données : C vol\n# Données : C vol\n# Données : I altération\nA_COMPLETER\n\n[Cas 3 — Série C]\n# Données : 4\n# Données : D panne\n# Données : D panne\n# Données : I modification\n# Données : I modification\nA_COMPLETER\n",
     "hints": [
-      "Trois drapeaux (un par lettre) valent mieux qu’un tableau : ils passent à 1 quand la lettre apparaît.",
-      "Le nombre de lettres distinctes est la somme des trois drapeaux à la fin."
+      "Quelles lettres différentes apparaissent au moins une fois ?",
+      "Comptez séparément les composantes distinctes et les lignes d’incidents ; cela ne prouve aucune protection."
     ],
     "examples": [
       {
-        "stdin": "5\nC stockage\nI interception\nC divulgation\nD ransomware\nD coupure\n",
-        "expected": "C : stockage\nI : interception\nC : divulgation\nD : ransomware\nD : coupure\nbilan : 3/5 protégées"
+        "stdin": "5\nC ecoute\nI modification\nC divulgation\nD ransomware\nD coupure\n",
+        "expected": "C : ecoute\nI : modification\nC : divulgation\nD : ransomware\nD : coupure\nbilan : composantes=3 incidents=5"
       }
     ],
     "tests": [
       {
         "label": "Une seule menace",
         "stdin": "cas:1",
-        "expected": "C : ecoute\nbilan : 1/1 protégées"
+        "expected": "C : ecoute\nbilan : composantes=1 incidents=1"
       },
       {
         "label": "Deux composantes",
         "stdin": "cas:2",
-        "expected": "C : vol\nC : vol\nI : altération\nbilan : 2/3 protégées"
+        "expected": "C : vol\nC : vol\nI : altération\nbilan : composantes=2 incidents=3"
       },
       {
         "label": "Deux composantes, autre répartition",
         "stdin": "cas:3",
-        "expected": "D : panne\nD : panne\nI : fuite\nI : fuite\nbilan : 2/4 protégées"
+        "expected": "D : panne\nD : panne\nI : modification\nI : modification\nbilan : composantes=2 incidents=4"
       }
     ],
-    "solution": "[Exemple]\nC : stockage\nI : interception\nC : divulgation\nD : ransomware\nD : coupure\nbilan : 3/5 protégées\n\n[Cas 1 — Une seule menace]\nC : ecoute\nbilan : 1/1 protégées\n\n[Cas 2 — Deux composantes]\nC : vol\nC : vol\nI : altération\nbilan : 2/3 protégées\n\n[Cas 3 — Deux composantes, autre répartition]\nD : panne\nD : panne\nI : fuite\nI : fuite\nbilan : 2/4 protégées"
+    "solution": "[Exemple]\nC : ecoute\nI : modification\nC : divulgation\nD : ransomware\nD : coupure\nbilan : composantes=3 incidents=5\n\n[Cas 1 — Une seule menace]\nC : ecoute\nbilan : composantes=1 incidents=1\n\n[Cas 2 — Deux composantes]\nC : vol\nC : vol\nI : altération\nbilan : composantes=2 incidents=3\n\n[Cas 3 — Deux composantes, autre répartition]\nD : panne\nD : panne\nI : modification\nI : modification\nbilan : composantes=2 incidents=4"
   },
   {
     "id": "cy-c1-e3",
@@ -87,11 +87,11 @@ module.exports = [
     "language": "analyse",
     "title": "Historique des incidents",
     "goal": "Relire une chronologie d’incidents célèbres et en extraire les bornes, pour ancrer les dates du cours.",
-    "brief": "<p>Analysez chaque ligne proposée « annee nom » (année <code>&lt;</code> 9999, nom sans espace). Il réIndiquez chaque ligne telle quelle, puis conclut par trois lignes : <code>plus ancien : annee nom</code>, <code>plus recent : annee nom</code> et <code>enseignement : les incidents s'enchaînent, la vigilance aussi</code>.</p>",
+    "brief": "<p>Analysez chaque ligne proposée « annee nom » (année <code>&lt;</code> 9999, nom sans espace). Recopiez chaque ligne telle quelle, puis concluez par trois lignes : <code>plus ancien : annee nom</code>, <code>plus recent : annee nom</code> et <code>enseignement : les incidents s'enchaînent, la vigilance aussi</code>.</p>",
     "starter": "# Grille d'analyse (cy-c1-e3) — Historique des incidents\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux incidents]\n# Données : 2\n# Données : 2021 Log4Shell\n# Données : 2017 WannaCry\nA_COMPLETER\n\n[Cas 2 — Trois incidents]\n# Données : 3\n# Données : 1988 Morris\n# Données : 2024 XZ Utils\n# Données : 2013 CryptoLocker\nA_COMPLETER\n\n[Cas 3 — Quatre incidents du siècle]\n# Données : 4\n# Données : 2000 ILOVEYOU\n# Données : 2008 Conficker\n# Données : 2010 Stuxnet\n# Données : 2019 Emotet\nA_COMPLETER\n",
     "hints": [
-      "Gardez la ligne complète (année et nom) dans une variable, pas seulement l’année : l’affichage final la réclame.",
-      "Deux comparaisons par ligne : -lt pour le plus ancien, -gt pour le plus récent."
+      "Comparez les années avant de choisir les deux bornes.",
+      "Conservez avec chaque année le nom qui lui est associé."
     ],
     "examples": [
       {
@@ -125,7 +125,7 @@ module.exports = [
     "language": "analyse",
     "title": "Diagnostic des malwares",
     "goal": "Associer à chaque famille de malware la première mesure qui s’impose.",
-    "brief": "<p>Analysez chaque ligne proposée « famille cible » : famille vaut <code>ransomware</code>, <code>virus</code>, <code>ver</code> ou <code>spyware</code>. Pour chaque ligne il Indiquez <code>famille cible : mesure</code> avec : restaure une sauvegarde hors ligne (ransomware), supprime et re-scanne (virus), isole la machine du réseau (ver), change les mots de passe (spyware). Enfin <code>rapport : n malwares</code>.</p>",
+    "brief": "<p>Analysez chaque ligne proposée « famille cible » : famille vaut <code>ransomware</code>, <code>virus</code>, <code>ver</code> ou <code>spyware</code>. Pour chaque ligne, indiquez <code>famille cible : mesure</code> avec : restaure une sauvegarde hors ligne (ransomware), supprime et re-scanne (virus), isole la machine du réseau (ver), change les mots de passe (spyware). Enfin <code>rapport : n malwares</code>.</p>",
     "starter": "# Grille d'analyse (cy-c2-e1) — Diagnostic des malwares\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Ver et virus]\n# Données : 2\n# Données : ver partage\n# Données : virus jeu.exe\nA_COMPLETER\n\n[Cas 2 — Ransomware et spyware]\n# Données : 3\n# Données : ransomware disque\n# Données : spyware tache\n# Données : ransomware sauvegarde\nA_COMPLETER\n\n[Cas 3 — Cinq familles mélangées]\n# Données : 5\n# Données : virus a.exe\n# Données : ver b\n# Données : spyware c\n# Données : ver d\n# Données : virus e.exe\nA_COMPLETER\n",
     "hints": [
       "Un case à quatre branches couvre exactement les quatre familles.",
@@ -163,10 +163,10 @@ module.exports = [
     "language": "analyse",
     "title": "Score de mot de passe",
     "goal": "Implémenter une politique de mots de passe : liste noire, longueur minimale, verdict.",
-    "brief": "<p>Analysez les données fournies pour chaque cas. Pour chacun il Indiquez <code>mdp_minuscules : verdict</code> : <code>faible</code> s’il figure (en minuscules) dans la liste noire <code>123456 password motdepasse autruche azerty qwerty 2024 2025 ete</code> ou s’il fait moins de 8 caractères ; <code>fort</code> s’il en fait 12 ou plus ; <code>moyen</code> sinon. Le mot affiché est la version minuscules du mot de passe.</p>",
+    "brief": "<p>Analysez les données fournies pour chaque cas. Pour chacun, indiquez <code>mdp_minuscules : verdict</code> : <code>faible</code> s’il figure (en minuscules) dans la liste noire <code>123456 password motdepasse autruche azerty qwerty 2024 2025 ete</code> ou s’il fait moins de 8 caractères ; <code>fort</code> s’il en fait 12 ou plus ; <code>moyen</code> sinon. Le mot affiché est la version minuscules du mot de passe.</p>",
     "starter": "# Grille d'analyse (cy-c2-e2) — Score de mot de passe\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux mots de passe usuels]\n# Données : 2\n# Données : password\n# Données : MotDePasse1\nA_COMPLETER\n\n[Cas 2 — Un moyen au milieu]\n# Données : 3\n# Données : Bonjour2024\n# Données : chaton99xx\n# Données : Bonjour\nA_COMPLETER\n\n[Cas 3 — Fort, faible, court]\n# Données : 3\n# Données : Mot2PasseLong!\n# Données : Ete2024\n# Données : chat\nA_COMPLETER\n",
     "hints": [
-      "minuscules=$(echo \"$mdp\" | tr '[:upper:]' '[:lower:]') puis parcourir la liste noire avec un case « *mot* ».",
+      "`minuscules=$(echo \"$mdp\" | tr '[:upper:]' '[:lower:]')` puis parcourir la liste noire avec un case « *mot* ».",
       "La longueur s’obtient avec ${#mdp} : moins de 8 c’est faible, 12 ou plus c’est fort — teste la liste noire d’abord, la longueur ensuite."
     ],
     "examples": [
@@ -201,7 +201,7 @@ module.exports = [
     "language": "analyse",
     "title": "Détection de phishing",
     "goal": "Retrouver les indices d’hameçonnage d’une URL à partir de son type.",
-    "brief": "<p>Analysez chaque ligne proposée « type url » : type vaut <code>https</code>, <code>http</code>, <code>ip</code> (URL en adresse IP) ou <code>domaine</code> (nom trompeur en .info/.tk). Pour chaque ligne il Indiquez <code>type url : etiquette</code> : <code>normal</code> (https), <code>nom trompeur</code> (http), <code>pas de nom</code> (ip), <code>domaine douteux</code> (domaine). Enfin <code>soupçons : X/n</code> où X compte les lignes non « normal ».</p>",
+    "brief": "<p>Analysez chaque ligne proposée « type url » : type vaut <code>https</code>, <code>http</code>, <code>ip</code> (URL en adresse IP) ou <code>domaine</code> (nom trompeur en .info/.tk). Pour chaque ligne, indiquez <code>type url : etiquette</code> : <code>normal</code> (https), <code>nom trompeur</code> (http), <code>pas de nom</code> (ip), <code>domaine douteux</code> (domaine). Enfin <code>soupçons : X/n</code> où X compte les lignes non « normal ».</p>",
     "starter": "# Grille d'analyse (cy-c2-e3) — Détection de phishing\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Une IP et un https]\n# Données : 2\n# Données : ip 10.0.0.2\n# Données : https adresse.gouv.fr\nA_COMPLETER\n\n[Cas 2 — Domaine douteux et http]\n# Données : 3\n# Données : domaine microsoft-securite.tk\n# Données : http portail.fr\n# Données : https ecli.bzh\nA_COMPLETER\n\n[Cas 3 — Cinq URL variées]\n# Données : 5\n# Données : https ssl.gouv.fr\n# Données : ip 172.16.0.9\n# Données : domaine compte-ameli.info\n# Données : http suivi-colis.fr\n# Données : https git.bzh\nA_COMPLETER\n",
     "hints": [
       "Le case doit tester https AVANT http : autrement le motif http matcherait aussi les URL https.",
@@ -280,7 +280,7 @@ module.exports = [
     "brief": "<p>Analysez chaque ligne proposée « preuve categorie » : preuve vaut <code>password</code>, <code>code_totp</code>, <code>code_sms</code> ou <code>empreinte</code> ; categorie vaut <code>connaissance</code>, <code>possession</code> ou <code>inherence</code>. Le verdict par ligne : <code>ok</code> (password+connaissance, code_totp+possession), <code>fragile</code> (code_sms+possession, SMS interceptable), <code>refusé</code> (toute autre combinaison). Enfin <code>bilan : a solides, b fragile, c refusés</code>.</p>",
     "starter": "# Grille d'analyse (cy-c3-e2) — Vérificateur de 2FA\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Une preuve valide]\n# Données : 1\n# Données : password connaissance\nA_COMPLETER\n\n[Cas 2 — Refus puis réussite]\n# Données : 2\n# Données : empreinte inherence\n# Données : code_totp possession\nA_COMPLETER\n\n[Cas 3 — Quatre combinaisons]\n# Données : 4\n# Données : code_sms possession\n# Données : password connaissance\n# Données : code_sms possession\n# Données : empreinte inherence\nA_COMPLETER\n",
     "hints": [
-      "Un case sur « $preuve $categorie » avec deux motifs exacts gagne : password\\ connaissance) et code_totp\\ possession).",
+      "Un case sur « `$preuve $categorie` » avec deux motifs exacts gagne : password\\ connaissance) et code_totp\\ possession).",
       "N’incrémente les compteurs qu’une fois, au moment où le verdict est posé."
     ],
     "examples": [
@@ -581,10 +581,10 @@ module.exports = [
     "language": "analyse",
     "title": "Calculateur d’amende RGPD",
     "goal": "Comparer chaque amende envisagée au plafond du RGPD : 20 millions d’euros ou 4 % du CA mondial.",
-    "brief": "<p>Analysez chaque ligne proposée « nombre unite » avec unite = <code>euros</code> (montant en euros) ou <code>percent</code> (part du chiffre d’affaires). Contexte : le CA de l’entreprise vaut 1 milliard d’euros, donc 1 % = 10 M€. Pour la ligne K il Indiquez <code>candidat K : X M€</code> (division entière pour les euros). Enfin <code>plafond : 20 M€ ou 4 %</code>.</p>",
+    "brief": "<p>Analysez chaque ligne proposée « nombre unite » avec unite = <code>euros</code> (montant en euros) ou <code>percent</code> (part du chiffre d’affaires). Contexte : le CA de l’entreprise vaut 1 milliard d’euros, donc 1 % = 10 M€. Pour la ligne K, indiquez <code>candidat K : X M€</code> (division entière pour les euros). Enfin <code>plafond : 20 M€ ou 4 %</code>.</p>",
     "starter": "# Grille d'analyse (cy-c6-e1) — Calculateur d’amende RGPD\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un montant en euros]\n# Données : 1\n# Données : 10000000 euros\nA_COMPLETER\n\n[Cas 2 — Deux parts de CA]\n# Données : 2\n# Données : 9 percent\n# Données : 60 percent\nA_COMPLETER\n\n[Cas 3 — Trois candidats]\n# Données : 3\n# Données : 25 percent\n# Données : 19000000 euros\n# Données : 2 percent\nA_COMPLETER\n",
     "hints": [
-      "Euros : me=$((valeur / 1000000)) — division entière. Pourcent : me=$((valeur * 10)) car 1 % de 1 Md€ vaut 10 M€.",
+      "Euros : `me=$((valeur / 1000000))` — division entière. Pourcent : `me=$((valeur * 10))` car 1 % de 1 Md€ vaut 10 M€.",
       "La ligne de plafond ne dépend d’aucune donnée : elle s’affiche une fois, après la boucle."
     ],
     "examples": [
@@ -619,7 +619,7 @@ module.exports = [
     "language": "analyse",
     "title": "Conformité ISO 27001",
     "goal": "Relier chaque pratique de sécurité à la norme qui l’exige, puis mesurer la couverture.",
-    "brief": "<p>Analysez chaque ligne proposée « pratique norme » avec norme = RGPD, NIS2, PCIDSS ou ISO27001. Pour chaque ligne il Indiquez <code>norme : pratique</code>. Enfin <code>couvert : X/n</code> où X compte les normes <em>distinctes</em> rencontrées : une norme n’est couverte qu’une fois, même si plusieurs pratiques la concernent.</p>",
+    "brief": "<p>Analysez chaque ligne proposée « pratique norme » avec norme = RGPD, NIS2, PCIDSS ou ISO27001. Pour chaque ligne, indiquez <code>norme : pratique</code>. Enfin <code>couvert : X/n</code> où X compte les normes <em>distinctes</em> rencontrées : une norme n’est couverte qu’une fois, même si plusieurs pratiques la concernent.</p>",
     "starter": "# Grille d'analyse (cy-c6-e2) — Conformité ISO 27001\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Une norme]\n# Données : 1\n# Données : smsi ISO27001\nA_COMPLETER\n\n[Cas 2 — Deux pratiques, une norme]\n# Données : 2\n# Données : smsi ISO27001\n# Données : soc ISO27001\nA_COMPLETER\n\n[Cas 3 — Trois normes]\n# Données : 3\n# Données : jeton_banque PCIDSS\n# Données : plan_reponse NIS2\n# Données : chiffrement RGPD\nA_COMPLETER\n",
     "hints": [
       "Quatre drapeaux (RGPD, NIS2, PCIDSS, ISO27001) passent à 1 quand la norme apparaît.",
@@ -657,7 +657,7 @@ module.exports = [
     "language": "analyse",
     "title": "Coffre 3-2-1",
     "goal": "Auditer une stratégie de sauvegarde contre la règle 3-2-1 et son évolution immuable.",
-    "brief": "<p>Analysez chaque ligne proposée « lettre description » : lettre = <code>C</code> (copie des données), <code>S</code> (support distinct), <code>H</code> (copie hors site) ou <code>I</code> (copie immuable). Pour chaque ligne il Indiquez <code>lettre description : libellé</code> avec copie, support, hors site, immuable. Le verdict final exige C, H et I présents — S aide mais ne suffit jamais : <code>verdict : conforme au 3-2-1</code>, sinon <code>verdict : 3-2-1 incomplet (manque X)</code> avec X la première lettre manquante parmi C, H, I.</p>",
+    "brief": "<p>Analysez chaque ligne proposée « lettre description » : lettre = <code>C</code> (copie des données), <code>S</code> (support distinct), <code>H</code> (copie hors site) ou <code>I</code> (copie immuable). Pour chaque ligne, indiquez <code>lettre description : libellé</code> avec copie, support, hors site, immuable. Le verdict final exige C, H et I présents — S aide mais ne suffit jamais : <code>verdict : conforme au 3-2-1</code>, sinon <code>verdict : 3-2-1 incomplet (manque X)</code> avec X la première lettre manquante parmi C, H, I.</p>",
     "starter": "# Grille d'analyse (cy-c6-e3) — Coffre 3-2-1\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Stratégie conforme]\n# Données : 4\n# Données : C copie_production\n# Données : S nas\n# Données : H bande_offsite\n# Données : I airgap\nA_COMPLETER\n\n[Cas 2 — Aucune copie hors site]\n# Données : 2\n# Données : C copie_production\n# Données : S nas\nA_COMPLETER\n\n[Cas 3 — Deux supports, pas d’immuable]\n# Données : 3\n# Données : C copie_production\n# Données : S nas\n# Données : S cloud\nA_COMPLETER\n",
     "hints": [
       "Quatre drapeaux comme d’habitude ; le verdict s’écrit après la boucle avec des if imbriqués.",

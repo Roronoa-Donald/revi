@@ -115,7 +115,7 @@ module.exports = {
   ],
 
   pitfalls: [
-    'Confondre Func<int, string> (prend un int et renvoie une string) avec Action<int, string> (prend un int et une string sans rien renvoyer).',
+    'Confondre Func&lt;int, string&gt; (prend un int et renvoie une string) avec Action&lt;int, string&gt; (prend un int et une string sans rien renvoyer).',
     'Réévaluer involontairement une requête LINQ lourde plusieurs fois en oubliant de la matérialiser avec ToList().',
     'Déclencher un événement sans vérifier s’il possède des abonnés, provoquant une NullReferenceException (utiliser systématiquement monEvent?.Invoke(...)).',
     'Oublier de se désabonner d’un événement avec -= lors de la destruction d’un composant, provoquant des fuites mémoire car l’émetteur conserve une référence forte vers l’abonné.'

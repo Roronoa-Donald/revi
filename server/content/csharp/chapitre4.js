@@ -201,7 +201,7 @@ module.exports = {
 
   notions: [
     'Espace de noms System.Collections.Generic',
-    'Table de hachage Dictionary<TKey, TValue> en O(1)',
+    'Table de hachage Dictionary&lt;TKey, TValue&gt; en O(1)',
     'Accès sécurisé sans crash avec TryGetValue',
     'Ensemble unique HashSet<T> et déduplication',
     'Hiérarchie System.Exception et blocs try/catch/finally',

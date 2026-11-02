@@ -185,7 +185,7 @@ NOTE: Dimensionnement de bande passante VoIP conforme aux normes ITU.
     '  <div class="grid grid-2">',
     '    <div class="card">',
     '      <h4>Calculateur de Débit &amp; En-têtes Réseau</h4>',
-    '      <p>Vérifiez l\'impact de la durée de paquetisation (PTIME 10ms, 20ms, 30ms) sur le débit réseau global avec les en-têtes IP/UDP/RTP de 40 octets.</p>',
+    '      <p>Vérifiez l\'impact de la durée de paquetisation (PTIME 10ms, 20ms, 30ms) sur le débit IP, avec IPv4 sans options et RTP minimal : 40 octets d\'en-têtes dans ce modèle.</p>',
     '    </div>',
     '    <div class="card">',
     '      <h4>Parseur d\'En-têtes SIP RFC 3261</h4>',

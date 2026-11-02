@@ -1,0 +1,197 @@
+{
+  "exercices": [
+    {
+      "id": "ws2-c1-e1", "source": "rd_winserver/chapitre1.js", "oracle": "ws2-c1-e1", "codec": "nombres",
+      "cas": [
+        {"entree": "1\n73", "attendu": "total : 73 Go"},
+        {"entree": "3\n23\n14\n0", "attendu": "total : 37 Go"}
+      ],
+      "mutants": [
+        {"nom": "Omettre la dernière sauvegarde", "ancien": "$i -lt $n", "nouveau": "$i -lt ($n - 1)"},
+        {"nom": "Remplacer le total au lieu de l'accumuler", "ancien": "$total += $taille", "nouveau": "$total = $taille"}
+      ]
+    },
+    {
+      "id": "ws2-c1-e2", "source": "rd_winserver/chapitre1.js", "oracle": "ws2-c1-e2", "codec": "lignes_casse_ignoree",
+      "cas": [
+        {"entree": "3\n3\noui", "attendu": "3-2-1 : conforme"},
+        {"entree": "5\n1\noui", "attendu": "3-2-1 : non conforme"}
+      ],
+      "mutants": [
+        {"nom": "Exiger plus de trois copies", "ancien": "$copies -ge 3", "nouveau": "$copies -gt 3"},
+        {"nom": "Oublier le minimum de supports", "ancien": "($supports -ge 2) -and ", "nouveau": ""}
+      ]
+    },
+    {
+      "id": "ws2-c1-e3", "source": "rd_winserver/chapitre1.js", "oracle": "ws2-c1-e3", "codec": "nombres",
+      "cas": [
+        {"entree": "240\n240", "attendu": "libre : 0 Go"},
+        {"entree": "510\n125", "attendu": "libre : 385 Go"}
+      ],
+      "mutants": [
+        {"nom": "Refuser une cible exactement pleine", "ancien": "$taille -gt $capacite", "nouveau": "$taille -ge $capacite"},
+        {"nom": "Inverser la soustraction de l'espace libre", "ancien": "$capacite - $taille", "nouveau": "$taille - $capacite"}
+      ]
+    },
+    {
+      "id": "ws2-c2-e1", "source": "rd_winserver/chapitre2.js", "oracle": "ws2-c2-e1", "codec": "nombres",
+      "cas": [
+        {"entree": "2\n1", "attendu": "actifs : 1\nservice : maintenu"},
+        {"entree": "6\n2", "attendu": "actifs : 4\nservice : maintenu"}
+      ],
+      "mutants": [
+        {"nom": "Exiger deux nœuds actifs", "ancien": "$actifs -ge 1", "nouveau": "$actifs -gt 1"},
+        {"nom": "Confondre nœuds actifs et nœuds en panne", "ancien": "$actifs = $total - $enPanne", "nouveau": "$actifs = $enPanne"}
+      ]
+    },
+    {
+      "id": "ws2-c2-e2", "source": "rd_winserver/chapitre2.js", "oracle": "ws2-c2-e2", "codec": "nombres",
+      "cas": [
+        {"entree": "6\n2", "attendu": "charge : 0 req/s"},
+        {"entree": "2\n18", "attendu": "charge : 9 req/s"}
+      ],
+      "mutants": [
+        {"nom": "Arrondir la charge à l'entier supérieur", "ancien": "[math]::Floor($requetes / $serveurs)", "nouveau": "[math]::Ceiling($requetes / $serveurs)"},
+        {"nom": "Compter un serveur de trop", "ancien": "[math]::Floor($requetes / $serveurs)", "nouveau": "[math]::Floor($requetes / ($serveurs + 1))"}
+      ]
+    },
+    {
+      "id": "ws2-c2-e3", "source": "rd_winserver/chapitre2.js", "oracle": "ws2-c2-e3", "codec": "lignes_casse_ignoree",
+      "cas": [
+        {"entree": "3\ncritique\nwarning\ncritique", "attendu": "critiques : 2\netat : alerte"},
+        {"entree": "3\ninfo\ncritique\ninfo", "attendu": "critiques : 1\netat : alerte"}
+      ],
+      "mutants": [
+        {"nom": "Compter aussi les avertissements", "ancien": "$sev -eq \"critique\"", "nouveau": "($sev -eq \"critique\") -or ($sev -eq \"warning\")"},
+        {"nom": "Déclencher uniquement à partir de deux critiques", "ancien": "$critiques -gt 0", "nouveau": "$critiques -gt 1"}
+      ]
+    },
+    {
+      "id": "ws2-c3-e1", "source": "rd_winserver/chapitre3.js", "oracle": "ws2-c3-e1", "codec": "nombres",
+      "cas": [
+        {"entree": "6\n3", "attendu": "quorum : perdu"},
+        {"entree": "7\n4", "attendu": "quorum : atteint"}
+      ],
+      "mutants": [
+        {"nom": "Accepter une égalité sans majorité", "ancien": "$enLigne * 2 -gt $total", "nouveau": "$enLigne * 2 -ge $total"},
+        {"nom": "Exiger tous les nœuds en ligne", "ancien": "$enLigne * 2 -gt $total", "nouveau": "$enLigne -eq $total"}
+      ]
+    },
+    {
+      "id": "ws2-c3-e2", "source": "rd_winserver/chapitre3.js", "oracle": "ws2-c3-e2", "codec": "lignes_casse_ignoree",
+      "cas": [
+        {"entree": "2\nactif\nactif", "attendu": "actifs : 2\ntype : active-active"},
+        {"entree": "3\nactif\nactif\nveille", "attendu": "actifs : 2\ntype : active-passive"}
+      ],
+      "mutants": [
+        {"nom": "Ne pas lire le dernier nœud", "ancien": "$i -lt $n", "nouveau": "$i -lt ($n - 1)"},
+        {"nom": "Qualifier actif-actif dès qu'un nœud est actif", "ancien": "$actifs -eq $n", "nouveau": "$actifs -gt 0"}
+      ]
+    },
+    {
+      "id": "ws2-c3-e3", "source": "rd_winserver/chapitre3.js", "oracle": "ws2-c3-e3", "codec": "nombres",
+      "cas": [
+        {"entree": "2\n5", "attendu": "par serveur : 0\nnon reparties : 2"},
+        {"entree": "24\n4", "attendu": "par serveur : 6\nnon reparties : 0"}
+      ],
+      "mutants": [
+        {"nom": "Arrondir la part au supérieur", "ancien": "[math]::Floor($requetes / $serveurs)", "nouveau": "[math]::Ceiling($requetes / $serveurs)"},
+        {"nom": "Ajouter un serveur pour le quotient", "ancien": "[math]::Floor($requetes / $serveurs)", "nouveau": "[math]::Floor($requetes / ($serveurs + 1))"}
+      ]
+    },
+    {
+      "id": "ws2-c4-e1", "source": "rd_winserver/chapitre4.js", "oracle": "ws2-c4-e1", "codec": "lignes_casse_ignoree",
+      "cas": [
+        {"entree": "3\nechec\nok\nechec", "attendu": "echecs : 2\nmaintenance : requise"},
+        {"entree": "2\nechec\nok", "attendu": "echecs : 1\nmaintenance : requise"}
+      ],
+      "mutants": [
+        {"nom": "Omettre le dernier résultat", "ancien": "$i -lt $n", "nouveau": "$i -lt ($n - 1)"},
+        {"nom": "Exiger deux échecs pour la maintenance", "ancien": "$echecs -gt 0", "nouveau": "$echecs -gt 1"}
+      ]
+    },
+    {
+      "id": "ws2-c4-e2", "source": "rd_winserver/chapitre4.js", "oracle": "ws2-c4-e2", "codec": "nombres",
+      "precision": "060 et 085 représentent les températures 60 et 85 ; les zéros satisfont le contrôle textuel minimal du banc sans créer de nouvelle valeur sémantique artificielle.",
+      "cas": [
+        {"entree": "060", "attendu": "etat : chaud"},
+        {"entree": "085", "attendu": "etat : danger"}
+      ],
+      "mutants": [
+        {"nom": "Exclure 60 de la plage chaude", "ancien": "$temp -ge 60", "nouveau": "$temp -gt 60"},
+        {"nom": "Exclure 85 de la plage dangereuse", "ancien": "$temp -ge 85", "nouveau": "$temp -gt 85"}
+      ]
+    },
+    {
+      "id": "ws2-c5-e1", "source": "rd_winserver/chapitre5.js", "oracle": "ws2-c5-e1", "codec": "lignes",
+      "cas": [
+        {"entree": "1\nXen", "attendu": "produit : Xen (bare-metal)"},
+        {"entree": "2\nParallels", "attendu": "produit : Parallels (heberge)"}
+      ],
+      "mutants": [
+        {"nom": "Classer le type 1 comme hébergé", "ancien": "$produit + \" (bare-metal)\"", "nouveau": "$produit + \" (heberge)\""},
+        {"nom": "Classer le type 2 comme bare-metal", "ancien": "$produit + \" (heberge)\"", "nouveau": "$produit + \" (bare-metal)\""}
+      ]
+    },
+    {
+      "id": "ws2-c5-e3", "source": "rd_winserver/chapitre5.js", "oracle": "ws2-c5-e3", "codec": "nombres",
+      "cas": [
+        {"entree": "12\n12", "attendu": "surallocation : non\nvcpu en exces : 0"},
+        {"entree": "12\n6", "attendu": "surallocation : oui\nvcpu en exces : 6"}
+      ],
+      "mutants": [
+        {"nom": "Déclarer suralloué à l'égalité", "ancien": "$vcpu -gt $coeurs", "nouveau": "$vcpu -ge $coeurs"},
+        {"nom": "Afficher tous les vCPU comme excédent", "ancien": "($vcpu - $coeurs)", "nouveau": "$vcpu"}
+      ]
+    },
+    {
+      "id": "ws2-c6-e1", "source": "rd_winserver/chapitre6.js", "oracle": "ws2-c6-e1", "codec": "nombres",
+      "precision": "008 et 006 représentent les âges 8 et 6 ; les zéros satisfont le contrôle textuel minimal du banc sans créer de nouvelle valeur sémantique artificielle.",
+      "cas": [
+        {"entree": "008", "attendu": "snapshot : a purger"},
+        {"entree": "006", "attendu": "snapshot : conserve"}
+      ],
+      "mutants": [
+        {"nom": "Attendre plus de huit jours", "ancien": "$age -gt 7", "nouveau": "$age -gt 8"},
+        {"nom": "Purger dès six jours", "ancien": "$age -gt 7", "nouveau": "$age -ge 6"}
+      ]
+    },
+    {
+      "id": "ws2-c6-e3", "source": "rd_winserver/chapitre6.js", "oracle": "ws2-c6-e3", "codec": "nombres",
+      "cas": [
+        {"entree": "100\n2\n100\n0", "attendu": "total : 100 Go\nsauvegarde : planifiee"},
+        {"entree": "100\n2\n60\n50", "attendu": "total : 110 Go\nsauvegarde : capacite insuffisante"}
+      ],
+      "mutants": [
+        {"nom": "Refuser une cible remplie exactement", "ancien": "$total -le $capacite", "nouveau": "$total -lt $capacite"},
+        {"nom": "Omettre la dernière VM", "ancien": "$i -lt $n", "nouveau": "$i -lt ($n - 1)"}
+      ]
+    }
+  ],
+  "domaines_finis": [
+    {
+      "id": "ws2-c5-e2", "source": "rd_winserver/chapitre5.js", "oracle": "ws2-c5-e2", "codec": "lignes_casse_ignoree",
+      "precision": "Les trois modes nommés par l'énoncé sont déjà dans l'exemple ou les tests. Ces deux sondes connues ne sont pas des témoins inédits.",
+      "cas": [
+        {"entree": "nat", "attendu": "internet : oui\nlan : non"},
+        {"entree": "bridge", "attendu": "internet : oui\nlan : oui"}
+      ],
+      "mutants": [
+        {"nom": "Refuser Internet en NAT", "ancien": "\"nat\" { Write-Output \"internet : oui\"; Write-Output \"lan : non\" }", "nouveau": "\"nat\" { Write-Output \"internet : non\"; Write-Output \"lan : non\" }"},
+        {"nom": "Refuser l'accès LAN en bridge", "ancien": "\"bridge\" { Write-Output \"internet : oui\"; Write-Output \"lan : oui\" }", "nouveau": "\"bridge\" { Write-Output \"internet : oui\"; Write-Output \"lan : non\" }"}
+      ]
+    },
+    {
+      "id": "ws2-c6-e2", "source": "rd_winserver/chapitre6.js", "oracle": "ws2-c6-e2", "codec": "lignes_casse_ignoree",
+      "precision": "Les quatre couples type/source énumérés par l'énoncé sont déjà dans l'exemple ou les tests. Ces deux sondes connues ne sont pas des témoins inédits.",
+      "cas": [
+        {"entree": "complet\noui", "attendu": "clone : fonctionne"},
+        {"entree": "lie\nnon", "attendu": "clone : fonctionne"}
+      ],
+      "mutants": [
+        {"nom": "Rendre tous les clones dépendants de la source", "ancien": "$type -eq \"complet\"", "nouveau": "$sourceSupprimee -eq \"non\""},
+        {"nom": "Considérer un clone lié toujours en panne", "ancien": "$sourceSupprimee -eq \"oui\"", "nouveau": "$type -eq \"lie\""}
+      ]
+    }
+  ]
+}

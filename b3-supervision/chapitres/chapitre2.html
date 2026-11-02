@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -53,7 +53,7 @@
 <main id="content" class="b3-supervisionwrap">
 <p class="crumb"><a href="../index.html">Supervision &amp; Observabilité B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
 
-<h1>Chapitre 2 — Architecture des Systèmes de Supervision & Protocoles de Collecte (SNMP & Syslog)</h1>
+<h1>Chapitre 2 — Architecture des Systèmes de Supervision &amp; Protocoles de Collecte (SNMP &amp; Syslog)</h1>
 
 <div class="chapmeta">
     <span class="tag">Module 2</span>
@@ -77,7 +77,7 @@
     </ol>
   </div>
 
-<h2>1. Composants & Topologies d'Architecture de Supervision</h2>
+<h2>1. Composants &amp; Topologies d'Architecture de Supervision</h2>
 
 <p>Un système de supervision robuste s'articule autour de cinq briques techniques fondamentales :</p>
 <div class="grid grid-3">
@@ -113,7 +113,7 @@
     <p>La <strong>MIB (Management Information Base)</strong> organise les données sous forme d'un arbre hiérarchique normalisé. Chaque paramètre est identifié par un <strong>OID (Object Identifier)</strong> numérique :</p>
     <ul>
       <li><code>1.3.6.1.2.1.1.1</code> : <code>sysDescr</code> — Description du système d'exploitation et du firmware.</li>
-      <li><code>1.3.6.1.2.1.1.3</code> : <code>sysUpTime</code> — Temps de fonctionnement depuis le dernier boot (en centièmes de seconde).</li>
+      <li><code>1.3.6.1.2.1.1.3.0</code> : <code>sysUpTime</code> — Temps écoulé depuis la dernière réinitialisation de la partie gestion réseau, en centièmes de seconde ; ce n’est pas forcément le démarrage de l’OS. Le compteur TimeTicks revient à zéro modulo 2^32, soit environ 497 jours.</li>
       <li><code>1.3.6.1.2.1.1.5</code> : <code>sysName</code> — Nom FQDN configuré sur la machine.</li>
       <li><code>1.3.6.1.2.1.2.2.1.8.&lt;i&gt;</code> : <code>ifOperStatus</code> — État de l'interface <code>i</code> (1=up, 2=down).</li>
       <li><code>1.3.6.1.2.1.2.2.1.10.&lt;i&gt;</code> : <code>ifInOctets</code> — Compteur cumulé d'octets reçus sur l'interface <code>i</code>.</li>
@@ -149,15 +149,19 @@
     <h4>Transport &amp; Sécurisation Syslog</h4>
     <ul>
       <li><strong>UDP 514 :</strong> Mode historique sans connexion, léger mais sans garantie de livraison (perte de paquets en cas de congestion réseau).</li>
-      <li><strong>TCP 514 / TLS 6514 :</strong> Mode connecté avec accusé de réception, chiffrement fort TLS et contrôle de flux garantissant la non-répudiation des traces d'audit.</li>
+      <li><strong>TCP 514 :</strong> transport connecté utilisé dans certaines configurations, sans TLS il ne chiffre pas les journaux.</li>
+      <li><strong>TLS 6514 :</strong> avec une configuration et des certificats correctement vérifiés, apporte confidentialité, intégrité en transit et authentification des pairs. TLS ne garantit pas la non-répudiation des traces ; il ne garantit pas leur enregistrement durable ni la livraison de bout en bout.</li>
     </ul>
   </div>
 </div>
+<p>Sources : <a href="https://www.rfc-editor.org/rfc/rfc3418">RFC 3418</a>, <a href="https://www.rfc-editor.org/rfc/rfc2578">RFC 2578</a> et <a href="https://www.rfc-editor.org/rfc/rfc5425">RFC 5425</a> (2009), mise à jour par la <a href="https://www.rfc-editor.org/rfc/rfc9662">RFC 9662</a> (2024) pour les suites cryptographiques ; documents consultés le 30 octobre 2026.</p>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="sup3-c2-e1" data-lab
      data-exercise="sup3-c2-e1"
      data-language="analyse"
@@ -186,10 +190,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Décodeur d’OID SNMP et Résolution Symbolique MIB-2</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="sup3-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Résoudre un identifiant d'objet SNMP (OID) vers son nom symbolique dans la MIB-2 standard et formater la valeur retournée.</p>
     <div class="lab__brief"><p>SNMP structure ses informations dans une arborescence hiérarchique (*Management Information Base* ou MIB).<br><br>
 Table des préfixes MIB-2 standards à supporter :<br>
@@ -206,9 +212,7 @@ Résultat d’analyse attendu : <code>SNMP_OBJ: symbol=&lt;name&gt; instance=&lt
 (Si le préfixe est inconnu : <code>SNMP_OBJ: symbol=UNKNOWN instance=NONE type=UNKNOWN value=&lt;val&gt;</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SNMP_DECODE OID=1.3.6.1.2.1.2.2.1.10.2 VALUE=45892100</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SNMP_OBJ: symbol=ifInOctets instance=2 type=Counter32 value=45892100</pre></div>
     </div>
-    <p class="lab__note">Résolution du compteur d'octets entrants sur l'interface 2.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -243,10 +247,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Parseur de Trames Syslog RFC 5424 et Décodeur PRI</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="sup3-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Extraire les composants structurés d'une trame Syslog et calculer la facilité et la sévérité à partir de la valeur de priorité PRI.</p>
     <div class="lab__brief"><p>La RFC 5424 standardise le format des messages Syslog avec une priorité <code>&lt;PRI&gt;</code> initiale :<br><br>
 Formule :<br>
@@ -261,9 +267,7 @@ Format de la ligne à analyser :<br>
 Résultat d’analyse attendu : <code>SYSLOG: pri=&lt;PRI&gt; facility=&lt;fac_name&gt; severity=&lt;sev_name&gt; host=&lt;hostname&gt; app=&lt;app_name&gt; msg=&lt;message&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SYSLOG_PARSE &lt;134&gt;1 2026-10-11T02:00:00Z srv-web01 nginx 1234 ID47 - Service restarted successfully</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SYSLOG: pri=134 facility=local0 severity=Informational host=srv-web01 app=nginx msg=Service restarted successfully</pre></div>
     </div>
-    <p class="lab__note">PRI 134 correspond à local0 (16) et Informational (6).</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -302,10 +306,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Validateur de Sécurité SNMPv3 USM</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="sup3-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Auditer la conformité d'une requête SNMPv3 selon les trois niveaux de sécurité du User-based Security Model.</p>
     <div class="lab__brief"><p>SNMPv3 remplace les chaînes de communauté en clair par le modèle USM (*User-based Security Model*) :<br><br>
 Niveaux de sécurité :<br>
@@ -317,9 +323,7 @@ Résultat d’analyse attendu : <code>SNMPV3: level=&lt;LEVEL&gt; user=&lt;USER&
 Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, <code>SECURE_PRIVACY</code>, <code>INVALID_AUTH</code>, <code>INVALID_PRIVACY</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SNMPV3_AUTH LEVEL=authPriv USER=secmon AUTH_PROTO=SHA PRIV_PROTO=AES AUTH_PASS=SecretAuth123 PRIV_PASS=SecretPriv456</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SNMPV3: level=authPriv user=secmon status=AUTHORIZED reason=SECURE_PRIVACY</pre></div>
     </div>
-    <p class="lab__note">Requête complète conforme au niveau maximal authPriv.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -329,6 +333,7 @@ Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, 
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -361,10 +366,10 @@ Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, 
         <button class="opt" data-correct="1">Au temps de fonctionnement sysUpTime</button>
         <button class="opt">À l'adresse IP de la passerelle</button>
       </div>
-      <div class="q__exp">L'OID 1.3.6.1.2.1.1.3.0 représente le sysUpTime, soit le temps écoulé depuis le dernier démarrage du système en centièmes de seconde (TimeTicks).</div>
+      <div class="q__exp">sysUpTime mesure les centièmes de seconde depuis la réinitialisation de la gestion réseau, pas nécessairement depuis le démarrage de l’OS ; TimeTicks est modulo 2^32.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Une trame Syslog RFC 5424 débute par la priorité <30>. Quels sont la Facility et la Severity correspondantes ?</p>
+      <p class="q__stem">Une trame Syslog RFC 5424 débute par la priorité &lt;30&gt;. Quels sont la Facility et la Severity correspondantes ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Facility 3 (daemon), Severity 6 (Informational)</button>
         <button class="opt">Facility 3 (daemon), Severity 0 (Emergency)</button>
@@ -404,6 +409,16 @@ Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, 
       <div class="q__exp">La sévérité 0 est Emergency, le niveau le plus critique signalant une panique totale du système d'exploitation.</div>
     </div>
     <div class="q">
+      <p class="q__stem">Quelle différence entre TCP 514 sans TLS et Syslog sur TLS 6514 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">TLS correctement configuré protège la confidentialité en transit ; TCP seul ne chiffre pas</button>
+        <button class="opt">TCP seul chiffre et prouve la non-répudiation</button>
+        <button class="opt">TLS garantit toujours le stockage final</button>
+        <button class="opt">Les deux transports sont nécessairement chiffrés</button>
+      </div>
+      <div class="q__exp">TLS peut protéger et authentifier les pairs en transit ; la livraison durable et la non-répudiation exigent d’autres mesures.</div>
+    </div>
+    <div class="q">
       <p class="q__stem">Quel est l'inconvénient majeur du transport Syslog historique sur UDP 514 ?</p>
       <div class="opts">
         <button class="opt">Il consomme trop de bande passante</button>
@@ -430,7 +445,7 @@ Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, 
 <h2>7. Méthodologie de résolution</h2>
 
   <div class="box box--method">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Implémentation des Protocoles SNMP & Syslog</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Implémentation des Protocoles SNMP &amp; Syslog</div>
     <ol>
       <li>Définir le plan d'adressage et d'accès : configurer les ACL réseau autorisant exclusivement les flux UDP 161/162 vers les adresses IP du serveur de supervision.</li>
       <li>Déployer SNMPv3 avec modèle USM : bannir SNMPv1/v2c en clair et imposer le niveau authPriv avec authentification SHA-256 et chiffrement AES-256.</li>
@@ -448,15 +463,15 @@ Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, 
       <li>L'arbre MIB (Management Information Base) et les OID hiérarchiques structurent l'ensemble des métriques d'un composant système ou réseau.</li>
       <li>SNMPv3 USM comble les failles d'écoute et d'usurpation des versions antérieures grâce aux modes noAuthNoPriv, authNoPriv et authPriv.</li>
       <li>Syslog RFC 5424 encode chaque message avec un entier PRI = Facility * 8 + Severity (0=Emergency à 7=Debug) pour classifier la criticité.</li>
-      <li>La migration de Syslog vers TCP 514 ou TLS 6514 prévient les pertes de paquets inhérentes à UDP sous forte charge d'incident.</li>
+      <li>TCP peut retransmettre les données ; TLS correctement configuré protège le transport, sans garantir le stockage final ni la non-répudiation.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
       <li>Savez-vous distinguer les ports UDP 161 (polling Get/Walk) et UDP 162 (réception des Traps) ?</li>
       <li>Pouvez-vous déchiffrer un OID MIB-2 fondamental tel que 1.3.6.1.2.1.2.2.1.8 (ifOperStatus) ?</li>
       <li>Maîtrisez-vous la configuration du niveau de sécurité SNMPv3 authPriv combinant SHA et AES ?</li>
-      <li>Savez-vous calculer la sévérité et la facility à partir du code PRI Syslog <34> (Facility 4, Severity 2) ?</li>
-      <li>Pourquoi l'utilisation de Syslog sur TCP ou TLS est-elle indispensable pour garantir l'auditabilité des traces ?</li>
+      <li>Savez-vous calculer la sévérité et la facility à partir du code PRI Syslog &lt;34&gt; (Facility 4, Severity 2) ?</li>
+      <li>Quelles protections TLS apporte-t-il au transport Syslog et quelles preuves supplémentaires faut-il prévoir pour l’audit ?</li>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
@@ -472,7 +487,7 @@ Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, 
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Protocoles SNMP et calculs Syslog non maîtrisés. Révisez le modèle USM et la formule PRI.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Protocoles SNMP et calculs Syslog non maîtrisés. Révisez le modèle USM et la formule PRI.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Bases acquises. Approfondissez les OIDs MIB-2 et le rôle des proxies distribués.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Très bon niveau. Vous maîtrisez l'architecture de collecte et la sécurité des protocoles.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise d'architecte. Prêt pour la mise en œuvre pratique avec Zabbix et Nagios du Module 3 !</div>
@@ -482,7 +497,7 @@ Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, 
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="chapitre3.html">Module 3 — Supervision des Systèmes & Réseaux avec Zabbix & Nagios Core <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="chapitre3.html">Module 3 — Supervision des Systèmes &amp; Réseaux avec Zabbix &amp; Nagios Core <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.

@@ -101,7 +101,7 @@ function examens(course) {
     { stem: 'Quand intervient la maintenance corrective ?', opts: ['Après une panne', 'Avant toute panne', 'Jamais'], correct: 0, exp: 'Elle répare un dysfonctionnement.' },
     { stem: 'Hyperviseur de type 1 ?', opts: ['ESXi', 'VirtualBox', 'Workstation'], correct: 0, exp: 'Il s’exécute directement sur le matériel.' },
     { stem: 'Mode NAT : accessible depuis le LAN ?', opts: ['Non', 'Oui', 'Toujours'], correct: 0, exp: 'Elle sort via l’hôte mais n’est pas joignable.' },
-    { stem: 'Que fait vMotion ?', opts: ['Migre une VM à chaud', 'Supprimez une VM', 'Créez un template'], correct: 0, exp: 'Sans interruption de service.' },
+    { stem: 'Que fait vMotion ?', opts: ['Migre une VM à chaud', 'Supprime une VM', 'Crée un template'], correct: 0, exp: 'La bascule peut provoquer une courte pause et affecter des applications sensibles.' },
     { stem: 'Que permet Veeam ?', opts: ['Sauvegarde automatique des VM', 'Compiler du code', 'Créer des VLAN'], correct: 0, exp: 'Il sauvegarde les VM et permet leur restauration.' }
   ];
 
@@ -256,7 +256,7 @@ function exercices(course) {
 
     '  <h2>Projet intégrateur — « audit d’une infrastructure »</h2>',
     box('situation', 'Cahier des charges', 'play', [
-      '    <p>On te confie un script d’audit. Le script lit d’abord un entier <code>n</code> : le nombre de ' +
+      '    <p>On vous confie un script d’audit. Le script lit d’abord un entier <code>n</code> : le nombre de ' +
       'VM. Puis, pour chaque VM, une ligne <code>nom vcpu coeurs</code>. Il affiche, VM par VM, si ' +
       'elle est en surallocation. À la fin, il affiche le nombre total de VM en surallocation, puis un ' +
       'verdict : <code>infrastructure : a surveiller</code> si au moins une VM est en surallocation, ' +

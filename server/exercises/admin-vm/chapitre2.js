@@ -13,7 +13,7 @@ module.exports = [
     goal: 'Vérifier les extensions CPU et la mémoire avant de virtualiser.',
     brief: '<p>Le script lit la présence des extensions de virtualisation <code>VT-x / AMD-V</code> ' +
       '(<code>oui</code>/<code>non</code>), puis la mémoire vive disponible en Go. Sans extensions, ' +
-      'affichez <code>virtualisation : impossible</code>. Sinon, affichezz ' +
+      'affichez <code>virtualisation : impossible</code>. Sinon, affichez ' +
       '<code>virtualisation : possible</code> si la RAM atteint 8 Go, sinon ' +
       '<code>ram insuffisante</code>.</p>',
     starter: `$extensions = [Console]::In.ReadLine()
@@ -63,7 +63,7 @@ $ramVm = [int][Console]::In.ReadLine()
 `,
     hints: [
       'La RAM est la ressource la plus critique : elle est partagée sans élasticité.',
-      'Division entière : [int]([math]::Floor($ramHote / $ramVm)).'
+      'Division entière : `[int]([math]::Floor($ramHote / $ramVm))`.'
     ],
     examples: [
       { stdin: '64\n4', expected: 'vms possibles : 16', note: '64 Go pour des VM de 4 Go.' }

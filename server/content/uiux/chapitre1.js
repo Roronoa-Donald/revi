@@ -125,8 +125,8 @@ module.exports = {
         '<p><strong>La Loi de Jakob (Jakob’s Law) :</strong> Formulée par Jakob Nielsen, elle énonce que :<br>' +
         '<em>« Les utilisateurs passent la majorité de leur temps sur d’autres sites web et applications que la vôtre. »</em><br>' +
         'Conséquence ergonomique vitale : ils s’attendent à ce que votre produit fonctionne de la même manière que ceux qu’ils connaissent déjà. ' +
-        'Placer le logo en haut à gauche, le panier en haut à droite, ou la recherche au centre n’est pas un manque d’originalité, ' +
-        'mais une réduction bienveillante de la charge cognitive qui évite l’abandon de vos utilisateurs.</p>'
+        'Des éléments placés selon des habitudes connues peuvent faciliter le repérage, mais ces habitudes varient selon le public et le contexte. ' +
+        'Vérifiez leur pertinence auprès des utilisateurs : elles ne garantissent ni l’absence d’apprentissage ni l’absence d’abandon.</p>'
       ].join('\n')
     }
   ],
@@ -136,8 +136,8 @@ module.exports = {
     'Étape 1 — Lancer la recherche exploratoire (Phase 1 Découvrir) : Mener 5 à 8 entretiens utilisateurs semi-directifs et analyser les métriques de friction existantes.',
     'Étape 2 — Formaliser le problème clé (Phase 2 Définir) : Convertir les verbatims en Pain Points et formuler la question directrice « Comment pourrions-nous... ? » (HMW).',
     'Étape 3 — Idéation et divergence (Phase 3 Développer) : Produire une trentaine d’esquisses rapides sur papier sans juger la faisabilité technique immédiate.',
-    'Étape 4 — Prototypage et tests itératifs (Phase 4 Livrer) : Construire un prototype cliquable basse fidélité et le soumettre à 5 utilisateurs cibles pour éliminer 85% des défauts d’utilisabilité.',
-    'Étape 5 — Audit de cohérence avec la Loi de Jakob : Vérifier que les conventions spatiales universelles sont scrupuleusement respectées avant toute validation graphique.'
+    'Étape 4 — Prototypage et tests itératifs (Phase 4 Livrer) : Tester un prototype basse fidélité auprès de profils représentatifs, corriger les problèmes observés et adapter le nombre de participants au contexte.',
+    'Étape 5 — Audit de cohérence avec la Loi de Jakob : Identifier les conventions pertinentes pour le public et les vérifier auprès des utilisateurs.'
   ],
 
   summary: [
@@ -145,7 +145,7 @@ module.exports = {
     'La norme ISO 9241-210 formalise la Conception Centrée Utilisateur comme une boucle itérative en 4 activités.',
     'Le Double Diamant structure le projet en explorant le bon problème (Découvrir / Définir) puis la bonne solution (Développer / Livrer).',
     'La pensée divergente explore sans filtre ; la pensée convergente sélectionne et tranche de manière rigoureuse.',
-    'La loi de Jakob rappelle que respecter les conventions établies permet à l’utilisateur de se repérer immédiatement sans effort d’apprentissage.'
+    'La loi de Jakob rappelle que les conventions familières peuvent faciliter le repérage, sans supprimer tout apprentissage.'
   ],
 
   checklist: [
@@ -258,39 +258,11 @@ module.exports = {
         'Les tests utilisateurs sont inutiles si les développeurs aiment le site'
       ],
       correct: 1,
-      exp: 'Tester dès l’esquisse papier ou wireframe Lo-Fi permet de corriger 85% des erreurs ergonomiques majeures à un coût presque nul, bien avant d’écrire une seule ligne de code.'
+      exp: 'Tester tôt peut révéler des problèmes avant le développement ; le nombre détecté et le coût dépendent du protocole, des participants et de l’interface.'
     }
   ],
 
   flashcards: [
-      { q: 'Qu’est-ce que « User Experience (UX) » ?', a: 'User Experience (UX) : Une startup FinTech lance sa nouvelle application d’épargne automatisée. Bien que l’interface visuelle soit élégante et moderne avec des couleurs soignées, les premiers utilisateurs se plaignent amèrement : la moitié abandonne avant d’avoir finalisé son inscription, incapable de ' },
-      { q: 'Qu’est-ce que « Pensée divergente vs convergente » ?', a: 'Pensée divergente vs convergente' },
-      { q: 'Qu’est-ce que « Questions de cadrage HMW » ?', a: 'Questions de cadrage HMW : formuler des questions de cadrage « How Might We » (HMW) pour transformer des problèmes en opportunités ;' },
-      { q: 'Qu’est-ce que « UX Research qualitative vs quantitative » ?', a: 'UX Research qualitative vs quantitative' },
-      { q: 'Qu’est-ce que « Matrice de Rohrer » ?', a: 'Matrice de Rohrer : L’ UX Research est le socle scientifique de la conception centrée utilisateur. Christian Rohrer a formalisé une matrice à deux dimensions pour classer les méthodes d’investigation :' },
-      { q: 'Qu’est-ce que « Persona empirique d’Alan Cooper » ?', a: 'Persona empirique d’Alan Cooper' },
-      { q: 'Qu’est-ce que « Points de douleur (Pain Points) » ?', a: 'Points de douleur (Pain Points)' },
-      { q: 'Qu’est-ce que « Tri de cartes ouvert et fermé (Card Sorting) » ?', a: 'Tri de cartes ouvert et fermé (Card Sorting)' },
-      { q: 'Qu’est-ce que « Indice de difficulté (ID en bits) » ?', a: 'Indice de difficulté (ID en bits)' },
-      { q: 'Qu’est-ce que « Coins et bords d’écran (taille infinie) » ?', a: 'Coins et bords d’écran (taille infinie)' },
-      { q: 'Qu’est-ce que « 10 heuristiques de Jakob Nielsen » ?', a: '10 heuristiques de Jakob Nielsen' },
-      { q: 'Qu’est-ce que « Critères de Bastien & Scapin » ?', a: 'Critères de Bastien & Scapin' },
-      { q: 'Qu’est-ce que « Niveaux de fidélité (Lo-Fi vs Hi-Fi) » ?', a: 'Niveaux de fidélité (Lo-Fi vs Hi-Fi) : L’Échelle Modulaire Typographique (Modular Scale) : Au lieu de choisir des tailles de texte au hasard, on applique un ratio géométrique harmonique depuis une taille de base (généralement 16px) : Taille = Base * (Ratio)^k . Exemples de ratios majeurs : Major Third (1.250), Perfect' },
-      { q: 'Qu’est-ce que « Demi-grille 4pt (micro-espacements) » ?', a: 'Demi-grille 4pt (micro-espacements) : L’Échelle Modulaire Typographique (Modular Scale) : Au lieu de choisir des tailles de texte au hasard, on applique un ratio géométrique harmonique depuis une taille de base (généralement 16px) : Taille = Base * (Ratio)^k . Exemples de ratios majeurs : Major Third (1.250), Perfect' },
-      { q: 'Qu’est-ce que « Design Tokens sémantiques » ?', a: 'Design Tokens sémantiques : L’Échelle Modulaire Typographique (Modular Scale) : Au lieu de choisir des tailles de texte au hasard, on applique un ratio géométrique harmonique depuis une taille de base (généralement 16px) : Taille = Base * (Ratio)^k . Exemples de ratios majeurs : Major Third (1.250), Perfect' },
-      { q: 'Qu’est-ce que « Philosophie Mobile-First (Luke Wroblewski) » ?', a: 'Philosophie Mobile-First (Luke Wroblewski)' },
-      { q: 'Qu’est-ce que « Progressive Enhancement vs Degradation » ?', a: 'Progressive Enhancement vs Degradation' },
-      { q: 'Qu’est-ce que « Breakpoints responsive (<640, 640-1023, >=1024px) » ?', a: 'Breakpoints responsive (<640, 640-1023, >=1024px)' },
-      { q: 'Qu’est-ce que « Grilles fluides (4, 8 et 12 colonnes) » ?', a: 'Grilles fluides (4, 8 et 12 colonnes)' },
-      { q: 'Qu’est-ce que « Taille de cible tactile (Touch Target 48x48 px) » ?', a: 'Taille de cible tactile (Touch Target 48x48 px)' },
-      { q: 'Qu’est-ce que « Principes POUR du W3C » ?', a: 'Je connais la signification des 4 principes POUR du W3C.' },
-      { q: 'Qu’est-ce que « Niveaux de conformité WCAG (A, AA, AAA) » ?', a: 'Niveaux de conformité WCAG (A, AA, AAA)' },
-      { q: 'Qu’est-ce que « Luminance relative sRGB » ?', a: 'calculer la luminance relative sRGB et le ratio de contraste formel (norme WCAG 2.1) ;' },
-      { q: 'Qu’est-ce que « Ratios de contraste (4.5 » ?', a: 'Ratios de contraste (4.5:1 et 3:1)' },
-      { q: 'Qu’est-ce que « Textes alternatifs (alt décoratif vs informatif) » ?', a: 'Textes alternatifs (alt décoratif vs informatif)' },
-      { q: 'Qu’est-ce que « Noms accessibles et aria-label » ?', a: 'Noms accessibles et aria-label' },
-      { q: 'Qu’est-ce que « Ordre de focus et attribut tabindex » ?', a: 'Ordre de focus et attribut tabindex' },
-      { q: 'Qu’est-ce que « Indicateur visuel de focus (outline) » ?', a: 'Indicateur visuel de focus (outline)' },
     {
       q: 'Quelle est la différence fondamentale entre UI et UX ?',
       a: 'L’UX concerne l’expérience, la logique et la résolution du besoin ; l’UI concerne la dimension visuelle, graphique et interactive.'
@@ -313,7 +285,7 @@ module.exports = {
     },
     {
       q: 'Pourquoi les conventions d’interface (ex: logo en haut à gauche) sont-elles cruciales ?',
-      a: 'Parce qu’elles s’appuient sur les modèles mentaux existants de l’utilisateur, éliminant tout temps d’apprentissage et réduisant la charge cognitive.'
+      a: 'Parce qu’elles peuvent faciliter le repérage en s’appuyant sur des habitudes connues, sans supprimer tout apprentissage ; leur pertinence se vérifie avec le public visé.'
     }
   ],
 

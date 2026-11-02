@@ -12,7 +12,7 @@ module.exports = [
     language: 'analyse',
     title: "Calculateur d’indice de difficulté (Loi de Fitts)",
     goal: "Appliquer la formulation de Shannon de la loi de Fitts pour quantifier l’ergonomie spatiale d’un bouton.",
-    brief: "<p>Pour chaque cas d’application des lignes au format <code>&lt;Distance_D&gt; &lt;Largeur_W&gt;</code> (en pixels entiers).<br>\nSelon la formulation de Shannon de la loi de Fitts :<br>\n- Indice de difficulté : <code>ID = log2(D / W + 1)</code> (exprimé en bits, arrondi à 2 décimales).<br>\n- Temps de mouvement estimé : <code>MT = a + b * ID</code>, avec les constantes empiriques universelles <code>a = 150 ms</code> et <code>b = 100 ms/bit</code> (arrondi à l'entier le plus proche).<br>\nPour chaque ligne, afficher :<br>\n<code>D=&lt;D&gt;px, W=&lt;W&gt;px -&gt; ID: &lt;ID:.2f&gt; bits, TEMPS: &lt;MT&gt; ms</code></p>",
+    brief: "<p>Pour chaque cas d’application des lignes au format <code>&lt;Distance_D&gt; &lt;Largeur_W&gt;</code> (en pixels entiers).<br>\nSelon la formulation de Shannon de la loi de Fitts :<br>\n- Indice de difficulté : <code>ID = log2(D / W + 1)</code> (exprimé en bits, arrondi à 2 décimales).<br>\n- Temps de mouvement estimé : <code>MT = a + b * ID</code>, avec les coefficients fictifs de cet exercice <code>a = 150 ms</code> et <code>b = 100 ms/bit</code> (arrondi à l'entier le plus proche).<br>\nPour chaque ligne, afficher :<br>\n<code>D=&lt;D&gt;px, W=&lt;W&gt;px -&gt; ID: &lt;ID:.2f&gt; bits, TEMPS: &lt;MT&gt; ms</code></p>",
     starter: "# Grille d'analyse (ux2-c3-e1) — Calculateur d’indice de difficulté (Loi de Fitts)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Cible proche et large vs éloignée et étroite]\n# Données : 100 100\n# Données : 800 20\nA_COMPLETER\n\n[Cas 2 — Bouton tactile standard mobile]\n# Données : 300 48\n# Données : 150 48\nA_COMPLETER\n\n[Cas 3 — Cible sur le curseur (distance 0)]\n# Données : 0 50\n# Données : 500 50\nA_COMPLETER\n\n[Cas 4 — Bouton micro de 10px]\n# Données : 600 10\nA_COMPLETER\n",
     hints: [
           "Utiliser math.log2(D / W + 1).",
@@ -55,43 +55,43 @@ module.exports = [
     level: "n2",
     language: 'analyse',
     title: "Simulateur de temps de décision (Loi de Hick-Hyman)",
-    goal: "Calculer le temps de réaction cognitive face à un nombre n d’options et vérifier le respect de la loi de Miller (7 ± 2).",
-    brief: "<p>Pour chaque cas d’application des nombres entiers représentant le nombre d'options <code>n</code> proposées dans un menu (un par ligne).<br>\nSelon la loi de Hick-Hyman :<br>\n- Temps de décision : <code>T = b * log2(n + 1)</code>, avec la constante cognitive <code>b = 150 ms</code> (arrondi à l'entier le plus proche).<br>\n- Règle de Miller : le nombre maximal d'éléments en mémoire de travail est de <strong>7 items</strong>.<br>\nPour chaque nombre, afficher :<br>\n<code>OPTIONS: &lt;n&gt; -&gt; TEMPS: &lt;T&gt; ms | &lt;CONFORME (Miller)&gt; | &lt;NON_CONFORME (Miller: trop d'items)&gt;</code><br>\n(<code>CONFORME</code> si <code>n &lt;= 7</code>, <code>NON_CONFORME</code> sinon).</p>",
-    starter: "# Grille d'analyse (ux2-c3-e2) — Simulateur de temps de décision (Loi de Hick-Hyman)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Cas minimaux 1 et 2 options]\n# Données : 2\nA_COMPLETER\n\n[Cas 2 — Seuil critique de Miller à 7 et 8]\n# Données : 8\nA_COMPLETER\n\n[Cas 3 — Menus très chargés (méga-menus)]\n# Données : 63\nA_COMPLETER\n\n[Cas 4 — Zéro option]\n# Données : 0\nA_COMPLETER\n",
+    goal: "Calculer un temps dans un modèle simplifié et comparer le nombre d’options à un seuil fictif.",
+    brief: "<p>Pour chaque cas, considérez les nombres entiers <code>n</code> indiquant le nombre d'options d'un menu.<br>\nDans ce modèle simplifié inspiré de Hick-Hyman, calculez <code>T = 150 * log2(n + 1)</code> millisecondes, arrondi à l'entier le plus proche. Le coefficient est fictif et aucun temps réel n'est mesuré.<br>\nPour pratiquer une comparaison, l'exercice choisit arbitrairement le seuil 7 : indiquez <code>DANS_SEUIL_FICTIF</code> si <code>n &lt;= 7</code>, sinon <code>DEPASSE_SEUIL_FICTIF</code>. Ce seuil ne mesure pas la mémoire et ne détermine pas la conformité ergonomique.<br>\nPour chaque nombre, affichez : <code>OPTIONS: &lt;n&gt; -&gt; TEMPS: &lt;T&gt; ms | &lt;statut&gt;</code>.</p>",
+    starter: "# Grille d'analyse (ux2-c3-e2) — Simulateur de temps de décision (Loi de Hick-Hyman)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Cas minimaux 1 et 2 options]\n# Données : 1\n# Données : 2\nA_COMPLETER\n\n[Cas 2 — Seuil fictif à 7 et 8]\n# Données : 7\n# Données : 8\nA_COMPLETER\n\n[Cas 3 — Menus très chargés (méga-menus)]\n# Données : 31\n# Données : 63\nA_COMPLETER\n\n[Cas 4 — Zéro option]\n# Données : 0\nA_COMPLETER\n",
     hints: [
           "T = round(150 * math.log2(n + 1)).",
-          "Le seuil de Miller pour cet exercice est n <= 7."
+          "Comparez n au seuil fictif 7, sans en déduire une capacité cognitive."
     ],
     examples: [
           {
                 "stdin": "3\n7\n15",
-                "expected": "OPTIONS: 3 -> TEMPS: 300 ms | CONFORME (Miller)\nOPTIONS: 7 -> TEMPS: 450 ms | CONFORME (Miller)\nOPTIONS: 15 -> TEMPS: 600 ms | NON_CONFORME (Miller: trop d'items)",
-                "note": "15 options double le temps de décision et surcharge la mémoire de travail."
+                "expected": "OPTIONS: 3 -> TEMPS: 300 ms | DANS_SEUIL_FICTIF\nOPTIONS: 7 -> TEMPS: 450 ms | DANS_SEUIL_FICTIF\nOPTIONS: 15 -> TEMPS: 600 ms | DEPASSE_SEUIL_FICTIF",
+                "note": "Dans ce modèle, le temps calculé pour 15 options est le double de celui pour 3 options ; il ne s'agit pas d'une mesure réelle."
           }
     ],
     tests: [
           {
                 "label": "Cas minimaux 1 et 2 options",
                 "stdin": "cas:1",
-                "expected": "OPTIONS: 1 -> TEMPS: 150 ms | CONFORME (Miller)\nOPTIONS: 2 -> TEMPS: 238 ms | CONFORME (Miller)"
+                "expected": "OPTIONS: 1 -> TEMPS: 150 ms | DANS_SEUIL_FICTIF\nOPTIONS: 2 -> TEMPS: 238 ms | DANS_SEUIL_FICTIF"
           },
           {
-                "label": "Seuil critique de Miller à 7 et 8",
+                "label": "Seuil fictif à 7 et 8",
                 "stdin": "cas:2",
-                "expected": "OPTIONS: 7 -> TEMPS: 450 ms | CONFORME (Miller)\nOPTIONS: 8 -> TEMPS: 475 ms | NON_CONFORME (Miller: trop d'items)"
+                "expected": "OPTIONS: 7 -> TEMPS: 450 ms | DANS_SEUIL_FICTIF\nOPTIONS: 8 -> TEMPS: 475 ms | DEPASSE_SEUIL_FICTIF"
           },
           {
                 "label": "Menus très chargés (méga-menus)",
                 "stdin": "cas:3",
-                "expected": "OPTIONS: 31 -> TEMPS: 750 ms | NON_CONFORME (Miller: trop d'items)\nOPTIONS: 63 -> TEMPS: 900 ms | NON_CONFORME (Miller: trop d'items)"
+                "expected": "OPTIONS: 31 -> TEMPS: 750 ms | DEPASSE_SEUIL_FICTIF\nOPTIONS: 63 -> TEMPS: 900 ms | DEPASSE_SEUIL_FICTIF"
           },
           {
                 "label": "Zéro option",
                 "stdin": "cas:4",
-                "expected": "OPTIONS: 0 -> TEMPS: 0 ms | CONFORME (Miller)"
+                "expected": "OPTIONS: 0 -> TEMPS: 0 ms | DANS_SEUIL_FICTIF"
           }
     ],
-    solution: "[Exemple]\nOPTIONS: 3 -> TEMPS: 300 ms | CONFORME (Miller)\nOPTIONS: 7 -> TEMPS: 450 ms | CONFORME (Miller)\nOPTIONS: 15 -> TEMPS: 600 ms | NON_CONFORME (Miller: trop d'items)\n\n[Cas 1 — Cas minimaux 1 et 2 options]\nOPTIONS: 1 -> TEMPS: 150 ms | CONFORME (Miller)\nOPTIONS: 2 -> TEMPS: 238 ms | CONFORME (Miller)\n\n[Cas 2 — Seuil critique de Miller à 7 et 8]\nOPTIONS: 7 -> TEMPS: 450 ms | CONFORME (Miller)\nOPTIONS: 8 -> TEMPS: 475 ms | NON_CONFORME (Miller: trop d'items)\n\n[Cas 3 — Menus très chargés (méga-menus)]\nOPTIONS: 31 -> TEMPS: 750 ms | NON_CONFORME (Miller: trop d'items)\nOPTIONS: 63 -> TEMPS: 900 ms | NON_CONFORME (Miller: trop d'items)\n\n[Cas 4 — Zéro option]\nOPTIONS: 0 -> TEMPS: 0 ms | CONFORME (Miller)\n"
+    solution: "[Exemple]\nOPTIONS: 3 -> TEMPS: 300 ms | DANS_SEUIL_FICTIF\nOPTIONS: 7 -> TEMPS: 450 ms | DANS_SEUIL_FICTIF\nOPTIONS: 15 -> TEMPS: 600 ms | DEPASSE_SEUIL_FICTIF\n\n[Cas 1 — Cas minimaux 1 et 2 options]\nOPTIONS: 1 -> TEMPS: 150 ms | DANS_SEUIL_FICTIF\nOPTIONS: 2 -> TEMPS: 238 ms | DANS_SEUIL_FICTIF\n\n[Cas 2 — Seuil fictif à 7 et 8]\nOPTIONS: 7 -> TEMPS: 450 ms | DANS_SEUIL_FICTIF\nOPTIONS: 8 -> TEMPS: 475 ms | DEPASSE_SEUIL_FICTIF\n\n[Cas 3 — Menus très chargés (méga-menus)]\nOPTIONS: 31 -> TEMPS: 750 ms | DEPASSE_SEUIL_FICTIF\nOPTIONS: 63 -> TEMPS: 900 ms | DEPASSE_SEUIL_FICTIF\n\n[Cas 4 — Zéro option]\nOPTIONS: 0 -> TEMPS: 0 ms | DANS_SEUIL_FICTIF\n"
   },
   {
     id: "ux2-c3-e3",

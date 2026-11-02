@@ -174,7 +174,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire de veille libre — ' + course.brand,
-      description: 'Bac à sable interactif de manière méthodiquepour tester vos algorithmes de veille technologique, parsing RSS et analyse de signaux.',
+      description: 'Bac à sable interactif pour tester vos algorithmes de veille technologique, parsing RSS et analyse de signaux.',
       active: 'atelier',
       body
     }

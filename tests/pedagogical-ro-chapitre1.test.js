@@ -119,7 +119,7 @@ MEILLEUR: x1=12 x2=4 COUT=92
 MEILLEUR: x1=4 x2=3 COUT=18
 
 [Cas 3 — Aucun candidat ne satisfait l'ensemble des exigences]
-AUCUN_REALISABLE
+BILAN: AUCUN
 `;
   const rep = await runTests(ex, codeValide, executionDep);
   assert.strictEqual(rep.passed, 3, 'Sélection et filtrage de candidats validés');
@@ -162,13 +162,13 @@ test('RD-RO Ex 5 (ro2-c1-e5) : Validation des 4 hypothèses et modèle PLNE', as
 
   const codeValide = `
 [Cas 1 — Remise sur volume chez le fournisseur de bois]
-PROPORTIONNALITE
+NOTION: PROPORTIONNALITE
 
 [Cas 2 — Choix d'ouverture d'un nouvel entrepôt logistique]
-PLNE
+NOTION: PLNE
 
 [Cas 3 — Fluctuations imprévisibles du coût de l'électricité sur le marché spot]
-CERTITUDE
+NOTION: CERTITUDE
 `;
   const rep1 = await runTests(ex, codeValide, executionDep);
   assert.strictEqual(rep1.passed, 3, 'Termes conceptuels reconnus');
@@ -176,13 +176,13 @@ CERTITUDE
   // Tolérance sur les accents et la casse
   const codeAccents = `
 [Cas 1 — Remise sur volume chez le fournisseur de bois]
-Proportionnalité
+notion: Proportionnalité
 
 [Cas 2 — Choix d'ouverture d'un nouvel entrepôt logistique]
-plne
+notion: plne
 
 [Cas 3 — Fluctuations imprévisibles du coût de l'électricité sur le marché spot]
-certitude
+notion: certitude
 `;
   const rep2 = await runTests(ex, codeAccents, executionDep);
   assert.strictEqual(rep2.passed, 3, 'Tolérance accentuelle et casse sur les hypothèses');

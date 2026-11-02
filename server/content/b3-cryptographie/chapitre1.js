@@ -22,7 +22,7 @@ module.exports = {
     'appliquer le principe de Kerckhoffs et bannir la sécurité par l\'obscurité dans les architectures logicielles ;',
     'analyser le fonctionnement mathématique des chiffrements de César et de substitution affine modulo 26 ;',
     'comprendre le chiffre polyalphabétique de Vigenère et caractériser les conditions de confidentialité parfaite du masque jetable (One-Time Pad) ;',
-    'maîtriser la cryptanalyse fréquentielle et le calcul de l\'Indice de Coïncidence (IC) de William Friedman pour identifier la longueur de clé ;',
+    'calculer l\'Indice de Coïncidence (IC) et l\'utiliser prudemment pour formuler des hypothèses sur une clé ;',
     'analyser et résoudre méthodologiquement des chiffreurs/déchiffreurs de César, de substitution affine, de Vigenère et des analyseurs d\'Indice de Coïncidence.'
   ],
   sections: [
@@ -87,7 +87,7 @@ module.exports = {
         '    <h4>Chiffre de Vigenère &amp; Masque Jetable (OTP)</h4>',
         '    <ul>',
         '      <li><strong>Vigenère :</strong> répète une clé alphabétique de longueur <code>m</code>. La i-ème lettre est décalée de <code>K[i mod m]</code>.</li>',
-        '      <li><strong>Masque Jetable (Vernam / One-Time Pad) :</strong> si la clé a exactement la longueur du message, est issue d\'une source purement aléatoire et n\'est <em>jamais réutilisée</em>, Claude Shannon a démontré en 1949 que le chiffrement offre une <strong>confidentialité parfaite</strong> : observer le chiffré n\'apporte aucune information statistique sur le texte en clair.</li>',
+        '      <li><strong>Masque Jetable (Vernam / One-Time Pad) :</strong> la confidentialité parfaite suppose une clé <strong>secrète, uniformément aléatoire et indépendante du message</strong>, au moins aussi longue que celui-ci, dont les bits utilisés ne sont jamais réutilisés. Sous ces hypothèses, observer le chiffré n\'apporte aucune information statistique sur le clair. La longueur et le non-réemploi seuls ne prouvent pas ces hypothèses : une clé de zéros laisse le clair inchangé sous XOR.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
@@ -95,9 +95,9 @@ module.exports = {
         '    <p>L\'Indice de Coïncidence quantifie la non-uniformité de la distribution des lettres :</p>',
         '    <pre><code>IC = sum(f_i * (f_i - 1)) / (N * (N - 1))</code></pre>',
         '    <ul>',
-        '      <li>Texte clair en français ou chiffrement monoalphabétique : <code>IC ≈ 0.0778</code>.</li>',
-        '      <li>Texte aléatoire ou polyalphabétique à clé longue : <code>IC ≈ 0.0385</code> (1/26).</li>',
-        '      <li>L\'IC permet de déterminer sans tester les clés si un texte a été chiffré par César ou par Vigenère, et d\'estimer la longueur de la clé.</li>',
+        '      <li>Pour certains grands corpus en français, une valeur indicative peut approcher <code>0.0778</code> ; elle varie selon le corpus et sa préparation.</li>',
+        '      <li>Pour des lettres indépendantes et uniformes, la valeur théorique est <code>1/26 ≈ 0.0385</code>.</li>',
+        '      <li>L\'IC fournit un indice statistique, pas une identification certaine du chiffrement. La taille du texte, la langue et la clé influencent le résultat ; on peut confronter plusieurs périodes candidates.</li>',
         '    </ul>',
         '  </div>',
         '</div>'
@@ -106,7 +106,7 @@ module.exports = {
   ],
   method: [
     'Caractérisation du modèle de menace et des objectifs de sécurité : classifier le besoin entre confidentialité (chiffrement), intégrité (hachage) et authenticité (signature), et appliquer strictement le principe de Kerckhoffs.',
-    'Cryptanalyse statistique par calcul d\'Indice de Coïncidence : analyser le message chiffré intercepté, calculer son Indice de Coïncidence de Friedman et déterminer s\'il s\'agit d\'une substitution monoalphabétique (IC >= 0.065) ou polyalphabétique.',
+    'Cryptanalyse statistique : calculer l\'indice de coïncidence et formuler des hypothèses, sans identifier le chiffrement avec certitude à partir d\'un seuil seul.',
     'Recherche de période et décomposition en sous-textes (Kasiski) : pour un chiffre polyalphabétique, déterminer la longueur probable de la clé m à partir des répétitions ou du profil d\'IC par tranches entrelacées.',
     'Reconstitution des clés par analyse fréquentielle des lettres : aligner les fréquences observées dans chaque tranche sur les fréquences de la langue naturelle (pic de la lettre E) pour déduire la clé secrète.'
   ],
@@ -114,28 +114,28 @@ module.exports = {
     'La sécurité de l\'information repose sur quatre piliers : confidentialité, intégrité, authenticité et non-répudiation.',
     'Le principe de Kerckhoffs stipule que la sécurité d\'un cryptosystème repose uniquement sur le secret de sa clé et jamais sur le secret de son algorithme.',
     'Les chiffrements de César et affine sont monoalphabétiques et vulnérables à l\'analyse statistique et à la force brute.',
-    'Le masque jetable (One-Time Pad) offre une confidentialité théorique absolue sous réserve que la clé soit purement aléatoire, au moins aussi longue que le texte et à usage unique.',
-    'L\'Indice de Coïncidence de Friedman (IC) permet de distinguer instantanément un chiffrement monoalphabétique d\'un chiffrement polyalphabétique aplati.'
+    'Le masque jetable (One-Time Pad) offre une confidentialité parfaite si la clé est secrète, uniformément aléatoire, indépendante du message, assez longue et utilisée une seule fois.',
+    'L\'indice de coïncidence apporte un indice statistique à interpréter avec la taille et la nature du texte, sans conclusion certaine.'
   ],
   checklist: [
     'Savez-vous énoncer et justifier le principe de Kerckhoffs face à la sécurité par l\'obscurité ?',
     'Connaissez-vous la condition mathématique nécessaire pour que la clé d\'un chiffrement affine soit valide (pgcd(a, 26) == 1) ?',
-    'Pouvez-vous citer les trois conditions indispensables pour que le masque jetable (OTP) garantisse une confidentialité parfaite ?',
-    'Savez-vous calculer l\'Indice de Coïncidence (IC) et interpréter les valeurs seuils (0.077 pour le français, 0.038 pour l\'aléatoire) ?',
+    'Pouvez-vous citer les hypothèses de secret, de distribution, d\'indépendance, de longueur et d\'usage unique du masque jetable (OTP) ?',
+    'Savez-vous calculer l\'indice de coïncidence et interpréter des valeurs de référence sans en déduire une certitude ?',
     'Comprenez-vous la différence entre une attaque à texte chiffré seul (COA) et à texte clair connu (KPA) ?'
   ],
   notions: [
     { term: 'Principe de Kerckhoffs', def: 'Règle cryptographique stipulant que la sécurité d\'un système doit reposer exclusivement sur le secret de la clé et non sur celui de l\'algorithme.' },
     { term: 'Confidentialité Parfaite', def: 'Propriété démontrée par Shannon où la distribution de probabilité du message clair conditionnée par le message chiffré est égale à la distribution a priori (P(M|C) = P(M)).' },
     { term: 'Chiffrement Affine', def: 'Chiffrement monoalphabétique associant à chaque lettre P la lettre C = (a*P + b) mod 26, nécessitant pgcd(a, 26) = 1.' },
-    { term: 'Masque Jetable (One-Time Pad)', def: 'Chiffrement où le clair est combiné par XOR avec une clé aléatoire de même longueur, jamais réutilisée.' },
+    { term: 'Masque Jetable (One-Time Pad)', def: 'Chiffrement XOR avec une clé secrète, uniformément aléatoire, indépendante du message, assez longue et jamais réutilisée.' },
     { term: 'Indice de Coïncidence (IC)', def: 'Mesure probabiliste de Friedman évaluant la chance que deux lettres choisies au hasard dans un texte soient identiques, révélant la structure de la langue.' }
   ],
   pitfalls: [
     'Concevoir son propre algorithme de chiffrement « secret » pour un projet d\'entreprise en croyant qu\'il sera plus sécurisé qu\'AES (violation majeure du principe de Kerckhoffs).',
     'Choisir une clé multiplicative paire ou égale à 13 dans un chiffrement affine mod 26 : pgcd(a, 26) != 1 rend la fonction non injective et le déchiffrement impossible.',
-    'Réutiliser la clé d\'un masque jetable (One-Time Pad) pour chiffrer deux messages distincts : l\'opération C1 ^ C2 = P1 ^ P2 permet de casser immédiatement les deux clairs (Two-Time Pad attack).',
-    'Croire que Vigenère est incassable parce que la clé est longue : l\'analyse de Kasiski et l\'indice de coïncidence permettent d\'isoler la période et de casser chaque sous-colonne par César.'
+    'Réutiliser la clé d\'un masque jetable (One-Time Pad) pour deux messages : C1 ^ C2 = P1 ^ P2 révèle une relation entre les clairs et peut aider à les retrouver (Two-Time Pad attack).',
+    'Croire que Vigenère est toujours incassable : Kasiski et l\'indice de coïncidence peuvent aider lorsque le texte et la clé présentent des régularités, sans garantir la découverte de la période.'
   ],
   questions: [
     {
@@ -151,10 +151,10 @@ module.exports = {
       exp: 'La clé a doit être première avec 26 (pgcd(a, 26) = 1). Les entiers impairs non multiples de 13 sont 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25, soit exactement 12 valeurs.'
     },
     {
-      stem: 'Quelle condition n\'est PAS obligatoire pour garantir la confidentialité parfaite du masque jetable (One-Time Pad) selon Shannon ?',
-      opts: ['La clé doit être générée par un processus matériel purement aléatoire', 'La clé doit être au moins aussi longue que le message', 'La clé doit être conservée sur une carte à puce sécurisée', 'La clé ne doit jamais être réutilisée'],
-      correct: 2,
-      exp: 'La confidentialité parfaite de Shannon exige que la clé soit purement aléatoire, au moins aussi longue que le texte, et à usage unique (One-Time). Le support physique de stockage n\'est pas une condition mathématique.'
+      stem: 'Quelle propriété supplémentaire est indispensable au masque jetable mais ne découle pas de la seule longueur et du non-réemploi ?',
+      opts: ['La clé est secrète, uniformément aléatoire et indépendante du message', 'Le chiffré est toujours plus long que le clair', 'La clé est forcément stockée sur une carte à puce', 'La même clé est réutilisée pour chaque message'],
+      correct: 0,
+      exp: 'Il faut aussi supposer la clé secrète, uniformément aléatoire et indépendante du message. La longueur et le non-réemploi seuls ne démontrent pas la confidentialité parfaite.'
     },
     {
       stem: 'Quelle est la valeur approximative de l\'Indice de Coïncidence (IC) pour un texte rédigé en français naturel ?',
@@ -172,41 +172,22 @@ module.exports = {
       stem: 'Que se passe-t-il si un attaquant intercepte deux textes C1 et C2 chiffrés avec le même masque jetable K (Two-Time Pad) ?',
       opts: ['L\'attaquant ne peut rien déduire car le masque est aléatoire', 'L\'opération C1 ^ C2 annule le masque et révèle P1 ^ P2', 'La clé K est automatiquement détruite', 'Les textes clairs sont effacés du réseau'],
       correct: 1,
-      exp: 'Comme C1 = P1 ^ K et C2 = P2 ^ K, effectuer le XOR des deux chiffrés donne C1 ^ C2 = P1 ^ K ^ P2 ^ K = P1 ^ P2. La clé s\'annule et l\'analyse fréquentielle sur deux textes naturels permet de retrouver P1 et P2.'
+      exp: 'Comme C1 = P1 ^ K et C2 = P2 ^ K, le XOR des chiffrés donne C1 ^ C2 = P1 ^ P2. Cette relation peut aider à retrouver les clairs, sans garantir leur récupération immédiate.'
     }
   ],
   flashcards: [
       { q: "Qu’est-ce que « La sécurité de l'information repose sur quatre piliers » ?", a: "La sécurité de l'information repose sur quatre piliers : confidentialité, intégrité, authenticité et non-répudiation." },
-      { q: "Qu’est-ce que « Le principe de Kerckhoffs stipule que la sécurité d'un cryptosystème repose uniquement sur le secret de sa clé et jamais sur le secret de son algorithme. » ?", a: "Le principe de Kerckhoffs stipule que la sécurité d'un cryptosystème repose uniquement sur le secret de sa clé et jamais sur le secret de son algorithme." },
-      { q: "Qu’est-ce que « Les chiffrements de César et affine sont monoalphabétiques et vulnérables à l'analyse statistique et à la force brute. » ?", a: "Les chiffrements de César et affine sont monoalphabétiques et vulnérables à l'analyse statistique et à la force brute." },
-      { q: 'Qu’est-ce que « LFSR » ?', a: 'LFSR : Registre à décalage à rétroaction linéaire utilisant des portes XOR pour générer une séquence de bits pseudo-aléatoire périodique.' },
-      { q: 'Qu’est-ce que « Réseau de Feistel » ?', a: 'Réseau de Feistel : Structure de chiffrement par bloc scindant les données en deux moitiés où le déchiffrement utilise la même fonction interne avec les clés inversées (ex: DES).' },
-      { q: 'Qu’est-ce que « Réseau SPN (AES) » ?', a: 'Réseau SPN (AES) : Substitution-Permutation Network appliquant des couches alternées de confusion (S-Box) et de diffusion linéaire (ShiftRows, MixColumns).' },
-      { q: 'Qu’est-ce que « Le chiffrement par flux opère en continu par XOR avec un keystream (LFSR, ChaCha20), tandis que le chiffrement par bloc traite des blocs fixes (AES 128 bits). » ?', a: 'Le chiffrement par flux opère en continu par XOR avec un keystream (LFSR, ChaCha20), tandis que le chiffrement par bloc traite des blocs fixes (AES 128 bits).' },
-      { q: 'Qu’est-ce que « AES Rijndael repose sur un réseau de substitution-permutation (SPN) combinant SubBytes, ShiftRows, MixColumns et AddRoundKey. » ?', a: 'AES Rijndael repose sur un réseau de substitution-permutation (SPN) combinant SubBytes, ShiftRows, MixColumns et AddRoundKey.' },
-      { q: 'Qu’est-ce que « Le mode ECB est formellement interdit en production car il préserve les motifs des blocs clairs identiques. » ?', a: 'Le mode ECB est formellement interdit en production car il préserve les motifs des blocs clairs identiques.' },
-      { q: 'Qu’est-ce que « Une fonction de hachage cryptographique doit garantir la résistance à la préimage ($2^n$), à la seconde préimage ($2^n$) et aux collisions ($2^{n/2}$). » ?', a: 'Une fonction de hachage cryptographique doit garantir la résistance à la préimage ($2^n$), à la seconde préimage ($2^n$) et aux collisions ($2^{n/2}$).' },
-      { q: "Qu’est-ce que « L'effet d'avalanche assure qu'une modification d'un bit d'entrée bouleverse environ la moitié des bits de l'empreinte finale. » ?", a: "L'effet d'avalanche assure qu'une modification d'un bit d'entrée bouleverse environ la moitié des bits de l'empreinte finale." },
-      { q: 'Qu’est-ce que « MD5 et SHA-1 sont formellement obsolètes et dépréciés suite à des attaques par collision pratiques ; SHA-256 et SHA-3 sont les standards actuels. » ?', a: 'MD5 et SHA-1 sont formellement obsolètes et dépréciés suite à des attaques par collision pratiques ; SHA-256 et SHA-3 sont les standards actuels.' },
+      { q: "Que dit le principe de Kerckhoffs sur le secret d'un système cryptographique ?", a: "Sa sécurité doit dépendre du secret de la clé, pas de celui de l'algorithme." },
+      { q: "Pourquoi les chiffrements de César et affine sont-ils faciles à casser ?", a: "Ces substitutions monoalphabétiques résistent mal à l'analyse fréquentielle et à la recherche exhaustive de leurs clés." },
+      { q: "Quel effet d'avalanche attend-on d'une fonction de hachage cryptographique ?", a: "En moyenne, modifier un bit d'entrée change environ la moitié des bits de l'empreinte." },
       { q: "Qu’est-ce que « Algorithme d'Euclide Étendu » ?", a: "Algorithme d'Euclide Étendu : Algorithme arithmétique déterminant le plus grand commun diviseur de deux entiers et les coefficients de l'identité de Bézout au + bv = pgcd(a, b)." },
-      { q: 'Qu’est-ce que « Inverse Modulaire » ?', a: 'Inverse Modulaire : Entier x tel que (a * x) mod m = 1, existant si et seulement si pgcd(a, m) = 1.' },
-      { q: 'Qu’est-ce que « Cryptosystème RSA » ?', a: 'Cryptosystème RSA : Algorithme asymétrique basé sur la difficulté de factoriser n = p * q, utilisant une paire de clés publique (e, n) et privée (d, n).' },
-      { q: 'Qu’est-ce que « Cryptographie sur Courbes Elliptiques (ECC) » ?', a: "Cryptographie sur Courbes Elliptiques (ECC) : Cryptographie à clé publique exploitant la loi de groupe des points d'une courbe elliptique sur corps fini, offrant des clés très courtes." },
-      { q: "Qu’est-ce que « L'algorithme d'Euclide étendu calcule les coefficients de Bézout $a \\cdot u + b \\cdot v = \\text{pgcd}(a, b)$ et permet de déterminer l'inverse modulaire si $\\text{pgcd}(a, m) = 1$. » ?", a: "L'algorithme d'Euclide étendu calcule les coefficients de Bézout $a \\cdot u + b \\cdot v = \\text{pgcd}(a, b)$ et permet de déterminer l'inverse modulaire si $\\text{pgcd}(a, m) = 1$." },
-      { q: "Qu’est-ce que « L'échange de clés Diffie-Hellman permet à deux pairs de construire un secret commun sur un canal public grâce à la difficulté du logarithme discret. » ?", a: "L'échange de clés Diffie-Hellman permet à deux pairs de construire un secret commun sur un canal public grâce à la difficulté du logarithme discret." },
-      { q: "Qu’est-ce que « Diffie-Hellman pur est vulnérable à l'attaque de l'homme du milieu (MITM) et nécessite impérativement une authentification des clés par signature ou certificat. » ?", a: "Diffie-Hellman pur est vulnérable à l'attaque de l'homme du milieu (MITM) et nécessite impérativement une authentification des clés par signature ou certificat." },
-      { q: 'Qu’est-ce que « Infrastructure à Clés Publiques (PKI) » ?', a: 'Infrastructure à Clés Publiques (PKI) : Ensemble de matériels, logiciels, politiques et procédures nécessaires pour créer, gérer, distribuer et révoquer des certificats numériques.' },
-      { q: 'Qu’est-ce que « Certificat X.509 » ?', a: "Certificat X.509 : Document numérique standardisé liant l'identité d'une entité à sa clé publique, signé par une autorité de certification reconnue." },
-      { q: 'Qu’est-ce que « Subject Alternative Name (SAN) » ?', a: "Subject Alternative Name (SAN) : Extension X.509 spécifiant l'ensemble des noms de domaine, adresses IP ou URI légitimes couverts par le certificat." },
-      { q: 'Qu’est-ce que « OCSP Stapling » ?', a: 'OCSP Stapling : Technique TLS où le serveur web fournit lui-même au client une preuve signée et horodatée de non-révocation émise par la CA.' },
-      { q: "Qu’est-ce que « La signature numérique certifie l'authenticité, l'intégrité et la non-répudiation en chiffrant l'empreinte du message avec la clé privée de l'émetteur. » ?", a: "La signature numérique certifie l'authenticité, l'intégrité et la non-répudiation en chiffrant l'empreinte du message avec la clé privée de l'émetteur." },
-      { q: 'Qu’est-ce que « Une PKI résout le problème de distribution des clés publiques grâce à une hiérarchie de confiance (Root CA, Sub-CA, certificats finaux). » ?', a: 'Une PKI résout le problème de distribution des clés publiques grâce à une hiérarchie de confiance (Root CA, Sub-CA, certificats finaux).' },
-      { q: "Qu’est-ce que « La norme X.509 v3 (RFC 5280) structure les certificats et impose l'extension SAN (Subject Alternative Name) pour la validation des noms de domaine. » ?", a: "La norme X.509 v3 (RFC 5280) structure les certificats et impose l'extension SAN (Subject Alternative Name) pour la validation des noms de domaine." },
-      { q: 'Qu’est-ce que « IPsec ESP (Encapsulating Security Payload) » ?', a: "IPsec ESP (Encapsulating Security Payload) : Protocole IPsec fournissant l'authentification, l'intégrité et le chiffrement des paquets réseau en mode Transport ou Tunnel." },
-      { q: 'Qu’est-ce que « Algorithme de Shor » ?', a: 'Algorithme de Shor : Algorithme quantique résolvant la factorisation et le logarithme discret en temps polynomial, cassant RSA et les courbes elliptiques.' },
-      { q: 'Qu’est-ce que « TLS 1.3 (RFC 8446) accélère le handshake à 1-RTT (voire 0-RTT), supprime les algorithmes vulnérables et rend la confidentialité persistante (PFS) obligatoire. » ?', a: 'TLS 1.3 (RFC 8446) accélère le handshake à 1-RTT (voire 0-RTT), supprime les algorithmes vulnérables et rend la confidentialité persistante (PFS) obligatoire.' },
-      { q: "Qu’est-ce que « Les suites TLS 1.3 se limitent à la définition de l'AEAD et de la fonction de hachage, isolant l'échange de clés et les certificats. » ?", a: "Les suites TLS 1.3 se limitent à la définition de l'AEAD et de la fonction de hachage, isolant l'échange de clés et les certificats." },
-      { q: "Qu’est-ce que « SSHv2 sécurise l'administration système via des clés publiques (Ed25519 recommandée), tandis qu'IPsec ESP chiffre la couche réseau en mode Transport ou Tunnel. » ?", a: "SSHv2 sécurise l'administration système via des clés publiques (Ed25519 recommandée), tandis qu'IPsec ESP chiffre la couche réseau en mode Transport ou Tunnel." },
+      { q: "À quoi sert l'algorithme d'Euclide étendu pour calculer un inverse modulaire ?", a: "Il trouve u et v tels que au + bv = pgcd(a, b) ; avec b = m et pgcd(a, m) = 1, u est l'inverse de a modulo m." },
+      { q: "Comment Diffie-Hellman établit-il un secret partagé sur un canal public ?", a: "Les pairs échangent des valeurs publiques et calculent un même secret, difficile à retrouver à partir de ces valeurs : c'est le problème de Diffie-Hellman, lié au logarithme discret." },
+      { q: "Pourquoi authentifier un échange Diffie-Hellman et par quels moyens ?", a: "Sans authentification, il est vulnérable à l'homme du milieu ; des signatures vérifiées avec certificat ou une clé prépartagée peuvent authentifier les pairs." },
+      { q: "Comment une signature numérique protège-t-elle un message et quelles garanties apporte-t-elle ?", a: "Produite avec la clé privée, souvent à partir d'une empreinte, puis vérifiée avec la clé publique, elle protège l'intégrité et, si la clé est liée au signataire, l'authenticité ; elle contribue à la non-répudiation." },
+      { q: "Quel rôle jouent X.509 v3 et SAN dans la vérification d'un nom de domaine en TLS ?", a: "X.509 v3, profilé par la RFC 5280, structure le certificat ; l'identité DNS est vérifiée dans SAN (Subject Alternative Name) selon la RFC 9525." },
+      { q: "Que définit une suite cryptographique TLS 1.3 et que négocie-t-on séparément ?", a: "Elle définit un algorithme AEAD et une fonction de hachage ; l'échange de clés et l'authentification sont négociés séparément." },
+      { q: "Quels rôles jouent SSHv2 et IPsec ESP dans la protection des communications ?", a: "SSHv2 sécurise l'administration distante ; IPsec ESP peut chiffrer et/ou authentifier les paquets IP, selon l'association de sécurité." },
     {
       q: 'Qu\'est-ce que le principe de Kerckhoffs ?',
       a: 'Le principe selon lequel la sécurité d\'un système cryptographique doit reposer uniquement sur le secret de la clé et jamais sur le secret de l\'algorithme.'
@@ -220,16 +201,16 @@ module.exports = {
       a: 'La clé a doit être strictement première avec 26 : pgcd(a, 26) = 1 (12 valeurs possibles).'
     },
     {
-      q: 'Quelles sont les trois exigences du masque jetable (One-Time Pad) pour garantir une confidentialité parfaite ?',
-      a: '1. Clé issue d\'un aléa pur ; 2. Longueur au moins égale au message ; 3. Usage unique absolu (clé jamais réutilisée).'
+      q: 'Quelles sont les exigences du masque jetable (One-Time Pad) pour garantir une confidentialité parfaite ?',
+      a: 'Clé secrète, uniformément aléatoire et indépendante du message, au moins aussi longue que celui-ci et jamais réutilisée.'
     },
     {
       q: 'Quelle est la signification d\'un Indice de Coïncidence (IC) de 0.075 sur un texte chiffré inconnu ?',
-      a: 'L\'IC élevé indique une distribution non uniforme caractéristique d\'une substitution monoalphabétique (comme César ou affine).'
+      a: 'Cette valeur suggère une distribution non uniforme, mais ne permet pas d\'identifier le chiffrement avec certitude.'
     },
     {
       q: 'Quelle est la conséquence de la réutilisation de la clé K dans un chiffrement par flot ou masque jetable ?',
-      a: 'Le XOR des chiffrés élimine la clé (C1 ^ C2 = P1 ^ P2), permettant de retrouver les clairs via l\'analyse statistique (Two-Time Pad attack).'
+      a: 'Le XOR des chiffrés élimine la clé (C1 ^ C2 = P1 ^ P2), révélant une relation pouvant aider à retrouver les clairs.'
     }
   ],
   mastery: [

@@ -17,13 +17,13 @@ module.exports = {
   situation:
     'Un étudiant tente d’écrire l’instruction <code>MOV [ebx], [eax]</code> pour copier le contenu d’une variable ' +
     'dans une autre et se heurte à une erreur de compilation immédiate : <i>invalid combination of opcode and operands</i>. ' +
-    'Pourquoi l’architecture x86 interdit-elle formellement tout transfert direct de mémoire à mémoire ? ' +
+    'Pourquoi la forme usuelle de MOV x86 refuse-t-elle deux opérandes mémoire explicites ? ' +
     'Pourquoi l’instruction <code>MOV eax, [ebx + ecx*4]</code> déclenche-t-elle un accès au bus RAM ' +
     'alors que <code>LEA eax, [ebx + ecx*4]</code> ne touche jamais à la mémoire et sert de calculatrice ultra-rapide ? ' +
     'Ce module détaille la grammaire des instructions et la puissance des modes d’adressage.',
 
   objectives: [
-    'appliquer la règle d’or des processeurs CISC : au maximum un seul opérande mémoire par instruction ;',
+    'distinguer la restriction des opérandes explicites de MOV des instructions de copie spécialisées ;',
     'maîtriser l’ensemble des modes d’adressage x86 : immédiat, registre, direct, indirect et indexé avec facteur d’échelle ;',
     'distinguer rigoureusement le chargement de données (<code>MOV</code>) du calcul d’adresse arithmétique (<code>LEA</code>) ;',
     'utiliser les instructions arithmétiques et logiques fondamentales (ADD, SUB, INC, DEC, NEG, IMUL, IDIV) ;',
@@ -37,13 +37,16 @@ module.exports = {
         '<p>L’instruction <code>MOV destination, source</code> est l’instruction la plus fréquente d’un programme. ' +
         'Elle transfère une donnée de la source vers la destination (sans altérer la source ni modifier les drapeaux EFLAGS).</p>',
 
-        box('pitfall', 'La règle matérielle absolue : jamais deux accès mémoire simultanés', [
-          '<p>Le bus d’adresses et le bus de données d’un processeur ne peuvent pas effectuer deux transferts RAM ' +
-          'dans le même cycle d’horloge élémentaire. Par conséquent :</p>' +
+        box('pitfall', 'La règle des opérandes explicites de MOV', [
+          '<p>Les formes usuelles de <code>MOV</code> ne codent pas deux opérandes mémoire explicites. ' +
+          'Pour copier une valeur avec ces formes, utilisez un registre intermédiaire :</p>' +
           '<pre><code>MOV [varA], [varB]   ; ERREUR CRITIQUE : interdit par le matériel x86 !\n\n' +
           '// Pour copier d’une case mémoire vers une autre, il FAUT transiter par un registre :\n' +
           'MOV EAX, [varB]      ; 1. Charger la donnée depuis la RAM vers le registre EAX\n' +
-          'MOV [varA], EAX      ; 2. Écrire le registre EAX vers la destination en RAM</code></pre>'
+          'MOV [varA], EAX      ; 2. Écrire le registre EAX vers la destination en RAM</code></pre>' +
+          '<p>Cette restriction ne vaut pas pour toutes les instructions : <code>MOVSB</code> copie un octet ' +
+          'entre deux adresses mémoire implicites. En mode 64 bits, elles sont indiquées par RSI (source) ' +
+          'et RDI (destination).</p>'
         ].join('\n'))
       ].join('\n')
     },
@@ -106,13 +109,13 @@ module.exports = {
     {
       stem: 'Pourquoi l’instruction assembleur MOV [eax], [ebx] est-elle rejetée par l’assembleur x86 ?',
       opts: [
-        'Parce que le processeur x86 ne permet pas de lire et d’écrire simultanément en mémoire dans une seule instruction',
+        'Parce que les formes de MOV ne codent pas deux opérandes mémoire explicites',
         'Parce que les registres EAX et EBX sont réservés aux calculs flottants',
         'Parce que les crochets sont interdits en syntaxe Intel',
         'Parce que l’instruction MOV ne supporte que les constantes'
       ],
       correct: 0,
-      exp: 'En architecture x86, une instruction peut avoir au plus un seul opérande en mémoire vive.'
+      exp: 'MOV ne propose pas cette forme à deux opérandes mémoire explicites. Une instruction spécialisée comme MOVSB lit et écrit pourtant en mémoire avec des adresses implicites.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre MOV EAX, [EBX+4] et LEA EAX, [EBX+4] ?',
@@ -204,13 +207,13 @@ module.exports = {
   methodTitle: 'Protocole en 4 étapes pour traduire une affectation C complexe en x86',
   method: [
     'Décomposer l’opération de haut niveau : isoler la lecture des opérandes sources, le calcul, et l’écriture finale.',
-    'Vérifier la règle des opérandes : s’assurer qu’au moins l’un des deux opérandes de chaque instruction est un registre.',
+    'Pour une copie mémoire-mémoire avec les formes usuelles de MOV, charger d’abord la valeur dans un registre.',
     'Exploiter l’instruction LEA chaque fois qu’un calcul combine une multiplication par 1, 2, 4 ou 8 avec une addition.',
     'Conserver les valeurs temporaires dans les registres non volatils (EBX, ESI, EDI) pour limiter les allers-retours vers la RAM.'
   ],
 
   summary: [
-    'En x86, une instruction ne peut contenir qu’un seul opérande en mémoire vive : le transfert mémoire-mémoire passe par un registre.',
+    'MOV ne code pas deux opérandes mémoire explicites ; MOVSB est une instruction de copie avec adresses mémoire implicites.',
     'Les 5 modes d’adressage couvrent de la constante immédiate jusqu’à l’adressage complet [Base + Index * Scale + Déplacement].',
     'LEA calcule l’adresse sans toucher à la mémoire et sans modifier les drapeaux EFLAGS : arme d’optimisation majeure.',
     'Les instructions arithmétiques (ADD, SUB, INC, DEC, NEG) mettent à jour les indicateurs d’état ZF, CF, SF et OF.',
@@ -246,7 +249,7 @@ module.exports = {
   ],
 
   flashcards: [
-    { q: 'Pourquoi MOV [eax], [ebx] est-il interdit en x86 ?', a: 'Parce que l’architecture matérielle interdit d’avoir deux opérandes mémoire dans une même instruction.' },
+    { q: 'Pourquoi MOV [eax], [ebx] est-il interdit en x86 ?', a: 'MOV ne code pas deux opérandes mémoire explicites. MOVSB est une autre instruction qui copie entre des adresses mémoire implicites.' },
     { q: 'Que fait l’instruction LEA EAX, [EBX + 8] ?', a: 'Elle calcule la valeur EBX + 8 et l’écrit dans EAX sans jamais lire la case mémoire à cette adresse.' },
     { q: 'Quels facteurs d’échelle sont autorisés dans [Base + Index * Scale] ?', a: 'Uniquement 1, 2, 4 ou 8 octets.' },
     { q: 'Quelle est la différence d’impact sur les drapeaux entre ADD et LEA ?', a: 'ADD met à jour ZF, CF, SF et OF, tandis que LEA ne modifie aucun drapeau.' },

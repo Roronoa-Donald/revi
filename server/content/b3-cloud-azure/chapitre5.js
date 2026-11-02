@@ -78,11 +78,9 @@ module.exports = {
         '    <h4>Signatures d\'Accès Partagé (SAS Tokens)</h4>',
         '    <ul>',
         '      <li><strong>Principe :</strong> URL signée temporaire accordant un accès granulaire sans divulguer la clé maîtresse du compte de stockage.</li>',
-        '      <li><strong>Paramètres clés :</strong>',
-        '        <br>- <code>sp</code> (Permissions) : <code>r</code> (read), <code>w</code> (write), <code>d</code> (delete), <code>l</code> (list).',
-        '        <br>- <code>st</code> / <code>se</code> : date de début et d\'expiration stricte.',
-        '        <br>- <code>spr=https</code> : impose le protocole HTTPS sécurisé.',
-        '      <li><strong>User Delegation SAS :</strong> signée avec une identité Entra ID pour une traçabilité totale des accès dans les logs d\'audit.</li>',
+        '      <li><strong>SAS de compte :</strong> les champs requis sont <code>sv</code> (version), <code>ss</code> (services), <code>srt</code> (types de ressources), <code>sp</code> (permissions), <code>se</code> (expiration UTC) et <code>sig</code> (signature calculée avec une clé du compte). Voir la <a href="https://learn.microsoft.com/en-us/rest/api/storageservices/create-account-sas">référence Microsoft</a>.</li>',
+        '      <li><strong>Restrictions facultatives :</strong> <code>st</code> fixe le début de validité ; sans ce champ, l\'accès commence à la réception de la requête. <code>spr</code> est également facultatif : par défaut il autorise <code>https,http</code>, sous réserve des règles du compte ; <code>spr=https</code> limite le jeton à HTTPS.</li>',
+        '      <li><strong>Autres types :</strong> un SAS de service peut cibler un blob précis. Un SAS de délégation utilisateur est signé avec une clé de délégation obtenue grâce à une identité Microsoft Entra ; ses champs diffèrent de ceux du SAS de compte.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
@@ -113,7 +111,7 @@ module.exports = {
     'Savez-vous dans quels cas utiliser Azure Files (SMB/NFS) plutôt qu\'un conteneur Azure Blob ?',
     'Connaissez-vous les durées minimales de facturation associées aux paliers Cool (30 j), Cold (90 j) et Archive (180 j) ?',
     'Pouvez-vous expliquer le phénomène de réhydratation lors de la lecture d\'un blob archivé ?',
-    'Savez-vous composer les paramètres obligatoires d\'un jeton SAS sécurisé (sp=r, spr=https, fenêtre temporelle courte) ?',
+    'Savez-vous distinguer les champs requis d\'un SAS de compte des restrictions facultatives recommandées, comme spr=https ?',
     'Quand devez-vous choisir Azure Cosmos DB plutôt qu\'Azure SQL Database ?'
   ],
   notions: [
@@ -152,7 +150,7 @@ module.exports = {
       stem: 'Quel paramètre d\'un jeton de signature d\'accès partagé (SAS) permet de forcer l\'utilisation exclusive du protocole chiffré HTTPS ?',
       opts: ['ssl=true', 'spr=https', 'tls=1.3', 'secure=yes'],
       correct: 1,
-      exp: 'Le paramètre spr (Signed Protocol) configuré à spr=https contraint le client à utiliser uniquement le protocole HTTPS, rejetant toute requête transmise en HTTP non sécurisé.'
+      exp: 'Le paramètre spr est facultatif ; sans lui, le SAS de compte autorise par défaut https,http, sous réserve des règles du compte. spr=https limite ce SAS à HTTPS.'
     },
     {
       stem: 'Dans quelles circonstances devez-vous recommander Azure Cosmos DB plutôt qu\'Azure SQL Database ?',
@@ -198,8 +196,8 @@ module.exports = {
       a: 'Le processus asynchrone (pouvant prendre de 1 à 15 heures) permettant de restaurer un blob du palier Archive vers un palier en ligne (Hot ou Cool) afin de pouvoir le lire.'
     },
     {
-      q: 'Quels sont les quatre composants essentiels d\'un jeton de sécurité SAS (Shared Access Signature) ?',
-      a: '1. Permissions (sp) ; 2. Fenêtre temporelle (st/se) ; 3. Protocole imposé (spr=https) ; 4. Ressource cible autorisée.'
+      q: 'Quels champs sont requis pour un SAS de compte Azure Storage, et lesquels sont facultatifs ?',
+      a: 'Un SAS de compte exige sv (version), ss (services), srt (types de ressources), sp (permissions), se (expiration) et sig (signature). st et spr sont optionnels ; spr=https est recommandé pour limiter le protocole à HTTPS.'
     },
     {
       q: 'Quelle est la différence fondamentale entre Azure SQL Database et Azure Cosmos DB ?',

@@ -594,16 +594,17 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "goal": "Traduire une politique de sécurité déclarative en commandes concrètes pour les moteurs netfilter iptables et nftables.",
-    "brief": "<p>L'administration d'un pare-feu Linux repose sur <strong>iptables</strong> (hérité) ou <strong>nftables</strong> (standard moderne).<br><br>\nSpécification de conversion d'une règle :<br>\n<code>RULE chain=&lt;INPUT|FORWARD|OUTPUT&gt; proto=&lt;tcp|udp|ANY&gt; src=&lt;ip|ANY&gt; dst=&lt;ip|ANY&gt; dport=&lt;p|ANY&gt; target=&lt;ACCEPT|DROP&gt;</code>.<br><br>\nRègles de génération :<br>\n1. Syntaxe <strong>iptables</strong> :<br>\n   <code>iptables -A {chain} [options] -j {target}</code><br>\n   - Si <code>proto != 'ANY'</code> : ajouter <code>-p {proto}</code>.<br>\n   - Si <code>src != 'ANY'</code> : ajouter <code>-s {src}</code>.<br>\n   - Si <code>dst != 'ANY'</code> : ajouter <code>-d {dst}</code>.<br>\n   - Si <code>dport != 'ANY'</code> : ajouter <code>--dport {dport}</code> (placé après le protocole si présent).<br>\n2. Syntaxe <strong>nftables</strong> :<br>\n   <code>nft add rule inet filter {chain_lower} [clauses] counter {target_lower}</code><br>\n   - Si <code>src != 'ANY'</code> : ajouter <code>ip saddr {src}</code>.<br>\n   - Si <code>dst != 'ANY'</code> : ajouter <code>ip daddr {dst}</code>.<br>\n   - Si <code>proto != 'ANY' et dport != 'ANY'</code> : ajouter <code>{proto} dport {dport}</code>.<br>\n   - Si <code>proto != 'ANY' et dport == 'ANY'</code> : ajouter <code>ip protocol {proto}</code>.<br><br>\nPour chaque règle en entrée, afficher :<br>\n<code>IPTABLES: {commande_iptables}</code><br>\n<code>NFTABLES: {commande_nftables}</code></p>",
-    "starter": "# Grille d'analyse (fw3-c6-e1) — Compilateur de règles vers les syntaxes iptables et nftables\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Règle de transfert FORWARD avec blocage complet]\n# Données : RULE chain=FORWARD proto=udp src=192.168.1.50 dst=ANY dport=53 target=DROP\nA_COMPLETER\n\n[Cas 2 — Règle simple sans port spécifique]\n# Données : RULE chain=OUTPUT proto=tcp src=ANY dst=198.51.100.2 dport=ANY target=ACCEPT\nA_COMPLETER\n\n[Cas 3 — Règle globale tout trafic]\n# Données : RULE chain=INPUT proto=ANY src=ANY dst=ANY dport=ANY target=DROP\nA_COMPLETER\n",
+    "brief": "<p>L'administration d'un pare-feu Linux repose sur <strong>iptables</strong> (hérité) ou <strong>nftables</strong> (standard moderne).<br><br>\nSpécification de conversion d'une règle :<br>\n<code>RULE chain=&lt;INPUT|FORWARD|OUTPUT&gt; proto=&lt;tcp|udp|ANY&gt; src=&lt;ip|ANY&gt; dst=&lt;ip|ANY&gt; dport=&lt;p|ANY&gt; target=&lt;ACCEPT|DROP&gt;</code>.<br>\nIci, <code>ip</code> désigne une adresse IPv4 et <code>p</code> un numéro de port valide.</p><p><strong>Validation du mini-format :</strong> si <code>proto=ANY</code> et que <code>dport</code> est précis, la règle est invalide dans cet exercice : un port précis exige ici <code>tcp</code> ou <code>udp</code>. Affichez uniquement <code>ERREUR: proto=ANY incompatible avec dport precis</code>, sans générer de commande. Cette restriction est propre au mini-format ; elle ne décrit pas toutes les possibilités de nftables.</p><p>Pour une règle valide, appliquez les règles de génération :<br>\n1. Syntaxe <strong>iptables</strong> :<br>\n   <code>iptables -A {chain} [options] -j {target}</code><br>\n   - Si <code>proto != 'ANY'</code> : ajouter <code>-p {proto}</code>.<br>\n   - Si <code>src != 'ANY'</code> : ajouter <code>-s {src}</code>.<br>\n   - Si <code>dst != 'ANY'</code> : ajouter <code>-d {dst}</code>.<br>\n   - Si <code>dport != 'ANY'</code> : ajouter <code>--dport {dport}</code> après le protocole <code>-p tcp</code> ou <code>-p udp</code> obligatoire ici.<br>\n2. Syntaxe <strong>nftables</strong> : la table IPv4 <code>ip filter</code> et les chaînes minuscules correspondantes existent déjà et sont attachées aux mêmes points de passage que leurs équivalents iptables.<br><br>\n   <code>nft add rule ip filter {chain_lower} [clauses] counter {target_lower}</code><br>\n   - Si <code>src != 'ANY'</code> : ajouter <code>ip saddr {src}</code>.<br>\n   - Si <code>dst != 'ANY'</code> : ajouter <code>ip daddr {dst}</code>.<br>\n   - Si <code>proto != 'ANY' et dport != 'ANY'</code> : ajouter <code>{proto} dport {dport}</code>.<br>\n   - Si <code>proto != 'ANY' et dport == 'ANY'</code> : ajouter <code>ip protocol {proto}</code>.<br><br>\nPour chaque règle valide, afficher :<br>\n<code>IPTABLES: {commande_iptables}</code><br>\n<code>NFTABLES: {commande_nftables}</code></p><p>Sources consultées le 2026-10-30 : Netfilter, extensions iptables, <code>https://netfilter.org/documentation/HOWTO/packet-filtering-HOWTO-7.html</code> ; nftables, en-têtes de paquets, <code>https://wiki.nftables.org/wiki-nftables/index.php/Matching_packet_headers</code>.</p>",
+    "starter": "# Grille d'analyse (fw3-c6-e1) — Compilateur de règles vers les syntaxes iptables et nftables\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Règle de transfert FORWARD avec blocage complet]\n# Données : RULE chain=FORWARD proto=udp src=192.168.1.50 dst=ANY dport=53 target=DROP\nA_COMPLETER\n\n[Cas 2 — Règle simple sans port spécifique]\n# Données : RULE chain=OUTPUT proto=tcp src=ANY dst=198.51.100.2 dport=ANY target=ACCEPT\nA_COMPLETER\n\n[Cas 3 — Règle globale tout trafic]\n# Données : RULE chain=INPUT proto=ANY src=ANY dst=ANY dport=ANY target=DROP\nA_COMPLETER\n\n[Cas 4 — Protocole ANY avec port précis]\n# Données : RULE chain=INPUT proto=ANY src=ANY dst=ANY dport=80 target=ACCEPT\nA_COMPLETER\n",
     "hints": [
+      "Avant toute conversion, une règle proto=ANY avec un port précis produit uniquement l'erreur indiquée.",
       "Construire les listes d’arguments dans l’ordre demandé puis joindre par des espaces.",
       "Convertir en minuscules pour nftables (ex: chain.lower(), target.lower())."
     ],
     "examples": [
       {
         "stdin": "RULE chain=INPUT proto=tcp src=ANY dst=10.0.0.1 dport=22 target=ACCEPT",
-        "expected": "IPTABLES: iptables -A INPUT -p tcp -d 10.0.0.1 --dport 22 -j ACCEPT\nNFTABLES: nft add rule inet filter input ip daddr 10.0.0.1 tcp dport 22 counter accept",
+        "expected": "IPTABLES: iptables -A INPUT -p tcp -d 10.0.0.1 --dport 22 -j ACCEPT\nNFTABLES: nft add rule ip filter input ip daddr 10.0.0.1 tcp dport 22 counter accept",
         "note": "Ouverture du port SSH 22 sur l’interface d’écoute."
       }
     ],
@@ -611,20 +612,25 @@ module.exports = [
       {
         "label": "Règle de transfert FORWARD avec blocage complet",
         "stdin": "cas:1",
-        "expected": "IPTABLES: iptables -A FORWARD -p udp -s 192.168.1.50 --dport 53 -j DROP\nNFTABLES: nft add rule inet filter forward ip saddr 192.168.1.50 udp dport 53 counter drop"
+        "expected": "IPTABLES: iptables -A FORWARD -p udp -s 192.168.1.50 --dport 53 -j DROP\nNFTABLES: nft add rule ip filter forward ip saddr 192.168.1.50 udp dport 53 counter drop"
       },
       {
         "label": "Règle simple sans port spécifique",
         "stdin": "cas:2",
-        "expected": "IPTABLES: iptables -A OUTPUT -p tcp -d 198.51.100.2 -j ACCEPT\nNFTABLES: nft add rule inet filter output ip daddr 198.51.100.2 ip protocol tcp counter accept"
+        "expected": "IPTABLES: iptables -A OUTPUT -p tcp -d 198.51.100.2 -j ACCEPT\nNFTABLES: nft add rule ip filter output ip daddr 198.51.100.2 ip protocol tcp counter accept"
       },
       {
         "label": "Règle globale tout trafic",
         "stdin": "cas:3",
-        "expected": "IPTABLES: iptables -A INPUT -j DROP\nNFTABLES: nft add rule inet filter input counter drop"
+        "expected": "IPTABLES: iptables -A INPUT -j DROP\nNFTABLES: nft add rule ip filter input counter drop"
+      },
+      {
+        "label": "Protocole ANY avec port précis",
+        "stdin": "cas:4",
+        "expected": "ERREUR: proto=ANY incompatible avec dport precis"
       }
     ],
-    "solution": "[Exemple]\nIPTABLES: iptables -A INPUT -p tcp -d 10.0.0.1 --dport 22 -j ACCEPT\nNFTABLES: nft add rule inet filter input ip daddr 10.0.0.1 tcp dport 22 counter accept\n\n[Cas 1 — Règle de transfert FORWARD avec blocage complet]\nIPTABLES: iptables -A FORWARD -p udp -s 192.168.1.50 --dport 53 -j DROP\nNFTABLES: nft add rule inet filter forward ip saddr 192.168.1.50 udp dport 53 counter drop\n\n[Cas 2 — Règle simple sans port spécifique]\nIPTABLES: iptables -A OUTPUT -p tcp -d 198.51.100.2 -j ACCEPT\nNFTABLES: nft add rule inet filter output ip daddr 198.51.100.2 ip protocol tcp counter accept\n\n[Cas 3 — Règle globale tout trafic]\nIPTABLES: iptables -A INPUT -j DROP\nNFTABLES: nft add rule inet filter input counter drop"
+    "solution": "[Exemple]\nIPTABLES: iptables -A INPUT -p tcp -d 10.0.0.1 --dport 22 -j ACCEPT\nNFTABLES: nft add rule ip filter input ip daddr 10.0.0.1 tcp dport 22 counter accept\n\n[Cas 1 — Règle de transfert FORWARD avec blocage complet]\nIPTABLES: iptables -A FORWARD -p udp -s 192.168.1.50 --dport 53 -j DROP\nNFTABLES: nft add rule ip filter forward ip saddr 192.168.1.50 udp dport 53 counter drop\n\n[Cas 2 — Règle simple sans port spécifique]\nIPTABLES: iptables -A OUTPUT -p tcp -d 198.51.100.2 -j ACCEPT\nNFTABLES: nft add rule ip filter output ip daddr 198.51.100.2 ip protocol tcp counter accept\n\n[Cas 3 — Règle globale tout trafic]\nIPTABLES: iptables -A INPUT -j DROP\nNFTABLES: nft add rule ip filter input counter drop\n\n[Cas 4 — Protocole ANY avec port précis]\nERREUR: proto=ANY incompatible avec dport precis"
   },
   {
     "id": "fw3-c6-e2",

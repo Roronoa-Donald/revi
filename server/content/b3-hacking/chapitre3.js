@@ -7,12 +7,12 @@ module.exports = {
   "n": 3,
   "title": "Balayage Réseau, Énumération & Cartographie des Vulnérabilités (Scanning)",
   "short": "Scanning, Énumération &amp; Nmap",
-  "toc": "Mécanismes réseau de transport TCP/IP et RFC 793, techniques de scan de ports avancées avec Nmap (TCP Connect, SYN Stealth, UDP, scans furtifs FIN/Null/Xmas, ACK mapping de pare-feu), détection d'OS par fingerprinting TCP et analyse des options de paquets, énumération précise des versions logicielles et bannières, énumération de protocoles d'infrastructure critiques (SMB, NetBIOS, SNMP v1/v2c et communautés MIB, LDAP, SSH), et cartographie des vulnérabilités via Nmap Scripting Engine (NSE) et scanners automatisés.",
+  "toc": "Mécanismes réseau TCP/IP et RFC 9293 (août 2022, remplaçant la RFC 793), techniques de scan de ports avancées avec Nmap (TCP Connect, SYN Stealth, UDP, scans furtifs FIN/Null/Xmas, ACK mapping de pare-feu), détection d'OS par fingerprinting TCP et analyse des options de paquets, énumération de protocoles d'infrastructure (SMB, NetBIOS, SNMP v1/v2c, LDAP, SSH), et cartographie des vulnérabilités via Nmap Scripting Engine (NSE) et scanners automatisés.",
   "time": "≈ 2 h 45 de travail",
   "free": false,
   "situation": "Une fois la surface d'attaque extérieure identifiée, l'auditeur doit sonder activement chaque service exposé pour déterminer son état exact (ouvert, fermé ou filtré par pare-feu), identifier les versions logicielles précises et détecter les failles connues. Un scan mal paramétré peut faire planter des équipements industriels fragiles ou déclencher les alarmes d'un système IPS/SIEM. En tant qu'expert offensif B3, vous devez maîtriser la mécanique fine des sondes TCP/IP, choisir la technique de balayage la plus adaptée et orchestrer l'énumération des services clés comme SMB et SNMP pour cartographier les vulnérabilités exploitables.",
   "objectives": [
-    "maîtriser la RFC 793 et le cycle de vie des paquets TCP (SYN, ACK, RST, FIN, PSH, URG) pour le balayage de ports ;",
+    "expliquer les bases de TCP selon la RFC 9293 (2022) et les drapeaux SYN, ACK, RST, FIN, PSH et URG utilisés dans le balayage de ports ;",
     "différencier et exécuter les scans SYN (-sS), TCP Connect (-sT), UDP (-sU), ACK (-sA) et furtifs (-sF, -sN, -sX) ;",
     "analyser les techniques d'OS fingerprinting basées sur le TTL, la taille de fenêtre (Window Size) et les options TCP ;",
     "extraire et corréler les bannières réseau pour identifier les versions logicielles obsolètes et failles CVE associées ;",
@@ -21,7 +21,11 @@ module.exports = {
   ],
   "sections": [
     {
-      "title": "Mécanismes Réseau TCP/IP et RFC 793 au Cœur du Balayage",
+      "title": "Référence TCP actuelle et portée des observations",
+      "html": "<p>La RFC 9293, publiée en août 2022, remplace la RFC 793 de 1981. Les mentions de la RFC 793 ci-dessous concernent la spécification historique ; les réponses observées lors d'un scan dépendent aussi des systèmes et des filtres réseau.</p>"
+    },
+    {
+      "title": "Mécanismes réseau TCP/IP au cœur du balayage",
       "html": "<p>Comprendre le fonctionnement des scanners de ports comme Nmap nécessite de maîtriser la poignée de mains TCP 3-way handshake définie par la RFC 793 :</p>\n<div class=\"grid grid-2\">\n  <div class=\"card\">\n    <h4>Connexion TCP Normale (3-Way Handshake)</h4>\n    <ol>\n      <li>Le client émet un paquet avec le drapeau <code>SYN</code> (Synchronize) et un numéro de séquence initial <code>ISN_c</code>.</li>\n      <li>Le serveur récepteur, si le port est à l'écoute (ouvert), répond avec <code>SYN + ACK</code> (Acknowledge) contenant son propre <code>ISN_s</code> et validant <code>ISN_c + 1</code>.</li>\n      <li>Le client finalise la connexion en envoyant un paquet <code>ACK</code>. La session est établie.</li>\n    </ol>\n  </div>\n  <div class=\"card\">\n    <h4>Port Fermé ou Non Écouté</h4>\n    <p>Si aucun processus n'est en écoute sur le port ciblé, la RFC 793 impose à la pile TCP de l'hôte cible de répondre immédiatement par un paquet avec le drapeau <code>RST</code> (Reset) ou <code>RST + ACK</code>.</p>\n    <p>Si un pare-feu intermédiaire bloque ou dépose le paquet silencieusement (Drop/Deny), aucun paquet ne revient : l'état est <code>FILTERED</code> (Timeout).</p>\n  </div>\n</div>"
     },
     {
@@ -203,9 +207,9 @@ module.exports = {
     { "q": 'Qu’est-ce que « OS Fingerprinting (-O) » ?', "a": "OS Fingerprinting (-O) : Technique d'identification du système d'exploitation basée sur l'analyse des caractéristiques fines de la pile TCP/IP (TTL, Window Size)." },
     { "q": 'Qu’est-ce que « Session Nulle SMB » ?', "a": "Session Nulle SMB : Connexion non authentifiée sur le port 445/139 permettant d'énumérer les partages, utilisateurs et groupes d'un système." },
     { "q": 'Qu’est-ce que « Communauté SNMP v1/v2c » ?', "a": "Communauté SNMP v1/v2c : Mot de passe transmis en clair régissant l'accès en lecture (public) ou écriture (private) à l'arborescence MIB-2 d'un équipement." },
-    { "q": "Qu’est-ce que « Le balayage de ports s'appuie sur la conformité des réponses à la RFC 793 pour qualifier les états OPEN, CLOSED ou FILTERED. » ?", "a": "Le balayage de ports s'appuie sur la conformité des réponses à la RFC 793 pour qualifier les états OPEN, CLOSED ou FILTERED." },
-    { "q": 'Qu’est-ce que « Le scan SYN Stealth (-sS) nécessite des privilèges root pour forger des paquets réseau bruts et déchirer la session par RST. » ?', "a": 'Le scan SYN Stealth (-sS) nécessite des privilèges root pour forger des paquets réseau bruts et déchirer la session par RST.' },
-    { "q": "Qu’est-ce que « L'OS fingerprinting déduit le noyau hôte à partir du TTL initial (64 pour Linux, 128 pour Windows) et des options TCP. » ?", "a": "L'OS fingerprinting déduit le noyau hôte à partir du TTL initial (64 pour Linux, 128 pour Windows) et des options TCP." },
+    { "q": "Comment un scan SYN classe-t-il généralement un port ouvert, fermé ou filtré ?", "a": "SYN/ACK suggère OPEN, RST CLOSED ; le silence ou certains messages ICMP suggèrent FILTERED. TCP est défini par la RFC 9293, qui succède à la RFC 793." },
+    { "q": "Comment fonctionne le scan SYN dit « stealth » de Nmap (-sS), et quels droits nécessite-t-il ?", "a": "Il envoie un SYN en paquets bruts ; un RST interrompt généralement la tentative après SYN/ACK. Il faut des privilèges réseau adaptés, comme root." },
+    { "q": "Comment le fingerprinting estime-t-il un système à partir du TTL et des options TCP ?", "a": "Il compare ces indices à des profils ; les TTL initiaux sont souvent 64 sous Linux et 128 sous Windows, mais le résultat reste indicatif." },
     {
       "q": "Quelle est la séquence exacte du 3-way handshake TCP pour établir une connexion ?",
       "a": "1. Le client envoie SYN | 2. Le serveur répond SYN+ACK (port ouvert) | 3. Le client confirme avec ACK."

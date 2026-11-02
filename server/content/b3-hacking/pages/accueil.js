@@ -52,7 +52,7 @@ function index(course, chapterList) {
       '<p>Conçu en conformité avec le programme académique officiel CEH (Certified Ethical Hacker) et les standards professionnels de l\'industrie (PTES, OWASP WSTG, NIST SP 800-115, MITRE ATT&amp;CK), ce cours propose une formation rigoureuse, méthodique et 100% éthique : ' +
       'du cadre juridique français et international (Code Pénal art. 323-1, directive NIS2, lettre de mission et Rules of Engagement) et de la formalisation des attaques (Cyber Kill Chain, scoring CVSS v3.1/v4.0), ' +
       'des techniques de reconnaissance passive OSINT et active DNS (Shodan, Google Dorking, SPF/DKIM/DMARC, transferts de zone AXFR, fuzzing de sous-domaines et filtrage des wildcards), ' +
-      'du balayage réseau et de l\'énumération des services (analyse des sondes TCP SYN/FIN/Null/Xmas selon la RFC 793, fingerprinting Nmap, analyse des bannières réseau et audit de protocoles SMB/SNMP), ' +
+      'du balayage réseau et de l\'énumération des services (sondes TCP SYN/FIN/Null/Xmas, RFC 9293 de 2022 qui remplace la RFC 793, fingerprinting Nmap et analyse des bannières), ' +
       'de l\'exploitation des failles web critiques de l\'OWASP Top 10 (Injections SQL in-band et aveugles basées sur le temps, XSS, CSRF, SSRF, et traversées de répertoires Path Traversal / LFI avec bypass de filtres), ' +
       'de l\'exploitation système et de l\'élévation de privilèges (buffer overflows x86/x64, Metasploit, détection de binaires SUID malveillants GTFOBins, mauvaises configurations sudoers NOPASSWD et pivoting réseau via tunnels SSH et proxies SOCKS), ' +
       'et enfin des mécanismes de post-exploitation, persistance et rédaction professionnelle (détection de web shells obfusqués, reverse shells persistants, analyse anti-forensics, détection SIEM/Sigma et rédaction du rapport d\'intrusion avec synthèse managériale et remédiations priorisées).'
@@ -103,7 +103,7 @@ function sommaire(course, chapterList) {
     '  <div class="grid grid-3">',
     '    <div class="card">',
     '      <h4>' + ic('terminal') + ' Bac à sable interactif</h4>',
-    '      <p>Testez vos scripts Python de sécurité et vos calculs CVSS/ports dans un éditeur Monaco AMD intégré.</p>',
+    '      <p>Entraînez-vous à analyser des scénarios de sécurité et des calculs CVSS/ports dans l’éditeur d’analyse intégré.</p>',
     '      <p><a class="btn" href="atelier.html">Ouvrir l\'atelier</a></p>',
     '    </div>',
     '    <div class="card">',

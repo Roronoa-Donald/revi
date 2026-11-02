@@ -51,6 +51,11 @@ module.exports = [
         label: 'Filtre sur valeur booléenne sous forme texte',
         stdin: '[{"id": 1, "actif": true}, {"id": 2, "actif": false}]\nactif=true',
         expected: 'Trouves: 1\n[{"actif": true, "id": 1}]'
+      },
+      {
+        label: 'Critère avec signe égal dans la valeur',
+        stdin: '[{"id": 1, "formule": "x=2"}, {"id": 2, "formule": "y=3"}]\nformule=x=2',
+        expected: 'Trouves: 1\n[{"formule": "x=2", "id": 1}]'
       }
     ],
     solution: `import json
@@ -87,7 +92,7 @@ print(json.dumps(resultats, sort_keys=True))
       '<p>Lit deux lignes sur l’entrée standard :<br>' +
       '1. La collection actuelle (tableau JSON d’objets ayant chacun un champ entier <code>"id"</code>, peut être vide <code>[]</code>)<br>' +
       '2. Le nouvel objet reçu sans champ <code>"id"</code> (ex: <code>{"nom": "Bob", "ville": "Nantes"}</code>)<br>' +
-      'Calcule le nouvel ID : s’il n’y a aucun élément, l’ID vaut <code>1</code> ; sinon, il vaut <code>max(id) + 1</code>.<br>' +
+      'Calculez le nouvel ID : s’il n’y a aucun élément, l’ID vaut <code>1</code> ; sinon, il vaut <code>max(id) + 1</code>.<br>' +
       'Attribue cet <code>id</code> au nouvel objet et affiche :<br>' +
       '<code>201 Created: &lt;objet_json_avec_id_trie&gt;</code>.</p>',
     starter: `import json\n\ncollection = json.loads(input().strip())\nnouvel_item = json.loads(input().strip())\n\n# À compléter : calculer le nouvel ID, l'insérer et afficher la réponse 201.\n`,
@@ -155,7 +160,7 @@ print(f"201 Created: {json.dumps(nouvel_item, sort_keys=True)}")
       '- Si UPDATE réussi : <code>200 OK: &lt;objet_mis_a_jour_trie&gt;</code>.</p>',
     starter: `import json\n\ncollection = json.loads(input().strip())\ncommande = input().strip()\n\n# À compléter : identifier l'opération, modifier le store et afficher le statut.\n`,
     hints: [
-      'Trouve l’index ou l’élément avec item["id"] == cible_id.',
+      'Trouvez l’index ou l’élément avec item["id"] == cible_id.',
       'Pour UPDATE, charge le fragment JSON avec json.loads() et mets à jour avec item.update(modifs).',
       'Assurez-vous que l’id cible est converti en entier int(cible_id).'
     ],

@@ -55,7 +55,7 @@ module.exports = [
     "starter": "# Grille de calcul (pb2-c4-e2) — Loi binomiale — espérance et variance\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Vingt épreuves]\n# Données : 20\n# Données : 0.3\nA_COMPLETER\n\n[Cas 2 — Cinq épreuves]\n# Données : 5\n# Données : 0.5\nA_COMPLETER\n\n[Cas 3 — Cent épreuves]\n# Données : 100\n# Données : 0.1\nA_COMPLETER\n",
     "hints": [
       "L’espérance d’une loi binomiale vaut simplement n·p.",
-      "La variance vaut n·p·(1−p) : n’oublie pas le facteur (1−p)."
+      "La variance vaut n·p·(1−p) : n’oubliez pas le facteur (1−p)."
     ],
     "examples": [
       {

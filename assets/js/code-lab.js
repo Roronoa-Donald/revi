@@ -24,6 +24,9 @@
   var SPRITE = '/assets/img/ui-icons.svg';
   var MONACO_BASE = '/assets/vendor/monaco/vs';
   var MONACO_TIMEOUT_MS = 12000;
+  var ANALYSE_FORMAT = '# Format REVI-ANALYSE:1';
+  var ANALYSE_ESCAPE = '\\=';
+  var ANALYSE_RESERVED_HEADER = /^\[(?:cas\s*\d+|exemple)\b.*\]$/i;
 
   // La sauvegarde locale est cloisonnée par cours : le premier segment du
   // chemin sert de clé (`/b1-c-cpp/chapitres/…` → `b1-c-cpp:lab:`). Le même
@@ -125,6 +128,22 @@
     return 'Une erreur est survenue pendant la requête.';
   }
 
+  function analyseIsComplete(report) {
+    return report.total > 0 && report.passed === report.total && !report.stop &&
+      Array.isArray(report.results) && report.results.length === report.total &&
+      report.results.every(function (item) { return item && item.ok === true; });
+  }
+
+  function analyseSummary(report) {
+    if (analyseIsComplete(report)) {
+      return 'Vérification formative : réponses reconnues par l’outil pour les cas vérifiés. Ce retour ne donne pas de note.';
+    }
+    if (report.stop && report.stop.reason === 'wrong_output') {
+      return 'Vérification formative : une réponse est à revoir. Ce retour ne donne pas de note.';
+    }
+    return 'Vérification formative incomplète. Réessayez.';
+  }
+
   function postJSON(url, payload) {
     return fetch(url, {
       method: 'POST',
@@ -184,13 +203,28 @@
           resolve(routerInstance);
         })
         .catch(function (err) {
-          console.warn('[CodeLab] Repli sur le moteur serveur direct :', err);
+          console.warn('[CodeLab] Routeur indisponible ; repli serveur pour les autres langages :', err);
           routerInstance = {
             supportsBrowser: function () { return false; },
-            getProvenanceInfo: function () {
+            getProvenanceInfo: function (lang) {
+              if (String(lang || '').toLowerCase().trim() === 'sql') {
+                return { mode: 'browser', label: 'Navigateur indisponible', title: 'Moteur SQL local indisponible.', icon: 'warning' };
+              }
               return { mode: 'server', label: 'Serveur', title: 'Serveur distant', icon: 'cloud' };
             },
             execute: function (lang, code, stdin) {
+              if (String(lang || '').toLowerCase().trim() === 'sql') {
+                return Promise.resolve({
+                  status: 'runtime_error',
+                  stdout: '',
+                  stderr: 'Impossible de charger le moteur SQL local.',
+                  compileError: '',
+                  exitCode: 1,
+                  provenance: 'browser',
+                  provider: 'SQLite 3 (WebAssembly)',
+                  userMessage: 'L’environnement SQL local est indisponible.'
+                });
+              }
               return postJSON('/api/execute', { language: lang, code: code, stdin: stdin })
                 .then(function (res) {
                   if (!res.ok) {
@@ -318,16 +352,31 @@
 
   function parseAnalyseStarter(starter) {
     var lines = String(starter || '').replace(/\r\n?/g, '\n').split('\n');
+    var escapedFormat = lines[0] === ANALYSE_FORMAT;
+    if (escapedFormat) lines.shift();
     var headerRe = /^\[(?:cas\s*(\d+)|exemple)\b\s*(?:[—–-]\s*(.*?))?\]$/i;
     var cases = [];
     var currentCase = null;
     var preamble = [];
+    var pendingBlankLines = [];
+
+    function finishCase() {
+      if (!currentCase) return;
+      if (pendingBlankLines.length && pendingBlankLines[pendingBlankLines.length - 1] === '') pendingBlankLines.pop();
+      if (pendingBlankLines.length) {
+        currentCase.value += (currentCase.value ? '\n' : '') + pendingBlankLines.join('\n');
+      }
+      pendingBlankLines = [];
+    }
 
     for (var i = 0; i < lines.length; i++) {
       var raw = lines[i];
+      var escapedAnswer = escapedFormat && raw.startsWith(ANALYSE_ESCAPE);
+      if (escapedAnswer) raw = raw.slice(ANALYSE_ESCAPE.length);
       var trimmed = raw.trim();
-      var match = headerRe.exec(trimmed);
+      var match = escapedAnswer ? null : headerRe.exec(trimmed);
       if (match) {
+        finishCase();
         currentCase = {
           index: match[1] ? parseInt(match[1], 10) : (cases.length + 1),
           label: (match[2] || '').trim(),
@@ -335,27 +384,37 @@
           value: ''
         };
         cases.push(currentCase);
+        pendingBlankLines = [];
         continue;
       }
       if (!currentCase) {
         preamble.push(raw);
         continue;
       }
-      if (trimmed.startsWith('#')) {
+      if (!escapedAnswer && trimmed.startsWith('#')) {
         var d = trimmed.replace(/^#\s*(?:donn[eé]es?\s*:\s*)?/i, '').trim();
         if (d && !d.toLowerCase().startsWith('complétez') && !d.toLowerCase().startsWith('grille')) {
           currentCase.dataLines.push(d);
         }
-      } else if (trimmed && trimmed !== 'A_COMPLETER') {
-        currentCase.value += (currentCase.value ? '\n' : '') + raw;
+        if (!currentCase.value) pendingBlankLines = [];
+      } else if (!escapedAnswer && !trimmed) {
+        pendingBlankLines.push(raw);
+      } else if (!escapedAnswer && trimmed === 'A_COMPLETER') {
+        pendingBlankLines = [];
+      } else {
+        var blankPrefix = pendingBlankLines.length ? pendingBlankLines.join('\n') + '\n' : '';
+        currentCase.value += (currentCase.value ? '\n' : '') + blankPrefix + raw;
+        pendingBlankLines = [];
       }
     }
+    finishCase();
     return { preamble: preamble, cases: cases };
   }
 
   function Lab(root) {
     this.root = root;
     this.exerciseId = root.getAttribute('data-exercise') || '';
+    this.gradingSuspended = root.getAttribute('data-grading-suspended') === '1';
     this.language = root.getAttribute('data-language') || 'python';
     this.isAnalyse = this.language === 'analyse';
     this.height = parseInt(root.getAttribute('data-height'), 10) || 300;
@@ -367,7 +426,9 @@
     this.analysePreamble = null;
     this.rawMode = false;
     this.rawTextarea = null;
+    this.rawFormatRequired = false;
     this.running = false;
+    this.activeRun = null;
     this.lastOutcome = null;
     this.activeTab = 'out';
   }
@@ -404,6 +465,7 @@
       }
       if (this.rawMode && this.rawTextarea) {
         this.rawTextarea.value = code;
+        this.rawFormatRequired = String(code || '').split(/\r?\n/, 1)[0] === ANALYSE_FORMAT;
       } else {
         this.renderAnalyseCases();
       }
@@ -428,12 +490,44 @@
     this.consoleEl = this.buildConsole();
     this.reportEl = document.createElement('div');
     this.reportEl.className = 'lab__report';
+    this.reportEl.setAttribute('role', 'region');
+    this.reportEl.setAttribute('aria-label', 'Résultat de la correction');
     this.reportEl.hidden = true;
     this.tutorEl = this.buildTutor();
 
     if (this.isAnalyse) {
       this.stdinBlock.hidden = true;
       this.consoleEl.hidden = true;
+
+      var notice = this.root.querySelector('.lab__formative-notice');
+      if (!notice) {
+        notice = document.createElement('p');
+        notice.className = 'lab__formative-notice';
+        notice.textContent = this.exerciseId
+          ? 'Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.'
+          : 'Brouillon personnel : ni exécuté ni corrigé automatiquement.';
+        var body = this.root.querySelector('.lab__body');
+        if (body) body.insertBefore(notice, body.firstChild);
+        else this.root.appendChild(notice);
+      }
+      if (!notice.id) notice.id = this.uid + '-formative-notice';
+
+      if (!this.root.querySelector('.lab__formative')) {
+        var badge = document.createElement('span');
+        badge.className = 'lab__formative';
+        badge.textContent = 'Formative';
+        var meta = this.root.querySelector('.lab__meta');
+        if (meta) meta.appendChild(badge);
+        else {
+          notice.insertBefore(document.createTextNode(' '), notice.firstChild);
+          notice.insertBefore(badge, notice.firstChild);
+        }
+      }
+      if (this.controls.submit) {
+        var description = this.controls.submit.getAttribute('aria-describedby');
+        this.controls.submit.setAttribute('aria-describedby', (description ? description + ' ' : '') + notice.id);
+      }
+      this.reportEl.setAttribute('aria-describedby', notice.id);
     }
 
     this.root.appendChild(this.editorWrap);
@@ -464,7 +558,7 @@
       icon('x') + '<span>Arrêter</span></button>'
     );
 
-    var submitLabel = this.isAnalyse ? 'Vérifier mes réponses' : 'Valider';
+    var submitLabel = this.gradingSuspended ? 'Validation suspendue' : (this.isAnalyse ? 'Vérifier mes réponses' : 'Valider');
     var modeBtn = this.isAnalyse
       ? '<button type="button" class="lab__btn lab__btn--ghost" data-lab-mode title="Basculer entre formulaire et texte brut">' +
         icon('code') + '<span>Mode texte</span></button>'
@@ -474,7 +568,8 @@
       picker +
       runBtn +
       (this.exerciseId
-        ? '<button type="button" class="lab__btn ' + (this.isAnalyse ? 'lab__btn--primary ' : '') + 'lab__btn--submit" data-lab-submit>' +
+        ? '<button type="button" class="lab__btn ' + (this.isAnalyse ? 'lab__btn--primary ' : '') + 'lab__btn--submit" data-lab-submit' +
+          (this.gradingSuspended ? ' disabled aria-describedby="' + esc(this.exerciseId + '-grading-notice') + '"' : '') + '>' +
           icon('check') + '<span>' + esc(submitLabel) + '</span></button>'
         : '') +
       '<button type="button" class="lab__btn lab__btn--help" data-lab-help disabled>' +
@@ -610,12 +705,12 @@
     tutor.className = 'lab__tutor';
     tutor.hidden = true;
     tutor.innerHTML =
-      '<div class="lab__tutor-title">' + icon('brain') + '<span>Tuteur IA</span></div>' +
-      '<label class="lab__question">' +
+      '<div class="lab__tutor-title">' + icon('brain') + '<span>' + (this.isAnalyse ? 'Aide formative générale' : 'Tuteur IA') + '</span></div>' +
+      (this.isAnalyse ? '' : '<label class="lab__question">' +
       '<span>Précisez votre question (facultatif)</span>' +
       '<input type="text" data-lab-question maxlength="300" spellcheck="false" ' +
       'placeholder="Par exemple : pourquoi mon accumulateur reste à zéro ?">' +
-      '</label>' +
+      '</label>') +
       '<div class="lab__tutor-text" data-lab-tutor></div>' +
       '<div class="lab__tutor-notice" data-lab-tutor-notice hidden></div>';
 
@@ -685,32 +780,43 @@
 
   Lab.prototype.setBusy = function (busy, label) {
     this.running = busy;
-    if (this.controls.run) {
-      this.controls.run.disabled = busy;
-      this.controls.run.innerHTML = busy
-        ? '<span class="lab__spinner" aria-hidden="true"></span><span>' + esc(label || 'Exécution…') + '</span>'
-        : icon('play') + '<span>Exécuter</span>';
-    }
+    if (this.controls.run) this.controls.run.disabled = busy;
     if (this.controls.stop) {
       this.controls.stop.hidden = !busy;
       this.controls.stop.disabled = !busy;
     }
-    if (this.controls.submit) {
-      this.controls.submit.disabled = busy;
-      if (this.isAnalyse) {
-        this.controls.submit.innerHTML = busy
-          ? '<span class="lab__spinner" aria-hidden="true"></span><span>Correction…</span>'
-          : icon('check') + '<span>Vérifier mes réponses</span>';
-      }
+    if (this.controls.submit) this.controls.submit.disabled = busy || this.gradingSuspended;
+    this.controls.reset.disabled = busy;
+    if (this.controls.run) {
+      this.controls.run.innerHTML = busy
+        ? '<span class="lab__spinner" aria-hidden="true"></span><span>' + esc(label || 'Exécution…') + '</span>'
+        : icon('play') + '<span>Exécuter</span>';
     }
-    if (this.controls.reset) this.controls.reset.disabled = busy;
     this.refreshHelpState();
   };
 
   Lab.prototype.stop = function () {
     if (this.running) {
-      if (this.router) {
+      var activeRun = this.activeRun;
+      this.activeRun = null;
+      if (activeRun && activeRun.router) {
+        activeRun.router.cancel();
+      } else if (!activeRun && this.router) {
         this.router.cancel();
+      }
+      if (activeRun) {
+        this.lastOutcome = {
+          status: 'cancelled',
+          stdout: '',
+          stderr: 'Exécution interrompue à la demande de l’utilisateur.',
+          compileError: '',
+          exitCode: 130,
+          userMessage: 'Exécution arrêtée.'
+        };
+        this.setPane('out', '');
+        this.setPane('err', this.lastOutcome.stderr, 1);
+        this.renderDetails(this.lastOutcome);
+        this.showTab('err');
       }
       this.setStatus('cancelled', 'Exécution interrompue par l’utilisateur.');
       this.setBusy(false);
@@ -743,7 +849,9 @@
     if (!outcome) return false;
     return Boolean((outcome.stderr && outcome.stderr.trim()) ||
       (outcome.compileError && outcome.compileError.trim()) ||
-      (outcome.stop && (outcome.stop.stderr || outcome.stop.compileError || outcome.stop.reason === 'wrong_output')));
+      (outcome.stop && (outcome.stop.stderr || outcome.stop.compileError || outcome.stop.reason === 'wrong_output' ||
+        ((outcome.stop.hidden || outcome.stop.example) &&
+          ['compile_error', 'runtime_error', 'timeout'].indexOf(outcome.stop.reason) !== -1))));
   };
 
   // ── Éditeur ────────────────────────────────────────────────────────────
@@ -807,17 +915,37 @@
     // Charger le brouillon si disponible
     var draft = this.loadDraft();
     if (draft && draft !== this.starter) {
-      var draftParsed = parseAnalyseStarter(draft);
-      if (draftParsed.cases.length === this.analyseCases.length) {
-        for (var d = 0; d < this.analyseCases.length; d++) {
-          if (draftParsed.cases[d] && draftParsed.cases[d].value) {
-            this.analyseCases[d].value = draftParsed.cases[d].value;
-          }
+      var draftParsed = this.parseAnalyseDraft(draft, false);
+      if (!draftParsed) {
+        this.renderAnalyseCases();
+        this.toggleMode();
+        this.rawTextarea.value = draft;
+        this.rawFormatRequired = draft.split(/\r?\n/, 1)[0] === ANALYSE_FORMAT;
+        return false;
+      }
+      for (var draftIndex = 0; draftIndex < this.analyseCases.length; draftIndex++) {
+        if (draftParsed.cases[draftIndex] && draftParsed.cases[draftIndex].value) {
+          this.analyseCases[draftIndex].value = draftParsed.cases[draftIndex].value;
         }
       }
     }
 
     this.renderAnalyseCases();
+    return true;
+  };
+
+  Lab.prototype.parseAnalyseDraft = function (code, requireFormat) {
+    var text = String(code || '');
+    var lines = text.replace(/\r\n?/g, '\n').split('\n');
+    if (requireFormat && lines[0] !== ANALYSE_FORMAT && lines.some(function (line) {
+      return line.startsWith(ANALYSE_ESCAPE);
+    })) return null;
+    var parsed = parseAnalyseStarter(text);
+    if (parsed.cases.length !== this.analyseCases.length) return null;
+    for (var caseIndex = 0; caseIndex < parsed.cases.length; caseIndex++) {
+      if (parsed.cases[caseIndex].index !== this.analyseCases[caseIndex].index) return null;
+    }
+    return parsed;
   };
 
   Lab.prototype.renderAnalyseCases = function () {
@@ -825,12 +953,16 @@
     var uid = this.uid || ('lab-' + Math.random().toString(36).slice(2, 9));
     this.uid = uid;
 
-    var html = '<div class="lab__analyse-grid" role="region" aria-label="Étude de cas et exercices d’application">';
+    var helpId = uid + '-case-help';
+    var html = '<div class="lab__analyse-grid" role="region" aria-label="Étude de cas et exercices d’application">' +
+      '<p id="' + helpId + '" class="lab__case-context">Entrée ajoute une ligne ; Ctrl+Entrée (ou Cmd+Entrée) vérifie les réponses.</p>';
     html += '<div class="lab__cases">';
 
     for (var i = 0; i < this.analyseCases.length; i++) {
       var c = this.analyseCases[i];
       var inputId = uid + '-case-' + c.index;
+      var indicatorId = uid + '-case-indicator-' + i;
+      var feedbackId = uid + '-case-feedback-' + i;
       var dataHtml = '';
       if (c.dataLines && c.dataLines.length > 0) {
         dataHtml = '<div class="lab__case-context">' +
@@ -839,27 +971,23 @@
           '</div>';
       }
 
-      var isMultiline = Boolean(c.value && c.value.includes('\n'));
-      var inputField = isMultiline
-        ? '<textarea id="' + inputId + '" class="lab__case-input lab__case-input--multi" data-case-idx="' + i + '" ' +
-          'placeholder="Votre réponse…" rows="3" spellcheck="false">' + esc(c.value || '') + '</textarea>'
-        : '<input type="text" id="' + inputId + '" class="lab__case-input" data-case-idx="' + i + '" ' +
-          'value="' + esc(c.value || '') + '" placeholder="Votre réponse (ex: 1/4, 0.25, terme disciplinaire)…" ' +
-          'autocomplete="off" spellcheck="false" />';
+      var inputField = '<textarea id="' + inputId + '" class="lab__case-input lab__case-input--multi" data-case-idx="' + i + '" ' +
+        'aria-describedby="' + helpId + '" placeholder="Votre réponse…" rows="3" spellcheck="false">' +
+        '\n' + esc(c.value || '') + '</textarea>';
 
       html +=
         '<div class="lab__case" data-case-index="' + c.index + '">' +
           '<div class="lab__case-header">' +
             '<span class="badge badge--case">Cas ' + c.index + '</span>' +
             '<h4 class="lab__case-title">' + esc(c.label || ('Cas ' + c.index)) + '</h4>' +
-            '<span class="lab__case-indicator" data-case-indicator="' + i + '" aria-hidden="true"></span>' +
+            '<span id="' + indicatorId + '" class="lab__case-indicator" data-case-indicator="' + i + '"></span>' +
           '</div>' +
           dataHtml +
           '<div class="lab__case-input-row">' +
             '<label for="' + inputId + '" class="sr-only">Votre réponse pour le Cas ' + c.index + '</label>' +
             inputField +
           '</div>' +
-          '<div class="lab__case-feedback" data-case-feedback="' + i + '" hidden></div>' +
+          '<div id="' + feedbackId + '" class="lab__case-feedback" data-case-feedback="' + i + '" hidden></div>' +
         '</div>';
     }
 
@@ -871,11 +999,13 @@
       inp.addEventListener('input', function () {
         var idx = parseInt(this.getAttribute('data-case-idx'), 10);
         self.analyseCases[idx].value = this.value;
+        self.invalidateAnalyseFeedback();
         self.saveDraft();
       });
-      inp.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' && !e.shiftKey && this.tagName !== 'TEXTAREA') {
-          e.preventDefault();
+      inp.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' && (event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey &&
+            !event.isComposing && event.keyCode !== 229) {
+          event.preventDefault();
           self.submit();
         }
       });
@@ -896,12 +1026,22 @@
 
   Lab.prototype.toggleMode = function () {
     if (!this.isAnalyse) return;
+    var parsed = null;
+    if (this.rawMode) {
+      parsed = this.rawTextarea && this.parseAnalyseDraft(this.rawTextarea.value, this.rawFormatRequired);
+      if (!parsed) {
+        this.setStatus('api_error', 'Conservez le format et les en-têtes des cas ; votre brouillon reste disponible en mode texte.');
+        if (this.rawTextarea) this.rawTextarea.focus();
+        return;
+      }
+    }
     this.rawMode = !this.rawMode;
 
     if (this.rawMode) {
       var currentCode = this.formatAnalyseCode();
       this.editorWrap.innerHTML =
         '<div class="lab__raw-wrap">' +
+        '<p class="lab__note">Les lignes de réponse commençant par #, [Cas …], A_COMPLETER ou \\= sont précédées de \\=. Si vous ajoutez une telle ligne ici, précédez-la aussi de \\= et conservez la première ligne.</p>' +
         '<label for="' + this.uid + '-raw" class="sr-only">Grille d’analyse brute</label>' +
         '<textarea id="' + this.uid + '-raw" class="lab__raw-textarea" spellcheck="false">' +
         esc(currentCode) +
@@ -909,33 +1049,31 @@
 
       var textarea = this.editorWrap.querySelector('.lab__raw-textarea');
       this.rawTextarea = textarea;
+      this.rawFormatRequired = true;
       var self = this;
       textarea.addEventListener('input', function () {
+        self.invalidateAnalyseFeedback();
         self.saveDraft();
       });
       if (this.controls.mode) {
         this.controls.mode.querySelector('span').textContent = 'Mode formulaire';
       }
     } else {
-      if (this.rawTextarea) {
-        var rawText = this.rawTextarea.value;
-        var parsed = parseAnalyseStarter(rawText);
-        if (parsed.cases.length === this.analyseCases.length) {
-          for (var i = 0; i < this.analyseCases.length; i++) {
-            if (parsed.cases[i]) this.analyseCases[i].value = parsed.cases[i].value;
-          }
-        }
+      for (var i = 0; i < this.analyseCases.length; i++) {
+        if (parsed.cases[i]) this.analyseCases[i].value = parsed.cases[i].value;
       }
       this.rawTextarea = null;
+      this.rawFormatRequired = false;
       this.renderAnalyseCases();
       if (this.controls.mode) {
         this.controls.mode.querySelector('span').textContent = 'Mode texte';
       }
+      this.setStatus('idle', 'Prêt — Renseignez vos réponses et cliquez sur Vérifier');
     }
   };
 
   Lab.prototype.formatAnalyseCode = function () {
-    var out = '';
+    var out = ANALYSE_FORMAT + '\n';
     if (this.analysePreamble && this.analysePreamble.length > 0) {
       out += this.analysePreamble.join('\n') + '\n\n';
     }
@@ -945,10 +1083,17 @@
       for (var d = 0; d < c.dataLines.length; d++) {
         out += '# Données : ' + c.dataLines[d] + '\n';
       }
-      var val = (c.value || '').trim();
-      out += (val ? val : 'A_COMPLETER') + '\n\n';
+      var val = c.value || '';
+      var formatted = val.split('\n').map(function (line) {
+        var trimmed = line.trim();
+        return line.startsWith(ANALYSE_ESCAPE) || trimmed.startsWith('#') ||
+          trimmed === 'A_COMPLETER' || ANALYSE_RESERVED_HEADER.test(trimmed)
+          ? ANALYSE_ESCAPE + line : line;
+      }).join('\n');
+      out += (val ? formatted : 'A_COMPLETER') + '\n';
+      if (i < this.analyseCases.length - 1) out += '\n';
     }
-    return out.trim() + '\n';
+    return out;
   };
 
   Lab.prototype.updateAnalyseFeedback = function (report) {
@@ -960,21 +1105,19 @@
       var feedback = el.querySelector('[data-case-feedback]');
       var res = results[i];
 
+      el.classList.remove('lab__case--ok', 'lab__case--ko');
+      if (indicator) indicator.innerHTML = '';
+      if (feedback) { feedback.hidden = true; feedback.innerHTML = ''; }
+
       if (res && res.ok) {
         el.classList.add('lab__case--ok');
-        el.classList.remove('lab__case--ko');
         if (indicator) {
-          indicator.innerHTML = '<span class="lab__tag lab__tag--ok">' + icon('check') + ' Validé</span>';
+          indicator.innerHTML = '<span class="lab__tag lab__tag--ok">' + icon('check') + ' Repères reconnus</span>';
         }
-        if (feedback) {
-          feedback.hidden = true;
-          feedback.innerHTML = '';
-        }
-      } else if (res && !res.ok) {
+      } else if ((res && !res.ok) || (report.stop && report.stop.testIndex === i && report.stop.reason === 'wrong_output')) {
         el.classList.add('lab__case--ko');
-        el.classList.remove('lab__case--ok');
         if (indicator) {
-          indicator.innerHTML = '<span class="lab__tag lab__tag--ko">' + icon('x') + ' À corriger</span>';
+          indicator.innerHTML = '<span class="lab__tag lab__tag--ko">' + icon('x') + ' À revoir</span>';
         }
         if (feedback) {
           feedback.hidden = false;
@@ -984,26 +1127,47 @@
           feedback.innerHTML = '<p class="lab__case-hint">' + icon('warning') + ' ' + msg + '</p>';
         }
       } else if (report.stop && report.stop.testIndex === i) {
-        el.classList.add('lab__case--ko');
-        el.classList.remove('lab__case--ok');
         if (indicator) {
-          indicator.innerHTML = '<span class="lab__tag lab__tag--ko">' + icon('x') + ' À corriger</span>';
+          indicator.innerHTML = '<span class="lab__tag">' + icon('warning') + ' Vérification interrompue</span>';
         }
         if (feedback) {
           feedback.hidden = false;
-          var stopMsg = report.stop.userMessage ? esc(report.stop.userMessage) : 'Réponse incorrecte pour ce cas.';
+          var stopMsg = report.stop.userMessage ? esc(report.stop.userMessage) : 'La vérification n’a pas pu être effectuée. Réessayez.';
           feedback.innerHTML = '<p class="lab__case-hint">' + icon('warning') + ' ' + stopMsg + '</p>';
         }
       }
+
+      var input = el.querySelector('.lab__case-input');
+      if (input) {
+        var description = this.uid + '-case-help';
+        if (indicator && indicator.textContent) description += ' ' + indicator.id;
+        if (feedback && !feedback.hidden && feedback.textContent) description += ' ' + feedback.id;
+        input.setAttribute('aria-describedby', description);
+      }
     }
+  };
+
+  Lab.prototype.invalidateAnalyseFeedback = function () {
+    if (this.reportEl.hidden) return;
+    this.reportEl.hidden = true;
+    this.tutorEl.hidden = true;
+    this.lastOutcome = null;
+    this.updateAnalyseFeedback({ results: [] });
+    this.refreshHelpState();
+    this.setStatus('idle', 'Réponses modifiées. Relancez la vérification formative.');
   };
 
   Lab.prototype.initEditor = function () {
     var self = this;
 
     if (this.isAnalyse) {
-      this.initAnalyseForm();
-      this.setStatus('idle', 'Prêt — Renseignez vos réponses et cliquez sur Vérifier');
+      var restored = this.initAnalyseForm();
+      var readyMessage = this.exerciseId
+        ? 'Prêt — Renseignez vos réponses et cliquez sur Vérifier'
+        : 'Prêt — Brouillon sans vérification automatique.';
+      this.setStatus(restored ? 'idle' : 'api_error', restored
+        ? readyMessage
+        : 'Le brouillon ne correspond pas aux en-têtes des cas ; il reste disponible en mode texte.');
       return;
     }
 
@@ -1106,11 +1270,16 @@
     this.setPane('detail', '');
     this.lastOutcome = null;
     this.refreshHelpState();
+    var activeRun = {};
+    this.activeRun = activeRun;
 
     loadRouter().then(function (router) {
+      if (self.activeRun !== activeRun) return null;
       self.router = router;
+      activeRun.router = router;
       return router.execute(self.language, code, self.stdinEl.value, { timeoutMs: 6000 });
     }).then(function (payload) {
+      if (self.activeRun !== activeRun) return;
       self.lastOutcome = payload;
 
       var stdout = payload.stdout || '';
@@ -1141,11 +1310,14 @@
       }
       self.refreshHelpState();
     }).catch(function (err) {
+      if (self.activeRun !== activeRun) return;
       var msg = err && err.message ? err.message : 'Impossible de joindre le service d’exécution.';
       self.setStatus('api_error', msg);
       self.renderDetails({ status: 'api_error', userMessage: msg });
       self.showTab('detail');
     }).then(function () {
+      if (self.activeRun !== activeRun) return;
+      self.activeRun = null;
       self.setBusy(false);
     });
   };
@@ -1194,26 +1366,43 @@
 
   Lab.prototype.submit = function () {
     var self = this;
-    if (this.running || !this.exerciseId) return;
+    if (this.running || !this.exerciseId || this.gradingSuspended) return;
 
     var code = this.getCode();
     if (!code.trim()) {
       this.setStatus('idle', 'Écrivez du code avant de valider.');
       return;
     }
+    if (this.isAnalyse && this.rawMode && !this.parseAnalyseDraft(code, this.rawFormatRequired)) {
+      this.setStatus('api_error', 'Conservez le format et les en-têtes des cas ; votre brouillon reste disponible en mode texte.');
+      if (this.rawTextarea) this.rawTextarea.focus();
+      return;
+    }
 
     this.setBusy(true, 'Correction…');
-    this.setStatus('running', 'Vérification des tests…');
+    this.setStatus('running', this.isAnalyse ? 'Vérification formative en cours…' : 'Vérification des tests…');
     this.reportEl.hidden = true;
+    if (this.isAnalyse) {
+      this.lastOutcome = null;
+      this.tutorEl.hidden = true;
+      this.updateAnalyseFeedback({ results: [] });
+    }
 
     postJSON('/api/exercise/submit', { exerciseId: this.exerciseId, code: code })
       .then(function (result) {
         if (!result.ok) {
           var kind = result.status === 429 ? 'rate_limited' : 'api_error';
-          self.setStatus(kind, httpMessage(result.status, result.data));
+          var message = httpMessage(result.status, result.data);
+          if (self.isAnalyse) message = 'Vérification formative indisponible : ' + message;
+          self.setStatus(kind, message);
           self.reportEl.hidden = false;
           self.reportEl.innerHTML = '<div class="lab__report-head" data-kind="ko">' +
-            icon('warning') + '<span>' + esc(httpMessage(result.status, result.data)) + '</span></div>';
+            icon('warning') + '<span>' + esc(message) + '</span></div>';
+          return;
+        }
+
+        if (self.isAnalyse && self.getCode() !== code) {
+          self.setStatus('idle', 'Les réponses ont changé pendant la vérification. Relancez la vérification formative.');
           return;
         }
 
@@ -1236,16 +1425,18 @@
           : null;
         self.refreshHelpState();
 
-        var allPassed = report.total > 0 && report.passed === report.total;
-        self.setStatus(allPassed ? 'success' : (report.stop && report.stop.reason === 'compile_error' ? 'compile_error' : 'runtime_error'),
-          allPassed
-            ? (self.isAnalyse ? 'Toutes les réponses sont validées' : 'Exercice validé')
-            : (self.isAnalyse
-                ? report.passed + ' / ' + report.total + ' cas validé(s) — corrigez les cas signalés'
-                : 'Exercice à revoir : ' + report.passed + ' / ' + report.total + ' test(s) validé(s)'));
+        var allPassed = self.isAnalyse ? analyseIsComplete(report) : report.total > 0 && report.passed === report.total;
+        var failedStatus = report.stop && Object.prototype.hasOwnProperty.call(STATUS_LABEL, report.stop.reason)
+          ? report.stop.reason : 'runtime_error';
+        self.setStatus(allPassed ? 'success' : failedStatus,
+          self.isAnalyse ? analyseSummary(report) : (allPassed
+            ? 'Exercice validé'
+            : 'Exercice à revoir : ' + report.passed + ' / ' + report.total + ' test(s) validé(s)'));
       })
       .catch(function () {
-        self.setStatus('api_error', 'Impossible de joindre le serveur de correction.');
+        self.setStatus('api_error', self.isAnalyse
+          ? 'Vérification formative indisponible. Impossible de joindre le serveur.'
+          : 'Impossible de joindre le serveur de correction.');
       })
       .then(function () { self.setBusy(false); });
   };
@@ -1253,30 +1444,58 @@
   Lab.prototype.renderReport = function (report) {
     var total = report.total || 0;
     var passed = report.passed || 0;
-    var allPassed = total > 0 && passed === total;
+    var isAnalyse = this.isAnalyse;
+    var allPassed = isAnalyse ? analyseIsComplete(report) : total > 0 && passed === total;
+    var heading = isAnalyse ? analyseSummary(report) : passed + ' / ' + total + ' test(s) validé(s)' +
+      (allPassed ? ' — exercice réussi' : '');
 
     var html = '<div class="lab__report-head" data-kind="' + (allPassed ? 'ok' : 'ko') + '">' +
       icon(allPassed ? 'check-circle' : 'warning') +
-      '<span>' + passed + ' / ' + total + ' test(s) validé(s)' +
-      (allPassed ? ' — exercice réussi' : '') + '</span></div>';
+      '<span>' + esc(heading) + '</span></div>';
+
+    if (isAnalyse) {
+      html += '<p class="lab__formative-reminder">Ce retour ne donne pas de note et ne valide pas les acquis.</p>';
+      if (report.stop && Array.isArray(report.results) && report.results.length < total) {
+        html += '<p class="lab__formative-reminder">Les cas restants n’ont pas été vérifiés.</p>';
+      }
+    }
 
     if (Array.isArray(report.results) && report.results.length) {
       html += '<ul class="lab__tests">' + report.results.map(function (item) {
         return '<li data-ok="' + (item.ok ? '1' : '0') + '">' +
-          icon(item.ok ? 'check' : 'x') + '<span>' + esc(item.label) + '</span></li>';
+          icon(item.ok ? 'check' : 'x') + '<span>' + esc(item.label) +
+          (isAnalyse ? (item.ok ? ' — repères reconnus' : ' — à revoir') : '') + '</span></li>';
       }).join('') + '</ul>';
     }
 
     var stop = report.stop;
     if (stop) {
-      if (stop.reason === 'wrong_output') {
-        var inputLabel = this.isAnalyse ? 'Cas concerné' : 'Entrée';
-        var inputValue = this.isAnalyse ? (stop.label || 'Cas ' + ((stop.testIndex || 0) + 1)) : (stop.input || '(aucune)');
+      if (isAnalyse) {
+        if (stop.reason === 'wrong_output') {
+          html += this.diagBlock((stop.label || 'Ce cas') + ' est à revoir', [
+            ['Votre réponse', stop.actual],
+            ['Pour avancer', stop.userMessage || 'Vérifiez vos calculs ou votre raisonnement.']
+          ]);
+        } else {
+          html += this.diagBlock('La vérification n’a pas pu être effectuée', [
+            ['Information', stop.userMessage || 'Réessayez.']
+          ]);
+        }
+      } else if (stop.hidden || stop.example) {
+        var title = stop.reason === 'wrong_output'
+          ? (stop.example ? 'L’exemple affiché n’est pas validé' : 'Un test caché n’est pas validé')
+          : (STATUS_LABEL[stop.reason] || 'La vérification n’a pas pu être exécutée');
+        var unavailable = ['api_error', 'rate_limited', 'unknown_error'].indexOf(stop.reason) !== -1;
+        var guidance = unavailable ? 'Réessayez lorsque le service est disponible.' :
+          'Exécutez votre programme avec l’exemple fourni ou vos propres valeurs pour examiner son comportement.';
+        if (stop.hidden) guidance = 'Les données des tests sont cachées. ' + guidance;
+        html += this.diagBlock(title, [['Pour avancer', guidance]]);
+      } else if (stop.reason === 'wrong_output') {
         html += '<div class="lab__diag">' +
           '<div class="lab__diag-title">' + icon('search') +
           '<span>Premier test en échec — ' + esc(stop.label) + '</span></div>' +
           '<div class="lab__diag-grid">' +
-          this.diagCell(inputLabel, inputValue, 'input') +
+          this.diagCell('Entrée', stop.input || '(aucune)', 'input') +
           this.diagCell('Sortie attendue', stop.expected, 'expected') +
           this.diagCell('Votre sortie', stop.actual || '(vide)', 'actual') +
           '</div></div>';
@@ -1294,10 +1513,12 @@
       }
     }
 
-    if (!allPassed && report.stop) {
+    if (!allPassed && report.stop && (!isAnalyse || report.stop.reason === 'wrong_output') &&
+        (!(report.stop.hidden || report.stop.example) ||
+        ['wrong_output', 'compile_error', 'runtime_error', 'timeout'].indexOf(report.stop.reason) !== -1)) {
       html += '<div class="lab__report-help">' +
         '<button type="button" class="lab__btn lab__btn--inline-help" data-lab-report-help>' +
-        icon('brain') + '<span>Demander au tuteur IA d’expliquer l’erreur</span></button>' +
+        icon('brain') + '<span>' + (isAnalyse ? 'Obtenir une aide formative générale' : 'Demander au tuteur IA d’expliquer l’erreur') + '</span></button>' +
         '</div>';
     }
 
@@ -1340,12 +1561,12 @@
     var outcome = this.lastOutcome || {};
     var stop = outcome.stop || {};
 
-    this.setBusy(true, 'Le tuteur rédige…');
-    this.setStatus('running', 'Le tuteur analyse votre code…');
+    this.setBusy(true, this.isAnalyse ? 'Préparation de l’aide…' : 'Le tuteur rédige…');
+    this.setStatus('running', this.isAnalyse ? 'Préparation de l’aide formative générale…' : 'Le tuteur analyse votre code…');
     this.tutorEl.hidden = false;
     this.tutorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     this.tutorText.innerHTML = '<span class="lab__note">' + icon('hourglass') +
-      ' Analyse de votre code en cours…</span>';
+      (this.isAnalyse ? ' Préparation de l’aide générale…</span>' : ' Analyse de votre code en cours…</span>');
     this.tutorNotice.hidden = true;
 
     postJSON('/api/code-help', {
@@ -1356,12 +1577,13 @@
       compileError: stop.compileError || outcome.compileError || '',
       expected: stop.expected || outcome.expected || '',
       actual: stop.actual || outcome.actual || '',
-      question: this.questionEl.value || ''
+      status: stop.reason || outcome.status || '',
+      question: this.questionEl ? this.questionEl.value || '' : ''
     }).then(function (result) {
       if (!result.ok) {
         self.tutorText.innerHTML = '<span class="lab__note">' + icon('warning') + ' ' +
           esc(httpMessage(result.status, result.data)) + '</span>';
-        self.setStatus('api_error', 'Le tuteur IA est indisponible');
+        self.setStatus('api_error', self.isAnalyse ? 'L’aide formative est indisponible' : 'Le tuteur IA est indisponible');
         return;
       }
       var data = result.data || {};
@@ -1373,7 +1595,7 @@
       self.setStatus('idle', 'Explications fournies — à vous de corriger');
     }).catch(function () {
       self.tutorText.innerHTML = '<span class="lab__note">' + icon('warning') +
-        ' Impossible de joindre le tuteur IA pour le moment.</span>';
+        (self.isAnalyse ? ' Impossible de joindre l’aide formative pour le moment.</span>' : ' Impossible de joindre le tuteur IA pour le moment.</span>');
     }).then(function () {
       self.setBusy(false);
     });

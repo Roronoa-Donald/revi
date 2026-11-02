@@ -112,6 +112,11 @@ else:
         label: 'Float attendu avec valeur décimale',
         stdin: 'prix:float,titre:str\n{"prix": 19.99, "titre": "Livre"}',
         expected: 'Validation reussie'
+      },
+      {
+        label: 'Champ avec deux-points dans la clé',
+        stdin: 'meta:tag:str\n{"meta:tag": "ok"}',
+        expected: 'Erreur type: champ meta attendu tag:str'
       }
     ],
     solution: `import json

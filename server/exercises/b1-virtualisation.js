@@ -11,11 +11,11 @@ module.exports = [
     "language": "analyse",
     "title": "Le rapport d’inactivité du serveur",
     "goal": "Classer les heures du serveur : inactif ou utile, selon le seuil des 80 % de l’histoire.",
-    "brief": "<p>Dans l’histoire, « le serveur passait 80 % de son temps à ne rien faire ». Analysez chaque ligne proposée « heure inactif » (heures de la journée, inactif en minutes sur l’heure). Une heure est <code>perdue</code> si au moins 48 minutes (80 %) sont inactives, sinon <code>utile</code>. Pour chaque ligne il Indiquez <code>heure : verdict</code>, puis <code>heures perdues : X/n</code> et <code>inactivite : Y min</code> (somme des minutes d’inactivité).</p>",
+    "brief": "<p>Dans l’histoire, « le serveur passait 80 % de son temps à ne rien faire ». Analysez chaque ligne proposée « heure inactif » (heures de la journée, inactif en minutes sur l’heure). Une heure est <code>perdue</code> si au moins 48 minutes (80 %) sont inactives, sinon <code>utile</code>. Pour chaque ligne, indiquez <code>heure : verdict</code>, puis <code>heures perdues : X/n</code> et <code>inactivite : Y min</code> (somme des minutes d’inactivité).</p>",
     "starter": "# Grille d'analyse (vt-c1-e1) — Le rapport d’inactivité du serveur\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Journée du paresseux]\n# Données : 4\n# Données : 08h 55\n# Données : 09h 40\n# Données : 10h 48\n# Données : 11h 12\nA_COMPLETER\n\n[Cas 2 — Serveur très fainéant]\n# Données : 3\n# Données : 22h 60\n# Données : 23h 59\n# Données : 00h 48\nA_COMPLETER\n\n[Cas 3 — Frontière exacte]\n# Données : 3\n# Données : a 47\n# Données : b 48\n# Données : c 49\nA_COMPLETER\n",
     "hints": [
-      "80 % d’une heure = 48 minutes : inactif -ge 48 → perdue, sinon utile.",
-      "La somme des minutes progresse dans les deux cas ; les bilans sortent après la boucle."
+      "Combien de minutes représentent quatre cinquièmes d’une heure ?",
+      "Comparez chaque durée inactive au seuil, puis totalisez les minutes."
     ],
     "examples": [
       {
@@ -48,12 +48,12 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "title": "Un service par serveur : le constat",
-    "goal": "Compter les serveurs mono-service et calculer le coût du gaspillage.",
-    "brief": "<p>Dans l’histoire, le serveur fainéant « n’héberge qu’un seul système et un seul service ». Analysez chaque ligne proposée « serveur services cout » (services hébergés, coût mensuel en francs). Un serveur est <code>faineant</code> s’il héberge moins de 2 services. Pour chaque ligne il Indiquez <code>serveur : verdict</code> (faineant ou sature si plus de 4 services, sinon <code>equilibre</code>), puis <code>faineants : X</code> et <code>gaspillage : Y FCFA</code> (80 % du coût de chaque fainéant, arrondi à l’entier inférieur).</p>",
+    "goal": "Appliquer une grille fictive de classement et de coût à un parc simulé.",
+    "brief": "<p>Dans cette simulation, analysez chaque ligne « serveur services cout ». Par convention fictive uniquement, moins de 2 services donne <code>faineant</code>, plus de 4 donne <code>sature</code>, sinon <code>equilibre</code> ; le champ <code>gaspillage</code> vaut 80 % du coût des serveurs classés faineants. Ces règles sont arbitraires : en réalité le nombre de services ne suffit pas à déterminer la charge ou le coût perdu. Indiquez chaque verdict, puis <code>faineants : X</code> et <code>gaspillage : Y FCFA</code>, arrondi à l’entier inférieur.</p>",
     "starter": "# Grille d'analyse (vt-c1-e2) — Un service par serveur : le constat\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Salle serveur]\n# Données : 4\n# Données : srv1 1 80000\n# Données : srv2 5 300000\n# Données : srv3 3 150000\n# Données : srv4 1 100000\nA_COMPLETER\n\n[Cas 2 — Que du farniente]\n# Données : 3\n# Données : a 1 50000\n# Données : b 1 50000\n# Données : c 1 50000\nA_COMPLETER\n\n[Cas 3 — Frontières]\n# Données : 4\n# Données : a 0 100000\n# Données : b 1 100000\n# Données : c 4 100000\n# Données : d 5 100000\nA_COMPLETER\n",
     "hints": [
-      "Qualifiez l’état du serveur : sous-utilisé (< 2 services), saturé (> 4 services) ou équilibré.",
-      "Pour un serveur sous-utilisé, évaluez le coût de gaspillage des ressources allouées non consommées."
+      "Appliquez les étiquettes fictives : moins de 2 services, plus de 4, ou entre les deux.",
+      "Pour l’étiquette faineant, appliquez la convention fictive de 80 % du coût."
     ],
     "examples": [
       {
@@ -87,7 +87,7 @@ module.exports = [
     "language": "analyse",
     "title": "Le serveur se plaint : facture d’électricité",
     "goal": "Relier l’inactivité à la facture : « il mangeait de l’électricité pour rien ».",
-    "brief": "<p>L’histoire dit du serveur qu’il « mangeait de l’électricité pour rien ». Analysez chaque ligne proposée « serveur watt heures » : consommation en watts, heures de marche du mois. L’énergie consommée vaut watt × heures / 1000 (kWh) ; à 100 francs le kWh, Indiquez pour chaque serveur <code>serveur : X kWh — Y FCFA</code> (nombres entiers), puis <code>facture : Z FCFA</code> (somme) et <code>gaspille : W FCFA</code> (part des serveurs à plus de 700 kWh, 80 % de leur facture).</p>",
+    "brief": "<p>Analysez chaque ligne « serveur watt heures » avec une puissance supposée constante : énergie = watt × heures / 1000 kWh, tarif fictif 100 francs/kWh. Indiquez <code>serveur : X kWh — Y FCFA</code>, puis <code>facture : Z FCFA</code> et le champ <code>gaspille : W FCFA</code>, défini arbitrairement ici comme 80 % de la facture des serveurs dépassant 700 kWh. Ce champ est une convention de calcul, pas une mesure réelle du gaspillage.</p>",
     "starter": "# Grille d'analyse (vt-c1-e3) — Le serveur se plaint : facture d’électricité\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trois serveurs]\n# Données : 3\n# Données : a 1000 500\n# Données : b 500 800\n# Données : c 750 1000\nA_COMPLETER\n\n[Cas 2 — Aucun gros consommateur]\n# Données : 2\n# Données : a 300 720\n# Données : b 200 720\nA_COMPLETER\n\n[Cas 3 — Seuil exact]\n# Données : 2\n# Données : a 700 1000\n# Données : b 701 1000\nA_COMPLETER\n",
     "hints": [
       "kWh = watt * heures / 1000 (division entière) ; coût = kWh * 100.",
@@ -125,7 +125,7 @@ module.exports = [
     "language": "analyse",
     "title": "Ce que partagent les machines virtuelles",
     "goal": "Associer chaque ressource de l’histoire à sa mise en commun.",
-    "brief": "<p>Les VM de l’histoire promettent : « on va se partager votre mémoire, votre processeur et même votre disque dur ». Analysez chaque ligne proposée « ressource partage » : partage est un code parmi <code>vive</code> (mémoire), <code>calcul</code> (processeur), <code>stockage</code> (disque) ou <code>pas-partage</code> (ressource qui reste propre à chaque machine, comme la carte réseau dédiée d’une VM configurée ainsi). Pour chaque ligne il Indiquez <code>ressource : OK</code> ou <code>ressource : ERREUR</code>, puis <code>correctes : X/n</code>.</p>",
+    "brief": "<p>Les VM de l’histoire promettent : « on va se partager votre mémoire, votre processeur et même votre disque dur ». Analysez chaque ligne proposée « ressource partage » : partage est un code parmi <code>vive</code> (mémoire), <code>calcul</code> (processeur), <code>stockage</code> (disque) ou <code>pas-partage</code> (ressource qui reste propre à chaque machine, comme la carte réseau dédiée d’une VM configurée ainsi). Pour chaque ligne, indiquez <code>ressource : OK</code> ou <code>ressource : ERREUR</code>, puis <code>correctes : X/n</code>.</p>",
     "starter": "# Grille d'analyse (vt-c2-e1) — Ce que partagent les machines virtuelles\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Les trois ressources]\n# Données : 4\n# Données : memoire vive\n# Données : processeur calcul\n# Données : disque stockage\n# Données : reseau-dediee pas-partage\nA_COMPLETER\n\n[Cas 2 — Trois confusions]\n# Données : 4\n# Données : memoire calcul\n# Données : disque vive\n# Données : processeur stockage\n# Données : reseau-dediee pas-partage\nA_COMPLETER\n\n[Cas 3 — Fiche de révision]\n# Données : 4\n# Données : disque stockage\n# Données : processeur calcul\n# Données : reseau-dediee pas-partage\n# Données : memoire vive\nA_COMPLETER\n",
     "hints": [
       "Un case sur la ressource : memoire → vive, processeur → calcul, disque → stockage, reseau-dediee → pas-partage.",
@@ -163,7 +163,7 @@ module.exports = [
     "language": "analyse",
     "title": "« On ne prendra que ce dont on a besoin »",
     "goal": "Allouer les ressources demandées sans dépasser la capacité du serveur.",
-    "brief": "<p>La promesse des VM : « on ne prendra chacun que ce dont on a besoin ». Analysez les données fournies pour chaque cas. Puis <strong>n lignes</strong> « vm ram disque » : les demandes. Pour chaque VM il Indiquez <code>vm : allouee</code> si la demande tient dans le <strong>reste</strong> disponible, sinon <code>vm : refusee</code> — et la ressource refusée n’est pas consommée. Enfin <code>allouees : X/n</code> et <code>reste : R ram D disque</code>.</p>",
+    "brief": "<p>La promesse des VM : « on ne prendra chacun que ce dont on a besoin ». Analysez les données fournies pour chaque cas. Puis <strong>n lignes</strong> « vm ram disque » : les demandes. Pour chaque VM, indiquez <code>vm : allouee</code> si la demande tient dans le <strong>reste</strong> disponible, sinon <code>vm : refusee</code> — et la ressource refusée n’est pas consommée. Enfin <code>allouees : X/n</code> et <code>reste : R ram D disque</code>.</p>",
     "starter": "# Grille d'analyse (vt-c2-e2) — « On ne prendra que ce dont on a besoin »\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Parc réaliste]\n# Données : 4\n# Données : 128 1000\n# Données : web 16 50\n# Données : bd 64 300\n# Données : feu 8 20\n# Données : test 64 700\nA_COMPLETER\n\n[Cas 2 — Serveur petit]\n# Données : 3\n# Données : 16 100\n# Données : a 16 50\n# Données : b 1 60\n# Données : c 1 1\nA_COMPLETER\n\n[Cas 3 — Demandes exactes]\n# Données : 2\n# Données : 32 100\n# Données : a 32 100\n# Données : b 0 0\nA_COMPLETER\n",
     "hints": [
       "Lire n AVANT la capacité : l’ordre du format est n, puis « ram disque », puis les VM.",
@@ -201,7 +201,7 @@ module.exports = [
     "language": "analyse",
     "title": "Le réveil du serveur : la conversation",
     "goal": "Rejouer la conversation de l’histoire entre l’ingénieur, le serveur et les VM.",
-    "brief": "<p>Analysez chaque ligne proposée « acteur replique » : acteur est un code parmi <code>ingenieur</code>, <code>serveur</code> ou <code>vms</code> ; replique est un code parmi <code>idee</code> (proposer la virtualisation), <code>colere</code> (refuser, « c’est de la folie ! »), <code>partage</code> (proposer le partage des ressources) ou <code>accepte</code>. Le scénario de l’histoire fixe l’ordre : ingenieur → idee, serveur → colere, vms → partage, serveur → accepte. Pour chaque ligne il Indiquez <code>acteur : OK</code> si la réplique est celle de l’histoire à cette étape, sinon <code>acteur : NON</code>, puis <code>fidele : X/n</code>.</p>",
+    "brief": "<p>Analysez chaque ligne proposée « acteur replique » : acteur est un code parmi <code>ingenieur</code>, <code>serveur</code> ou <code>vms</code> ; replique est un code parmi <code>idee</code> (proposer la virtualisation), <code>colere</code> (refuser, « c’est de la folie ! »), <code>partage</code> (proposer le partage des ressources) ou <code>accepte</code>. Le scénario de l’histoire fixe l’ordre : ingenieur → idee, serveur → colere, vms → partage, serveur → accepte. Pour chaque ligne, indiquez <code>acteur : OK</code> si la réplique est celle de l’histoire à cette étape, sinon <code>acteur : NON</code>, puis <code>fidele : X/n</code>.</p>",
     "starter": "# Grille d'analyse (vt-c2-e3) — Le réveil du serveur : la conversation\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Colère inversée]\n# Données : ingenieur idee\n# Données : serveur accepte\n# Données : vms partage\n# Données : serveur colere\nA_COMPLETER\n\n[Cas 2 — Repliques échangées]\n# Données : ingenieur idee\n# Données : serveur colere\n# Données : vms idee\n# Données : serveur accepte\nA_COMPLETER\n\n[Cas 3 — Scénario mélangé]\n# Données : vms partage\n# Données : ingenieur idee\n# Données : serveur colere\n# Données : serveur accepte\nA_COMPLETER\n",
     "hints": [
       "Un case sur l’étape : 1 → ingenieur/idee, 2 → serveur/colere, 3 → vms/partage, 4 → serveur/accepte.",
@@ -239,7 +239,7 @@ module.exports = [
     "language": "analyse",
     "title": "Les services de l’histoire",
     "goal": "Valider les quatre services virtualisés : base, site, pare-feu, test.",
-    "brief": "<p>L’histoire se termine : le serveur « hébergeait maintenant une base de données, un site web, un pare-feu virtuel et même un serveur de test ». Analysez chaque ligne proposée « service categorie » : categorie est un code parmi <code>donnees</code> (base de données), <code>publication</code> (site web), <code>protection</code> (pare-feu) ou <code>recette</code> (serveur de test). Pour chaque ligne il Indiquez <code>service : OK</code> ou <code>service : ERREUR</code>, puis <code>correctes : X/n</code>.</p>",
+    "brief": "<p>L’histoire se termine : le serveur « hébergeait maintenant une base de données, un site web, un pare-feu virtuel et même un serveur de test ». Analysez chaque ligne proposée « service categorie » : categorie est un code parmi <code>donnees</code> (base de données), <code>publication</code> (site web), <code>protection</code> (pare-feu) ou <code>recette</code> (serveur de test). Pour chaque ligne, indiquez <code>service : OK</code> ou <code>service : ERREUR</code>, puis <code>correctes : X/n</code>.</p>",
     "starter": "# Grille d'analyse (vt-c3-e1) — Les services de l’histoire\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Le parc complet]\n# Données : 4\n# Données : base donnees\n# Données : site publication\n# Données : pare-feu protection\n# Données : test recette\nA_COMPLETER\n\n[Cas 2 — Trois confusions]\n# Données : 4\n# Données : base publication\n# Données : site protection\n# Données : pare-feu recette\n# Données : test recette\nA_COMPLETER\n\n[Cas 3 — Ordre mélangé]\n# Données : 4\n# Données : test recette\n# Données : pare-feu protection\n# Données : site publication\n# Données : base donnees\nA_COMPLETER\n",
     "hints": [
       "Un case sur le service : base → donnees, site → publication, pare-feu → protection, test → recette.",
@@ -277,10 +277,10 @@ module.exports = [
     "language": "analyse",
     "title": "Une machine par service : l’inventaire",
     "goal": "Dresser l’inventaire des VM par type de service et compter les catégories.",
-    "brief": "<p>Analysez chaque ligne proposée « vm service » puis Indiquez chaque ligne <code>vm : service</code>. Ensuite, pour chaque service <strong>dans l’ordre de première apparition</strong>, il Indiquez <code>service : X vm</code>, et enfin <code>services : Y</code> — l’inventaire de ce que le serveur héberge maintenant, comme à la fin de l’histoire.</p>",
+    "brief": "<p>Analysez chaque ligne proposée « vm service » puis Indiquez chaque ligne <code>vm : service</code>. Ensuite, pour chaque service <strong>dans l’ordre de première apparition</strong>,, indiquez <code>service : X vm</code>, et enfin <code>services : Y</code> — l’inventaire de ce que le serveur héberge maintenant, comme à la fin de l’histoire.</p>",
     "starter": "# Grille d'analyse (vt-c3-e2) — Une machine par service : l’inventaire\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Le parc de la fin]\n# Données : 4\n# Données : vm1 base\n# Données : vm2 site\n# Données : vm3 pare-feu\n# Données : vm4 test\nA_COMPLETER\n\n[Cas 2 — Fermes de VM]\n# Données : 5\n# Données : web1 site\n# Données : web2 site\n# Données : bd1 base\n# Données : bd2 base\n# Données : bd3 base\nA_COMPLETER\n\n[Cas 3 — Ordre d’apparition]\n# Données : 4\n# Données : a test\n# Données : b site\n# Données : c test\n# Données : d pare-feu\nA_COMPLETER\n",
     "hints": [
-      "Nouveau service : [ -z \"${compte[$service]+x}\" ] → ordre[$g]=$service et g=$((g+1)).",
+      "Nouveau service : `[ -z \"${compte[$service]+x}\" ]` → `ordre[$g]=$service` et `g=$((g+1))`.",
       "Les bilans sortent après la boucle, dans l’ordre du tableau ordre, puis g."
     ],
     "examples": [
@@ -353,7 +353,7 @@ module.exports = [
     "language": "analyse",
     "title": "De 80 % à 100 % : le taux de rentabilisation",
     "goal": "Calculer le taux de rentabilisation de chaque serveur avant/après virtualisation.",
-    "brief": "<p>Le serveur de l’histoire « se retrouva rentabilisé à 100 % ». Analysez chaque ligne proposée « serveur avant apres » (taux d’utilisation en %). Un serveur est <code>reveille</code> si le taux passe sous 30 % avant à 80 % ou plus après ; <code>en progres</code> si le taux augmente sans atteindre 80 % ; sinon <code>insuffisant</code>. Pour chaque ligne il Indiquez <code>serveur : verdict</code>, puis <code>reveilles : X/n</code>.</p>",
+    "brief": "<p>Le serveur de l’histoire « se retrouva rentabilisé à 100 % » : c’est une image, non une mesure. Analysez chaque ligne « serveur avant apres » (taux d’utilisation en %). Dans cette grille fictive, <code>reveille</code> signifie avant sous 30 % et après au moins 80 % ; <code>en progres</code> si le taux augmente sans remplir les deux conditions ; sinon <code>insuffisant</code>. Ces seuils ne sont pas universels. Indiquez <code>serveur : verdict</code>, puis <code>reveilles : X/n</code>.</p>",
     "starter": "# Grille d'analyse (vt-c4-e1) — De 80 % à 100 % : le taux de rentabilisation\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Parc virtualisé]\n# Données : 4\n# Données : a 10 95\n# Données : b 15 80\n# Données : c 35 90\n# Données : d 20 30\nA_COMPLETER\n\n[Cas 2 — Déjà occupé]\n# Données : 3\n# Données : a 50 85\n# Données : b 60 90\n# Données : c 45 50\nA_COMPLETER\n\n[Cas 3 — Frontières exactes]\n# Données : 3\n# Données : a 29 80\n# Données : b 30 80\n# Données : c 29 79\nA_COMPLETER\n",
     "hints": [
       "Trois cas : avant -lt 30 ET apres -ge 80 → reveille ; apres -gt avant → en progres ; sinon insuffisant.",
@@ -391,7 +391,7 @@ module.exports = [
     "language": "analyse",
     "title": "Combien de serveurs économisés ?",
     "goal": "Comparer le parc physique avant et le parc virtualisé après.",
-    "brief": "<p>Analysez les données fournies pour chaque cas. La consolidation regroupe tous les services sur des VM : le nombre de VM nécessaires est le plafond de (total des coûts / cout_vm) — division entière plus 1 si le reste est non nul. Indiquez <code>parc actuel : n serveurs — X FCFA</code>, <code>parc virtualise : Y vm — Z FCFA</code> (Y × cout_vm) et <code>economie : W FCFA (T%)</code> où T est la part économisée (0 à 100).</p>",
+    "brief": "<p>Dans ce modèle fictif, définissez arbitrairement le nombre de VM comme le plafond de (total des coûts / cout_vm). Cette règle sert à pratiquer l’arrondi : le coût seul ne détermine pas le nombre de VM nécessaires en réalité. Indiquez <code>parc actuel : n serveurs — X FCFA</code>, <code>parc virtualise : Y vm — Z FCFA</code> (Y × cout_vm), puis <code>economie : W FCFA (T%)</code> ; l’écart peut être négatif.</p>",
     "starter": "# Grille d'analyse (vt-c4-e2) — Combien de serveurs économisés ?\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Consolidation rentable]\n# Données : 4\n# Données : a 200000\n# Données : b 150000\n# Données : c 180000\n# Données : d 120000\n# Données : 50000\nA_COMPLETER\n\n[Cas 2 — Petites VM]\n# Données : 3\n# Données : a 100000\n# Données : b 100000\n# Données : c 100000\n# Données : 60000\nA_COMPLETER\n\n[Cas 3 — Vraie économie]\n# Données : 2\n# Données : a 100000\n# Données : b 100000\n# Données : 80000\nA_COMPLETER\n",
     "hints": [
       "Plafond : vm = total / cout_vm ; si total % cout_vm != 0 alors vm = vm + 1.",
@@ -429,7 +429,7 @@ module.exports = [
     "language": "analyse",
     "title": "Le plan de consolidation",
     "goal": "Décider quel serveur physique héberger chaque VM selon la capacité restante.",
-    "brief": "<p>Analysez les données fournies pour chaque cas. On place chaque VM sur le <strong>premier hôte</strong> dont la capacité restante suffit (l’ordre du fichier fait foi). Pour chaque VM il Indiquez <code>vm : hote</code> ou <code>vm : sans-place</code>, décrémente la capacité de l’hôte choisi, et à la fin Indiquez une ligne <code>hote : reste</code> par hôte puis <code>orinelles : X/n</code> — pardon, <code>non-placees : X/n</code>.</p>",
+    "brief": "<p>Dans ce modèle de réservation, placez chaque VM sur le <strong>premier hôte</strong> dont la capacité restante suffit, dans l’ordre du fichier. Une capacité réservée à 100 % ne prouve pas une utilisation réelle à 100 %. Indiquez <code>vm : hote</code> ou <code>vm : sans-place</code>, décrémentez la capacité réservée, puis indiquez <code>hote : reste</code> par hôte et <code>non-placees : X/n</code>.</p>",
     "starter": "# Grille d'analyse (vt-c4-e3) — Le plan de consolidation\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trois VM, deux hôtes]\n# Données : 2\n# Données : srv1 100\n# Données : srv2 100\n# Données : 3\n# Données : vm-a 60\n# Données : vm-b 60\n# Données : vm-c 60\nA_COMPLETER\n\n[Cas 2 — Remplissage optimal]\n# Données : 2\n# Données : srv1 100\n# Données : srv2 50\n# Données : 4\n# Données : vm-a 50\n# Données : vm-b 50\n# Données : vm-c 50\n# Données : vm-d 50\nA_COMPLETER\n\n[Cas 3 — Un seul hôte généreux]\n# Données : 1\n# Données : fainéant 200\n# Données : 3\n# Données : vm-bd 80\n# Données : vm-web 40\n# Données : vm-feu 80\nA_COMPLETER\n",
     "hints": [
       "Premier hôte suffisant : parcourir ordre, prendre le premier avec capacite[hote] -ge besoin.",
@@ -467,7 +467,7 @@ module.exports = [
     "language": "analyse",
     "title": "Les questions techniques de l’histoire",
     "goal": "Associer chaque concept de la question technique à sa définition.",
-    "brief": "<p>L’histoire pose trois questions techniques : le concept illustré, les avantages, et les risques. Analysez chaque ligne proposée « concept role » : role est un code parmi <code>partage</code> (plusieurs VM sur un même serveur physique), <code>avantage</code> (rentabilisation, moins de machines) ou <code>risque</code> (surcharge, saturation des ressources). Pour chaque ligne il Indiquez <code>concept : OK</code> ou <code>concept : ERREUR</code>, puis <code>correctes : X/n</code>.</p>",
+    "brief": "<p>L’histoire pose trois questions techniques : le concept illustré, les avantages, et les risques. Analysez chaque ligne proposée « concept role » : role est un code parmi <code>partage</code> (plusieurs VM sur un même serveur physique), <code>avantage</code> (rentabilisation, moins de machines) ou <code>risque</code> (surcharge, saturation des ressources). Pour chaque ligne, indiquez <code>concept : OK</code> ou <code>concept : ERREUR</code>, puis <code>correctes : X/n</code>.</p>",
     "starter": "# Grille d'analyse (vt-c5-e1) — Les questions techniques de l’histoire\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Les trois concepts]\n# Données : 3\n# Données : mutualisation partage\n# Données : rentabilisation avantage\n# Données : surcharge risque\nA_COMPLETER\n\n[Cas 2 — Trois confusions]\n# Données : 4\n# Données : mutualisation risque\n# Données : surcharge avantage\n# Données : rentabilisation partage\n# Données : mutualisation partage\nA_COMPLETER\n\n[Cas 3 — Interro écrite]\n# Données : 3\n# Données : surcharge risque\n# Données : mutualisation partage\n# Données : rentabilisation avantage\nA_COMPLETER\n",
     "hints": [
       "Un case sur le concept : mutualisation → partage, rentabilisation → avantage, surcharge → risque.",
@@ -581,7 +581,7 @@ module.exports = [
     "language": "analyse",
     "title": "L’argumentaire en trois arguments",
     "goal": "Valider l’ordre de l’argumentaire : constat, solution, bénéfice.",
-    "brief": "<p>Analysez les données fournies pour chaque cas. Pour chaque ligne il Indiquez <code>etape N : OK</code> quand l’étape ET son argument sont justes, sinon <code>etape N : NON</code>, puis <code>etapes correctes : X/4</code>.</p>",
+    "brief": "<p>Analysez les données fournies pour chaque cas. Pour chaque ligne, indiquez <code>etape N : OK</code> quand l’étape ET son argument sont justes, sinon <code>etape N : NON</code>, puis <code>etapes correctes : X/4</code>.</p>",
     "starter": "# Grille d'analyse (vt-c6-e1) — L’argumentaire en trois arguments\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux dernières inversées]\n# Données : constat gaspillage\n# Données : idee virtualisation\n# Données : verdict plein\n# Données : preuve rentabilisation\nA_COMPLETER\n\n[Cas 2 — Arguments échangés]\n# Données : constat virtualisation\n# Données : idee gaspillage\n# Données : preuve rentabilisation\n# Données : verdict plein\nA_COMPLETER\n\n[Cas 3 — Pitch mélangé]\n# Données : idee virtualisation\n# Données : constat gaspillage\n# Données : preuve rentabilisation\n# Données : verdict plein\nA_COMPLETER\n",
     "hints": [
       "Un case sur le numéro : 1 → constat/gaspillage, 2 → idee/virtualisation, 3 → preuve/rentabilisation, 4 → verdict/plein.",
@@ -619,7 +619,7 @@ module.exports = [
     "language": "analyse",
     "title": "Le bilan avant/après du parc",
     "goal": "Produire le tableau de bord de l’argumentaire : gaspillage avant, rente après.",
-    "brief": "<p>Analysez chaque ligne proposée « serveur avant apres » (taux d’utilisation %). Il Indiquez pour chaque serveur <code>serveur : avant=A% apres=B%</code>, puis trois bilans : <code>reveilles : X</code> (passés de moins de 30 % à 80 % ou plus), <code>moyenne avant : Y%</code> et <code>moyenne apres : Z%</code> (moyennes arrondies à l’entier inférieur).</p>",
+    "brief": "<p>Analysez chaque ligne proposée « serveur avant apres » (taux d’utilisation %). Indiquez pour chaque serveur <code>serveur : avant=A% apres=B%</code>, puis trois bilans : <code>reveilles : X</code> (passés de moins de 30 % à 80 % ou plus), <code>moyenne avant : Y%</code> et <code>moyenne apres : Z%</code> (moyennes arrondies à l’entier inférieur).</p>",
     "starter": "# Grille d'analyse (vt-c6-e2) — Le bilan avant/après du parc\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Parc du support]\n# Données : 4\n# Données : a 10 95\n# Données : b 20 80\n# Données : c 40 45\n# Données : d 50 55\nA_COMPLETER\n\n[Cas 2 — Tout réveillé]\n# Données : 3\n# Données : a 5 90\n# Données : b 10 85\n# Données : c 0 100\nA_COMPLETER\n\n[Cas 3 — Rien ne bouge]\n# Données : 2\n# Données : a 60 60\n# Données : b 70 65\nA_COMPLETER\n",
     "hints": [
       "Identifiez les machines virtuelles réveillées dont la charge passe d’un niveau faible (< 30%) à un niveau actif (>= 80%).",

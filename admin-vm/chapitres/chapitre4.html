@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -79,7 +79,7 @@
 
 <h2>1. Allocation des Disques Virtuels : Thin Provisioning vs Thick Provisioning (Épreuve Officielle B2)</h2>
 
-<div class="box box--tech"><div class="box__title">Notion clé d’examen : Thin Provisioning (allocation dynamique) vs Thick Provisioning</div><p>Lors de la création d’un disque virtuel (<code>.vmdk</code> sous VMware vSphere/ESXi, <code>.vhdx</code> sous Hyper-V ou <code>.qcow2</code> sous KVM), l’administrateur choisit entre deux modes d’allocation de l’espace sur le datastore :</p><ul><li><strong>Thin Provisioning (allocation fine ou dynamique) :</strong> l’espace disque physique n’est <strong>alloué dynamiquement qu’au fur et à mesure des besoins réels d’écriture</strong> de la machine virtuelle. Une VM dotée d’un disque logique de 100 Go qui ne contient que 15 Go de fichiers n’occupe réellement que 15 Go sur le stockage physique. Cela maximise le taux d’utilisation du stockage mais exige une surveillance stricte de la surallocation (<em>overprovisioning</em>) pour ne jamais saturer le datastore ;</li><li><strong>Thick Provisioning (allocation épaisse ou statique — Lazy Zeroed / Eager Zeroed) :</strong> la totalité de la taille déclarée (100 Go) est immédiatement réservée et immobilisée sur le disque physique dès la création de la VM, garantissant des performances d’écriture constantes et l’absence de saturation imprévue.</li></ul></div>
+<div class="box box--tech"><div class="box__title">Thin et thick : allocation et mesures</div><p>Pour un disque virtuel, le provisionnement distingue la capacité annoncée à la VM et les blocs réservés sur le stockage. Les possibilités dépendent du format, de l’hyperviseur et des couches de stockage.</p><ul><li><strong>Thin :</strong> les blocs sont généralement alloués à la demande. Sur un disque logique de 100 Go, 15 Go de fichiers visibles ne permettent pas de déduire exactement l’espace alloué : écritures antérieures, métadonnées, instantanés et récupération des blocs peuvent le modifier. Mesurez et surveillez l’allocation et la capacité du stockage ; la surallocation peut saturer le pool.</li><li><strong>Thick :</strong> l’espace du disque virtuel est réservé à la création sur la couche concernée. Avec VMware, lazy zeroed et eager zeroed diffèrent notamment par le moment où les blocs sont initialisés. Cette réservation ne garantit pas des performances constantes et ne protège pas de toute saturation, en particulier si une couche sous-jacente est elle-même surallouée.</li></ul><p>Sources : <a href="https://knowledge.broadcom.com/external/article/343258/understanding-largescale-sequential-writ.html">allocation et performances VMware</a> et <a href="https://knowledge.broadcom.com/external/article/337348/using-thin-provisioned-disks-with-virtua.html">disques thin VMware</a>, consultés le 30 octobre 2026.</p></div>
 
 <h2>2. Pourquoi le stockage est critique</h2>
 
@@ -128,14 +128,12 @@
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>6. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="vm2-c4-e1" data-lab
      data-exercise="vm2-c4-e1"
+     data-grading-suspended="1"
      data-language="powershell"
      data-height="300"
      data-stdin="vg">
@@ -147,11 +145,13 @@
     <h3 class="lab__title">Exercice 1 — LVM en trois notions</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Associer PV, VG et LV à leur description.</p>
+    <p class="lab__note" id="vm2-c4-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit un élément LVM : <code>pv</code>, <code>vg</code> ou <code>lv</code>. Affichez sa description : <code>pv : disque physique</code>, <code>vg : groupe de volumes</code> ou <code>lv : volume logique</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>vg</pre></div>
@@ -170,6 +170,7 @@
 
 <div class="lab" id="vm2-c4-e2" data-lab
      data-exercise="vm2-c4-e2"
+     data-grading-suspended="1"
      data-language="powershell"
      data-height="300"
      data-stdin="500&#10;100">
@@ -182,11 +183,13 @@ $utilise = [int][Console]::In.ReadLine()
     <h3 class="lab__title">Exercice 2 — Surveiller l’espace d’un volume</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer l’espace libre et alerter sur une saturation proche.</p>
+    <p class="lab__note" id="vm2-c4-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit la <strong>capacité</strong> d’un volume (Go), puis l’espace <strong>utilisé</strong> (Go). Affichez <code>libre : X Go</code>. Si l’espace libre est inférieur à 10 Go, affichez en plus <code>alerte : espace faible</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>500
@@ -197,7 +200,7 @@ $utilise = [int][Console]::In.ReadLine()
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Espace libre = $capacite - $utilise.</li>
+        <li>Espace libre = <code>$capacite - $utilise</code>.</li>
         <li>Ajoutez une ligne d’alerte si le libre est inférieur à 10.</li>
       </ol>
     </details>
@@ -206,6 +209,7 @@ $utilise = [int][Console]::In.ReadLine()
 
 <div class="lab" id="vm2-c4-e3" data-lab
      data-exercise="vm2-c4-e3"
+     data-grading-suspended="1"
      data-language="powershell"
      data-height="300"
      data-stdin="hebdo">
@@ -217,11 +221,13 @@ $utilise = [int][Console]::In.ReadLine()
     <h3 class="lab__title">Exercice 3 — Stratégie de sauvegarde GFS</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Associer une fréquence de sauvegarde à sa durée de rétention.</p>
+    <p class="lab__note" id="vm2-c4-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit une <strong>fréquence</strong> : <code>quotidien</code>, <code>hebdo</code> ou <code>mensuel</code>. Affichez la rétention : <code>retention : 7 jours</code>, <code>retention : 4 semaines</code> ou <code>retention : 6 a 12 mois</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>hebdo</pre></div>
@@ -237,6 +243,7 @@ $utilise = [int][Console]::In.ReadLine()
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>7. QCM — niveau examen</h2>
 
@@ -373,7 +380,7 @@ $utilise = [int][Console]::In.ReadLine()
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Reprenez LVM (PV, VG, LV).</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Reprenez LVM (PV, VG, LV).</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur NFS vs iSCSI.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous structurez stockage et sauvegardes.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : passez au réseau virtualisé, chapitre 5.</div>

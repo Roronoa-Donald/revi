@@ -151,8 +151,6 @@ module.exports = {
   ],
 
   flashcards: [
-      { q: 'Qu’est-ce que « croisement » ?', a: 'par croisement de plusieurs données : un homme vivant à telle adresse, né tel jour et membre de telle organisation.' },
-      { q: 'Qu’est-ce que « profilage » ?', a: 'Le scandale Cambridge Analytica a révélé l’exploitation massive de données personnelles d’utilisateurs d’un réseau social à des fins de profilage psychologique et d’influence électorale. Trois griefs juridiques se dégagent :' },
     { q: 'Que définissent le droit et l’informatique ?', a: 'Le droit : les règles d’une société ; l’informatique : le traitement automatique de l’information.' },
     { q: 'Qu’est-ce que le droit du numérique ?', a: 'L’ensemble des règles juridiques applicables à l’environnement et à la technologie numériques.' },
     { q: 'Quatre fondements ?', a: 'Données personnelles, propriété intellectuelle, contrats informatiques, responsabilité civile.' },

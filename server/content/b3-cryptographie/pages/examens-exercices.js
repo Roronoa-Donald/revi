@@ -83,7 +83,7 @@ function examens(course) {
       '</ol>',
       '<h4>Partie 3 : Protocoles Sécurisés TLS 1.3 &amp; Révolution Post-Quantique (7 points)</h4>',
       '<ol>',
-      '  <li>Quelles améliorations architecturales majeures distinguent le protocole TLS 1.3 (RFC 8446) de TLS 1.2 ? Expliquez en détail comment la confidentialité persistante (Perfect Forward Secrecy - PFS) est garantie via l\'échange Diffie-Hellman éphémère (ECDHE). (4 pts)</li>',
+      '  <li>Quelles améliorations distinguent TLS 1.3 (RFC 9846, initialement RFC 8446) de TLS 1.2 ? Comparez la PFS d\'un échange éphémère en 1-RTT, d\'un PSK seul et des données 0-RTT. (4 pts)</li>',
       '  <li>L\'émergence future d\'ordinateurs quantiques à grande échelle menace la sécurité cryptographique mondiale. Expliquez les impacts respectifs de l\'algorithme de Shor sur la cryptographie asymétrique (RSA, ECC) et de l\'algorithme de Grover sur la cryptographie symétrique (AES, hachage). Quels sont les nouveaux standards post-quantiques (PQC) officialisés par le NIST en 2024 (FIPS 203 et 204) ? (3 pts)</li>',
       '</ol>'
     ].join('\n')),
@@ -99,7 +99,7 @@ function examens(course) {
       '  D\'où <code>-367 * 17 = 1 mod 3120</code>. Normalisé dans [0, 3119] : <code>d = 3120 - 367 = 2753</code>. Vérification : (17 * 2753) mod 3120 = 46801 mod 3120 = 1.</li>',
       '  <li><strong>RSA Textbook &amp; Bourrage OAEP (2 pts) :</strong> ' +
       '  RSA naïf est homomorphe : <code>E(m1) * E(m2) = m1^e * m2^e = (m1 * m2)^e = E(m1 * m2) mod n</code>. Un attaquant peut manipuler le chiffré sans le déchiffrer. De plus, pour des petits messages ou petits exposants, des attaques par racine ou dictionnaires sont possibles. ' +
-      '  Le standard RSA-OAEP (Optimal Asymmetric Encryption Padding) pour le chiffrement et RSA-PSS pour la signature ajoutent de l\'aléa cryptographique et masquent la structure algébrique, rendant le cryptosystème IND-CCA2 (sécurisé contre les attaques par texte chiffré choisi).</li>',
+      '  En pratique, employer une bibliothèque et un schéma adapté : RSA-OAEP pour le chiffrement, RSA-PSS pour la signature. Leurs objectifs de sécurité diffèrent ; la résistance aux textes chiffrés choisis concerne le chiffrement, pas la signature.</li>',
       '</ul>',
       '<h4>Corrigé Partie 2 (7 points)</h4>',
       '<ul>',
@@ -109,7 +109,7 @@ function examens(course) {
       '  <li><strong>Validation X.509, CRL &amp; OCSP Stapling (4 pts) :</strong> ' +
       '  Validation par le navigateur : ' +
       '  1. Vérification de la période de validité (Not Before <= date actuelle <= Not After). ' +
-      '  2. Contrôle du nom de domaine FQDN face à l\'extension Subject Alternative Name (SAN). ' +
+      '  2. Contrôle du nom DNS face à une entrée dNSName du SAN selon la RFC 9525 ; le CN ne sert pas à identifier le service. ' +
       '  3. Vérification cryptographique de la signature numérique du certificat par la clé publique de l\'émetteur, et récursion jusqu\'à une Root CA présente dans le magasin de confiance local (Trust Store). ' +
       '  4. Contrôle de révocation : la CRL (Certificate Revocation List) est un fichier périodique volumineux lourd à télécharger ; OCSP (Online Certificate Status Protocol) interroge le répondeur de l\'AC en temps réel mais pose un problème de vie privée (l\'AC sait quel site le client visite) et de latence réseau. ' +
       '  L\'OCSP Stapling résout ces problèmes : le serveur web interroge lui-même périodiquement l\'AC et « agrafe » la preuve OCSP signée par l\'AC directement dans la poignée de mains TLS, évitant toute requête sortante du client.</li>',
@@ -117,10 +117,10 @@ function examens(course) {
       '<h4>Corrigé Partie 3 (7 points)</h4>',
       '<ul>',
       '  <li><strong>Évolution TLS 1.3 &amp; Perfect Forward Secrecy (4 pts) :</strong> ' +
-      '  TLS 1.3 (RFC 8446) apporte des ruptures majeures : ' +
-      '  - Réduction de la latence de poignée de mains de 2-RTT à 1-RTT (et mode 0-RTT Early Data pour les reprises). ' +
+      '  TLS 1.3 (RFC 9846 de 2026, qui remplace la RFC 8446 de 2018) apporte des ruptures majeures : ' +
+      '  - Une poignée de mains initiale peut s\'achever en 1-RTT ; les données anticipées 0-RTT en reprise précèdent sa fin et leur PFS n\'est pas garantie par le protocole. Elles présentent aussi un risque de rejeu. ' +
       '  - Suppression totale des algorithmes faibles ou obsolètes : suppression du RSA statique, de RC4, de 3DES, de SHA-1 et des modes CBC (seuls les chiffrements authentifiés AEAD sont autorisés : AES-GCM, ChaCha20-Poly1305). ' +
-      '  - Confidentialité persistante obligatoire (PFS) : l\'échange de clés utilise obligatoirement Diffie-Hellman éphémère (DHE ou ECDHE sur x25519/secp256r1). À chaque connexion, de nouvelles clés privées éphémères a et b sont générées puis détruites. Même si la clé privée long terme du certificat serveur est dérobée ultérieurement, il est impossible de déchiffrer les sessions passées enregistrées par un espion.</li>',
+      '  - La PFS des données 1-RTT peut être obtenue avec un échange éphémère authentifié et l\'effacement des secrets temporaires. Le mode PSK seul ne la fournit pas par son échange ; le mode PSK avec échange asymétrique peut la fournir sous ces hypothèses.</li>',
       '  <li><strong>Menaces Quantiques &amp; Standards NIST PQC (3 pts) :</strong> ' +
       '  - Algorithme de Shor (1994) : résout la factorisation des entiers et le logarithme discret en temps polynomial O(log^3 n). Conséquence : RSA, Diffie-Hellman, DSA, ECDH et ECDSA sont totalement détruits par un ordinateur quantique universel. ' +
       '  - Algorithme de Grover (1996) : accélère la recherche en espace non structuré en O(sqrt(N)). Conséquence : la sécurité effective des clés symétriques est divisée par 2. AES-128 ne fournit plus que 64 bits de sécurité (insuffisant), tandis qu\'AES-256 conserve 128 bits de sécurité post-quantique, ce qui reste infranchissable. ' +

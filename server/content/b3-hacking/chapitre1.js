@@ -22,11 +22,34 @@ module.exports = {
   "sections": [
     {
       "title": "Cadre Juridique et Responsabilité Pénale de l'Auditeur de Sécurité",
-      "html": "<p>En droit français, l'accès et le maintien dans un système informatique sans autorisation préalable constituent des délits pénaux passibles d'amendes et d'emprisonnement, quelle que soit la bienveillance supposée de l'auditeur :</p>\n<div class=\"grid grid-2\">\n  <div class=\"card\">\n    <h4>Article 323-1 du Code Pénal</h4>\n    <p>Le fait d'accéder ou de se maintenir frauduleusement dans tout ou partie d'un système de traitement automatisé de données (STAD) est puni de <strong>3 ans d'emprisonnement et 100 000 € d'amende</strong>.</p>\n    <p>Si cet accès entraîne la suppression, la modification de données ou l'altération du fonctionnement du système, la peine est portée à <strong>5 ans d'emprisonnement et 150 000 € d'amende</strong>.</p>\n  </div>\n  <div class=\"card\">\n    <h4>Articles 323-2 et 323-3-1</h4>\n    <p>L'entrave ou l'altération du fonctionnement d'un STAD (ex: déni de service DoS) est punie de <strong>5 ans d'emprisonnement et 150 000 € d'amende</strong> (portée à 7 ans si commise contre un système de l'État).</p>\n    <p>L'article 323-3-1 réprime la détention, mise à disposition ou diffusion d'outils conçus ou spécialement adaptés pour commettre de telles atteintes sans motif légitime.</p>\n  </div>\n</div>\n  <div class=\"box box--standard\">\n    <div class=\"box__title\"><svg class=\"ic\" aria-hidden=\"true\" focusable=\"false\"><use href=\"/assets/img/ui-icons.svg#i-info\"></use></svg> L'Obligation du Mandat Écrit : La Lettre de Mission et les Rules of Engagement (RoE)</div>\n<p>Pour qu'un test d'intrusion soit qualifié d'éthique et légal, un contrat écrit signé par le représentant légal de l'entité propriétaire des systèmes est strictement obligatoire avant tout envoi de sonde :</p>,<ul>,  <li><strong>Périmètre explicite (Scope) :</strong> liste exhaustive des adresses IP, blocs CIDR, noms de domaine et URLs cibles autorisés. Tout système tiers (hébergeur, CDN partagé, filiale hors contrat) est formellement exclu.</li>,  <li><strong>Techniques proscrites :</strong> interdiction contractuelle des attaques par déni de service (DoS/DDoS), de l'ingénierie sociale physique non convenue, ou de l'exploitation destructive altérant l'intégrité des bases de production.</li>,  <li><strong>Fenêtres d'audit (Time Windows) :</strong> créneaux horaires spécifiques pour limiter les impacts opérationnels (ex: nuits ou week-ends pour les tests intrusifs).</li>,  <li><strong>Protocole d'escalade d'urgence :</strong> contact téléphonique immédiat 24/7 en cas de découverte d'une faille critique active ou de compromission avérée par un tiers malveillant.</li>,</ul>\n  </div>"
+      "html": [
+        '<p>En droit français, l’accès ou le maintien frauduleux dans un système de traitement automatisé de données (STAD) est réprimé. La qualification dépend des faits et du droit applicable, pas seulement de la bienveillance supposée de l’auditeur.</p>',
+        '<div class="grid grid-2">',
+        '  <div class="card">',
+        '    <h4>Article 323-1 du Code pénal</h4>',
+        '    <p>Les peines et les éventuelles circonstances aggravantes dépendent des faits et de la version en vigueur. Consultez le <a href="https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006070719/">Code pénal sur Légifrance</a> ; l’accès direct au texte n’a pas pu être vérifié lors de cette mise à jour du 30 octobre 2026.</p>',
+        '  </div>',
+        '  <div class="card">',
+        '    <h4>Articles 323-2 et 323-3-1</h4>',
+        "    <p>Dans la version de l'article 323-2 issue de la loi du 24 juillet 2015, l'entrave au fonctionnement d'un STAD est punie de cinq ans d'emprisonnement et 150 000 € d'amende. La peine est portée à sept ans et 300 000 € lorsque l'infraction vise un système de traitement automatisé de données à caractère personnel mis en œuvre par l'État. Vérifier le texte en vigueur sur Légifrance à la date de l'audit : la référence directe n'a pas pu être contrôlée lors de cette mise à jour du 30 octobre 2026.</p>",
+        '    <p>L’article 323-3-1 vise notamment certains outils conçus ou spécialement adaptés pour commettre de telles atteintes sans motif légitime ; vérifiez le texte applicable.</p>',
+        '  </div>',
+        '</div>',
+        '<div class="box box--standard">',
+        '  <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Autorisation et règles d’engagement</div>',
+        '  <p>Avant tout test, obtenez une autorisation écrite préalable d’une personne habilitée et définissez les règles d’engagement (RoE). Cette autorisation aide à cadrer et à prouver le mandat ; elle ne garantit pas à elle seule l’absence de poursuites. Faites examiner les circonstances et les obligations applicables si nécessaire.</p>',
+        '  <ul>',
+        '    <li><strong>Périmètre :</strong> liste des adresses, domaines et systèmes autorisés ; les systèmes tiers nécessitent les autorisations appropriées.</li>',
+        '    <li><strong>Techniques :</strong> préciser les actions autorisées et celles exclues, notamment les tests destructifs ou de déni de service.</li>',
+        '    <li><strong>Horaires :</strong> fixer les créneaux et les conditions d’arrêt afin de limiter les impacts.</li>',
+        '    <li><strong>Escalade :</strong> convenir des contacts et de la conduite à tenir en cas d’incident.</li>',
+        '  </ul>',
+        '</div>'
+      ].join('\n')
     },
     {
       "title": "Typologie des Acteurs et Organisation des Équipes de Sécurité",
-      "html": "<p>Le monde de la sécurité offensive et défensive s'articule autour de rôles standardisés :</p>\n<table class=\"table\">\n  <thead><tr><th>Catégorie</th><th>Motivation &amp; Éthique</th><th>Cadre Légal</th><th>Objectifs Typiques</th></tr></thead>\n  <tbody>\n    <tr><td><strong>White Hat (Hacker Éthique)</strong></td><td>Protection, amélioration de la résilience, divulgation responsable</td><td>Mandat contractuel formel</td><td>Identification des failles, tests d'intrusion, remédiation</td></tr>\n    <tr><td><strong>Black Hat (Cybercriminel)</strong></td><td>Gain financier, espionnage, rançon, sabotage, idéologie</td><td>Illégal (Infraction pénale)</td><td>Exfiltration de données, ransomware, vente d'accès sur le darknet</td></tr>\n    <tr><td><strong>Grey Hat</strong></td><td>Curiosité, notoriété, sans intention malveillante immédiate</td><td>Illégal (Faute pénale sans mandat)</td><td>Recherche non sollicitée, chantage à la divulgation publique</td></tr>\n    <tr><td><strong>Script Kiddie</strong></td><td>Recherche de statut, opportunisme sans réelle expertise technique</td><td>Illégal</td><td>Utilisation aveugle d'outils automatisés préexistants</td></tr>\n  </tbody>\n</table>\n<div class=\"grid grid-3\">\n  <div class=\"card\">\n    <h4>Red Team (Offensive)</h4>\n    <p>Simule un adversaire réaliste (APT) sur la durée pour éprouver l'ensemble des défenses humaines, physiques et logiques d'une organisation.</p>\n  </div>\n  <div class=\"card\">\n    <h4>Blue Team (Défensive)</h4>\n    <p>Opérateurs du SOC (Security Operations Center), analystes de détection, ingénieurs SIEM/EDR et spécialistes de réponse aux incidents (DFIR).</p>\n  </div>\n  <div class=\"card\">\n    <h4>Purple Team (Collaborative)</h4>\n    <p>Approche collaborative synchronisant Red et Blue Teams en temps réel pour optimiser la détection des scénarios d'attaque et fermer les angles morts.</p>\n  </div>\n</div>"
+      "html": "<p>Le monde de la sécurité offensive et défensive s'articule autour de rôles illustratifs ; la qualification juridique dépend des actes et des circonstances :</p>\n<table class=\"table\">\n  <thead><tr><th>Catégorie</th><th>Motivation &amp; Éthique</th><th>Cadre Légal</th><th>Objectifs Typiques</th></tr></thead>\n  <tbody>\n    <tr><td><strong>White Hat (Hacker Éthique)</strong></td><td>Protection, amélioration de la résilience, divulgation responsable</td><td>Mandat contractuel formel</td><td>Identification des failles, tests d'intrusion, remédiation</td></tr>\n    <tr><td><strong>Black Hat (Cybercriminel)</strong></td><td>Gain financier, espionnage, rançon, sabotage, idéologie</td><td>Activités délictueuses</td><td>Exfiltration de données, ransomware, vente d'accès sur le darknet</td></tr>\n    <tr><td><strong>Grey Hat</strong></td><td>Curiosité, notoriété, sans intention malveillante immédiate</td><td>Risque juridique à examiner selon les faits</td><td>Recherche non sollicitée, divulgation de vulnérabilités</td></tr>\n    <tr><td><strong>Script Kiddie</strong></td><td>Recherche de statut, opportunisme sans réelle expertise technique</td><td>Qualification selon les actes et les autorisations</td><td>Utilisation d'outils automatisés préexistants</td></tr>\n  </tbody>\n</table>\n<div class=\"grid grid-3\">\n  <div class=\"card\">\n    <h4>Red Team (Offensive)</h4>\n    <p>Simule un adversaire réaliste (APT) sur la durée pour éprouver l'ensemble des défenses humaines, physiques et logiques d'une organisation.</p>\n  </div>\n  <div class=\"card\">\n    <h4>Blue Team (Défensive)</h4>\n    <p>Opérateurs du SOC (Security Operations Center), analystes de détection, ingénieurs SIEM/EDR et spécialistes de réponse aux incidents (DFIR).</p>\n  </div>\n  <div class=\"card\">\n    <h4>Purple Team (Collaborative)</h4>\n    <p>Approche collaborative synchronisant Red et Blue Teams en temps réel pour optimiser la détection des scénarios d'attaque et fermer les angles morts.</p>\n  </div>\n</div>"
     },
     {
       "title": "Méthodologies Standardisées de Test d'Intrusion (PTES, OSSTMM, OWASP)",
@@ -38,7 +61,7 @@ module.exports = {
     },
     {
       "title": "Notation des Vulnérabilités selon le Standard CVSS v3.1 Base Metrics",
-      "html": "<p>Le standard CVSS v3.1 fournit une méthode ouverte et normalisée pour qualifier mathématiquement la gravité d'une vulnérabilité de sécurité :</p>\n<table class=\"table\">\n  <thead><tr><th>Métrique</th><th>Signification</th><th>Options Fréquentes</th></tr></thead>\n  <tbody>\n    <tr><td><strong>Attack Vector (AV)</strong></td><td>Vecteur physique ou logique d'accès</td><td>Network (0.85), Adjacent (0.62), Local (0.55), Physical (0.20)</td></tr>\n    <tr><td><strong>Attack Complexity (AC)</strong></td><td>Conditions préalables et complexité</td><td>Low (0.77), High (0.44)</td></tr>\n    <tr><td><strong>Privileges Required (PR)</strong></td><td>Niveau d'authentification nécessaire</td><td>None (0.85), Low (0.62), High (0.27) [Scope U]</td></tr>\n    <tr><td><strong>User Interaction (UI)</strong></td><td>Action requise d'une victime légitime</td><td>None (0.85), Required (0.62)</td></tr>\n    <tr><td><strong>Scope (S)</strong></td><td>Propagation à un autre contexte de sécurité</td><td>Unchanged (U), Changed (C)</td></tr>\n    <tr><td><strong>Impact (C / I / A)</strong></td><td>Confidentialité, Intégrité, Disponibilité</td><td>None (0.0), Low (0.22), High (0.56)</td></tr>\n  </tbody>\n</table>\n<p>Un score CVSS v3.1 de <strong>9.0 à 10.0</strong> est classé comme <code>CRITICAL</code> (ex: RCE à distance sans authentification), de <strong>7.0 à 8.9</strong> comme <code>HIGH</code>, de <strong>4.0 à 6.9</strong> comme <code>MEDIUM</code>, et inférieur à 4.0 comme <code>LOW</code>.</p>"
+      "html": "<p>Le standard CVSS v3.1 fournit une méthode ouverte et normalisée pour qualifier mathématiquement la gravité d'une vulnérabilité de sécurité :</p>\n<table class=\"table\">\n  <thead><tr><th>Métrique</th><th>Signification</th><th>Options Fréquentes</th></tr></thead>\n  <tbody>\n    <tr><td><strong>Attack Vector (AV)</strong></td><td>Vecteur physique ou logique d'accès</td><td>Network (0.85), Adjacent (0.62), Local (0.55), Physical (0.20)</td></tr>\n    <tr><td><strong>Attack Complexity (AC)</strong></td><td>Conditions préalables et complexité</td><td>Low (0.77), High (0.44)</td></tr>\n    <tr><td><strong>Privileges Required (PR)</strong></td><td>Niveau d'authentification nécessaire</td><td>None (0.85), Low (0.62), High (0.27) [Scope U]</td></tr>\n    <tr><td><strong>User Interaction (UI)</strong></td><td>Action requise d'une victime légitime</td><td>None (0.85), Required (0.62)</td></tr>\n    <tr><td><strong>Scope (S)</strong></td><td>Propagation à un autre contexte de sécurité</td><td>Unchanged (U), Changed (C)</td></tr>\n    <tr><td><strong>Impact (C / I / A)</strong></td><td>Confidentialité, Intégrité, Disponibilité</td><td>None (0.0), Low (0.22), High (0.56)</td></tr>\n  </tbody>\n</table>\n<p>Un score CVSS v3.1 de <strong>9.0 à 10.0</strong> est classé comme <code>CRITICAL</code> (ex: RCE à distance sans authentification), de <strong>7.0 à 8.9</strong> comme <code>HIGH</code>, de <strong>4.0 à 6.9</strong> comme <code>MEDIUM</code>, de <strong>0.1 à 3.9</strong> comme <code>LOW</code> et <strong>0.0</strong> comme <code>NONE</code>.</p>"
     }
   ],
   "method": [
@@ -49,7 +72,7 @@ module.exports = {
     "Rédiger le rapport d'intrusion avec fiches techniques de vulnérabilités et synthèse managériale."
   ],
   "summary": [
-    "Le cadre juridique français (Code Pénal art. 323-1 à 323-7) réprime l'accès frauduleux d'amendes et d'emprisonnement sans mandat écrit formel.",
+    "Le cadre juridique français réprime notamment l'accès frauduleux ; l'autorisation écrite cadre la mission sans garantir à elle seule l'absence de poursuites.",
     "Les Règles d'Engagement (RoE) cadrent strictement le périmètre IP, les horaires et les techniques autorisées pour protéger l'auditeur.",
     "Les 5 phases du CEH structurent la mission : Reconnaissance, Scanning, Gaining Access, Maintaining Access, Clearing Tracks.",
     "La Cyber Kill Chain découpe l'attaque en 7 maillons : casser un seul maillon suffit à neutraliser l'intrusion.",
@@ -84,7 +107,7 @@ module.exports = {
     }
   ],
   "pitfalls": [
-    "Lancer des sondes réseau sans lettre de mission écrite et signée par le représentant légal de l'entité cible (délit pénal art. 323-1).",
+    "Commencer des sondes sans vérifier les droits et le périmètre : demander une autorisation préalable par écrit à une personne habilitée ; la qualification pénale dépend des faits et du droit applicable.",
     "Dépasser le périmètre d'adresses IP spécifié dans les Rules of Engagement (risque d'attaque illégale d'un système tiers hébergé).",
     "Réaliser des attaques de déni de service (DoS/DDoS) destructrices non prévues contractuellement.",
     "Sous-estimer une vulnérabilité locale complexe alors qu'elle s'intègre dans une chaîne d'exploitation critique."
@@ -99,18 +122,18 @@ module.exports = {
         "L'article 226-16 du Code de Procédure Pénale"
       ],
       "correct": 0,
-      "exp": "L'article 323-1 du Code Pénal sanctionne l'accès ou le maintien frauduleux dans un STAD de 3 ans de prison et 100 000 € d'amende (5 ans et 150 000 € en cas de modification de données)."
+      "exp": "L'article 323-1 du Code pénal vise l'accès ou le maintien frauduleux dans un STAD. Les peines et circonstances applicables doivent être vérifiées dans le texte en vigueur."
     },
     {
-      "stem": "Quelle condition juridique impérative protège l'auditeur de sécurité de poursuites pénales lors d'un test d'intrusion ?",
+      "stem": "Quelle démarche réduit le risque juridique avant un test d'intrusion ?",
       "opts": [
-        "La signature formelle d'une lettre de mission et de Règles d'Engagement (RoE) par le représentant légal de l'entité cible",
-        "Un accord oral informel donné par le directeur technique de l'entreprise",
+        "Obtenir une autorisation écrite d'une personne habilitée et définir le périmètre et les règles d'engagement",
+        "Se contenter d'un accord oral sans vérifier l'autorité ni le périmètre",
         "L'utilisation exclusive d'outils open-source réputés sans exploitation de failles",
         "L'avertissement préalable de la police par simple courriel d'information"
       ],
       "correct": 0,
-      "exp": "Seule une convention contractuelle écrite (lettre de mission / RoE) signée par l'autorité légitime propriétaire des systèmes constitue un ordre et une autorisation juridique protégeant l'auditeur."
+      "exp": "Une autorisation écrite préalable d'une personne habilitée et des règles d'engagement précises aident à cadrer et à prouver la mission, mais cette autorisation ne garantit pas à elle seule l'absence de poursuites."
     },
     {
       "stem": "Quelle est la principale caractéristique d'un test d'intrusion conduit en mode \"Boîte Grise\" (Grey Box) ?",
@@ -200,12 +223,12 @@ module.exports = {
   "flashcards": [
     { "q": 'Qu’est-ce que « Rules of Engagement (RoE) » ?', "a": "Rules of Engagement (RoE) : Document contractuel formel fixant les limites strictes, les adresses IP autorisées, les techniques proscrites et les fenêtres horaires d'un test d'intrusion." },
     { "q": 'Qu’est-ce que « CVSS v3.1 Base Metrics » ?', "a": "CVSS v3.1 Base Metrics : Standard ouvert évaluant la sévérité intrinsèque d'une vulnérabilité (exploitabilité et impact) sur une échelle de 0.0 à 10.0." },
-    { "q": "Qu’est-ce que « Le cadre juridique français (Code Pénal art. 323-1 à 323-7) réprime l'accès frauduleux d'amendes et d'emprisonnement sans mandat écrit formel. » ?", "a": "Le cadre juridique français (Code Pénal art. 323-1 à 323-7) réprime l'accès frauduleux d'amendes et d'emprisonnement sans mandat écrit formel." },
-    { "q": "Qu’est-ce que « Les Règles d'Engagement (RoE) cadrent strictement le périmètre IP, les horaires et les techniques autorisées pour protéger l'auditeur. » ?", "a": "Les Règles d'Engagement (RoE) cadrent strictement le périmètre IP, les horaires et les techniques autorisées pour protéger l'auditeur." },
+    { "q": "Quel risque pénal concerne l'accès à un STAD en droit français et quelle précaution prendre avant un audit ?", "a": "En France, l'accès ou le maintien frauduleux dans un STAD sont punis par l'article 323-1 du Code pénal. Obtenez une autorisation écrite et respectez son périmètre." },
+    { "q": "Quels éléments les règles d'engagement (RoE) fixent-elles avant un test d'intrusion ?", "a": "Le périmètre IP, les horaires et les techniques autorisées ou exclues, afin de cadrer la mission et protéger les parties." },
     { "q": 'Qu’est-ce que « Les 5 phases du CEH structurent la mission » ?', "a": 'Les 5 phases du CEH structurent la mission : Reconnaissance, Scanning, Gaining Access, Maintaining Access, Clearing Tracks.' },
     {
       "q": "Quelle infraction pénale sanctionne l'article 323-1 du Code Pénal français ?",
-      "a": "L'accès ou le maintien frauduleux dans tout ou partie d'un système de traitement automatisé de données (STAD), puni de 3 à 5 ans de prison et 100 000 à 150 000 € d'amende."
+      "a": "L'accès ou le maintien frauduleux dans tout ou partie d'un système de traitement automatisé de données (STAD). Les peines dépendent des circonstances et du texte en vigueur, à vérifier sur Légifrance."
     },
     {
       "q": "Quelles sont les 5 phases canoniques du hacking éthique selon le référentiel CEH ?",

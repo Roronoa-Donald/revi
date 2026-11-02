@@ -38,7 +38,7 @@ function index(course, chapterList) {
       'concret (la sauvegarde) au plus technique (la gestion des VM).</p>',
       '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> en ' +
       '<strong>PowerShell</strong> : vous écrivez un vrai script d’administration qui lit l’entrée standard ' +
-      'et produit un résultat, puis vous le valides. L’atelier de code permet de manipuler librement.</p>'
+      'et produit un résultat, puis vous le validez. L’atelier de code permet de manipuler librement.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
     '  <div class="toc">',

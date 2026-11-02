@@ -8,7 +8,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
   <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -66,8 +66,9 @@
     <span class="k">if</span> tableau[i] &gt; tableau[i + 1]:
         tableau[i], tableau[i + 1] = tableau[i + 1], tableau[i]</code></pre>
   <p>Le périmètre rétrécit : après le premier passage, la dernière case est bonne ; après le deuxième, les deux
-  dernières, et ainsi de suite. Sur un tableau de n valeurs, il faut au plus n - 1 passages — c'est le cas du
-  tableau trié à l'envers.</p>
+  dernières, et ainsi de suite. Pour n ≥ 2 valeurs, au plus n - 1 passages suffisent pour trier, même si le
+  tableau est à l'envers. Un passage de vérification supplémentaire n'est pas obligatoire si ces n - 1
+  passages ont déjà été effectués.</p>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> L'optimisation par indicateur d'échange</div>
@@ -78,16 +79,17 @@
 
   <h2>2. Table de trace d'un tri</h2>
   <p>L'examen demande de compter les passages. Méthode : simuler chaque passage sur papier, noter le tableau
-  après chaque tour.</p>
+  après chaque tour. La variante ci-dessous refait un parcours complet jusqu'à un passage sans échange.</p>
   <table>
     <tr><th>Passage</th><th>Tableau avant</th><th>Échanges</th><th>Tableau après</th></tr>
-    <tr><td>1</td><td>5 2 8 1</td><td>(5,2), (5,1)</td><td>2 5 1 8</td></tr>
+    <tr><td>1</td><td>5 2 8 1</td><td>(5,2), (8,1)</td><td>2 5 1 8</td></tr>
     <tr><td>2</td><td>2 5 1 8</td><td>(5,1)</td><td>2 1 5 8</td></tr>
     <tr><td>3</td><td>2 1 5 8</td><td>(2,1)</td><td>1 2 5 8</td></tr>
     <tr><td>4</td><td>1 2 5 8</td><td>aucun</td><td>arrêt</td></tr>
   </table>
-  <p>Le tableau s'est trié au troisième passage ; le quatrième, sans échange, déclenche l'arrêt. Sans
-  l'optimisation, il faudrait compter n - 1 passages complets.</p>
+  <p>Le tableau est trié au troisième passage ; dans cette variante, le quatrième passage de vérification,
+  sans échange, déclenche l'arrêt. L'exercice ci-dessous réduit la partie à comparer et s'arrête aussi après
+  n - 1 passages : il ne compte donc pas forcément ce tour supplémentaire.</p>
 
   <h2>3. La recherche dichotomique</h2>
   <p><strong>Définition.</strong> La dichotomie cherche dans un tableau <strong>trié</strong> en comparant la
@@ -130,30 +132,36 @@ fin = n - 1
 
 <span class="k">def</span> pgcd(a, b):                <span class="c"># Euclide</span>
     <span class="k">if</span> b == 0:                 <span class="c"># cas de base</span>
-        <span class="k">return</span> a
+        <span class="k">return</span> abs(a)
     <span class="k">return</span> pgcd(b, a % b)</code></pre>
+  <p>Pour deux entiers, y compris négatifs, le PGCD est positif ou nul : <code>abs(a)</code> donne la valeur
+  absolue de a. Comme <code>math.gcd</code> en Python, nous adoptons la convention <code>pgcd(0, 0) = 0</code>.</p>
   <table>
     <tr><th>Appel</th><th>Cas</th><th>Résultat</th></tr>
     <tr><td>puissance(2, 3)</td><td>2 × puissance(2, 2)</td><td>8</td></tr>
     <tr><td>puissance(2, 0)</td><td>cas de base</td><td>1</td></tr>
     <tr><td>pgcd(48, 36)</td><td>pgcd(36, 12)</td><td>12</td></tr>
     <tr><td>pgcd(12, 0)</td><td>cas de base</td><td>12</td></tr>
+    <tr><td>pgcd(-8, 0)</td><td>cas de base</td><td>8</td></tr>
+    <tr><td>pgcd(0, 0)</td><td>convention</td><td>0</td></tr>
   </table>
 
   <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique</div>
     <p>« D'abord la base, ensuite la baisse » : le cas de base s'écrit avant tout, et chaque appel doit faire
-    <em>baisser</em> le paramètre (exposant - 1, b réduit au reste) vers ce cas de base. Sans réduction, la
+    <em>baisser</em> le paramètre (exposant - 1, valeur absolue de b réduite par le reste) vers ce cas de base. Sans réduction, la
     récursion ne s'arrête jamais.</p>
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Exercices de code</h2>
   <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
   et la validation fait tourner des jeux de tests indépendants :
   réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
   <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
   s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p>La validation est suspendue pour les exercices signalés ci-dessous.</p>
 <div class="lab" id="algo-c9-e1" data-lab
      data-exercise="algo-c9-e1"
      data-language="python"
@@ -175,7 +183,7 @@ for i in range(n):
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Implémenter le tri à bulles avec arrêt anticipé.</p>
-    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n entiers. Triez-les par la méthode des bulles : répétez des passages qui échangent les paires voisines mal ordonnées. Optimisez avec un indicateur d’échange : si un passage complet n’échange rien, le tableau est trié et le tri s’arrête. Interdits : <code>sort()</code>, <code>sorted()</code>. Affichez les valeurs triées sur une ligne, séparées par des espaces, suivies du nombre de passages effectués sur la ligne suivante.</p></div>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n entiers. Triez-les par la méthode des bulles : répétez des passages qui échangent les paires voisines mal ordonnées. Après chaque passage, réduisez d’une case la partie encore à comparer. Arrêtez dès qu’un passage n’échange rien ou que cette partie compte au plus une case. Interdits : <code>sort()</code>, <code>sorted()</code>. Affichez les valeurs triées sur une ligne, séparées par des espaces, suivies du nombre de passages effectués sur la ligne suivante.</p><p>La validation vérifie la méthode sur des cas limités et analyse une forme simple de Python : pas d’import ni d’appel indirect ; seules les méthodes <code>append</code> et <code>join</code> sont prises en charge. Une solution hors de ce cadre ou dont la méthode ne peut pas être établie ne reçoit pas de note : demandez une relecture. Ces contrôles ne prouvent pas tous les cas.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
 5
@@ -199,6 +207,7 @@ for i in range(n):
 
 <div class="lab" id="algo-c9-e2" data-lab
      data-exercise="algo-c9-e2"
+     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="5&#10;2&#10;5&#10;8&#10;12&#10;20&#10;12">
@@ -214,11 +223,13 @@ cible = int(input())
     <h3 class="lab__title">Exercice 2 — Recherche dichotomique</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n4">Niveau 4 — Examen</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Diviser l’espace de recherche à chaque étape.</p>
+    <p class="lab__note" id="algo-c9-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : elle ne vérifie pas la méthode demandée.</p>
     <div class="lab__brief"><p>Le programme reçoit un entier n, puis n entiers <strong>triés en ordre croissant</strong>, puis une valeur cible. Implémentez la recherche dichotomique (interdits : <code>index()</code>, <code>in</code>) et affichez la position de la cible (positions numérotées à partir de 1), ou <code>absent</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
@@ -272,7 +283,7 @@ print(pgcd(a, b))
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Écrire deux fonctions récursives et les combiner.</p>
-    <div class="lab__brief"><p>Écrivez deux fonctions récursives (aucune boucle) : <code>puissance(base, exposant)</code> qui renvoie base élevé à l’exposant (exposant ≥ 0), et <code>pgcd(a, b)</code> par l’algorithme d’Euclide. Le programme lit base, exposant, puis deux entiers a et b, et affiche les deux résultats sur deux lignes.</p></div>
+    <div class="lab__brief"><p>Écrivez deux fonctions récursives (aucune boucle) : <code>puissance(base, exposant)</code> renvoie base élevé à l’exposant, et <code>pgcd(a, b)</code> applique l’algorithme d’Euclide. Les quatre entrées sont des entiers garantis dans les bornes <code>|base| ≤ 100</code>, <code>0 ≤ exposant ≤ 200</code> et <code>|a|, |b| ≤ 1000000000000</code>. Le PGCD est positif ou nul, y compris pour les entiers négatifs ; on adopte <code>0 ** 0 == 1</code> et <code>pgcd(0, 0) = 0</code>. Dans le corrigé proposé, la puissance nécessite au plus 201 appels imbriqués, le PGCD au plus 81, et le résultat de la puissance au plus 401 chiffres. Avec une limite de récursion Python usuelle de 1000, ces bornes laissent une marge ; la limite effective dépend de l’environnement. Le programme lit base, exposant, puis a et b, et affiche les deux résultats sur deux lignes.</p><p>La validation vérifie la méthode sur des cas limités et analyse une forme simple de Python : pas d’import ni d’appel indirect ; seules les méthodes <code>append</code> et <code>join</code> sont prises en charge. Une solution hors de ce cadre ou dont la méthode ne peut pas être établie ne reçoit pas de note : demandez une relecture. Ces contrôles ne prouvent pas tous les cas.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
 10
@@ -291,6 +302,7 @@ print(pgcd(a, b))
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
   <div class="qcm">
@@ -340,13 +352,14 @@ print(pgcd(a, b))
       <div class="q__exp">Sans cas de base, la récursion ne s'arrête jamais.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Que renvoie pgcd(a, 0) ?</p>
+      <p class="q__stem">Que renvoie pgcd(a, 0) pour tout entier a ?</p>
       <div class="opts">
-        <button class="opt">0</button>
-        <button class="opt" data-correct="1">a</button>
-        <button class="opt">Une erreur</button>
+        <button class="opt">Toujours 0</button>
+        <button class="opt" data-correct="1">abs(a)</button>
+        <button class="opt">Toujours a</button>
       </div>
-      <div class="q__exp">C'est le cas de base d'Euclide : le reste nul livre le PGCD.</div>
+      <div class="q__exp">Le cas de base renvoie la valeur absolue : pour a = -8, c'est 8, donc ni 0 ni a.
+      Pour a = 0, la convention retenue donne 0.</div>
     </div>
   </div>
 

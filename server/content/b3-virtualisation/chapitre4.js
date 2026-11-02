@@ -61,7 +61,7 @@ module.exports = {
         '  <tbody>',
         '    <tr><td><strong>Port Groups VM (VM Port Group)</strong></td><td>Ports virtuels pour VM</td><td>Raccorde les cartes réseaux virtuelles (vNIC VMXNET3) des machines virtuelles pour leur fournir un accès réseau commuté.</td></tr>',
         '    <tr><td><strong>Management Network</strong></td><td>Interface VMkernel (vmk0)</td><td>Fournit une adresse IP à l\'hôte ESXi pour l\'administration vCenter, les sessions SSH et le client web d\'hôte.</td></tr>',
-        '    <tr><td><strong>vMotion VMkernel</strong></td><td>Interface VMkernel (vmk1)</td><td>Canal isolé à très haut débit dédié au transfert de mémoire vive lors des migrations à chaud sans interruption.</td></tr>',
+        '    <tr><td><strong>vMotion VMkernel</strong></td><td>Interface VMkernel (vmk1)</td><td>Canal dédié au transfert de mémoire vive lors des migrations à chaud ; une pause de bascule reste possible.</td></tr>',
         '    <tr><td><strong>vSAN VMkernel</strong></td><td>Interface VMkernel (vmk2)</td><td>Réseau de synchronisation temps réel des objets de stockage distribués vSAN (recommandé 10G/25G dédié).</td></tr>',
         '    <tr><td><strong>IP Storage VMkernel</strong></td><td>Interface VMkernel (vmk3)</td><td>Liaison de transport bloc/fichier vers les baies de stockage iSCSI ou NFS avec Jumbo Frames MTU 9000.</td></tr>',
         '  </tbody>',

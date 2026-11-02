@@ -12,7 +12,7 @@ module.exports = {
   toc: 'Vecteurs d’attaque de niveau 2 (MAC Flooding, Rogue DHCP, ARP Spoofing), Port Security et modes de violation (protect, restrict, shutdown), DHCP Snooping et base de liaisons, Dynamic ARP Inspection (DAI) et IP Source Guard.',
   time: '≈ 2 h 45 de travail',
   free: false,
-  situation: 'La couche d’accès d’un réseau local d’entreprise est le périmètre le plus vulnérable aux menaces internes et aux compromissions physiques. Tout collaborateur, prestataire ou intrus branchant une machine sur une prise murale RJ-45 ou une borne Wi-Fi peut tenter de saturer la table CAM du commutateur (MAC Flooding) pour transformer le switch en concentrateur (hub) passif et intercepter le trafic, déployer un serveur DHCP pirate (Rogue DHCP) pour détourner la passerelle par défaut des utilisateurs, ou émettre des réponses ARP falsifiées (ARP Poisoning) pour réaliser une attaque d’homme du milieu (Man-In-The-Middle - MITM). L’ingénieur réseau et cybersécurité de niveau Bachelor 3 doit maîtriser l’arsenal complet de durcissement de niveau 2 : configurer Port Security avec apprentissage dynamique Sticky MAC, activer DHCP Snooping avec ségrégation stricte des ports de confiance, et corréler l’inspection dynamique ARP (DAI) avec IP Source Guard pour neutraliser toute tentative d’usurpation.',
+  situation: 'La couche d’accès d’un réseau local d’entreprise est exposée aux menaces internes et aux compromissions physiques. Tout collaborateur, prestataire ou intrus branchant une machine sur une prise murale RJ-45 ou une borne Wi-Fi peut tenter de saturer la table CAM du commutateur (MAC Flooding) pour provoquer la diffusion de certaines trames unicast vers des destinations inconnues et les intercepter dans leur VLAN, déployer un serveur DHCP pirate (Rogue DHCP) pour détourner la passerelle par défaut des utilisateurs, ou émettre des réponses ARP falsifiées (ARP Poisoning) pour réaliser une attaque d’homme du milieu (Man-In-The-Middle - MITM). L’ingénieur réseau et cybersécurité de niveau Bachelor 3 doit maîtriser les outils de durcissement de niveau 2 : configurer Port Security avec apprentissage dynamique Sticky MAC, activer DHCP Snooping avec ségrégation des ports de confiance, et associer l’inspection dynamique ARP (DAI) à IP Source Guard pour réduire les risques d’usurpation selon le contexte et la configuration.',
   objectives: [
     'comprendre les vecteurs d’attaques majeures de niveau 2 (MAC Flooding, Rogue DHCP, ARP Spoofing) ;',
     'configurer et auditer la fonctionnalité Port Security et ses modes de violation (protect, restrict, shutdown) ;',
@@ -29,11 +29,13 @@ module.exports = {
         '<div class="grid grid-2">',
         '  <div class="card">',
         '    <h4>1. Saturation de Table CAM (MAC Address Flooding)</h4>',
-        '    <p>La table de commutation (Content Addressable Memory - CAM) possède une mémoire finie (typiquement 8 000 à 32 000 entrées). Un outil offensif (ex: <code>macof</code>) injecte des dizaines de milliers de trames Ethernet forgées avec des adresses MAC sources aléatoires par seconde :</p>',
+        '    <p>La table de commutation (Content Addressable Memory - CAM) possède une capacité finie, qui dépend du matériel. Un outil offensif (ex: <code>macof</code>) peut injecter de nombreuses trames Ethernet avec des adresses MAC sources forgées :</p>',
         '    <ul>',
-        '      <li>La table CAM sature en quelques fractions de seconde.</li>',
-        '      <li>Incapable d’apprendre les adresses légitimes, le commutateur passe en <strong>mode fail-open (Unicast Flooding)</strong> : il diffuse chaque trame reçue sur tous ses ports comme un simple hub.</li>',
-        '      <li>L’attaquant positionné sur son port capture l’intégralité des flux du VLAN en clair.</li>',
+        '      <li>La table CAM peut atteindre sa capacité ; le délai dépend du trafic, du matériel et des protections activées.</li>',
+        '      <li>Si le commutateur ne peut plus apprendre de nouvelles adresses sources, les destinations correspondantes restent inconnues ; des destinations déjà apprises peuvent aussi le devenir lorsque leur entrée expire sans être réapprise.</li>',
+        '      <li>Selon le matériel et sa configuration, les trames unicast vers ces destinations peuvent être diffusées sur les ports autorisés du même VLAN, sauf le port d’entrée. Les destinations encore connues restent généralement commutées vers leur port.</li>',
+        '      <li>Port Security, correctement configuré, peut limiter le nombre d’adresses MAC autorisées par port et bloquer des trames provenant d’adresses non autorisées ou désactiver le port en violation. D’autres contrôles peuvent limiter la diffusion.</li>',
+        '      <li>Si son port est autorisé dans le VLAN et reçoit ces copies, l’attaquant peut capturer certaines trames ; cela ne garantit ni l’accès à tous les flux ni leur lecture en clair. Un chiffrement correctement configuré, par exemple TLS, protège le contenu applicatif d’une simple capture ; certaines métadonnées restent visibles.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
@@ -42,7 +44,7 @@ module.exports = {
         '    <ul>',
         '      <li>Il fournit une adresse IP valide au client.</li>',
         '      <li>Il positionne sa propre machine comme <strong>passerelle par défaut</strong> et <strong>serveur DNS</strong>.</li>',
-        '      <li>Tout le trafic sortant du poste client est intercepté, analysé et modifié avant d’être relayé.</li>',
+        '      <li>Le trafic passant par cette passerelle peut être intercepté ou modifié. Un chiffrement correctement authentifié, tel que TLS, protège le contenu applicatif sans masquer nécessairement toutes les métadonnées.</li>',
         '    </ul>',
         '  </div>',
         '</div>'
@@ -58,7 +60,7 @@ module.exports = {
         '    <ul>',
         '      <li><strong>Statique :</strong> Configurée manuellement par l’administrateur (<code>switchport port-security mac-address &lt;mac&gt;</code>).</li>',
         '      <li><strong>Dynamique :</strong> Apprise au vol par le commutateur et oubliée au redémarrage.</li>',
-        '      <li><strong>Sticky MAC :</strong> Apprise dynamiquement sur la première trame reçue et automatiquement inscrite dans la configuration courante (<code>running-config</code>) pour persister après redémarrage.</li>',
+        '      <li><strong>Sticky MAC :</strong> Apprise dynamiquement et inscrite dans la configuration courante (<code>running-config</code>). Pour la conserver après redémarrage, sauvegarder cette configuration dans la <code>startup-config</code>, selon la plateforme.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
@@ -74,7 +76,7 @@ module.exports = {
         '  </div>',
         '</div>',
         box('standard', 'Rétablissement d\'un Port en état err-disable', [
-          '<p>Lorsqu’un port passe en état <code>err-disable</code> suite à une violation en mode shutdown, il ne se réactive pas automatiquement par défaut. L’administrateur doit intervenir manuellement (<code>shutdown</code> puis <code>no shutdown</code>), ou activer le redémarrage temporisé automatique : <code>errdisable recovery cause psecure-violation</code> avec un intervalle configuré (ex: 300 secondes).</p>'
+          '<p>Lorsqu’un port passe en état <code>err-disable</code> suite à une violation en mode shutdown, diagnostiquer et corriger la cause avant réactivation. Selon la plateforme et sa configuration, l’administrateur peut intervenir manuellement (<code>shutdown</code> puis <code>no shutdown</code>) ou configurer la récupération temporisée, par exemple <code>errdisable recovery cause psecure-violation</code> avec un intervalle adapté.</p>'
         ])
       ].join('\n')
     },
@@ -94,10 +96,10 @@ module.exports = {
         '  </div>',
         '  <div class="card">',
         '    <h4>2. Dynamic ARP Inspection (DAI) &amp; IP Source Guard</h4>',
-        '    <p>Exploite directement la base construite par le DHCP Snooping :</p>',
+        '    <p>Ces fonctions peuvent utiliser les liaisons DHCP Snooping et, selon leur configuration, des règles statiques :</p>',
         '    <ul>',
-        '      <li><strong>Dynamic ARP Inspection (DAI) :</strong> Intercepte toutes les requêtes et réponses ARP sur les ports untrusted. Si le couple IP/MAC ne figure pas dans la table DHCP Snooping, la trame ARP est détruite, neutralisant totalement l’usurpation de passerelle.</li>',
-        '      <li><strong>IP Source Guard (IPSG) :</strong> Filtrez tous les paquets IP au niveau matériel : si un utilisateur change manuellement son adresse IP sans passer par le DHCP légitime, le commutateur bloque immédiatement ses paquets.</li>',
+        '      <li><strong>Dynamic ARP Inspection (DAI) :</strong> Sur les ports non approuvés, vérifie les messages ARP à partir des liaisons DHCP Snooping ou d’une ACL ARP configurée pour les adresses statiques. Les messages refusés sont éliminés ; cette vérification réduit certains risques d’usurpation sans les supprimer tous.</li>',
+        '      <li><strong>IP Source Guard (IPSG) :</strong> Sur une interface où il est activé, filtre les paquets selon les liaisons DHCP ou les liaisons statiques configurées. Une adresse source non autorisée peut être bloquée ; une adresse statique explicitement autorisée reste possible.</li>',
         '    </ul>',
         '  </div>',
         '</div>'
@@ -113,20 +115,20 @@ module.exports = {
     'Étape 6 : Activer IP Source Guard sur les ports d’accès pour interdire l’usurpation d’adresses IP statiques non autorisées.'
   ],
   summary: [
-    'Le MAC Flooding vise à saturer la mémoire CAM du commutateur pour forcer la diffusion de toutes les trames en clair (hub).',
+    'Le MAC Flooding tente de saturer la table CAM ; des trames unicast vers des destinations devenues inconnues peuvent être diffusées dans leur VLAN si les protections le permettent. Leur contenu n’est pas forcément lisible lorsqu’il est chiffré.',
     'Port Security limite le nombre d’adresses MAC par port ; le mode shutdown désactive le port en état err-disable en cas d’infraction.',
     'Le mécanisme Sticky MAC enregistre automatiquement l’adresse apprise dans la configuration courante du commutateur.',
     'DHCP Snooping sépare les ports de confiance (trusted) des ports utilisateurs (untrusted) pour neutraliser les serveurs pirates.',
     'La base de données DHCP Snooping Binding associe l’adresse MAC, l’IP attribuée, le VLAN et le port physique du client.',
-    'DAI inspecte les paquets ARP entrants sur les ports untrusted et bloque les réponses non validées par la base DHCP Snooping.'
+    'DAI inspecte les messages ARP entrants sur les ports untrusted et peut utiliser les liaisons DHCP ou une ACL ARP applicable pour les valider.'
   ],
   checklist: [
-    'Je comprends comment une attaque par MAC Flooding transforme un commutateur en concentrateur.',
+    'Je sais expliquer pourquoi le MAC Flooding peut diffuser certaines trames unicast, mais ne rend pas tout le trafic lisible.',
     'Je connais la différence entre les trois modes de violation de Port Security (protect, restrict, shutdown).',
     'Je sais expliquer le fonctionnement et l’intérêt du mot-clé sticky dans la commande port-security mac-address.',
     'Je maîtrise la configuration de DHCP Snooping et la déclaration indispensable des ports de confiance (trusted).',
-    'Je comprends pourquoi Dynamic ARP Inspection (DAI) dépend directement de la base DHCP Snooping Binding Table.',
-    'Je sais comment IP Source Guard bloque les tentatives de configuration d’IP statique illégitime sur un port utilisateur.'
+    'Je comprends comment Dynamic ARP Inspection (DAI) utilise les liaisons DHCP et, pour des hôtes statiques, une ACL ARP adaptée.',
+    'Je sais comment IP Source Guard filtre les adresses sources selon les liaisons DHCP ou statiques autorisées.'
   ],
   notions: [
     'Attaque MAC Address Flooding & Table CAM',
@@ -140,7 +142,7 @@ module.exports = {
   ],
   pitfalls: [
     'Oublier de configurer « ip dhcp snooping trust » sur la liaison montante vers le serveur DHCP, bloquant l’attribution de baux pour tous les clients du switch.',
-    'Activer Dynamic ARP Inspection (DAI) sur un VLAN sans avoir préalablement peuplé la base DHCP Snooping (ou sans ACL ARP statique pour les serveurs en IP fixe), bloquant l’ensemble du trafic légitime.',
+    'Activer Dynamic ARP Inspection (DAI) sans prévoir les liaisons DHCP ou les ACL ARP nécessaires : des messages ARP légitimes peuvent être rejetés et perturber certains hôtes.',
     'Choisir le mode « protect » au lieu de « shutdown » dans un environnement critique, laissant l’attaquant persister sans aucune alerte générée.',
     'Ne pas limiter le taux de requêtes ARP (ip arp inspection limit rate) sur les ports utilisateurs, exposant le CPU du commutateur à un déni de service.'
   ],
@@ -149,12 +151,12 @@ module.exports = {
       stem: 'Quel est l’objectif d’une attaque par saturation de table CAM (MAC Flooding) menée contre un commutateur ?',
       opts: [
         'Détruire physiquement les composants électroniques du commutateur',
-        'Remplir la mémoire du switch pour forcer le basculement en diffusion générale (Unicast Flooding) et intercepter les trames des autres utilisateurs',
+        'Remplir la table CAM pour tenter de provoquer la diffusion de certaines trames unicast vers des destinations inconnues et éventuellement les intercepter dans le même VLAN',
         'Empêcher le commutateur de se synchroniser sur le serveur NTP',
         'Forcer la négociation du port en mode 10 Mbps half-duplex'
       ],
       correct: 1,
-      exp: 'En saturant la table CAM, le switch ne peut plus associer les MACs aux ports et diffuse chaque trame sur tous les ports du VLAN comme un hub.'
+      exp: 'La saturation peut empêcher l’apprentissage de nouvelles adresses ; de nouvelles destinations restent alors inconnues, comme celles dont les entrées expirent sans être réapprises. Selon le commutateur et ses protections, leurs trames unicast peuvent être diffusées sur les ports autorisés du même VLAN. Les destinations encore connues restent généralement acheminées vers leur port et un chiffrement adapté protège le contenu d’une simple capture.'
     },
     {
       stem: 'Quel mode de violation de Port Security désactive immédiatement le port physique et le place en état « err-disable » ?',
@@ -201,18 +203,18 @@ module.exports = {
       exp: 'La table de liaison associe pour chaque poste : adresse MAC, adresse IP reçue par DHCP, durée du bail, VLAN d’appartenance et numéro de port physique.'
     },
     {
-      stem: 'Comment la technologie Dynamic ARP Inspection (DAI) neutralise-t-elle les attaques d’usurpation de passerelle (ARP Poisoning) ?',
+      stem: 'Comment la technologie Dynamic ARP Inspection (DAI) contribue-t-elle à réduire les risques d’usurpation ARP ?',
       opts: [
         'En convertissant toutes les requêtes ARP en paquets DNS',
-        'En validant chaque paquet ARP reçu sur un port untrusted par comparaison stricte avec la base DHCP Snooping Binding',
+        'En validant les messages ARP des ports untrusted selon les liaisons DHCP ou une ACL ARP applicable',
         'En forçant le redémarrage du poste attaquant',
         'En désactivant le protocole IP sur le réseau'
       ],
       correct: 1,
-      exp: 'DAI intercepte chaque trame ARP sur les ports untrusted : si l’adresse IP ou l’adresse MAC ne correspond pas à l’entrée validée dans la base DHCP Snooping, la trame est détruite.'
+      exp: 'DAI vérifie les messages ARP reçus sur les ports untrusted selon les liaisons DHCP et les ACL ARP configurées. Les messages non autorisés sont rejetés, mais cela ne supprime pas tous les risques.'
     },
     {
-      stem: 'Quelle technologie de niveau 2 empêche un utilisateur d’utiliser une adresse IP statique configurée manuellement non attribuée par le DHCP ?',
+      stem: 'Quelle technologie permet de filtrer l’adresse IP source d’un port selon les liaisons autorisées ?',
       opts: [
         'PortFast',
         'IP Source Guard (IPSG)',
@@ -220,7 +222,7 @@ module.exports = {
         'CDP'
       ],
       correct: 1,
-      exp: 'IP Source Guard applique un filtre matériel strict au niveau du port : seuls les paquets dont l’adresse IP source figure dans la table DHCP Snooping sont autorisés.'
+      exp: 'IP Source Guard filtre les paquets selon les liaisons DHCP ou les liaisons statiques configurées sur le port ; une adresse statique explicitement autorisée peut donc être utilisée.'
     },
     {
       stem: 'Que se passe-t-il par défaut sous Cisco IOS lorsqu’un commutateur reçoit un paquet DHCP sur un port untrusted contenant l’option 82 alors qu’il n’est pas configuré comme relais de confiance ?',
@@ -237,7 +239,7 @@ module.exports = {
   flashcards: [
     {
       q: 'Qu’est-ce que le MAC Address Flooding ?',
-      a: 'Une attaque saturant la table CAM du switch pour le forcer à diffuser tout le trafic sur tous ses ports comme un hub.'
+      a: 'Une attaque qui tente de remplir la table CAM : faute d’apprentissage, de nouvelles destinations restent inconnues et d’autres peuvent le devenir si leur entrée expire sans être réapprise. Certaines trames unicast qui leur sont destinées peuvent être diffusées dans leur VLAN selon les protections ; cela ne rend pas automatiquement lisible le contenu chiffré.'
     },
     {
       q: 'Quels sont les trois modes de violation sous Port Security ?',
@@ -253,7 +255,7 @@ module.exports = {
     },
     {
       q: 'Comment Dynamic ARP Inspection (DAI) protège-t-il contre l’ARP Poisoning ?',
-      a: 'En vérifiant que l’association IP/MAC de chaque trame ARP correspond bien à la table DHCP Snooping Binding.'
+      a: 'En validant les messages ARP reçus sur les ports untrusted selon les liaisons DHCP ou une ACL ARP applicable ; cela réduit certains risques sans tous les supprimer.'
     },
     {
       q: 'Quelle est la fonction d’IP Source Guard (IPSG) ?',

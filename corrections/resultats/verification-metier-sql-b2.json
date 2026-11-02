@@ -1,0 +1,122 @@
+{
+  "perimetre": "B2-035 et B2-036 du lot 1 uniquement ; aucun lot 2",
+  "isolation": "bubblewrap --unshare-all ; réseau séparé, /home absent, sources en lecture seule",
+  "diff": {
+    "fichier": "proposition-b2-035-036.patch",
+    "application_sur_copie": "réussie",
+    "source_sha256": "0a62423d40625c4fa901cf707ca1079ee82ef9325d9a7a304b1912ae90ca5943"
+  },
+  "scriptdom": {
+    "niveau": 160,
+    "extraits_avant_apres": 4,
+    "avant_et_apres": "syntaxe acceptée ; ni schéma ni exécution vérifiés",
+    "B2-035": {
+      "ligne_html": {
+        "avant": 553,
+        "apres": 553
+      },
+      "group_by_avant": 0,
+      "group_by_apres": 1
+    },
+    "B2-036": {
+      "ligne_html": {
+        "avant": 585,
+        "apres": 588
+      },
+      "update_apres": 1,
+      "insert_apres": 2,
+      "garde_reservation_et_controle_rowcount_dans_l_ordre": true
+    }
+  },
+  "sqlite": {
+    "B2-035": {
+      "moteur": "SQLite 3.53.4",
+      "donnees": "synthétiques ; plusieurs lignes et plusieurs commandes pour un produit",
+      "stock_initial_produit_1": 10,
+      "restitution_attendue_produit_1": 9,
+      "ancienne_transposition_stock_produit_1": 13,
+      "agregation_stock_produit_1": 19,
+      "agregation_stock_produit_2": 25,
+      "produit_sans_ligne_inchange": true,
+      "nouvelle_annulation_deja_annulee_sans_effet": true,
+      "statut_ancien_null_exclu_par_predicat_conserve": true,
+      "option_non_incluse_si_null_est_non_annule_stock_produit_2": 32,
+      "limite": "tables inserted/deleted simulées et trigger SQLite par ligne ; pas de trigger SQL Server exécuté"
+    },
+    "B2-036_scenarios": {
+      "quantite_null": {
+        "résultat": "quantité invalide",
+        "stock": 10,
+        "commandes": 0,
+        "lignes": 0
+      },
+      "quantite_zero": {
+        "résultat": "quantité invalide",
+        "stock": 10,
+        "commandes": 0,
+        "lignes": 0
+      },
+      "quantite_negative": {
+        "résultat": "quantité invalide",
+        "stock": 10,
+        "commandes": 0,
+        "lignes": 0
+      },
+      "stock_insuffisant": {
+        "résultat": "produit introuvable ou stock insuffisant",
+        "stock": 10,
+        "commandes": 0,
+        "lignes": 0
+      },
+      "produit_absent": {
+        "résultat": "produit introuvable ou stock insuffisant",
+        "stock": 10,
+        "commandes": 0,
+        "lignes": 0
+      },
+      "quantite_valide": {
+        "résultat": "acceptée",
+        "stock": 6,
+        "commandes": 1,
+        "lignes": 1
+      },
+      "stock_exact": {
+        "résultat": "acceptée",
+        "stock": 0,
+        "commandes": 1,
+        "lignes": 1
+      },
+      "client_absent_apres_reservation": {
+        "résultat": "erreur de contrainte",
+        "stock": 10,
+        "commandes": 0,
+        "lignes": 0
+      }
+    },
+    "B2-036_verrous": {
+      "connexions_independantes": 2,
+      "premiere_reservation": 6,
+      "deuxieme_demande": 6,
+      "verrou_sqlite_observe": true,
+      "lignes_premier_update": 1,
+      "lignes_second_update_apres_commit": 0,
+      "etat_final": {
+        "stock": 4,
+        "commandes": 1,
+        "lignes": 1
+      },
+      "limite": "verrouillage SQLite de deux écrivains, différent de SQL Server ; SQL Server non vérifié"
+    },
+    "limite": "transpositions synthétiques ; ces sondes ne sont pas des exécutions SQL Server"
+  },
+  "sql_server": {
+    "B2-035": "non vérifié",
+    "B2-036": "non vérifié"
+  },
+  "points_ouverts": [
+    "Avec ANSI_NULLS ON, le statut précédent NULL reste exclu de la restitution : choix métier à trancher.",
+    "SUM(INT) et StockQuantity INT restent bornés ; données négatives préexistantes non corrigées.",
+    "Une transaction externe peut être annulée par le ROLLBACK existant ; comportement inchangé.",
+    "GO reste un séparateur de lots SSMS/sqlcmd, pas une instruction SQL."
+  ]
+}

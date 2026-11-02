@@ -16,7 +16,7 @@ module.exports = {
   objectives: [
     'maîtriser l\'organisation physique et logique mondiale d\'Azure : Régions, Zones de Disponibilité (AZ) et Paires Régionales ;',
     'concevoir une hiérarchie de gouvernance Azure Resource Manager (ARM) robuste : Root Management Group, Management Groups, Subscriptions et Resource Groups ;',
-    'appliquer les règles de normalisation de nommage et d\'étiquetage (Tags) définies par le Cloud Adoption Framework (CAF) de Microsoft ;',
+    'appliquer une convention de nommage et d\'étiquetage (Tags) adaptée aux recommandations du Cloud Adoption Framework (CAF) ;',
     'calculer la disponibilité théorique des architectures et choisir la stratégie de réplication des données (LRS vs ZRS vs GRS) ;',
     'évaluer les coûts IaaS/PaaS (TCO / FinOps) et optimiser les dépenses via les Instances Réservées (RI sur 1 an ou 3 ans) ;',
     'analyser et résoudre méthodologiquement des validateurs de hiérarchie CAF, des sélecteurs de résilience régionale et des estimateurs de budget.'
@@ -31,16 +31,16 @@ module.exports = {
         '    <h4>Régions et Zones de Disponibilité (AZs)</h4>',
         '    <ul>',
         '      <li><strong>Région Azure :</strong> zone géographique délimitée abritant un ou plusieurs datacenters reliés par un réseau régional à faible latence (ex. <code>France Central</code> à Paris, <code>West Europe</code> à Amsterdam, <code>North Europe</code> à Dublin).</li>',
-        '      <li><strong>Zones de Disponibilité (AZ 1, 2, 3) :</strong> datacenters physiquement et géographiquement séparés au sein d\'une même région, disposant chacun de leurs propres sources d\'alimentation électrique, de leur propre refroidissement et de leur propre connectivité réseau indépendante.</li>',
-        '      <li><strong>SLA 99.99% :</strong> le déploiement de machines virtuelles réparties sur au moins deux zones de disponibilité d\'une même région garantit un SLA contractuel de 99.99% (moins de 53 minutes d\'interruption tolérée par an).</li>',
+        '      <li><strong>Zone de disponibilité (AZ) :</strong> regroupement logique d\'un ou plusieurs datacenters physiquement distincts dans une région, doté d\'une alimentation, d\'un refroidissement et d\'un réseau indépendants des autres zones.</li>',
+        '      <li><strong>SLA :</strong> répartir les ressources entre des zones peut améliorer la résilience, mais ne garantit pas à lui seul un pourcentage. Le SLA dépend du service, de la configuration et des conditions contractuelles applicables. Voir la <a href="https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview">documentation Microsoft sur les zones</a>.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
         '    <h4>Paires Régionales &amp; Résilience Catastrophe (DR)</h4>',
         '    <ul>',
-        '      <li><strong>Paires Régionales (Regional Pairs) :</strong> chaque région Azure est couplée à une autre région de la même zone géographique, distante d\'au moins 480 km (ex. <code>West Europe</code> &lt;-&gt; <code>North Europe</code>, <code>France Central</code> &lt;-&gt; <code>France South</code>).</li>',
-        '      <li><strong>Mises à jour ordonnées :</strong> lors des opérations de maintenance de la plateforme Azure, Microsoft ne met jamais à jour les deux régions d\'une même paire simultanément, garantissant la continuité opérationnelle.</li>',
-        '      <li><strong>Priorité de reprise :</strong> en cas de panne continentale généralisée, Azure priorise la restauration d\'au moins une région par paire régionale pour permettre aux entreprises de redémarrer leurs PRA.</li>',
+        '      <li><strong>Paires régionales :</strong> certaines régions sont associées, généralement dans une même géographie ; d\'autres ne sont pas jumelées. Le jumelage ne configure pas automatiquement la réplication ni le basculement.</li>',
+        '      <li><strong>Mises à jour :</strong> Microsoft cherche à échelonner les mises à jour planifiées entre les régions jumelées ; cela ne garantit pas à lui seul la continuité du service.</li>',
+        '      <li><strong>Priorité de reprise :</strong> lors d\'une panne touchant toute une géographie, une région de chaque paire est priorisée. Le plan de reprise reste à concevoir et à tester.</li>',
         '    </ul>',
         '  </div>',
         '</div>'
@@ -49,11 +49,11 @@ module.exports = {
     {
       title: 'Hiérarchie de Gestion Organisationnelle ARM (Azure Resource Manager)',
       html: [
-        '<p>Azure Resource Manager (ARM) est la couche centrale de déploiement, de gestion et de contrôle de la plateforme Azure. Elle structure toutes les entités de l\'entreprise selon une hiérarchie stricte à 4 niveaux :</p>',
+        '<p>Azure Resource Manager (ARM) est la couche de déploiement et de gestion. La hiérarchie suivante présente quatre types de périmètres, et non une chaîne obligatoirement limitée à quatre segments : plusieurs groupes de gestion peuvent être imbriqués, ou un abonnement peut être rattaché directement à la racine. Voir la <a href="https://learn.microsoft.com/en-us/azure/governance/management-groups/overview">documentation Microsoft</a>.</p>',
         '<table class="table">',
         '  <thead><tr><th>Niveau Hiérarchique</th><th>Rôle et Fonctions Clés</th><th>Héritage des Droits &amp; Politiques</th></tr></thead>',
         '  <tbody>',
-        '    <tr><td><strong>1. Root Management Group</strong></td><td>Racine globale du tenant Entra ID. Tout abonnement existant ou nouvellement créé y est rattaché.</td><td>Toute politique Azure Policy ou attribution RBAC définie ici s\'applique à 100% des ressources de l\'entreprise.</td></tr>',
+        '    <tr><td><strong>1. Root Management Group</strong></td><td>Racine de la hiérarchie du tenant Entra ID ; les abonnements peuvent se trouver dans des groupes descendants.</td><td>Les affectations se propagent selon leur portée et les exclusions ou conditions applicables.</td></tr>',
         '    <tr><td><strong>2. Management Groups (MG)</strong></td><td>Conteneurs intermédiaires organisés en arborescence (jusqu\'à 6 niveaux de profondeur) par environnement (Prod, Hors-Prod) ou unité opérationnelle (Finance, R&amp;D).</td><td>Permettent d\'appliquer des règles de conformité globale à plusieurs abonnements en une seule affectation.</td></tr>',
         '    <tr><td><strong>3. Subscriptions (Abonnements)</strong></td><td>Unité fondamentale de facturation, d\'isolation de sécurité et de limites de quotas (nombre de vCPUs max, adresses IP publiques).</td><td>Chaque ressource appartient obligatoirement à un et un seul abonnement.</td></tr>',
         '    <tr><td><strong>4. Resource Groups (RG)</strong></td><td>Conteneur logique regroupant des ressources partageant le même cycle de vie applicatif (VM, disque, interface réseau, IP).</td><td>Une ressource ne peut appartenir qu\'à un seul RG à un instant T mais peut être déplacée entre groupes.</td></tr>',
@@ -64,9 +64,9 @@ module.exports = {
     {
       title: 'Le Cloud Adoption Framework (CAF) : Conventions de Nommage, Tags &amp; FinOps',
       html: [
-        '<p>Pour éviter le chaos opérationnel, le Cloud Adoption Framework (CAF) de Microsoft standardise la nomenclature des ressources et les leviers d\'optimisation budgétaire (FinOps) :</p>',
-        box('standard', 'Gabarit de Nommage Normalisé CAF pour les Ressources Azure', [
-          '<p>La syntaxe universelle recommandée par Microsoft adopte le format suivant :<br>',
+        '<p>Le Cloud Adoption Framework (CAF) propose des recommandations pour définir une convention adaptée à l\'organisation. Le format ci-dessous est un exemple choisi pour le cours, pas une syntaxe universelle imposée par Azure :</p>',
+        box('standard', 'Exemple de convention de nommage', [
+          '<p>Une organisation peut retenir le format suivant :<br>',
           '<code>&lt;type_ressource&gt;-&lt;application/workload&gt;-&lt;environnement&gt;-&lt;region&gt;-&lt;instance&gt;</code></p>',
           '<ul>',
           '  <li><code>rg-erp-prod-we-01</code> : Groupe de ressources hébergeant l\'ERP de production sur West Europe, instance 01.</li>',
@@ -75,12 +75,11 @@ module.exports = {
           '</ul>'
         ]),
         box('standard', 'Optimisation FinOps : Pay-As-You-Go vs Instances Réservées (RI)', [
-          '<p>Le modèle Pay-As-You-Go (à l\'usage sans engagement) offre une flexibilité totale mais présente le coût horaire le plus élevé. ' +
-          'Pour les charges de travail stables (bases de données, serveurs applicatifs actifs 24/7), Azure propose les <strong>Reserved Instances (RI)</strong> :</p>',
+          '<p>Le modèle Pay-As-You-Go offre une tarification à l\'usage. Pour certaines charges stables, Azure propose des <strong>réservations</strong> : leur intérêt dépend du prix, de l\'utilisation effective et des conditions applicables.</p>',
           '<ul>',
-          '  <li><strong>Engagement sur 1 an :</strong> environ 30% à 40% d\'économie sur la part calcul (Compute) de la machine virtuelle.</li>',
-          '  <li><strong>Engagement sur 3 ans :</strong> jusqu\'à 60% à 72% d\'économie sur le calcul par rapport au tarif PAYG.</li>',
-          '  <li><strong>Azure Hybrid Benefit (AHB) :</strong> permet de réutiliser des licences Windows Server ou SQL Server existantes dotées de la Software Assurance pour cumuler jusqu\'à 85% d\'économies totales.</li>',
+          '  <li><strong>Engagement :</strong> une réservation peut porter sur un ou trois ans ; comparez le coût réel avec les prix et conditions en vigueur.</li>',
+          '  <li><strong>Calcul VM :</strong> la remise applicable aux machines virtuelles ne rend pas gratuits les disques ou le réseau.</li>',
+          '  <li><strong>Azure Hybrid Benefit :</strong> certaines licences admissibles peuvent apporter un avantage supplémentaire sous conditions.</li>',
           '</ul>'
         ])
       ].join('\n')
@@ -88,30 +87,30 @@ module.exports = {
   ],
   method: [
     'Cartographie de l\'organisation et création de la hiérarchie ARM : structurer le Root Management Group, créer les groupes intermédiaires (mg-core, mg-prod, mg-nonprod) et rattacher les abonnements dédiés pour séparer facturation et sécurité.',
-    'Sélection de la région et validation des zones de disponibilité : vérifier la présence d\'au moins 3 Availability Zones dans la région cible (ex. francecentral ou westeurope) et identifier la région jumelée pour le plan de reprise d\'activité (PRA).',
-    'Application stricte de la nomenclature CAF et politique de tags : imposer par Azure Policy la convention de nommage rg-<app>-<env>-<region>-<num> et le marquage obligatoire des tags Environment, CostCenter et Owner.',
-    'Calcul de disponibilité SLA et arbitrage financier FinOps : calculer le SLA combiné de l\'architecture et identifier les serveurs éligibles aux réservations 1 an ou 3 ans pour maximiser le retour sur investissement.'
+    'Sélection de la région et validation des zones de disponibilité : vérifier les possibilités du service choisi et, le cas échéant, identifier la région jumelée et concevoir le plan de reprise d\'activité.',
+    'Définition d\'une convention de nommage et de tags adaptée à l\'organisation ; appliquer les contrôles appropriés avec Azure Policy.',
+    'Modélisation de la disponibilité et arbitrage financier FinOps : expliciter les hypothèses d\'un calcul de disponibilité en série, examiner séparément les SLA applicables et identifier les serveurs éligibles aux réservations 1 an ou 3 ans.'
   ],
   summary: [
-    'Une Région Azure est un ensemble de datacenters reliés par un réseau dédié ; une Zone de Disponibilité (AZ) est un datacenter isolé au sein de la région offrant un SLA de 99.99%.',
-    'La Paire Régionale regroupe deux régions d\'une même zone géographique distantes d\'au moins 480 km pour garantir la reprise après sinistre (Disaster Recovery).',
+    'Une région Azure regroupe des datacenters ; une zone de disponibilité regroupe un ou plusieurs datacenters et possède une infrastructure indépendante des autres zones. Le SLA dépend du service et de ses conditions.',
+    'Une paire régionale associe certaines régions, généralement d\'une même géographie ; elle ne configure pas à elle seule la reprise après sinistre.',
     'La hiérarchie ARM comprend 4 niveaux : Root Management Group, Management Groups, Subscriptions (facturation/quotas) et Resource Groups (cycle de vie).',
-    'Le Cloud Adoption Framework (CAF) normalise le nommage (type-app-env-region-num) et le balisage des ressources pour auditer et imputer les coûts.',
-    'Les Instances Réservées (RI) Azure permettent de réduire les coûts de calcul de 35% (1 an) à 60% (3 ans) par rapport au modèle Pay-As-You-Go.'
+    'Le Cloud Adoption Framework (CAF) aide à définir une convention de nommage et de balisage adaptée à l\'organisation.',
+    'Les réservations peuvent réduire certains coûts de calcul ; les économies dépendent de l\'offre, des conditions et de l\'utilisation.'
   ],
   checklist: [
     'Savez-vous expliquer la différence entre LRS, ZRS et GRS en lien avec les zones et paires régionales ?',
-    'Pouvez-vous citer les 4 niveaux hiérarchiques d\'Azure ARM et la portée d\'héritage des politiques ?',
-    'Savez-vous décoder et composer un nom de ressource conforme au Cloud Adoption Framework (CAF) ?',
-    'Connaissez-vous le SLA garanti pour des VMs réparties sur 2 Availability Zones (99.99%) ?',
+    'Pouvez-vous distinguer les types de périmètres Azure et expliquer l\'héritage des politiques ?',
+    'Savez-vous décoder et composer un nom de ressource selon une convention définie ?',
+    'Savez-vous pourquoi la présence de deux zones ne suffit pas à déterminer le SLA applicable à des VMs ?',
     'Savez-vous calculer l\'économie apportée par une réservation 1 an ou 3 ans sur une flotte de calcul ?'
   ],
   notions: [
-    { term: 'Availability Zone (AZ)', def: 'Datacenter physiquement indépendant au sein d\'une région Azure, doté de sa propre alimentation, refroidissement et réseau, permettant un SLA de 99.99%.' },
-    { term: 'Paired Region', def: 'Région jumelée située à au moins 480 km dans la même géographie, recevant les réplications GRS et bénéficiant de mises à jour Azure séquentielles.' },
+    { term: 'Availability Zone (AZ)', def: 'Regroupement d\'un ou plusieurs datacenters d\'une région, doté d\'une alimentation, d\'un refroidissement et d\'un réseau indépendants des autres zones ; le SLA dépend du service et de ses conditions.' },
+    { term: 'Paired Region', def: 'Région associée à une autre région par Azure pour certaines fonctions de résilience ; le jumelage seul ne configure pas le plan de reprise.' },
     { term: 'Management Group', def: 'Conteneur organisationnel ARM permettant d\'appliquer des politiques et des attributions RBAC à un ensemble d\'abonnements simultanément.' },
     { term: 'Cloud Adoption Framework (CAF)', def: 'Ensemble de bonnes pratiques et de normes publiées par Microsoft pour cadrer l\'architecture, le nommage et la gouvernance Cloud.' },
-    { term: 'Reserved Instances (RI)', def: 'Engagement financier sur 1 an ou 3 ans réservant des capacités de calcul Azure en échange d\'une réduction tarifaire substantielle (35% à 60%).' }
+    { term: 'Reserved Instances (RI)', def: 'Engagement d\'un ou trois ans pouvant réduire le prix de certains usages éligibles, selon les conditions et l\'utilisation.' }
   ],
   pitfalls: [
     'Confondre région et zone de disponibilité : une région contient plusieurs zones (AZs 1, 2, 3), mais toutes les régions Azure ne possèdent pas nécessairement de zones de disponibilité.',
@@ -121,25 +120,30 @@ module.exports = {
   ],
   questions: [
     {
-      stem: 'Quel SLA de disponibilité est garanti par Microsoft pour une architecture de machines virtuelles réparties sur au moins deux Zones de Disponibilité (Availability Zones) d\'une région ?',
-      opts: ['99.0%', '99.5%', '99.95%', '99.99%'],
-      correct: 3,
-      exp: 'Le déploiement de VMs sur au moins deux Availability Zones distinctes d\'une même région bénéficie du SLA Azure le plus élevé pour le calcul IaaS : 99.99% (moins de 53 minutes d\'indisponibilité tolérée par an).'
+      stem: 'Que peut-on conclure du SLA à partir de la seule répartition de ressources sur deux zones de disponibilité Azure ?',
+      opts: [
+        'Le SLA dépend du service, de sa configuration et des conditions applicables',
+        'Un SLA de 99.99% est garanti pour tous les services',
+        'Chaque zone correspond forcément à un seul datacenter',
+        'Aucun service ne peut avoir de SLA'
+      ],
+      correct: 0,
+      exp: 'Deux zones peuvent améliorer la résilience, mais ne suffisent pas à établir un SLA : il faut consulter les conditions du service et de la configuration.'
     },
     {
-      stem: 'Quelle distance minimale sépare généralement deux régions Azure au sein d\'une Paire Régionale (Paired Region) ?',
-      opts: ['50 km', '100 km', '480 km (300 miles)', '2 000 km'],
+      stem: 'Que garantit à elle seule l\'appartenance d\'une région Azure à une paire régionale ?',
+      opts: ['La réplication automatique de toutes les ressources', 'Un basculement automatique pour toutes les applications', 'Ni réplication ni basculement automatique de toutes les ressources', 'L\'impossibilité d\'une panne affectant les deux régions'],
       correct: 2,
-      exp: 'Les régions jumelées (Paired Regions) sont distantes d\'au moins 480 kilomètres (300 miles) afin qu\'une catastrophe naturelle majeure (séisme, inondation, tempête) ne puisse pas impacter les deux datacenters simultanément.'
+      exp: 'Le jumelage peut servir à certains services, mais ne configure ni réplication ni basculement pour toutes les ressources et n\'exclut pas une panne commune. Il faut concevoir et tester le plan de reprise.'
     },
     {
       stem: 'Dans la hiérarchie Azure Resource Manager (ARM), quel niveau constitue la frontière fondamentale de facturation et d\'attribution des quotas de calcul ?',
       opts: ['Le Tenant Entra ID', 'Le Management Group', 'L\'Abonnement (Subscription)', 'Le Resource Group'],
       correct: 2,
-      exp: 'L\'Abonnement (Subscription) est l\'entité juridique et financière qui délimite la facturation mensuelle, les quotas de ressources (vCPUs max, adresses IP publiques) et les limites d\'administration.'
+      exp: 'L\'abonnement sert de périmètre de gestion et de facturation et porte certains quotas. Le tenant organise les identités, le groupe de gestion agrège des abonnements et le groupe de ressources organise des ressources.'
     },
     {
-      stem: 'Selon les conventions du Cloud Adoption Framework (CAF), quel est le format recommandé pour un Resource Group de pré-production hébergeant l\'API en Europe de l\'Ouest ?',
+      stem: 'Dans la convention fictive rg-application-environnement-région-instance du cours, quel nom correspond à une API stage en West Europe, instance 01 ?',
       opts: [
         'rg-api-stage-we-01',
         'resourcegroup_api_preprod_westeurope',
@@ -147,24 +151,24 @@ module.exports = {
         'my-rg-api-stage-01'
       ],
       correct: 0,
-      exp: 'Le gabarit CAF prescrit rg-<app>-<env>-<region>-<instance> en minuscules séparé par des tirets, soit rg-api-stage-we-01.'
+      exp: 'Avec les éléments imposés par cette convention locale, le nom associe rg, api, stage, we et 01. Les trois autres propositions ne respectent pas cette convention ; d\'autres conventions peuvent être valides dans Azure.'
     },
     {
       stem: 'Quelle stratégie de réplication de stockage garantit une copie des données sur trois zones de disponibilité indépendantes au sein de la même région ?',
       opts: ['LRS (Locally Redundant Storage)', 'ZRS (Zone-Redundant Storage)', 'GRS (Geo-Redundant Storage)', 'RA-GRS'],
       correct: 1,
-      exp: 'ZRS (Zone-Redundant Storage) écrit les données de manière synchrone sur 3 datacenters physiquement séparés (Availability Zones) de la région locale.'
+      exp: 'ZRS réplique de manière synchrone dans au moins trois zones de la région primaire. LRS reste dans un centre de données ; GRS et RA-GRS ajoutent une réplication géographique et ne désignent pas ce choix zonal.'
     },
     {
       stem: 'Quel est l\'avantage d\'une politique d\'engagement Reserved Instances (RI) sur 3 ans sous Azure par rapport au tarif Pay-As-You-Go ?',
       opts: [
         'Augmentation de la vitesse CPU de 50%',
-        'Réduction tarifaire pouvant atteindre environ 60% sur le coût du calcul',
+        'Réduction possible sur le coût du calcul admissible, selon les conditions',
         'Gratuité totale de la bande passante sortante Internet',
         'Disques SSD Premium illimités sans surcoût'
       ],
       correct: 1,
-      exp: 'Les réservations d\'instances sur 3 ans permettent d\'obtenir jusqu\'à 60% à 72% d\'économies sur la composante calcul (vCPU/RAM) des machines virtuelles stables par rapport au tarif PAYG.'
+      exp: 'Une réservation peut réduire le coût du calcul admissible selon l\'offre et l\'utilisation. Elle n\'accélère pas le processeur et ne rend gratuits ni la bande passante sortante ni les disques.'
     },
     {
       stem: 'Une ressource peut-elle appartenir simultanément à deux Resource Groups distincts ?',
@@ -190,56 +194,37 @@ module.exports = {
     }
   ],
   flashcards: [
-      { q: 'Qu’est-ce que « Cloud Adoption Framework (CAF) » ?', a: "Cloud Adoption Framework (CAF) : Ensemble de bonnes pratiques et de normes publiées par Microsoft pour cadrer l'architecture, le nommage et la gouvernance Cloud." },
-      { q: 'Qu’est-ce que « Reserved Instances (RI) » ?', a: "Reserved Instances (RI) : Engagement financier sur 1 an ou 3 ans réservant des capacités de calcul Azure en échange d'une réduction tarifaire substantielle (35% à 60%)." },
-      { q: 'Qu’est-ce que « Une Région Azure est un ensemble de datacenters reliés par un réseau dédié ; une Zone de Disponibilité (AZ) est un datacenter isolé au sein de la région offrant un SLA de 99.99%. » ?', a: 'Une Région Azure est un ensemble de datacenters reliés par un réseau dédié ; une Zone de Disponibilité (AZ) est un datacenter isolé au sein de la région offrant un SLA de 99.99%.' },
-      { q: "Qu’est-ce que « La Paire Régionale regroupe deux régions d'une même zone géographique distantes d'au moins 480 km pour garantir la reprise après sinistre (Disaster Recovery). » ?", a: "La Paire Régionale regroupe deux régions d'une même zone géographique distantes d'au moins 480 km pour garantir la reprise après sinistre (Disaster Recovery)." },
-      { q: 'Qu’est-ce que « La hiérarchie ARM comprend 4 niveaux » ?', a: 'La hiérarchie ARM comprend 4 niveaux : Root Management Group, Management Groups, Subscriptions (facturation/quotas) et Resource Groups (cycle de vie).' },
-      { q: 'Qu’est-ce que « Scope (Périmètre) » ?', a: "Scope (Périmètre) : Niveau hiérarchique auquel s'applique une attribution de rôle (Management Group, Subscription, Resource Group ou Ressource individuelle)." },
-      { q: 'Qu’est-ce que « Microsoft Entra ID centralise les identités Cloud et offre les Managed Identities pour une authentification automatique sans mot de passe. » ?', a: 'Microsoft Entra ID centralise les identités Cloud et offre les Managed Identities pour une authentification automatique sans mot de passe.' },
-      { q: "Qu’est-ce que « Azure RBAC applique le contrôle d'accès granulaire combinant un Principal, une Définition de rôle et un Périmètre (Scope). » ?", a: "Azure RBAC applique le contrôle d'accès granulaire combinant un Principal, une Définition de rôle et un Périmètre (Scope)." },
-      { q: "Qu’est-ce que « La structure d'un rôle RBAC repose sur Actions (autorisations) et NotActions (exclusions soustractives), évaluées avec wildcards. » ?", a: "La structure d'un rôle RBAC repose sur Actions (autorisations) et NotActions (exclusions soustractives), évaluées avec wildcards." },
-      { q: 'Qu’est-ce que « Deployment Slot » ?', a: "Deployment Slot : Environnement d'hébergement autonome (ex: Staging) au sein d'un App Service permettant de tester une version avant la bascule en production." },
-      { q: 'Qu’est-ce que « Les séries de machines virtuelles Azure répondent à des besoins ciblés » ?', a: 'Les séries de machines virtuelles Azure répondent à des besoins ciblés : B-series (burstable), D-series (général), E-series (mémoire) et F-series (calcul).' },
-      { q: 'Qu’est-ce que « Les disques Premium SSD sont requis pour bénéficier des SLAs de production unitaire (99.9%). » ?', a: 'Les disques Premium SSD sont requis pour bénéficier des SLAs de production unitaire (99.9%).' },
-      { q: 'Qu’est-ce que « Les Availability Sets séparent les serveurs en Fault Domains (pannes physiques) et Update Domains (mises à jour de maintenance) pour offrir 99.95% de SLA. » ?', a: 'Les Availability Sets séparent les serveurs en Fault Domains (pannes physiques) et Update Domains (mises à jour de maintenance) pour offrir 99.95% de SLA.' },
-      { q: 'Qu’est-ce que « Azure Virtual Network (VNet) » ?', a: 'Azure Virtual Network (VNet) : Réseau virtuel privé isolé sous Azure permettant la communication sécurisée entre ressources Cloud et sur site.' },
-      { q: 'Qu’est-ce que « VNet Peering » ?', a: 'VNet Peering : Interconnexion directe à haute vitesse et faible latence entre deux réseaux virtuels via le réseau fédérateur privé de Microsoft.' },
-      { q: 'Qu’est-ce que « Un Azure VNet isole un réseau virtuel privé ; Azure réserve systématiquement 5 adresses IP (.0, .1, .2, .3, .255) dans chaque sous-réseau. » ?', a: 'Un Azure VNet isole un réseau virtuel privé ; Azure réserve systématiquement 5 adresses IP (.0, .1, .2, .3, .255) dans chaque sous-réseau.' },
-      { q: 'Qu’est-ce que « Les sous-réseaux en /24 offrent exactement 251 adresses IP exploitables pour les machines virtuelles. » ?', a: 'Les sous-réseaux en /24 offrent exactement 251 adresses IP exploitables pour les machines virtuelles.' },
-      { q: 'Qu’est-ce que « Les Network Security Groups (NSG) filtrent le trafic selon la priorité des règles (100 à 4096), avec les règles par défaut 65000 (Allow VNet) et 65500 (Deny All). » ?', a: 'Les Network Security Groups (NSG) filtrent le trafic selon la priorité des règles (100 à 4096), avec les règles par défaut 65000 (Allow VNet) et 65500 (Deny All).' },
-      { q: 'Qu’est-ce que « Block Blob » ?', a: "Block Blob : Type de blob Azure optimisé pour stocker efficacement d'immenses volumes de données non structurées (fichiers, images, sauvegardes)." },
+      { q: "Quelle est l'utilité d'une paire régionale Azure pour la reprise après sinistre ?", a: "Elle associe deux régions généralement d'une même géographie pour faciliter la reprise ; cette association ne configure pas à elle seule la réplication ni le basculement automatique." },
+      { q: "Quels trois éléments constituent une attribution Azure RBAC ?", a: "Un principal, une définition de rôle et un périmètre d'application (scope)." },
+      { q: "Comment Actions et NotActions définissent-elles les droits d'un rôle Azure RBAC ?", a: "Actions autorise des opérations et NotActions en soustrait ; les deux acceptent des jokers, mais NotActions n'est pas un refus absolu face à d'autres rôles." },
       { q: "Qu’est-ce que « Access Tier (Palier d'accès) » ?", a: "Access Tier (Palier d'accès) : Niveau de stockage Blob (Hot, Cool, Cold, Archive) associant un coût de rétention par Go et un coût d'opération de lecture/écriture." },
-      { q: 'Qu’est-ce que « Les comptes de stockage Azure regroupent 4 services majeurs » ?', a: 'Les comptes de stockage Azure regroupent 4 services majeurs : Blob (objets), Files (partage SMB/NFS), Queues (messages) et Tables (NoSQL simple).' },
-      { q: "Qu’est-ce que « Les 4 paliers d'accès Blob (Hot, Cool, Cold, Archive) permettent d'ajuster les coûts selon la fréquence de consultation des fichiers. » ?", a: "Les 4 paliers d'accès Blob (Hot, Cool, Cold, Archive) permettent d'ajuster les coûts selon la fréquence de consultation des fichiers." },
-      { q: 'Qu’est-ce que « Le Lifecycle Management déplace automatiquement les données froides vers des paliers économiques selon leur ancienneté sans code. » ?', a: 'Le Lifecycle Management déplace automatiquement les données froides vers des paliers économiques selon leur ancienneté sans code.' },
-      { q: 'Qu’est-ce que « Log Analytics Workspace » ?', a: "Log Analytics Workspace : Environnement de stockage et d'indexation centralisé de télémétrie Azure où sont exécutées les requêtes d'analyse KQL." },
-      { q: "Qu’est-ce que « Azure Monitor centralise les métriques (données numériques temps réel) et les logs (événements structurés) pour assurer l'observabilité totale. » ?", a: "Azure Monitor centralise les métriques (données numériques temps réel) et les logs (événements structurés) pour assurer l'observabilité totale." },
-      { q: "Qu’est-ce que « Les Action Groups automatisent les notifications et les remédiations lors du déclenchement d'alertes de sévérité Sev0 à Sev4. » ?", a: "Les Action Groups automatisent les notifications et les remédiations lors du déclenchement d'alertes de sévérité Sev0 à Sev4." },
-      { q: "Qu’est-ce que « KQL (Kusto Query Language) offre un pipeline d'opérateurs hautement performant (where, summarize, project, order by, take) pour explorer les journaux. » ?", a: "KQL (Kusto Query Language) offre un pipeline d'opérateurs hautement performant (where, summarize, project, order by, take) pour explorer les journaux." },
+      { q: "Comment choisir les paliers Azure Blob selon la fréquence d'accès ?", a: "Hot, Cool, Cold puis Archive ciblent des accès de plus en plus rares pour ajuster les coûts ; Smart peut automatiser les changements entre les paliers en ligne." },
+      { q: "Quelles données Azure Monitor collecte-t-il pour l'observabilité ?", a: "Des métriques numériques horodatées, souvent proches du temps réel, et des journaux d'événements structurés, selon les sources configurées." },
+      { q: "Que fait un groupe d'actions associé à une alerte Azure Monitor de sévérité Sev0 à Sev4 ?", a: "Il déclenche les notifications et les actions configurées, par exemple un courriel ou une remédiation automatisée." },
+      { q: "À quoi sert KQL dans Azure Monitor et quels opérateurs composent ses requêtes ?", a: "Kusto Query Language interroge les journaux par pipeline, notamment avec where, summarize, project, order by et take." },
     {
-      q: 'Qu\'est-ce qu\'une Zone de Disponibilité (Availability Zone) Azure et quel SLA garantit-elle ?',
-      a: 'Un datacenter physiquement distinct au sein d\'une région, doté d\'une alimentation, d\'un refroidissement et d\'un réseau indépendants. Déployer sur au moins 2 AZs garantit un SLA de 99.99%.'
+      q: 'Qu\'est-ce qu\'une Zone de Disponibilité (Availability Zone) Azure et comment déterminer le SLA applicable ?',
+      a: 'Une zone regroupe un ou plusieurs datacenters d\'une région et possède une alimentation, un refroidissement et un réseau indépendants des autres zones. Le SLA dépend du service, de sa configuration et des conditions contractuelles ; deux zones seules ne garantissent pas un taux.'
     },
     {
-      q: 'Quelle est la distance minimale séparant deux régions d\'une Paire Régionale (Paired Region) ?',
-      a: 'Au moins 480 kilomètres (300 miles), pour garantir qu\'une catastrophe naturelle n\'affecte pas simultanément le site de production et le site de reprise (DR).'
+      q: 'Une paire régionale configure-t-elle automatiquement la reprise après sinistre ?',
+      a: 'Non. Certaines régions sont jumelées, mais il faut configurer et tester la réplication et la reprise selon les services utilisés.'
     },
     {
-      q: 'Quels sont les 4 niveaux hiérarchiques de gestion organisationnelle sous Azure ARM ?',
-      a: '1. Root Management Group -> 2. Management Groups (MG) -> 3. Subscriptions (Abonnements) -> 4. Resource Groups (Groupes de ressources).'
+      q: 'Comment s\'articulent groupes de gestion, abonnements et groupes de ressources ?',
+      a: 'La racine peut contenir des groupes de gestion imbriqués ou des abonnements ; les abonnements contiennent des groupes de ressources. Le nombre de niveaux de groupes de gestion varie.'
     },
     {
-      q: 'Quel est le gabarit de nommage standard CAF pour un groupe de ressources Azure ?',
-      a: 'rg-<app/workload>-<env>-<region_code>-<instance> (exemple : rg-erp-prod-we-01).'
+      q: 'Quelle convention de nommage illustre le cours pour un groupe de ressources ?',
+      a: 'Exemple local : rg-<app/workload>-<env>-<region_code>-<instance>. Une organisation peut définir une autre convention adaptée.'
     },
     {
       q: 'Quelle est la différence fondamentale entre la réplication LRS et ZRS pour Azure Storage ?',
-      a: 'LRS conserve 3 copies dans un seul datacenter (vulnérable à la panne du bâtiment), tandis que ZRS réplique de manière synchrone sur 3 Availability Zones distinctes de la région.'
+      a: 'LRS conserve trois copies dans un centre de données ; ZRS réplique de manière synchrone dans au moins trois zones de disponibilité de la région primaire.'
     },
     {
       q: 'Qu\'est-ce que le principe d\'Instances Réservées (RI) et quel est son impact financier ?',
-      a: 'Un engagement sur 1 an ou 3 ans sur des capacités de calcul VM prévisibles, offrant entre 35% (1 an) et 60% (3 ans) d\'économie sur la part calcul par rapport au Pay-As-You-Go.'
+      a: 'Un engagement sur 1 an ou 3 ans pouvant réduire certains coûts de calcul, selon l\'offre et l\'utilisation réelle.'
     }
   ],
   mastery: [

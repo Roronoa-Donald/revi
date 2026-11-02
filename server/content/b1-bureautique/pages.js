@@ -41,7 +41,7 @@ function index(course, chapterList) {
     '  <p class="lead">' + course.lead + '</p>',
     box('objectifs', 'Ce que vous saurez faire à la fin du cours', 'target', [
       '    <ul>',
-      '      <li>te repérer dans Word : onglets et groupes, cinq modes d\'affichage, barre d\'état ;</li>',
+      '      <li>vous repérer dans Word : onglets et groupes, cinq modes d\'affichage, barre d\'état ;</li>',
       '      <li>mettre un courrier en forme : sélection d\'abord, alignements, retraits, mise en page ;</li>',
       '      <li>tenir une feuille Excel : classeur, feuilles, barres, alignement par défaut ;</li>',
       '      <li>écrire des formules : signe =, SOMME, MOYENNE, MAX, MIN, NB et NBVAL ;</li>',
@@ -54,8 +54,8 @@ function index(course, chapterList) {
       '(feuille, formules, conditionnelles) et PowerPoint (présentation). Ce cours en garde l\'esprit et fait ' +
       'appliquer chaque mécanisme <strong>dans des études de cas</strong> : une grille d’analyse qui reproduit l\'analyse exacte du support — ' +
       'classement des onglets, alignement, commission à paliers, minutage — exécuté dans la page.</p>',
-      '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : vous écrivez vraiment le ' +
-      'script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. La logique écrite ' +
+      '    <p>Chaque chapitre se termine par <strong>trois études de cas</strong> : vous remplissez vraiment votre ' +
+      'grille d’analyse, elle est vérifiée par des critères que vous ne voyez pas. La logique écrite ' +
       'ici se rejoue telle quelle sur les exemples des supports (commission, Gauche/Droite/STXT, diaporama).</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -67,7 +67,7 @@ function index(course, chapterList) {
       '      <a class="btn" href="chapitres/chapitre1.html">' + ic('rocket') + ' Commencer le chapitre 1</a>',
       '      <a class="btn" href="chapitres/cartes.html">' + ic('cards') + ' Flashcards</a>',
       '      <a class="btn" href="chapitres/formules.html">' + ic('file') + ' Mémo bureautique</a>',
-      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier de scripts</a>',
+      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier d’analyse</a>',
       '      <a class="btn" href="exercices/exercices.html">' + ic('blocks') + ' Exercices &amp; projet</a>',
       '      <a class="btn" href="chapitres/simulateur-examen.html">' + ic('clipboard') + ' Examens blancs</a>',
       '    </p>'
@@ -103,9 +103,9 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du premier clic dans le ruban jusqu\'au diaporama ' +
     'chronométré. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou ' +
     'supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
-    'dans la page : votre script est réellement lancé, puis corrigé par des tests que vous ne voyez pas. ' +
-    'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à analyser ' +
+    'dans la page : vous remplissez votre grille d’analyse, puis elle est vérifiée par des critères que vous ne voyez pas. ' +
+    'L\'<a href="atelier.html">atelier d’analyse</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
     toc,
     '  </div>',
@@ -114,7 +114,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s\'auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo bureautique</span><br><span class="toc__d">Onglets Word, alignements, barres Excel, six fonctions, SI imbriqué, modes PowerPoint.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Scripts gradués et projet final : le classeur de bord du secrétariat.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier d’analyse</span><br><span class="toc__d">Résoudre et valider des études de cas directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l\'épreuve, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -136,7 +136,7 @@ function sommaire(course, chapterList) {
 function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
-    '  <h1>Atelier de scripts</h1>',
+    '  <h1>Atelier d’analyse</h1>',
     '  <p class="lead">Un éditeur interactif dans la page pour résoudre les études de cas. Complétez la grille d’analyse, validez-la et observez le résultat : c\'est ici qu\'une règle de mise en forme devient un contrôle automatisé.</p>',
     box('objectifs', 'Comment fonctionne l\'atelier', 'target', [
       '    <ul>',
@@ -173,7 +173,7 @@ function atelier(course) {
       'des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé aligne chaque valeur comme le fait Excel : texte à gauche, nombre à droite. ' +
-      'Transforme-le : ajoute le calcul de la somme, applique la commission à paliers du support, ou remplace ' +
+      'Transformez-le : ajoutez le calcul de la somme, appliquez la commission à paliers du support, ou remplacez ' +
       'tout le script par le mécanisme que vous voulez vérifier.</p>',
       '      <p>Dans un vrai classeur, ce contrôle se fera à la relecture : la structure du script — lire, ' +
       'décider, rapporter — reste exactement la même.</p>',
@@ -222,8 +222,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de scripts — simuler la bureautique | ' + course.brand,
-      description: 'Atelier de scripts du cours de Bureautique B1 : éditeur dans le navigateur, validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
+      title: 'Atelier d’analyse — simuler la bureautique | ' + course.brand,
+      description: 'Atelier d’analyse du cours de Bureautique B1 : éditeur dans le navigateur, validation directe de la grille d’analyse, données du cas, console de sortie et tuteur qui explique les erreurs.',
       active: 'atelier',
       body
     }
@@ -519,12 +519,12 @@ function exercices(course) {
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
-      'Distinguer les références relatives (A1), absolues ($A$1) et mixtes ($A1 ou A$1) lors du recopiage de formule.',
+      'Distinguer les références relatives (A1), absolues (<code>$A$1</code>) et mixtes (<code>$A1</code> ou <code>A$1</code>) lors du recopiage de formule.',
       'Utiliser les fonctions arithmétiques de base (SOMME, MOYENNE, MIN, MAX, NB, NBVAL).',
       'Appliquer une règle de mise en forme conditionnelle pour surligner les valeurs supérieures à un seuil.',
       'Paramétrer les styles de paragraphe, tables des matières automatiques et sauts de section sous traitement de texte.'
     ], [
-      '<p><strong>1. Références :</strong> $A$1 fige colonne et ligne au déplacement ; $A1 fige la colonne seule ; A$1 fige la ligne seule.</p>',
+      '<p><strong>1. Références :</strong> <code>$A$1</code> fige colonne et ligne au déplacement ; <code>$A1</code> fige la colonne seule ; <code>A$1</code> fige la ligne seule.</p>',
       '<p><strong>2. Fonctions de base :</strong> =SOMME(A1:A10) totalise la plage ; =NBVAL compte les cellules non vides.</p>',
       '<p><strong>3. Mise en forme conditionnelle :</strong> Sélection de la plage &rarr; Règle "Valeur > seuil" &rarr; Format personnalisé de remplissage.</p>',
       '<p><strong>4. Traitement de texte :</strong> Les styles Titre 1, Titre 2 génèrent automatiquement la table des matières dynamique.</p>'
@@ -591,7 +591,7 @@ function render(kit, course, chapterList) {
     return Object.assign({}, chapitre, {
       next: next
         ? { href: 'chapitre' + next.n + '.html', label: 'Chapitre ' + next.n + ' — ' + next.title }
-        : { href: '../atelier.html', label: 'Atelier de scripts' }
+        : { href: '../atelier.html', label: 'Atelier d’analyse' }
     });
   });
 

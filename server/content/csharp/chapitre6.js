@@ -240,6 +240,6 @@ module.exports = {
     { cls: 'low', text: '&lt; 50 % — Révise les bases de async/await et l’interdiction formelle de .Result.' },
     { cls: 'mid', text: '50–69 % — Entraînez-vous sur Task.WhenAll et l’instruction using.' },
     { cls: 'good', text: '70–94 % — Solide : vous maîtrisez l’annulation CancellationToken et le pattern IDisposable.' },
-    { cls: 'top', text: '≥ 95 % — Maîtrise totale : vous possèdez toutes les compétences d’ingénierie logicielle C# niveau B2.' }
+    { cls: 'top', text: '≥ 95 % — Maîtrise totale : vous possédez toutes les compétences d’ingénierie logicielle C# niveau B2.' }
   ]
 };

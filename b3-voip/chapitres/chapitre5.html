@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -53,7 +53,7 @@
 <main id="content" class="b3-voipwrap">
 <p class="crumb"><a href="../index.html">Téléphonie VoIP B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
 
-<h1>Chapitre 5 — Qualité de Service (QoS), Dimensionnement & Réseau</h1>
+<h1>Chapitre 5 — Qualité de Service (QoS), Dimensionnement &amp; Réseau</h1>
 
 <div class="chapmeta">
     <span class="tag">Module 5</span>
@@ -63,21 +63,21 @@
 
   <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Lors de pics d'activité commerciale, plusieurs clients se plaignent d'obtenir des tonalités d'occupation intempestives, tandis que les télétravailleurs branchés derrière des routeurs domestiques souffrent de communications unidirectionnelles silencieuses. En tant qu'ingénieur VoIP, vous devez résoudre ces incidents critiques : appliquer la théorie du trafic téléphonique et la formule récursive d'Erlang B pour dimensionner précisément le nombre de canaux du trunk SIP de l'entreprise avec un Grade of Service (GoS) < 1%, déployer la Qualité de Service (QoS) avec Voice VLAN 802.1Q (CoS 5) et marquage DiffServ DSCP EF (46) pour prioriser la voix sur le réseau, et diagnostiquer les blocages NAT en configurant STUN/TURN/ICE et en neutralisant les modules SIP ALG défaillants.</p>
+    <p>Lors de pics d'activité commerciale, plusieurs clients se plaignent d'obtenir des tonalités d'occupation intempestives, tandis que les télétravailleurs branchés derrière des routeurs domestiques souffrent de communications unidirectionnelles silencieuses. En tant qu'ingénieur VoIP, vous devez résoudre ces incidents critiques : appliquer la théorie du trafic téléphonique et la formule récursive d'Erlang B pour dimensionner précisément le nombre de canaux du trunk SIP de l'entreprise avec un Grade of Service (GoS) &lt; 1%, déployer la Qualité de Service (QoS) avec Voice VLAN 802.1Q (CoS 5) et marquage DiffServ DSCP EF (46) pour prioriser la voix sur le réseau, et diagnostiquer les blocages NAT en configurant STUN/TURN/ICE et en neutralisant les modules SIP ALG défaillants.</p>
   </div>
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
     <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
-      <li>Calculer le trafic offert en Erlangs et déterminer le nombre de canaux simultanés nécessaires via la formule récursive d'Erlang B (GoS <= 1%).</li>
-      <li>Identifier les contraintes de qualité vocale de la norme ITU-T G.114 (latence <= 150 ms, gigue <= 30 ms, perte de paquets <= 1.0%).</li>
+      <li>Calculer le trafic offert en Erlangs et déterminer le nombre de canaux simultanés nécessaires via la formule récursive d'Erlang B (GoS &lt;= 1%).</li>
+      <li>Identifier les contraintes de qualité vocale de la norme ITU-T G.114 (latence &lt;= 150 ms, gigue &lt;= 30 ms, perte de paquets &lt;= 1.0%).</li>
       <li>Mettre en œuvre les mécanismes de QoS Couche 2 (Voice VLAN 802.1Q, balisage CoS 5, LLDP-MED) et Couche 3 (DiffServ DSCP EF 46 / Low Latency Queueing).</li>
-      <li>Résoudre les problématiques de traversée de NAT et de pare-feu : fonctionnement de STUN (RFC 5389), TURN (RFC 5766), ICE (RFC 5245) et dangers du SIP ALG.</li>
+      <li>Diagnostiquer la traversée de NAT et de pare-feu : rôle de STUN (RFC 8489), TURN (RFC 8656), ICE (RFC 8445) et limites possibles d'un SIP ALG.</li>
     </ol>
   </div>
 
-<h2>1. Dimensionnement des Trunks Téléphoniques & Loi d'Erlang B</h2>
+<h2>1. Dimensionnement des Trunks Téléphoniques &amp; Loi d'Erlang B</h2>
 
 <p>L'un des défis majeurs de l'ingénieur télécoms consiste à dimensionner le nombre exact de canaux téléphoniques simultanés (sur un trunk SIP ou une liaison RNIS) nécessaires pour écouler le trafic d'une entreprise sans surcoût financier ni refus d'appels excessif.</p>
 <p>Le trafic téléphonique s'exprime en <strong>Erlangs (E)</strong>, unité adimensionnelle mesurant l'intensité d'occupation continue d'un canal :</p>
@@ -91,7 +91,7 @@ B(k, A) = (A * B(k-1, A)) / (k + A * B(k-1, A))    pour k = 1, 2, ..., N</code><
   <p>En pratique, les entreprises tolèrent généralement un taux de blocage GoS maximal de <strong>1.0% (0.01)</strong> ou <strong>2.0% (0.02)</strong> à l'heure de pointe. La formule récursive permet de déterminer par itération le nombre minimal de canaux <code>N</code> à souscrire auprès de l'opérateur SIP.</p>
 </div>
 
-<h2>2. Mécanismes de Qualité de Service (QoS) & Ségrégation Réseau</h2>
+<h2>2. Mécanismes de Qualité de Service (QoS) &amp; Ségrégation Réseau</h2>
 
 <p>Contrairement aux flux web ou de transfert de fichiers (HTTP, FTP) régulés par TCP qui tolèrent les variations de débit, la voix sur IP est une application <strong>temps réel hautement intolérante au délai et à la gigue</strong>. Selon la recommandation <strong>ITU-T G.114</strong>, les seuils maximaux admissibles pour une communication fluide sont :</p>
 <ul>
@@ -118,7 +118,7 @@ B(k, A) = (A * B(k-1, A)) / (k + A * B(k-1, A))    pour k = 1, 2, ..., N</code><
   </div>
 </div>
 
-<h2>3. Problématique du NAT & Mécanismes de Traversée (STUN, TURN, ICE)</h2>
+<h2>3. Problématique du NAT &amp; Mécanismes de Traversée (STUN, TURN, ICE)</h2>
 
 <p>La translation d'adresses réseau (NAT / Network Address Translation) brise le modèle de connectivité de bout en bout d'Internet et constitue la cause principale des pannes en téléphonie sur IP (notamment le syndrome redouté du <strong>One-Way Audio</strong>, où un seul des correspondants entend la voix de l'autre).</p>
 <div class="card">
@@ -128,17 +128,19 @@ B(k, A) = (A * B(k-1, A)) / (k + A * B(k-1, A))    pour k = 1, 2, ..., N</code><
 <div class="card">
   <h4>Technologies de Traversée de NAT (STUN, TURN, ICE)</h4>
   <ul>
-    <li><strong>STUN (RFC 5389) :</strong> Le client envoie une requête UDP à un serveur STUN public qui lui renvoie sa véritable adresse IP et son port publics (MAPPED-ADDRESS). Le client peut ainsi insérer ses coordonnées publiques dans ses offres SDP. STUN fonctionne parfaitement sur les NAT de type Cone (Full Cone, Restricted Cone).</li>
-    <li><strong>TURN (RFC 5766) :</strong> Lorsque le routeur applique un <em>NAT symétrique</em> (le port externe change pour chaque destination IP différente), STUN échoue. Un serveur relais <strong>TURN (Traversal Using Relays around NAT)</strong> doit alors relayer l'intégralité des flux RTP entre les deux terminaux.</li>
-    <li><strong>ICE (RFC 5245) :</strong> Cadre global combinant STUN et TURN pour tester systématiquement tous les chemins de communication possibles et sélectionner le plus direct et performant.</li>
-    <li><strong>SIP ALG (Application Layer Gateway) :</strong> Module présent sur de nombreux routeurs grand public/PME censé réécrire les adresses SIP. En pratique, la majorité des implémentations SIP ALG sont défaillantes, corrompent les paquets et doivent être <strong>impérativement désactivées</strong>.</li>
+    <li><strong>STUN (RFC 8489) :</strong> Un serveur renseigne le client sur l'adresse et le port observés pour une requête. Cette observation ne garantit pas la communication directe avec un pair : le filtrage et la topologie comptent également.</li>
+    <li><strong>TURN (RFC 8656) :</strong> Un relais peut transporter le média lorsqu'un chemin direct utilisable n'est pas disponible ; son utilisation dépend des candidats et des règles du réseau, pas uniquement d'une étiquette de NAT.</li>
+    <li><strong>ICE (RFC 8445) :</strong> Les pairs échangent des candidats, notamment locaux, réflexifs et éventuellement relayés, puis effectuent des vérifications de connectivité avant de sélectionner une paire utilisable.</li>
+    <li><strong>SIP ALG (Application Layer Gateway) :</strong> Un module de réécriture SIP peut être utile ou perturber certains déploiements. Vérifier sa compatibilité et tester la configuration avant de le désactiver si nécessaire.</li>
   </ul>
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="vo3-c5-e1" data-lab
      data-exercise="vo3-c5-e1"
      data-language="analyse"
@@ -161,24 +163,22 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Calculateur d'Erlang B &amp; Dimensionnement de Trunks Téléphoniques</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="vo3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la probabilité de blocage GoS par la formule récursive d'Erlang B et dimensionner le nombre de canaux requis.</p>
     <div class="lab__brief"><p>La loi d'Erlang B modélise la probabilité de blocage d'appels téléphoniques (Grade of Service, GoS) sur un faisceau (trunk) de <code>N</code> canaux sans mise en attente (appels rejetés si tous les canaux sont occupés).<br>Le trafic offert <code>A</code> (en Erlangs) est calculé par :<br><code>A = (CALLS_PER_HOUR * DURATION_SEC) / 3600.0</code></p>
 <p>La formule récursive d'Erlang B pour calculer la probabilité de blocage <code>B(N, A)</code> est :</p><ul><li><code>B(0, A) = 1.0</code></li><li><code>B(k, A) = (A * B(k-1, A)) / (k + A * B(k-1, A))</code> pour <code>k = 1, 2, ..., N</code>.</li></ul>
-<p>Format d'entrée :<br>Lignes de la forme :<br>CALLS_PER_HOUR=<nb> DURATION_SEC=<duree_moyenne> CHANNELS=<nb_canaux> TARGET_GOS_PCT=<seuil_gos_max_pct></p>
-<p>Règles de calcul :<br>1. Calculer le trafic offert <code>A</code> en Erlangs.<br>2. Calculer la probabilité de blocage réelle <code>B(N, A)</code> en pourcentage (<code>B * 100.0</code>).<br>3. Comparer avec le seuil cible <code>TARGET_GOS_PCT</code> :<br>   - Si <code>blocage_pct <= TARGET_GOS_PCT</code> -> <code>CONFORME:OUI</code><br>   - Sinon -> <code>CONFORME:NON</code><br>4. Déterminer le nombre minimal de canaux <code>N_MIN</code> nécessaires pour que <code>B(N_MIN, A) * 100.0 <= TARGET_GOS_PCT</code>.</p>
-<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>TRAFIC:<A:.2f>E | CANAUX:<N> | BLOCAGE:<blocage_pct:.2f>% | TARGET:<target:.2f>% | CONFORME:<OUI|NON> | CANAUX_REQUIS:<N_MIN></p></div>
+<p>Format d'entrée :<br>Lignes de la forme :<br>CALLS_PER_HOUR=&lt;nb&gt; DURATION_SEC=&lt;duree_moyenne&gt; CHANNELS=&lt;nb_canaux&gt; TARGET_GOS_PCT=&lt;seuil_gos_max_pct&gt;</p>
+<p>Règles de calcul :<br>1. Calculer le trafic offert <code>A</code> en Erlangs.<br>2. Calculer la probabilité de blocage réelle <code>B(N, A)</code> en pourcentage (<code>B * 100.0</code>).<br>3. Comparer avec le seuil cible <code>TARGET_GOS_PCT</code> :<br>   - Si <code>blocage_pct &lt;= TARGET_GOS_PCT</code> -&gt; <code>CONFORME:OUI</code><br>   - Sinon -&gt; <code>CONFORME:NON</code><br>4. Déterminer le nombre minimal de canaux <code>N_MIN</code> nécessaires pour que <code>B(N_MIN, A) * 100.0 &lt;= TARGET_GOS_PCT</code>.</p>
+<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>TRAFIC:&lt;A:.2f&gt;E | CANAUX:&lt;N&gt; | BLOCAGE:&lt;blocage_pct:.2f&gt;% | TARGET:&lt;target:.2f&gt;% | CONFORME:&lt;OUI|NON&gt; | CANAUX_REQUIS:&lt;N_MIN&gt;</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CALLS_PER_HOUR=120 DURATION_SEC=180 CHANNELS=10 TARGET_GOS_PCT=1.0
 CALLS_PER_HOUR=200 DURATION_SEC=120 CHANNELS=8 TARGET_GOS_PCT=2.0</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TRAFIC:6.00E | CANAUX:10 | BLOCAGE:4.31% | TARGET:1.00% | CONFORME:NON | CANAUX_REQUIS:13
-TRAFIC:6.67E | CANAUX:8 | BLOCAGE:15.97% | TARGET:2.00% | CONFORME:NON | CANAUX_REQUIS:13
-</pre></div>
     </div>
-    <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -212,27 +212,23 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Validateur de Marquage QoS &amp; Mappage DSCP / CoS 802.1p</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="vo3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité du marquage QoS (CoS 5, DSCP EF 46) et la ségrégation en Voice VLAN pour les flux ToIP.</p>
-    <div class="lab__brief"><p>Dans les réseaux d'entreprise, la qualité de service (QoS) est indispensable pour préserver la voix en temps réel de la gigue et de la congestion. Les standards IETF et IEEE recommandent :   Dans l'en-tête IP (champ ToS / DiffServ), la valeur DSCP est décalée de 2 bits à gauche : <code>ToS = DSCP << 2</code> (ex: 46 << 2 = 184 soit 0xB8).   Le marquage de niveau 2 (802.1p CoS) associé est <code>CoS = 5</code> (Voice).   ToS = 24 << 2 = 96 (0x60) ou 26 << 2 = 104 (0x68).   Le marquage CoS associé est <code>CoS = 3</code> (Call Signaling).</p><ul><li>Médias vocaux RTP : DSCP EF (Expedited Forwarding = valeur décimale 46, binaire 101110)</li><li>Signalisation SIP : DSCP CS3 (valeur 24) ou AF31 (valeur 26)</li><li>Trafic Best-Effort (données web/bureautique) : DSCP CS0 (0, ToS = 0, CoS = 0).</li></ul>
-<p>Format d'entrée :<br>Lignes décrivant des flux réseau observés :<br>FLUX=<RTP_VOICE|SIP_SIGNALING|DATA_DEFAULT> DSCP_DEC=<valeur> COS_OBSERVED=<cos></p>
-<p>Règles de validation :<br>1. Calculer la valeur théorique du champ ToS (hexadécimal 0x..) : <code>tos = dscp << 2</code>.<br>2. Vérifier la conformité du marquage DSCP et CoS selon le type de flux :<br>   - RTP_VOICE : attendu DSCP == 46 et CoS == 5<br>   - SIP_SIGNALING : attendu DSCP in {24, 26} et CoS == 3<br>   - DATA_DEFAULT : attendu DSCP == 0 et CoS == 0<br>3. Si tout correspond -> <code>STATUT:CONFORME</code><br>   Sinon -> <code>STATUT:NON_CONFORME</code> (préciser l'anomalie : DSCP_INCORRECT, COS_INCORRECT ou TOUS_DEUX_INCORRECTS).</p>
-<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>FLUX:<nom> | DSCP:<val> | TOS:0x<hex> | COS:<cos> | STATUT:<statut> | ANOMALIE:<AUCUNE|anomalie></p></div>
+    <div class="lab__brief"><p>Dans les réseaux d'entreprise, la qualité de service (QoS) est indispensable pour préserver la voix en temps réel de la gigue et de la congestion. Les standards IETF et IEEE recommandent :   Dans l'en-tête IP (champ ToS / DiffServ), la valeur DSCP est décalée de 2 bits à gauche : <code>ToS = DSCP &lt;&lt; 2</code> (ex: 46 &lt;&lt; 2 = 184 soit 0xB8).   Le marquage de niveau 2 (802.1p CoS) associé est <code>CoS = 5</code> (Voice).   ToS = 24 &lt;&lt; 2 = 96 (0x60) ou 26 &lt;&lt; 2 = 104 (0x68).   Le marquage CoS associé est <code>CoS = 3</code> (Call Signaling).</p><ul><li>Médias vocaux RTP : DSCP EF (Expedited Forwarding = valeur décimale 46, binaire 101110)</li><li>Signalisation SIP : DSCP CS3 (valeur 24) ou AF31 (valeur 26)</li><li>Trafic Best-Effort (données web/bureautique) : DSCP CS0 (0, ToS = 0, CoS = 0).</li></ul>
+<p>Format d'entrée :<br>Lignes décrivant des flux réseau observés :<br>FLUX=&lt;RTP_VOICE|SIP_SIGNALING|DATA_DEFAULT&gt; DSCP_DEC=&lt;valeur&gt; COS_OBSERVED=&lt;cos&gt;</p>
+<p>Règles de validation :<br>1. Calculer la valeur théorique du champ ToS (hexadécimal 0x..) : <code>tos = dscp &lt;&lt; 2</code>.<br>2. Vérifier la conformité du marquage DSCP et CoS selon le type de flux :<br>   - RTP_VOICE : attendu DSCP == 46 et CoS == 5<br>   - SIP_SIGNALING : attendu DSCP in {24, 26} et CoS == 3<br>   - DATA_DEFAULT : attendu DSCP == 0 et CoS == 0<br>3. Si tout correspond -&gt; <code>STATUT:CONFORME</code><br>   Sinon -&gt; <code>STATUT:NON_CONFORME</code> (préciser l'anomalie : DSCP_INCORRECT, COS_INCORRECT ou TOUS_DEUX_INCORRECTS).</p>
+<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>FLUX:&lt;nom&gt; | DSCP:&lt;val&gt; | TOS:0x&lt;hex&gt; | COS:&lt;cos&gt; | STATUT:&lt;statut&gt; | ANOMALIE:&lt;AUCUNE|anomalie&gt;</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FLUX=RTP_VOICE DSCP_DEC=46 COS_OBSERVED=5
 FLUX=RTP_VOICE DSCP_DEC=0 COS_OBSERVED=0
 FLUX=SIP_SIGNALING DSCP_DEC=26 COS_OBSERVED=3
 FLUX=SIP_SIGNALING DSCP_DEC=24 COS_OBSERVED=5</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>FLUX:RTP_VOICE | DSCP:46 | TOS:0xb8 | COS:5 | STATUT:CONFORME | ANOMALIE:AUCUNE
-FLUX:RTP_VOICE | DSCP:0 | TOS:0x00 | COS:0 | STATUT:NON_CONFORME | ANOMALIE:TOUS_DEUX_INCORRECTS
-FLUX:SIP_SIGNALING | DSCP:26 | TOS:0x68 | COS:3 | STATUT:CONFORME | ANOMALIE:AUCUNE
-FLUX:SIP_SIGNALING | DSCP:24 | TOS:0x60 | COS:5 | STATUT:NON_CONFORME | ANOMALIE:COS_INCORRECT
-</pre></div>
     </div>
-    <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -248,7 +244,7 @@ FLUX:SIP_SIGNALING | DSCP:24 | TOS:0x60 | COS:5 | STATUT:NON_CONFORME | ANOMALIE
      data-language="analyse"
      data-height="300"
      data-stdin="CLIENT_LOCAL=192.168.1.15:5060 STUN1_MAPPED=198.51.100.42:10500 STUN2_MAPPED=198.51.100.42:10500&#10;CLIENT_LOCAL=192.168.1.15:5060 STUN1_MAPPED=198.51.100.42:10500 STUN2_MAPPED=198.51.100.42:10501&#10;CLIENT_LOCAL=203.0.113.10:5060 STUN1_MAPPED=203.0.113.10:5060 STUN2_MAPPED=203.0.113.10:5060">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c5-e3) — Résolveur de Traversée NAT STUN & Détecteur de Topologie ICE
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c5-e3) — Observer les mappages STUN avant les vérifications ICE
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
 [Cas 1 — Cas de test 1]
@@ -261,36 +257,35 @@ A_COMPLETER
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Résolveur de Traversée NAT STUN &amp; Détecteur de Topologie ICE</h3>
+    <h3 class="lab__title">Exercice 3 — Observer les mappages STUN avant les vérifications ICE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Résoudre les incohérences d'adresses IP privées dans les offres SDP et déterminer la stratégie de traversée NAT (STUN vs TURN).</p>
-    <div class="lab__brief"><p>Lorsqu'un terminal VoIP est derrière un routeur NAT, ses paquets SIP et RTP comportent des adresses IP privées inaccessibles depuis Internet. Le protocole STUN (RFC 5389) permet au client de découvrir son adresse IP et son port publics (MAPPED-ADDRESS) vus par le serveur externe. En envoyant deux requêtes STUN vers deux adresses de serveurs distinctes (S1 et S2), le client qualifie le comportement de son NAT :   -> <code>NAT_CONE</code> (Full Cone, Restricted Cone ou Port-Restricted Cone) : STUN suffit pour établir les flux directs sans relais.   -> <code>NAT_SYMETRIQUE</code> : les communications directes échouent souvent sans serveur relais TURN.   -> <code>PAS_DE_NAT</code> (IP publique directe).</p><ul><li>Si l'adresse IP et le port mappés sont identiques pour S1 et S2 :</li><li>Si le port externe change entre S1 et S2 pour le même socket local :</li><li>Si l'adresse mappée est égale à l'adresse locale privée :</li></ul>
-<p>Format d'entrée :<br>Lignes au format :<br>CLIENT_LOCAL=<ip_locale:port> STUN1_MAPPED=<ip_pub1:port1> STUN2_MAPPED=<ip_pub2:port2></p>
-<p>Format de sortie : Pour chaque ligne, déterminer :   - PAS_DE_NAT -> <code>ROUTAGE_DIRECT</code>   - NAT_CONE -> <code>STUN_DIRECT</code>   - NAT_SYMETRIQUE -> <code>SERVEUR_RELAIS_TURN</code> LOCAL:<local> | MAPPED_S1:<s1> | MAPPED_S2:<s2> | TOPOLOGIE:<type> | SOLUTION:<solution></p><ul><li>Le type de NAT : <code>PAS_DE_NAT</code>, <code>NAT_CONE</code> ou <code>NAT_SYMETRIQUE</code>.</li><li>La solution recommandée :</li><li>Afficher :</li></ul></div>
+    <p class="lab__formative-notice" id="vo3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer deux mappages observés sans confondre cette observation avec une preuve de connectivité.</p>
+    <div class="lab__brief"><p>Deux serveurs STUN (RFC 8489) observent l'adresse et le port d'un même socket local. Comparez les deux couples observés : s'ils sont égaux, indiquez <code>MAPPAGES_IDENTIQUES</code>, sinon <code>MAPPAGES_DIFFERENTS</code>. Comparer ces deux observations ne permet pas de déterminer le filtrage ni de garantir qu'un pair sera joignable, même si les valeurs sont identiques à l'adresse locale.</p>
+<p>La suite est de procéder à des vérifications de connectivité ICE (RFC 8445), avec un relais TURN éventuel selon les résultats et la configuration. Cette grille n'établit ni le type exact de NAT ni le chemin choisi.</p>
+<p>Chaque ligne contient <code>CLIENT_LOCAL=&lt;adresse:port&gt; STUN1_MAPPED=&lt;adresse:port&gt; STUN2_MAPPED=&lt;adresse:port&gt;</code>. Recopiez les trois valeurs et indiquez l'observation selon ce format :</p>
+<p><code>LOCAL:&lt;local&gt; | MAPPED_S1:&lt;s1&gt; | MAPPED_S2:&lt;s2&gt; | OBSERVATION:&lt;MAPPAGES_IDENTIQUES ou MAPPAGES_DIFFERENTS&gt; | SUITE:VERIFIER_ICE</code></p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CLIENT_LOCAL=192.168.1.15:5060 STUN1_MAPPED=198.51.100.42:10500 STUN2_MAPPED=198.51.100.42:10500
 CLIENT_LOCAL=192.168.1.15:5060 STUN1_MAPPED=198.51.100.42:10500 STUN2_MAPPED=198.51.100.42:10501
 CLIENT_LOCAL=203.0.113.10:5060 STUN1_MAPPED=203.0.113.10:5060 STUN2_MAPPED=203.0.113.10:5060</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10500 | TOPOLOGIE:NAT_CONE | SOLUTION:STUN_DIRECT
-LOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10501 | TOPOLOGIE:NAT_SYMETRIQUE | SOLUTION:SERVEUR_RELAIS_TURN
-LOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5060 | TOPOLOGIE:PAS_DE_NAT | SOLUTION:ROUTAGE_DIRECT
-</pre></div>
     </div>
-    <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Comparez l'adresse IP annoncée dans c= avec l'adresse source publique du paquet.</li>
-        <li>Désactivez SIP ALG et orientez vers un serveur TURN en présence d'un NAT symétrique.</li>
+        <li>Comparez les deux couples adresse et port observés par les serveurs.</li>
+        <li>Les observations seules ne démontrent pas que le trafic entre les pairs est autorisé.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -346,14 +341,14 @@ LOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5
       <div class="q__exp">L'émetteur externe tente d'envoyer son flux RTP vers l'IP privée non routable du récepteur, causant une absence totale de son dans un sens (One-Way Audio).</div>
     </div>
     <div class="q">
-      <p class="q__stem">Pourquoi le protocole STUN (RFC 5389) est-il inefficace pour établir une liaison voix directe lorsque le routeur applique un NAT symétrique ?</p>
+      <p class="q__stem">Deux serveurs STUN observent le même mappage pour un client. Que peut-on en conclure pour la communication avec un pair ?</p>
       <div class="opts">
-        <button class="opt">Car STUN est limité à l'IPv6</button>
-        <button class="opt" data-correct="1">Car le routeur attribue un port externe différent pour chaque adresse IP de destination contactée</button>
-        <button class="opt">Car STUN nécessite un mot de passe administrateur</button>
-        <button class="opt">Car le port 5060 est saturé</button>
+        <button class="opt">Le pair est nécessairement joignable directement</button>
+        <button class="opt" data-correct="1">Les mappages observés sont identiques, mais la connectivité doit être vérifiée</button>
+        <button class="opt">Aucun pare-feu ne filtre le trafic</button>
+        <button class="opt">Le client ne traverse aucun NAT</button>
       </div>
-      <div class="q__exp">Sur un NAT symétrique, le port public mappé vers le serveur STUN n'est pas réutilisable pour joindre le correspondant distant, ce qui exige un serveur relais TURN.</div>
+      <div class="q__exp">La comparaison de ces deux observations ne prouve ni le filtrage ni la joignabilité du pair ; ICE vérifie des paires de candidats et TURN peut fournir un relais.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle action d'administration réseau est fortement recommandée sur les passerelles Internet pour éviter que les messages SIP ne soient altérés ou corrompus ?</p>
@@ -382,22 +377,22 @@ LOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
     <ul>
-      <li>Conserver le module SIP ALG actif sur un routeur : source n°1 de désenregistrements aléatoires et d'échecs de sonnerie en entreprise.</li>
+      <li>Supposer qu'un SIP ALG est toujours adapté ou toujours nuisible sans vérifier son comportement dans le déploiement.</li>
       <li>Négliger la réservation de bande passante prioritaire (LLQ) sur le routeur WAN, provoquant une dégradation immédiate de la voix dès qu'un utilisateur télécharge un fichier volumineux.</li>
       <li>Dimensionner un trunk téléphonique sur la moyenne de la journée au lieu de l'heure de pointe (Busy Hour), provoquant des saturations quotidiennes.</li>
-      <li>Penser que STUN fonctionne sur tous les routeurs : sur un NAT symétrique, STUN échoue systématiquement et nécessite un relais TURN ou SBC.</li>
+      <li>Confondre découverte de mappage et preuve de connectivité directe : vérifier les paires ICE et prévoir un relais selon les résultats.</li>
     </ul>
   </div>
 
 <h2>7. Méthodologie de résolution</h2>
 
   <div class="box box--method">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie : QoS Réseau & Résolution des Pannes NAT</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie : QoS Réseau &amp; Résolution des Pannes NAT</div>
     <ol>
-      <li>Dimensionner les capacités de trunks : calculer le trafic offert en Erlangs à l'heure de pointe et utiliser la loi d'Erlang B pour provisionner les canaux avec un GoS <= 1%.</li>
+      <li>Dimensionner les capacités de trunks : calculer le trafic offert en Erlangs à l'heure de pointe et utiliser la loi d'Erlang B pour provisionner les canaux avec un GoS &lt;= 1%.</li>
       <li>Déployer la ségrégation Voice VLAN : configurer le balisage 802.1Q et CoS 5 sur les commutateurs avec détection automatique LLDP-MED des téléphones IP.</li>
       <li>Activer le marquage DiffServ / LLQ : configurer les règles de marquage DSCP EF (46) pour les médias RTP et allouer une bande passante prioritaire stricte sur les routeurs WAN.</li>
-      <li>Désactiver impérativement le SIP ALG : neutraliser le module SIP ALG sur les routeurs/pare-feux et activer STUN ou un contrôleur de session SBC (Session Border Controller).</li>
+      <li>Diagnostiquer les règles de filtrage et les candidats ICE ; vérifier si le SIP ALG ou un contrôleur de session SBC convient au déploiement.</li>
     </ol>
   </div>
 
@@ -407,10 +402,10 @@ LOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
       <li>L'intensité de trafic s'exprime en Erlangs (A = Appels * Durée / 3600) ; la loi d'Erlang B calcule la probabilité de blocage sur N canaux sans attente.</li>
-      <li>Les exigences ITU-T G.114 pour la voix imposent une latence <= 150 ms, une gigue <= 30 ms et des pertes de paquets <= 1.0%.</li>
+      <li>Les exigences ITU-T G.114 pour la voix imposent une latence &lt;= 150 ms, une gigue &lt;= 30 ms et des pertes de paquets &lt;= 1.0%.</li>
       <li>La QoS combine Voice VLAN (802.1Q) et CoS 5 en couche 2, et marquage DSCP EF (46) avec file d'attente LLQ en couche 3.</li>
       <li>Le NAT classique provoque le phénomène de One-Way Audio en laissant des adresses IP privées dans les en-têtes Contact SIP et les offres médias SDP.</li>
-      <li>STUN permet au client de découvrir son adresse publique sur NAT Cone ; TURN fournit un relais média obligatoire sur NAT symétrique.</li>
+      <li>STUN fournit une adresse observée, ICE vérifie des paires de candidats et TURN peut fournir un relais si le chemin direct ne convient pas.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
@@ -422,7 +417,7 @@ LOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li><strong>Erlang (Unité) :</strong> Mesure de l'intensité du trafic téléphonique correspondant à l'occupation continue d'un canal pendant une heure.</li><li><strong>Loi d'Erlang B :</strong> Modèle mathématique récursif calculant la probabilité de rejet d'appels sur un faisceau de N canaux sans file d'attente.</li><li><strong>Voice VLAN :</strong> Réseau local virtuel 802.1Q dédié isolant le trafic téléphonique du trafic de données bureautique.</li><li><strong>DSCP EF (46) :</strong> Expedited Forwarding : classe de service DiffServ prioritaire garantissant un transit immédiat sans mise en attente.</li><li><strong>One-Way Audio :</strong> Anomalie ToIP où l'audio ne circule que dans un seul sens, causée par la présence d'une IP privée non routable dans le SDP.</li><li><strong>STUN / TURN :</strong> Protocoles standards de découverte d'adresse réflexive (STUN) et de relais de flux médias (TURN) pour traverser le NAT.</li><li>L'intensité de trafic s'exprime en Erlangs (A = Appels * Durée / 3600) ; la loi d'Erlang B calcule la probabilité de blocage sur N canaux sans attente.</li><li>Les exigences ITU-T G.114 pour la voix imposent une latence <= 150 ms, une gigue <= 30 ms et des pertes de paquets <= 1.0%.</li>
+      <li><strong>Erlang (Unité) :</strong> Mesure de l'intensité du trafic téléphonique correspondant à l'occupation continue d'un canal pendant une heure.</li><li><strong>Loi d'Erlang B :</strong> Modèle mathématique récursif calculant la probabilité de rejet d'appels sur un faisceau de N canaux sans file d'attente.</li><li><strong>Voice VLAN :</strong> Réseau local virtuel 802.1Q dédié isolant le trafic téléphonique du trafic de données bureautique.</li><li><strong>DSCP EF (46) :</strong> Expedited Forwarding : classe de service DiffServ prioritaire garantissant un transit immédiat sans mise en attente.</li><li><strong>One-Way Audio :</strong> Anomalie ToIP où l'audio ne circule que dans un seul sens, causée par la présence d'une IP privée non routable dans le SDP.</li><li><strong>STUN / TURN :</strong> Protocoles standards de découverte d'adresse réflexive (STUN) et de relais de flux médias (TURN) pour traverser le NAT.</li><li>L'intensité de trafic s'exprime en Erlangs (A = Appels * Durée / 3600) ; la loi d'Erlang B calcule la probabilité de blocage sur N canaux sans attente.</li><li>Les exigences ITU-T G.114 pour la voix imposent une latence &lt;= 150 ms, une gigue &lt;= 30 ms et des pertes de paquets &lt;= 1.0%.</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -434,7 +429,7 @@ LOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Notions d'Erlang B, QoS et NAT mal comprises. Relisez les sections et refaites le test.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Notions d'Erlang B, QoS et NAT mal comprises. Relisez les sections et refaites le test.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Principes généraux acquis. Entraînez-vous au calcul du trafic en Erlangs et aux règles de marquage DSCP.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Niveau solide. Vous maîtrisez le dimensionnement télécoms et la garantie de qualité de service ToIP.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise d'ingénieur télécoms. Prêt pour les fonctionnalités avancées et la sécurité du Module 6 !</div>
@@ -444,7 +439,7 @@ LOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Fonctions Avancées, Trunks Inter-Sites & Sécurité ToIP <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Fonctions Avancées, Trunks Inter-Sites &amp; Sécurité ToIP <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.

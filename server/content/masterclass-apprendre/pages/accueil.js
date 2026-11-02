@@ -39,7 +39,7 @@ function index(course, chapterList) {
       'de la répétition espacée et au pilotage métacognitif. Le chapitre 1 est en accès libre.</p>',
       '    <p>Chaque chapitre propose <strong>trois exercices interactifs de manière méthodique</strong> modélisant les calculs ' +
       'des sciences cognitives (charge cognitive de Sweller, chunking de Miller, audit Feynman, courbe d’Ebbinghaus, ' +
-      'boîtes de Leitner, facteur SM-2, double codage, méthode des Loci, entrelacement, règle des 85 % et score de Brier), ' +
+      'boîtes de Leitner, facteur SM-2, double codage, méthode des Loci, entrelacement, modèle des 85 % et score de Brier), ' +
       'exécutés directement dans votre navigateur et validés par des tests automatisés.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -97,7 +97,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres à mémoriser.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo Apprendre à apprendre</span><br><span class="toc__d">Formule Ebbinghaus, équation SM-2, loi de Sweller, modèle Paivio et score Brier sur une page.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; protocole de révision</span><br><span class="toc__d">18 exercices guidés et le plan de mémorisation complet pour réussir ses semestres d’ingénierie.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier pratique</span><br><span class="toc__d">Écrire et exécuter du code Python directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier pratique</span><br><span class="toc__d">Analyser un cas et valider votre grille directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets corrigés pour préparer les épreuves écrites et les cas pratiques de sciences cognitives.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })

@@ -39,13 +39,13 @@ const course = {
     'Cours complet de modélisation MERISE niveau B1 : le système d\'information dans l\'entreprise, la ' +
     'double démarche par niveaux et par étapes, le dictionnaire de données et les dépendances ' +
     'fonctionnelles, le modèle conceptuel des données (entités, associations, cardinalités), le passage ' +
-    'au modèle logique relationnel et la normalisation 1FN-2FN-3FN. Chaque mécanisme est scripté en Bash ' +
-    'et réellement exécuté dans la page.',
+    'au modèle logique relationnel et la normalisation 1FN-2FN-3FN. Des grilles d’analyse proposent ' +
+    'un retour formatif sur des cas déterminés.',
   lead:
     'MERISE sépare ce qui est enregistré (les données) de ce qui est fait (les traitements), et avance ' +
     'par niveaux : quoi (conceptuel), comment organiser (logique), comment réaliser (physique). Six ' +
-    'chapitres pour passer du discours du client au schéma relationnel normalisé. Chaque mécanisme est ' +
-    'd\'abord programmé et vérifié dans l\'atelier, puis rejoué tel quel sur les applications du support.',
+    'chapitres pour passer du discours du client au schéma relationnel normalisé. Les grilles proposent ' +
+    'des cas à analyser ; la justification et le transfert à d’autres situations demandent une relecture.',
 
   sources: 'le support « Conception et modélisation des systèmes d\'information » (B1 IT, S. P. EDOH) et l\'outil AnalyseSI',
 

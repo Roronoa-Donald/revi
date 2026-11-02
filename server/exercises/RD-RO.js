@@ -8,11 +8,11 @@ module.exports = [
     "level": "n1",
     "language": "analyse",
     "goal": "Distinguer coefficients et variables, vérifier la non-négativité (x_j ≥ 0) et évaluer la fonction objectif Z sur un plan candidat.",
-    "brief": "<p>En programmation linéaire, il est crucial de distinguer :</p><ul><li>les <strong>coefficients économiques</strong> $c_1, c_2$ (marges unitaires fixes en MAX ou coûts unitaires en MIN) ;</li><li>les <strong>variables de décision</strong> $x_1, x_2$ (quantités physiques choisies par le décideur) ;</li><li>la <strong>valeur de la fonction objectif</strong> $Z = c_1 x_1 + c_2 x_2$ calculée pour un plan candidat donné ;</li><li>l’<strong>optimum</strong> (meilleur $Z$ parmi tous les plans réalisables), dont la recherche constitue une tâche algorithmique distincte.</li></ul><p><strong>Règle de non-négativité :</strong> toute variable de décision physique doit vérifier $x_j \\ge 0$. Une variable nulle ($x_j = 0$) est parfaitement valide (l’activité correspondante n’est pas mise en œuvre). En revanche, si une variable est strictement négative ($x_1 < 0$ ou $x_2 < 0$), le plan est irréalisable : indiquez <code>NON_VALIDE VIOLATION_SIGNE</code>.<br>Sinon, calculez $Z$ et indiquez : <code>VALIDE Z=&lt;valeur&gt;</code> (ex : <code>VALIDE Z=140</code>).</p>",
-    "starter": "# Grille d'analyse (ro2-c1-e1) — Validation de fonction objectif & positivité\n# Complétez la résolution mathématique sous chaque cas ci-dessous :\n\n[Cas 1 — Maximisation valide]\n# Modèle : MAX Z = 25·x1 + 30·x2\n# Plan candidat : x1 = 2, x2 = 3\nA_COMPLETER\n\n[Cas 2 — Minimisation avec variable nulle]\n# Modèle : MIN Z = 10·x1 + 8·x2\n# Plan candidat : x1 = 0, x2 = 7\nA_COMPLETER\n\n[Cas 3 — Violation de non-négativité sur x1]\n# Modèle : MAX Z = 15·x1 + 20·x2\n# Plan candidat : x1 = -2, x2 = 5\nA_COMPLETER\n",
+    "brief": "<p>Dans un modèle linéaire, distinguez coefficients économiques, variables de décision et valeur de la fonction objectif $Z = c_1 x_1 + c_2 x_2$. Calculer cette valeur pour un candidat ne prouve pas son optimalité.</p><p>Dans les modèles proposés, les quantités doivent être positives ou nulles. Si une variable est négative, le statut est <code>NON_VALIDE</code> et le détail est <code>VIOLATION_SIGNE</code>. Sinon le statut est <code>VALIDE</code> et le détail est <code>Z=&lt;valeur&gt;</code>. Répondez avec le statut, un espace, puis le détail correspondant.</p>",
+    "starter": "# Grille d'analyse (ro2-c1-e1) — Validation de fonction objectif & positivité\n# Complétez la résolution mathématique sous chaque cas ci-dessous :\n\n[Cas 1 — Plan A]\n# Modèle : MAX Z = 25·x1 + 30·x2\n# Plan candidat : x1 = 2, x2 = 3\nA_COMPLETER\n\n[Cas 2 — Plan B]\n# Modèle : MIN Z = 10·x1 + 8·x2\n# Plan candidat : x1 = 0, x2 = 7\nA_COMPLETER\n\n[Cas 3 — Plan C]\n# Modèle : MAX Z = 15·x1 + 20·x2\n# Plan candidat : x1 = -2, x2 = 5\nA_COMPLETER\n",
     "hints": [
-      "Vérifiez d'abord si x1 >= 0 et x2 >= 0. En programmation linéaire, une quantité physique négative est absurde ; en revanche, une variable nulle est tout à fait autorisée.",
-      "Si les deux variables sont valides, calculez Z = c1*x1 + c2*x2 (l'orientation MAX ou MIN n'altère pas le calcul arithmétique de la fonction, elle indique seulement le sens d'optimisation). Répondez sous la forme VALIDE Z=<valeur> ou NON_VALIDE VIOLATION_SIGNE."
+      "Quelles valeurs des variables sont autorisées dans ce modèle ? Vérifiez chaque composante du plan avant le calcul.",
+      "Si le plan respecte les signes, remplacez les variables par leurs valeurs dans la fonction objectif ; le sens MAX ou MIN ne change pas cette évaluation."
     ],
     "examples": [
       {
@@ -50,11 +50,11 @@ module.exports = [
     "level": "n2",
     "language": "analyse",
     "goal": "Vérifier la non-négativité préalable, calculer la consommation et l'écart (slack) pour chaque ressource, et qualifier la saturation ou la violation.",
-    "brief": "<p>Une contrainte de ressource limite la consommation globale par rapport à une capacité disponible :<br>$$\\text{Consommation } a_{i1} x_1 + a_{i2} x_2 \\le b_i \\quad (\\text{Capacité disponible})$$</p><p>Pour chaque plan candidat soumis :</p><ol><li><strong>Vérification préalable de non-négativité :</strong> si $x_1 < 0$ ou $x_2 < 0$, le plan est physiquement impossible : indiquez <code>IRREALISABLE VIOLATION_SIGNE</code>.</li><li><strong>Calcul de l'écart (marge résiduelle / slack) :</strong> $s_i = b_i - (a_{i1} x_1 + a_{i2} x_2)$.<ul><li>Si $s_i > 0$ : la ressource dispose d’une marge inemployée de $s_i$ unités ;</li><li>Si $s_i = 0$ : la ressource est <em>exactement saturée</em> (goulot d'étranglement actif) ;</li><li>Si $s_i < 0$ : la capacité est dépassée.</li></ul></li><li><strong>Conclusion :</strong> si $s_1 \\ge 0$ et $s_2 \\ge 0$, indiquez : <code>REALISABLE s1=&lt;s1&gt; s2=&lt;s2&gt;</code>.<br>Sinon, mentionnez les contraintes violées : <code>IRREALISABLE VIOLATION_R1</code>, <code>IRREALISABLE VIOLATION_R2</code> ou <code>IRREALISABLE VIOLATION_R1 VIOLATION_R2</code>.</li></ol>",
-    "starter": "# Grille d'analyse (ro2-c1-e2) — Faisabilité de contraintes de ressources & écarts\n# Complétez l'analyse de faisabilité pour chaque cas ci-dessous :\n\n[Cas 1 — Plan réalisable avec marge inemployée]\n# Contraintes : R1: 3·x1 + 1·x2 <= 12 | R2: 1·x1 + 4·x2 <= 14\n# Plan candidat : x1 = 2, x2 = 2\nA_COMPLETER\n\n[Cas 2 — Saturation exacte des deux ressources]\n# Contraintes : R1: 2·x1 + 1·x2 <= 10 | R2: 1·x1 + 2·x2 <= 8\n# Plan candidat : x1 = 4, x2 = 2\nA_COMPLETER\n\n[Cas 3 — Dépassement de capacité sur la ressource R1]\n# Contraintes : R1: 2·x1 + 1·x2 <= 10 | R2: 1·x1 + 2·x2 <= 12\n# Plan candidat : x1 = 5, x2 = 2\nA_COMPLETER\n",
+    "brief": "<p>Pour chaque plan, vérifiez que les variables sont positives ou nulles. Pour chaque ressource, calculez l’écart $s_i = b_i - (a_{i1}x_1 + a_{i2}x_2)$ : un écart positif indique une marge, nul une contrainte saturée, négatif un dépassement.</p><p>Si les signes et les capacités sont respectés, utilisez le format <code>REALISABLE s1=&lt;s1&gt; s2=&lt;s2&gt;</code>. Sinon, écrivez le statut <code>IRREALISABLE</code>, suivi d’un espace et des motifs applicables. Pour un signe négatif, le motif est <code>VIOLATION_SIGNE</code> ; pour les ressources dépassées, construisez chaque motif avec le préfixe <code>VIOLATION_</code> et le nom de la ressource, dans l’ordre R1 puis R2.</p>",
+    "starter": "# Grille d'analyse (ro2-c1-e2) — Faisabilité de contraintes de ressources & écarts\n# Complétez l'analyse de faisabilité pour chaque cas ci-dessous :\n\n[Cas 1 — Plan A]\n# Contraintes : R1: 3·x1 + 1·x2 <= 12 | R2: 1·x1 + 4·x2 <= 14\n# Plan candidat : x1 = 2, x2 = 2\nA_COMPLETER\n\n[Cas 2 — Plan B]\n# Contraintes : R1: 2·x1 + 1·x2 <= 10 | R2: 1·x1 + 2·x2 <= 8\n# Plan candidat : x1 = 4, x2 = 2\nA_COMPLETER\n\n[Cas 3 — Plan C]\n# Contraintes : R1: 2·x1 + 1·x2 <= 10 | R2: 1·x1 + 2·x2 <= 12\n# Plan candidat : x1 = 5, x2 = 2\nA_COMPLETER\n",
     "hints": [
-      "L'écart s_i = b_i - consommation mesure la marge restante. Si s_i >= 0, la contrainte est respectée. Un écart nul (s_i = 0) indique une saturation parfaite.",
-      "Vérifiez d'abord x1 >= 0 et x2 >= 0. Calculez ensuite s1 = b1 - (a11*x1 + a12*x2) et s2 = b2 - (a21*x1 + a22*x2). Si les deux écarts sont >= 0, répondez REALISABLE s1=<s1> s2=<s2>. Sinon, indiquez quelle contrainte est violée."
+      "Que signifie le signe de la différence entre capacité et consommation ?",
+      "Contrôlez les signes, puis calculez séparément les deux écarts avant de conclure."
     ],
     "examples": [
       {
@@ -92,11 +92,11 @@ module.exports = [
     "level": "n3",
     "language": "analyse",
     "goal": "Filtrer les candidats satisfaisant les exigences minimales (≥), justifier le rejet des non conformes et sélectionner le mélange réalisable de coût minimal.",
-    "brief": "<p>Dans un problème de mélange (<em>blending</em>), on cherche à minimiser le coût sous des exigences nutritionnelles ou qualitatives minimales :<br>$$\\text{MIN } C = c_1 x_1 + c_2 x_2 \\quad \\text{sous } a_{11} x_1 + a_{12} x_2 \\ge b_1, \\quad a_{21} x_1 + a_{22} x_2 \\ge b_2, \\quad x_1, x_2 \\ge 0$$</p><div class=\"box box--info\"><div class=\"box__title\">Précision méthodologique</div><p>Cet exercice compare un <strong>échantillon fini de mélanges candidats</strong>. Sélectionner le moins cher parmi cette liste ne prouve pas son optimalité continue globale : la recherche de l’optimum universel requiert le Simplexe (chapitre 3).</p></div><p>Pour chaque cas :</p><ol><li>Vérifiez la non-négativité puis les deux exigences minimales ($R_1 \\ge b_1$ et $R_2 \\ge b_2$) pour chaque candidat. Tout candidat violant au moins une exigence est éliminé.</li><li>Calculez le coût $C = c_1 x_1 + c_2 x_2$ des candidats réalisables.</li><li>Retenez le meilleur candidat : <code>MEILLEUR: x1=&lt;x1&gt; x2=&lt;x2&gt; COUT=&lt;C&gt;</code>.<br>Si aucun candidat n’est réalisable, indiquez : <code>AUCUN_REALISABLE</code>.<br><em>Règle de départage :</em> en cas d'égalité stricte de coût minimal entre candidats réalisables, retenez celui avec le plus petit $x_1$.</li></ol>",
-    "starter": "# Grille d'analyse (ro2-c1-e3) — Arbitrage de mélange de coût minimal (Blending)\n# Analysez les mélanges candidats et retenez le meilleur plan réalisable :\n\n[Cas 1 — Trois candidats avec un vainqueur économique net]\n# Coûts : c1 = 5 €/kg, c2 = 8 €/kg (MIN C = 5·x1 + 8·x2)\n# Exigences : R1: 1·x1 + 2·x2 >= 20 | R2: 2·x1 + 1·x2 >= 15\n# Candidats soumis : A(10, 6), B(8, 5), C(12, 4)\nA_COMPLETER\n\n[Cas 2 — Candidats dont certains violent les seuils minimaux]\n# Coûts : c1 = 3 €/kg, c2 = 2 €/kg (MIN C = 3·x1 + 2·x2)\n# Exigences : R1: 2·x1 + 1·x2 >= 10 | R2: 1·x1 + 3·x2 >= 12\n# Candidats soumis : A(2, 2), B(4, 3), C(1, 1)\nA_COMPLETER\n\n[Cas 3 — Aucun candidat ne satisfait l'ensemble des exigences]\n# Coûts : c1 = 10 €/kg, c2 = 15 €/kg (MIN C = 10·x1 + 15·x2)\n# Exigences : R1: 2·x1 + 3·x2 >= 50 | R2: 3·x1 + 1·x2 >= 40\n# Candidats soumis : A(5, 5), B(10, 2), C(2, 8)\nA_COMPLETER\n",
+    "brief": "<p>Dans un problème de mélange (<em>blending</em>), on cherche à minimiser le coût sous des exigences nutritionnelles ou qualitatives minimales :<br>$\\text{MIN } C = c_1 x_1 + c_2 x_2 \\quad \\text{sous } a_{11} x_1 + a_{12} x_2 \\ge b_1, \\quad a_{21} x_1 + a_{22} x_2 \\ge b_2, \\quad x_1, x_2 \\ge 0$</p><div class=\"box box--info\"><div class=\"box__title\">Précision méthodologique</div><p>Cet exercice compare un <strong>échantillon fini de mélanges candidats</strong>. Sélectionner le moins cher parmi cette liste ne prouve pas son optimalité continue globale : la recherche de l’optimum universel requiert le Simplexe (chapitre 3).</p></div><p>Pour chaque cas :</p><ol><li>Vérifiez la non-négativité puis les deux exigences minimales ($R_1 \\ge b_1$ et $R_2 \\ge b_2$) pour chaque candidat. Tout candidat violant au moins une exigence est éliminé.</li><li>Calculez le coût $C = c_1 x_1 + c_2 x_2$ des candidats réalisables.</li><li>Retenez le meilleur candidat : <code>MEILLEUR: x1=&lt;x1&gt; x2=&lt;x2&gt; COUT=&lt;C&gt;</code>.<br>Pour une liste sans candidat réalisable, utilisez le format <code>BILAN: &lt;état&gt;</code> avec l’état <code>AUCUN</code>.<br><em>Règle de départage :</em> en cas d'égalité stricte de coût minimal entre candidats réalisables, retenez celui avec le plus petit $x_1$.</li></ol>",
+    "starter": "# Grille d'analyse (ro2-c1-e3) — Arbitrage de mélange de coût minimal (Blending)\n# Analysez les mélanges candidats et retenez le meilleur plan réalisable :\n\n[Cas 1 — Liste A]\n# Coûts : c1 = 5 €/kg, c2 = 8 €/kg (MIN C = 5·x1 + 8·x2)\n# Exigences : R1: 1·x1 + 2·x2 >= 20 | R2: 2·x1 + 1·x2 >= 15\n# Candidats soumis : A(10, 6), B(8, 5), C(12, 4)\nA_COMPLETER\n\n[Cas 2 — Liste B]\n# Coûts : c1 = 3 €/kg, c2 = 2 €/kg (MIN C = 3·x1 + 2·x2)\n# Exigences : R1: 2·x1 + 1·x2 >= 10 | R2: 1·x1 + 3·x2 >= 12\n# Candidats soumis : A(2, 2), B(4, 3), C(1, 1)\nA_COMPLETER\n\n[Cas 3 — Liste C]\n# Coûts : c1 = 10 €/kg, c2 = 15 €/kg (MIN C = 10·x1 + 15·x2)\n# Exigences : R1: 2·x1 + 3·x2 >= 50 | R2: 3·x1 + 1·x2 >= 40\n# Candidats soumis : A(5, 5), B(10, 2), C(2, 8)\nA_COMPLETER\n",
     "hints": [
-      "Ne comparez jamais les coûts avant d'avoir validé la faisabilité ! Un candidat très peu coûteux mais qui ne respecte pas les teneurs minimales requises est impérativement disqualifié.",
-      "Testez chaque point (x1, x2) sur les deux inéquations >=. Dans le cas 1, B est éliminé car 1*8 + 2*5 = 18 < 20. Comparez le coût C = c1*x1 + c2*x2 entre les candidats restants et sélectionnez le minimum."
+      "Que devez-vous vérifier sur chaque candidat avant de comparer les coûts ?",
+      "Pour chaque candidat, calculez les deux apports et comparez-les aux seuils ; comparez ensuite les coûts des candidats conservés."
     ],
     "examples": [
       {
@@ -121,11 +121,11 @@ module.exports = [
       {
         "label": "Aucun candidat ne satisfait l'ensemble des exigences",
         "stdin": "cas:3",
-        "expected": "AUCUN_REALISABLE",
+        "expected": "BILAN: AUCUN",
         "hint": "A(5,5) apporte 25 < 50 sur R1. B(10,2) apporte 26 < 50 sur R1. C(2,8) apporte 28 < 50 sur R1. Tous sont éliminés."
       }
     ],
-    "solution": "[Exemple]\nMEILLEUR: x1=25 x2=10 COUT=160\n\n[Cas 1 — Trois candidats avec un vainqueur économique net]\nMEILLEUR: x1=12 x2=4 COUT=92\n\n[Cas 2 — Candidats dont certains violent les seuils minimaux]\nMEILLEUR: x1=4 x2=3 COUT=18\n\n[Cas 3 — Aucun candidat ne satisfait l'ensemble des exigences]\nAUCUN_REALISABLE\n"
+    "solution": "[Exemple]\nMEILLEUR: x1=25 x2=10 COUT=160\n\n[Cas 1 — Trois candidats avec un vainqueur économique net]\nMEILLEUR: x1=12 x2=4 COUT=92\n\n[Cas 2 — Candidats dont certains violent les seuils minimaux]\nMEILLEUR: x1=4 x2=3 COUT=18\n\n[Cas 3 — Aucun candidat ne satisfait l'ensemble des exigences]\nBILAN: AUCUN\n"
   },
   {
     "id": "ro2-c1-e4",
@@ -133,12 +133,12 @@ module.exports = [
     "title": "Modélisation guidée d'un problème concret & contrainte d'égalité",
     "level": "n2",
     "language": "analyse",
-    "goal": "Traduire un énoncé verbal industriel en composantes formelles : fonction objectif, contraintes de ressources, contrainte d'égalité stricte et positivité.",
-    "brief": "<p>Une usine assemble deux modèles de panneaux solaires : <strong>Standard ($x_1$, unités/jour)</strong> et <strong>Premium ($x_2$, unités/jour)</strong>.</p><ul><li>Marge unitaire nette : <strong>40 €</strong> par Standard et <strong>70 €</strong> par Premium.</li><li>Cellules photovoltaïques : le modèle Standard consomme <strong>4 cellules</strong> et le Premium <strong>8 cellules</strong>, pour un approvisionnement journalier plafonné à <strong>800 cellules</strong>.</li><li>Contrôle qualité : le Standard requiert <strong>2 minutes</strong> de banc de test et le Premium <strong>3 minutes</strong>, avec une capacité maximale d’atelier de <strong>360 minutes/jour</strong>.</li><li><strong>Engagement contractuel strict (contrainte d'égalité) :</strong> un contrat ferme impose de livrer <em>exactement</em> <strong>50 panneaux Standard</strong> par jour ($x_1 = 50$). Une contrainte d’égalité traduit une obligation absolue sans aucune tolérance de sous- ou sur-production.</li></ul><p>Pour chaque cas ci-dessous, écrivez la formule mathématique canonique correspondante.</p>",
-    "starter": "# Grille d'analyse (ro2-c1-e4) — Modélisation guidée & contrainte d'égalité\n# Formalisez chaque composante demandée à partir de l'énoncé :\n\n[Cas 1 — Définition de la fonction objectif]\n# Énoncé : Maximiser la marge totale quotidienne (Standard: 40 €, Premium: 70 €)\n# Format attendu : MAX Z = 40*x1 + 70*x2\nA_COMPLETER\n\n[Cas 2 — Contrainte de ressource en cellules]\n# Énoncé : 4 cellules par Standard, 8 par Premium, stock disponible <= 800 cellules\n# Format attendu : 4*x1 + 8*x2 <= 800\nA_COMPLETER\n\n[Cas 3 — Contrainte d'engagement contractuel strict]\n# Énoncé : Engagement ferme de livrer exactement 50 panneaux Standard chaque jour\n# Format attendu : x1 = 50\nA_COMPLETER\n",
+    "goal": "Traduire un énoncé industriel en fonction objectif, contrainte de ressource et contrainte d'égalité stricte.",
+    "brief": "<p>Une usine assemble deux modèles de panneaux solaires : <strong>Standard ($x_1$, unités/jour)</strong> et <strong>Premium ($x_2$, unités/jour)</strong>.</p><ul><li>Marge unitaire nette : <strong>40 €</strong> par Standard et <strong>70 €</strong> par Premium.</li><li>Cellules photovoltaïques : le modèle Standard consomme <strong>4 cellules</strong> et le Premium <strong>8 cellules</strong>, pour un approvisionnement journalier plafonné à <strong>800 cellules</strong>.</li><li>Contrôle qualité : le Standard requiert <strong>2 minutes</strong> de banc de test et le Premium <strong>3 minutes</strong>, avec une capacité maximale d’atelier de <strong>360 minutes/jour</strong>.</li><li><strong>Engagement contractuel strict (contrainte d'égalité) :</strong> un contrat ferme impose de livrer <em>exactement</em> <strong>50 panneaux Standard</strong> par jour. Une contrainte d’égalité traduit une obligation absolue sans aucune tolérance de sous- ou sur-production.</li></ul><p>Pour chaque cas ci-dessous, écrivez la formule mathématique canonique correspondante.</p>",
+    "starter": "# Grille d'analyse (ro2-c1-e4) — Modélisation guidée & contrainte d'égalité\n# Formalisez chaque composante demandée à partir de l'énoncé :\n\n[Cas 1 — Définition de la fonction objectif]\n# Énoncé : Maximiser la marge totale quotidienne (Standard: 40 €, Premium: 70 €)\n# Forme : MAX Z = <expression en x1 et x2>\nA_COMPLETER\n\n[Cas 2 — Contrainte de ressource en cellules]\n# Énoncé : 4 cellules par Standard, 8 par Premium, stock disponible <= 800 cellules\n# Forme : <consommation> <= <capacité>\nA_COMPLETER\n\n[Cas 3 — Contrainte d'engagement contractuel strict]\n# Énoncé : Engagement ferme de livrer exactement 50 panneaux Standard chaque jour\n# Forme : <variable> = <quantité>\nA_COMPLETER\n",
     "hints": [
-      "Identifiez le sens d'optimisation (MAX pour une marge ou profit, MIN pour un coût) et veillez à associer chaque coefficient à la bonne variable de décision.",
-      "Pour une limitation de stock ou d'heures, utilisez le symbole <=. Pour un quota ou engagement strict sans dépassement ni déficit, utilisez l'égalité pure (=). Écrivez l'expression sans espaces superflus (ex: 4*x1 + 8*x2 <= 800)."
+      "Quelles variables, coefficients et unité correspondent à chaque modèle ?",
+      "Distinguez une limite de capacité d’une obligation exacte, puis choisissez l’opérateur adapté."
     ],
     "examples": [
       {
@@ -175,17 +175,17 @@ module.exports = [
     "title": "Validation des 4 hypothèses fondamentales & typologie des variables",
     "level": "n3",
     "language": "analyse",
-    "goal": "Identifier les 4 hypothèses de Dantzig (proportionnalité, additivité, divisibilité, certitude), reconnaître leurs violations et distinguer variables continues et binaires/entières.",
-    "brief": "<p>Tout programme linéaire continu repose sur <strong>quatre hypothèses fondamentales</strong> établies par George Dantzig :</p><ul><li><strong>1. Proportionnalité :</strong> la contribution de chaque variable est strictement linéaire ($c_j x_j$ et $a_{ij} x_j$), excluant toute remise sur volume ou coût fixe de lancement.</li><li><strong>2. Additivité :</strong> l’effet global est la somme pure des effets individuels, sans synergie ni interaction croisée ($x_1 \\cdot x_2$ est proscrit).</li><li><strong>3. Divisibilité :</strong> les variables peuvent prendre n'importe quelle valeur réelle positive ($x_j \\in \\mathbb{R}^+$).</li><li><strong>4. Certitude :</strong> l'ensemble des coefficients ($c_j, a_{ij}, b_i$) est connu de manière déterministe et exacte.</li></ul><div class=\"box box--warning\"><div class=\"box__title\">Distinction clé : variables binaires et entières</div><p>Lorsque la divisibilité est rompue (choix binaire d’investissement $x_j \\in \\{0, 1\\}$ ou unités indivisibles $x_j \\in \\mathbb{N}$), le modèle devient un <strong>Programme Linéaire en Nombres Entiers (PLNE / MIP)</strong>. Ce problème est combinatoire et NP-difficile : l’algorithme du simplexe standard continu ne peut pas s'y appliquer directement sans méthode de séparation et évaluation (Branch &amp; Bound).</p></div><p>Pour chaque cas ci-dessous, nommez l’hypothèse violée (PROPORTIONNALITE, ADDITIVITE, DIVISIBILITE, CERTITUDE) ou le type de modèle requis (PLNE).</p>",
-    "starter": "# Grille d'analyse (ro2-c1-e5) — 4 hypothèses & nature des variables\n# Identifiez la notion ou l'hypothèse mise en jeu pour chaque situation :\n\n[Cas 1 — Remise sur volume chez le fournisseur de bois]\n# Situation : Le fournisseur accorde 20 % de réduction sur le prix du bois au-delà de 100 m² achetés\n# Hypothèse violée parmi (proportionnalité / additivité / divisibilité / certitude) :\nA_COMPLETER\n\n[Cas 2 — Choix d'ouverture d'un nouvel entrepôt logistique]\n# Situation : Décision binaire « ouvrir (1) ou ne pas ouvrir (0) le site de Lyon »\n# Type de modèle : Programmation continue standard ou Programmation en nombres entiers (PLNE) ?\nA_COMPLETER\n\n[Cas 3 — Fluctuations imprévisibles du coût de l'électricité sur le marché spot]\n# Situation : Le tarif du kWh varie chaque heure selon une loi de probabilité météo\n# Hypothèse violée parmi (proportionnalité / additivité / divisibilité / certitude) :\nA_COMPLETER\n",
+    "goal": "Identifier des hypothèses de modélisation et distinguer variables continues et binaires/entières.",
+    "brief": "<p>Tout programme linéaire continu repose sur <strong>quatre hypothèses fondamentales</strong> établies par George Dantzig :</p><ul><li><strong>1. Proportionnalité :</strong> la contribution de chaque variable est strictement linéaire ($c_j x_j$ et $a_{ij} x_j$), sans palier de tarif ni coût fixe de lancement.</li><li><strong>2. Additivité :</strong> l’effet global est la somme pure des effets individuels, sans synergie ni interaction croisée ($x_1 \\cdot x_2$ est proscrit).</li><li><strong>3. Divisibilité :</strong> les variables peuvent prendre n'importe quelle valeur réelle positive ($x_j \\in \\mathbb{R}^+$).</li><li><strong>4. Certitude :</strong> l'ensemble des coefficients ($c_j, a_{ij}, b_i$) est connu de manière déterministe et exacte.</li></ul><div class=\"box box--warning\"><div class=\"box__title\">Distinction clé : variables binaires et entières</div><p>Lorsque la divisibilité est rompue (choix binaire d’investissement $x_j \\in \\{0, 1\\}$ ou unités indivisibles $x_j \\in \\mathbb{N}$), le modèle devient un <strong>Programme Linéaire en Nombres Entiers (PLNE / MIP)</strong>. Ce problème est combinatoire et NP-difficile : l’algorithme du simplexe standard continu ne peut pas s'y appliquer directement sans méthode de séparation et évaluation (Branch &amp; Bound).</p></div><p>Pour chaque cas, indiquez l’hypothèse violée ou le type de modèle requis. Utilisez <code>NOTION: &lt;mot-clé&gt;</code>, avec un mot-clé parmi <code>PROPORTIONNALITE</code>, <code>ADDITIVITE</code>, <code>DIVISIBILITE</code>, <code>CERTITUDE</code> et <code>PLNE</code>.</p>",
+    "starter": "# Grille d'analyse (ro2-c1-e5) — 4 hypothèses & nature des variables\n# Identifiez la notion ou l'hypothèse mise en jeu pour chaque situation :\n\n[Cas 1 — Remise sur volume chez le fournisseur de bois]\n# Situation : Le fournisseur accorde 20 % de réduction sur le prix du bois au-delà de 100 m² achetés\n# Hypothèse violée parmi (proportionnalité / additivité / divisibilité / certitude) :\nA_COMPLETER\n\n[Cas 2 — Choix d'ouverture d'un nouvel entrepôt logistique]\n# Situation : Décision binaire « ouvrir (1) ou ne pas ouvrir (0) le site de Lyon »\n# Type de modèle : Choisissez le type de modèle adapté parmi les mots-clés.\nA_COMPLETER\n\n[Cas 3 — Fluctuations imprévisibles du coût de l'électricité sur le marché spot]\n# Situation : Le tarif du kWh varie chaque heure selon une loi de probabilité météo\n# Hypothèse violée parmi (proportionnalité / additivité / divisibilité / certitude) :\nA_COMPLETER\n",
     "hints": [
-      "Rappelez-vous les définitions : proportionnalité = coût unitaire constant sans palier ; additivité = pas de produit croisé x1*x2 ; divisibilité = grandeurs fractionnaires autorisées ; certitude = coefficients déterministes non aléatoires.",
-      "Pour le cas 1, le prix qui diminue avec la quantité viole la proportionnalité. Pour le cas 2, un choix binaire {0, 1} relève de la programmation en nombres entiers (PLNE). Répondez en un mot clé en majuscules."
+      "La situation modifie-t-elle les coefficients, associe-t-elle des activités ou restreint-elle les valeurs d’une variable ?",
+      "Comparez la situation aux définitions des hypothèses et distinguez une hypothèse violée du type de modèle demandé."
     ],
     "examples": [
       {
         "stdin": "ex:1",
-        "expected": "ADDITIVITE",
+        "expected": "NOTION: ADDITIVITE",
         "note": "Deux produits dont le mélange dégage une réaction thermique égale à 3*x1*x2 : le terme non linéaire croisé viole l'hypothèse d'additivité."
       }
     ],
@@ -193,23 +193,23 @@ module.exports = [
       {
         "label": "Remise sur volume chez le fournisseur de bois",
         "stdin": "cas:1",
-        "expected": "PROPORTIONNALITE",
+        "expected": "NOTION: PROPORTIONNALITE",
         "hint": "Un tarif dégressif brise la constance du coefficient unitaire cj et viole l'hypothèse de proportionnalité."
       },
       {
         "label": "Choix d'ouverture d'un nouvel entrepôt logistique",
         "stdin": "cas:2",
-        "expected": "PLNE",
+        "expected": "NOTION: PLNE",
         "hint": "Une décision tout-ou-rien {0, 1} est discrète et relève de la Programmation Linéaire en Nombres Entiers (PLNE / MIP)."
       },
       {
         "label": "Fluctuations imprévisibles du coût de l'électricité sur le marché spot",
         "stdin": "cas:3",
-        "expected": "CERTITUDE",
+        "expected": "NOTION: CERTITUDE",
         "hint": "L'aléa sur les paramètres relève de l'optimisation stochastique et viole l'hypothèse de certitude déterministe."
       }
     ],
-    "solution": "[Exemple]\nADDITIVITE\n\n[Cas 1 — Remise sur volume chez le fournisseur de bois]\nPROPORTIONNALITE\n\n[Cas 2 — Choix d'ouverture d'un nouvel entrepôt logistique]\nPLNE\n\n[Cas 3 — Fluctuations imprévisibles du coût de l'électricité sur le marché spot]\nCERTITUDE\n"
+    "solution": "[Exemple]\nNOTION: ADDITIVITE\n\n[Cas 1 — Remise sur volume chez le fournisseur de bois]\nNOTION: PROPORTIONNALITE\n\n[Cas 2 — Choix d'ouverture d'un nouvel entrepôt logistique]\nNOTION: PLNE\n\n[Cas 3 — Fluctuations imprévisibles du coût de l'électricité sur le marché spot]\nNOTION: CERTITUDE\n"
   },
   {
     "id": "ro2-c2-e1",
@@ -339,7 +339,7 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c3-e1) — Critère de Dantzig (Choix de la variable entrante)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux variables candidates positives]\n# Données : x1:3.5,x2:2.0,x3:5.8,s1:0.0\nA_COMPLETER\n\n[Cas 2 — Solution optimale (tous négatifs ou nuls)]\n# Données : x1:0.0,x2:-2.5,s1:-1.2,s2:0.0\nA_COMPLETER\n\n[Cas 3 — Égalité de coût réduit (règle de Bland du plus petit indice)]\n# Données : x1:4.0,x2:4.0,s1:0.0\nA_COMPLETER\n",
     "hints": [
       "Découpez par virgule puis chaque couple par deux-points.",
-      "Cherche le maximum strictement positif. S’il n’y en a aucun, c’est optimal."
+      "Cherchez le maximum strictement positif. S’il n’y en a aucun, c’est optimal."
     ],
     "examples": [
       {
@@ -608,7 +608,7 @@ module.exports = [
     "level": "n2",
     "language": "analyse",
     "goal": "Construire une solution initiale de transport par allocation gloutonne sur la case la moins chère.",
-    "brief": "<p>Contrairement au Coin Nord-Ouest qui ignore les prix, la <strong>Méthode du Moindre Coût</strong> sélectionne à chaque étape la cellule $(i, j)$ encore active ayant le coût unitaire $c_{ij}$ le plus faible de toute la matrice :</p><ul>  <li>Alloue $q = \\min(offre_i, demande_j)$ à cette cellule ;</li>  <li>Met à jour l’offre et la demande restantes ;</li>  <li>Désactive la ligne $i$ (si $offre_i = 0$) ou la colonne $j$ (si $demande_j = 0$).</li></ul><p>Analysez les paramètres du problème pour chaque cas.<br>Indiquez : <code>MOINDRE_COUT: COUT_TOTAL=&lt;C à 1 décimale&gt;</code>.</p>",
+    "brief": "<p>Contrairement au Coin Nord-Ouest qui ignore les prix, la <strong>Méthode du Moindre Coût</strong> sélectionne à chaque étape la cellule $(i, j)$ encore active ayant le coût unitaire $c_{ij}$ le plus faible de toute la matrice :</p><ul>  <li>Alloue $q = \\min(offre_i, demande_j)$ à cette cellule ;</li>  <li>Met à jour l’offre et la demande restantes ;</li>  <li>Désactivez la ligne $i$ (si $offre_i = 0$) ou la colonne $j$ (si $demande_j = 0$).</li></ul><p>Analysez les paramètres du problème pour chaque cas.<br>Indiquez : <code>MOINDRE_COUT: COUT_TOTAL=&lt;C à 1 décimale&gt;</code>.</p>",
     "starter": "# Grille de calcul (ro2-c5-e2) — Méthode du Moindre Coût (Transport économique)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Matrice 2x2 contrastée]\n# Données : 30,20;25,25;4,2|3,5\nA_COMPLETER\n\n[Cas 2 — Matrice 2x2 avec coûts équilibrés]\n# Données : 40,40;30,50;1,3|2,1\nA_COMPLETER\n\n[Cas 3 — Avantage net sur la diagonale]\n# Données : 15,15;15,15;1,9|9,2\nA_COMPLETER\n",
     "hints": [
       "Repère les indices (i, j) non encore saturés avec le coût min.",

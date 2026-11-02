@@ -6,9 +6,9 @@ module.exports = [
     "chapter": 5,
     "level": "n1",
     "language": "sql",
-    "title": "Déclencheur de protection contre les soldes négatifs (AFTER UPDATE + WHEN)",
+    "title": "Alerte sur solde négatif (AFTER UPDATE + WHEN)",
     "goal": "Déclencher une alerte automatique sur condition métier dans un trigger SQL.",
-    "brief": "<p>Soient <code>comptes(id INT, solde INT)</code> et <code>alertes_fraude(compte_id INT, montant_tente INT)</code>. Créez un trigger <code>trg_alerte_decouvert</code> qui, <code>AFTER UPDATE ON comptes WHEN NEW.solde &lt; 0</code>, insère <code>(NEW.id, NEW.solde)</code> dans <code>alertes_fraude</code>.</p>",
+    "brief": "<p>Dans cet atelier SQLite, soient <code>comptes(id INT, solde INT)</code> et <code>alertes_fraude(compte_id INT, montant_tente INT)</code>. Créez un trigger <code>trg_alerte_decouvert</code> qui, <code>AFTER UPDATE ON comptes WHEN NEW.solde &lt; 0</code>, insère <code>(NEW.id, NEW.solde)</code> dans <code>alertes_fraude</code>. Ce déclencheur alerte sans empêcher le solde négatif ; un ROLLBACK annule la mise à jour et l’alerte dans la même transaction.</p>",
     "starter": "-- Créez le trigger conditionnel trg_alerte_decouvert avec WHEN NEW.solde < 0\nSELECT * FROM comptes;",
     "hints": [
       "Utilisez la clause WHEN NEW.solde < 0 avant BEGIN dans la définition du trigger.",

@@ -48,21 +48,21 @@ module.exports = [
   {
     "id": "cs2-c4-e2",
     "chapter": 4,
-    "title": "Neutralisateur de charge utile XSS (HTML Sanitizer)",
+    "title": "Encodage pédagogique de texte HTML",
     "level": "n2",
     "language": "analyse",
-    "goal": "Neutralisateur de charge utile XSS (HTML Sanitizer)",
-    "brief": "<p>Les failles Cross-Site Scripting (XSS) surviennent lorsqu’une application web réinjecte des données utilisateur non filtrées dans le code HTML servi au navigateur. Pour neutraliser l’exécution de scripts, les cinq caractères critiques doivent être échappés en entités HTML dans l’ordre rigoureux suivant :\n1. <code>&amp;</code> &rarr; <code>&amp;amp;</code>\n2. <code>&lt;</code> &rarr; <code>&amp;lt;</code>\n3. <code>&gt;</code> &rarr; <code>&amp;gt;</code>\n4. <code>\"</code> &rarr; <code>&amp;quot;</code>\n5. <code>'</code> &rarr; <code>&amp;#x27;</code>\n\nEntrée : Une chaîne de caractères contenant potentiellement des balises ou du JavaScript.\nRésultat d’analyse attendu : La chaîne neutralisée.</p>",
-    "starter": "# Grille d'analyse (cs2-c4-e2) — Neutralisateur de charge utile XSS (HTML Sanitizer)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : Bonjour & bienvenue !\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : <img src=x onerror='alert(1)'>\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : Texte normal sans caracteres speciaux 123\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : \"A & B\" < \"C & D\"\nA_COMPLETER\n",
+    "goal": "Encoder cinq caractères pour afficher une chaîne comme texte HTML dans un élément non exécutable.",
+    "brief": "<p>Dans cette grille, une chaîne doit être affichée comme texte HTML dans un élément ordinaire, non dans un script, un attribut ou une URL. Appliquez ces substitutions en commençant par le perluète :\n1. <code>&amp;</code> &rarr; <code>&amp;amp;</code>\n2. <code>&lt;</code> &rarr; <code>&amp;lt;</code>\n3. <code>&gt;</code> &rarr; <code>&amp;gt;</code>\n4. <code>\"</code> &rarr; <code>&amp;quot;</code>\n5. <code>'</code> &rarr; <code>&amp;#x27;</code>\n\nEntrée : une chaîne quelconque. Résultat : la chaîne encodée selon ce modèle. Ce traitement ne garantit pas la sécurité dans un attribut, une URL ou du JavaScript ; il n’est pas un assainisseur de HTML. En pratique, privilégiez un récepteur de texte comme <code>textContent</code> et adaptez la protection à chaque contexte.</p>",
+    "starter": "# Grille d'analyse (cs2-c4-e2) — Encodage pédagogique de texte HTML\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : Bonjour & bienvenue !\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : <img src=x onerror='alert(1)'>\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : Texte normal sans caracteres speciaux 123\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : \"A & B\" < \"C & D\"\nA_COMPLETER\n",
     "hints": [
-      "La faille XSS injecte des balises de script ou des attributs d’événements dynamiques dans le code HTML affiché.",
-      "L’assainissement convertit les chevrons et caractères réservés en entités HTML inoffensives."
+      "Le modèle concerne uniquement une insertion en texte HTML, pas l'évaluation d'une URL ni l'exécution de JavaScript.",
+      "Encodez le perluète en premier, puis les quatre autres caractères ; l'assainissement de HTML autorisé est une autre opération."
     ],
     "examples": [
       {
         "stdin": "<script>alert(\"XSS & Pwned\");</script>",
         "expected": "&lt;script&gt;alert(&quot;XSS &amp; Pwned&quot;);&lt;/script&gt;",
-        "note": "Exemple de référence."
+        "note": "Encodage pour une insertion en texte HTML ; les autres contextes demandent leurs propres protections."
       }
     ],
     "tests": [

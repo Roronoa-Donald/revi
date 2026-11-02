@@ -11,12 +11,12 @@ module.exports = [
     level: "n1",
     language: 'analyse',
     title: "Validateur de dimensions sur Grille 8pt",
-    goal: "Vérifier la conformité des espacements et dimensions sur le système de grille standard 8pt (8-point grid).",
-    brief: "<p>Pour chaque cas d’application des valeurs entières de dimensions/marges en pixels (une par ligne).<br>\nSelon le standard 8pt Grid :<br>\n- Si la valeur est un multiple de 8 (<code>val % 8 == 0</code>) : afficher <code>&lt;val&gt;px -&gt; CONFORME (Grille 8pt)</code><br>\n- Sinon, si la valeur est un multiple de 4 (<code>val % 4 == 0</code>) : afficher <code>&lt;val&gt;px -&gt; CONFORME (Demi-grille 4pt)</code><br>\n- Sinon : calculer le multiple de 8 le plus proche (en cas d'équidistance, choisir le multiple supérieur) et afficher :<br>\n<code>&lt;val&gt;px -&gt; NON_CONFORME (Correction: &lt;cible&gt;px)</code></p>",
-    starter: "# Grille d'analyse (ux2-c4-e1) — Validateur de dimensions sur Grille 8pt\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Multiples stricts de 8]\n# Données : 24\n# Données : 32\n# Données : 64\nA_COMPLETER\n\n[Cas 2 — Demi-grille 4pt (icônes et micro-espaces)]\n# Données : 12\n# Données : 20\n# Données : 28\nA_COMPLETER\n\n[Cas 3 — Valeurs non conformes avec corrections]\n# Données : 18\n# Données : 23\n# Données : 35\nA_COMPLETER\n\n[Cas 4 — Zéro et petites valeurs]\n# Données : 1\n# Données : 5\nA_COMPLETER\n",
+    goal: "Vérifier des espacements et dimensions selon un modèle de grille choisi pour un projet.",
+    brief: "<p>Pour chaque cas, examinez les valeurs entières non négatives de dimensions ou de marges en pixels, une par ligne. Cette convention de projet est un modèle pour l’exercice, pas une norme universelle.<br>\n- Si la valeur est un multiple de 8 (<code>val % 8 == 0</code>) : afficher <code>&lt;val&gt;px -&gt; CONFORME (Grille 8pt)</code><br>\n- Sinon, si la valeur est un multiple de 4 (<code>val % 4 == 0</code>) : afficher <code>&lt;val&gt;px -&gt; CONFORME (Demi-grille 4pt)</code><br>\n- Sinon : calculer le multiple de 8 le plus proche (en cas d'équidistance, choisir le multiple supérieur) et afficher :<br>\n<code>&lt;val&gt;px -&gt; NON_CONFORME (Correction: &lt;cible&gt;px)</code></p>",
+    starter: "# Grille d'analyse (ux2-c4-e1) — Validateur de dimensions sur Grille 8pt\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Multiples stricts de 8]\n# Données : 8\n# Données : 24\n# Données : 32\n# Données : 64\nA_COMPLETER\n\n[Cas 2 — Demi-grille 4pt (icônes et micro-espaces)]\n# Données : 4\n# Données : 12\n# Données : 20\n# Données : 28\nA_COMPLETER\n\n[Cas 3 — Valeurs non conformes avec corrections]\n# Données : 13\n# Données : 18\n# Données : 23\n# Données : 35\nA_COMPLETER\n\n[Cas 4 — Zéro et petites valeurs]\n# Données : 0\n# Données : 1\n# Données : 5\nA_COMPLETER\n",
     hints: [
-          "Pour le plus proche multiple de 8 : round(val / 8) * 8.",
-          "Si val est négatif ou nul, traiter en conséquence."
+          "Cherchez les deux multiples de 8 voisins et comparez leurs distances à la valeur.",
+          "Commencez par vérifier les multiples de 8, puis ceux de 4 ; zéro est un multiple de 8."
     ],
     examples: [
           {

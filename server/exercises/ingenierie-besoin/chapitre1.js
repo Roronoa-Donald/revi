@@ -54,8 +54,8 @@ module.exports = [
     brief: "<p>La matrice de Mendelow positionne chaque partie prenante (<em>Stakeholder</em>) selon son niveau de <strong>Pouvoir</strong> (1 à 10) et d’<strong>Intérêt</strong> (1 à 10) :</p><ul>  <li>Pouvoir &ge; 7 et Intérêt &ge; 7 &rarr; <code>Gerer de pres</code> (Acteur clé)</li>  <li>Pouvoir &ge; 7 et Intérêt &lt; 7 &rarr; <code>Garder satisfait</code></li>  <li>Pouvoir &lt; 7 et Intérêt &ge; 7 &rarr; <code>Garder informe</code></li>  <li>Pouvoir &lt; 7 et Intérêt &lt; 7 &rarr; <code>Surveiller</code> (Effort minimal)</li></ul><p>Lit une ligne au format <code>Nom;Pouvoir;Interet</code> et affiche :<br><code>&lt;Nom&gt; -&gt; &lt;Strategie&gt;</code>.</p>",
     starter: "# Grille d'analyse (ib2-c1-e2) — Matrice Pouvoir / Intérêt des parties prenantes\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : Responsable Juridique;8;4\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : Utilisateur Final;3;9\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : Prestataire Maintenance;2;3\nA_COMPLETER\n",
     hints: [
-          "Découpez la ligne avec l’extraction des champs et convertis pouvoir et intérêt en entiers.",
-          "Applique les conditions if/elif/else sur les seuils fixés à 7."
+          "Séparez le nom des deux valeurs et comparez chaque valeur au seuil.",
+          "Quel quadrant correspond au couple pouvoir et intérêt observé ?"
     ],
     examples: [
           {
@@ -90,10 +90,10 @@ module.exports = [
     language: 'analyse',
     title: "Complétude d’une fiche d’exigence",
     goal: "Valider la structure et la complétude des attributs obligatoires d’une exigence logicielle.",
-    brief: "<p>Une exigence documentée doit comporter 5 attributs indispensables : <code>id</code>, <code>titre</code>, <code>decasion</code>, <code>source</code> et <code>priorite</code>. La priorité doit impérativement être l’une des trois valeurs : <code>Haute</code>, <code>Moyenne</code> ou <code>Basse</code>.</p><p>Analyse un objet JSON fourni(e) dans les données du cas et affiche :<br>- Si valide : <code>VALIDE (&lt;id&gt;)</code><br>- Si un attribut obligatoire est absent ou vide : <code>ERREUR: Champ manquant &lt;nom_champ&gt;</code> (tester les champs dans l’ordre : id, titre, decasion, source, priorite)<br>- Si la priorité n’est pas l’une des 3 valeurs autorisées : <code>ERREUR: Priorite invalide</code>.</p>",
+    brief: "<p>Pour cette grille, une exigence documentée comporte 5 attributs obligatoires : <code>id</code>, <code>titre</code>, <code>description</code>, <code>source</code> et <code>priorite</code>. La priorité doit être l’une des trois valeurs : <code>Haute</code>, <code>Moyenne</code> ou <code>Basse</code>.</p><p>Examinez l’objet JSON fourni dans les données du cas et indiquez :<br>- Si valide : <code>VALIDE (&lt;id&gt;)</code><br>- Si un attribut obligatoire est absent ou vide : <code>ERREUR: Champ manquant &lt;nom_champ&gt;</code> (tester les champs dans l’ordre : id, titre, description, source, priorite)<br>- Si la priorité n’est pas l’une des 3 valeurs autorisées, utilisez <code>ERREUR: &lt;champ&gt; &lt;statut&gt;</code> avec le champ <code>Priorite</code> et le statut <code>invalide</code>.</p>",
     starter: "# Grille d'analyse (ib2-c1-e3) — Complétude d’une fiche d’exigence\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : {\"id\": \"REQ-002\", \"titre\": \"\", \"description\": \"Export CSV\", \"source\": \"Finance\", \"priorite\": \"Moyenne\"}\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : {\"id\": \"REQ-003\", \"titre\": \"Audit logs\", \"description\": \"Archivage 1 an\", \"source\": \"Securite\", \"priorite\": \"Urgente\"}\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : {\"id\": \"REQ-004\", \"titre\": \"Recherche\", \"description\": \"Recherche floue\", \"source\": \"Produit\", \"priorite\": \"Basse\"}\nA_COMPLETER\n",
     hints: [
-          "Parse la chaîne avec json.loads().",
+          "Repérez les clés et leurs valeurs dans l’objet JSON de chaque cas.",
           "Vérifiez la présence et la non-vacuité de chaque champ dans la liste ordonnée [\"id\", \"titre\", \"description\", \"source\", \"priorite\"]."
     ],
     examples: [

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abonnement &amp; Facturation — Passerelle FedaPay</title>
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <style>
+    .billing-container {
+      max-width: 860px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #1f2937;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .plan-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 1.5rem;
+      background: #ffffff;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .plan-card.featured {
+      border-color: #2563eb;
+      position: relative;
+    }
+    .badge-featured {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+    }
+    .plan-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+    }
+    .plan-price {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #111827;
+      margin: 0.5rem 0 1rem 0;
+    }
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem 0;
+      font-size: 0.9rem;
+      color: #4b5563;
+    }
+    .plan-features li {
+      margin-bottom: 0.5rem;
+      padding-left: 1.2rem;
+      position: relative;
+    }
+    .plan-features li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #16a34a;
+      font-weight: bold;
+    }
+    .btn-pay {
+      display: block;
+      width: 100%;
+      background: #2563eb;
+      color: #ffffff;
+      font-weight: 600;
+      text-align: center;
+      padding: 0.8rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.15s ease;
+    }
+    .btn-pay:hover {
+      background: #1d4ed8;
+    }
+    .btn-pay:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .recovery-accordion {
+      margin-top: 3rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fafafa;
+    }
+    .recovery-accordion summary {
+      padding: 1rem 1.25rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      color: #4b5563;
+      font-size: 0.95rem;
+    }
+    .recovery-body {
+      padding: 1.25rem;
+      background: #ffffff;
+      border-top: 1px solid #e5e7eb;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: #374151;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 0.65rem 0.8rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+    }
+    .status-msg {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .status-msg.active { display: block; }
+    .status-msg.success { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .status-msg.error { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .status-msg.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  </style>
+
+  <!-- Script CDN Officiel FedaPay avec attribut Nonce CSP -->
+  <script nonce="<%= typeof cspNonce !== 'undefined' ? cspNonce : '' %>" src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
+</head>
+<body>
+  <div class="billing-container">
+    <header>
+      <h1>Abonnement &amp; Facturation</h1>
+      <p>Accès complet aux cours interactifs, travaux pratiques et examens certifiés.</p>
+    </header>
+
+    <div id="paymentStatus" class="status-msg"></div>
+
+    <div class="pricing-grid">
+      <!-- FORMULE MENSUELLE -->
+      <div class="plan-card">
+        <div>
+          <h2 class="plan-title">Formule Mensuelle</h2>
+          <div class="plan-price">5 000 FCFA <span style="font-size: 0.9rem; font-weight: 400; color: #6b7280;">/ mois</span></div>
+          <ul class="plan-features">
+            <li>Accès illimité à tous les cours (B1, B2, B3)</li>
+            <li>Exécution de code interactive (Python, C, PHP, SQL)</li>
+            <li>Assistance du tuteur IA dédié</li>
+            <li>Sans engagement, renouvellement libre</li>
+          </ul>
+        </div>
+        <button type="button"
+                class="btn-pay"
+                data-pay-feda
+                data-pay-plan="monthly"
+                data-pay-amount="5000">
+          S'abonner (5 000 FCFA)
+        </button>
+      </div>
+
+      <!-- FORMULE ANNUELLE -->
+      <div class="plan-card featured">
+        <span class="badge-featured">Économie 25%</span>
+        <div>
+          <h2 class="plan-title">Formule Annuelle</h2>
+          <div class="plan-price">45 000 FCFA <span style="font-size: 0.9rem; font-weight: 400; color: #6b7280;">/ an</span></div>
+          <ul class="plan-features">
+            <li>12 mois d'accès complet au prix de 9</li>
+            <li>Accès prioritaire aux nouvelles matières</li>
+            <li>Examens blancs et corrections personnalisées</li>
+            <li>Support prioritaire des formateurs</li>
+          </ul>
+        </div>
+        <button type="button"
+                class="btn-pay"
+                data-pay-feda
+                data-pay-plan="annual"
+                data-pay-amount="45000">
+          S'abonner (45 000 FCFA)
+        </button>
+      </div>
+    </div>
+
+    <!-- CANAL C : FORMULAIRE DE SECOURS / RÉCUPÉRATION MANUELLE -->
+    <details class="recovery-accordion" id="fedapay-recovery-form">
+      <summary>Un paiement n'apparaît pas ? Saisissez la référence reçue par SMS/e-mail</summary>
+      <div class="recovery-body">
+        <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0;">
+          En cas de coupure de connexion ou si votre session a été interrompue pendant la validation Mobile Money, entrez le numéro de transaction FedaPay reçu par SMS opérateur ou e-mail pour synchroniser immédiatement votre compte.
+        </p>
+        <form id="recoveryForm" onsubmit="return false;">
+          <div class="form-group">
+            <label for="recoveryTxId">Identifiant ou Référence de Transaction FedaPay</label>
+            <input type="text" id="recoveryTxId" placeholder="Ex: 123456 ou TX_ABCDEF" required>
+          </div>
+          <button type="button" id="btnSubmitRecovery" class="btn-pay" style="width: auto; padding: 0.6rem 1.2rem;">
+            Vérifier et Débloquer mon Compte
+          </button>
+        </form>
+        <div id="recoveryStatus" class="status-msg"></div>
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var fedapayPublicKey = '<%= typeof fedapayPublicKey !== 'undefined' ? fedapayPublicKey : '' %>';
+      var fedapayEnvironment = '<%= typeof fedapayEnvironment !== 'undefined' ? fedapayEnvironment : 'sandbox' %>';
+
+      function showStatus(elId, msg, type) {
+        var el = document.getElementById(elId);
+        if (!el) return;
+        el.className = 'status-msg active ' + (type || 'info');
+        el.textContent = msg;
+      }
+
+      // CANAL A : VÉRIFICATION SYNCHRONE CÔTÉ SERVEUR (Le serveur ne croit pas le client)
+      function verifyFedaPayPayment(plan, transactionId, paymentId, merchantRef) {
+        showStatus('paymentStatus', 'Paiement détecté. Validation sécurisée auprès des serveurs FedaPay en cours…', 'info');
+
+        fetch('/dashboard/abonnement/callback', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            transaction_id: transactionId,
+            payment_id: paymentId,
+            merchant_reference: merchantRef,
+            plan: plan
+          })
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (data.success && (data.status === 'approved' || data.subscribed)) {
+              showStatus('paymentStatus', 'Paiement confirmé ! Votre abonnement a été activé jusqu\'au ' + (data.expiresAt ? new Date(data.expiresAt).toLocaleDateString('fr-FR') : 'terme prévu') + '.', 'success');
+              setTimeout(function () {
+                window.location.reload();
+              }, 2000);
+            } else {
+              showStatus('paymentStatus', data.message || 'Le paiement n\'a pas pu être validé. Contactez le support.', 'error');
+            }
+          })
+          .catch(function () {
+            showStatus('paymentStatus', 'Erreur réseau lors de la confirmation. Votre paiement est pris en charge par le webhook FedaPay. Vous pouvez recharger la page.', 'info');
+          });
+      }
+
+      // ÉTAPE 1 & 2 : TENTATIVE SERVEUR PUIS INITIALISATION FEDAPAY
+      var payButtons = document.querySelectorAll('[data-pay-feda]');
+      payButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var plan = btn.getAttribute('data-pay-plan') || 'monthly';
+          var amount = parseInt(btn.getAttribute('data-pay-amount'), 10) || (plan === 'annual' ? 45000 : 5000);
+
+          btn.disabled = true;
+          showStatus('paymentStatus', 'Initialisation sécurisée de la session de paiement…', 'info');
+
+          // 1. Tentative certifiée serveur (POST /dashboard/abonnement/attempt)
+          fetch('/dashboard/abonnement/attempt', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ plan: plan })
+          })
+            .then(function (res) {
+              if (!res.ok) throw new Error('Impossible de préparer la transaction.');
+              return res.json();
+            })
+            .then(function (data) {
+              btn.disabled = false;
+              if (!data.success || !data.attempt) {
+                throw new Error(data.message || 'Erreur lors de la préparation.');
+              }
+
+              var attempt = data.attempt;
+              var pubKey = data.public_key || fedapayPublicKey;
+              var env = data.environment || fedapayEnvironment;
+
+              if (typeof FedaPay === 'undefined') {
+                throw new Error('Le script FedaPay n\'a pas pu être chargé.');
+              }
+
+              // 2. Déclenchement standard du widget FedaPay
+              FedaPay.init({
+                public_key: pubKey,
+                environment: env,
+                transaction: {
+                  amount: attempt.amount,
+                  description: plan === 'annual' ? 'Abonnement Annuel' : 'Abonnement Mensuel',
+                  merchant_reference: attempt.merchant_reference
+                },
+                currency: { iso: 'XOF' },
+                onComplete: function (checkoutResult) {
+                  if (checkoutResult && checkoutResult.reason === FedaPay.CHECKOUT_COMPLETED) {
+                    var transactionId = checkoutResult.transaction && checkoutResult.transaction.id;
+                    if (transactionId) {
+                      verifyFedaPayPayment(plan, transactionId, attempt.payment_id, attempt.merchant_reference);
+                    }
+                  }
+                }
+              }).open();
+            })
+            .catch(function (err) {
+              btn.disabled = false;
+              showStatus('paymentStatus', err.message || 'Erreur lors de la communication avec le serveur.', 'error');
+            });
+        });
+      });
+
+      // CANAL C : GESTION DU FORMULAIRE DE RÉCUPÉRATION
+      var btnRecover = document.getElementById('btnSubmitRecovery');
+      if (btnRecover) {
+        btnRecover.addEventListener('click', function () {
+          var txInput = document.getElementById('recoveryTxId');
+          var txId = txInput ? txInput.value.trim() : '';
+          if (!txId) {
+            showStatus('recoveryStatus', 'Veuillez saisir votre référence de transaction.', 'error');
+            return;
+          }
+
+          btnRecover.disabled = true;
+          showStatus('recoveryStatus', 'Vérification de la référence auprès de FedaPay…', 'info');
+
+          fetch('/dashboard/abonnement/recover', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transaction_id: txId })
+          })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+              btnRecover.disabled = false;
+              if (data.success && data.subscribed) {
+                showStatus('recoveryStatus', 'Transaction validée avec succès ! Votre abonnement est actif.', 'success');
+                setTimeout(function () { window.location.reload(); }, 2000);
+              } else {
+                showStatus('recoveryStatus', data.message || 'Transaction introuvable ou non approuvée.', 'error');
+              }
+            })
+            .catch(function (err) {
+              btnRecover.disabled = false;
+              showStatus('recoveryStatus', 'Erreur de connexion. Réessayez.', 'error');
+            });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -75,11 +75,11 @@
       <li>différencier les nœuds d’accès aux relations : Seq Scan, Index Scan, Index Only Scan et Bitmap Index Scan ;</li>
       <li>comparer en profondeur les trois algorithmes de jointure : Nested Loop, Hash Join et Merge Join ;</li>
       <li>auditer la mémoire de travail (work_mem) et identifier les écritures temporaires sur disque (Hash Batches / Sort Spill) ;</li>
-      <li>développer en Python 3 des parseurs de plans EXPLAIN, des simulateurs d’algorithmes de jointure et des détecteurs d’écarts de cardinalité.</li>
+      <li>développer en requêtes SQL avancées et scripts d’analyse des parseurs de plans EXPLAIN, des simulateurs d’algorithmes de jointure et des détecteurs d’écarts de cardinalité.</li>
     </ol>
   </div>
 
-<h2>1. Le Moteur d’Optimisation CBO & La Commande EXPLAIN (ANALYZE, BUFFERS)</h2>
+<h2>1. Le Moteur d’Optimisation CBO &amp; La Commande EXPLAIN (ANALYZE, BUFFERS)</h2>
 
 <p>Le SQL étant un langage déclaratif, l’utilisateur exprime <em>ce qu’il veut obtenir</em> et non <em>la méthode pour y parvenir</em>. L’optimiseur Cost-Based Optimizer (CBO) génère des centaines de plans d’exécution alternatifs et sélectionne celui dont le coût total estimé est le plus faible :</p>
 <div class="grid grid-2">
@@ -87,7 +87,7 @@
     <h4>Les Options Cruciales de la Commande EXPLAIN</h4>
     <ul>
       <li><code>EXPLAIN &lt;sql&gt;</code> : Affiche uniquement les estimations théoriques calculées par le planificateur, sans exécuter la requête.</li>
-      <li><code>EXPLAIN (ANALYZE)</code> : <strong>Exécutez réellement la requête</strong> et mesure les temps réels d’exécution (actual time en ms) et le nombre de lignes produites (actual rows).</li>
+      <li><code>EXPLAIN (ANALYZE)</code> : <strong>Exécute réellement la requête</strong> et mesure les temps réels d’exécution (actual time en ms) et le nombre de lignes produites (actual rows).</li>
       <li><code>EXPLAIN (ANALYZE, BUFFERS)</code> : Affiche en plus les blocs mémoire manipulés dans le buffer pool (<code>shared hit</code> = blocs en RAM, <code>read</code> = blocs lus sur disque, <code>dirtied</code> = blocs modifiés).</li>
     </ul>
   </div>
@@ -104,7 +104,7 @@
   </div>
 </div>
 
-<h2>2. Nœuds d’Accès aux Tables & Algorithmes de Jointure CBO</h2>
+<h2>2. Nœuds d’Accès aux Tables &amp; Algorithmes de Jointure CBO</h2>
 
 <p>L’arbre du plan d’exécution se lit de l’intérieur vers l’extérieur (du nœud le plus indenté vers la racine). Le moteur choisit parmi quatre modes d’accès aux relations :</p>
 <div class="grid grid-2">
@@ -114,7 +114,7 @@
       <li><strong>Seq Scan (Sequential Scan) :</strong> Balaye séquentiellement chaque bloc de la table. Privilégié si la table est petite ou si la requête sélectionne plus de 15 à 20 % des enregistrements.</li>
       <li><strong>Index Scan :</strong> Parcourt l’arbre B-Tree puis lit directement le bloc de données correspondant sur la table. Optimal pour une sélectivité très forte (quelques lignes).</li>
       <li><strong>Bitmap Heap Scan :</strong> Construit un vecteur de bits des blocs contenant les résultats (Bitmap Index Scan) puis les lit dans l’ordre physique séquentiel du disque.</li>
-      <li><strong>Index Only Scan :</strong> Toutes les colonnes nécessaires sont stockées dans l’index couvrant : la table n’est jamais lue.</li>
+      <li><strong>Index Only Scan :</strong> Toutes les colonnes nécessaires sont dans l’index. PostgreSQL évite la lecture du tas lorsque la carte de visibilité (<em>visibility map</em>) le permet ; sinon, le plan peut afficher des <em>Heap Fetches</em>. L’optimiseur peut aussi choisir un autre plan.</li>
     </ul>
   </div>
   <div class="card">
@@ -131,7 +131,7 @@
 <p>Le paramètre <code>work_mem</code> alloue la quantité de mémoire RAM disponible par opération de tri ou de hachage. Si une table de hachage ou un tri dépasse <code>work_mem</code>, le moteur est contraint d’écrire des partitions temporaires sur disque (<strong>spill to disk / external sort</strong>), ce qui dégrade les temps d’exécution d’un facteur 10 à 50.</p>
   </div>
 
-<h2>3. Statistiques du Catalogue pg_statistic & Dérives de Cardinalité</h2>
+<h2>3. Statistiques du Catalogue pg_statistic &amp; Dérives de Cardinalité</h2>
 
 <p>L’optimiseur calcule ses coûts en s’appuyant sur les métadonnées collectées par le démon <strong>Autovacuum / ANALYZE</strong> et stockées dans la vue système <code>pg_stats</code> :</p>
 <div class="grid grid-2">
@@ -156,14 +156,12 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="sql3-c3-e1" data-lab
      data-exercise="sql3-c3-e1"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE pg_class_sim (relname TEXT, relpages INT, reltuples INT); INSERT INTO pg_class_sim VALUES ('factures', 100, 10000), ('agences', 2, 50);&#10;-- exemple">
@@ -173,11 +171,13 @@ SELECT relname FROM pg_class_sim;</script>
     <h3 class="lab__title">Exercice 1 — Calcul du coût CBO d’un parcours séquentiel (Seq Scan)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Appliquer la formule de coût de l’optimiseur PostgreSQL pour un Seq Scan.</p>
+    <p class="lab__note" id="sql3-c3-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>L’optimiseur CBO estime le coût d’un <code>Seq Scan</code> par la formule : <code>cout_total = relpages * 1.0 + reltuples * 0.01</code>. À partir de la table catalogue <code>pg_class_sim(relname TEXT, relpages INT, reltuples INT)</code>, affichez <code>relname</code> et <code>ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan</code>, triés par <code>cout_seq_scan</code> croissant.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE pg_class_sim (relname TEXT, relpages INT, reltuples INT); INSERT INTO pg_class_sim VALUES ('factures', 100, 10000), ('agences', 2, 50);
@@ -203,6 +203,7 @@ SELECT relname FROM pg_class_sim;</script>
 
 <div class="lab" id="sql3-c3-e2" data-lab
      data-exercise="sql3-c3-e2"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE pg_stat_database_sim (datname TEXT, blks_hit INT, blks_read INT); INSERT INTO pg_stat_database_sim VALUES ('prod_erp', 9900, 100), ('reporting', 7500, 2500);&#10;-- exemple">
@@ -212,11 +213,13 @@ SELECT datname FROM pg_stat_database_sim;</script>
     <h3 class="lab__title">Exercice 2 — Calcul du Cache Hit Ratio des tampons partagés (Shared Buffers)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Évaluer l’efficacité du cache mémoire SGBD à partir de blks_hit et blks_read.</p>
+    <p class="lab__note" id="sql3-c3-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans la vue <code>pg_stat_database_sim(datname TEXT, blks_hit INT, blks_read INT)</code>, calculez le taux de succès du cache en pourcentage arrondi à 2 décimales : <code>ROUND(blks_hit * 100.0 / (blks_hit + blks_read), 2) AS hit_ratio_pct</code> pour chaque base, trié par <code>hit_ratio_pct</code> décroissant.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE pg_stat_database_sim (datname TEXT, blks_hit INT, blks_read INT); INSERT INTO pg_stat_database_sim VALUES ('prod_erp', 9900, 100), ('reporting', 7500, 2500);
@@ -242,6 +245,7 @@ SELECT datname FROM pg_stat_database_sim;</script>
 
 <div class="lab" id="sql3-c3-e3" data-lab
      data-exercise="sql3-c3-e3"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2024, 1, 10000), (2, 2025, 1, 25000), (3, 2025, 2, 15000);&#10;-- exemple">
@@ -251,12 +255,14 @@ SELECT SUM(montant) FROM commandes;</script>
     <h3 class="lab__title">Exercice 3 — Réécriture SARGable et index couvrant (Index-Only Scan)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Créer un index couvrant et écrire une requête SARGable par intervalle.</p>
-    <div class="lab__brief"><p>Sur la table <code>commandes(id INT, annee INT, client_id INT, montant INT)</code>, créez un index couvrant <code>idx_cmd_annee_montant</code> sur <code>(annee, montant)</code>, puis calculez <code>SUM(montant) AS total_2025</code> pour <code>annee = 2025</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Créer un index couvrant dans un ordre donné et filtrer l’année de manière SARGable.</p>
+    <p class="lab__note" id="sql3-c3-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans cet atelier SQLite, sur la table <code>commandes(id INT, annee INT, client_id INT, montant INT)</code>, créez un index couvrant non partiel <code>idx_cmd_annee_montant</code> sur <code>(annee, montant)</code>, dans cet ordre, puis calculez <code>SUM(montant) AS total_2025</code> pour <code>annee = 2025</code>. L’index peut couvrir la requête sans garantir que l’optimiseur choisira ce plan.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2024, 1, 10000), (2, 2025, 1, 25000), (3, 2025, 2, 15000);
 -- exemple</pre></div>
@@ -279,6 +285,7 @@ SELECT SUM(montant) FROM commandes;</script>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -414,7 +421,7 @@ SELECT SUM(montant) FROM commandes;</script>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>Cost-Based Optimizer (CBO)</li><li>Commande EXPLAIN (ANALYZE, BUFFERS)</li><li>Coût de Démarrage & Coût Total (Startup vs Total Cost)</li><li>Nœuds d’Accès (Seq Scan, Index Scan, Bitmap Scan)</li><li>Algorithmes de Jointure (Nested Loop, Hash Join, Merge Join)</li><li>Mémoire work_mem & Spill to Disk</li><li>Statistiques du Catalogue pg_statistic & MCV</li><li>Dérives de Cardinalité & Commande ANALYZE</li>
+      <li>Cost-Based Optimizer (CBO)</li><li>Commande EXPLAIN (ANALYZE, BUFFERS)</li><li>Coût de Démarrage &amp; Coût Total (Startup vs Total Cost)</li><li>Nœuds d’Accès (Seq Scan, Index Scan, Bitmap Scan)</li><li>Algorithmes de Jointure (Nested Loop, Hash Join, Merge Join)</li><li>Mémoire work_mem &amp; Spill to Disk</li><li>Statistiques du Catalogue pg_statistic &amp; MCV</li><li>Dérives de Cardinalité &amp; Commande ANALYZE</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -426,7 +433,7 @@ SELECT SUM(montant) FROM commandes;</script>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à lire un plan EXPLAIN ou confusion entre les métriques estimées et réelles.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Difficultés à lire un plan EXPLAIN ou confusion entre les métriques estimées et réelles.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne compréhension des coûts de plans, identification des types de scans et choix d’algorithmes de jointure.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Diagnostic expert de plans d’exécution complexes, optimisation fine de work_mem, élimination des dérives de cardinalité et tuning CBO avancé.</div>

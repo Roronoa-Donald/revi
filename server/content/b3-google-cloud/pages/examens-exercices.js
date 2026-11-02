@@ -35,7 +35,7 @@ function examens(course) {
       '<h4>Partie 3 : Calcul &amp; Élasticité avec Compute Engine (7 points)</h4>',
       '<ol>',
       '  <li>Qu\'est-ce qu\'un groupe d\'instances géré (Managed Instance Group - MIG) ? Comment fonctionnent les mécanismes d\'auto-scaling et d\'auto-healing basés sur les sondes de santé (Health Checks) ? (4 pts)</li>',
-      '  <li>Comparez le SLA de disponibilité d\'une instance Compute Engine mono-zone (99.5%) avec un déploiement de VM réparties sur plusieurs zones de disponibilité au sein d\'une même région (99.99%). Calculez le temps d\'indisponibilité mensuel maximal autorisé dans chaque cas. (3 pts)</li>',
+      '  <li>Pour un mois de 30 jours, comparez deux objectifs fictifs de disponibilité de 99.5% et 99.99%. Calculez le budget d\'indisponibilité correspondant à chacun et précisez pourquoi ces objectifs ne suffisent pas à déterminer le SLA applicable à Compute Engine. (3 pts)</li>',
       '</ol>'
     ].join('\n')),
     '',
@@ -69,16 +69,18 @@ function examens(course) {
       '  Un MIG gère un parc de VMs identiques créées à partir d\'un template d\'instance. ' +
       '  <em>Auto-scaling :</em> ajuste dynamiquement le nombre d\'instances en fonction d\'une métrique cible (ex: utilisation CPU à 60% ou requêtes HTTP). ' +
       '  <em>Auto-healing :</em> interroge périodiquement chaque VM via un Health Check applicatif ; si une instance ne répond plus (timeout), elle est automatiquement recréée sans intervention humaine.</li>',
-      '  <li><strong>SLA Mono-Zone vs Multi-Zones (3 pts) :</strong> ' +
-      '  - Mono-Zone (SLA 99.5%) : <code>0.005 * 30 jours * 24 h * 60 min = 216 minutes</code> d\'indisponibilité mensuelle (3 h 36 min). ' +
-      '  - Multi-Zones (SLA 99.99%) : <code>0.0001 * 30 jours * 24 h * 60 min = 4.32 minutes</code> d\'indisponibilité mensuelle. ' +
-      '  Le déploiement multi-zones réduit le temps d\'arrêt toléré de plus de 50 fois.</li>',
+      '  <li><strong>Objectifs fictifs de disponibilité (3 pts) :</strong> ' +
+      '  - Objectif 99.5% : <code>0.005 * 30 jours * 24 h * 60 min = 216 minutes</code> (3 h 36 min). ' +
+      '  - Objectif 99.99% : <code>0.0001 * 30 jours * 24 h * 60 min = 4.32 minutes</code>. ' +
+      '  Dans ce modèle, le premier budget est 50 fois le second. Ces objectifs fictifs ne représentent pas à eux seuls le SLA Compute Engine : ' +
+      '  vérifiez notamment la configuration, la région, le type de machine, les exclusions et les conditions de crédit dans le ' +
+      '  <a href="https://cloud.google.com/compute/sla">SLA applicable</a>. Un objectif contractuel ne garantit pas la disponibilité réelle de l\'application.</li>',
       '</ul>'
     ].join('\n')),
     '',
     '  <h2>Épreuve 2 : Examen Terminal (ET) — Durée 2 h 00 (Barème sur 20 points)</h2>',
     box('standard', 'Sujet de l\'Examen Terminal — Conception d\'une Architecture Globale d\'Entreprise sur Google Cloud', [
-      '<p>Une entreprise fintech internationale souhaite déployer sa nouvelle plateforme bancaire sur Google Cloud. La solution doit gérer une API sécurisée à très faible latence mondiale, stocker des transactions financières sous conformité stricte et garantir une résilience totale aux pannes zonales.</p>',
+      '<p>Une entreprise fintech internationale souhaite déployer sa nouvelle plateforme bancaire sur Google Cloud. La solution doit gérer une API sécurisée à très faible latence mondiale, stocker des transactions financières sous conformité stricte et viser une meilleure tolérance aux pannes zonales, dont les limites doivent être précisées.</p>',
       '<h4>Section A : Réseau Virtuel VPC, Sécurité &amp; Load Balancing (5 points)</h4>',
       '<ol>',
       '  <li>Concevez l\'architecture VPC en mode sous-réseaux personnalisés (Custom Subnet Mode). Quels sont les rôles des 4 adresses IP réservées par Google dans un sous-réseau /24 ? (2.5 pts)</li>',
@@ -86,7 +88,7 @@ function examens(course) {
       '</ol>',
       '<h4>Section B : Moteurs de Persistance &amp; Stratégie de Données (5 points)</h4>',
       '<ol>',
-      '  <li>Comparez Cloud SQL, Cloud Spanner et Cloud Bigtable. Quel moteur recommandez-vous pour le grand livre des transactions financières mondiales nécessitant une cohérence stricte ACID et un SLA 99.999% ? Justifiez votre choix. (3 pts)</li>',
+      '  <li>Comparez Cloud SQL, Cloud Spanner et Cloud Bigtable. Quel moteur et quelle configuration étudier pour un grand livre mondial exigeant une cohérence stricte ACID et un objectif SLA mensuel de 99.999 % ? Précisez les limites contractuelles. (3 pts)</li>',
       '  <li>Définissez une politique de cycle de vie (Lifecycle Management) sur un bucket Cloud Storage pour optimiser les coûts des reçus de paiement : Standard les 30 premiers jours, Nearline jusqu\'à 90 jours, Coldline jusqu\'à 365 jours, puis Archive au-delà. (2 pts)</li>',
       '</ol>',
       '<h4>Section C : Conteneurs &amp; Serverless (GKE vs Cloud Run) (5 points)</h4>',
@@ -116,7 +118,7 @@ function examens(course) {
       '  <li><strong>Sélection du Moteur de Données (3 pts) :</strong> ' +
       '  - <em>Cloud SQL :</em> base relationnelle régionale (max 64 To), limitée en montée en charge horizontale. ' +
       '  - <em>Cloud Bigtable :</em> NoSQL analytique ultra-rapide mais cohérence finale et absence de transactions relationnelles ACID multi-tables. ' +
-      '  - <em>Cloud Spanner :</em> recommandé sans équivoque pour le grand livre des transactions financières. Spanner est une base relationnelle NewSQL distribuée mondialement avec synchronisation d\'horloges matérielles TrueTime (GPS et horloges atomiques), garantissant une cohérence stricte (external consistency) et un SLA exceptionnel de 99.999% (moins de 5 minutes d\'arrêt par an).</li>',
+      '  - <em>Cloud Spanner :</em> candidat pour un grand livre distribué à cohérence stricte. Au 30 octobre 2026, une configuration multirégionale ou birégionale bénéficie d\'un objectif SLA mensuel de 99.999 %, sous réserve des requêtes admissibles et des exclusions, notamment de quota. Le SLA prévoit un crédit sous conditions, pas une disponibilité continue. Une configuration régionale a un objectif différent ; vérifier besoins, coûts et <a href="https://cloud.google.com/spanner/sla">conditions contractuelles</a>.</li>',
       '  <li><strong>Politique de Cycle de Vie Cloud Storage (2 pts) :</strong> ' +
       '  Configuration JSON/XML de règles Lifecycle : ' +
       '  Règle 1 : Action <code>SetStorageClass: NEARLINE</code> si <code>age &gt;= 30</code>. ' +
@@ -174,9 +176,9 @@ function exercices(course, chapterList) {
       '    <table class="table">',
       '      <thead><tr><th>Code</th><th>Niveau</th><th>Titre de l\'Exercice</th><th>Objectif Pédagogique</th><th>Accès</th></tr></thead>',
       '      <tbody>',
-      '        <tr><td><code>gcp3-c' + ch.n + '-e1</code></td><td><span class="badge badge--success">N1 Acquisition</span></td><td>Exercice 1 du Module ' + ch.n + '</td><td>Validation des concepts fondamentaux et analyse de structure.</td><td><a href="chapitre' + ch.n + '.html#lab-1" class="btn btn--sm">Pratiquer</a></td></tr>',
-      '        <tr><td><code>gcp3-c' + ch.n + '-e2</code></td><td><span class="badge badge--warning">N2 Application</span></td><td>Exercice 2 du Module ' + ch.n + '</td><td>Application pratique, simulation et résolution algorithmique.</td><td><a href="chapitre' + ch.n + '.html#lab-2" class="btn btn--sm">Pratiquer</a></td></tr>',
-      '        <tr><td><code>gcp3-c' + ch.n + '-e3</code></td><td><span class="badge badge--danger">N3 Raisonnement</span></td><td>Exercice 3 du Module ' + ch.n + '</td><td>Conception avancée, audit de conformité et modélisation complexe.</td><td><a href="chapitre' + ch.n + '.html#lab-3" class="btn btn--sm">Pratiquer</a></td></tr>',
+      '        <tr><td><code>gcp3-c' + ch.n + '-e1</code></td><td><span class="badge badge--success">N1 Acquisition</span></td><td>Exercice 1 du Module ' + ch.n + '</td><td>Validation des concepts fondamentaux et analyse de structure.</td><td><a href="chapitre' + ch.n + '.html#gcp3-c' + ch.n + '-e1" class="btn btn--sm">Pratiquer</a></td></tr>',
+      '        <tr><td><code>gcp3-c' + ch.n + '-e2</code></td><td><span class="badge badge--warning">N2 Application</span></td><td>Exercice 2 du Module ' + ch.n + '</td><td>Application pratique, simulation et résolution algorithmique.</td><td><a href="chapitre' + ch.n + '.html#gcp3-c' + ch.n + '-e2" class="btn btn--sm">Pratiquer</a></td></tr>',
+      '        <tr><td><code>gcp3-c' + ch.n + '-e3</code></td><td><span class="badge badge--danger">N3 Raisonnement</span></td><td>Exercice 3 du Module ' + ch.n + '</td><td>Conception avancée, audit de conformité et modélisation complexe.</td><td><a href="chapitre' + ch.n + '.html#gcp3-c' + ch.n + '-e3" class="btn btn--sm">Pratiquer</a></td></tr>',
       '      </tbody>',
       '    </table>',
       '  </div>'

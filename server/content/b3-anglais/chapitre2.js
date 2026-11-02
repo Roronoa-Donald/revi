@@ -29,11 +29,11 @@ module.exports = {
         '  <div class="card">',
         '    <h4>Les Verbes d’Action HTTP &amp; Idempotence</h4>',
         '    <ul>',
-        '      <li><strong>GET (Read) :</strong> récupération de ressources sans effet de bord. Sûr et idempotent.</li>',
-        '      <li><strong>POST (Create) :</strong> création d’une nouvelle ressource ou déclenchement d’un traitement. Non idempotent (deux appels créent deux ressources distinctes).</li>',
-        '      <li><strong>PUT (Replace) :</strong> remplacement intégral d’une ressource existante à l’URI spécifiée. Idempotent.</li>',
-        '      <li><strong>PATCH (Update) :</strong> modification partielle des attributs d’une ressource existante. Généralement non idempotent.</li>',
-        '      <li><strong>DELETE (Remove) :</strong> suppression définitive de la ressource. Idempotent.</li>',
+        '      <li><strong>GET (Read) :</strong> récupération d’une représentation. Méthode sûre et idempotente pour l’effet demandé ; des journaux peuvent néanmoins être produits.</li>',
+        '      <li><strong>POST (Create) :</strong> soumission à un traitement. HTTP ne la définit pas comme idempotente : des répétitions peuvent produire plusieurs effets ; consulter le contrat de l’API.</li>',
+        '      <li><strong>PUT (Replace) :</strong> création ou remplacement de l’état de la ressource ciblée. Idempotent.</li>',
+        '      <li><strong>PATCH (Update) :</strong> modification partielle. L’idempotence n’est pas garantie par la méthode et dépend de l’opération.</li>',
+        '      <li><strong>DELETE (Remove) :</strong> demande de suppression de la ressource ciblée. Idempotent pour l’effet demandé.</li>',
         '    </ul>',
         '  </div>',
         '  <div class="card">',
@@ -41,10 +41,13 @@ module.exports = {
         '    <ul>',
         '      <li><strong>2xx Success :</strong> <code>200 OK</code> (succès avec contenu), <code>201 Created</code> (ressource créée), <code>204 No Content</code> (succès sans corps renvoyé, typique sur DELETE).</li>',
         '      <li><strong>4xx Client Error :</strong> <code>400 Bad Request</code> (syntaxe JSON invalide), <code>401 Unauthorized</code> (token manquant ou invalide), <code>403 Forbidden</code> (droits insuffisants), <code>404 Not Found</code>.</li>',
-        '      <li><strong>5xx Server Error :</strong> <code>500 Internal Server Error</code> (exception non gérée), <code>502 Bad Gateway</code> (serveur amont injoignable), <code>503 Service Unavailable</code> (surcharge temporaire), <code>504 Gateway Timeout</code>.</li>',
+        '      <li><strong>5xx Server Error :</strong> <code>500 Internal Server Error</code> (erreur interne), <code>502 Bad Gateway</code> (réponse invalide reçue par une passerelle depuis l’amont), <code>503 Service Unavailable</code> (service indisponible), <code>504 Gateway Timeout</code>.</li>',
         '    </ul>',
         '  </div>',
-        '</div>'
+        '</div>',
+        '<p><strong>Reading practice — extrait pédagogique adapté de la RFC 9110 :</strong> <span lang="en">“When identical idempotent requests are sent more than once, their intended effect is the same as for one request. The responses may differ.”</span></p>',
+        '<p>Repérez <em lang="en">intended effect</em> (effet visé) et <em lang="en">may differ</em> (peuvent différer) : une seconde suppression peut répondre 404 après une première réponse 204. Les journaux peuvent aussi être différents.</p>',
+        '<p>Référence : <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.2">RFC 9110, section 9.2.2 — méthodes idempotentes</a> (consultée le 30 octobre 2026).</p>'
       ].join('\n')
     },
     {
@@ -107,7 +110,7 @@ module.exports = {
     'La norme RFC 2119 élimine l’ambiguïté avec MUST (obligatoire), SHOULD (recommandé) et MAY (optionnel).',
     'La différence entre 401 (non authentifié) et 403 (non autorisé) est cruciale dans la gestion des permissions.',
     'Un README.md professionnel fournit prérequis, installation, variables d’environnement et guide de dépannage.',
-    'L’idempotence (GET, PUT, DELETE) permet de répéter une requête en cas d’échec réseau sans effet de bord imprévu.'
+    'Pour GET, PUT et DELETE, des requêtes identiques répétées ont le même effet visé ; les réponses et les journaux peuvent différer.'
   ],
   checklist: [
     'Ai-je audité les clauses MUST vs SHOULD dans mes spécifications d’interface ?',
@@ -156,15 +159,15 @@ module.exports = {
       exp: 'Le code 401 signale une absence d’authentification valide, tandis que 403 Forbidden indique que l’identité est connue mais que les droits sont insuffisants.'
     },
     {
-      stem: 'Que garantit la propriété d’idempotence d’une méthode HTTP comme PUT ou DELETE ?',
+      stem: 'Read the excerpt: “Repeated identical idempotent requests have the same intended effect, even when responses differ.” What does it mean?',
       opts: [
-        'La méthode s’exécute deux fois plus vite qu’une méthode non idempotente.',
-        'Exécuter la requête une ou plusieurs fois consécutives produit exactement le même effet sur l’état du serveur.',
-        'La méthode ne nécessite aucun token d’authentification.',
-        'Le résultat est automatiquement mis en cache par tous les proxys réseau.'
+        'Repeating the same request has the same intended effect as sending it once.',
+        'Every response and every log entry must be identical.',
+        'All payment POST requests can always be retried without precautions.',
+        'No authentication is required for an idempotent request.'
       ],
-      correct: 1,
-      exp: 'Une opération est dite idempotente si la répéter plusieurs fois avec les mêmes paramètres aboutit au même état final sur le serveur.'
+      correct: 0,
+      exp: '« Intended effect » signifie effet visé : il reste le même pour des requêtes identiques, même si les réponses et les journaux diffèrent. Cela ne rend pas tout paiement POST automatiquement sûr à répéter.'
     },
     {
       stem: 'Dans la documentation d’une API REST, quelle est la méthode HTTP recommandée pour créer une nouvelle commande d’achat ?',
@@ -233,7 +236,7 @@ module.exports = {
     },
     {
       q: 'Pourquoi l’opération HTTP DELETE est-elle dite idempotente ?',
-      a: 'Parce que supprimer une ressource une fois ou dix fois consécutives aboutit au même état final sur le serveur (la ressource n’existe plus).'
+      a: 'Parce que des requêtes DELETE identiques répétées ont le même effet visé qu’une seule ; les réponses ou les journaux peuvent différer.'
     },
     {
       q: 'Que signifie SHOULD dans la norme RFC 2119 ?',

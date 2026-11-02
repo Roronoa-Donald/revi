@@ -185,7 +185,7 @@ function atelier(course) {
       '(index, branches, push refusé, stash), programmez-le et testez-le sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé numérote des commits et sait annuler. Ajoutez des branches, un compteur ' +
-      'de push refusés, ou remplace tout le script par le mécanisme que vous voulez vérifier.</p>',
+      'de push refusés, ou remplacez tout le script par le mécanisme que vous voulez vérifier.</p>',
       '      <p>Dans un vrai terminal, ce sera <code>git log --oneline</code> et <code>git revert</code> : ' +
       'la structure du script — lire, décider, rapporter — reste exactement la même.</p>',
       '    </div>',

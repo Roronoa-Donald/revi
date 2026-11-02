@@ -117,7 +117,7 @@ function formules(course) {
     '  <div class="grid grid-2">',
     '    <div class="card">',
     '      <h4>Suite de Fibonacci Modifiée</h4>',
-    '      <p>Échelle standard de Story Points utilisée en Planning Poker :<br><code>[0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100, ?]</code></p>',
+    '      <p>Exemple d’échelle de Story Points pour une équipe ; d’autres référentiels sont possibles :<br><code>[0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100, ?]</code></p>',
     '      <p>Pourquoi des écarts croissants ? La loi de Weber-Fechner démontre que plus une tâche est volumineuse, plus l’incertitude grandit : distinguer 20 de 21 est illusoire, alors que distinguer 13 de 20 est pertinent.</p>',
     '    </div>',
     '    <div class="card">',

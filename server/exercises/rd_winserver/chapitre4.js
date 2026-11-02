@@ -105,7 +105,8 @@ if ($temp -ge 95) {
     brief: '<p>Le script lit une <strong>fréquence</strong> parmi <code>hebdomadaire</code>, ' +
       '<code>mensuelle</code>, <code>trimestrielle</code> ou <code>annuelle</code>. Affichez l’action ' +
       'correspondante : <code>action : analyse des logs</code>, <code>action : test de sauvegarde</code>, ' +
-      '<code>action : test PRA</code> ou <code>action : audit securite</code>. Pour toute autre valeur, ' +
+      '<code>action : test PRA</code> ou <code>action : audit securite</code>. La comparaison ne distingue pas ' +
+      'les majuscules des minuscules. Pour toute autre valeur, ' +
       'affichez <code>action : inconnue</code>.</p>',
     starter: `$freq = [Console]::In.ReadLine()
 
@@ -118,10 +119,15 @@ if ($temp -ge 95) {
     examples: [
       { stdin: 'mensuelle', expected: 'action : test de sauvegarde', note: 'Le mensuel teste les sauvegardes.' }
     ],
+    verifyFirstExample: true,
     tests: [
       { label: 'Fréquence hebdomadaire', stdin: 'hebdomadaire', expected: 'action : analyse des logs' },
       { label: 'Fréquence trimestrielle', stdin: 'trimestrielle', expected: 'action : test PRA' },
-      { label: 'Fréquence annuelle', stdin: 'annuelle', expected: 'action : audit securite' }
+      { label: 'Fréquence annuelle', stdin: 'annuelle', expected: 'action : audit securite' },
+      { label: 'Fréquence mensuelle en majuscules', stdin: 'MENSUELLE', expected: 'action : test de sauvegarde' },
+      { label: 'Fréquence non reconnue', stdin: 'semestrielle', expected: 'action : inconnue' },
+      { label: 'Fréquence composée d’espaces', stdin: ' ', expected: 'action : inconnue' },
+      { label: 'Fréquence proche mais inconnue', stdin: 'hebdomadaire-plus', expected: 'action : inconnue' }
     ],
     solution: `$freq = [Console]::In.ReadLine()
 

@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -53,7 +53,7 @@
 <main id="content" class="b3-cloud-awswrap">
 <p class="crumb"><a href="../index.html">Services Cloud AWS B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
 
-<h1>Chapitre 2 — Sécurité des Identités IAM, Politiques JSON & Gouvernance Multi-Comptes</h1>
+<h1>Chapitre 2 — Sécurité des Identités IAM, Politiques JSON &amp; Gouvernance Multi-Comptes</h1>
 
 <div class="chapmeta">
     <span class="tag">Module 2</span>
@@ -181,9 +181,11 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>6. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="aws3-c2-e1" data-lab
      data-exercise="aws3-c2-e1"
      data-language="analyse"
@@ -212,10 +214,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Moteur d'Évaluation de Politiques IAM JSON (Deny / Allow / Default Deny)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="aws3-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Implémenter l'algorithme d'évaluation officiel des politiques d'autorisation IAM d'AWS.</p>
     <div class="lab__brief"><p>Dans AWS IAM, chaque requête API est évaluée selon un ordre strict :<br><br>
 1. <strong>Default Deny</strong> : Par défaut, toute requête est refusée.<br>
@@ -228,9 +232,7 @@ Format d'Données du cas :<br>
 Résultat d’analyse attendu : <code>IAM_EVAL: action=&lt;act&gt; decision=&lt;ALLOW|DENY&gt; reason=&lt;EXPLICIT_DENY|EXPLICIT_ALLOW|DEFAULT_DENY&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ACTION=s3:GetObject STATEMENTS=Allow:s3:Get*;Deny:s3:PutObject</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IAM_EVAL: action=s3:GetObject decision=ALLOW reason=EXPLICIT_ALLOW</pre></div>
     </div>
-    <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -269,26 +271,26 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Auditeur de Clés d'Accès IAM &amp; Détecteur d'Inactivité / Rotation</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="aws3-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Auditer le rapport d'identifiants IAM (Credential Report) et identifier les clés compromises, inactives ou périmées.</p>
     <div class="lab__brief"><p>Les bonnes pratiques de sécurité AWS exigent une rotation régulière des clés d'accès programmatiques (Access Keys) :<br><br>
 Règles d'audit d'une clé :<br>
 1. <strong>Format valide</strong> : Une clé d'accès IAM permanente commence obligatoirement par le préfixe <code>AKIA</code> et comporte exactement 20 caractères alphanumériques majuscules.<br>
-Si ce n'est pas le cas -> <code>ALERT_MALFORMED_KEY</code>.<br>
-2. <strong>Statut inactif</strong> : Si <code>STATUS=Inactive</code> -> <code>NOTICE_KEY_INACTIVE</code> (ne pose pas de risque immédiat mais doit être supprimée).<br>
+Si ce n'est pas le cas -&gt; <code>ALERT_MALFORMED_KEY</code>.<br>
+2. <strong>Statut inactif</strong> : Si <code>STATUS=Inactive</code> -&gt; <code>NOTICE_KEY_INACTIVE</code> (ne pose pas de risque immédiat mais doit être supprimée).<br>
 3. <strong>Périmètre d'âge (Rotation)</strong> :<br>
-- Si <code>STATUS=Active</code> et <code>AGE_DAYS &gt; 90</code> -> <code>ALERT_ROTATION_REQUIRED</code> (dépassement du seuil de 90 jours préconisé par AWS).<br>
-- Si <code>STATUS=Active</code> et <code>AGE_DAYS &lt;= 90</code> -> <code>KEY_COMPLIANT</code>.<br><br>
+- Si <code>STATUS=Active</code> et <code>AGE_DAYS &gt; 90</code> -&gt; <code>ALERT_ROTATION_REQUIRED</code> (dépassement du seuil de 90 jours préconisé par AWS).<br>
+- Si <code>STATUS=Active</code> et <code>AGE_DAYS &lt;= 90</code> -&gt; <code>KEY_COMPLIANT</code>.<br><br>
 Données du cas : <code>KEY_AUDIT USER=&lt;username&gt; KEY_ID=&lt;key&gt; STATUS=&lt;Active|Inactive&gt; AGE_DAYS=&lt;n&gt;</code>.<br>
 Résultat d’analyse attendu : <code>AUDIT: user=&lt;u&gt; key=&lt;k&gt; status=&lt;s&gt; age_days=&lt;n&gt; verdict=&lt;VERDICT&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>KEY_AUDIT USER=dev-alice KEY_ID=AKIAIOSFODNN7EXAMPLE STATUS=Active AGE_DAYS=45</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT: user=dev-alice key=AKIAIOSFODNN7EXAMPLE status=Active age_days=45 verdict=KEY_COMPLIANT</pre></div>
     </div>
-    <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -327,10 +329,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Évaluateur de Politiques de Contrôle des Services AWS Organizations (SCP)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="aws3-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier si une action est autorisée à travers l'arborescence hiérarchique d'unités organisationnelles (OUs) avec des SCPs.</p>
     <div class="lab__brief"><p>Les <strong>Service Control Policies (SCPs)</strong> dans AWS Organizations définissent les garde-fous maximaux pour les comptes membres :<br><br>
 Règles d'évaluation des SCPs :<br>
@@ -345,9 +349,7 @@ Résultat d’analyse attendu : Si autorisée : <code>SCP_RESULT: action=&lt;act
 Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt;Niveau&gt; reason=&lt;EXPLICIT_DENY|NO_ALLOW_FOUND&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SCP_CHECK ACTION=ec2:StopInstances HIERARCHY=Root:Allow;CoreOU:Allow;Account:Allow</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SCP_RESULT: action=ec2:StopInstances status=ALLOWED</pre></div>
     </div>
-    <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -357,6 +359,7 @@ Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>7. QCM — niveau examen</h2>
 
@@ -458,7 +461,7 @@ Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt
 <h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Cadrage des Droits & IAM Hardening</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Cadrage des Droits &amp; IAM Hardening</div>
     <ol>
       <li>Inventaire des besoins et application stricte du principe du moindre privilège (PoLP) : spécifier des actions API et des ARN de ressources granulaires sans jamais utiliser d'étoile générique (*:*).</li>
       <li>Déploiement systématique de rôles IAM temporaires pour les charges de calcul : bannir les Access Keys sur les VMs EC2, les conteneurs et les lambdas au profit d'Instance Profiles.</li>
@@ -500,7 +503,7 @@ Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Notions IAM et ordre d'évaluation mal assimilés. Révisez le Default Deny et les rôles STS.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Notions IAM et ordre d'évaluation mal assimilés. Révisez le Default Deny et les rôles STS.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Connaissances de base acquises. Entraînez-vous à décrypter des politiques JSON complexes.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Niveau avancé. Vous maîtrisez les SCPs multi-comptes et les bonnes pratiques de moindre privilège.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise d'expert sécurité AWS. Prêt pour les services de calcul EC2, EBS et Auto Scaling du Module 3 !</div>
@@ -510,7 +513,7 @@ Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="chapitre3.html">Module 3 — Calcul & Conteneurs — EC2, EBS, ELB, Auto Scaling & Fargate <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="chapitre3.html">Module 3 — Calcul &amp; Conteneurs — EC2, EBS, ELB, Auto Scaling &amp; Fargate <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.

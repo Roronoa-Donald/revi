@@ -95,10 +95,10 @@ function formules(course) {
 
     bloc('Snapshots, clones &amp; templates', [
       '<ul>',
-      '  <li><strong>Snapshot</strong> : mémoire + CPU + disques, temporaire ; ne remplace pas une sauvegarde.</li>',
+      '  <li><strong>Checkpoint Hyper-V</strong> : standard avec mémoire, production sans mémoire ; ne remplace pas une sauvegarde.</li>',
       '  <li><strong>Clone complet</strong> : indépendant ; <strong>clone lié</strong> : dépend de la source.</li>',
       '  <li><strong>Template</strong> : VM préconfigurée, modèle de déploiement standardisé.</li>',
-      '  <li><strong>vMotion</strong> : migration à chaud sans interruption.</li>',
+      '  <li><strong>vMotion</strong> : migration à chaud avec une courte pause de bascule possible.</li>',
       '  <li><strong>Cluster HA</strong> : redémarrage automatique des VM ; <strong>Veeam</strong> : sauvegarde des VM.</li>',
       '</ul>'
     ].join('\n')),

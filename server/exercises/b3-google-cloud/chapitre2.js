@@ -4,37 +4,41 @@ module.exports = [
   {
     "id": "gcp3-c2-e1",
     "chapter": 2,
-    "title": "Évaluateur de Politiques et Liaisons IAM (Bindings & Least Privilege)",
+    "title": "Analyse de liaisons IAM et audit des rôles de base",
     "level": "n1",
     "language": "analyse",
-    "goal": "Analyser les liaisons de rôles IAM Google Cloud, vérifier les droits des membres et auditer la présence de rôles primitifs déconseillés.",
-    "brief": "<p>Google Cloud IAM associe des membres (principals) à des rôles selon des liaisons (bindings) :<br>\nClassification des rôles :<br>\n- Rôles primitifs historiques : <code>roles/viewer</code>, <code>roles/editor</code>, <code>roles/owner</code> (statut : <code>PRIMITIVE_DEPRECATED_FOR_PROD</code>).<br>\n- Rôles prédéfinis : débutent par <code>roles/</code> et comportent un point (ex: <code>roles/storage.objectViewer</code>, <code>roles/compute.instanceAdmin.v1</code>) (statut : <code>PREDEFINED_RECOMMENDED</code>).<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>BIND role=&lt;role&gt; member=&lt;type:id&gt;</code> :<br>\n   Associe le membre au rôle et Indiquez :<br>\n   <code>BIND_OK: role=&lt;role&gt; member=&lt;member&gt; type=&lt;status&gt;</code>.<br>\n2. <code>CHECK_ROLE member=&lt;member&gt; role=&lt;role&gt;</code> :<br>\n   - Si le membre possède le rôle : <code>ACCESS: GRANTED member=&lt;member&gt; role=&lt;role&gt;</code>.<br>\n   - Sinon : <code>ACCESS: DENIED member=&lt;member&gt; role=&lt;role&gt;</code>.<br>\n3. <code>AUDIT_PRIMITIVE_ROLES</code> :<br>\n   - Si aucun membre n'a de rôle primitif : <code>AUDIT: OK (zero primitive roles in use)</code>.<br>\n   - Sinon : <code>AUDIT: WARNING primitive_count=&lt;N&gt; members=&lt;m1,m2,...&gt;</code> (liste ordonnée).</p>",
-    "starter": "# Grille d'analyse (gcp3-c2-e1) — Évaluateur de Politiques et Liaisons IAM (Bindings & Least Privilege)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Détection d accès refusé pour rôle non attribué]\n# Données : BIND role=roles/compute.viewer member=user:bob@corp.com\n# Données : CHECK_ROLE member=user:bob@corp.com role=roles/compute.admin\nA_COMPLETER\n\n[Cas 2 — Audit signalant des rôles primitifs dangereux en production]\n# Données : BIND role=roles/editor member=user:dev@corp.com\n# Données : BIND role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com\n# Données : AUDIT_PRIMITIVE_ROLES\nA_COMPLETER\n",
+    "goal": "Examiner des liaisons locales sans confondre leur présence avec un accès IAM effectif.",
+    "brief": "<p>Cette grille maintient uniquement un registre fictif de liaisons locales entre membres et rôles. Elle ne calcule pas l’accès effectif à une ressource : celui-ci dépend de la permission demandée, des autres liaisons et de leur héritage, des conditions ainsi que des règles IAM <em>deny</em> applicables et de leurs exceptions.<br>\nLa présence d’une liaison ne prouve donc pas l’accès ; son absence du registre local ne prouve pas un refus. Les rôles de base <code>roles/viewer</code>, <code>roles/editor</code> et <code>roles/owner</code> sont très larges et déconseillés en production ; ils ne sont pas déclarés obsolètes par cette grille.<br><br>\n<code>BIND role=&lt;role&gt; member=&lt;type:id&gt;</code> enregistre une liaison et retourne <code>BIND_OK: role=&lt;role&gt; member=&lt;member&gt; type=&lt;BASIC_CAUTION_PROD|PREDEFINED&gt;</code>. Les autres rôles cités dans les cas sont prédéfinis.<br>\n<code>CHECK_ROLE member=&lt;member&gt; role=&lt;role&gt;</code> cherche seulement la paire exacte dans le registre et retourne <code>LIAISON: PRESENT member=&lt;member&gt; role=&lt;role&gt;</code> ou <code>LIAISON: ABSENTE member=&lt;member&gt; role=&lt;role&gt;</code>.<br>\n<code>AUDIT_PRIMITIVE_ROLES</code> retourne <code>AUDIT: OK (zero basic roles in use)</code> ou <code>AUDIT: WARNING basic_count=&lt;N&gt; members=&lt;m1,m2,...&gt;</code>, membres triés lexicalement.<br>\nUn contexte indiquant qu’un deny peut s’appliquer ne modifie pas le constat de liaison : l’évaluation du deny sort du périmètre. Voir les <a href=\"https://docs.cloud.google.com/iam/docs/deny-overview\">politiques IAM deny</a>.</p>",
+    "starter": "# Grille d'analyse (gcp3-c2-e1) — Analyse de liaisons IAM et audit des rôles de base\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Liaison recherchée absente du registre local]\n# Données : BIND role=roles/compute.viewer member=user:bob@corp.com\n# Données : CHECK_ROLE member=user:bob@corp.com role=roles/compute.admin\nA_COMPLETER\n\n[Cas 2 — Audit de deux rôles de base]\n# Données : BIND role=roles/editor member=user:dev@corp.com\n# Données : BIND role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com\n# Données : AUDIT_PRIMITIVE_ROLES\nA_COMPLETER\n\n[Cas 3 — Liaison présente malgré un deny éventuellement applicable]\n# Données : BIND role=roles/storage.objectViewer member=user:lea@corp.com\n# Données : CONTEXTE deny_applicable=POSSIBLE\n# Données : CHECK_ROLE member=user:lea@corp.com role=roles/storage.objectViewer\nA_COMPLETER\n",
     "hints": [
-      "Stockez les liaisons dans un ensemble ou un dictionnaire (role, member).",
-      "Un rôle est primitif s il est exactement \"roles/viewer\", \"roles/editor\" ou \"roles/owner\".",
-      "Triez la liste des membres dans l audit pour garantir une sortie déterministe."
+      "Cherchez uniquement la paire membre-rôle dans le registre local ; ne déduisez aucune décision d’accès.",
+      "Pour l’audit, comptez les liaisons aux trois rôles de base et triez les membres concernés."
     ],
     "examples": [
       {
         "stdin": "BIND role=roles/storage.objectViewer member=user:alice@cloud.corp\nCHECK_ROLE member=user:alice@cloud.corp role=roles/storage.objectViewer\nAUDIT_PRIMITIVE_ROLES",
-        "expected": "BIND_OK: role=roles/storage.objectViewer member=user:alice@cloud.corp type=PREDEFINED_RECOMMENDED\nACCESS: GRANTED member=user:alice@cloud.corp role=roles/storage.objectViewer\nAUDIT: OK (zero primitive roles in use)",
-        "note": "Attribution conforme d un rôle prédéterminé respectant le moindre privilège."
+        "expected": "BIND_OK: role=roles/storage.objectViewer member=user:alice@cloud.corp type=PREDEFINED\nLIAISON: PRESENT member=user:alice@cloud.corp role=roles/storage.objectViewer\nAUDIT: OK (zero basic roles in use)",
+        "note": "La liaison locale est présente ; les conditions et refus éventuels ne sont pas évalués."
       }
     ],
     "tests": [
       {
-        "label": "Détection d accès refusé pour rôle non attribué",
+        "label": "Liaison recherchée absente du registre local",
         "stdin": "cas:1",
-        "expected": "BIND_OK: role=roles/compute.viewer member=user:bob@corp.com type=PREDEFINED_RECOMMENDED\nACCESS: DENIED member=user:bob@corp.com role=roles/compute.admin"
+        "expected": "BIND_OK: role=roles/compute.viewer member=user:bob@corp.com type=PREDEFINED\nLIAISON: ABSENTE member=user:bob@corp.com role=roles/compute.admin"
       },
       {
-        "label": "Audit signalant des rôles primitifs dangereux en production",
+        "label": "Audit de deux rôles de base",
         "stdin": "cas:2",
-        "expected": "BIND_OK: role=roles/editor member=user:dev@corp.com type=PRIMITIVE_DEPRECATED_FOR_PROD\nBIND_OK: role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com type=PRIMITIVE_DEPRECATED_FOR_PROD\nAUDIT: WARNING primitive_count=2 members=serviceAccount:ci@proj.iam.gserviceaccount.com,user:dev@corp.com"
+        "expected": "BIND_OK: role=roles/editor member=user:dev@corp.com type=BASIC_CAUTION_PROD\nBIND_OK: role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com type=BASIC_CAUTION_PROD\nAUDIT: WARNING basic_count=2 members=serviceAccount:ci@proj.iam.gserviceaccount.com,user:dev@corp.com"
+      },
+      {
+        "label": "Liaison présente malgré un deny éventuellement applicable",
+        "stdin": "cas:3",
+        "expected": "BIND_OK: role=roles/storage.objectViewer member=user:lea@corp.com type=PREDEFINED\nLIAISON: PRESENT member=user:lea@corp.com role=roles/storage.objectViewer"
       }
     ],
-    "solution": "[Exemple]\nBIND_OK: role=roles/storage.objectViewer member=user:alice@cloud.corp type=PREDEFINED_RECOMMENDED\nACCESS: GRANTED member=user:alice@cloud.corp role=roles/storage.objectViewer\nAUDIT: OK (zero primitive roles in use)\n\n[Cas 1 — Détection d accès refusé pour rôle non attribué]\nBIND_OK: role=roles/compute.viewer member=user:bob@corp.com type=PREDEFINED_RECOMMENDED\nACCESS: DENIED member=user:bob@corp.com role=roles/compute.admin\n\n[Cas 2 — Audit signalant des rôles primitifs dangereux en production]\nBIND_OK: role=roles/editor member=user:dev@corp.com type=PRIMITIVE_DEPRECATED_FOR_PROD\nBIND_OK: role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com type=PRIMITIVE_DEPRECATED_FOR_PROD\nAUDIT: WARNING primitive_count=2 members=serviceAccount:ci@proj.iam.gserviceaccount.com,user:dev@corp.com"
+    "solution": "[Exemple]\nBIND_OK: role=roles/storage.objectViewer member=user:alice@cloud.corp type=PREDEFINED\nLIAISON: PRESENT member=user:alice@cloud.corp role=roles/storage.objectViewer\nAUDIT: OK (zero basic roles in use)\n\n[Cas 1 — Liaison recherchée absente du registre local]\nBIND_OK: role=roles/compute.viewer member=user:bob@corp.com type=PREDEFINED\nLIAISON: ABSENTE member=user:bob@corp.com role=roles/compute.admin\n\n[Cas 2 — Audit de deux rôles de base]\nBIND_OK: role=roles/editor member=user:dev@corp.com type=BASIC_CAUTION_PROD\nBIND_OK: role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com type=BASIC_CAUTION_PROD\nAUDIT: WARNING basic_count=2 members=serviceAccount:ci@proj.iam.gserviceaccount.com,user:dev@corp.com\n\n[Cas 3 — Liaison présente malgré un deny éventuellement applicable]\nBIND_OK: role=roles/storage.objectViewer member=user:lea@corp.com type=PREDEFINED\nLIAISON: PRESENT member=user:lea@corp.com role=roles/storage.objectViewer"
   },
   {
     "id": "gcp3-c2-e2",

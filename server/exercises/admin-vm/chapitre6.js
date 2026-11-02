@@ -20,7 +20,7 @@ $enLigne = [int][Console]::In.ReadLine()
 # À compléter : tester la majorité et afficher l'état du quorum.
 `,
     hints: [
-      'Plus de la moitié s’écrit ($enLigne * 2 -gt $total).',
+      'Plus de la moitié s’écrit `($enLigne * 2 -gt $total)`.',
       'Multiplier par 2 évite la division et garde des entiers.'
     ],
     examples: [
@@ -58,7 +58,7 @@ $seuil = [int][Console]::In.ReadLine()
 # À compléter : comparer la valeur au seuil et afficher l'état.
 `,
     hints: [
-      'Alerte dès que ($valeur -ge $seuil).',
+      'Alerte dès que `($valeur -ge $seuil)`.',
       'Un seuil bien choisi évite le bruit autant que l’aveuglement.'
     ],
     examples: [
@@ -96,7 +96,7 @@ $taux = [int][Console]::In.ReadLine()
 # À compléter : calculer la taille après déduplication et l'afficher.
 `,
     hints: [
-      'Taille restante = $brut * (100 - $taux) / 100.',
+      'Taille restante = `$brut * (100 - $taux) / 100`.',
       'Arrondis avec [int]([math]::Floor(...)) pour un entier.'
     ],
     examples: [

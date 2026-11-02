@@ -19,7 +19,7 @@ module.exports = [
     n: 4,
     title: 'Rentabilisation et dimensionnement',
     short: 'Rentabiliser le parc',
-    toc: 'De 80 % à 100 %, le taux de réveil, les serveurs économisés, le plan de consolidation.',
+    toc: 'Fable et taux mesurés, calcul fictif des coûts, plan de consolidation.',
     time: '≈ 2 h de travail',
 
     situation:
@@ -31,34 +31,33 @@ module.exports = [
     objectives: [
       'mesurer le réveil d’un serveur : taux d’utilisation avant et après ;',
       'comparer le coût du parc physique à celui du parc virtualisé ;',
-      'calculer le nombre de VM nécessaires à un coût donné (plafond de la division) ;',
+      'appliquer le plafond dans un calcul fictif et distinguer ce calcul d’un dimensionnement réel ;',
       'placer les VM sur les hôtes selon la capacité restante (premier hôte suffisant).'
     ],
 
     sections: [
       {
-        title: 'De 80 % d’oisiveté à 100 % d’usage',
+        title: 'De la fable aux mesures d’utilisation',
         html: [
-          '<p>La rentabilisation se mesure par le <strong>taux d’utilisation</strong> : la part du temps où ' +
-          'le serveur travaille vraiment. Le fainéant de l’histoire tournait à environ 20 % ; après ' +
-          'virtualisation, « rentabilisé à 100 % » signifie que ses ressources ne dorment plus.</p>',
-          '<p>Le « réveil » d’un serveur se constate par deux mesures : un taux <strong>avant</strong> bas ' +
+          '<p>« Rentabilisé à 100 % » est une image de la fable, pas une mesure. Dans un parc réel, ' +
+          'on observe séparément la charge CPU, la mémoire, le stockage et les temps de réponse ; ' +
+          'une réservation totale ne prouve pas une utilisation réelle totale.</p>',
+          '<p>Dans la grille fictive de l’exercice, le « réveil » compare un taux <strong>avant</strong> bas ' +
           '(moins de 30 %) et un taux <strong>après</strong> élevé (80 % ou plus). Entre les deux, un ' +
           'serveur dont le taux monte est « en progrès » ; celui qui ne bouge pas reste insuffisant — le ' +
           'gaspillage continue.</p>',
           box('intuition', 'Pourquoi 30 et 80 ?', 'compass',
-            '    <p>Sous 30 %, un serveur vit le mode de vie du fainéant ; à 80 % et plus, il rejoint le ' +
-            'serveur « rentabilisé à 100 % » de la fin de l’histoire. Entre les deux, c’est un chantier en ' +
-            'cours — pas une réussite, pas un scandale.</p>')
+            '    <p>Ces seuils sont choisis pour s’exercer, pas pour prescrire un taux universel. ' +
+            'La marge nécessaire dépend du service, de ses variations et de ses objectifs.</p>')
         ].join('\n')
       },
       {
         title: 'Combien de serveurs économisés ?',
         html: [
-          '<p>Le calcul qui convainc : le parc physique coûte la somme des serveurs ; le parc virtualisé ' +
-          'coûte le nombre de VM × le coût d’une VM. Le nombre de VM nécessaires se calcule au <strong>' +
-          'plafond</strong> de la division : total des coûts / coût d’une VM, plus un si le reste n’est pas ' +
-          'nul. On ne peut pas louer une demi-machine.</p>',
+          '<p>Pour s’exercer au <strong>plafond</strong>, cet exemple fictif définit arbitrairement le nombre ' +
+          'de VM comme le total des coûts divisé par le coût d’une VM, arrondi à l’entier supérieur. ' +
+          'Ce calcul ne permet pas de déduire le nombre de VM nécessaires en production : il faut ' +
+          'dimensionner les charges, la disponibilité et les ressources de chaque service.</p>',
           '<p>Exemple du cours : 300 000 FCFA de serveurs, une VM à 60 000 FCFA → 300 000 / 60 000 = 5 VM ' +
           'exactement : 300 000 FCFA aussi, économie nulle. Mais à 80 000 FCFA la VM, 200 000 / 80 000 = 2,5 ' +
           '→ <strong>3 VM</strong> : 240 000 FCFA. L’économie peut être négative : la consolidation a un coût, ' +
@@ -76,21 +75,22 @@ module.exports = [
           '(fainéants d’abord : c’est eux qu’on veut réveiller), et chaque VM prend le premier hôte dont la ' +
           'capacité restante couvre son besoin. Si aucun hôte ne suffit, la VM reste « sans place » — et ' +
           'rien n’est décompté.</p>',
-          '<p>La fin du plan reporte la capacité restante de chaque hôte : un hôte à 0 est « rentabilisé à ' +
-          '100 % » comme dans l’histoire ; un hôte à 200 est encore un fainéant en puissance.</p>',
+          '<p>Dans ce modèle, un hôte à 0 a toute sa capacité <strong>allouée</strong>. Cela ne dit pas ' +
+          'combien les VM consomment : l’utilisation réelle doit être mesurée. Par exemple, 100 unités ' +
+          'peuvent être réservées alors que seulement 20 sont utilisées.</p>',
+          '<p>Source : <a href="https://learn.microsoft.com/en-us/windows/win32/hyperv_v2/msvm-summaryinformation">indicateurs Hyper-V de charge CPU et mémoire</a>, consultés le 30 octobre 2026.</p>',
           box('mnemo', 'Trois calculs, un plan', 'pin',
             '    <p>1. Le réveil (avant &lt; 30, après ≥ 80). 2. L’économie (plafond de la division). ' +
-            '3. Le placement (premier hôte suffisant). Avec ces trois calculs, le dossier de virtualisation ' +
-            'est chiffré de bout en bout.</p>')
+            '3. Le placement (premier hôte suffisant). Ces règles servent à l’exercice ; un vrai dossier ' +
+            'nécessite aussi les charges, les objectifs de disponibilité et les marges.</p>')
         ].join('\n')
       },
       {
         title: 'Ce que le tableau de bord doit dire',
         html: [
-          '<p>Un plan de consolidation se lit par un responsable, pas par un ingénieur. Il doit répondre en ' +
-          'une page : combien de serveurs réveillés, combien de VM au final, quelle économie (ou quel ' +
-          'surcoût) mensuel, quels hôtes pleins et quels hôtes restants. Chaque chiffre du dossier est ' +
-          'reproductible par un script — c’est exactement le travail des exercices de ce chapitre.</p>',
+          '<p>Le tableau de bord fictif résume les taux, les VM, l’écart de coût et les capacités restantes. ' +
+          'Pour décider sur un parc réel, compléter ces chiffres avec les besoins des services, les ' +
+          'mesures de performance, les risques et les marges de disponibilité.</p>',
           box('tech', 'Les exercices de ce chapitre', 'terminal',
             '    <p>Classer les serveurs (réveil, progrès, insuffisant), calculer l’économie du parc au ' +
             'plafond de la division, puis placer les VM sur les hôtes au premier suffisant avec les restes ' +
@@ -100,18 +100,18 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Un serveur est « réveillé » quand…', opts: ['il passe de moins de 30 % à 80 % ou plus', 'il s’éteint la nuit', 'il change de salle'], correct: 0, exp: 'Avant bas, après élevé : la double mesure du réveil.' },
-      { q: 'Le nombre de VM d’une consolidation se calcule…', opts: ['au plafond de la division', 'à l’arrondi au plus proche', 'à la partie entière toujours'], correct: 0, exp: 'Plafond : division entière plus 1 si le reste n’est pas nul — 2,5 VM = 3 VM.' },
+      { q: 'Dans la grille fictive, un serveur est « réveillé » quand…', opts: ['il passe de moins de 30 % à 80 % ou plus', 'il s’éteint la nuit', 'il change de salle'], correct: 0, exp: 'Ces seuils sont propres à l’exercice ; ils ne constituent pas une norme.' },
+      { q: 'Dans le calcul fictif, 2,5 VM sont arrondies…', opts: ['au plafond de la division', 'à l’arrondi au plus proche', 'à la partie entière toujours'], correct: 0, exp: 'Le plafond vaut 3 ; il ne permet pas de dimensionner à lui seul un parc réel.' },
       { q: 'Une économie négative signifie…', opts: ['que la consolidation coûte plus cher', 'que le calcul est faux', 'qu’il faut arrêter les VM'], correct: 0, exp: 'Le surcoût est possible : l’arithmétique tranche, sans complaisance.' },
       { q: 'La règle de placement des VM est…', opts: ['le premier hôte suffisant, dans l’ordre du fichier', 'l’hôte le plus rapide', 'au hasard'], correct: 0, exp: 'Premier hôte dont la capacité restante couvre le besoin — l’ordre fait foi.' },
       { q: 'Une VM sans place…', opts: ['ne décompte rien', 'décompte quand même', 'détruit le plan'], correct: 0, exp: 'Aucun hôte ne suffit : rien n’est consommé, elle reste à placer.' },
-      { q: 'Un hôte dont la capacité restante vaut 0 est…', opts: ['rentabilisé à 100 % comme dans l’histoire', 'cassé', 'à remplacer'], correct: 0, exp: 'Toutes ses ressources sont utilisées : la fin heureuse du fainéant.' },
+      { q: 'Un hôte dont la capacité restante vaut 0 est…', opts: ['entièrement alloué dans le modèle', 'forcément utilisé à 100 %', 'forcément cassé'], correct: 0, exp: 'La capacité est réservée ; l’utilisation réelle reste à mesurer.' },
       { q: 'Le taux d’utilisation se mesure…', opts: ['avant et après la virtualisation', 'une seule fois, après', 'jamais, il se devine'], correct: 0, exp: 'Le réveil se prouve par deux mesures : le « avant » et le « après ».' },
       { q: 'Le dossier de consolidation se lit…', opts: ['en une page chiffrée, reproductible par script', 'en un récit d’ingénieur', 'dans le journal des événements'], correct: 0, exp: 'Réveillés, VM, économie, restes : les quatre lignes que le responsable lit.' }
     ],
 
     pitfalls: [
-      'Arrondir 2,5 VM à 2 : le plafond est obligatoire, sinon le parc déborde.',
+      'Dans le calcul fictif, arrondir 2,5 à 2 au lieu d’appliquer le plafond.',
       'Décompter une VM sans place : elle n’a touché à aucune capacité.',
       'Placer les VM en désordre : le premier hôte suffisant exige l’ordre du fichier.',
       'Présenter une consolidation sans mesurer les taux avant/après : le réveil se prouve.'
@@ -120,15 +120,15 @@ module.exports = [
     methodTitle: 'Construire le plan de consolidation',
     method: [
       'Mesurer les taux avant/après de chaque serveur et compter les réveillés.',
-      'Chiffrer le parc cible : total des coûts, plafond de la division par le coût d’une VM, économie.',
+      'Dans le modèle fictif, appliquer le plafond et calculer l’écart de coût.',
       'Placer les VM au premier hôte suffisant, puis reporter les restes : le plan est chiffré.'
     ],
 
     summary: [
-      'Le réveil se mesure : avant moins de 30 %, après 80 % ou plus.',
-      'Le parc cible se calcule au plafond de la division — 2,5 VM font 3.',
+      'La grille fictive du réveil utilise les seuils 30 % et 80 %, à ne pas généraliser.',
+      'Dans le calcul fictif, le plafond de 2,5 est 3 ; il ne dimensionne pas un parc réel.',
       'Le placement suit le premier hôte suffisant, dans l’ordre du fichier.',
-      'Un hôte à 0 est rentabilisé à 100 % : la fin heureuse du fainéant.'
+      'Un hôte à 0 restant est entièrement alloué dans le modèle ; son utilisation réelle doit être mesurée.'
     ],
 
     checklist: [
@@ -157,10 +157,10 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Les seuils du réveil ?', a: 'Avant moins de 30 %, après 80 % ou plus — sinon « en progrès » ou « insuffisant ».' },
+      { q: 'Les seuils du réveil ?', a: 'Dans la grille fictive : avant moins de 30 %, après 80 % ou plus — pas une norme générale.' },
       { q: 'Le calcul du nombre de VM ?', a: 'Plafond de (total / coût d’une VM) : division entière plus 1 si le reste n’est pas nul.' },
       { q: 'La règle de placement ?', a: 'Premier hôte suffisant dans l’ordre du fichier ; une VM sans place ne décompte rien.' },
-      { q: 'Que dit un hôte à capacité restante 0 ?', a: 'Il est rentabilisé à 100 % — toutes ses ressources travaillent.' },
+      { q: 'Que dit un hôte à capacité restante 0 ?', a: 'La capacité est allouée dans le modèle ; l’utilisation réelle reste à mesurer.' },
       { q: 'Une économie peut-elle être négative ?', a: 'Oui : si le coût des VM dépasse le parc physique, l’arithmétique le dit sans complaisance.' }
     ]
   },
@@ -194,8 +194,8 @@ module.exports = [
           '<ul>\n' +
           '    <li><strong>Quel concept est illustré ?</strong> La mutualisation : plusieurs VM sur un même ' +
           'serveur physique, ressources partagées.</li>\n' +
-          '    <li><strong>Quels avantages ?</strong> La rentabilisation à 100 %, moins de machines ' +
-          'physiques, moins d’électricité — tout le chapitre 4.</li>\n' +
+          '    <li><strong>Quels avantages possibles ?</strong> Moins de machines physiques et une meilleure ' +
+          'utilisation, à confirmer par des mesures de charge, de coûts et d’énergie.</li>\n' +
           '    <li><strong>Quels risques si trop de VM ?</strong> La <strong>surcharge</strong> : mémoire ' +
           'épuisée, processeur saturé, temps de réponse qui s’effondrent pour tout le monde.</li>\n' +
           '  </ul>',
@@ -208,13 +208,12 @@ module.exports = [
       {
         title: 'Le seuil de saturation',
         html: [
-          '<p>La défense est simple : <strong>ne jamais dépasser la capacité</strong>. Chaque VM demande sa ' +
-          'charge ; si la charge totale reste dans la capacité, elle est hébergée ; sinon elle est refusée ' +
-          '— et sa charge n’est pas comptée. Un refus vaut mieux qu’une saturation : on cherche un autre ' +
-          'hôte, on ne noie pas celui-ci.</p>',
-          '<p>Cas limite à connaître : le serveur <strong>plein</strong>. Quand la charge totale atteint ' +
-          '<strong>exactement</strong> la capacité, il reste hébergeable — mais plus rien ne pourra ' +
-          's’ajouter. C’est un état à surveiller, pas encore une panne.</p>',
+          '<p>Dans le modèle simplifié de l’exercice, chaque VM demande une capacité réservée ; ' +
+          'si la somme dépasse la capacité de l’hôte, la VM est refusée. En pratique, les politiques de ' +
+          'surallocation varient et il faut mesurer la charge, les marges et les performances.</p>',
+          '<p>Dans ce modèle, le serveur est <strong>plein</strong> lorsque la capacité allouée atteint ' +
+          'exactement la capacité disponible : aucune réservation ne peut s’ajouter. Cela ne prouve ' +
+          'pas que l’usage réel est de 100 % ni qu’une panne est en cours.</p>',
           box('pitfall', 'Piège — tester après avoir ajouté', 'warning',
             '    <p>Le contrôle se fait <strong>avant</strong> l’ajout : si total + charge dépasse la ' +
             'capacité, refuser. Ajouter puis retirer, c’est promettre puis décevoir — le chemin de la panne.</p>')
@@ -223,17 +222,17 @@ module.exports = [
       {
         title: 'Les symptômes de la surcharge',
         html: [
-          '<p>Un serveur surchargé prévient avant de tomber. Trois symptômes, dans l’ordre de détection :</p>',
+          '<p>Pour s’exercer, la grille utilise trois seuils indicatifs, qui ne sont pas des diagnostics universels :</p>',
           '<ul>\n' +
           '    <li><strong>CPU</strong> au-delà de 90 % : le processeur n’a plus de marge ;</li>\n' +
           '    <li><strong>RAM</strong> au-delà de 90 % : la mémoire promise aux VM menace de manquer ;</li>\n' +
           '    <li><strong>temps de réponse</strong> au-delà de 500 ms : les utilisateurs le sentent déjà.</li>\n' +
           '  </ul>',
-          '<p>Un symptôme : la cause est identifiée. Plusieurs symptômes à la fois : cas « multiple » — le ' +
-          'serveur est entrain de saturer globalement, la priorité monte.</p>',
+          '<p>Un seuil franchi est une alerte à interpréter, non la preuve d’une cause. Plusieurs ' +
+          'alertes peuvent justifier une investigation prioritaire.</p>',
           box('mnemo', '90, 90, 500', 'pin',
-            '    <p>CPU à 90 %, RAM à 90 %, réponses à 500 ms : les trois seuils d’alerte. Au-delà d’un seul, ' +
-            'le serveur est en surcharge ; l’action est la même dans tous les cas.</p>')
+            '    <p>CPU à 90 %, RAM à 90 %, réponses à 500 ms : seuils fictifs de l’exercice. ' +
+            'En pratique, on adapte les seuils et l’action au service.</p>')
         ].join('\n')
       },
       {
@@ -241,8 +240,8 @@ module.exports = [
         html: [
           '<p>Que faire quand la surcharge est détectée ? La réponse du cours tient en quatre mots : ' +
           '<strong>déplacer une VM</strong>. C’est le privilège de la virtualisation : une machine qui ' +
-          'tourne sur un serveur noyé peut rejoindre un hôte qui dort — un autre fainéant à réveiller. Le ' +
-          'service continue, l’utilisateur ne voit rien, le serveur respire.</p>',
+          'tourne sur un serveur noyé peut rejoindre un hôte moins chargé. La ' +
+          'migration peut réduire la charge, mais une pause de bascule ou une perturbation restent possibles.</p>',
           '<p>C’est aussi la réponse à la dernière question de réflexion de l’histoire : « comment être ' +
           'efficace mais pas surchargé ? » — en équilibrant : chaque hôte chargé mais aucun noyé, chaque VM ' +
           'prête à déménager.</p>',
@@ -257,10 +256,10 @@ module.exports = [
       { q: 'Le concept illustré par l’histoire est…', opts: ['la mutualisation des ressources', 'la sauvegarde', 'le chiffrement'], correct: 0, exp: 'Plusieurs VM sur un même serveur, ressources partagées : la mutualisation.' },
       { q: 'Le risque quand « trop de VM » sont créées…', opts: ['la surcharge du serveur', 'la perte de licence', 'la surchauffe du clavier'], correct: 0, exp: 'Mémoire épuisée, CPU saturé, réponses qui s’effondrent.' },
       { q: 'Une VM qui dépasse la capacité est…', opts: ['refusée, sa charge non comptée', 'hébergée quand même', 'supprimée'], correct: 0, exp: 'Le contrôle précède l’ajout : refus sans consommation.' },
-      { q: 'Le serveur est « plein » quand…', opts: ['la charge totale atteint exactement la capacité', 'il s’éteint', 'aucune VM n’existe'], correct: 0, exp: 'État exact de saturation : hébergeable mais plus rien ne peut s’ajouter.' },
+      { q: 'Dans le modèle, le serveur est « plein » quand…', opts: ['la capacité allouée atteint la capacité disponible', 'il s’éteint', 'aucune VM n’existe'], correct: 0, exp: 'Aucune réservation ne peut s’ajouter dans le modèle ; l’utilisation réelle se mesure séparément.' },
       { q: 'Les seuils d’alerte sont…', opts: ['CPU 90 %, RAM 90 %, réponses 500 ms', 'CPU 50 %, RAM 50 %, réponses 100 ms', 'CPU 99 %, RAM 99 %, réponses 1 s'], correct: 0, exp: 'Les trois seuils du cours, dans l’ordre de détection : cpu, ram, réponses.' },
-      { q: 'Plusieurs symptômes à la fois donnent…', opts: ['le cas « multiple »', 'un faux positif', 'une panne certaine'], correct: 0, exp: 'Plusieurs symptômes = saturation globale en cours : priorité renforcée.' },
-      { q: 'L’action conseillée en cas de surcharge est…', opts: ['déplacer une VM', 'éteindre le serveur', 'redémarrer tout'], correct: 0, exp: 'La VM rejoint un hôte qui dort : service continu, serveur respirant.' },
+      { q: 'Plusieurs symptômes à la fois donnent…', opts: ['le cas « multiple »', 'un faux positif', 'une panne certaine'], correct: 0, exp: 'La grille classe ce cas « multiple » ; une investigation reste nécessaire.' },
+      { q: 'L’action conseillée en cas de surcharge est…', opts: ['déplacer une VM', 'éteindre le serveur', 'redémarrer tout'], correct: 0, exp: 'Une migration adaptée peut réduire la charge, avec une pause ou un impact possibles.' },
       { q: '« Efficace mais pas surchargé » se obtient…', opts: ['en équilibrant les hôtes et en gardant les VM déplaçables', 'en ne virtualisant pas', 'en remplissant chaque hôte à 100 %'], correct: 0, exp: 'La réponse à la question de réflexion de l’histoire : charger, pas noyer.' }
     ],
 
@@ -315,7 +314,7 @@ module.exports = [
       { q: 'La règle anti-saturation ?', a: 'Tester avant d’ajouter : si total + charge dépasse la capacité, la VM est refusée sans consommation.' },
       { q: 'Les trois seuils d’alerte ?', a: 'CPU au-delà de 90 %, RAM au-delà de 90 %, temps de réponse au-delà de 500 ms.' },
       { q: 'Le cas « multiple » ?', a: 'Plusieurs symptômes à la fois : saturation globale en cours, priorité renforcée.' },
-      { q: 'L’action de secours ?', a: 'Déplacer une VM vers un hôte moins chargé — service continu, utilisateur non impacté.' }
+      { q: 'L’action de secours ?', a: 'Étudier le déplacement d’une VM vers un hôte moins chargé ; une pause reste possible.' }
     ]
   },
 
@@ -349,7 +348,7 @@ module.exports = [
           '    <li><strong>Constat</strong> : le gaspillage — 80 % d’inactivité, de l’électricité pour rien ;</li>\n' +
           '    <li><strong>Idée</strong> : la virtualisation — plusieurs machines, un seul serveur ;</li>\n' +
           '    <li><strong>Preuve</strong> : la rentabilisation — des taux avant/après, des économies chiffrées ;</li>\n' +
-          '    <li><strong>Verdict</strong> : un parc plein — chaque serveur rentabilisé à 100 %.</li>\n' +
+          '    <li><strong>Verdict</strong> : comparer les ressources allouées aux usages réellement mesurés.</li>\n' +
           '  </ol>',
           '<p>Chaque étape sans la précédente sonne creux : le verdict sans preuve est une promesse, la ' +
           'preuve sans constat ne concerne personne, le constat sans idée laisse le responsable sans réponse.</p>',

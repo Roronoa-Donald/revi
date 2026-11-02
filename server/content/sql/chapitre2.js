@@ -104,7 +104,7 @@ module.exports = {
         '    <h4 class="card-title">Prédicats BETWEEN, IN &amp; LIKE</h4>',
         '    <ul>',
         '      <li><strong>BETWEEN min AND max :</strong> Équivaut à <code>col &ge; min AND col &le; max</code> (bornes inclusives).</li>',
-        '      <li><strong>IN (val1, val2, ...) :</strong> Vérifiez l’appartenance à un ensemble discret de valeurs ou au résultat d’une sous-requête.</li>',
+        '      <li><strong>IN (val1, val2, ...) :</strong> Vérifie l’appartenance à un ensemble discret de valeurs ou au résultat d’une sous-requête.</li>',
         '      <li><strong>LIKE \'motif\' :</strong> Recherche textuelle avec jokers : <code>%</code> (0..N caractères) et <code>_</code> (exactement 1 caractère).</li>',
         '    </ul>',
         '  </div>',

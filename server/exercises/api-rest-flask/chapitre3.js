@@ -116,6 +116,11 @@ print(f"<{type_conv}:{nom_var}>")
         label: 'Préfixe de route différent',
         stdin: '/api/v1/<int:num>\n/api/v2/50',
         expected: '404 Not Found'
+      },
+      {
+        label: 'Paramètre avec deux-points dans le nom',
+        stdin: '/tags/<string:ref:sub>\n/tags/alpha',
+        expected: 'Match: ref:sub=alpha'
       }
     ],
     solution: `modele = input().strip()

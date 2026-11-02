@@ -89,37 +89,37 @@ module.exports = [
     level: "n3",
     language: 'analyse',
     title: "Grille d’observation comportementale et accord inter-observateurs",
-    goal: "Calculer le coefficient d’accord brut entre deux observateurs indépendants codant une séquence comportementale in situ.",
-    brief: "<p>Pour chaque cas d’application :<br>\n<code>OBSERVATION session=&lt;id&gt; obs1=&lt;c1,c2,...&gt; obs2=&lt;c1,c2,...&gt;</code>.<br>\nOù chaque séquence contient une série d'occurrences codées (ex: O pour présence du comportement, N pour absence).<br><br>\nCalculs :<br>\n- Nombre total d'unités observées : $U = \\text{len}(obs1)$ (obs1 et obs2 ont la même longueur).<br>\n- Nombre de concordances exactes : $A = \\sum (1 \\text{ si } obs1[i] == obs2[i])$.<br>\n- Taux d'accord brut : $P_0 = (A / U) \\times 100$ (1 décimale).<br><br>\nDiagnostic de concordance (seuil méthodologique de Miles &amp; Huberman) :<br>\n- Si $P_0 \\ge 85.0\\%$ : <code>FIABILITE=EXCELLENTE_CONCORDANCE_FORTE</code><br>\n- Sinon si $P_0 \\ge 70.0\\%$ : <code>FIABILITE=ACCEPTABLE_CONCORDANCE_MODEREE</code><br>\n- Sinon : <code>FIABILITE=INSUFFISANTE_GRILLE_AMBIGUE (REVOIR_DEFINITIONS)</code><br><br>\nAfficher :<br>\n<code>ACCORD_OBSERVATEURS: {session} -> ACCORDS={A}/{U} ({P_0:.1f}%) | {FIABILITE}</code></p>",
-    starter: "# Grille d'analyse (eq3-c4-e3) — Grille d’observation comportementale et accord inter-observateurs\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Accord acceptable à 80%]\n# Données : OBSERVATION session=S2 obs1=O,N,O,O,N,O,N,O,O,N obs2=O,N,O,N,N,O,N,O,N,N\nA_COMPLETER\n\n[Cas 2 — Grille ambiguë avec fort désaccord]\n# Données : OBSERVATION session=S3 obs1=O,O,O,O,O,N,N,N,N,N obs2=N,N,O,O,N,O,O,N,N,O\nA_COMPLETER\n\n[Cas 3 — Très bonne concordance à 90%]\n# Données : OBSERVATION session=S4 obs1=A,B,A,B,A,B,A,B,A,B obs2=A,B,A,B,A,B,A,B,A,A\nA_COMPLETER\n",
+    goal: "Calculer l’accord brut et le kappa de Cohen non pondéré, puis en identifier les limites.",
+    brief: "<p>Deux observateurs indépendants codent les mêmes unités selon deux catégories : O (présence) et N (absence). Pour chaque cas :<br>\n<code>OBSERVATION session=&lt;id&gt; OO=&lt;nombre&gt; ON=&lt;nombre&gt; NO=&lt;nombre&gt; NN=&lt;nombre&gt;</code>.<br>\nLa première lettre désigne le codage de l’observateur 1 (ligne), la seconde celui de l’observateur 2 (colonne). Les quatre effectifs sont entiers, positifs ou nuls, et leur somme $U$ est strictement positive.<br><br>\nCalculs :<br>\n- Accords $A = OO + NN$ et accord brut $P_0 = A / U$.<br>\n- Accord attendu à partir des marges : $P_e = [(OO+ON)(OO+NO) + (NO+NN)(ON+NN)] / U^2$.<br>\n- Si $P_e &lt; 1$, kappa non pondéré $\\kappa = (P_0 - P_e)/(1 - P_e)$ ; si $P_e = 1$, il est <code>INDEFINI</code>.<br>\n- Afficher $P_0$ et $P_e$ en pourcentage à une décimale, et le kappa à trois décimales.<br><br>\nUn accord brut élevé ne garantit ni objectivité ni absence d’ambiguïté. Le kappa dépend des marges et ne remplace pas l’examen des désaccords.<br><br>\nAfficher :<br>\n<code>ACCORD_OBSERVATEURS: {session} -> ACCORDS={A}/{U} ({P_0:.1f}%) | PE={P_e:.1f}% | KAPPA={kappa}</code></p>",
+    starter: "# Grille d'analyse (eq3-c4-e3) — Grille d’observation comportementale et accord inter-observateurs\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Accord brut de 80%]\n# Données : OBSERVATION session=S2 OO=6 ON=1 NO=1 NN=2\nA_COMPLETER\n\n[Cas 2 — Accord brut de 90% et catégories rares]\n# Données : OBSERVATION session=S3 OO=90 ON=5 NO=5 NN=0\nA_COMPLETER\n\n[Cas 3 — Accord attendu égal à 100%]\n# Données : OBSERVATION session=S4 OO=10 ON=0 NO=0 NN=0\nA_COMPLETER\n",
     hints: [
-          "Comparer les symboles élément par élément aux mêmes indices.",
-          "Calculer le ratio accords / total."
+          "Construire les marges du tableau et additionner les deux produits des proportions marginales correspondantes.",
+          "Comparer l’accord brut à l’accord attendu ; si ce dernier vaut 1, le dénominateur du kappa est nul."
     ],
     examples: [
           {
-                "stdin": "OBSERVATION session=S1 obs1=O,N,O,O,N,O,N,O,O,N obs2=O,N,O,O,N,O,N,O,O,N",
-                "expected": "ACCORD_OBSERVATEURS: S1 -> ACCORDS=10/10 (100.0%) | FIABILITE=EXCELLENTE_CONCORDANCE_FORTE",
-                "note": "Accord parfait à 100% sur les 10 intervalles temporels."
+                "stdin": "OBSERVATION session=S1 OO=4 ON=1 NO=1 NN=4",
+                "expected": "ACCORD_OBSERVATEURS: S1 -> ACCORDS=8/10 (80.0%) | PE=50.0% | KAPPA=0.600",
+                "note": "L’accord brut est de 80% ; les deux marges équilibrées donnent un accord attendu de 50%."
           }
     ],
     tests: [
           {
-                "label": "Accord acceptable à 80%",
+                "label": "Accord brut de 80%",
                 "stdin": "cas:1",
-                "expected": "ACCORD_OBSERVATEURS: S2 -> ACCORDS=8/10 (80.0%) | FIABILITE=ACCEPTABLE_CONCORDANCE_MODEREE"
+                "expected": "ACCORD_OBSERVATEURS: S2 -> ACCORDS=8/10 (80.0%) | PE=58.0% | KAPPA=0.524"
           },
           {
-                "label": "Grille ambiguë avec fort désaccord",
+                "label": "Accord brut de 90% et catégories rares",
                 "stdin": "cas:2",
-                "expected": "ACCORD_OBSERVATEURS: S3 -> ACCORDS=4/10 (40.0%) | FIABILITE=INSUFFISANTE_GRILLE_AMBIGUE (REVOIR_DEFINITIONS)"
+                "expected": "ACCORD_OBSERVATEURS: S3 -> ACCORDS=90/100 (90.0%) | PE=90.5% | KAPPA=-0.053"
           },
           {
-                "label": "Très bonne concordance à 90%",
+                "label": "Accord attendu égal à 100%",
                 "stdin": "cas:3",
-                "expected": "ACCORD_OBSERVATEURS: S4 -> ACCORDS=9/10 (90.0%) | FIABILITE=EXCELLENTE_CONCORDANCE_FORTE"
+                "expected": "ACCORD_OBSERVATEURS: S4 -> ACCORDS=10/10 (100.0%) | PE=100.0% | KAPPA=INDEFINI"
           }
     ],
-    solution: "[Exemple]\nACCORD_OBSERVATEURS: S1 -> ACCORDS=10/10 (100.0%) | FIABILITE=EXCELLENTE_CONCORDANCE_FORTE\n\n[Cas 1 — Accord acceptable à 80%]\nACCORD_OBSERVATEURS: S2 -> ACCORDS=8/10 (80.0%) | FIABILITE=ACCEPTABLE_CONCORDANCE_MODEREE\n\n[Cas 2 — Grille ambiguë avec fort désaccord]\nACCORD_OBSERVATEURS: S3 -> ACCORDS=4/10 (40.0%) | FIABILITE=INSUFFISANTE_GRILLE_AMBIGUE (REVOIR_DEFINITIONS)\n\n[Cas 3 — Très bonne concordance à 90%]\nACCORD_OBSERVATEURS: S4 -> ACCORDS=9/10 (90.0%) | FIABILITE=EXCELLENTE_CONCORDANCE_FORTE\n"
+    solution: "[Exemple]\nACCORD_OBSERVATEURS: S1 -> ACCORDS=8/10 (80.0%) | PE=50.0% | KAPPA=0.600\n\n[Cas 1 — Accord brut de 80%]\nACCORD_OBSERVATEURS: S2 -> ACCORDS=8/10 (80.0%) | PE=58.0% | KAPPA=0.524\n\n[Cas 2 — Accord brut de 90% et catégories rares]\nACCORD_OBSERVATEURS: S3 -> ACCORDS=90/100 (90.0%) | PE=90.5% | KAPPA=-0.053\n\n[Cas 3 — Accord attendu égal à 100%]\nACCORD_OBSERVATEURS: S4 -> ACCORDS=10/10 (100.0%) | PE=100.0% | KAPPA=INDEFINI\n"
   }
 ];

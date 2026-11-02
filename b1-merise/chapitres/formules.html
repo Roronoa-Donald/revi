@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -116,7 +116,7 @@ l'identifiant candidat determine le plus de proprietes</code></pre>
 
 
 
-CLIENT 1,1 ---- emettre ---- 1,n FACTURE
+CLIENT 1,n ---- emettre ---- 1,1 FACTURE
 
 CLIENT 0,n --- commander -- 1,n PRODUIT   (QteCdee : porteuse)
 
@@ -128,17 +128,19 @@ CLIENT 0,n --- commander -- 1,n PRODUIT   (QteCdee : porteuse)
 
 
 
-association porteuse     : des donnees → future table
+association porteuse     : possede des proprietes
 
-association hierarchique : rien a porter</code></pre>
+association hierarchique : maximum 1 sur un cote ; peut porter des proprietes</code></pre>
 <p>La cardinalité se lit depuis l'entité qu'elle orne ; chacune se justifie par une phrase du métier.</p>
 
   <h2>Le MLD relationnel et les intégrités</h2>
 <pre><code>regle 1 : entite                    → table (identifiant = cle primaire)
 
-regle 2 : association porteuse      → table (cle = concatenation des identifiants)
+regle 2 : association n–n → table de liaison, meme sans propriete
 
-regle 3 : association (0,1) ou (1,1) → cle etrangere migree, pas de table
+regle 3 : association 1–n → cle et propriétés migrées cote maximum 1
+
+association 1–1 : choisir le cote et imposer l’unicite necessaire
 
 
 
@@ -150,7 +152,7 @@ LIGNE_CDE (#NumCde, #RefPdt, Quantite)
 
 
 
-integrites : domaine / relation (pk unique, non nulle) / referentielle (fk → pk)</code></pre>
+integrites : domaine / relation (pk unique, non nulle) / referentielle (fk → cle primaire ou unique, sous reserve de NULL)</code></pre>
 <p>Le # marque la clé étrangère : chaque # est un lien à contrôler par le SGBD.</p>
 
   <h2>La normalisation : 1FN, 2FN, 3FN</h2>
@@ -182,7 +184,7 @@ devise  : « la cle, toute la cle, rien que la cle »</code></pre>
     <li>Coder le taux de TVA dans le programme : c'est une donnée.</li>
     <li>Mémoriser une propriété calculée (TTC) : elle se recalcule.</li>
     <li>Poser une cardinalité du mauvais côté, ou oublier le min.</li>
-    <li>Créer une table pour une association (0,1)/(1,1) : sa clé migre en #.</li>
+    <li>Oublier une table de liaison n–n parce que l’association ne porte aucune propriété.</li>
     <li>Oublier le # des clés étrangères dans le schéma relationnel.</li>
     <li>Vérifier la 2FN sur une clé simple : la 1FN la donne déjà.</li>
   </ul>

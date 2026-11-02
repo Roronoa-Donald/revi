@@ -46,6 +46,11 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
         label: 'Explosion combinatoire exponentielle O(2n)',
         stdin: 'ALGO nom=sac_a_dos_brute CLASSE=O(2n) N=10',
         expected: 'COMPLEXITE: sac_a_dos_brute | ASYMPTOTE: O(2n) | N=10 -> OPERATIONS: 1024'
+      },
+      {
+        label: 'Borne N=0 pour classes log et classe inconnue',
+        stdin: 'ALGO nom=zero_log CLASSE=O(log_n) N=0\nALGO nom=zero_nlog CLASSE=O(n_log_n) N=0\nALGO nom=inconnu CLASSE=O(autre) N=10',
+        expected: 'COMPLEXITE: zero_log | ASYMPTOTE: O(log_n) | N=0 -> OPERATIONS: 0\nCOMPLEXITE: zero_nlog | ASYMPTOTE: O(n_log_n) | N=0 -> OPERATIONS: 0\nCOMPLEXITE: inconnu | ASYMPTOTE: O(autre) | N=10 -> OPERATIONS: 0'
       }
     ],
     solution: `import sys
@@ -120,6 +125,11 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
         label: 'Cas 3 sans sous-problème supplémentaire a=1, b=2, d=1',
         stdin: 'RECURRENCE nom=filtre_lin a=1 b=2 d=1',
         expected: 'MASTER: filtre_lin | a=1 b=2 d=1 (c=0.00) -> CAS 3 : COMPLEXITE = Theta(n^1)'
+      },
+      {
+        label: 'Master Cas 2 avec d=0 dichotomie',
+        stdin: 'RECURRENCE nom=dicho a=1 b=2 d=0',
+        expected: 'MASTER: dicho | a=1 b=2 d=0 (c=0.00) -> CAS 2 : COMPLEXITE = Theta(log n)'
       }
     ],
     solution: `import sys

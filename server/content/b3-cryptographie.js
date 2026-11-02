@@ -36,12 +36,12 @@ const course = {
     'fonctions de hachage et intégrité de données (Merkle-Damgård, construction éponge de SHA-3 Keccak, obsolescence de MD5 et SHA-1, standard HMAC RFC 2104, attaques par extension de longueur et paradoxe des anniversaires), ' +
     'cryptographie asymétrique et arithmétique modulaire (division euclidienne, algorithme d\'Euclide étendu, théorème de Bézout, inverse modulaire, indicatrice d\'Euler, exponentiation modulaire rapide, échange de clés Diffie-Hellman et simulation MITM, moteur complet RSA et cryptographie sur courbes elliptiques ECC), ' +
     'signatures numériques et gestion d\'infrastructure PKI (RSA Sign & Verify, ECDSA, Ed25519, Root CA hors-ligne, autorités d\'enregistrement RA, norme de certificats X.509 v3 RFC 5280, extensions SAN, Basic Constraints, validation de chaîne de certification, listes de révocation CRL et protocole OCSP avec agrafage Stapling), ' +
-    'et enfin protocoles sécurisés et transition post-quantique (TLS 1.3 RFC 8446 avec handshake 1-RTT/0-RTT, confidentialité persistante PFS, suites cryptographiques AEAD, durcissement SSHv2 et IPsec ESP/Tunnel, algorithmes quantiques de Shor et Grover, standards post-quantiques NIST FIPS 203 ML-KEM et FIPS 204 ML-DSA, et cryptographie hybride).',
+    'et enfin protocoles sécurisés et transition post-quantique (TLS 1.3 RFC 9846, initialement RFC 8446, avec handshake 1-RTT et données anticipées 0-RTT, confidentialité persistante PFS selon la négociation et la phase, suites cryptographiques AEAD, durcissement SSHv2 et IPsec ESP/Tunnel, algorithmes quantiques de Shor et Grover, standards post-quantiques NIST FIPS 203 ML-KEM et FIPS 204 ML-DSA, et cryptographie hybride).',
   lead:
     'Maîtrisez la science de la cryptographie et le déploiement d’infrastructures de confiance PKI : Kerckhoffs, AES, HMAC, Euclide étendu, RSA, courbes elliptiques, certificats X.509, TLS 1.3 et standards post-quantiques NIST. ' +
     'Six modules approfondis, 18 exercices interactifs de code de manière méthodique et 48 QCM d’évaluation.',
 
-  sources: 'Supports de cours officiels Cryptographie L3/B3 (Enseignant : M. Djiwa N’tèla OGA, PolyCrypto2010), Standards RFC 5280 (X.509), RFC 8446 (TLS 1.3), RFC 2104 (HMAC), RFC 8017 (PKCS#1 v2.2) et Référentiels NIST Post-Quantum Cryptography (FIPS 203, FIPS 204)',
+  sources: 'Supports de cours officiels Cryptographie L3/B3 (Enseignant : M. Djiwa N’tèla OGA, PolyCrypto2010), RFC 5280 (X.509), RFC 9525 (identité TLS), RFC 4303 (ESP), RFC 9846 (TLS 1.3, juillet 2026 ; RFC 8446 historique), RFC 2104 (HMAC), RFC 8017 (PKCS#1 v2.2) et Référentiels NIST Post-Quantum Cryptography (FIPS 203, FIPS 204)',
 
   chapters: chapitres.map(chapitre => ({ n: chapitre.n, title: chapitre.title })),
 

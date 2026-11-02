@@ -99,11 +99,12 @@ module.exports = {
         '</table>',
 
         box('pitfall', 'L’astuce classique : XOR EAX, EAX', [
-          '<p>Dans tous les compilateurs C/C++ générant du code x86, on observe l’instruction <code>XOR EAX, EAX</code> ' +
+          '<p>Les compilateurs C/C++ générant du code x86 utilisent souvent <code>XOR EAX, EAX</code> ' +
           'plutôt que <code>MOV EAX, 0</code>. Pourquoi ?</p>' +
           '<ul>' +
-          '  <li>L’instruction <code>XOR EAX, EAX</code> n’occupe que <strong>2 octets</strong> d’opcode (<code>31 C0</code>), alors que <code>MOV EAX, 0</code> en occupe <strong>5 octets</strong> (<code>B8 00 00 00 00</code>) ;</li>' +
-          '  <li>Les décodeurs CPU modernes reconnaissent <code>XOR reg, reg</code> comme une réinitialisation sans dépendance de données, rompant les aléas de pipeline.</li>' +
+          '  <li>L’instruction <code>XOR EAX, EAX</code> occupe <strong>2 octets</strong> de code machine (<code>31 C0</code>), alors que <code>MOV EAX, 0</code> en occupe <strong>5 octets</strong> (<code>B8 00 00 00 00</code>) ;</li>' +
+          '  <li>En x86-64, <code>XOR RAX, RAX</code> occupe <strong>3 octets</strong> (<code>48 31 C0</code>) : la taille dépend du registre et de l’encodage ;</li>' +
+          '  <li>Certains processeurs reconnaissent cette remise à zéro et éliminent une dépendance ; son coût dépend du processeur. Contrairement à MOV, XOR modifie les drapeaux.</li>' +
           '</ul>'
         ].join('\n'))
       ].join('\n')
@@ -172,15 +173,15 @@ module.exports = {
       exp: 'Dans la table de vérité de l’opérateur OR : 0 OR 1 = 1, et 1 OR 1 = 1. Le bit est forcé à 1.'
     },
     {
-      stem: 'Pourquoi l’instruction XOR EAX, EAX est-elle préférée à MOV EAX, 0 par les compilateurs ?',
+      stem: 'Quel avantage XOR EAX, EAX peut-il avoir sur MOV EAX, 0 ?',
       opts: [
-        'Elle est plus compacte (2 octets contre 5) et rompt les dépendances de registre dans le CPU',
+        'Elle est plus compacte (2 octets contre 5) et peut supprimer une dépendance sur certains processeurs',
         'Elle active automatiquement l’unité arithmétique flottante FPU',
         'Elle permet d’écrire dans la mémoire cache L1',
         'Elle désactive les interruptions matérielles'
       ],
       correct: 0,
-      exp: 'XOR reg, reg n’occupe que 2 octets et est optimisé par les processeurs modernes pour réinitialiser le registre à coût nul.'
+      exp: 'XOR EAX, EAX occupe 2 octets, contre 5 pour MOV EAX, 0 dans cet encodage. Le résultat dépend du registre et du processeur ; XOR modifie les drapeaux, contrairement à MOV.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre SHR (Shift Right) et SAR (Shift Arithmetic Right) ?',
@@ -237,7 +238,7 @@ module.exports = {
     'Un quartet (4 bits) correspond exactement à un chiffre hexadécimal (0 à F). Deux chiffres hexadécimaux forment un octet.',
     'Le complément à 2 s’obtient par inversion de tous les bits (NOT) puis ajout de 1 : $[-2^{n-1} \\ .. \\ +2^{n-1} - 1]$.',
     'Les masques binaires utilisent AND (isoler/mettre à 0), OR (forcer à 1) et XOR (inverser).',
-    'L’instruction XOR reg, reg est le moyen le plus rapide et compact pour remettre un registre à zéro.',
+    'XOR reg, reg met ce registre à zéro ; sa taille et son intérêt dépendent de l’encodage et du processeur.',
     'Les décalages gauche (SHL) multiplient par 2. SAR divise par 2 les entiers signés en répliquant le bit de signe.'
   ],
 
@@ -270,43 +271,10 @@ module.exports = {
   ],
 
   flashcards: [
-      { q: 'Qu’est-ce que « Système binaire (Base 2) » ?', a: 'Système binaire (Base 2) : convertir rapidement et sans calculatrice entre les bases binaire (base 2), décimale (base 10) et hexadécimale (base 16) ;' },
-      { q: 'Qu’est-ce que « Bit de poids fort (MSB) » ?', a: 'Les processeurs représentent les entiers relatifs selon la convention du complément à 2 . Le bit de poids fort (MSB) détermine le signe (0 = positif, 1 = négatif).' },
-      { q: 'Qu’est-ce que « Masquage bit à bit » ?', a: 'Masquage bit à bit : Un ingénieur en rétro-ingénierie examine une trame réseau brute interceptée : l’octet 0xC6. S’agit-il de la valeur décimale 198 (nombre de paquets non signés) ou d’une coordonnée relative négative de -58 (entier signé) ? Et pourquoi un décalage de 1 bit à droite transforme-t-il p' },
-      { q: 'Qu’est-ce que « Opérateur AND / OR / XOR » ?', a: 'Opérateur AND / OR / XOR : concevoir des masques binaires avec les opérateurs logiques fondamentaux (AND, OR, XOR, NOT) ;' },
-      { q: 'Qu’est-ce que « XOR EAX, EAX » ?', a: 'Inverser l’état d’une LED, ou remettre un registre à 0 ( XOR EAX, EAX )' },
-      { q: 'Qu’est-ce que « Décalage logique (SHL / SHR) » ?', a: 'distinguer rigoureusement le décalage logique (SHL, SHR) du décalage arithmétique (SAR) préservant le bit de signe ;' },
-      { q: 'Qu’est-ce que « Unité Arithmétique & Logique (ALU) » ?', a: 'Unité Arithmétique & Logique (ALU)' },
-      { q: 'Qu’est-ce que « Registre 64 bits (RAX..R15) » ?', a: 'Registre 64 bits (RAX..R15)' },
-      { q: 'Qu’est-ce que « Sous-registres (EAX, AX, AH, AL) » ?', a: 'Sous-registres (EAX, AX, AH, AL)' },
-      { q: 'Qu’est-ce que « Pointeur d’instruction (RIP) » ?', a: 'Confondre le pointeur d’instruction RIP (qui pointe la prochaine instruction) et le pointeur de pile RSP.' },
-      { q: 'Qu’est-ce que « Pointeur de base (RBP) » ?', a: 'Pointeur de base (RBP) : expliquer le rôle capital des registres de contrôle : RIP (Instruction Pointer), RSP (Stack Pointer) et RBP (Base Pointer) ;' },
-      { q: 'Qu’est-ce que « Architecture de Von Neumann » ?', a: 'distinguer avec rigueur l’architecture de Von Neumann (bus partagé) de l’architecture Harvard (bus code/données séparés) ;' },
-      { q: 'Qu’est-ce que « SRAM (Données volatiles) » ?', a: 'SRAM (Données volatiles) : Un électronicien conçoit un système embarqué communicant avec un serveur PC. Sur le microcontrôleur AVR (ATmega328P), le programme est figé en mémoire Flash tandis que les variables volatiles résident en SRAM, avec des bus d’adresses totalement séparés (architecture Harvard). Sur' },
-      { q: 'Qu’est-ce que « EEPROM (Persistance) » ?', a: 'comprendre les caractéristiques et les rôles des mémoires Flash (programme), SRAM (variables, pile) et EEPROM (persistance non volatile) ;' },
-      { q: 'Qu’est-ce que « Registres GPIO (DDR, PORT, PIN) » ?', a: 'Registres GPIO (DDR, PORT, PIN)' },
-      { q: 'Qu’est-ce que « Résistance de rappel (Pull-up) » ?', a: 'Résistance de rappel (Pull-up)' },
-      { q: 'Qu’est-ce que « Little-Endian & Big-Endian » ?', a: 'Little-Endian & Big-Endian' },
-      { q: 'Qu’est-ce que « Format binaire ELF » ?', a: 'Format binaire ELF : Un développeur tape la commande gcc -O2 main.c -o programme dans son terminal. En quelques millisecondes, le compilateur a prétraité les macros, généré du code assembleur intermédiaire, assemblé les mnémoniques en opcodes machine binaires dans un fichier objet main.o , puis l’édi' },
-      { q: 'Qu’est-ce que « Section .text, .rodata, .data, .bss » ?', a: 'Section .text, .rodata, .data, .bss' },
-      { q: 'Qu’est-ce que « Directives db, dw, dd, dq » ?', a: 'Directives db, dw, dd, dq' },
-      { q: 'Qu’est-ce que « Règle d’opérande mémoire x86 » ?', a: 'Règle d’opérande mémoire x86' },
-      { q: 'Qu’est-ce que « Modes d’adressage x86 » ?', a: 'maîtriser l’ensemble des modes d’adressage x86 : immédiat, registre, direct, indirect et indexé avec facteur d’échelle ;' },
-      { q: 'Qu’est-ce que « Octet SIB (Scale-Index-Base) » ?', a: 'Octet SIB (Scale-Index-Base)' },
-      { q: 'Qu’est-ce que « Instructions arithmétiques (ADD, SUB, NEG) » ?', a: 'Instructions arithmétiques (ADD, SUB, NEG)' },
-      { q: 'Qu’est-ce que « Incrémentation / Décrémentation (INC, DEC) » ?', a: 'Incrémentation / Décrémentation (INC, DEC)' },
-      { q: 'Qu’est-ce que « Instruction CMP et registre EFLAGS » ?', a: 'Instruction CMP et registre EFLAGS' },
-      { q: 'Qu’est-ce que « Sauts conditionnels signés (JL, JG, JLE, JGE) » ?', a: 'Sauts conditionnels signés (JL, JG, JLE, JGE)' },
-      { q: 'Qu’est-ce que « Sauts conditionnels non-signés (JB, JA, JBE, JAE) » ?', a: 'Sauts conditionnels non-signés (JB, JA, JBE, JAE)' },
-      { q: 'Qu’est-ce que « Pile d’exécution LIFO (croissance vers le bas) » ?', a: 'Pile d’exécution LIFO (croissance vers le bas)' },
-      { q: 'Qu’est-ce que « Instructions PUSH et POP » ?', a: 'Instructions PUSH et POP : Lors d’une analyse de binaire avec un désassembleur, vous observez la séquence rituelle push ebp ; mov ebp, esp ; sub esp, 16 au tout début d’une fonction, et leave ; ret à la fin. Pourquoi la pile x86 grandit-elle vers les adresses basses ? Pourquoi le premier argument d’une fon' },
-      { q: 'Qu’est-ce que « Instructions CALL et RET » ?', a: 'Instructions CALL et RET : Lors d’une analyse de binaire avec un désassembleur, vous observez la séquence rituelle push ebp ; mov ebp, esp ; sub esp, 16 au tout début d’une fonction, et leave ; ret à la fin. Pourquoi la pile x86 grandit-elle vers les adresses basses ? Pourquoi le premier argument d’une fon' },
-      { q: 'Qu’est-ce que « Convention d’appel cdecl (32 bits) » ?', a: 'Convention d’appel cdecl (32 bits)' },
-      { q: 'Qu’est-ce que « Cadre de pile (Stack Frame / EBP) » ?', a: 'Cadre de pile (Stack Frame / EBP)' },
     { q: 'Que vaut l’octet hexadécimal 0xFF en entier signé 8 bits ?', a: '-1 en décimal (complément à 2).' },
     { q: 'Quelle est la plage de valeurs d’un registre 16 bits non signé ?', a: 'De 0 à 65 535 (2^16 - 1).' },
     { q: 'Comment calcule-t-on le complément à 2 d’un nombre ?', a: 'On inverse tous ses bits (NOT) puis on ajoute 1.' },
-    { q: 'À quoi sert l’instruction XOR reg, reg ?', a: 'À réinitialiser le registre à zéro de façon compacte (2 octets) et performante.' },
+    { q: 'À quoi sert l’instruction XOR reg, reg ?', a: 'À mettre ce registre à zéro ; la taille dépend du registre et de l’encodage : XOR EAX, EAX occupe 2 octets.' },
     { q: 'Quelle instruction de décalage permet de diviser un nombre négatif par 2 ?', a: 'SAR (Shift Arithmetic Right), car elle réplique le bit de signe à gauche.' },
     { q: 'Combien de bits compte un QWORD (Quad Word) en assembleur x86 ?', a: '64 bits (8 octets).' }
   ]

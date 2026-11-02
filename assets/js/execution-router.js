@@ -38,6 +38,7 @@
     CANCELLED: 'cancelled',
     API_ERROR: 'api_error'
   };
+  var createResult = ExecutionInterface ? ExecutionInterface.createResult : function (result) { return result; };
 
   // Langages supportés en exécution locale dans le navigateur
   var BROWSER_LANGUAGES = {
@@ -74,6 +75,7 @@
       type: 'pseudo'
     },
     'sql': {
+      workerUrl: '/assets/js/engines/sql-worker.js',
       provider: 'SQLite 3 (WebAssembly)',
       type: 'sql'
     }
@@ -143,16 +145,27 @@
 
     // 1. Choix du moteur : navigateur/local vs serveur
     var browserConfig = BROWSER_LANGUAGES[normLang];
+    var isSql = Boolean(browserConfig && browserConfig.type === 'sql');
     var isBrowserEnv = typeof window !== 'undefined';
-    var isWorkerAvailable = typeof Worker !== 'undefined';
+    var isWorkerAvailable = typeof Worker === 'function';
     var isFetchMocked = isBrowserEnv && typeof window.fetch === 'function' && (
       Boolean(window.__FORCE_SERVER_EXEC__) ||
       !/\[native code\]/.test(Function.prototype.toString.call(window.fetch))
     );
-    var canRunLocally = browserConfig && !opts.forceServer && !isFetchMocked && (
-      browserConfig.type === 'pseudo' ||
-      (isBrowserEnv && (browserConfig.type === 'sql' || (browserConfig.type === 'worker' && isWorkerAvailable)))
-    );
+    if (isSql && (!isBrowserEnv || !isWorkerAvailable || !WorkerRunner)) {
+      this.currentMode = 'browser';
+      return Promise.resolve(createResult({
+        status: STATUS.RUNTIME_ERROR,
+        exitCode: 1,
+        stderr: 'L’exécution SQL locale exige un Web Worker disponible.',
+        userMessage: 'Impossible d’exécuter SQL dans ce navigateur.',
+        provenance: 'browser',
+        provider: browserConfig.provider
+      }));
+    }
+    var canRunLocally = isSql || (browserConfig && !opts.forceServer && !isFetchMocked && (
+      browserConfig.type === 'pseudo' || (isBrowserEnv && browserConfig.type === 'worker' && isWorkerAvailable)
+    ));
 
     if (canRunLocally) {
       this.currentMode = 'browser';
@@ -162,13 +175,7 @@
         return PseudoCodeEngine.execute(code, stdin, opts);
       }
 
-      // Cas B : SQL WebAssembly
-      if (browserConfig.type === 'sql' && SqlWasmEngine) {
-        return SqlWasmEngine.execute(code, stdin, opts);
-      }
-
-      // Cas C : Web Worker (Python Skulpt ou JavaScript)
-      if (browserConfig.type === 'worker' && WorkerRunner) {
+      if ((browserConfig.type === 'worker' || isSql) && WorkerRunner) {
         var runner = new WorkerRunner(browserConfig.workerUrl, {
           providerName: browserConfig.provider,
           timeoutMs: opts.timeoutMs || 6000
@@ -181,10 +188,20 @@
           language: normLang,
           options: opts
         }).then(function (result) {
-          self.activeRunner = null;
+          if (self.activeRunner === runner) self.activeRunner = null;
           return result;
         }).catch(function (workerErr) {
-          self.activeRunner = null;
+          if (self.activeRunner === runner) self.activeRunner = null;
+          if (isSql) {
+            return createResult({
+              status: STATUS.RUNTIME_ERROR,
+              exitCode: 1,
+              stderr: 'Impossible d’exécuter SQL localement : ' + (workerErr.message || workerErr),
+              userMessage: 'L’environnement SQL local est indisponible.',
+              provenance: 'browser',
+              provider: browserConfig.provider
+            });
+          }
           // Repli vers le serveur en cas d'impossibilité d'exécuter le worker
           if (self.serverEngine) {
             return self.serverEngine.execute(normLang, code, stdin, opts);

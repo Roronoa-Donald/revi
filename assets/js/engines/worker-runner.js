@@ -49,18 +49,23 @@
       try {
         self.activeWorker = new Worker(self.workerUrl);
       } catch (workerErr) {
+        self.cleanup();
         return resolve(createResult({
           status: STATUS.RUNTIME_ERROR,
           stderr: 'Impossible d’initialiser l’environnement d’exécution local (Web Worker) : ' + (workerErr.message || workerErr),
           userMessage: 'Échec d’initialisation du Web Worker dans ce navigateur.',
-          provenance: 'browser'
+          provenance: 'browser',
+          provider: self.options.providerName || 'Navigateur (Web Worker)'
         }));
       }
 
+      var worker = self.activeWorker;
+
       // Garde-fou d'interruption automatique sur dépassement de temps
       self.timeoutTimer = setTimeout(function () {
+        if (self.activeWorker !== worker) return;
         var elapsed = (Date.now() - startTime) / 1000;
-        self.terminate();
+        self.cleanup();
         resolve(createResult({
           status: STATUS.TIMEOUT,
           exitCode: 124,
@@ -72,7 +77,8 @@
         }));
       }, timeoutMs);
 
-      self.activeWorker.onmessage = function (event) {
+      worker.onmessage = function (event) {
+        if (self.activeWorker !== worker) return;
         var data = event.data || {};
         if (data.type === 'DONE') {
           self.cleanup();
@@ -85,7 +91,8 @@
         }
       };
 
-      self.activeWorker.onerror = function (event) {
+      worker.onerror = function (event) {
+        if (self.activeWorker !== worker) return;
         self.cleanup();
         var elapsed = (Date.now() - startTime) / 1000;
         var msg = (event && (event.message || event.filename))
@@ -103,12 +110,24 @@
       };
 
       // Démarrage de l'exécution
-      self.activeWorker.postMessage({
-        type: 'EXECUTE',
-        code: payload.code,
-        stdin: payload.stdin || '',
-        options: payload.options || {}
-      });
+      try {
+        worker.postMessage({
+          type: 'EXECUTE',
+          code: payload.code,
+          stdin: payload.stdin || '',
+          options: payload.options || {}
+        });
+      } catch (workerErr) {
+        self.cleanup();
+        resolve(createResult({
+          status: STATUS.RUNTIME_ERROR,
+          exitCode: 1,
+          stderr: 'Impossible de démarrer l’exécution locale : ' + (workerErr.message || workerErr),
+          userMessage: 'Échec de communication avec le Web Worker.',
+          provenance: 'browser',
+          provider: self.options.providerName || 'Navigateur (Web Worker)'
+        }));
+      }
     });
   };
 

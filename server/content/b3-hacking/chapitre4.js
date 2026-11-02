@@ -202,8 +202,8 @@ module.exports = {
     { "q": 'Qu’est-ce que « Cross-Site Scripting (XSS) » ?', "a": 'Cross-Site Scripting (XSS) : Injection de scripts malveillants exécutés dans le navigateur des victimes légitimes (Stored, Reflected, DOM).' },
     { "q": 'Qu’est-ce que « Path Traversal (Traversée de Répertoire) » ?', "a": 'Path Traversal (Traversée de Répertoire) : Manipulation de paramètres de chemin via des séquences ../ pour accéder à des fichiers arbitraires hors racine.' },
     { "q": "Qu’est-ce que « Broken Access Control est la vulnérabilité web n°1 mondiale selon l'OWASP » ?", "a": "Broken Access Control est la vulnérabilité web n°1 mondiale selon l'OWASP : elle frappe directement la logique métier." },
-    { "q": "Qu’est-ce que « Les requêtes préparées avec paramètres liés constituent l'unique remédiation définitive contre les injections SQL. » ?", "a": "Les requêtes préparées avec paramètres liés constituent l'unique remédiation définitive contre les injections SQL." },
-    { "q": 'Qu’est-ce que « Les failles XSS permettent le vol de sessions utilisateurs, contré en profondeur par HttpOnly et les politiques CSP. » ?', "a": 'Les failles XSS permettent le vol de sessions utilisateurs, contré en profondeur par HttpOnly et les politiques CSP.' },
+    { "q": "Comment prévenir les injections SQL sans supposer qu'une seule protection suffit ?", "a": "Utiliser des requêtes préparées avec paramètres liés, contrôler par liste autorisée les identifiants non paramétrables et appliquer le moindre privilège." },
+    { "q": "Comment limiter le vol de session dû à une faille XSS ?", "a": "Encoder les données selon le contexte ; HttpOnly empêche JavaScript de lire le cookie et une CSP restrictive limite les scripts, sans supprimer la faille à elles seules." },
     {
       "q": "Qu'est-ce qu'une vulnérabilité IDOR (Insecure Direct Object Reference) ?",
       "a": "Une faille de contrôle d'accès où un paramètre identifiant une ressource (ex: id=1042) peut être modifié pour accéder aux données d'un autre utilisateur sans vérification côté serveur."

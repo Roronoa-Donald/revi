@@ -21,7 +21,7 @@ module.exports = [
     free: true,
 
     situation:
-      'Le service scolarité te remet vos notes : trois contrôles par matière, cinq matières. Sur la feuille, ' +
+      'Le service scolarité vous remet vos notes : trois contrôles par matière, cinq matières. Sur la feuille, ' +
       'ce ne sont que des nombres alignés. Dès qu’on veut calculer une moyenne pondérée, comparer deux ' +
       'étudiants ou transformer une image, il faut une notation qui décrive ces tableaux de nombres et les ' +
       'opérations qu’on peut leur appliquer. C’est exactement ce que font les vecteurs et les matrices.',
@@ -180,21 +180,6 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Qu’est-ce que « composante » ?', a: 'Les nombres $u_1, u_2, \\dots$ sont les composantes (ou coordonnées) de $u$. L’ordre compte : dans $\\mathbb{R}^3$, le vecteur $(1, 2, 3)$ n’est pas le vecteur $(3, 2, 1)$.' },
-      { q: 'Qu’est-ce que « non-commutativité » ?', a: 'non-commutativité : énoncer les propriétés du produit : associatif, distributif, non commutatif ;' },
-      { q: 'Qu’est-ce que « transposée » ?', a: 'calculer une transposée et appliquer ses propriétés ;' },
-      { q: 'Qu’est-ce que « symétrique » ?', a: 'calculer une trace et reconnaître une matrice symétrique.' },
-      { q: 'Qu’est-ce que « matrice échelonnée » ?', a: 'matrice échelonnée : définir l’inverse d’une matrice et sa condition d’existence ;' },
-      { q: 'Qu’est-ce que « remontée » ?', a: 'Objectif. Faire apparaître des zéros sous la diagonale : la matrice est alors échelonnée , et un système échelonné se résout par une simple remontée (on part de la dernière équation).' },
-      { q: 'Qu’est-ce que « sous-espace engendré » ?', a: 'décrire le sous-espace engendré par une famille de vecteurs.' },
-      { q: 'Qu’est-ce que « somme directe » ?', a: 'somme directe : Exemples. Le plan z = 0 est un sous-espace de ℝ³ : la somme de deux vecteurs à troisième coordonnée nulle reste à troisième coordonnée nulle. En revanche l’ensemble { (x, y, z) | z = 1 } n’en est pas un : il ne contient pas le vecteur nul, et la somme de deux de ses vecteurs donn' },
-      { q: 'Qu’est-ce que « famille liée » ?', a: 'Comparer au nombre de vecteurs : égalité ⇒ famille libre ; strictement inférieur ⇒ famille liée.' },
-      { q: 'Qu’est-ce que « rang d’une famille » ?', a: 'calculer le rang d’une famille de vecteurs et d’une matrice.' },
-      { q: 'Qu’est-ce que « règle de Sarrus » ?', a: 'Pour une matrice 3 × 3, la règle de Sarrus évite le développement : on recopie les deux premières colonnes à droite, puis on additionne les trois diagonales « descendantes » et on retranche les trois « montantes ».' },
-      { q: 'Qu’est-ce que « application linéaire » ?', a: 'Un logiciel de vision par ordinateur fait pivoter une image : géométriquement, c’est une transformation du plan. Cette transformation est une application linéaire, elle se code par une matrice, et deux questions se posent immédiatement : garde-t-elle l’information (déterminant no' },
-      { q: 'Qu’est-ce que « noyau » ?', a: 'définir une application linéaire et déterminer noyau et image ;' },
-      { q: 'Qu’est-ce que « théorème du rang » ?', a: 'Calculer le rang : il donne dim(Im f) , et le théorème du rang donne dim(ker f) .' },
-      { q: 'Qu’est-ce que « vecteur propre » ?', a: 'Le vecteur X est alors un vecteur propre associé à λ. Géométriquement, dans la direction de X, la transformation A se réduit à une homothétie de rapport λ : elle ne change pas la direction, seulement la longueur (et éventuellement le sens).' },
       { q: 'Quelles sont les dimensions d’une matrice ?', a: '<code>m × n</code> : m lignes et n colonnes, toujours dans cet ordre.' },
       { q: 'Que note <code>a<sub>ij</sub></code> ?', a: 'Le coefficient de la ligne i et de la colonne j — « Ligne Avant Colonne ».' },
       { q: 'Définissez la matrice identité I<sub>n</sub>.', a: 'Des 1 sur la diagonale, des 0 partout ailleurs. Elle vérifie A · I = A.' },
@@ -239,7 +224,7 @@ module.exports = [
             '<code>(lignes de A) × (colonnes de B)</code>. Écrivez-le avant de calculer : ' +
             '<code>(m × n) · (n × p) = (m × p)</code> — les n se « téléscopent ».</p>'),
           '<p><strong>Exemple.</strong> Calculons le produit de deux matrices 2 × 2 :</p>',
-          '<div class="math-block">$\\\\begin{pmatrix} 1 & 2 \\[4pt] 3 & 4 \\\\end{pmatrix} \\\\begin{pmatrix} 5 & 6 \\[4pt] 7 & 8 \\\\end{pmatrix} = \\\\begin{pmatrix} 1\\\\cdot 5 + 2\\\\cdot 7 & 1\\\\cdot 6 + 2\\\\cdot 8 \\[4pt] 3\\\\cdot 5 + 4\\\\cdot 7 & 3\\\\cdot 6 + 4\\\\cdot 8 \\\\end{pmatrix} = \\\\begin{pmatrix} 19 & 22 \\[4pt] 43 & 50 \\\\end{pmatrix}$</div>',
+          '<div class="math-block">$$\\begin{pmatrix} 1 &amp; 2 \\\\[4pt] 3 &amp; 4 \\end{pmatrix} \\begin{pmatrix} 5 &amp; 6 \\\\[4pt] 7 &amp; 8 \\end{pmatrix} = \\begin{pmatrix} 1\\cdot 5 + 2\\cdot 7 &amp; 1\\cdot 6 + 2\\cdot 8 \\\\[4pt] 3\\cdot 5 + 4\\cdot 7 &amp; 3\\cdot 6 + 4\\cdot 8 \\end{pmatrix} = \\begin{pmatrix} 19 &amp; 22 \\\\[4pt] 43 &amp; 50 \\end{pmatrix}$$</div>',
           '<table>\n' +
           '    <tr><th>Coefficient</th><th>Calcul</th><th>Résultat</th></tr>\n' +
           '    <tr><td>ligne 1 × colonne 1</td><td>1·5 + 2·7</td><td>19</td></tr>\n' +
@@ -426,7 +411,7 @@ module.exports = [
             '« a ≠ 0 » des nombres.</p>'),
           box('mnemo', 'Mnémotechnique — « det zéro, zéro inverse »', 'pin',
             '    <p>La règle se retient en cinq mots : <strong>« det zéro, zéro inverse »</strong>. ' +
-            'Dès que vous calculez un déterminant nul, arrête-vous : ni inverse, ni solution unique.</p>')
+            'Dès que vous calculez un déterminant nul, arrêtez-vous : ni inverse, ni solution unique.</p>')
         ].join('\n')
       },
       {
@@ -566,7 +551,7 @@ module.exports = [
     flashcards: [
       { q: 'Condition d’inversibilité d’une matrice carrée ?', a: '<code>det(A) ≠ 0</code>. Si det(A) = 0, A est singulière : pas d’inverse.' },
       { q: 'Formule de l’inverse d’une matrice 2 × 2 ?', a: '<code>A⁻¹ = 1/(ad − bc) · [[d, −b], [−c, a]]</code>.' },
-      { q: 'Cite les trois opérations élémentaires sur les lignes.', a: 'Échanger deux lignes ; multiplier une ligne par k ≠ 0 ; ajouter à une ligne un multiple d’une autre.' },
+      { q: 'Citez les trois opérations élémentaires sur les lignes.', a: 'Échanger deux lignes ; multiplier une ligne par k ≠ 0 ; ajouter à une ligne un multiple d’une autre.' },
       { q: 'Que produit Gauss-Jordan sur <code>[A | I]</code> ?', a: 'On obtient <code>[I | A⁻¹]</code> : l’inverse apparaît à droite.' }
     ]
   }

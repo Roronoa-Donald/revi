@@ -11,11 +11,11 @@ module.exports = [
     "language": "analyse",
     "title": "Besoin vs Solution technique",
     "goal": "Distinguer un besoin métier (le « Quoi / Pourquoi ») d’une solution technique prématurée (le « Comment »).",
-    "brief": "<p>En ingénierie des exigences, confondre le <strong>besoin</strong> (l’objectif ou la douleur utilisateur) et la <strong>solution</strong> (un choix technique d’implémentation) est une cause majeure d’échec des projets.</p><p>Examine un énoncé fourni dans les données du cas (en minuscules, sans ponctuation finale) et affiche son type :<br>- <code>reduire le temps d attente au guichet</code>, <code>permettre aux clients de suivre leur colis en direct</code>, <code>securiser l acces aux comptes bancaires</code> &rarr; <code>Type: Besoin</code><br>- <code>utiliser react avec mongodb</code>, <code>developper de manière méthodique.12</code>, <code>stocker les logs sur aws s3</code>, <code>installer un cluster kubernetes</code> &rarr; <code>Type: Solution</code><br>Pour toute autre valeur : <code>Type: Inconnu</code>.</p>",
-    "starter": "# Grille d'analyse (ib2-c1-e1) — Besoin vs Solution technique\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : utiliser react avec mongodb\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : securiser l acces aux comptes bancaires\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : refaire toute l application en assembleur\nA_COMPLETER\n",
+    "brief": "<p>En ingénierie des exigences, un <strong>besoin</strong> exprime un objectif ou une difficulté utilisateur ; une <strong>solution</strong> décrit un choix technique de réalisation.</p><p>Classez chaque énoncé dans les données du cas : <code>Besoin</code>, <code>Solution</code> ou <code>Inconnu</code> lorsque l’information ne permet pas de trancher. Répondez au format <code>Type: &lt;classification&gt;</code>.</p>",
+    "starter": "# Grille d'analyse (ib2-c1-e1) — Besoin vs Solution technique\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : utiliser react avec mongodb\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : securiser l acces aux comptes bancaires\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : attentes a preciser\nA_COMPLETER\n",
     "hints": [
-      "Stocke les énoncés connus dans deux ensembles ou un dictionnaire de correspondances.",
-      "Utilisez table.get(enonce, \"Inconnu\") pour renvoyer la valeur par défaut."
+      "Cherchez si l’énoncé décrit une finalité métier ou une technologie à utiliser.",
+      "Si la formulation ne donne pas assez d’information, ne supposez pas une classification."
     ],
     "examples": [
       {
@@ -53,8 +53,8 @@ module.exports = [
     "brief": "<p>La matrice de Mendelow positionne chaque partie prenante (<em>Stakeholder</em>) selon son niveau de <strong>Pouvoir</strong> (1 à 10) et d’<strong>Intérêt</strong> (1 à 10) :</p><ul>  <li>Pouvoir &ge; 7 et Intérêt &ge; 7 &rarr; <code>Gerer de pres</code> (Acteur clé)</li>  <li>Pouvoir &ge; 7 et Intérêt &lt; 7 &rarr; <code>Garder satisfait</code></li>  <li>Pouvoir &lt; 7 et Intérêt &ge; 7 &rarr; <code>Garder informe</code></li>  <li>Pouvoir &lt; 7 et Intérêt &lt; 7 &rarr; <code>Surveiller</code> (Effort minimal)</li></ul><p>Lit une ligne au format <code>Nom;Pouvoir;Interet</code> et affiche :<br><code>&lt;Nom&gt; -&gt; &lt;Strategie&gt;</code>.</p>",
     "starter": "# Grille d'analyse (ib2-c1-e2) — Matrice Pouvoir / Intérêt des parties prenantes\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : Responsable Juridique;8;4\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : Utilisateur Final;3;9\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : Prestataire Maintenance;2;3\nA_COMPLETER\n",
     "hints": [
-      "Découpez la ligne avec l’extraction des champs et convertis pouvoir et intérêt en entiers.",
-      "Applique les conditions if/elif/else sur les seuils fixés à 7."
+      "Séparez le nom des deux valeurs et comparez chaque valeur au seuil.",
+      "Quel quadrant correspond au couple pouvoir et intérêt observé ?"
     ],
     "examples": [
       {
@@ -89,10 +89,10 @@ module.exports = [
     "language": "analyse",
     "title": "Complétude d’une fiche d’exigence",
     "goal": "Valider la structure et la complétude des attributs obligatoires d’une exigence logicielle.",
-    "brief": "<p>Une exigence documentée doit comporter 5 attributs indispensables : <code>id</code>, <code>titre</code>, <code>decasion</code>, <code>source</code> et <code>priorite</code>. La priorité doit impérativement être l’une des trois valeurs : <code>Haute</code>, <code>Moyenne</code> ou <code>Basse</code>.</p><p>Analyse un objet JSON fourni(e) dans les données du cas et affiche :<br>- Si valide : <code>VALIDE (&lt;id&gt;)</code><br>- Si un attribut obligatoire est absent ou vide : <code>ERREUR: Champ manquant &lt;nom_champ&gt;</code> (tester les champs dans l’ordre : id, titre, decasion, source, priorite)<br>- Si la priorité n’est pas l’une des 3 valeurs autorisées : <code>ERREUR: Priorite invalide</code>.</p>",
+    "brief": "<p>Pour cette grille, une exigence documentée comporte 5 attributs obligatoires : <code>id</code>, <code>titre</code>, <code>description</code>, <code>source</code> et <code>priorite</code>. La priorité doit être l’une des trois valeurs : <code>Haute</code>, <code>Moyenne</code> ou <code>Basse</code>.</p><p>Examinez l’objet JSON fourni dans les données du cas et indiquez :<br>- Si valide : <code>VALIDE (&lt;id&gt;)</code><br>- Si un attribut obligatoire est absent ou vide : <code>ERREUR: Champ manquant &lt;nom_champ&gt;</code> (tester les champs dans l’ordre : id, titre, description, source, priorite)<br>- Si la priorité n’est pas l’une des 3 valeurs autorisées, utilisez <code>ERREUR: &lt;champ&gt; &lt;statut&gt;</code> avec le champ <code>Priorite</code> et le statut <code>invalide</code>.</p>",
     "starter": "# Grille d'analyse (ib2-c1-e3) — Complétude d’une fiche d’exigence\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : {\"id\": \"REQ-002\", \"titre\": \"\", \"description\": \"Export CSV\", \"source\": \"Finance\", \"priorite\": \"Moyenne\"}\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : {\"id\": \"REQ-003\", \"titre\": \"Audit logs\", \"description\": \"Archivage 1 an\", \"source\": \"Securite\", \"priorite\": \"Urgente\"}\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : {\"id\": \"REQ-004\", \"titre\": \"Recherche\", \"description\": \"Recherche floue\", \"source\": \"Produit\", \"priorite\": \"Basse\"}\nA_COMPLETER\n",
     "hints": [
-      "Parse la chaîne avec json.loads().",
+      "Repérez les clés et leurs valeurs dans l’objet JSON de chaque cas.",
       "Vérifiez la présence et la non-vacuité de chaque champ dans la liste ordonnée [\"id\", \"titre\", \"description\", \"source\", \"priorite\"]."
     ],
     "examples": [
@@ -128,11 +128,11 @@ module.exports = [
     "language": "analyse",
     "title": "Classification FURPS+ des exigences",
     "goal": "Classifier une exigence selon le modèle FURPS+ (Fonctionnelle, Performance, Fiabilité, Utilisabilité).",
-    "brief": "<p>Le modèle <strong>FURPS+</strong> structure les exigences logicielles selon leurs attributs de qualité majeurs :</p><ul>  <li><code>authentification</code>, <code>calcul_facture</code>, <code>export_pdf</code>, <code>gestion_panier</code> &rarr; <code>Categorie: Fonctionnelle</code></li>  <li><code>temps_reponse</code>, <code>debit_transactions</code> &rarr; <code>Categorie: Performance</code></li>  <li><code>disponibilite_99_9</code>, <code>sauvegarde_quotidienne</code> &rarr; <code>Categorie: Fiabilite</code></li>  <li><code>accessibilite_wcag</code>, <code>ergonomie_mobile</code> &rarr; <code>Categorie: Utilisabilite</code></li>  <li>Tout autre mot &rarr; <code>Categorie: Autre</code></li></ul><p>Analyse un identifiant de catégorie ou mot-clé fourni(e) dans les données du cas et affiche sa classification.</p>",
+    "brief": "<p>Le modèle <strong>FURPS+</strong> distingue notamment les fonctionnalités offertes, la performance, la fiabilité et l’utilisabilité d’un système.</p><p>Classez chaque mot-clé des données du cas dans l’une de ces catégories : <code>Fonctionnelle</code>, <code>Performance</code>, <code>Fiabilite</code>, <code>Utilisabilite</code> ou <code>Autre</code> si aucune ne convient. Répondez au format <code>Categorie: &lt;classification&gt;</code>.</p>",
     "starter": "# Grille d'analyse (ib2-c2-e1) — Classification FURPS+ des exigences\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : authentification\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : accessibilite_wcag\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : protocole_blockchain\nA_COMPLETER\n",
     "hints": [
-      "Créez un dictionnaire ou plusieurs ensembles associant les mots-clés à leur catégorie.",
-      "Affichez \"Categorie: Autre\" si le mot n’est pas trouvé."
+      "Distinguez le service rendu de ses propriétés de qualité.",
+      "Choisissez la catégorie la plus adaptée à chaque mot-clé."
     ],
     "examples": [
       {
@@ -245,11 +245,11 @@ module.exports = [
     "language": "analyse",
     "title": "Choix de la technique d’élicitation",
     "goal": "Identifier la méthode de recueil des exigences la plus adaptée selon le contexte organisationnel.",
-    "brief": "<p>Le choix de la technique d’élicitation dépend de la dispersion des acteurs, de la nature du savoir (explicite ou tacite) et du degré de consensus :</p><ul>  <li><code>utilisateurs_disperses_grand_nombre</code> &rarr; <code>Technique: Questionnaire en ligne</code></li>  <li><code>processus_tacite_metier_complexe</code> &rarr; <code>Technique: Observation terrain (Shadowing)</code></li>  <li><code>conflit_parties_prenantes_consensus</code> &rarr; <code>Technique: Atelier anime (Workshop JAD)</code></li>  <li><code>besoin_flou_feedback_rapide</code> &rarr; <code>Technique: Prototypage exploratoire</code></li>  <li><code>systeme_existant_sans_documentation</code> &rarr; <code>Technique: Analyse documentaire et code</code></li>  <li>Pour tout autre contexte &rarr; <code>Technique: Entretien individuel</code></li></ul><p>Analyse un identifiant de contexte fourni(e) dans les données du cas et affiche la technique recommandée.</p>",
+    "brief": "<p>Le choix de la technique d’élicitation dépend de la dispersion des acteurs, de la nature du savoir et du degré de consensus.</p><p>Pour chaque contexte, choisissez une technique parmi <code>Questionnaire en ligne</code>, <code>Observation terrain (Shadowing)</code>, <code>Atelier anime (Workshop JAD)</code>, <code>Prototypage exploratoire</code>, <code>Analyse documentaire et code</code> et <code>Entretien individuel</code>. Répondez au format <code>Technique: &lt;intitule&gt;</code>.</p>",
     "starter": "# Grille d'analyse (ib2-c3-e1) — Choix de la technique d’élicitation\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : utilisateurs_disperses_grand_nombre\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : conflit_parties_prenantes_consensus\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : alignement_directeur_projet\nA_COMPLETER\n",
     "hints": [
-      "Utilisez un la grille de critères associant chaque chaîne de contexte à son intitulé de technique.",
-      "Utilisez table.get(contexte, \"Entretien individuel\") comme repli."
+      "Examinez le nombre d’acteurs, leur dispersion et le type d’information à recueillir.",
+      "Choisissez l’approche la plus adaptée à la situation décrite."
     ],
     "examples": [
       {
@@ -560,10 +560,10 @@ module.exports = [
     "language": "analyse",
     "title": "Parseur de critère d’acceptation Gherkin",
     "goal": "Structurer un critère d’acceptation Étant donné / Quand / Alors (Given / When / Then) en objet JSON.",
-    "brief": "<p>En BDD (<em>Behavior-Driven Development</em>), un scénario de test se décompose en 3 clauses :<br>Ligne 1 : <code>Etant donne &lt;contexte&gt;</code> (ou <code>Étant donné</code>)<br>Ligne 2 : <code>Quand &lt;evenement&gt;</code><br>Ligne 3 : <code>Alors &lt;resultat_attendu&gt;</code></p><p>Analyse 3 lignes fournies dans les données du cas, nettoie la ponctuation finale éventuelle et affiche un dictionnaire JSON strict sur une ligne :<br><code>{\"contexte\": \"...\", \"evenement\": \"...\", \"resultat_attendu\": \"...\"}</code>.<br>Si l’une des clauses ne commence pas par le bon mot-clé, affiche <code>ERREUR: Syntaxe Gherkin non respectee</code>.</p>",
+    "brief": "<p>En BDD (<em>Behavior-Driven Development</em>), analyse trois clauses avec ce <strong>parseur pédagogique volontairement limité</strong> :<br>Ligne 1 : <code>Etant donne &lt;contexte&gt;</code> ou <code>Étant donné &lt;contexte&gt;</code><br>Ligne 2 : <code>Quand &lt;evenement&gt;</code><br>Ligne 3 : <code>Alors &lt;resultat_attendu&gt;</code>.</p><p>La forme sans accents <code>Etant donne</code> est une tolérance de cet exercice. Le dialecte français officiel de Gherkin accepte aussi <code>Sachant que</code> : ce mot-clé est valide en Gherkin, mais ce parseur limité ne le prend pas en charge.</p><p>Pour les trois lignes d'un cas, retire le point final éventuel des contenus et affiche un dictionnaire JSON strict sur une ligne :<br><code>{\"contexte\": \"...\", \"evenement\": \"...\", \"resultat_attendu\": \"...\"}</code>.<br>Si une clause ne commence pas par l'une des formes prises en charge à sa ligne, affiche <code>ERREUR: Mot-cle non pris en charge par ce parseur</code>. Cette erreur décrit la limite du parseur, pas une invalidité générale du Gherkin.</p><p>Source consultée le 2026-10-30 : dialectes officiels de Cucumber, <code>https://github.com/cucumber/gherkin/blob/main/gherkin-languages.json</code>.</p>",
     "starter": "# Grille d'analyse (ib2-c5-e3) — Parseur de critère d’acceptation Gherkin\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : Etant donne un panier contenant 2 articles\n# Données : Quand l utilisateur clique sur Commander\n# Données : Alors la page de paiement s affiche\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : Sachant que le serveur tourne\n# Données : Quand une erreur 500 survient\n# Données : Alors une alerte est envoyee\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : Étant donné un mot de passe expire\n# Données : Quand l utilisateur saisit ses identifiants\n# Données : Alors un message invite au renouvellement.\nA_COMPLETER\n",
     "hints": [
-      "Vérifiez que les lignes commencent respectivement par (etant donne / étant donné), (quand), (alors).",
+      "Vérifiez que les lignes commencent respectivement par (etant donne / étant donné), (quand), (alors) ; Sachant que est valide en Gherkin mais hors du périmètre de ce parseur.",
       "Supprimez le préfixe et le point final éventuel.",
       "Affichez le résultat avec json.dumps(obj, ensure_ascii=False)."
     ],
@@ -583,7 +583,7 @@ module.exports = [
       {
         "label": "Test 2",
         "stdin": "cas:2",
-        "expected": "ERREUR: Syntaxe Gherkin non respectee"
+        "expected": "ERREUR: Mot-cle non pris en charge par ce parseur"
       },
       {
         "label": "Test 3",
@@ -591,7 +591,7 @@ module.exports = [
         "expected": "{\"contexte\": \"un mot de passe expire\", \"evenement\": \"l utilisateur saisit ses identifiants\", \"resultat_attendu\": \"un message invite au renouvellement\"}"
       }
     ],
-    "solution": "[Exemple]\n{\"contexte\": \"un utilisateur connecte avec le solde 100€\", \"evenement\": \"il effectue un virement de 40€\", \"resultat_attendu\": \"son nouveau solde est de 60€\"}\n\n[Cas 1 — Test 1]\n{\"contexte\": \"un panier contenant 2 articles\", \"evenement\": \"l utilisateur clique sur Commander\", \"resultat_attendu\": \"la page de paiement s affiche\"}\n\n[Cas 2 — Test 2]\nERREUR: Syntaxe Gherkin non respectee\n\n[Cas 3 — Test 3]\n{\"contexte\": \"un mot de passe expire\", \"evenement\": \"l utilisateur saisit ses identifiants\", \"resultat_attendu\": \"un message invite au renouvellement\"}\n"
+    "solution": "[Exemple]\n{\"contexte\": \"un utilisateur connecte avec le solde 100€\", \"evenement\": \"il effectue un virement de 40€\", \"resultat_attendu\": \"son nouveau solde est de 60€\"}\n\n[Cas 1 — Test 1]\n{\"contexte\": \"un panier contenant 2 articles\", \"evenement\": \"l utilisateur clique sur Commander\", \"resultat_attendu\": \"la page de paiement s affiche\"}\n\n[Cas 2 — Test 2]\nERREUR: Mot-cle non pris en charge par ce parseur\n\n[Cas 3 — Test 3]\n{\"contexte\": \"un mot de passe expire\", \"evenement\": \"l utilisateur saisit ses identifiants\", \"resultat_attendu\": \"un message invite au renouvellement\"}\n"
   },
   {
     "id": "ib2-c6-e1",
@@ -603,7 +603,7 @@ module.exports = [
     "brief": "<p>Le modèle <strong>INVEST</strong> évalue la qualité d’une exigence agile selon 6 critères booléens (1 pour conforme, 0 pour non conforme) :<br><code>I</code> (Indépendante), <code>N</code> (Négociable), <code>V</code> (Valeur), <code>E</code> (Estimable), <code>S</code> (Small / Suffisamment petite), <code>T</code> (Testable).</p><p>Analyse une ligne au format <code>ID;I;N;V;E;S;T</code> fourni(e) dans les données du cas.<br>- Si les 6 critères valent 1 : affiche <code>&lt;ID&gt;: CONFORME_INVEST (6/6)</code>.<br>- Sinon : affiche <code>&lt;ID&gt;: NON_CONFORME (&lt;Score&gt;/6) - Criteres_manquants: &lt;liste des noms manquants séparés par une virgule&gt;</code>.</p>",
     "starter": "# Grille d'analyse (ib2-c6-e1) — Audit qualité INVEST d’une User Story\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Test 1]\n# Données : US-10;1;0;1;1;0;1\nA_COMPLETER\n\n[Cas 2 — Test 2]\n# Données : US-11;1;1;1;1;1;0\nA_COMPLETER\n\n[Cas 3 — Test 3]\n# Données : US-12;1;1;1;1;1;1\nA_COMPLETER\n",
     "hints": [
-      "Associe les colonnes aux critères : [\"Independante\", \"Negociable\", \"Valeur\", \"Estimable\", \"Small\", \"Testable\"].",
+      "Associez les colonnes aux critères : [\"Independante\", \"Negociable\", \"Valeur\", \"Estimable\", \"Small\", \"Testable\"].",
       "Filtrez les critères dont la valeur est \"0\" et compte les \"1\"."
     ],
     "examples": [

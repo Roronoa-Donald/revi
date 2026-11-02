@@ -20,7 +20,7 @@ module.exports = {
     'concevoir et déployer des hooks Git côté client (pre-commit, commit-msg) et côté serveur (pre-receive) ;',
     'analyser l’impact de l’empaquetage d’objets (.pack/.idx) et du garbage collector (git gc, git prune) sur les performances ;',
     'maîtriser l’utilisation de git-filter-repo pour expurger des secrets et supprimer des dossiers volumineux de l’historique complet ;',
-    'développer en Python 3 des générateurs de pointeurs LFS, des vérificateurs de hooks pre-commit et des moteurs de purge de secrets.'
+    'développer en scripts Bash et commandes Git des générateurs de pointeurs LFS, des vérificateurs de hooks pre-commit et des moteurs de purge de secrets.'
   ],
   sections: [
     {
@@ -59,7 +59,7 @@ module.exports = {
         '      <td><code>pre-commit</code></td>',
         '      <td>Client local</td>',
         '      <td>Avant la création du commit (après <code>git commit</code>).</td>',
-        '      <td>Vérifiez le formatage du code (Black, ESLint), détecte les clés d’API en clair ou les marqueurs de conflits non résolus. Si le script renvoie un code non-zéro, le commit est annulé.</td>',
+        '      <td>Vérifie le formatage du code (Black, ESLint), détecte les clés d’API en clair ou les marqueurs de conflits non résolus. Si le script renvoie un code non-zéro, le commit est annulé.</td>',
         '    </tr>',
         '    <tr>',
         '      <td><code>commit-msg</code></td>',
@@ -71,7 +71,7 @@ module.exports = {
         '      <td><code>pre-push</code></td>',
         '      <td>Client local</td>',
         '      <td>Avant l’envoi des commits vers le serveur distant.</td>',
-        '      <td>Exécutez la suite de tests rapides pour éviter de pousser du code cassé sur le dépôt distant.</td>',
+        '      <td>Exécute la suite de tests rapides pour éviter de pousser du code cassé sur le dépôt distant.</td>',
         '    </tr>',
         '    <tr>',
         '      <td><code>pre-receive</code></td>',
@@ -87,21 +87,21 @@ module.exports = {
       title: 'Purge Radicale de Secrets &amp; Réécriture du DAG avec git-filter-repo',
       html: [
         '<p>L’incident de sécurité le plus redouté : un développeur commite par inadvertance un fichier <code>.env</code> contenant des clés privées AWS de production ou un token d’API Stripe dans un dépôt public.</p>',
-        box('danger', 'Pourquoi « git rm » Ne Sert Absolument à Rien Face à une Fuite', [
-          '<p>Exécuter <code>git rm .env &amp;&amp; git commit -m "suppression secret"</code> ne résout aucunement la compromission :</p>',
+        box('danger', 'Pourquoi « git rm » ne suffit pas face à une fuite', [
+          '<p><code>git rm .env</code> prépare la suppression dans l’index et retire le fichier de l’arbre de travail par défaut ; <code>--cached</code> le conserve dans l’arbre de travail. La commande ne crée pas de commit : celui-ci est une opération distincte.</p>',
           '<p>Le secret est <strong>toujours présent et intact dans les commits antérieurs de l’historique</strong>. N’importe quel utilisateur qui clone le projet ou consulte l’arborescence passée peut extraire la clé !</p>'
         ]),
-        '<p>Pour expurger définitivement un secret ou un fichier volumineux, il est indispensable de <strong>réécrire l’intégralité du graphe orienté acyclique (DAG)</strong> afin de supprimer ou anonymiser l’objet dans chaque commit passé. L’outil officiel et moderne recommandé par la documentation Git est <strong><code>git-filter-repo</code></strong> (remplaçant avantageusement le vieil outil obsolète et lent <code>git filter-branch</code>) :</p>',
+        '<p>Après révocation du secret, une réécriture autorisée avec <strong><code>git-filter-repo</code></strong> peut retirer des données de références sélectionnées. Elle ne garantit pas leur disparition des copies, forks, caches ou autres références ; suivre la procédure du fournisseur et coordonner l’équipe.</p>',
         '<div class="grid grid-2">',
         '  <div class="card">',
-        '    <h4>Suppression Définitive d’un Fichier</h4>',
+        '    <h4>Suppression d’un chemin dans l’historique réécrit</h4>',
         '    <pre><code># Supprimer completement un fichier de tout l’historique\ngit-filter-repo --path .env --invert-paths</code></pre>',
-        '    <p>Cette commande recalcule tous les arbres (trees) et tous les commits sans le fichier cible.</p>',
+        '    <p>Cette opération réécrit les références traitées ; vérifier aussi les anciens noms et les copies restantes.</p>',
         '  </div>',
         '  <div class="card">',
         '    <h4>Remplacement de Secrets en Texte</h4>',
         '    <pre><code># Remplacer une cle par un texte factice\necho "AKIAIOSFODNN7EXAMPLE==>REDACTED" > expressions.txt\ngit-filter-repo --replace-text expressions.txt</code></pre>',
-        '    <p>Tous les commits contenant la chaîne sont réécrits de manière atomique et instantanée.</p>',
+        '    <p>La réécriture ne supprime pas à elle seule les copies externes du secret.</p>',
         '  </div>',
         '</div>'
       ].join('\n')
@@ -112,9 +112,9 @@ module.exports = {
         '<p>Une réécriture d’historique sur un dépôt d’entreprise requiert un protocole opérationnel millimétré :</p>',
         '<ol>',
         '  <li><strong>Révocation immédiate :</strong> Considérer le secret comme irrémédiablement compromis et le révoquer sur la plateforme cloud avant même de toucher à Git.</li>',
-        '  <li><strong>Exécution de la purge locale :</strong> Cloner un miroir frais (<code>git clone --bare</code>) et appliquer <code>git-filter-repo</code>.</li>',
-        '  <li><strong>Forçage des références distantes :</strong> <code>git push origin --force --all --tags</code>.</li>',
-        '  <li><strong>Re-synchronisation de l’équipe :</strong> Tous les collaborateurs doivent jeter leur copie locale et re-cloner le dépôt assaini pour éviter de réintroduire les anciens commits réécrits.</li>',
+        '  <li><strong>Réécriture autorisée :</strong> Préparer une copie et suivre la procédure documentée du fournisseur pour les références concernées.</li>',
+        '  <li><strong>Coordination :</strong> Planifier toute mise à jour forcée avec les responsables du dépôt et vérifier les références, forks et caches accessibles.</li>',
+        '  <li><strong>Re-synchronisation :</strong> Prévenir les collaborateurs afin de limiter la réintroduction des anciens commits ; ne pas présumer que toutes les copies externes ont disparu.</li>',
         '</ol>'
       ].join('\n')
     }
@@ -218,7 +218,7 @@ module.exports = {
       exp: 'pre-receive s’exécute sur le serveur Git distant. Il examine l’ensemble des commits reçus et peut bloquer définitivement le push s’il contient des secrets, du code mal formaté ou des violations de politiques.'
     },
     {
-      stem: 'Quelle commande moderne recommandée permet d’effacer définitivement un fichier confidentiel de l’historique complet d’un dépôt ?',
+      stem: 'Quelle commande permet de réécrire des références locales en retirant un chemin précis de leur historique ?',
       opts: [
         'git reset --hard HEAD',
         'git-filter-repo --path secret.txt --invert-paths',
@@ -226,7 +226,7 @@ module.exports = {
         'git revert HEAD~1'
       ],
       correct: 1,
-      exp: 'git-filter-repo avec l’option --path secret.txt --invert-paths réécrit tout le graphe DAG en excluant le fichier désigné de chaque commit passé.'
+      exp: 'git-filter-repo peut réécrire les références traitées en excluant ce chemin ; les autres noms, références et copies externes nécessitent des vérifications distinctes.'
     },
     {
       stem: 'Quelle est la première action vitale à accomplir immédiatement dès qu’une clé d’API sensible est découverte sur un dépôt Git public ?',
@@ -266,7 +266,7 @@ module.exports = {
     },
     {
       q: 'Pourquoi « git rm » ne suffit-il pas pour effacer un secret commité par erreur ?',
-      a: 'Car git rm crée un nouveau commit de suppression, mais le secret demeure intact et lisible dans tous les commits antérieurs de l’historique.'
+      a: 'git rm prépare une suppression dans l’index et, par défaut, dans l’arbre de travail ; il ne crée pas de commit. Le secret demeure dans l’historique : le révoquer puis traiter les références et copies concernées.'
     },
     {
       q: 'Quel outil remplace officiellement l’ancien et obsolète « git filter-branch » ?',

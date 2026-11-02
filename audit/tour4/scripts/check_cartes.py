@@ -33,8 +33,6 @@ dup_total = 0
 uncovered_total = 0
 
 for p in sorted(glob.glob(os.path.join(ROOT, "*/chapitres/cartes.html"))):
-    if "revi-cours-html" in p:
-        continue
     rel = os.path.relpath(p, ROOT)
     course_dir = os.path.dirname(os.path.dirname(p))
     soup = BeautifulSoup(open(p, encoding="utf-8", errors="ignore"), "html.parser")

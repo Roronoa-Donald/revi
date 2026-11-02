@@ -78,7 +78,7 @@ function examens(course) {
       '<h4>Partie 2 : Sécurité, Responsabilité Partagée &amp; Souveraineté (7 points)</h4>',
       '<ol>',
       '  <li>Exposez les risques juridiques pesant sur une entreprise européenne hébergeant des données de santé chez un fournisseur soumis au CLOUD Act américain, même si les datacenters sont physiquement situés à Paris ou Francfort. (3 pts)</li>',
-      '  <li>Quelles exigences techniques et organisationnelles le label français SecNumCloud de l’ANSSI impose-t-il pour garantir la souveraineté ? (2 pts)</li>',
+      '  <li>Quelles exigences et limites de la qualification SecNumCloud de l’ANSSI faut-il examiner pour une offre cloud ? (2 pts)</li>',
       '  <li>Citez 3 configurations critiques à auditer sur un stockage d’objets (bucket) pour prévenir les fuites de données. (2 pts)</li>',
       '</ol>',
       '<h4>Partie 3 : Migration Applicative 6R &amp; FinOps (7 points)</h4>',
@@ -108,7 +108,7 @@ function examens(course) {
       '<h4>Corrigé Partie 2 (7 points)</h4>',
       '<ul>',
       '  <li><strong>Risques CLOUD Act (3 pts) :</strong> Le CLOUD Act (Clarifying Lawful Overseas Use of Data Act) confère à la justice américaine le pouvoir d’exiger la transmission de données hébergées par toute société de droit américain, quelle que soit la localisation géographique physique des serveurs (principe d’extraterritorialité). Cela entre en conflit direct avec le RGPD qui interdit le transfert de données sensibles hors du cadre européen sans garanties d’équivalence.</li>',
-      '  <li><strong>SecNumCloud (2 pts) :</strong> Qualification délivrée par l’ANSSI exigeant : immunité juridique totale aux législations extraterritoriales, actionnariat européen, datacenters et support technique situés exclusivement dans l’Union européenne, et haut niveau de sécurité opérationnelle ISO 27001 renforcée.</li>',
+      '  <li><strong>SecNumCloud (2 pts) :</strong> Qualification ANSSI d’une offre et d’un périmètre définis, soumise à des exigences techniques, opérationnelles et juridiques. Elle vise notamment la protection face à certaines lois extraterritoriales, sans dispenser de vérifier les conditions, les autres obligations légales et les risques résiduels.</li>',
       '  <li><strong>Audit du bucket (2 pts) :</strong> Blocage absolu des accès publics en lecture, chiffrement obligatoire au repos (SSE-KMS avec rotation de clés), et activation du versioning + logging d’accès pour l’imputabilité.</li>',
       '</ul>',
       '<h4>Corrigé Partie 3 (7 points)</h4>',
@@ -161,7 +161,7 @@ function exercices(course, chapterList) {
       '      <h4 class="card__title">' + e.title + '</h4>',
       '      <p class="card__desc">' + e.goal + '</p>',
       '      <div class="card__foot">',
-      '        <a class="btn btn--sm" href="chapitre' + ch.n + '.html#exo-' + e.id + '">' + ic('play') + ' Résoudre dans le cours</a>',
+      '        <a class="btn btn--sm" href="chapitre' + ch.n + '.html#' + e.id + '">' + ic('play') + ' Résoudre dans le cours</a>',
       '      </div>',
       '    </div>'
     ].join('\n')).join('\n');

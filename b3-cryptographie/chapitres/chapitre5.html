@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -51,9 +51,9 @@
 </div></nav>
 
 <main id="content" class="b3-cryptographiewrap">
-<p class="crumb"><a href="../index.html">Cryptographie & PKI B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+<p class="crumb"><a href="../index.html">Cryptographie &amp; PKI B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
 
-<h1>Chapitre 5 — Signatures Numériques, PKI & Gestion des Certificats X.509</h1>
+<h1>Chapitre 5 — Signatures Numériques, PKI &amp; Gestion des Certificats X.509</h1>
 
 <div class="chapmeta">
     <span class="tag">Module 5</span>
@@ -81,16 +81,16 @@
 
 <h2>1. Signatures Numériques : RSA Sign &amp; Verify, ECDSA et Ed25519</h2>
 
-<p>La signature numérique est l'équivalent électronique certifié d'une signature manuscrite notariée. Contrairement au chiffrement (qui assure la confidentialité), la signature apporte trois garanties indispensables : l'<strong>authenticité de l'émetteur</strong>, l'<strong>intégrité du document</strong> et la <strong>non-répudiation</strong>.</p>
+<p>Une signature numérique utilisant un schéma sûr contribue à l'intégrité du document et, lorsque la clé est liée au signataire, à son authenticité. La non-répudiation dépend aussi du contexte et de la gestion des clés ; la signature ne chiffre pas le document.</p>
 <div class="grid grid-2">
   <div class="card">
-    <h4>Mécanisme de Signature RSA</h4>
-    <p>Signer un document volumineux directement par exponentiation modulaire serait trop lent. On signe donc le condensé de hachage $H(M)$ :</p>
+    <h4>Calcul RSA jouet et signature réelle</h4>
+    <p>Ce calcul pédagogique utilise un petit module et du RSA brut : il ne fournit aucune garantie de sécurité. En pratique, utilisez une bibliothèque et le schéma RSA-PSS (RFC 8017), qui encode le message avant la primitive RSA.</p>
     <ol>
-      <li><strong>Hachage :</strong> calcul de l'empreinte $h = H(M)$ (ex: SHA-256).</li>
+      <li><strong>Hachage jouet :</strong> calcul de $h = H(M) \pmod n$ (ex: SHA-256 réduit modulo le petit $n$).</li>
       <li><strong>Signature (clé privée de l'émetteur) :</strong><br><code>sig = (h^d) mod n</code></li>
-      <li><strong>Vérification (clé publique de l'émetteur) :</strong><br>Le destinataire calcule $h' = (sig^e) \pmod n$ et vérifie si $h' == H(M)$.</li>
-      <li>Si l'égalité est vérifiée, seul le détenteur de la clé privée $d$ a pu créer cette signature et le message n'a pas été altéré.</li>
+      <li><strong>Vérification jouet :</strong> si $0 \leq sig &lt; n$, calculer $h' = (sig^e) \pmod n$ et comparer à $H(M) \pmod n$.</li>
+      <li>Une égalité montre seulement que les valeurs réduites coïncident : deux messages distincts peuvent produire le même résultat et accepter la même signature jouet.</li>
     </ol>
   </div>
   <div class="card">
@@ -103,7 +103,7 @@
 </div>
   <div class="box box--standard">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Schéma de Bourrage RSA-PSS (RFC 8017)</div>
-<p>Tout comme le chiffrement RSA exige le bourrage OAEP, la signature RSA en production doit utiliser <strong>RSA-PSS (Probabilistic Signature Scheme)</strong>. RSA-PSS ajoute un sel aléatoire lors de la signature, offrant une preuve de sécurité formelle dans le modèle du standard aléatoire.</p>
+<p>Pour une signature RSA en pratique, utiliser une bibliothèque fiable et un schéma standard comme <strong>RSA-PSS (Probabilistic Signature Scheme)</strong>, avec des paramètres adaptés. Son codage et la primitive RSA sont définis par la RFC 8017.</p>
   </div>
 
 <h2>2. Infrastructure à Clés Publiques (PKI / IGC) &amp; Hiérarchie de Confiance</h2>
@@ -144,7 +144,7 @@
   <div class="card">
     <h4>Extensions Standard RFC 5280</h4>
     <ul>
-      <li><strong>Subject Alternative Name (SAN) :</strong> obligatoire pour TLS ! Liste les FQDN couverts (ex: <code>api.cloud.corp</code>, wildcards <code>*.cloud.corp</code>). Le champ historique CN (Common Name) est déprécié par les navigateurs modernes.</li>
+      <li><strong>Subject Alternative Name (SAN) :</strong> pour identifier un service TLS, la RFC 9525 impose l'identifiant approprié dans SAN (par exemple un DNS-ID pour un nom DNS). Le Common Name (CN) ne doit pas servir à identifier le service.</li>
       <li><strong>Basic Constraints :</strong> <code>CA:TRUE</code> ou <code>CA:FALSE</code>, avec contrainte optionnelle <code>pathlen</code> limitant la profondeur de sous-CA autorisées.</li>
       <li><strong>Key Usage :</strong> restreint l'usage légitime de la clé (ex: <code>digitalSignature</code>, <code>keyEncipherment</code>, <code>keyCertSign</code>).</li>
       <li><strong>Extended Key Usage (EKU) :</strong> <code>serverAuth</code> (serveur Web TLS), <code>clientAuth</code> (mTLS), <code>codeSigning</code>.</li>
@@ -165,11 +165,12 @@
     <p>Pour qu'un certificat feuille soit déclaré valide par un client :</p>
     <ol>
       <li>La date courante doit être comprise entre <code>notBefore</code> et <code>notAfter</code>.</li>
-      <li>Le FQDN contacté doit correspondre au SAN du certificat.</li>
+      <li>Le nom DNS contacté doit correspondre à un DNS-ID du SAN selon la RFC 9525 ; le CN n'est pas utilisé pour cette identité.</li>
       <li>La signature de chaque certificat $i$ doit être validée avec la clé publique du certificat émetteur $i+1$.</li>
       <li>Le certificat émetteur doit posséder <code>Basic Constraints: CA:TRUE</code>.</li>
+      <li>Les contraintes de chemin, les usages de clé et les usages étendus sont vérifiés selon le profil applicable.</li>
       <li>La chaîne doit remonter jusqu'à un certificat racine présent dans le magasin de confiance local (Trust Anchor).</li>
-      <li>Aucun certificat de la chaîne ne doit figurer comme révoqué.</li>
+      <li>Le statut de révocation est contrôlé selon la politique applicable ; dates et nom seuls ne valident pas cette chaîne.</li>
     </ol>
   </div>
   <div class="card">
@@ -183,9 +184,11 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="cr3-c5-e1" data-lab
      data-exercise="cr3-c5-e1"
      data-language="analyse"
@@ -194,47 +197,49 @@
   <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c5-e1) — Simulateur de Signature Numérique et Vérification (RSA Sign & Verify)
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
-[Cas 1 — Vérification signature valide]
+[Cas 1 — Égalité des valeurs pour le premier message]
 # Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_OFFICIEL
 A_COMPLETER
 
-[Cas 2 — Détection d altération de message sous signature]
+[Cas 2 — Valeurs réduites différentes]
 # Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_FALSIFIE
 A_COMPLETER
 
-[Cas 3 — Rejet signature numérique corrompue]
+[Cas 3 — Signature hors de la plage du module]
 # Données : VERIFY n=3233 e=17 sig=9999 text=CONTRAT_OFFICIEL
+A_COMPLETER
+
+[Cas 4 — Collision avec un autre message]
+# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_COLLISION_13147
 A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Simulateur de Signature Numérique et Vérification (RSA Sign &amp; Verify)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Implémenter la signature numérique RSA d'un message haché et sa vérification avec la clé publique.</p>
-    <div class="lab__brief"><p>Une signature numérique lie cryptographiquement l'empreinte d'un message à la clé privée de l'émetteur :<br>
-- Empreinte : <code>h = int(sha256(M), 16) mod n</code>.<br>
-- Signature : <code>sig = pow(h, d, n)</code>.<br>
-- Vérification : <code>h_recupere = pow(sig, e, n)</code>.<br>
-- Si <code>h == h_recupere</code>, la signature est valide.<br><br>
-Opérations soumises à l’analyse :<br>
-1. <code>SIGN n=&lt;n&gt; d=&lt;d&gt; text=&lt;texte&gt;</code> : produit <code>SIGN: n=&lt;n&gt; digest_mod=&lt;h&gt; sig=&lt;sig&gt;</code>.<br>
+    <p class="lab__formative-notice" id="cr3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Effectuer un calcul RSA brut jouet, reconnaître ses limites et distinguer une signature RSA-PSS réelle.</p>
+    <div class="lab__brief"><p>Ce calcul jouet de RSA brut avec un très petit module ne fournit aucune garantie de sécurité. La réduction de SHA-256 modulo <code>n</code> crée facilement des collisions : une égalité ne prouve ni l’authenticité ni l’absence d’altération. En pratique, utiliser une bibliothèque et un schéma standard comme RSA-PSS (RFC 8017).<br><br>
+Dans ce modèle pédagogique : <code>h = int(sha256(M), 16) mod n</code>, <code>sig = pow(h, d, n)</code> et <code>h_recupere = pow(sig, e, n)</code>.<br>
+1. <code>SIGN n=&lt;n&gt; d=&lt;d&gt; text=&lt;texte&gt;</code> produit <code>SIGN: n=&lt;n&gt; digest_mod=&lt;h&gt; sig=&lt;sig&gt;</code>.<br>
 2. <code>VERIFY n=&lt;n&gt; e=&lt;e&gt; sig=&lt;sig&gt; text=&lt;texte&gt;</code> :<br>
-   - Si valide : <code>VERIFY: status=VALID_SIGNATURE (authentic & untampered)</code><br>
-   - Si invalide : <code>VERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)</code></p></div>
+   - Si <code>sig &lt; 0</code> ou <code>sig &gt;= n</code> : <code>VERIFY: status=SIGNATURE_OUT_OF_RANGE</code>.<br>
+   - Si les valeurs réduites coïncident : <code>VERIFY: status=TOY_MATCH (no_security_guarantee)</code>.<br>
+   - Sinon : <code>VERIFY: status=TOY_MISMATCH</code>.<br>
+Comparer notamment deux messages distincts avec la même signature dans les cas 1 et 4.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SIGN n=3233 d=2753 text=CONTRAT_OFFICIEL</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SIGN: n=3233 digest_mod=566 sig=1706</pre></div>
     </div>
-    <p class="lab__note">Signature calculée avec la clé privée (d=2753) sur le condensé modulo 3233.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
         <li>Calculez h = int(hashlib.sha256(text.encode("utf-8")).hexdigest(), 16) % n.</li>
-        <li>Pour vérifier, calculez pow(sig, e, n) et comparez directement avec h.</li>
+        <li>Vérifiez d’abord 0 &lt;= sig &lt; n, puis comparez pow(sig, e, n) à h : une égalité ne prouve pas la sécurité.</li>
       </ol>
     </details>
   </div>
@@ -245,15 +250,15 @@ Opérations soumises à l’analyse :<br>
      data-language="analyse"
      data-height="300"
      data-stdin="CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp,cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c5-e2) — Validateur de Structure et de Validité Temporelle de Certificat X.509
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c5-e2) — Contrôle Partiel d’un Nom DNS SAN et des Dates d’un Certificat X.509
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
-[Cas 1 — Validation FQDN par wildcard SAN]
+[Cas 1 — Correspondance partielle par wildcard SAN]
 # Données : CERT_VALIDATE fqdn=web.cloud.corp date=2026-10-15 cn=cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false
 A_COMPLETER
 
-[Cas 2 — Rejet FQDN ne figurant ni dans CN ni dans SAN]
-# Données : CERT_VALIDATE fqdn=hacker.net date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false
+[Cas 2 — CN correspondant mais SAN absent]
+# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=- not_before=2026-01-01 not_after=2027-01-01 is_ca=false
 A_COMPLETER
 
 [Cas 3 — Rejet certificat expiré]
@@ -263,37 +268,47 @@ A_COMPLETER
 [Cas 4 — Rejet certificat pas encore valide]
 # Données : CERT_VALIDATE fqdn=api.cloud.corp date=2025-11-01 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false
 A_COMPLETER
+
+[Cas 5 — CN correspondant mais SAN différent]
+# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=www.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false
+A_COMPLETER
+
+[Cas 6 — Wildcard ne couvrant pas deux labels]
+# Données : CERT_VALIDATE fqdn=api.dev.cloud.corp date=2026-10-15 cn=api.dev.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false
+A_COMPLETER
+
+[Cas 7 — Wildcard ne couvrant pas le domaine racine]
+# Données : CERT_VALIDATE fqdn=cloud.corp date=2026-10-15 cn=cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false
+A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Validateur de Structure et de Validité Temporelle de Certificat X.509</h3>
+    <h3 class="lab__title">Exercice 2 — Contrôle Partiel d’un Nom DNS SAN et des Dates d’un Certificat X.509</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Valider la conformité temporelle et l'admissibilité du nom de domaine (Common Name et SAN avec wildcards) d'un certificat X.509.</p>
-    <div class="lab__brief"><p>Un certificat X.509 lie une identité à une clé publique.<br>
-Critères de validation :<br>
-1. Validité temporelle :<br>
-   - Si <code>date &lt; not_before</code> : <code>STATUS=INVALID reason=NOT_YET_VALID</code><br>
-   - Si <code>date &gt; not_after</code> : <code>STATUS=INVALID reason=CERTIFICATE_EXPIRED</code><br>
-2. Correspondance du nom d'hôte :<br>
-   - Le FQDN doit correspondre à <code>cn</code> ou à un nom dans <code>san</code>.<br>
-   - Un wildcard <code>*.domaine.corp</code> couvre tout sous-domaine de niveau 1 (ex: <code>web.domaine.corp</code>).<br>
-   - Si aucune correspondance : <code>STATUS=INVALID reason=HOSTNAME_MISMATCH</code>.<br>
-3. Si conforme : <code>STATUS=VALID fqdn=&lt;fqdn&gt; valid_until=&lt;not_after&gt; ca=&lt;is_ca&gt;</code>.<br><br>
-Paramètres soumis à l’analyse : <code>CERT_VALIDATE fqdn=&lt;fqdn&gt; date=&lt;date&gt; cn=&lt;cn&gt; san=&lt;san&gt; not_before=&lt;date&gt; not_after=&lt;date&gt; is_ca=&lt;bool&gt;</code>.</p></div>
+    <p class="lab__formative-notice" id="cr3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Contrôler les dates et un nom DNS dans le SAN sans prétendre valider complètement le certificat.</p>
+    <div class="lab__brief"><p>Ce modèle vérifie uniquement des dates ISO et un nom DNS dans des entrées dNSName du SAN. Selon la RFC 9525, le CN est ignoré pour identifier le service, même s’il correspond au nom demandé. Le SAN contient ici une liste de noms séparés par des virgules, comparés sans tenir compte de la casse ; <code>san=-</code> indique un SAN absent.<br>
+Une entrée <code>*.cloud.corp</code> ne couvre qu’un seul label à gauche : <code>web.cloud.corp</code>, mais ni <code>cloud.corp</code> ni <code>api.dev.cloud.corp</code>.<br>
+Contrôle partiel seulement : chaîne : non contrôlée ; les signatures, l’ancre de confiance, les contraintes et usages, ainsi que la révocation restent à vérifier. Le champ <code>is_ca</code> est seulement recopié et n’est pas validé.<br><br>
+Règles :<br>
+1. Si <code>date &lt; not_before</code> : <code>STATUS=INVALID reason=NOT_YET_VALID</code>.<br>
+2. Si <code>date &gt; not_after</code> : <code>STATUS=INVALID reason=CERTIFICATE_EXPIRED</code> ; les deux bornes sont incluses.<br>
+3. Si aucun DNS-ID du SAN ne correspond : <code>STATUS=INVALID reason=HOSTNAME_MISMATCH</code>.<br>
+4. Si ces deux contrôles passent : <code>STATUS=PARTIAL fqdn=&lt;fqdn&gt; valid_until=&lt;not_after&gt; ca=&lt;is_ca&gt; chain=NOT_CHECKED</code>.<br><br>
+Paramètres : <code>CERT_VALIDATE fqdn=&lt;fqdn&gt; date=&lt;date&gt; cn=&lt;cn&gt; san=&lt;san&gt; not_before=&lt;date&gt; not_after=&lt;date&gt; is_ca=&lt;bool&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp,cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STATUS=VALID fqdn=api.cloud.corp valid_until=2027-01-01 ca=false</pre></div>
     </div>
-    <p class="lab__note">Certificat en cours de validité avec correspondance exacte FQDN.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Comparez lexicographiquement les dates au format ISO YYYY-MM-DD.</li>
-        <li>Pour les wildcards, vérifiez si le motif commence par "*." et découpez le nom pour tester qu il s agit d un sous-domaine direct sans point supplémentaire.</li>
+        <li>Comparez les dates ISO YYYY-MM-DD avec bornes incluses, puis ignorez le CN pour la correspondance du nom.</li>
+        <li>Un wildcard complet dans le label le plus à gauche couvre exactement un label ; même si les contrôles passent, la chaîne reste non contrôlée.</li>
       </ol>
     </details>
   </div>
@@ -304,65 +319,81 @@ Paramètres soumis à l’analyse : <code>CERT_VALIDATE fqdn=&lt;fqdn&gt; date=&
      data-language="analyse"
      data-height="300"
      data-stdin="PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999&#10;CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false&#10;CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true&#10;CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c5-e3) — Contrôleur de Chaîne de Certification PKI et Révocation (CRL/OCSP)
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c5-e3) — Contrôle Partiel de Chaîne PKI et de Liste de Révocation Fictive
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
-[Cas 1 — Rejet certificat révoqué dans la CRL]
+[Cas 1 — Numéro de série présent dans la liste fictive]
 # Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-1001
 # Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false
 # Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true
 # Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true
 A_COMPLETER
 
-[Cas 2 — Rupture de liaison d émetteur dans la chaîne]
+[Cas 2 — Rupture de liaison des noms d’émetteur]
 # Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999
 # Données : CERT subject=api.bank.com issuer=Rogue_Intermediate serial=SN-1001 is_ca=false
 # Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true
 # Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true
 A_COMPLETER
 
-[Cas 3 — Racine non présente dans le magasin de confiance]
+[Cas 3 — Nom de racine différent du nom attendu]
 # Données : PKI_CHAIN trust_root=Official_Root_CA crl_revoked=none
 # Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false
 # Données : CERT subject=DigiTrust_Intermediate_CA issuer=Fake_Root_CA serial=SN-2001 is_ca=true
 # Données : CERT subject=Fake_Root_CA issuer=Fake_Root_CA serial=SN-3001 is_ca=true
 A_COMPLETER
+
+[Cas 4 — Noms cohérents mais signatures non contrôlées]
+# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999
+# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false
+# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true
+# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true
+A_COMPLETER
+
+[Cas 5 — Émetteur intermédiaire sans indicateur CA]
+# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999
+# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false
+# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=false
+# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true
+A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Contrôleur de Chaîne de Certification PKI et Révocation (CRL/OCSP)</h3>
+    <h3 class="lab__title">Exercice 3 — Contrôle Partiel de Chaîne PKI et de Liste de Révocation Fictive</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité d'une chaîne de confiance PKI complète et contrôler l'absence de certificats révoqués dans la liste CRL.</p>
-    <div class="lab__brief"><p>Contrôle de conformité d'une chaîne PKI :<br>
-- Ligne d'en-tête : <code>PKI_CHAIN trust_root=&lt;root&gt; crl_revoked=&lt;s1,s2,...&gt;</code>.<br>
-- Certificats (de la feuille à la racine) : <code>CERT subject=&lt;s&gt; issuer=&lt;i&gt; serial=&lt;ser&gt; is_ca=&lt;bool&gt;</code>.<br><br>
-Règles :<br>
-1. Révocation : si un serial est dans <code>crl_revoked</code> : <code>CHAIN: INVALID reason=REVOKED_CERTIFICATE serial=&lt;ser&gt; subject=&lt;s&gt;</code>.<br>
-2. Liaison : pour tout certificat i &lt; N-1, <code>cert[i].issuer == cert[i+1].subject</code>. Sinon <code>CHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=&lt;cert[i].subject&gt;</code>.<br>
-3. Émetteur : <code>cert[i+1].is_ca == True</code>. Sinon <code>CHAIN: INVALID reason=INTERMEDIATE_NOT_CA subject=&lt;cert[i+1].subject&gt;</code>.<br>
-4. Racine : le dernier certificat doit être auto-signé (<code>issuer == subject</code>) et égal à <code>trust_root</code>. Sinon <code>CHAIN: INVALID reason=UNTRUSTED_ROOT root=&lt;root&gt;</code>.<br>
-5. Succès : <code>CHAIN: VALID depth=&lt;N&gt; root=&lt;root&gt; leaf=&lt;leaf&gt;</code>.</p></div>
+    <p class="lab__formative-notice" id="cr3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Effectuer un contrôle partiel des noms et d’une liste de révocation fictive, sans valider une chaîne PKI réelle.</p>
+    <div class="lab__brief"><p>Ce modèle contrôle uniquement des chaînes de noms et des numéros de série dans une liste fictive. Les signatures des certificats et de la liste sont non vérifiées ; les dates, contraintes complètes, usages, identité du service, authenticité de l’ancre et fraîcheur de révocation ne sont pas vérifiés non plus. Il ne valide pas une chaîne PKI réelle et n’interroge pas OCSP. Tous les diagnostics, même négatifs, ne concernent que les données fictives et ne certifient pas le statut réel.<br>
+Un sujet égal à l’émetteur indique ici un certificat auto-émis, pas la preuve qu’il est auto-signé. <code>trust_root</code> est seulement un nom attendu, non une ancre cryptographique vérifiée.<br><br>
+Ligne d’en-tête : <code>PKI_CHAIN trust_root=&lt;root&gt; crl_revoked=&lt;s1,s2,...&gt;</code>.<br>
+Certificats de la feuille à la racine : <code>CERT subject=&lt;s&gt; issuer=&lt;i&gt; serial=&lt;ser&gt; is_ca=&lt;bool&gt;</code>.<br><br>
+Règles de ce modèle :<br>
+1. Si un numéro de série figure dans la liste : <code>CHAIN: INVALID reason=REVOKED_CERTIFICATE serial=&lt;ser&gt; subject=&lt;s&gt;</code>.<br>
+2. Pour tout certificat i &lt; N-1, comparer <code>cert[i].issuer == cert[i+1].subject</code> ; sinon <code>CHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=&lt;cert[i].subject&gt;</code>.<br>
+3. Vérifier l’indicateur déclaré <code>cert[i+1].is_ca == true</code> ; sinon <code>CHAIN: INVALID reason=INTERMEDIATE_NOT_CA subject=&lt;cert[i+1].subject&gt;</code>.<br>
+4. Le dernier sujet doit égaler son émetteur et <code>trust_root</code> ; sinon <code>CHAIN: INVALID reason=UNTRUSTED_ROOT root=&lt;root&gt;</code>.<br>
+5. Si ces seuls contrôles passent : <code>CHAIN: PARTIAL depth=&lt;N&gt; root=&lt;root&gt; leaf=&lt;leaf&gt; signatures=NOT_CHECKED</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999
 CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false
 CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true
 CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CHAIN: VALID depth=3 root=DigiTrust_Root_CA leaf=api.bank.com</pre></div>
     </div>
-    <p class="lab__note">Chaîne PKI 3 niveaux intacte liée à la racine de confiance.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Contrôlez en premier lieu l’état de révocation du certificat en consultant la liste de révocation (CRL) ou le protocole OCSP.</li>
-        <li>Validez l’ensemble de la chaîne de confiance en vérifiant que chaque certificat intermédiaire est signé par l’autorité supérieure.</li>
+        <li>Comparez les numéros de série à la liste fictive avant de vérifier les noms et les indicateurs CA.</li>
+        <li>Des noms cohérents ne vérifient pas les signatures ni l’ancre de confiance : le verdict positif reste partiel.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -375,7 +406,7 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
         <button class="opt">Création avec la clé symétrique AES, vérification avec le mot de passe</button>
         <button class="opt">Création avec la clé privée du destinataire, vérification avec sa clé publique</button>
       </div>
-      <div class="q__exp">L'émetteur signe le condensé du message avec sa propre clé privée (que lui seul possède), et tout destinataire peut vérifier la signature en utilisant la clé publique correspondante.</div>
+      <div class="q__exp">Un schéma standard comme RSA-PSS utilise la clé privée pour signer et la clé publique correspondante pour vérifier. L'identité dépend aussi du lien de confiance entre cette clé et le signataire.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel champ d'extension X.509 v3 est aujourd'hui obligatoire pour valider la correspondance d'un nom d'hôte dans les navigateurs web ?</p>
@@ -385,7 +416,7 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
         <button class="opt">Organizational Unit (OU)</button>
         <button class="opt">Locality Name (L)</button>
       </div>
-      <div class="q__exp">Le RFC 6125 et les exigences des navigateurs (Chrome, Firefox, Safari) imposent la présence du nom d'hôte dans l'extension Subject Alternative Name (SAN), le champ CN n'étant plus pris en compte.</div>
+      <div class="q__exp">La RFC 9525 vérifie un nom DNS de service dans une entrée dNSName du SAN ; le Common Name ne doit pas servir à identifier le service. La chaîne et les autres contraintes doivent aussi être vérifiées.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que signifie l'extension « Basic Constraints: CA:FALSE » dans un certificat X.509 ?</p>
@@ -424,9 +455,9 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
     <ul>
-      <li>N'inscrire le nom de domaine que dans le champ historique Common Name (CN) sans renseigner l'extension SAN : les navigateurs modernes rejettent le certificat.</li>
+      <li>N'inscrire le nom de domaine que dans le Common Name (CN) : la RFC 9525 ne permet pas d'utiliser ce champ pour identifier le service TLS.</li>
       <li>Omettre le paramètre Basic Constraints CA:TRUE sur une autorité intermédiaire : les clients rejetteront tous les certificats émis par cette autorité.</li>
-      <li>Utiliser des wildcards à plusieurs niveaux (ex: *.corp.com pour héberger api.prod.corp.com) : les règles RFC 6125 limitent le joker à un seul label DNS.</li>
+      <li>Utiliser des wildcards à plusieurs niveaux (ex: *.corp.com pour héberger api.prod.corp.com) : la RFC 9525 limite le joker au label DNS le plus à gauche.</li>
       <li>Négliger la révocation en supposant qu'un certificat reste sûr jusqu'à sa date d'expiration : en cas de fuite de clé privée, l'attaquant peut usurper l'identité sans être inquiété si aucune CRL/OCSP n'est consultée.</li>
     </ul>
   </div>
@@ -437,7 +468,7 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
     <ol>
       <li>Conception et sécurisation de la hiérarchie PKI : déployer une autorité racine (Root CA) hors-ligne et déléguer l'émission à des autorités intermédiaires (Sub-CA) avec contraintes de chemin pathlen adaptées.</li>
-      <li>Génération de requêtes CSR et émission conforme X.509 v3 : configurer rigoureusement les extensions Subject Alternative Name (SAN), Key Usage et Extended Key Usage sans s'appuyer sur le champ déprécié Common Name.</li>
+      <li>Génération de requêtes CSR et émission conforme X.509 v3 : configurer SAN, Key Usage et Extended Key Usage sans utiliser le Common Name pour identifier le service TLS.</li>
       <li>Validation algorithmique de la chaîne de certification : vérifier séquentiellement les périodes de validité, la correspondance du nom d'hôte FQDN, les signatures croisées et l'ancre de confiance racine du magasin local.</li>
       <li>Gestion proactive du cycle de vie et de la révocation : auditer les expirations de certificats, surveiller les numéros de série révoqués via CRL/OCSP et activer systématiquement l'agrafage OCSP Stapling sur les serveurs web.</li>
     </ol>
@@ -448,9 +479,9 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
-      <li>La signature numérique certifie l'authenticité, l'intégrité et la non-répudiation en chiffrant l'empreinte du message avec la clé privée de l'émetteur.</li>
+      <li>Une signature correctement vérifiée et associée à une clé de confiance contribue à l'authenticité et à l'intégrité ; le RSA brut jouet ne constitue pas un schéma sûr.</li>
       <li>Une PKI résout le problème de distribution des clés publiques grâce à une hiérarchie de confiance (Root CA, Sub-CA, certificats finaux).</li>
-      <li>La norme X.509 v3 (RFC 5280) structure les certificats et impose l'extension SAN (Subject Alternative Name) pour la validation des noms de domaine.</li>
+      <li>La RFC 5280 décrit X.509 et la validation des chemins ; la RFC 9525 vérifie l'identité d'un service TLS dans SAN, sans utiliser le CN.</li>
       <li>Un certificat intermédiaire doit obligatoirement porter la contrainte Basic Constraints CA:TRUE pour signer d'autres certificats.</li>
       <li>La révocation de clés compromises s'effectue via les listes CRL ou en temps réel via OCSP, optimisé par l'agrafage OCSP Stapling dans TLS.</li>
     </ul>
@@ -464,7 +495,7 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li><strong>Signature Numérique :</strong> Mécanisme cryptographique assurant l'intégrité, l'authenticité et la non-répudiation d'un document en associant son empreinte à la clé privée du signataire.</li><li><strong>Infrastructure à Clés Publiques (PKI) :</strong> Ensemble de matériels, logiciels, politiques et procédures nécessaires pour créer, gérer, distribuer et révoquer des certificats numériques.</li><li><strong>Certificat X.509 :</strong> Document numérique standardisé liant l'identité d'une entité à sa clé publique, signé par une autorité de certification reconnue.</li><li><strong>Subject Alternative Name (SAN) :</strong> Extension X.509 spécifiant l'ensemble des noms de domaine, adresses IP ou URI légitimes couverts par le certificat.</li><li><strong>OCSP Stapling :</strong> Technique TLS où le serveur web fournit lui-même au client une preuve signée et horodatée de non-révocation émise par la CA.</li><li>La signature numérique certifie l'authenticité, l'intégrité et la non-répudiation en chiffrant l'empreinte du message avec la clé privée de l'émetteur.</li><li>Une PKI résout le problème de distribution des clés publiques grâce à une hiérarchie de confiance (Root CA, Sub-CA, certificats finaux).</li><li>La norme X.509 v3 (RFC 5280) structure les certificats et impose l'extension SAN (Subject Alternative Name) pour la validation des noms de domaine.</li>
+      <li><strong>Signature Numérique :</strong> Mécanisme cryptographique assurant l'intégrité, l'authenticité et la non-répudiation d'un document en associant son empreinte à la clé privée du signataire.</li><li><strong>Infrastructure à Clés Publiques (PKI) :</strong> Ensemble de matériels, logiciels, politiques et procédures nécessaires pour créer, gérer, distribuer et révoquer des certificats numériques.</li><li><strong>Certificat X.509 :</strong> Document numérique standardisé liant l'identité d'une entité à sa clé publique, signé par une autorité de certification reconnue.</li><li><strong>Subject Alternative Name (SAN) :</strong> Extension X.509 spécifiant l'ensemble des noms de domaine, adresses IP ou URI légitimes couverts par le certificat.</li><li><strong>OCSP Stapling :</strong> Technique TLS où le serveur web fournit lui-même au client une preuve signée et horodatée de non-révocation émise par la CA.</li><li>Une signature correctement vérifiée et associée à une clé de confiance contribue à l'authenticité et à l'intégrité ; le RSA brut jouet ne constitue pas un schéma sûr.</li><li>Une PKI résout le problème de distribution des clés publiques grâce à une hiérarchie de confiance (Root CA, Sub-CA, certificats finaux).</li><li>La RFC 5280 décrit X.509 et la validation des chemins ; la RFC 9525 vérifie l'identité d'un service TLS dans SAN, sans utiliser le CN.</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -476,7 +507,7 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong><strong>Implémentation de signatures numériques conformes :</strong> Développer des mécanismes de signature et de vérification d'empreintes de manière méthodique avec gestion d'erreurs rigoureuse.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong><strong>Implémentation de signatures numériques conformes :</strong> Développer des mécanismes de signature et de vérification d'empreintes de manière méthodique avec gestion d'erreurs rigoureuse.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong><strong>Déploiement et audit d'architectures PKI multi-niveaux :</strong> Configurer des autorités racines hors-ligne, des sous-CA d'émission et des magasins de confiance d'entreprise.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong><strong>Vérification de chaîne de certification de bout en bout :</strong> Implémenter l'algorithme RFC 5280 de validation séquentielle des émetteurs jusqu'à l'ancre de confiance racine.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong><strong>Supervision de la révocation et configuration OCSP Stapling :</strong> Mettre en place la surveillance des listes CRL et activer l'agrafage OCSP sur les serveurs de production.</div>
@@ -486,11 +517,11 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Protocoles Cryptographiques Sécurisés (TLS, SSH, IPsec) & Post-Quantique <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Protocoles Cryptographiques Sécurisés (TLS, SSH, IPsec) &amp; Post-Quantique <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : Supports de cours officiels Cryptographie L3/B3 (Enseignant : M. Djiwa N’tèla OGA, PolyCrypto2010), Standards RFC 5280 (X.509), RFC 8446 (TLS 1.3), RFC 2104 (HMAC), RFC 8017 (PKCS#1 v2.2) et Référentiels NIST Post-Quantum Cryptography (FIPS 203, FIPS 204).</p>
+  Sources : Supports de cours officiels Cryptographie L3/B3 (Enseignant : M. Djiwa N’tèla OGA, PolyCrypto2010), RFC 5280 (X.509), RFC 9525 (identité TLS), RFC 4303 (ESP), RFC 9846 (TLS 1.3, juillet 2026 ; RFC 8446 historique), RFC 2104 (HMAC), RFC 8017 (PKCS#1 v2.2) et Référentiels NIST Post-Quantum Cryptography (FIPS 203, FIPS 204).</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

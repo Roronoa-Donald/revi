@@ -17,9 +17,9 @@ function examens(course) {
         {
           num: 'Exercice 1',
           badge: '/5 : Mémoire de Travail &amp; Chunking',
-          text: 'Un étudiant en informatique tente d’apprendre par cœur une suite de 16 chiffres hexadécimaux bruts (ex. <code>4F A2 89 1B C0 7E 3D 95</code>) en 30 secondes et échoue systématiquement. Expliquez les contraintes neurobiologiques de la mémoire de travail (George Miller, Nelson Cowan) à l’origine de cet échec. Proposez une technique de chunking structurée permettant de surmonter cette limite.',
-          sol: 'Selon les travaux de Nelson Cowan (2001), la mémoire de travail humaine sans répétition active ne peut manipuler que <strong>4 &plusmn; 1 items indépendants (chunks)</strong> simultanément. Une séquence de 16 octets isolés dépasse massivement cette capacité et sature le cortex préfrontal.<br>' +
-            'Pour surmonter cette contrainte, la technique du <strong>chunking</strong> consiste à regrouper ces items en unités sémantiques connectées à la mémoire à long terme : par exemple, regrouper les octets par blocs de 4 sous forme d’adresses réseau IPv6 familières ou associer chaque paire d’octets à un repère visuel/narratif (ex. <code>4F</code> = code ASCII d’une lettre, <code>C0</code> = masque sous-réseau standard). Le nombre d’unités manipulées passe alors de 16 à 4 chunks, respectant la limite de la mémoire de travail.'
+          text: 'Un étudiant essaie de retenir en 30 secondes une suite de 16 chiffres hexadécimaux (ex. <code>4F A2 89 1B C0 7E 3D 95</code>) et rencontre des difficultés. Quels facteurs peuvent influencer son empan ? Proposez un regroupement et expliquez comment en évaluer l’utilité sans supposer qu’il réussira.',
+          sol: 'Les résultats de Miller et Cowan dépendent notamment des tâches, des éléments, des stratégies et des personnes ; ils ne permettent pas de diagnostiquer la cause d’un échec individuel.<br>' +
+            'Un regroupement en unités familières ou une association narrative peuvent aider si ces unités ont du sens pour l’étudiant. Comparer plusieurs essais et recueillir son retour permet d’en apprécier l’utilité, sans garantir une capacité ou un résultat.'
         },
         {
           num: 'Exercice 2',
@@ -64,14 +64,14 @@ function examens(course) {
     },
     {
       title: 'Examen blanc n°2 : Pratique Délibérée, Calibration Métacognitive &amp; Chronobiologie',
-      intro: 'Sujet d’expertise : découpage d’objectifs Ericsson, règle des 85%, calcul du score de Brier et régulation ultradienne.',
+      intro: 'Sujet d’expertise : découpage d’objectifs, portée du modèle des 85 %, score de Brier et régulation ultradienne.',
       items: [
         {
           num: 'Exercice 1',
-          badge: '/5 : Audit de Pratique Délibérée &amp; Zone des 85 %',
-          text: 'Un développeur passe 4 heures par jour à coder des fonctions CRUD basiques qu’il maîtrise déjà parfaitement sans jamais consulter de tests ni demander de revue. Pourquoi cette pratique ne conduit-elle à aucune progression selon K. Anders Ericsson ? S’il décide de s’entraîner sur des problèmes de graphes complexes et n’obtient que 30 % de réussite, analysez sa situation selon la règle des 85 % (Wilson et al., 2019).',
+          badge: '/5 : Pratique Délibérée &amp; Modèle des 85 %',
+          text: 'Un développeur répète des fonctions CRUD sans tests ni revue, puis obtient 30 % de réussite sur des problèmes de graphes. Proposez des pistes d’ajustement et expliquez pourquoi le modèle de Wilson et al. ne permet pas de conclure à un seuil individuel optimal.',
           sol: '1. <em>Audit Ericsson</em> : la répétition mécanique d’une tâche automatisée relève du <strong>jeu naïf</strong> ou de l’exécution routinière. La pratique délibérée exige impérativement : (a) de sortir de la zone de confort pour travailler dans la zone proximale de développement, (b) un objectif micro-spécifique, (c) une boucle de rétroaction immédiate (linter, tests, relecture). Sans ces piliers, l’expertise stagne sur un plateau d’arrêt.<br>' +
-            '2. <em>Analyse de la règle des 85 %</em> : avec 30 % de réussite (70 % d’échecs), le développeur est en <strong>surcharge cognitive majeure</strong>. La règle de Wilson et al. (2019) démontre que le gradient d’apprentissage optimal se situe à un taux d’erreur de <strong>15 % &plusmn; 2 %</strong> (85 % de réussite). À 30 % de succès, le cerveau ne parvient pas à discriminer les signaux correctifs du bruit, générant de la frustration et un encodage parasité. Il doit redescendre à un palier intermédiaire (ex. algorithmes de BFS/DFS simples) pour restaurer un taux d’erreur proche de 15 %.'
+            '2. <em>Portée du modèle</em> : Wilson et al. étudient des algorithmes de classification binaire sous des hypothèses définies ; le résultat autour de 85 % ne diagnostique pas cet étudiant. Examiner les erreurs, lui demander son ressenti et essayer des étapes plus simples sont des pistes à vérifier, pas une conclusion imposée par le taux.'
         },
         {
           num: 'Exercice 2',
@@ -203,7 +203,7 @@ function exercices(course) {
       '</ul>',
       '<h3>3. Phase de Pratique Délibérée &amp; Régulation Métacognitive (Semaine 3)</h3>',
       '<ul>',
-      '  <li>Entraînement quotidien selon la règle des 85 % avec ajustement dynamique de la difficulté des exercices de code.</li>',
+      '  <li>Ajustement de la difficulté des exercices de code à partir des erreurs, des objectifs et du retour de l’apprenant, sans cible universelle imposée.</li>',
       '  <li>Mise en œuvre de l’entrelacement (interleaving) entre 3 types de bugs ou problèmes distincts.</li>',
       '  <li>Journal de bord chronobiologique : corrélation entre les blocs Pomodoro, la durée du sommeil et les performances de rétention.</li>',
       '</ul>',
@@ -220,7 +220,7 @@ function exercices(course) {
       '  <tbody>',
       '    <tr><td><strong>Rigueur diagnostique &amp; Métacognition</strong></td><td>4 pts</td><td>Pré-test complet, calcul initial du score de Brier, analyse lucide des biais d’illusion de compétence.</td></tr>',
       '    <tr><td><strong>Qualité de l’Encodage &amp; Loci</strong></td><td>4 pts</td><td>Flashcards atomiques irréprochables, palais mental cohérent et fiches Feynman dépourvues de jargon.</td></tr>',
-      '    <tr><td><strong>Implémentation Pratique &amp; SM-2</strong></td><td>5 pts</td><td>Application scrupuleuse des intervalles SM-2, pratique délibérée dans la zone des 85 %, sessions entrelacées.</td></tr>',
+      '    <tr><td><strong>Implémentation Pratique &amp; SM-2</strong></td><td>5 pts</td><td>Justification des intervalles retenus, pratique adaptée et sessions entrelacées.</td></tr>',
       '    <tr><td><strong>Journal Chronobiologique</strong></td><td>3 pts</td><td>Traçabilité des blocs Pomodoro, respect des rythmes ultradiens et suivi de la qualité du sommeil.</td></tr>',
       '    <tr><td><strong>Analyse Critique &amp; Post-test</strong></td><td>4 pts</td><td>Évolution chiffrée du score de Brier, analyse des échecs résiduels et plan d’amélioration continue.</td></tr>',
       '  </tbody>',

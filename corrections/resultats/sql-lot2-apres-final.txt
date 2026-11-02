@@ -1,0 +1,142 @@
+TAP version 13
+# Subtest: F10 : CHECK nullable, NOT NULL et réponse du QCM
+ok 1 - F10 : CHECK nullable, NOT NULL et réponse du QCM
+  ---
+  duration_ms: 1.235025
+  type: 'test'
+  ...
+# Subtest: F11 : limites de caractères PostgreSQL et affinité SQLite
+ok 2 - F11 : limites de caractères PostgreSQL et affinité SQLite
+  ---
+  duration_ms: 0.288957
+  type: 'test'
+  ...
+# Subtest: F20 : UNION compare toute la ligne, profondeur variable et anti-cycle PostgreSQL
+ok 3 - F20 : UNION compare toute la ligne, profondeur variable et anti-cycle PostgreSQL
+  ---
+  duration_ms: 0.45574
+  type: 'test'
+  ...
+# Subtest: F21 : les deux déclencheurs sont transactionnels avant le COMMIT
+ok 4 - F21 : les deux déclencheurs sont transactionnels avant le COMMIT
+  ---
+  duration_ms: 0.328955
+  type: 'test'
+  ...
+# Subtest: F49 : verrou de ligne PostgreSQL et lecture ordinaire MVCC
+ok 5 - F49 : verrou de ligne PostgreSQL et lecture ordinaire MVCC
+  ---
+  duration_ms: 0.303688
+  type: 'test'
+  ...
+# Subtest: F61 : AVG, COUNT(*) et array_agg PostgreSQL ne sont pas généralisés
+ok 6 - F61 : AVG, COUNT(*) et array_agg PostgreSQL ne sont pas généralisés
+  ---
+  duration_ms: 0.180211
+  type: 'test'
+  ...
+# Subtest: F171 : ordre, table et index complet, sans exposer les tests cachés
+ok 7 - F171 : ordre, table et index complet, sans exposer les tests cachés
+  ---
+  duration_ms: 49.294797
+  type: 'test'
+  ...
+# Vérification locale sql.js uniquement ; la soumission distante reste suspendue.
+# Subtest: F171 : vérifications cachées effectivement rejouées en SQLite natif
+ok 8 - F171 : vérifications cachées effectivement rejouées en SQLite natif
+  ---
+  duration_ms: 36.530332
+  type: 'test'
+  ...
+# {"version":"3.53.4","results":[{"label":"actif","reference":[["annee,montant"]],"inverse":[["montant,annee"]],"partiel":[["annee,montant"]]},{"label":"actif","reference":[[0,"annee"],[1,"montant"]],"inverse":[[0,"montant"],[1,"annee"]],"partiel":[[0,"annee"],[1,"montant"]]},{"label":"actif","reference":[["annee,montant",0]],"inverse":[["montant,annee",0]],"partiel":[["annee,montant",1]]},{"label":"historique","reference":[["annee,montant",0]],"inverse":[["montant,annee",0]],"partiel":[["annee,montant",1]]}]}
+# Subtest: F172 : modèle fictif et limites du snapshot dans les deux modules
+ok 9 - F172 : modèle fictif et limites du snapshot dans les deux modules
+  ---
+  duration_ms: 0.521809
+  type: 'test'
+  ...
+# Subtest: F173 : rejeu PostgreSQL et journal pédagogique ne prétendent pas à un UNDO global
+ok 10 - F173 : rejeu PostgreSQL et journal pédagogique ne prétendent pas à un UNDO global
+  ---
+  duration_ms: 0.497196
+  type: 'test'
+  ...
+# Subtest: F174 : durabilité conditionnelle, sauvegarde et réplication configurée
+ok 11 - F174 : durabilité conditionnelle, sauvegarde et réplication configurée
+  ---
+  duration_ms: 0.407191
+  type: 'test'
+  ...
+# Subtest: Sondes SQLite natives : F10 F11 F20 F21 F49 F61 F171
+ok 12 - Sondes SQLite natives : F10 F11 F20 F21 F49 F61 F171
+  ---
+  duration_ms: 134.121386
+  type: 'test'
+  ...
+# {"version":"3.53.4","F10":[1,[true,true,true]],"F11":["éab",3,4],"F61":[15,2,3],"F20":{"nodes":[[1],[2]],"depth":[[1,0],[2,1],[1,2],[2,3],[1,4]]},"F21":{"phases":["after","before"],"commit_error":true,"transaction_open":true,"after_rollback":0},"F171":{"right":{"columns":["annee","montant"],"partial":0},"reverse":{"columns":["montant","annee"],"partial":0},"partial":{"columns":["annee","montant"],"partial":1}},"F49":{"journal":"DELETE","immediate_read":10,"exclusive_blocked_read":true}}
+# Subtest: Sondes PostgreSQL natives isolées
+    # Subtest: F10 F11 F61 : contraintes, caractères et agrégats PostgreSQL
+    ok 1 - F10 F11 F61 : contraintes, caractères et agrégats PostgreSQL
+      ---
+      duration_ms: 9.405532
+      type: 'test'
+      ...
+    # CHECK(NULL) accepté ; NOT NULL et CHECK rejettent ; {"value":"éa","chars":2,"bytes":3} ; {"average":15,"nonnull":2,"total":3,"collected":[10,20,null]}.
+    # Subtest: F20 : UNION déduplique les lignes complètes, pas les seuls identifiants
+    ok 2 - F20 : UNION déduplique les lignes complètes, pas les seuls identifiants
+      ---
+      duration_ms: 4.361156
+      type: 'test'
+      ...
+    # Cycle fini sur id : [{"id":1},{"id":2}] ; profondeur bornée : [{"id":1,"depth":0},{"id":2,"depth":1},{"id":1,"depth":2},{"id":2,"depth":3},{"id":1,"depth":4}].
+    # Subtest: F21 : BEFORE et AFTER s’exécutent avant une contrainte différée
+    ok 3 - F21 : BEFORE et AFTER s’exécutent avant une contrainte différée
+      ---
+      duration_ms: 7.254699
+      type: 'test'
+      ...
+    # Avant COMMIT : AFTER, BEFORE ; COMMIT 23503 ; journal après échec : 0.
+    # Subtest: F49 : verrou de ligne, lecteur MVCC et verrou exclusif de table
+    ok 4 - F49 : verrou de ligne, lecteur MVCC et verrou exclusif de table
+      ---
+      duration_ms: 510.389736
+      type: 'test'
+      ...
+    # UPDATE verrouille une ligne : SELECT voit 10, UPDATE concurrent temporise ; ACCESS EXCLUSIVE de table bloque SELECT.
+    # Subtest: F172 : transactions en cours et annulées dans les snapshots PostgreSQL
+    ok 5 - F172 : transactions en cours et annulées dans les snapshots PostgreSQL
+      ---
+      duration_ms: 10.88255
+      type: 'test'
+      ...
+    # xid 771 < xmax 773, en cours et invisible ; après rollback : {"statut":"aborted","visible":true} mais ligne absente.
+    # Subtest: F174 : synchronous_commit=off peut acquitter avant synchronisation
+    ok 6 - F174 : synchronous_commit=off peut acquitter avant synchronisation
+      ---
+      duration_ms: 5.847577
+      type: 'test'
+      ...
+    # fsync=on, synchronous_commit=off ; WAL antérieur au COMMIT encore non synchronisé observé : true, écart=224 octets. L’absence d’écart ne prouverait pas une synchronisation garantie.
+    # Subtest: F173 : WAL non validé inclus dans la plage REDO après crash privé
+    ok 7 - F173 : WAL non validé inclus dans la plage REDO après crash privé
+      ---
+      duration_ms: 225.716599
+      type: 'test'
+      ...
+    # Transaction non validée 777, Heap WAL 0/017E2220 dans REDO 0/17D9130–0/17E2390 ; statut aborted, ligne invisible ; ligne validée conservée.
+    1..7
+ok 13 - Sondes PostgreSQL natives isolées
+  ---
+  duration_ms: 1310.935626
+  type: 'test'
+  ...
+# PostgreSQL 18.6, UTF8, cluster temporaire privé, socket Unix uniquement.
+1..13
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1664.289829

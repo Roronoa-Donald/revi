@@ -83,18 +83,19 @@ module.exports = [
         html: [
           '<p>Le partitionnement est l’étape où le chapitre 2 s’applique. L’installateur propose : disque ' +
           'entier, disque entier avec LVM, ou manuel. Un schéma pédagogique courant pour un TP :</p>',
-          '<pre><code>partition   taille        point de montage\n' +
+          '<pre><code>partition   taille        usage\n' +
           '/dev/sda1   ~30 Go        /          (racine, ext4)\n' +
-          '/dev/sda2   ~2× la RAM    swap       (échange mémoire)\n' +
+          '/dev/sda2   selon besoins swap       (échange mémoire)\n' +
           '/dev/sda3   le reste      /home      (données personnelles)</code></pre>',
-          '<p>Chaque partition reçoit un <strong>système de fichiers</strong> (ext4 en pratique : journalisé ' +
-          'et optimisé) et un <strong>point de montage</strong>. Séparer <code>/home</code> permet de ' +
-          'réinstaller le système sans perdre les données personnelles ; le <strong>swap</strong> (échange) ' +
-          'est l’espace disque où le noyau déborde quand la mémoire vive sature.</p>',
+          '<p>Les partitions de <code>/</code> et <code>/home</code> reçoivent ici un système de fichiers ' +
+          'ext4 monté sur leur point de montage. Une partition <strong>swap</strong> est initialisée comme ' +
+          'espace d’échange puis activée ; elle n’est pas montée comme un système de fichiers ext4. ' +
+          'Sa taille dépend des besoins. Séparer <code>/home</code> peut faciliter une réinstallation sans ' +
+          'reformatage de cette partition, mais ne remplace pas une sauvegarde.</p>',
           box('tech', 'Après l’installation : vérifier le montage', 'terminal',
             '    <p><code>df -h</code> liste les partitions montées et leur occupation ; ' +
-            '<code>lsblk</code> montre l’arbre des disques et partitions. Si une partition attendue n’y ' +
-            'figure pas, c’est qu’elle n’est pas montée — revérifier <code>/etc/fstab</code>.</p>')
+            '<code>lsblk</code> montre l’arbre des disques et partitions et <code>swapon --show</code> ' +
+            'les espaces d’échange actifs. Vérifiez les montages attendus dans <code>/etc/fstab</code>.</p>')
         ].join('\n')
       },
       {
@@ -120,8 +121,8 @@ module.exports = [
       { stem: 'Qu’est-ce que l’image netinst ?', opts: ['Une image complète hors ligne', 'Une image légère qui complète l’installation depuis les dépôts réseau', 'Un outil de gravure'], correct: 1, exp: 'netinst installe un système de base puis télécharge le reste depuis les dépôts.' },
       { stem: 'Quel répertoire décrit les dépôts de paquets ?', opts: ['/etc/apt/sources.list', '/var/apt', '/home/sources'], correct: 0, exp: '/etc/apt/sources.list liste les dépôts : adresse, version, composantes.' },
       { stem: 'Quels comptes crée l’installateur ?', opts: ['Root seulement', 'Un utilisateur ordinaire seulement', 'Root et un utilisateur ordinaire'], correct: 2, exp: 'Root pour l’administration (maison /root) et un utilisateur ordinaire pour le quotidien (/home/login).' },
-      { stem: 'Où place-t-on traditionnellement la partition /home ?', opts: ['Sur la même partition que /', 'Sur une partition séparée pour survivre à une réinstallation', 'Dans /tmp'], correct: 1, exp: 'Séparer /home permet de réinstaller le système sans toucher aux données personnelles.' },
-      { stem: 'À quoi sert le swap ?', opts: ['À stocker les journaux', 'D’espace d’échange disque quand la RAM sature', 'À accélérer le réseau'], correct: 1, exp: 'Le swap (typiquement deux fois la RAM) est l’espace où le noyau déborde de la mémoire vive.' },
+      { stem: 'Quel intérêt peut avoir une partition /home séparée ?', opts: ['Rendre une sauvegarde inutile', 'Faciliter une réinstallation sans reformater les données personnelles', 'Rendre le swap inutile'], correct: 1, exp: 'À condition de ne pas reformater /home, la séparation peut faciliter la réinstallation ; une sauvegarde reste nécessaire.' },
+      { stem: 'À quoi sert le swap ?', opts: ['À stocker les journaux', 'D’espace d’échange pour certaines pages mémoire', 'À accélérer le réseau'], correct: 1, exp: 'Le noyau peut utiliser le swap selon ses besoins ; sa taille dépend du système et de l’usage.' },
       { stem: 'Que fait apt update ?', opts: ['Il installe les mises à jour', 'Il rafraîchit la liste des paquets disponibles', 'Il nettoie le cache'], correct: 1, exp: 'update actualise la liste ; upgrade applique les mises à jour des paquets installés.' },
       { stem: 'Que signifie le nom de code Bookworm ?', opts: ['La version stable de Debian 12', 'Un outil de partitionnement', 'Le noyau Linux de Debian'], correct: 0, exp: 'Chaque version stable de Debian porte un nom de code ; Debian 12 est Bookworm.' },
       { stem: 'Pourquoi ne faut-il pas travailler en root en permanence ?', opts: ['C’est plus lent', 'Chaque erreur de frappe devient une faute système aux droits complets', 'Le réseau est désactivé'], correct: 1, exp: 'Root a tous les droits : la moindre commande mal ciblée est irréversible ; on travaille en utilisateur ordinaire et on passe root ponctuellement.' }
@@ -147,15 +148,15 @@ module.exports = [
     summary: [
       'Debian 12 « Bookworm » s’installe depuis une ISO netinst, sur clé USB ou en machine virtuelle.',
       'L’installateur crée root (maison /root) et un utilisateur ordinaire (maison /home/login).',
-      'Le partitionnement associe à chaque partition un FS (ext4) et un point de montage : /, swap, /home.',
-      'Séparer /home survit à une réinstallation ; le swap est l’échange mémoire-disque.',
+      'Les FS de / et /home sont montés ; le swap est initialisé puis activé comme espace d’échange.',
+      'Séparer /home peut faciliter une réinstallation sans reformatage ; sauvegarder reste indispensable.',
       'Les dépôts se déclarent dans /etc/apt/sources.list ; le rituel est apt update puis apt upgrade.'
     ],
 
     checklist: [
       'Je déroule l’installateur en citant chaque étape dans l’ordre.',
       'Je justifie un schéma de partitionnement complet avec tailles et points de montage.',
-      'Je distingue les comptes root et utilisateur ordinaire et leurs maisons.',
+      'Je distinguez les comptes root et utilisateur ordinaire et leurs maisons.',
       'J’explique sources.list et le couple apt update / apt upgrade.'
     ],
 
@@ -194,7 +195,7 @@ module.exports = [
       'décomposer une ligne de /etc/passwd champ par champ et interpréter le champ mot-de-passe ;',
       'expliquer le rôle de /etc/shadow et /etc/group avec leurs formats ;',
       'créer, modifier et supprimer comptes et groupes (useradd, usermod, userdel, groupadd, groupdel) ;',
-      'gérer les mots de passe avec passwd et distinguer UID système et UID humain.'
+      'gérer les mots de passe avec passwd et expliquer que les plages UID sont configurables.'
     ],
 
     sections: [
@@ -215,29 +216,32 @@ module.exports = [
           '  │    │    └ UID : identifiant numérique unique ; root = 0\n' +
           '  │    └ mot de passe (voir ci-dessous)\n' +
           '  └ identifiant de connexion</code></pre>',
-          '<p>Le champ <strong>mot-de-passe</strong> prend plusieurs significations :</p>',
+          '<p>Le champ <strong>mot-de-passe</strong> de <code>/etc/passwd</code> prend plusieurs significations :</p>',
           '<table>\n' +
           '    <tr><th>Valeur</th><th>Signification</th></tr>\n' +
-          '    <tr><td><code>*</code></td><td>impossible de s’authentifier avec ce compte</td></tr>\n' +
-          '    <tr><td><code>!!</code></td><td>compte désactivé</td></tr>\n' +
-          '    <tr><td><code>x</code> ou <code>!</code></td><td>le mot de passe est dans /etc/shadow</td></tr>\n' +
-          '    <tr><td>champ vide</td><td>pas de mot de passe pour ce compte</td></tr>\n' +
+          '    <tr><td><code>x</code></td><td>le vérificateur se trouve dans /etc/shadow</td></tr>\n' +
+          '    <tr><td><code>*</code> ou <code>!</code></td><td>valeur inutilisable comme mot de passe Unix</td></tr>\n' +
+          '    <tr><td>champ vide</td><td>aucun mot de passe renseigné ; l’accès dépend de la politique d’authentification</td></tr>\n' +
           '  </table>',
-          '<p>Les <strong>UID inférieurs à 1000</strong> sont réservés aux comptes système ; root possède ' +
-          'l’UID 0. C’est exactement le seuil que l’exercice « squelette de /etc/passwd » de l’atelier fait ' +
-          'manier : compter, filtrer, lister selon l’UID.</p>',
+          '<p>Dans <code>/etc/shadow</code>, un champ commençant par <code>!</code> verrouille le mot de passe ; ' +
+          'cela n’interdit pas nécessairement les autres moyens de connexion, comme une clé SSH si la ' +
+          'politique du système l’autorise. Root possède l’UID 0. La valeur 1000 est une convention ' +
+          'fréquente pour le début des UID ordinaires, mais <code>UID_MIN</code> et les autres plages sont ' +
+          'configurables. L’atelier utilise explicitement 1000 comme règle de simulation, pas comme preuve ' +
+          'universelle de la nature d’un compte.</p>',
           box('pitfall', 'Piège — pourquoi passwd est lisible par tous', 'warning',
             '    <p><code>/etc/passwd</code> est accessible à tout le monde car certaines commandes ont besoin ' +
-            'de la liste des utilisateurs ou de la correspondance login/UID. Les mots de passe chiffrés, ' +
-            'eux, ont déménagé dans /etc/shadow — c’est le <code>x</code> du champ.</p>')
+            'de la liste des utilisateurs ou de la correspondance login/UID. Les vérificateurs de mots de ' +
+            'passe sont en général dans /etc/shadow — c’est le <code>x</code> du champ.</p>')
         ].join('\n')
       },
       {
         title: '/etc/shadow et /etc/group',
         html: [
-          '<p>Le fichier <code>/etc/shadow</code> stocke les mots de passe chiffrés ; il ne peut être lu que ' +
-          'par l’administrateur. Cette séparation permet à <code>/etc/passwd</code> de rester lisible tout ' +
-          'en protégeant les empreintes.</p>',
+          '<p>Le fichier <code>/etc/shadow</code>, à accès restreint, contient généralement un vérificateur ' +
+          'issu d’un <strong>hachage de mot de passe</strong> avec un <strong>sel</strong>. Le système vérifie ' +
+          'le mot de passe proposé en recalculant ce vérificateur : il ne le déchiffre pas. Le champ peut ' +
+          'aussi contenir une valeur de verrouillage plutôt qu’une empreinte.</p>',
           '<p>Le fichier <code>/etc/group</code> décrit les groupes. La syntaxe d’une ligne :</p>',
           '<pre><code>groupe:*:GID:utilisateurs\n' +
           '\n' +
@@ -298,10 +302,10 @@ module.exports = [
 
     questions: [
       { stem: 'Combien de champs dans une ligne /etc/passwd ?', opts: ['5', '7', '9'], correct: 1, exp: 'Sept champs : login, mot-de-passe, UID, GID, info, répertoire principal, shell.' },
-      { stem: 'Que signifie le champ x dans /etc/passwd ?', opts: ['Compte désactivé', 'Le mot de passe chiffré est dans /etc/shadow', 'Pas de mot de passe'], correct: 1, exp: 'x ou ! renvoient à /etc/shadow ; !! signifie compte désactivé, * interdit l’authentification.' },
-      { stem: 'Quel UID possède root ?', opts: ['1', '0', '1000'], correct: 1, exp: 'root = UID 0 ; les UID inférieurs à 1000 sont réservés aux comptes système.' },
-      { stem: 'Quel fichier stocke les mots de passe chiffrés ?', opts: ['/etc/passwd', '/etc/shadow', '/etc/group'], correct: 1, exp: '/etc/shadow, lisible uniquement par l’administrateur.' },
-      { stem: 'Que fait usermod -d /home/toto -m tutu ?', opts: ['Renomme tutu en toto', 'Change la maison de tutu en /home/toto en recopiant le contenu', 'Supprimez tutu'], correct: 1, exp: '-d fixe la nouvelle maison et -m y recopie le contenu de l’ancienne en ajustant les droits.' },
+      { stem: 'Que signifie le champ x dans /etc/passwd ?', opts: ['Compte désactivé', 'Le vérificateur de mot de passe se trouve dans /etc/shadow', 'Pas de mot de passe'], correct: 1, exp: 'x renvoie au champ correspondant de /etc/shadow ; les marqueurs ! ou * peuvent empêcher l’authentification par mot de passe sans bloquer tous les autres moyens.' },
+      { stem: 'Quel UID possède root ?', opts: ['1', '0', '1000'], correct: 1, exp: 'root a l’UID 0 ; les autres plages d’UID dépendent de la configuration.' },
+      { stem: 'Quel fichier stocke généralement les vérificateurs de mots de passe ?', opts: ['/etc/passwd', '/etc/shadow', '/etc/group'], correct: 1, exp: '/etc/shadow est à accès restreint et contient généralement des vérificateurs hachés.' },
+      { stem: 'Que fait usermod -d /home/toto -m tutu ?', opts: ['Renomme tutu en toto', 'Change la maison de tutu en /home/toto en recopiant le contenu', 'Supprime tutu'], correct: 1, exp: '-d fixe la nouvelle maison et -m y recopie le contenu de l’ancienne en ajustant les droits.' },
       { stem: 'Que fait userdel toto, et que faut-il pour supprimer sa maison ?', opts: ['Tout est supprimé', 'Le compte est supprimé ; ajouter -r pour retirer aussi le répertoire', 'Rien, il faut usermod'], correct: 1, exp: 'userdel ne supprime pas le répertoire personnel ; l’option -r l’ajoute à la suppression.' },
       { stem: 'Quelle commande crée un groupe ?', opts: ['groupadd', 'usermod', 'passwd'], correct: 0, exp: 'groupadd groupe (ex. groupadd modem) ; suppression avec groupdel.' },
       { stem: 'Quand groupdel échoue-t-il ?', opts: ['Si le groupe contient des fichiers', 'Si le groupe est le groupe principal d’un utilisateur', 'Jamais'], correct: 1, exp: 'On ne peut pas supprimer un groupe qui sert de groupe principal à un utilisateur.' },
@@ -311,7 +315,7 @@ module.exports = [
 
     pitfalls: [
       '<strong>Sept champs pas huit</strong> : recompter sur une vraie ligne passwd — login, mdp, UID, GID, info, maison, shell.',
-      '<strong>UID 1000 dit système</strong> : c’est la frontière ; les comptes système sont en dessous (root = 0).',
+      '<strong>Déduire la nature d’un compte de son seul UID</strong> : les plages sont configurables ; root a l’UID 0.',
       '<strong>userdel -r oublié</strong> : sans -r, la maison reste sur le disque.',
       '<strong>Renommer un utilisateur connecté</strong> : usermod -l exige qu’il soit délogué.',
       '<strong>Confondre whoami et who</strong> : l’un dit qui je suis, l’autre qui est connecté.'
@@ -320,16 +324,16 @@ module.exports = [
     methodTitle: 'Lire et manipuler un compte',
     method: [
       '<strong>Découper la ligne passwd</strong> par les deux-points et nommer les sept champs.',
-      '<strong>Interpréter le champ mot-de-passe</strong> : *, !!, x/!, vide.',
-      '<strong>Classer par UID</strong> : système si &lt; 1000, humain sinon, root = 0.',
+      '<strong>Interpréter le champ mot-de-passe</strong> : x dans passwd ; marqueurs éventuels dans shadow.',
+      '<strong>Examiner les UID</strong> : root = 0 ; vérifier les plages configurées au lieu de généraliser 1000.',
       '<strong>Choisir la commande d’administration</strong> : useradd, usermod, userdel, passwd, groupadd, groupdel.',
       '<strong>Vérifier dans les fichiers</strong> : passwd, shadow, group — après chaque opération.'
     ],
 
     summary: [
       '/etc/passwd : login:mot-de-passe:UID:GID:info:maison:shell — lisible par tous, car les commandes en ont besoin.',
-      'Champ mot-de-passe : * (authentification impossible), !! (désactivé), x/! (dans shadow), vide (sans mot de passe).',
-      'UID &lt; 1000 = comptes système, root = 0 ; /etc/shadow garde les empreintes, /etc/group les membres.',
+      'x dans passwd renvoie à shadow ; ! ou * empêchent une authentification par mot de passe, sans préjuger des autres moyens.',
+      'UID 0 = root ; UID_MIN et les plages système sont configurables ; /etc/shadow garde les vérificateurs, /etc/group les membres.',
       'useradd/userdel -r/usermod/passwd gèrent les comptes ; les modifications imposent déloguer-reloguer.',
       'groupadd/groupdel créent et suppriment ; impossible de supprimer un groupe principal d’un utilisateur.'
     ],
@@ -352,8 +356,8 @@ module.exports = [
 
     flashcards: [
       { q: 'Les sept champs de /etc/passwd ?', a: 'login : mot-de-passe : UID : GID : info-utilisateur : répertoire-principal : shell.' },
-      { q: 'États du champ mot-de-passe ?', a: '* : authentification impossible ; !! : compte désactivé ; x ou ! : mot de passe dans /etc/shadow ; vide : pas de mot de passe.' },
-      { q: 'Où sont les mots de passe chiffrés ?', a: 'Dans /etc/shadow, lisible uniquement par l’administrateur ; /etc/passwd reste lisible pour la correspondance login/UID.' },
+      { q: 'États du champ mot-de-passe ?', a: 'x dans passwd renvoie à shadow ; ! ou * empêchent une authentification par mot de passe, mais pas nécessairement les autres moyens.' },
+      { q: 'Où sont les vérificateurs de mots de passe ?', a: 'Généralement dans /etc/shadow, à accès restreint : ce sont des vérificateurs hachés avec un sel, pas des mots de passe à déchiffrer.' },
       { q: 'usermod -d /home/toto -m tutu fait quoi ?', a: 'Change la maison de tutu en /home/toto, en recopiant l’ancien contenu et en ajustant les droits.' },
       { q: 'Rôle de whoami, who, users, w ?', a: 'whoami : identité courante ; who, users, w : la liste des utilisateurs connectés.' }
     ]
@@ -419,8 +423,10 @@ module.exports = [
           'dossier et à tout son contenu.</p>',
           box('pitfall', 'Piège — = n’ajoute pas', 'warning',
             '    <p>+ ajoute un droit, - en retire un, mais <strong>= fixe la classe exactement</strong> : ' +
-            'tout droit non mentionné disparaît. <code>ug=rwx</code> et <code>ug+wx</code> ne donnent pas ' +
-            'le même résultat si le groupe avait déjà r. Les exercices de l’atelier testent les deux.</p>')
+            'tout droit non mentionné disparaît. Depuis <code>440</code>, <code>ug=rwx</code> donne ' +
+            '<code>770</code> et <code>ug+wx</code> donne aussi <code>770</code>. Depuis <code>400</code>, ' +
+            'les résultats sont respectivement <code>770</code> et <code>730</code> : les droits initiaux ' +
+            'comptent. Les exercices de l’atelier testent les deux opérations.</p>')
         ].join('\n')
       },
       {
@@ -477,12 +483,12 @@ module.exports = [
     questions: [
       { stem: 'Dans -rwxr-x---, que peut faire le groupe ?', opts: ['Tout', 'Lire et exécuter', 'Rien'], correct: 1, exp: 'Le triplet du groupe est r-x : lecture et exécution, pas d’écriture.' },
       { stem: 'Que vaut rwxr-x--- en octal ?', opts: ['754', '750', '740'], correct: 1, exp: 'rwx=7, r-x=5, ---=0 : 750.' },
-      { stem: 'Que fait chmod o-r toto ?', opts: ['Ajoutez la lecture aux autres', 'Retire la lecture aux autres', 'Retire la lecture au propriétaire'], correct: 1, exp: 'o = autres (others), - = retirer, r = lecture.' },
+      { stem: 'Que fait chmod o-r toto ?', opts: ['Ajoute la lecture aux autres', 'Retire la lecture aux autres', 'Retire la lecture au propriétaire'], correct: 1, exp: 'o = autres (others), - = retirer, r = lecture.' },
       { stem: 'Que fixe chmod 770 toto ?', opts: ['rwxrwx---', 'rwx------', 'rwxr-xr-x'], correct: 0, exp: '7=rwx pour u, 7=rwx pour g, 0=--- pour o.' },
       { stem: 'Quelle différence entre ug=rwx et ug+x ?', opts: ['Aucune', '= fixe exactement (retire le reste), + ajoute seulement', '+ fixe, = ajoute'], correct: 1, exp: 'Avec =, tout droit non listé disparaît ; + ne fait qu’ajouter au droit existant.' },
       { stem: 'Que fait chown tpsysteme:root dossier ?', opts: ['Change le propriétaire seulement', 'Change propriétaire et groupe en une commande', 'C’est une erreur'], correct: 1, exp: 'La syntaxe utilisateur:groupe change les deux à la fois.' },
       { stem: 'À quoi sert l’option -R de chmod ou chown ?', opts: ['À rendre le fichier exécutable', 'À appliquer récursivement au dossier et à son contenu', 'À rien ici'], correct: 1, exp: '-R descend dans l’arborescence : dossier, sous-dossiers, fichiers.' },
-      { stem: 'Que fait chgrp tpsysteme toto ?', opts: ['Change le propriétaire de toto', 'Change le groupe propriétaire de toto', 'Créez le groupe tpsysteme'], correct: 1, exp: 'chgrp (change group) ne touche que le groupe ; chown change le propriétaire.' },
+      { stem: 'Que fait chgrp tpsysteme toto ?', opts: ['Change le propriétaire de toto', 'Change le groupe propriétaire de toto', 'Crée le groupe tpsysteme'], correct: 1, exp: 'chgrp (change group) ne touche que le groupe ; chown change le propriétaire.' },
       { stem: 'À quoi sert la ligne #!/bin/bash ?', opts: ['À commenter le script', 'À indiquer l’interpréteur qui exécute le script', 'À définir une variable'], correct: 1, exp: 'Le shebang désigne l’interpréteur : bash ici.' },
       { stem: 'Où initialiser un compteur utilisé dans une boucle Bash ?', opts: ['Dans la boucle', 'Avant la boucle', 'Après la boucle'], correct: 1, exp: 'Avant, sinon il repart à zéro à chaque tour ; le bilan s’affiche après la boucle.' }
     ],

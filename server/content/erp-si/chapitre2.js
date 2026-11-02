@@ -83,7 +83,7 @@ module.exports = {
         '    <tr><th>Critère</th><th>Workflow ERP</th><th>Robotic Process Automation (RPA)</th></tr>\n' +
         '  </thead>\n' +
         '  <tbody>\n' +
-        '    <tr><td>Nature de l’action</td><td>Orchestre les tâches humaines et les données natives.</td><td>Exécutez des tâches informatiques répétitives à la place de l’humain.</td></tr>\n' +
+        '    <tr><td>Nature de l’action</td><td>Orchestre les tâches humaines et les données natives.</td><td>Exécute des tâches informatiques répétitives à la place de l’humain.</td></tr>\n' +
         '    <tr><td>Niveau d’intégration</td><td>Profond (au cœur de la base et du modèle ERP).</td><td>Superficiel (via l’interface graphique UI ou connecteurs légers).</td></tr>\n' +
         '    <tr><td>Délai de déploiement</td><td>Moyen à long (paramétrage métier complet).</td><td>Très rapide (quelques jours à semaines par scénario).</td></tr>\n' +
         '  </tbody>\n' +
@@ -167,7 +167,7 @@ module.exports = {
     { q: 'À quoi sert une passerelle (Gateway) en BPMN ?', a: 'À représenter un embranchement décisionnel (ex. condition XOR selon un montant).' },
     { q: 'Qu’est-ce qu’un moteur de Workflow ?', a: 'Un outil logiciel guidant l’exécution et la validation ordonnée des étapes d’un processus.' },
     { q: 'Quelle est la différence entre RPA Attended et Unattended ?', a: 'Attended est déclenché par un utilisateur sur son poste ; Unattended tourne seul sur serveur 24h/24.' },
-    { q: 'Donne un exemple typique d’usage de la RPA.', a: 'Extraire les données de factures PDF reçues et les ressaisir automatiquement dans l’ERP.' },
+    { q: 'Donnez un exemple typique d’usage de la RPA.', a: 'Extraire les données de factures PDF reçues et les ressaisir automatiquement dans l’ERP.' },
     { q: 'Pourquoi privilégier une API plutôt qu’un bot RPA graphique quand c’est possible ?', a: 'Car les API sont stables et contractuelles, alors que la RPA sur interface se brise dès que l’UI change.' }
   ],
 

@@ -85,8 +85,8 @@ module.exports = [
     "level": "n3",
     "language": "sql",
     "title": "Réécriture SARGable et index couvrant (Index-Only Scan)",
-    "goal": "Créer un index couvrant et écrire une requête SARGable par intervalle.",
-    "brief": "<p>Sur la table <code>commandes(id INT, annee INT, client_id INT, montant INT)</code>, créez un index couvrant <code>idx_cmd_annee_montant</code> sur <code>(annee, montant)</code>, puis calculez <code>SUM(montant) AS total_2025</code> pour <code>annee = 2025</code>.</p>",
+    "goal": "Créer un index couvrant dans un ordre donné et filtrer l’année de manière SARGable.",
+    "brief": "<p>Dans cet atelier SQLite, sur la table <code>commandes(id INT, annee INT, client_id INT, montant INT)</code>, créez un index couvrant non partiel <code>idx_cmd_annee_montant</code> sur <code>(annee, montant)</code>, dans cet ordre, puis calculez <code>SUM(montant) AS total_2025</code> pour <code>annee = 2025</code>. L’index peut couvrir la requête sans garantir que l’optimiseur choisira ce plan.</p>",
     "starter": "-- Créez l’index couvrant idx_cmd_annee_montant puis calculez SUM(montant) AS total_2025\nSELECT SUM(montant) FROM commandes;",
     "hints": [
       "Créez d’abord CREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);",
@@ -114,6 +114,11 @@ module.exports = [
         "label": "Trois commandes en 2025",
         "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2025, 1, 1000), (2, 2025, 2, 2000), (3, 2025, 3, 3000);",
         "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 6000       |\n+------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Index complet de la table commandes dans l’ordre demandé",
+        "stdin": "CREATE TABLE commandes (id INT, annee INT, client_id INT, montant INT); INSERT INTO commandes VALUES (1, 2024, 1, 10000), (2, 2025, 1, 25000), (3, 2025, 2, 15000);\n-- VERIFY:\nSELECT (SELECT group_concat(name, ',') FROM (SELECT name FROM pragma_index_info('idx_cmd_annee_montant') ORDER BY seqno)) AS ordre_index, \"partial\" AS partiel FROM pragma_index_list('commandes') WHERE name = 'idx_cmd_annee_montant';",
+        "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 40000      |\n+------------+\n(1 ligne retournée)\n\n+---------------+---------+\n| ordre_index   | partiel |\n+---------------+---------+\n| annee,montant | 0       |\n+---------------+---------+\n(1 ligne retournée)"
       }
     ],
     "solution": "CREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);\nSELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;"

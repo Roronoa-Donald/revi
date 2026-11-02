@@ -25,7 +25,7 @@ module.exports = [
       'calculer l’étendue et l’écart interquartile ;',
       'calculer une variance (division par N) et appliquer la formule de König ;',
       'calculer un écart-type et l’interpréter dans l’unité des données ;',
-      'comparer deux séries par leur coefficient de variation.'
+      'comparer deux séries par leur coefficient de variation lorsque le zéro et les moyennes sont pertinents.'
     ],
 
     sections: [
@@ -34,7 +34,7 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> L’<strong>étendue</strong> est la différence entre la plus grande et ' +
           'la plus petite valeur :</p>',
-          '<div class="math-block">$e = x_{\\\\max} - x_{\\\\min}$</div>',
+          '<div class="math-block">$e = x_{\\max} - x_{\\min}$</div>',
           '<p>C’est la mesure de dispersion la plus simple, et la plus fragile : elle ne dépend que de deux ' +
           'valeurs. Une seule mesure aberrante suffit à la faire exploser.</p>',
           '<p><strong>Écart interquartile.</strong> Plus robuste, il mesure la largeur des 50 % centraux :</p>',
@@ -53,12 +53,12 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> La <strong>variance</strong> est la moyenne des carrés des écarts à ' +
           'la moyenne :</p>',
-          '<div class="math-block">$V = \\\\frac{1}{N} \\\\sum_{i=1}^k n_i (x_i - \\\\bar{x})^2$</div>',
+          '<div class="math-block">$V = \\frac{1}{N} \\sum_{i=1}^k n_i (x_i - \\bar{x})^2$</div>',
           '<p>On met les écarts au carré pour deux raisons : les écarts négatifs et positifs s’annulent sinon, ' +
           'et le carré donne plus de poids aux écarts importants.</p>',
           '<p><strong>Formule de König.</strong> Calculer chaque écart à la moyenne est long. La formule de ' +
           'König donne le même résultat en une seule passe :</p>',
-          '<div class="math-block">$V = \\\\frac{1}{N} \\\\sum_{i=1}^k n_i x_i^2 - \\\\bar{x}^2 \\\\quad (\\\\text{Formule de König-Huygens})$</div>',
+          '<div class="math-block">$V = \\frac{1}{N} \\sum_{i=1}^k n_i x_i^2 - \\bar{x}^2 \\quad (\\text{Formule de König-Huygens})$</div>',
           box('mnemo', 'Mnémotechnique — « König : carrés d’abord, moyenne au carré ensuite »', 'pin',
             '    <p>Deux termes seulement : la <em>moyenne des carrés</em> moins le <em>carré de la moyenne</em>. ' +
             'Ne jamais oublier de retrancher le second : une variance fausse d’un facteur x̄² est l’erreur la ' +
@@ -78,7 +78,7 @@ module.exports = [
           '<p><strong>Problème de la variance :</strong> elle s’exprime en <em>unités au carré</em>. Une ' +
           'variance de longueur est en mm², ce qui ne se compare à rien de concret.</p>',
           '<p><strong>Définition.</strong> L’<strong>écart-type</strong> est la racine carrée de la variance :</p>',
-          '<div class="math-block">$\\\\sigma = \\\\sqrt{V}$</div>',
+          '<div class="math-block">$\\sigma = \\sqrt{V}$</div>',
           '<p>Il s’exprime donc dans l’unité des données (mm, euros, points) et se lit comme un écart moyen ' +
           'à la moyenne. Reprenons l’exemple : <code>σ = √1,4275 ≈ 1,195</code>, soit environ 1,2 point ' +
           'd’écart à la moyenne de 3,15.</p>',
@@ -96,25 +96,31 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> Le <strong>coefficient de variation</strong> compare l’écart-type à ' +
           'la moyenne :</p>',
-          '<div class="math-block">$CV = \\\\frac{\\\\sigma}{\\\\bar{x}} \\\\times 100\,\%$</div>',
-          '<p>C’est un nombre <strong>sans unité</strong>, ce qui permet de comparer deux séries d’unités ou ' +
-          'de niveaux très différents :</p>',
+          '<div class="math-block">$CV = \\frac{\\sigma}{\\bar{x}} \\times 100\\,\\%$</div>',
+          '<p>La moyenne doit être <strong>strictement positive</strong> et suffisamment éloignée de zéro au regard ' +
+          'de la précision des mesures. La grandeur doit être mesurée sur une échelle à <strong>zéro naturel</strong> ' +
+          'où les rapports ont un sens, comme une masse : une température en °C, dont le zéro est conventionnel, ne convient pas.</p>',
+          '<p>Le CV est <strong>sans unité</strong> : il permet de rapprocher des dispersions relatives lorsque ' +
+          'les grandeurs et la question posée rendent cette comparaison pertinente :</p>',
           '<table>\n' +
           '    <tr><th>Série</th><th>Moyenne</th><th>Écart-type</th><th>CV</th><th>Lecture</th></tr>\n' +
-          '    <tr><td>A</td><td>100 g</td><td>2 g</td><td>2 %</td><td>très homogène</td></tr>\n' +
-          '    <tr><td>B</td><td>100 g</td><td>18 g</td><td>18 %</td><td>dispersion forte</td></tr>\n' +
-          '    <tr><td>C</td><td>5 000 €</td><td>100 €</td><td>2 %</td><td>aussi homogène que A</td></tr>\n' +
+          '    <tr><td>A</td><td>100 g</td><td>2 g</td><td>2 %</td><td>référence</td></tr>\n' +
+          '    <tr><td>B</td><td>100 g</td><td>18 g</td><td>18 %</td><td>9 fois le CV de A</td></tr>\n' +
+          '    <tr><td>C</td><td>5 000 €</td><td>100 €</td><td>2 %</td><td>même CV que A</td></tr>\n' +
           '  </table>',
-          '<p>Les écarts-types de A et C ne sont pas comparables (2 g contre 100 €) ; leurs coefficients de ' +
-          'variation, eux, le sont parfaitement.</p>',
-          box('mnemo', 'Mnémotechnique — le seuil des 25 %', 'pin',
-            '    <p>Ordre de grandeur utile : <strong>CV &gt; 25 %</strong> signale une dispersion forte, ' +
-            '<strong>CV &lt; 10 %</strong> une série très homogène. Ce seuil n’est pas une loi, mais il suffit ' +
-            'à qualifier un résultat en examen.</p>'),
+          '<p>Pour les masses A et B, le CV de B est 9 fois celui de A. A et C ont le même CV, mais pas ' +
+          'nécessairement la même distribution. Comparer une masse et une somme d’argent demande de préciser ' +
+          'l’intérêt de cette comparaison : les seuls nombres ne suffisent pas.</p>',
+          box('mnemo', 'Interpréter selon le contexte', 'pin',
+            '    <p>Il n’existe <strong>aucun seuil universel</strong> séparant une dispersion faible d’une ' +
+            'dispersion forte. Comparez des séries pertinentes ou utilisez un seuil justifié par l’énoncé ' +
+            'et le domaine, en expliquant votre choix.</p>'),
           box('pitfall', 'Piège — CV avec une moyenne proche de zéro', 'warning',
-            '    <p>Le coefficient de variation divise par la moyenne : si x̄ est proche de 0 (ou négatif pour ' +
-            'une série centrée), le CV devient énorme ou n’a plus de sens. Dans ce cas, on commente l’écart-type ' +
-            'seul.</p>')
+            '    <p>Si la moyenne est nulle, le CV est indéfini. Si elle est proche de zéro, le résultat peut ' +
+            'varier fortement pour de petites modifications de la moyenne. Avec une moyenne négative ou un zéro ' +
+            'arbitraire, ne l’interprétez pas comme une dispersion relative sans justification. Dans ces cas, ' +
+            'commentez plutôt l’écart-type ou l’écart interquartile selon le contexte.</p>'),
+          '<p>Référence : <a href="https://www.itl.nist.gov/div898/software/dataplot/refman2/auxillar/coefvari.htm">NIST — coefficient de variation (en anglais)</a>.</p>'
         ].join('\n')
       }
     ],
@@ -125,15 +131,15 @@ module.exports = [
       { stem: 'La variance est la moyenne…', opts: ['des écarts à la moyenne', 'des carrés des écarts à la moyenne', 'des valeurs au carré'], correct: 1, exp: 'Chaque écart est mis au carré avant d’être moyenné.' },
       { stem: 'Formule de König ?', opts: ['V = Σ n<sub>i</sub>x<sub>i</sub>²/N − x̄²', 'V = x̄² − Σ n<sub>i</sub>x<sub>i</sub>²/N', 'V = (x̄)²'], correct: 0, exp: 'Moyenne des carrés moins carré de la moyenne.' },
       { stem: 'Comment obtient-on l’écart-type ?', opts: ['V²', '√V', 'V/N'], correct: 1, exp: 'σ = √V : la racine rétablit l’unité des données.' },
-      { stem: 'À quoi sert le coefficient de variation ?', opts: ['À comparer des séries d’unités différentes', 'À calculer la moyenne', 'À trouver le mode'], correct: 0, exp: 'Il est sans unité : c’est l’outil de comparaison des dispersions.' }
+      { stem: 'À quoi sert le coefficient de variation lorsque ses conditions sont réunies ?', opts: ['À comparer des dispersions relatives pertinentes', 'À calculer la moyenne', 'À trouver le mode'], correct: 0, exp: 'La moyenne doit être positive, assez éloignée de zéro et porter sur une grandeur à zéro naturel ; comparez selon le contexte.' }
     ],
 
     pitfalls: [
       '<strong>Oublier le second terme de König</strong> : annoncer Σ n<sub>i</sub>x<sub>i</sub>²/N comme la variance.',
       '<strong>Écarts non élevés au carré</strong> : la somme des écarts vaut toujours zéro.',
       '<strong>Unité de la variance</strong> : exprimer une variance en mm au lieu de mm².',
-      '<strong>CV avec une moyenne quasi nulle</strong> : le coefficient devient inexploitable.',
-      '<strong>Comparer deux écarts-types d’unités différentes</strong> au lieu des coefficients de variation.'
+      '<strong>CV avec une moyenne nulle ou proche de zéro</strong> : il est indéfini ou sensible à de petites variations.',
+      '<strong>Comparer des écarts-types d’unités différentes</strong> sans vérifier si les conditions du CV sont réunies.'
     ],
 
     methodTitle: 'Mesurer la dispersion pas à pas',
@@ -142,7 +148,7 @@ module.exports = [
       '<strong>Étendue et EI</strong> pour une première idée, robuste pour l’écart interquartile.',
       '<strong>Variance</strong> par König quand un tableau d’effectifs est fourni (une seule passe).',
       '<strong>Écart-type</strong> σ = √V pour revenir à l’unité des données.',
-      '<strong>Comparer</strong> les séries par leur CV, et commenter la dispersion en mots.'
+      '<strong>Comparer</strong> les CV si les grandeurs ont un zéro naturel et des moyennes positives, suffisamment éloignées de zéro ; commenter selon le contexte.'
     ],
 
     summary: [
@@ -150,14 +156,14 @@ module.exports = [
       'Écart interquartile EI = Q3 − Q1 : largeur des 50 % centraux, robuste.',
       'Variance V = Σ n<sub>i</sub>(x<sub>i</sub> − x̄)²/N, ou par König V = Σ n<sub>i</sub>x<sub>i</sub>²/N − x̄².',
       'Écart-type σ = √V : dispersion dans l’unité des données.',
-      'Coefficient de variation CV = σ/x̄ : sans unité, donc comparable entre séries.'
+      'Coefficient de variation CV = σ/x̄ : sans unité, à interpréter dans le contexte si le zéro et la moyenne sont pertinents.'
     ],
 
     checklist: [
       'Je calcule une variance par les deux méthodes et je retrouve le même nombre.',
       'Je passe sans hésiter de la variance à l’écart-type.',
-      'Je compare deux séries par leur coefficient de variation.',
-      'Je reconnais une dispersion forte (CV &gt; 25 %) et je le dis.'
+      'Je vérifie le zéro naturel et les moyennes positives, suffisamment éloignées de zéro avant de comparer les CV.',
+      'J’interprète la dispersion relative selon le contexte, sans seuil universel.'
     ],
 
     notions: ['étendue', 'écart interquartile', 'variance', 'formule de König', 'écart-type', 'coefficient de variation', 'valeur aberrante', 'homogénéité'],
@@ -166,14 +172,14 @@ module.exports = [
       { cls: 'low', text: '&lt; 50 % — Reprenez le calcul de la moyenne du chapitre 3 avant la variance.' },
       { cls: 'mid', text: '50–69 % — Refaites les exercices de niveau 3 de l’atelier du chapitre 4.' },
       { cls: 'good', text: '70–94 % — Bon niveau : cible la formule de König et l’unité de la variance.' },
-      { cls: 'top', text: '≥ 95 % — Maîtrise : passe au chapitre 5, les représentations graphiques.' }
+      { cls: 'top', text: '≥ 95 % — Très bon résultat : vérifie aussi ton raisonnement avant de passer au chapitre 5.' }
     ],
 
     flashcards: [
       { q: 'Quelle est la différence entre variance et écart-type ?', a: 'σ = √V : l’écart-type s’exprime dans l’unité des données, la variance en unités au carré.' },
-      { q: 'Énonce la formule de König.', a: '<code>V = (1/N)Σ n<sub>i</sub>x<sub>i</sub>² − x̄²</code>.' },
-      { q: 'Que vaut l’écart interquartile et à quoi sert-il ?', a: '<code>EI = Q3 − Q1</code> : largeur des 50 % centraux, insensible aux valeurs extrêmes.' },
-      { q: 'Quel seuil de CV signale une dispersion forte ?', a: 'Un ordre de grandeur : CV &gt; 25 %.' }
+      { q: 'Énoncez la formule de König.', a: '<code>V = (1/N)Σ n<sub>i</sub>x<sub>i</sub>² − x̄²</code>.' },
+      { q: 'Que vaut l’écart interquartile et à quoi sert-il ?', a: '<code>EI = Q3 − Q1</code> : largeur des valeurs centrales, souvent moins sensible aux extrêmes que l’étendue.' },
+      { q: 'Un CV suffit-il à qualifier une dispersion de forte ?', a: 'Non : aucun seuil universel ne s’applique. La qualification dépend du contexte et de références justifiées.' }
     ]
   },
 
@@ -275,8 +281,8 @@ module.exports = [
           '    <li>médiane <strong>près de Q1</strong> → étalement vers les valeurs hautes (dissymétrie à droite) ;</li>\n' +
           '    <li>une moustache <strong>beaucoup plus longue</strong> que l’autre → queue de distribution de ce côté.</li>\n' +
           '  </ul>',
-          '<p><strong>Détection des valeurs aberrantes.</strong> On appelle valeur aberrante toute valeur hors ' +
-          'de l’intervalle :</p>',
+          '<p><strong>Repérage des valeurs atypiques.</strong> La règle de Tukey signale comme potentiellement ' +
+          'atypique une valeur hors de l’intervalle ci-dessous ; ce signal ne prouve pas une erreur de mesure :</p>',
           '<pre><code>[Q1 − 1,5 × EI ; Q3 + 1,5 × EI]</code></pre>',
           box('standard', 'Méthode de calcul des cinq nombres de Tukey', 'calculator',
             '    <div class="box--formula"><div class="formula-label">Résumé à 5 nombres &amp; Barrières de Tukey</div><div class="math-block">$$\\text{Min} = x_{(1)}, \\quad Q_1 = x_{\\left(\\frac{n+1}{4}\\right)}, \\quad \\text{Med} = x_{\\left(\\frac{n+1}{2}\\right)}, \\quad Q_3 = x_{\\left(\\frac{3(n+1)}{4}\\right)}, \\quad \\text{Max} = x_{(n)}$$</div></div>\n' +
@@ -339,7 +345,7 @@ module.exports = [
       { q: 'Quand utilise-t-on un diagramme circulaire ?', a: 'Pour des parts d’un tout (100 %), avec peu de secteurs : angle = fréquence × 360.' },
       { q: 'Que représente la hauteur dans un histogramme ?', a: 'L’effectif si les classes ont même amplitude ; sinon la densité n<sub>i</sub>/amplitude.' },
       { q: 'Les cinq valeurs d’une boîte à moustaches ?', a: 'Minimum, Q1, médiane, Q3, maximum.' },
-      { q: 'Comment repère-t-on une valeur aberrante ?', a: 'Elle sort de l’intervalle [Q1 − 1,5·EI ; Q3 + 1,5·EI].' }
+      { q: 'Comment repère-t-on une valeur potentiellement atypique ?', a: 'La règle de Tukey signale une valeur hors de [Q1 − 1,5·EI ; Q3 + 1,5·EI] ; ce signal ne prouve pas une erreur.' }
     ]
   },
 
@@ -372,7 +378,7 @@ module.exports = [
           '<strong>double</strong> : un couple (x, y) par individu. On la représente par un ' +
           '<strong>nuage de points</strong> dans le plan.</p>',
           '<p><strong>Point moyen.</strong> Le couple formé des deux moyennes :</p>',
-          '<div class="math-block">$G(\\\\bar{x}, \\\\bar{y}) \\\\quad \\\\text{avec } \\\\bar{x} = \\\\frac{1}{n} \\\\sum x_i, \\\\quad \\\\bar{y} = \\\\frac{1}{n} \\\\sum y_i$</div>',
+          '<div class="math-block">$G(\\bar{x}, \\bar{y}) \\quad \\text{avec } \\bar{x} = \\frac{1}{n} \\sum x_i, \\quad \\bar{y} = \\frac{1}{n} \\sum y_i$</div>',
           '<p>C’est le centre de gravité du nuage. Toutes les quantités du chapitre se calculent par rapport ' +
           'à lui : c’est la référence de la liaison.</p>',
           box('intuition', 'Lire un nuage de points', 'compass',
@@ -387,7 +393,7 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> La <strong>covariance</strong> mesure comment deux caractères ' +
           'varient ensemble :</p>',
-          '<div class="math-block">$\\\\operatorname{cov}(X, Y) = \\\\frac{1}{n} \\\\sum_{i=1}^n (x_i - \\\\bar{x})(y_i - \\\\bar{y})$</div>',
+          '<div class="math-block">$\\operatorname{cov}(X, Y) = \\frac{1}{n} \\sum_{i=1}^n (x_i - \\bar{x})(y_i - \\bar{y})$</div>',
           '<p>Chaque individu contribue par le produit de ses deux écarts à la moyenne :</p>',
           '<ul>\n' +
           '    <li>si x et y sont tous deux au-dessus (ou tous deux en dessous) de leur moyenne, le produit est ' +
@@ -398,7 +404,7 @@ module.exports = [
           '<strong>proche de zéro</strong>.</li>\n' +
           '  </ul>',
           '<p><strong>Formule de calcul rapide</strong> (même principe que König) :</p>',
-          '<div class="math-block">$\\\\operatorname{cov}(X, Y) = \\\\frac{1}{n} \\\\sum_{i=1}^n x_i y_i - \\\\bar{x} \\\\bar{y}$</div>',
+          '<div class="math-block">$\\operatorname{cov}(X, Y) = \\frac{1}{n} \\sum_{i=1}^n x_i y_i - \\bar{x} \\bar{y}$</div>',
           box('pitfall', 'Piège — la covariance dépend des unités', 'warning',
             '    <p>Une covariance de 0,2 ou de 2 000 ne dit rien en soi : elle change si l’on passe des ' +
             'centimètres aux mètres. Impossible donc de comparer deux covariances d’unités différentes — ' +
@@ -410,8 +416,8 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> Le <strong>coefficient de corrélation linéaire</strong> de Pearson ' +
           'est la covariance divisée par le produit des deux écarts-types :</p>',
-          '<div class="math-block">$r = \\\\frac{\\\\operatorname{cov}(X, Y)}{\\\\sigma_x \\\\sigma_y} \\\\quad (-1 \\\\le r \\\\le 1)$</div>',
-          '<p>Ce nombre est <strong>toujours entre −1 et 1</strong>. C’est son principal intérêt avec ' +
+          '<div class="math-block">$r = \\frac{\\operatorname{cov}(X, Y)}{\\sigma_x \\sigma_y} \\quad (-1 \\le r \\le 1)$</div>',
+          '<p>Si un écart-type est nul, le coefficient est indéfini. Sinon, ce nombre est <strong>entre −1 et 1</strong>. C’est son principal intérêt avec ' +
           'l’absence d’unité :</p>',
           '<table>\n' +
           '    <tr><th>Valeur de r</th><th>Lecture</th></tr>\n' +
@@ -464,7 +470,7 @@ module.exports = [
     questions: [
       { stem: 'Quel est le point moyen d’une série double ?', opts: ['(0 ; 0)', '(x̄ ; ȳ)', '(x<sub>max</sub> ; y<sub>max</sub>)'], correct: 1, exp: 'C’est le centre de gravité du nuage : les deux moyennes.' },
       { stem: 'Une covariance positive signifie…', opts: ['que x et y varient dans le même sens', 'que x et y varient en sens inverse', 'qu’il n’y a pas de liaison'], correct: 0, exp: 'Les contributions positives dominent : les deux caractères augmentent ensemble.' },
-      { stem: 'Entrez quelles valeurs le coefficient de corrélation r varie-t-il ?', opts: ['0 et 1', '−1 et 1', '−∞ et +∞'], correct: 1, exp: 'C’est un nombre sans unité borné par −1 et 1.' },
+      { stem: 'Entre quelles valeurs le coefficient de corrélation r varie-t-il ?', opts: ['0 et 1', '−1 et 1', '−∞ et +∞'], correct: 1, exp: 'C’est un nombre sans unité borné par −1 et 1.' },
       { stem: 'r = 0,05 pour une série où y = x². Conclusion ?', opts: ['Aucune liaison', 'Pas de liaison linéaire, mais une liaison existe', 'Erreur de calcul'], correct: 1, exp: 'r ne mesure que la liaison linéaire : il faut regarder le nuage.' },
       { stem: 'Comment calcule-t-on la pente a de la droite des moindres carrés ?', opts: ['a = cov(x, y)/V(x)', 'a = ȳ/x̄', 'a = V(x)/cov(x, y)'], correct: 0, exp: 'a = cov(x,y)/V(x), puis b = ȳ − a·x̄.' },
       { stem: 'La droite des moindres carrés passe par…', opts: ['l’origine', 'le point moyen (x̄ ; ȳ)', 'le premier point du nuage'], correct: 1, exp: 'Propriété de contrôle : ȳ = a·x̄ + b.' }
@@ -513,7 +519,7 @@ module.exports = [
 
     flashcards: [
       { q: 'Formule rapide de la covariance ?', a: '<code>cov(x, y) = (1/n)Σ x<sub>i</sub>y<sub>i</sub> − x̄·ȳ</code>.' },
-      { q: 'Comment calcule-t-on r ?', a: '<code>r = cov(x, y)/(σ<sub>x</sub>·σ<sub>y</sub>)</code>, toujours entre −1 et 1.' },
+      { q: 'Comment calcule-t-on r ?', a: '<code>r = cov(x, y)/(σ<sub>x</sub>·σ<sub>y</sub>)</code> si les deux écarts-types sont non nuls ; r est alors entre −1 et 1. Si l’un est nul, r est indéfini.' },
       { q: 'Formules de la droite des moindres carrés ?', a: '<code>a = cov(x, y)/V(x)</code> puis <code>b = ȳ − a·x̄</code>.' },
       { q: 'Que contrôle-t-on après avoir trouvé la droite ?', a: 'Qu’elle passe par le point moyen : <code>ȳ = a·x̄ + b</code>.' }
     ]

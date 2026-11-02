@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -123,11 +123,11 @@
 <h4>Partie 3 : Tunnels VPN Sécurisés (OpenVPN &amp; IPsec IKEv2) (5 points)</h4>
 <ol>
   <li>Comparez OpenVPN (mode SSL/TLS avec PKI X.509) et IPsec IKEv2. Dans quel contexte d'entreprise privilégie-t-on un tunnel IPsec Site-à-Site plutôt qu'OpenVPN ? (2 pts)</li>
-  <li>Détaillez la chaîne de confiance requise par pfSense pour valider la connexion d'un client OpenVPN nomade (CA racine, certificat serveur, certificat client, CRL). Que se passe-t-il si un certificat volé n'est pas publié dans la CRL ? (3 pts)</li>
+  <li>Détaillez la chaîne de confiance d'un client OpenVPN et les conditions d'utilisation de la CRL. Que se passe-t-il si un certificat volé n'est pas encore publié dans la liste appliquée, ou si une session est déjà ouverte ? Comment vérifier la révocation ? (3 pts)</li>
 </ol>
 <h4>Partie 4 : Haute Disponibilité (CARP / pfsync) &amp; Détection d'Intrusion (5 points)</h4>
 <ol>
-  <li>Expliquez le mécanisme d'élection du pare-feu MASTER dans un cluster CARP à l'aide des paramètres <code>advbase</code> et <code>advskew</code>. Comment le basculement d'adresse IP virtuelle s'opère-t-il sans perturber les téléchargements en cours grâce à <code>pfsync</code> ? (3 pts)</li>
+  <li>Expliquez le mécanisme d'élection du pare-feu MASTER dans un cluster CARP à l'aide des paramètres <code>advbase</code> et <code>advskew</code>. Comment <code>pfsync</code> peut-il aider à préserver les téléchargements et pourquoi certaines connexions peuvent-elles être interrompues ? (3 pts)</li>
   <li>Comment le package Snort ou Suricata s'intègre-t-il au moteur de filtrage de pfSense ? Quel est le rôle de la table pf <code>snort2c</code> et pourquoi la configuration d'une liste blanche (Pass List) est-elle critique pour éviter les dénis de service auto-infligés ? (2 pts)</li>
 </ol>
   </div>
@@ -151,11 +151,11 @@
 <h4>Corrigé Partie 3 (5 points)</h4>
 <ul>
   <li><strong>OpenVPN vs IPsec IKEv2 (2 pts) :</strong> OpenVPN fonctionne en mode utilisateur (espace applicatif) via des interfaces tun/tap et encapsule ses flux dans TCP ou UDP (port 1194). IPsec opère directement dans le noyau (ESP/AH, protocole IP 50/51) avec une accélération cryptographique matérielle native (AES-NI). Pour un tunnel Site-à-Site d'entreprise à très haut débit entre deux agences ou datacenters, IPsec IKEv2 est privilégié pour sa performance maximale et sa standardisation stricte entre équipements multi-vendeurs (Cisco, Fortinet, pfSense).</li>
-  <li><strong>Chaîne de confiance PKI OpenVPN (3 pts) :</strong> Le serveur pfSense vérifie que le certificat présenté par le client est signé par son autorité de certification interne (CA), que la date courante est comprise dans sa période de validité et que son identifiant n'est pas listé dans la CRL. Si un certificat privé d'employé est dérobé et qu'il n'est pas révoqué dans la CRL, le pirate pourra s'authentifier avec succès sur le réseau d'entreprise, le serveur n'ayant aucun moyen cryptographique de savoir que la clé a été compromise sans consultation de la CRL.</li>
+  <li><strong>Chaîne de confiance PKI OpenVPN (3 pts) :</strong> Vérifier la chaîne et la validité du certificat client, ainsi que l'identité du serveur côté client. La CRL est facultative : elle doit être pertinente, sélectionnée, valide et actualisée. Tant que le numéro de série n'est pas présent dans la liste appliquée, ce contrôle ne révèle pas la révocation ; une connexion peut alors réussir si les autres conditions d'authentification sont remplies. Vérifier la publication, les dates et l'émetteur, les journaux, puis tester une nouvelle connexion avec un certificat révoqué et un témoin non révoqué. Déconnecter séparément toute session compromise déjà établie.</li>
 </ul>
 <h4>Corrigé Partie 4 (5 points)</h4>
 <ul>
-  <li><strong>Élection CARP et synchronisation pfsync (3 pts) :</strong> Les nœuds diffusent des annonces CARP toutes les <code>advbase + (advskew / 256)</code> secondes. Le Master possède <code>advskew=0</code> et transmet toutes les 1.000 s. Le Backup possède <code>advskew=100</code> (1.391 s). Si le Master ne transmet plus pendant 3 cycles, le Backup élit sa propre interface comme MASTER et émet des requêtes gratuitous ARP (GARP) pour mettre à jour la table CAM des switchs. Simultanément, <code>pfsync</code> réplique en temps réel sur une interface dédiée toutes les entrées de la table d'états : ainsi, le Backup connaît déjà toutes les sessions TCP ouvertes, évitant toute coupure de connexion lors du basculement.</li>
+  <li><strong>Élection CARP et synchronisation pfsync (3 pts) :</strong> Les nœuds diffusent des annonces CARP toutes les <code>advbase + (advskew / 256)</code> secondes. Le Master possède <code>advskew=0</code> et transmet toutes les 1.000 s. Le Backup possède <code>advskew=100</code> (1.391 s). Si le Master ne transmet plus pendant 3 cycles, le Backup élit sa propre interface comme MASTER et émet des requêtes gratuitous ARP (GARP) pour mettre à jour la table CAM des switchs. <code>pfsync</code> synchronise les états entre les pare-feux : les sessions dont l’état est disponible peuvent se poursuivre, mais certaines connexions peuvent être interrompues si des états manquent ou arrivent en retard.</li>
   <li><strong>Snort, table snort2c et liste blanche (2 pts) :</strong> Lorsque Snort détecte une signature malveillante de haute sévérité (Priorité 1), son démon injecte l'adresse IP source attaquante dans la table noyau <code>snort2c</code> de pf, provoquant un rejet immédiat (DROP) de tout paquet futur provenant de cette adresse. Une Pass List (liste blanche) contenant les passerelles WAN, les serveurs DNS de l'entreprise et les IP d'administration est indispensable pour empêcher un attaquant d'usurper l'IP du routeur ou du DNS dans des requêtes falsifiées, ce qui conduirait le pare-feu à bloquer sa propre infrastructure vitale.</li>
 </ul>
   </div>

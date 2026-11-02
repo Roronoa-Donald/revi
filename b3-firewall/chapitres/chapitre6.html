@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -51,7 +51,7 @@
 </div></nav>
 
 <main id="content" class="b3-firewallwrap">
-<p class="crumb"><a href="../index.html">Firewall & Sécurité Réseau B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+<p class="crumb"><a href="../index.html">Firewall &amp; Sécurité Réseau B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
 
 <h1>Chapitre 6 — Déploiement Linux Netfilter (iptables / nftables), Logs &amp; Intégration SIEM</h1>
 
@@ -137,9 +137,11 @@
 </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="fw3-c6-e1" data-lab
      data-exercise="fw3-c6-e1"
      data-language="analyse"
@@ -159,44 +161,48 @@ A_COMPLETER
 [Cas 3 — Règle globale tout trafic]
 # Données : RULE chain=INPUT proto=ANY src=ANY dst=ANY dport=ANY target=DROP
 A_COMPLETER
+
+[Cas 4 — Protocole ANY avec port précis]
+# Données : RULE chain=INPUT proto=ANY src=ANY dst=ANY dport=80 target=ACCEPT
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Compilateur de règles vers les syntaxes iptables et nftables</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="fw3-c6-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Traduire une politique de sécurité déclarative en commandes concrètes pour les moteurs netfilter iptables et nftables.</p>
     <div class="lab__brief"><p>L'administration d'un pare-feu Linux repose sur <strong>iptables</strong> (hérité) ou <strong>nftables</strong> (standard moderne).<br><br>
 Spécification de conversion d'une règle :<br>
-<code>RULE chain=&lt;INPUT|FORWARD|OUTPUT&gt; proto=&lt;tcp|udp|ANY&gt; src=&lt;ip|ANY&gt; dst=&lt;ip|ANY&gt; dport=&lt;p|ANY&gt; target=&lt;ACCEPT|DROP&gt;</code>.<br><br>
-Règles de génération :<br>
+<code>RULE chain=&lt;INPUT|FORWARD|OUTPUT&gt; proto=&lt;tcp|udp|ANY&gt; src=&lt;ip|ANY&gt; dst=&lt;ip|ANY&gt; dport=&lt;p|ANY&gt; target=&lt;ACCEPT|DROP&gt;</code>.<br>
+Ici, <code>ip</code> désigne une adresse IPv4 et <code>p</code> un numéro de port valide.</p><p><strong>Validation du mini-format :</strong> si <code>proto=ANY</code> et que <code>dport</code> est précis, la règle est invalide dans cet exercice : un port précis exige ici <code>tcp</code> ou <code>udp</code>. Affichez uniquement <code>ERREUR: proto=ANY incompatible avec dport precis</code>, sans générer de commande. Cette restriction est propre au mini-format ; elle ne décrit pas toutes les possibilités de nftables.</p><p>Pour une règle valide, appliquez les règles de génération :<br>
 1. Syntaxe <strong>iptables</strong> :<br>
    <code>iptables -A {chain} [options] -j {target}</code><br>
    - Si <code>proto != 'ANY'</code> : ajouter <code>-p {proto}</code>.<br>
    - Si <code>src != 'ANY'</code> : ajouter <code>-s {src}</code>.<br>
    - Si <code>dst != 'ANY'</code> : ajouter <code>-d {dst}</code>.<br>
-   - Si <code>dport != 'ANY'</code> : ajouter <code>--dport {dport}</code> (placé après le protocole si présent).<br>
-2. Syntaxe <strong>nftables</strong> :<br>
-   <code>nft add rule inet filter {chain_lower} [clauses] counter {target_lower}</code><br>
+   - Si <code>dport != 'ANY'</code> : ajouter <code>--dport {dport}</code> après le protocole <code>-p tcp</code> ou <code>-p udp</code> obligatoire ici.<br>
+2. Syntaxe <strong>nftables</strong> : la table IPv4 <code>ip filter</code> et les chaînes minuscules correspondantes existent déjà et sont attachées aux mêmes points de passage que leurs équivalents iptables.<br><br>
+   <code>nft add rule ip filter {chain_lower} [clauses] counter {target_lower}</code><br>
    - Si <code>src != 'ANY'</code> : ajouter <code>ip saddr {src}</code>.<br>
    - Si <code>dst != 'ANY'</code> : ajouter <code>ip daddr {dst}</code>.<br>
    - Si <code>proto != 'ANY' et dport != 'ANY'</code> : ajouter <code>{proto} dport {dport}</code>.<br>
    - Si <code>proto != 'ANY' et dport == 'ANY'</code> : ajouter <code>ip protocol {proto}</code>.<br><br>
-Pour chaque règle en entrée, afficher :<br>
+Pour chaque règle valide, afficher :<br>
 <code>IPTABLES: {commande_iptables}</code><br>
-<code>NFTABLES: {commande_nftables}</code></p></div>
+<code>NFTABLES: {commande_nftables}</code></p><p>Sources consultées le 2026-10-30 : Netfilter, extensions iptables, <code>https://netfilter.org/documentation/HOWTO/packet-filtering-HOWTO-7.html</code> ; nftables, en-têtes de paquets, <code>https://wiki.nftables.org/wiki-nftables/index.php/Matching_packet_headers</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RULE chain=INPUT proto=tcp src=ANY dst=10.0.0.1 dport=22 target=ACCEPT</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IPTABLES: iptables -A INPUT -p tcp -d 10.0.0.1 --dport 22 -j ACCEPT
-NFTABLES: nft add rule inet filter input ip daddr 10.0.0.1 tcp dport 22 counter accept</pre></div>
     </div>
-    <p class="lab__note">Ouverture du port SSH 22 sur l’interface d’écoute.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
+        <li>Avant toute conversion, une règle proto=ANY avec un port précis produit uniquement l'erreur indiquée.</li>
         <li>Construire les listes d’arguments dans l’ordre demandé puis joindre par des espaces.</li>
         <li>Convertir en minuscules pour nftables (ex: chain.lower(), target.lower()).</li>
       </ol>
@@ -233,10 +239,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Parseur et agrégateur statistique de journaux de pare-feu (Logs)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="fw3-c6-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Analyser un flux de logs de pare-feu format syslog et extraire les métriques de sécurité essentielles.</p>
     <div class="lab__brief"><p>L'exploitation des journaux (logs) permet de mesurer l'efficacité du pare-feu et de détecter les tendances d'attaque.<br><br>
 Format des lignes de logs lues dans l’énoncé du cas :<br>
@@ -254,9 +262,7 @@ Sortie attendue :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45000 DPT=22
 firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=192.168.1.10 DST=10.0.0.2 PROTO=TCP SPT=50000 DPT=80
 firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45001 DPT=22</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LOG_SUMMARY total=3 dropped=2 accepted=1 top_blocked_port=22 top_attacker_ip=203.0.113.5</pre></div>
     </div>
-    <p class="lab__note">2 drops sur le port 22 par la même IP 203.0.113.5.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -299,10 +305,12 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Détecteur de force brute et bannissement dynamique (Fail2ban SIEM)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="fw3-c6-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Surveiller les échecs répétés d’authentification et déclencher le blocage dynamique de l’IP attaquante.</p>
     <div class="lab__brief"><p>Les outils de sécurité active (comme <strong>Fail2ban</strong> ou les playbooks SOAR/SIEM) observent les journaux de connexion et appliquent un bannissement temporaire ou définitif lorsqu'une IP dépasse un seuil d'échecs.<br><br>
 Paramètres de la jail de sécurité :<br>
@@ -323,11 +331,7 @@ Analysez les données fournies pour chaque cas.</p></div>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AUTH_FAIL ts=100 ip=203.0.113.50 service=ssh
 AUTH_FAIL ts=120 ip=203.0.113.50 service=ssh
 AUTH_FAIL ts=140 ip=203.0.113.50 service=ssh</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BAN_ACTION ip=203.0.113.50 status=MONITORING attempts=1
-BAN_ACTION ip=203.0.113.50 status=MONITORING attempts=2
-BAN_ACTION ip=203.0.113.50 status=TRIGGER_BAN rule="nft add element inet filter blocklist { 203.0.113.50 }"</pre></div>
     </div>
-    <p class="lab__note">Le 3e échec dans les 60s déclenche le bannissement immédiat.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -337,6 +341,7 @@ BAN_ACTION ip=203.0.113.50 status=TRIGGER_BAN rule="nft add element inet filter 
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -472,7 +477,7 @@ BAN_ACTION ip=203.0.113.50 status=TRIGGER_BAN rule="nft add element inet filter 
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>Framework Linux Netfilter</li><li>Chaînes INPUT, FORWARD & OUTPUT</li><li>Chaînes PREROUTING & POSTROUTING</li><li>Syntaxe iptables vs nftables</li><li>Ensembles (Sets) nftables</li><li>Journaux Syslog de pare-feu</li><li>Métriques d’analyse d’attaque</li><li>Bannissement dynamique (Fail2ban/SIEM)</li>
+      <li>Framework Linux Netfilter</li><li>Chaînes INPUT, FORWARD &amp; OUTPUT</li><li>Chaînes PREROUTING &amp; POSTROUTING</li><li>Syntaxe iptables vs nftables</li><li>Ensembles (Sets) nftables</li><li>Journaux Syslog de pare-feu</li><li>Métriques d’analyse d’attaque</li><li>Bannissement dynamique (Fail2ban/SIEM)</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -484,7 +489,7 @@ BAN_ACTION ip=203.0.113.50 status=TRIGGER_BAN rule="nft add element inet filter 
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>vous confondez les chaînes INPUT et FORWARD ou vous risquez de vous couper l’accès SSH à distance.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>vous confondez les chaînes INPUT et FORWARD ou vous risquez de vous couper l’accès SSH à distance.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>vous écrivez des scripts de filtrage iptables et nftables propres en Default DROP avec gestion de la boucle locale.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>vous orchestrez des pare-feux Linux durcis avec sets nftables dynamiques, corrélation SIEM et bannissement automatique Fail2ban.</div>
@@ -498,7 +503,7 @@ BAN_ACTION ip=203.0.113.50 status=TRIGGER_BAN rule="nft add element inet filter 
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
-  Sources : Supports de cours Module 1 & Module 3 (Enseignant : AGOUTOCO-POKO Caleb Benaja, L3-ASI, 2025/2026), RFC 793 (Transmission Control Protocol), RFC 1918 et documentation officielle Linux Netfilter.</p>
+  Sources : Supports de cours Module 1 &amp; Module 3 (Enseignant : AGOUTOCO-POKO Caleb Benaja, L3-ASI, 2025/2026), RFC 793 (Transmission Control Protocol), RFC 1918 et documentation officielle Linux Netfilter.</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>

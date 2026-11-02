@@ -480,7 +480,7 @@ module.exports = [
 
     checklist: [
       'Je crée UO, utilisateur et groupe dans le bon ordre.',
-      'Je distingue les deux formes de session et l’option de premier changement.',
+      'Je distinguez les deux formes de session et l’option de premier changement.',
       'Je choisis le type de groupe selon le besoin (droits ou diffusion).',
       'Je connais les prérequis de la jointure au domaine et le rôle des profils itinérants.'
     ],

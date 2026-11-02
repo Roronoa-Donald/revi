@@ -168,12 +168,12 @@ module.exports = {
     }
   ],
   "flashcards": [
-    { "q": 'Qu’est-ce que « Problème du plus court chemin à source unique (SSSP) » ?', "a": 'Problème du plus court chemin à source unique (SSSP)' },
-    { "q": 'Qu’est-ce que « Opération de relâchement d’arc (Edge Relaxation) » ?', "a": 'Opération de relâchement d’arc (Edge Relaxation)' },
-    { "q": 'Qu’est-ce que « Invariant de sous-chemin optimal » ?', "a": 'Invariant de sous-chemin optimal' },
-    { "q": 'Qu’est-ce que « Algorithme de Dijkstra avec file de priorité min-heap » ?', "a": 'Algorithme de Dijkstra avec file de priorité min-heap' },
-    { "q": 'Qu’est-ce que « Table des prédécesseurs et reconstruction de chemin » ?', "a": 'Table des prédécesseurs et reconstruction de chemin' },
-    { "q": 'Qu’est-ce que « Détection de cycle absorbant (cycle négatif) » ?', "a": 'Détection de cycle absorbant (cycle négatif)' },
+    { "q": 'Qu’est-ce que « Problème du plus court chemin à source unique (SSSP) » ?', "a": 'Calculer depuis une source le coût minimal vers chaque sommet et les chemins correspondants lorsqu’ils existent.' },
+    { "q": 'Qu’est-ce que « Opération de relâchement d’arc (Edge Relaxation) » ?', "a": 'Pour un arc u→v, si d[u] est finie et d[u]+w(u,v)<d[v], remplacer d[v] par d[u]+w(u,v) et enregistrer u comme prédécesseur de v.' },
+    { "q": 'Qu’est-ce que « Invariant de sous-chemin optimal » ?', "a": 'Tout sous-chemin d’un plus court chemin est lui-même un plus court chemin entre ses extrémités, lorsque le coût optimal est fini.' },
+    { "q": 'Qu’est-ce que « Algorithme de Dijkstra avec file de priorité min-heap » ?', "a": 'Si les poids sont positifs ou nuls, extraire du tas-min le sommet non finalisé de distance provisoire minimale, le finaliser et relâcher ses arcs ; répéter jusqu’à vider la file.' },
+    { "q": 'Qu’est-ce que « Table des prédécesseurs et reconstruction de chemin » ?', "a": 'La table associe à chaque sommet son prédécesseur ; depuis une destination atteignable au coût fini, remonter jusqu’à la source puis inverser la suite.' },
+    { "q": 'Qu’est-ce que « Détection de cycle absorbant (cycle négatif) » ?', "a": 'Après |V|−1 passes de Bellman-Ford, une amélioration encore possible depuis un sommet atteignable révèle un cycle de poids total négatif atteignable depuis la source.' },
     {
       "q": "En quoi consiste le relâchement d’un arc (u, v) avec poids w ?",
       "a": "À tester si d[u] + w < d[v], et si c’est le cas, à mettre à jour d[v] = d[u] + w et parent[v] = u."

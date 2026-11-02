@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -82,7 +82,7 @@
 <p>L’histoire n’est pas seulement un conte : elle pose trois questions techniques exactes.</p>
 <ul>
     <li><strong>Quel concept est illustré ?</strong> La mutualisation : plusieurs VM sur un même serveur physique, ressources partagées.</li>
-    <li><strong>Quels avantages ?</strong> La rentabilisation à 100 %, moins de machines physiques, moins d’électricité — tout le chapitre 4.</li>
+    <li><strong>Quels avantages possibles ?</strong> Moins de machines physiques et une meilleure utilisation, à confirmer par des mesures de charge, de coûts et d’énergie.</li>
     <li><strong>Quels risques si trop de VM ?</strong> La <strong>surcharge</strong> : mémoire épuisée, processeur saturé, temps de réponse qui s’effondrent pour tout le monde.</li>
   </ul>
   <div class="box box--intuition">
@@ -92,8 +92,8 @@
 
 <h2>2. Le seuil de saturation</h2>
 
-<p>La défense est simple : <strong>ne jamais dépasser la capacité</strong>. Chaque VM demande sa charge ; si la charge totale reste dans la capacité, elle est hébergée ; sinon elle est refusée — et sa charge n’est pas comptée. Un refus vaut mieux qu’une saturation : on cherche un autre hôte, on ne noie pas celui-ci.</p>
-<p>Cas limite à connaître : le serveur <strong>plein</strong>. Quand la charge totale atteint <strong>exactement</strong> la capacité, il reste hébergeable — mais plus rien ne pourra s’ajouter. C’est un état à surveiller, pas encore une panne.</p>
+<p>Dans le modèle simplifié de l’exercice, chaque VM demande une capacité réservée ; si la somme dépasse la capacité de l’hôte, la VM est refusée. En pratique, les politiques de surallocation varient et il faut mesurer la charge, les marges et les performances.</p>
+<p>Dans ce modèle, le serveur est <strong>plein</strong> lorsque la capacité allouée atteint exactement la capacité disponible : aucune réservation ne peut s’ajouter. Cela ne prouve pas que l’usage réel est de 100 % ni qu’une panne est en cours.</p>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — tester après avoir ajouté</div>
     <p>Le contrôle se fait <strong>avant</strong> l’ajout : si total + charge dépasse la capacité, refuser. Ajouter puis retirer, c’est promettre puis décevoir — le chemin de la panne.</p>
@@ -101,21 +101,21 @@
 
 <h2>3. Les symptômes de la surcharge</h2>
 
-<p>Un serveur surchargé prévient avant de tomber. Trois symptômes, dans l’ordre de détection :</p>
+<p>Pour s’exercer, la grille utilise trois seuils indicatifs, qui ne sont pas des diagnostics universels :</p>
 <ul>
     <li><strong>CPU</strong> au-delà de 90 % : le processeur n’a plus de marge ;</li>
     <li><strong>RAM</strong> au-delà de 90 % : la mémoire promise aux VM menace de manquer ;</li>
     <li><strong>temps de réponse</strong> au-delà de 500 ms : les utilisateurs le sentent déjà.</li>
   </ul>
-<p>Un symptôme : la cause est identifiée. Plusieurs symptômes à la fois : cas « multiple » — le serveur est entrain de saturer globalement, la priorité monte.</p>
+<p>Un seuil franchi est une alerte à interpréter, non la preuve d’une cause. Plusieurs alertes peuvent justifier une investigation prioritaire.</p>
   <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> 90, 90, 500</div>
-    <p>CPU à 90 %, RAM à 90 %, réponses à 500 ms : les trois seuils d’alerte. Au-delà d’un seul, le serveur est en surcharge ; l’action est la même dans tous les cas.</p>
+    <p>CPU à 90 %, RAM à 90 %, réponses à 500 ms : seuils fictifs de l’exercice. En pratique, on adapte les seuils et l’action au service.</p>
   </div>
 
 <h2>4. L’action de secours : déplacer une VM</h2>
 
-<p>Que faire quand la surcharge est détectée ? La réponse du cours tient en quatre mots : <strong>déplacer une VM</strong>. C’est le privilège de la virtualisation : une machine qui tourne sur un serveur noyé peut rejoindre un hôte qui dort — un autre fainéant à réveiller. Le service continue, l’utilisateur ne voit rien, le serveur respire.</p>
+<p>Que faire quand la surcharge est détectée ? La réponse du cours tient en quatre mots : <strong>déplacer une VM</strong>. C’est le privilège de la virtualisation : une machine qui tourne sur un serveur noyé peut rejoindre un hôte moins chargé. La migration peut réduire la charge, mais une pause de bascule ou une perturbation restent possibles.</p>
 <p>C’est aussi la réponse à la dernière question de réflexion de l’histoire : « comment être efficace mais pas surchargé ? » — en équilibrant : chaque hôte chargé mais aucun noyé, chaque VM prête à déménager.</p>
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Les exercices de ce chapitre</div>
@@ -123,9 +123,11 @@
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="vt-c5-e1" data-lab
      data-exercise="vt-c5-e1"
      data-language="analyse"
@@ -160,22 +162,20 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Les questions techniques de l’histoire</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="vt-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Associer chaque concept de la question technique à sa définition.</p>
-    <div class="lab__brief"><p>L’histoire pose trois questions techniques : le concept illustré, les avantages, et les risques. Analysez chaque ligne proposée « concept role » : role est un code parmi <code>partage</code> (plusieurs VM sur un même serveur physique), <code>avantage</code> (rentabilisation, moins de machines) ou <code>risque</code> (surcharge, saturation des ressources). Pour chaque ligne il Indiquez <code>concept : OK</code> ou <code>concept : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
+    <div class="lab__brief"><p>L’histoire pose trois questions techniques : le concept illustré, les avantages, et les risques. Analysez chaque ligne proposée « concept role » : role est un code parmi <code>partage</code> (plusieurs VM sur un même serveur physique), <code>avantage</code> (rentabilisation, moins de machines) ou <code>risque</code> (surcharge, saturation des ressources). Pour chaque ligne, indiquez <code>concept : OK</code> ou <code>concept : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 rentabilisation avantage
 mutualisation partage
 surcharge risque
 </pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>rentabilisation : OK
-mutualisation : OK
-surcharge : OK
-correctes : 3/3</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
@@ -223,12 +223,14 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 2 — Le seuil de saturation du serveur</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="vt-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Surveiller la charge totale et refuser les VM quand le serveur menace de saturer.</p>
-    <div class="lab__brief"><p>La dernière question de l’histoire : « que se passerait-il si trop de machines virtuelles étaient créées sur un seul serveur ? ». Analysez les données fournies pour chaque cas. La charge totale s’accumule : si elle reste <= capacité, la VM est <code>vm : hebergee</code> ; si elle la dépasse, <code>vm : refusee (saturation)</code> et la charge n’est pas ajoutée. À la fin : <code>charge : X/capacite</code> et <code>hebergees : Y/n</code> — et si X atteint exactement la capacité, une dernière ligne <code>serveur plein</code>.</p></div>
+    <div class="lab__brief"><p>La dernière question de l’histoire : « que se passerait-il si trop de machines virtuelles étaient créées sur un seul serveur ? ». Analysez les données fournies pour chaque cas. La charge totale s’accumule : si elle reste &lt;= capacité, la VM est <code>vm : hebergee</code> ; si elle la dépasse, <code>vm : refusee (saturation)</code> et la charge n’est pas ajoutée. À la fin : <code>charge : X/capacite</code> et <code>hebergees : Y/n</code> — et si X atteint exactement la capacité, une dernière ligne <code>serveur plein</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>-
 3
@@ -236,11 +238,6 @@ vm1 40
 vm2 40
 vm3 30
 </pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>vm1 : hebergee
-vm2 : hebergee
-vm3 : refusee (saturation)
-charge : 80/100
-hebergees : 2/3</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
@@ -284,26 +281,20 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Les symptômes de la surcharge</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="vt-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Détecter les symptômes de surcharge et conseiller l’action du support.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « serveur cpu ram reponses » : cpu et ram en %, reponses = temps de réponse en ms des services hébergés. Symptômes : cpu > 90 OU ram > 90 OU reponses > 500 → le serveur est <code>serveur : surcharge (symptome)</code> avec symptome = <code>cpu</code>, <code>ram</code>, <code>reponses</code> ou <code>multiple</code> (dans cet ordre de détection) ; l’action conseillée est alors <code>serveur : action = deplacer une VM</code>. Sinon <code>serveur : sain</code>. Enfin <code>surcharges : X/n</code> et <code>deplacements : X</code>.</p></div>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « serveur cpu ram reponses » : cpu et ram en %, reponses = temps de réponse en ms des services hébergés. Symptômes : cpu &gt; 90 OU ram &gt; 90 OU reponses &gt; 500 → le serveur est <code>serveur : surcharge (symptome)</code> avec symptome = <code>cpu</code>, <code>ram</code>, <code>reponses</code> ou <code>multiple</code> (dans cet ordre de détection) ; l’action conseillée est alors <code>serveur : action = deplacer une VM</code>. Sinon <code>serveur : sain</code>. Enfin <code>surcharges : X/n</code> et <code>deplacements : X</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 a 95 50 100
 b 60 95 200
 c 50 50 600
 </pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>a : surcharge (cpu)
-a : action = deplacer une VM
-b : surcharge (ram)
-b : action = deplacer une VM
-c : surcharge (reponses)
-c : action = deplacer une VM
-surcharges : 3/3
-deplacements : 3</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
@@ -314,6 +305,7 @@ deplacements : 3</pre></div>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -346,13 +338,13 @@ deplacements : 3</pre></div>
       <div class="q__exp">Le contrôle précède l’ajout : refus sans consommation.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Le serveur est « plein » quand…</p>
+      <p class="q__stem">Dans le modèle, le serveur est « plein » quand…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">la charge totale atteint exactement la capacité</button>
+        <button class="opt" data-correct="1">la capacité allouée atteint la capacité disponible</button>
         <button class="opt">il s’éteint</button>
         <button class="opt">aucune VM n’existe</button>
       </div>
-      <div class="q__exp">État exact de saturation : hébergeable mais plus rien ne peut s’ajouter.</div>
+      <div class="q__exp">Aucune réservation ne peut s’ajouter dans le modèle ; l’utilisation réelle se mesure séparément.</div>
     </div>
     <div class="q">
       <p class="q__stem">Les seuils d’alerte sont…</p>
@@ -370,7 +362,7 @@ deplacements : 3</pre></div>
         <button class="opt">un faux positif</button>
         <button class="opt">une panne certaine</button>
       </div>
-      <div class="q__exp">Plusieurs symptômes = saturation globale en cours : priorité renforcée.</div>
+      <div class="q__exp">La grille classe ce cas « multiple » ; une investigation reste nécessaire.</div>
     </div>
     <div class="q">
       <p class="q__stem">L’action conseillée en cas de surcharge est…</p>
@@ -379,7 +371,7 @@ deplacements : 3</pre></div>
         <button class="opt">éteindre le serveur</button>
         <button class="opt">redémarrer tout</button>
       </div>
-      <div class="q__exp">La VM rejoint un hôte qui dort : service continu, serveur respirant.</div>
+      <div class="q__exp">Une migration adaptée peut réduire la charge, avec une pause ou un impact possibles.</div>
     </div>
     <div class="q">
       <p class="q__stem">« Efficace mais pas surchargé » se obtient…</p>
@@ -446,10 +438,10 @@ deplacements : 3</pre></div>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — relisez la question finale de l’histoire et refaites l’exemple de saturation.</div>
-      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>rejoue l’exercice des symptômes jusqu’au sans-faute.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>solide : simule une montée en charge et nomme chaque symptôme.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>maîtrise : passe à l’argumentaire final.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>relisez la question finale de l’histoire et refaites l’exemple de saturation.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>rejouez l’exercice des symptômes jusqu’au sans-faute.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>solide : simulez une montée en charge et nomme chaque symptôme.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>maîtrise : passez à l’argumentaire final.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

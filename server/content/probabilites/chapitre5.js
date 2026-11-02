@@ -26,17 +26,13 @@ module.exports = {
   ],
 
   sections: [
-      {
-        "title": "Prérequis intégré : Comprendre et calculer une intégrale de densité sans cours d’Analyse préalable",
-        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Niveau 1 — Intuition &amp; Règle opératoire : L’intégrale comme aire sous la courbe</div><p>Pour une variable continue, la probabilité de tomber dans un intervalle $[a, b]$ est l’<strong>aire située sous la courbe</strong> de la densité $f(x)$ entre $a$ et $b$, notée $\\int_a^b f(x)\\,dx$. Pour la calculer concrètement en exercice, il suffit de trouver une <strong>primitive</strong> $F(x)$ (la fonction inverse de la dérivée) et d’appliquer la formule $F(b) - F(a)$ :</p><ul><li><strong>Constante :</strong> une primitive de $c$ est $c \\cdot x$, donc $\\int_a^b c\\,dx = c(b - a)$ (utilisé pour la loi uniforme) ;</li><li><strong>Puissance :</strong> une primitive de $x$ est $\\frac{x^2}{2}$ et une primitive de $x^2$ est $\\frac{x^3}{3}$ ;</li><li><strong>Exponentielle :</strong> une primitive de $\\lambda e^{-\\lambda x}$ est $-e^{-\\lambda x}$, ce qui donne directement $P(X \\le t) = \\int_0^t \\lambda e^{-\\lambda x}\\,dx = 1 - e^{-\\lambda t}$ pour la loi exponentielle.</li></ul></div>"
-      },
     {
       title: 'Densité et fonction de répartition',
       html: [
-        '<p>Une variable <strong>continue</strong> <code>X</code> est décrite par une <strong>densité</strong> ' +
-        '<code>f</code> positive, d’intégrale totale 1 : <code>∫ f(x) dx = 1</code>. La probabilité d’un ' +
-        'intervalle est l’aire sous la courbe : <code>P(a ≤ X ≤ b) = ∫ₐᵇ f(x) dx</code>. La fonction de ' +
-        'répartition est <code>F(x) = P(X ≤ x) = ∫₋∞ˣ f(t) dt</code>.</p>',
+        '<p>Une variable <strong>continue</strong> <code>X</code> prend ses valeurs dans un intervalle réel. ' +
+        'Sa probabilité correspond géométriquement à l’<strong>aire sous la courbe</strong> de sa fonction de <strong>densité</strong> <code>f</code> positive, d’intégrale totale 1 : <code>∫ f(x) dx = 1</code>. ' +
+        'Pour calculer la probabilité d’un intervalle, on évalue sa primitive : <code>P(a ≤ X ≤ b) = ∫ₐᵇ f(x) dx = F(b) − F(a)</code>. ' +
+        'La fonction de répartition cumulée est <code>F(x) = P(X ≤ x) = ∫₋∞ˣ f(t) dt</code>.</p>',
         box('pitfall', 'Piège — P(X = x) = 0 pour une loi continue', 'warning',
           '    <p>Pour une variable continue, la probabilité d’une valeur exacte est nulle : ' +
           '<code>P(X = x) = 0</code>. Seules les probabilités d’<strong>intervalles</strong> ont un sens, et ' +
@@ -83,7 +79,11 @@ module.exports = {
         '<div class="box box--formula"><div class="box__title">Exemple de calcul d’intervalle sur $\\mathcal{N}(0, 1)$</div><p>Calculons $\\mathbb{P}(-1 \\le Z \\le 2)$ :</p>$$\\mathbb{P}(-1 \\le Z \\le 2) = \\Phi(2) - \\Phi(-1) = \\Phi(2) - (1 - \\Phi(1))$$$$= 0{,}9772 - (1 - 0{,}8413) = 0{,}9772 - 0{,}1587 = 0{,}8185$$</div>',
         '<p>La table statistique donne directement $\\Phi(z)$ pour toute valeur positive centrée réduite.</p>'
       ].join('\n')
-    }
+    },
+      {
+        "title": "Pour aller plus loin : Comprendre et calculer une intégrale de densité sans cours d’Analyse préalable",
+        "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Niveau 1 — Intuition &amp; Règle opératoire : L’intégrale comme aire sous la courbe</div><p>Pour une variable continue, la probabilité de tomber dans un intervalle $[a, b]$ est l’<strong>aire située sous la courbe</strong> de la densité $f(x)$ entre $a$ et $b$, notée $\\int_a^b f(x)\\,dx$. Pour la calculer concrètement en exercice, il suffit de trouver une <strong>primitive</strong> $F(x)$ (la fonction inverse de la dérivée) et d’appliquer la formule $F(b) - F(a)$ :</p><ul><li><strong>Constante :</strong> une primitive de $c$ est $c \\cdot x$, donc $\\int_a^b c\\,dx = c(b - a)$ (utilisé pour la loi uniforme) ;</li><li><strong>Puissance :</strong> une primitive de $x$ est $\\frac{x^2}{2}$ et une primitive de $x^2$ est $\\frac{x^3}{3}$ ;</li><li><strong>Exponentielle :</strong> une primitive de $\\lambda e^{-\\lambda x}$ est $-e^{-\\lambda x}$, ce qui donne directement $P(X \\le t) = \\int_0^t \\lambda e^{-\\lambda x}\\,dx = 1 - e^{-\\lambda t}$ pour la loi exponentielle.</li></ul></div>"
+      }
   ],
 
   questions: [

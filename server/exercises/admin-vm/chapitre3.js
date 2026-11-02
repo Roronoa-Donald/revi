@@ -21,8 +21,8 @@ $coeurs = [int][Console]::In.ReadLine()
 # À compléter : afficher "surallocation : oui/non" puis "exces : X".
 `,
     hints: [
-      'Surallocation quand ($vcpu -gt $coeurs).',
-      'L’excédent vaut $vcpu - $coeurs.'
+      'Surallocation quand `($vcpu -gt $coeurs)`.',
+      'L’excédent vaut `$vcpu - $coeurs`.'
     ],
     examples: [
       { stdin: '24\n16', expected: 'surallocation : oui\nexces : 8', note: '8 vCPU de trop.' }
@@ -54,7 +54,8 @@ if ($vcpu -gt $coeurs) {
     brief: '<p>Le script lit une <strong>phase</strong> : <code>conception</code>, ' +
       '<code>provisioning</code>, <code>exploitation</code> ou <code>retrait</code>. Affichez la ' +
       'tâche : <code>tache : definir les besoins</code>, <code>tache : allouer les ressources</code>, ' +
-      '<code>tache : superviser et sauvegarder</code> ou <code>tache : archiver et nettoyer</code>.</p>',
+      '<code>tache : superviser et sauvegarder</code> ou <code>tache : archiver et nettoyer</code>. ' +
+      'Pour une autre phase, affichez <code>tache : inconnue</code>.</p>',
     starter: `$phase = [Console]::In.ReadLine()
 
 # À compléter : avec un switch, afficher la tâche de la phase.
@@ -64,12 +65,14 @@ if ($vcpu -gt $coeurs) {
       'Exploitation → superviser ; Retrait → archiver et nettoyer.'
     ],
     examples: [
-      { stdin: 'provisioning', expected: 'tache : allouer les ressources', note: 'La création des ressources.' }
+      { stdin: 'autre', expected: 'tache : inconnue', note: 'Une phase qui ne figure pas dans la liste est inconnue.' }
     ],
     tests: [
+      { label: 'Phase d’exploitation', stdin: 'exploitation', expected: 'tache : superviser et sauvegarder' },
+      { label: 'Phase de provisioning', stdin: 'provisioning', expected: 'tache : allouer les ressources' },
       { label: 'Phase de conception', stdin: 'conception', expected: 'tache : definir les besoins' },
       { label: 'Fin de vie', stdin: 'retrait', expected: 'tache : archiver et nettoyer' },
-      { label: 'Phase inconnue', stdin: 'autre', expected: 'tache : inconnue' }
+      { label: 'Phase inconnue', stdin: 'migration', expected: 'tache : inconnue' }
     ],
     solution: `$phase = [Console]::In.ReadLine()
 
@@ -100,7 +103,7 @@ $ramVm = [int][Console]::In.ReadLine()
 # À compléter : calculer la capacité utile et afficher "capacite : X".
 `,
     hints: [
-      'Mémoire utile = $ramHote - $ramSysteme.',
+      'Mémoire utile = `$ramHote - $ramSysteme`.',
       'Capacité = division entière de la mémoire utile par $ramVm.'
     ],
     examples: [

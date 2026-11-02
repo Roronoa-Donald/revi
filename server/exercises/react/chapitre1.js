@@ -12,8 +12,8 @@ module.exports = [
     level: 'n1',
     language: 'javascript',
     title: 'Créer un React Element (createElement)',
-    goal: 'Simuler React.createElement en produisant l\'objet virtuel correspondant à une balise et son texte.',
-    brief: '<p>En React, <code>React.createElement(type, props, children)</code> génère un objet décrivant un nœud virtuel. Le programme lit une ligne au format <code>type texte</code> (ex. <code>button Valider</code>). Produisez et affichez l\'objet JSON correspondant sous la forme <code>{"type":"button","props":{"children":"Valider"}}</code>.</p>',
+    goal: 'Simuler une représentation simplifiée d\'un élément créé avec React.createElement.',
+    brief: '<p>La transformation JSX classique peut appeler <code>React.createElement(type, props, children)</code> ; la transformation automatique peut utiliser <code>react/jsx-runtime</code>. Ici, nous simulons seulement un modèle pédagogique simplifié, et non l\'objet React complet. Le programme lit une ligne au format <code>type texte</code> (ex. <code>button Valider</code>). Affichez ce modèle JSON sous la forme <code>{"type":"button","props":{"children":"Valider"}}</code>.</p>',
     starter: `const fs = require('fs');
 const lignes = fs.readFileSync(0, 'utf8').trim().split('\\n');
 

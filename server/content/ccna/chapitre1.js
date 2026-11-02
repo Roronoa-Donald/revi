@@ -94,15 +94,15 @@ module.exports = {
         '  <li><strong>Préambule &amp; SFD (8 octets) :</strong> 7 octets de synchronisation (<code>0xAA</code>) + 1 octet Start Frame Delimiter (<code>0xAB</code>).</li>',
         '  <li><strong>MAC Destination (6 octets, 48 bits) :</strong> Adresse de la carte réseau (NIC) réceptrice.</li>',
         '  <li><strong>MAC Source (6 octets, 48 bits) :</strong> Adresse de la carte réseau émettrice.</li>',
-        '  <li><strong>EtherType (2 octets) :</strong> Identifiez le protocole encapsulé dans le payload (<code>0x0800</code> pour IPv4, <code>0x0806</code> pour ARP, <code>0x86DD</code> pour IPv6).</li>',
+        '  <li><strong>EtherType (2 octets) :</strong> Identifie le protocole encapsulé dans le payload (<code>0x0800</code> pour IPv4, <code>0x0806</code> pour ARP, <code>0x86DD</code> pour IPv6).</li>',
         '  <li><strong>Charge utile (Payload) :</strong> De 46 à 1500 octets (MTU standard). Si inférieur à 46 octets, un padding (bourrage) est ajouté.</li>',
         '  <li><strong>FCS (Frame Check Sequence, 4 octets) :</strong> Somme de contrôle CRC-32 pour détecter les erreurs de transmission sur le support physique.</li>',
         '</ul>',
 
         box('info', 'Typologie des Adresses MAC au niveau binaire', [
-          '<p>Une adresse MAC s’écrit sous forme de 12 caractères hexadécimaux (ex: <code>00:1A:2B:3C:4D:5E</code>). Les 3 premiers octets représentent l’<strong>OUI</strong> (Organizationally Unique Identifier) attribué au constructeur par l’IEEE.</p>',
+          '<p>Une adresse MAC Ethernet courante s’écrit avec 12 chiffres hexadécimaux (ex. <code>00:1A:2B:3C:4D:5E</code>). Dans un bloc MA-L, les 24 premiers bits forment l’<strong>OUI</strong> attribué à une organisation ; d’autres blocs ont un préfixe de 28 ou 36 bits. Une adresse peut être administrée localement ou choisie de façon aléatoire : son suffixe n’est pas nécessairement un numéro de série et son identité n’est pas immuable. Voir la <a href="https://www.rfc-editor.org/rfc/rfc9542">RFC 9542</a>, consultée le 30 octobre 2026.</p>',
           '<ul>',
-          '  <li><strong>Unicast :</strong> Bit de poids faible du premier octet à 0 (bit I/G = 0). Cible une interface matérielle unique.</li>',
+          '  <li><strong>Unicast :</strong> Bit de poids faible du premier octet à 0 (bit I/G = 0). Cible une adresse individuelle, physique ou virtuelle.</li>',
           '  <li><strong>Multicast :</strong> Bit de poids faible du premier octet à 1 (bit I/G = 1). Exemples : <code>01:00:5E:...</code> (IPv4 multicast) ou <code>33:33:...</code> (IPv6 multicast).</li>',
           '  <li><strong>Broadcast (diffusion) :</strong> Tous les 48 bits à 1 (<code>FF:FF:FF:FF:FF:FF</code>). Reçue et traitée par l’ensemble des hôtes du domaine de diffusion.</li>',
           '</ul>'
@@ -238,41 +238,13 @@ module.exports = {
   ],
 
   flashcards: [
-      { q: 'Qu’est-ce que « En-tête Ethernet II (14 octets) » ?', a: 'En-tête Ethernet II (14 octets)' },
-      { q: 'Qu’est-ce que « Adresses MAC (OUI et identifiant NIC) » ?', a: 'Adresses MAC (OUI et identifiant NIC)' },
-      { q: 'Qu’est-ce que « Résolution d’adresses ARP et cache » ?', a: 'Résolution d’adresses ARP et cache' },
-      { q: 'Qu’est-ce que « Adresse IPv4 32 bits » ?', a: 'Adresse IPv4 32 bits : Une entreprise multisite en pleine croissance hérite d’un bloc d’adresses IP sous-dimensionné. Des conflits d’adresses et des pannes de connectivité surviennent régulièrement suite à un partitionnement statique inadapté. L’architecte réseau doit restructurer l’ensemble du plan d’' },
-      { q: 'Qu’est-ce que « Classes A, B, C et plages RFC 1918 » ?', a: 'Classes A, B, C et plages RFC 1918' },
-      { q: 'Qu’est-ce que « Masque de sous-réseau et notation CIDR » ?', a: 'Masque de sous-réseau et notation CIDR' },
-      { q: 'Qu’est-ce que « Découpage VLSM hiérarchique » ?', a: 'Découpage VLSM hiérarchique' },
-      { q: 'Qu’est-ce que « Liaisons point-à-point /30 et RFC 3021 /31 » ?', a: 'Liaisons point-à-point /30 et RFC 3021 /31' },
-      { q: 'Qu’est-ce que « Apprentissage dynamique (Learning) » ?', a: 'analyser le processus d’apprentissage dynamique (Learning), de vieillissement (Aging) et de transmission (Forwarding/Flooding) ;' },
-      { q: 'Qu’est-ce que « Commutation (Forwarding) vs Inondation (Flooding) » ?', a: "Objectif : Modéliser l'apprentissage dynamique d'adresses MAC sur les ports d'un switch et la décision de commutation (forwarding vs inondation/flooding)." },
-      { q: 'Qu’est-ce que « Domaine de collision vs Domaine de diffusion » ?', a: 'Domaine de collision vs Domaine de diffusion' },
-      { q: 'Qu’est-ce que « Tempête de diffusion et absence de TTL Ethernet » ?', a: 'Tempête de diffusion et absence de TTL Ethernet' },
-      { q: 'Qu’est-ce que « Spanning Tree Protocol (STP 802.1D / RSTP 802.1w) » ?', a: 'Dans Spanning Tree Protocol (STP 802.1D / RSTP 802.1w), le commutateur racine est celui qui possède le plus petit Bridge ID (BID). Le Bridge ID est composé de : <Bridge Priority> (entier multiple de 4096 sous Cisco PVST+, défaut 32768) + <MAC de base> . Analysez les paramètres du' },
-      { q: 'Qu’est-ce que « Bridge ID (Priorité + MAC) et élection du Root Bridge » ?', a: 'Bridge ID (Priorité + MAC) et élection du Root Bridge' },
-      { q: 'Qu’est-ce que « Modes d’exécution CLI Cisco IOS » ?', a: 'Modes d’exécution CLI Cisco IOS' },
-      { q: 'Qu’est-ce que « Mot de passe privilégié (enable secret) » ?', a: 'Mot de passe privilégié (enable secret)' },
-      { q: 'Qu’est-ce que « Bannière d’avertissement (banner motd) » ?', a: 'Bannière d’avertissement (banner motd)' },
-      { q: 'Qu’est-ce que « Configuration SSH v2 et clés RSA 2048 bits » ?', a: 'Configuration SSH v2 et clés RSA 2048 bits' },
-      { q: 'Qu’est-ce que « Diagnostic L1/L2 avec show ip interface brief » ?', a: 'Diagnostic L1/L2 avec show ip interface brief' },
-      { q: 'Qu’est-ce que « Routage de niveau 3 et table de routage » ?', a: 'Routage de niveau 3 et table de routage' },
-      { q: 'Qu’est-ce que « Commande « show ip route » et codes C, L, S, O » ?', a: 'Commande « show ip route » et codes C, L, S, O' },
-      { q: 'Qu’est-ce que « Route statique (ip route) et next-hop » ?', a: 'Route statique (ip route) et next-hop' },
-      { q: 'Qu’est-ce que « Résumé de routes et Supernetting CIDR » ?', a: 'Résumé de routes et Supernetting CIDR' },
-      { q: 'Qu’est-ce que « Ports Access vs Liens Trunk » ?', a: 'Ports Access vs Liens Trunk' },
-      { q: 'Qu’est-ce que « VLAN natif et risques de Native VLAN Mismatch » ?', a: 'VLAN natif et risques de Native VLAN Mismatch' },
-      { q: 'Qu’est-ce que « Sécurisation de Trunk (allowed vlan, nonegotiate) » ?', a: 'Sécurisation de Trunk (allowed vlan, nonegotiate)' },
-      { q: 'Qu’est-ce que « Sous-interfaces routeur (encapsulation dot1Q) » ?', a: 'mettre en œuvre le routage inter-VLAN Router-on-a-Stick (ROAS) avec sous-interfaces routeur (encapsulation dot1Q) ;' },
-      { q: 'Qu’est-ce que « Commandes de vérification (show vlan brief, show interfaces trunk) » ?', a: 'Commandes de vérification (show vlan brief, show interfaces trunk)' },
     {
       q: 'Quels sont les PDU des couches 2, 3 et 4 du modèle OSI ?',
       a: 'Couche 2 : Trame (Frame). Couche 3 : Paquet (Packet). Couche 4 : Segment (TCP) ou Datagramme (UDP).'
     },
     {
       q: 'Quelle est la taille d’une adresse MAC et comment est-elle découpée ?',
-      a: 'Une adresse MAC fait 48 bits (6 octets). Les 3 premiers octets représentent l’OUI attribué au constructeur, les 3 derniers le numéro de série unique attribué par le fabricant.'
+      a: 'Une MAC Ethernet courante fait 48 bits. Pour un bloc MA-L, l’OUI de 24 bits est attribué à une organisation ; une adresse peut être administrée localement ou choisie de façon aléatoire. Le suffixe n’est pas forcément un numéro de série.'
     },
     {
       q: 'Quelles sont les valeurs clés du champ EtherType ?',

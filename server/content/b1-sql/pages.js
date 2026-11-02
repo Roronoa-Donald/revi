@@ -2,14 +2,15 @@
  * Pages transverses du cours de bases de données & SQL B1.
  *
  * Elles ne dépendent que du kit de gabarit : accueil, sommaire, atelier (zone
- * libre de scripts Bash au-dessus du simulateur SQL — sql.js en WebAssembly,
+ * libre de requêtes SQL au-dessus du simulateur SQL — sql.js en WebAssembly,
  * jeu de données parc_auto du support), cartes, mémo, examens blancs,
  * exercices. Les chapitres portent en plus trois exercices de code corrigés
  * (catalogue `server/exercises/b1-sql.js`), injectés avant le QCM.
  */
 'use strict';
 
-const { ic, box, qcm, cards, bands, crumb } = require('../../../scripts/course-kit');
+const { ic, box, qcm, cards, bands, crumb, esc } = require('../../../scripts/course-kit');
+const { PARC_SQL } = require('../../../b1-sql/assets/js/sql-simulator');
 
 function chnav(back, forward) {
   const links = ['  <div class="chnav">'];
@@ -53,14 +54,14 @@ function index(course, chapterList) {
     ].join('\n')),
     box('method', 'Comment ce cours s’articule', 'compass', [
       '    <p>Chaque chapitre part d’une question concrète sur le <strong>parc auto</strong> du support ' +
-      '(tables Marque et Voiture : 12 marques, 23 voitures), montre la requête et sa lecture, puis se ' +
-      'termine par <strong>trois exercices de code corrigés</strong> et un QCM. La logique des requêtes — ' +
-      'filtre, jointure, agrégat, privilège — se programme en Bash dans la page et s’exécute réellement ; ' +
-      'les requêtes SQL s’essaient en réel dans le <a href="atelier.html">simulateur intégré</a> : rien ' +
-      'à installer, la base est déjà chargée.</p>',
-      '    <p>Le simulateur tourne sous SQLite (WebAssembly) : les requêtes du cours — SELECT, jointures, ' +
-      'agrégats — y fonctionnent à l’identique de MySQL. Les commandes d’administration (CREATE USER, ' +
-      'GRANT) restent décrites dans le cours et rejouées en Bash, qui sait décider qui a le droit de faire quoi.</p>'
+      '(12 marques et 23 voitures, complétées par des équipements fictifs), montre la requête et sa lecture, puis se ' +
+      'termine par <strong>trois exercices SQL</strong> et un QCM. Les exercices utilisent les mêmes ' +
+      'définitions de tables, avec des données adaptées ; ceux de création partent d’une base vide. ' +
+      'Le <a href="atelier.html">simulateur intégré</a> ' +
+      'charge également le parc automobile : rien à installer.</p>',
+      '    <p>Le simulateur utilise SQLite (WebAssembly). Certains comportements diffèrent de MySQL, ' +
+      'notamment pour les types et les agrégats. Les commandes d’administration MySQL (CREATE USER, ' +
+      'GRANT) sont étudiées, mais ne s’exécutent pas dans ce simulateur SQLite.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
     '  <div class="toc">',
@@ -74,7 +75,36 @@ function index(course, chapterList) {
       '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier &amp; simulateur</a>',
       '      <a class="btn" href="exercices/exercices.html">' + ic('blocks') + ' Exercices guidés</a>',
       '      <a class="btn" href="chapitres/simulateur-examen.html">' + ic('clipboard') + ' Examens blancs</a>',
-      '    </p>'
+      '    </p>',
+      '    <details><summary>Documentation officielle consultée le 29 octobre 2026 ; compléments revérifiés le 30 octobre 2026</summary>',
+      '    <p>SQLite : <a href="https://sqlite.org/lang_createtable.html">tables et contraintes</a>, ' +
+      '<a href="https://sqlite.org/foreignkeys.html">clés étrangères</a>, ' +
+      '<a href="https://sqlite.org/lang_select.html">SELECT et jointures</a>, ' +
+      '<a href="https://sqlite.org/lang_altertable.html">ALTER TABLE</a>, ' +
+      '<a href="https://sqlite.org/lang_update.html">UPDATE</a>, ' +
+      '<a href="https://sqlite.org/isolation.html">isolation</a>, ' +
+      '<a href="https://sqlite.org/datatype3.html">types</a>, ' +
+      '<a href="https://sqlite.org/floatingpoint.html">nombres flottants</a>, ' +
+      '<a href="https://sqlite.org/quirks.html#double_quoted_string_literals_are_accepted">guillemets</a>, ' +
+      '<a href="https://sqlite.org/lang_aggfunc.html">agrégats</a>, ' +
+      '<a href="https://sqlite.org/lang_expr.html">expressions</a>, ' +
+      '<a href="https://sqlite.org/lang_datefunc.html">dates</a>, ' +
+      '<a href="https://sqlite.org/lang_transaction.html">transactions</a>, ' +
+      '<a href="https://sqlite.org/lang_createview.html">vues</a>, ' +
+      '<a href="https://sqlite.org/lang_createindex.html">index</a>, ' +
+      '<a href="https://sqlite.org/eqp.html">plans d’exécution</a>.</p>',
+      '    <p>MySQL 8.4 : <a href="https://dev.mysql.com/doc/refman/8.4/en/fixed-point-types.html">décimaux</a>, ' +
+      '<a href="https://dev.mysql.com/doc/refman/8.4/en/integer-types.html">entiers</a>, ' +
+      '<a href="https://dev.mysql.com/doc/refman/8.4/en/numeric-type-attributes.html">attributs numériques</a>, ' +
+      '<a href="https://dev.mysql.com/doc/refman/8.4/en/char.html">chaînes</a>, ' +
+      '<a href="https://dev.mysql.com/doc/refman/8.4/en/alter-table.html">ALTER TABLE</a>, ' +
+      '<a href="https://dev.mysql.com/doc/refman/8.4/en/group-by-handling.html">agrégats</a>, ' +
+      '<a href="https://dev.mysql.com/doc/refman/8.4/en/account-names.html">noms de comptes</a>, ' +
+      '<a href="https://dev.mysql.com/doc/refman/8.4/en/create-user.html">création de comptes</a>, ' +
+      '<a href="https://dev.mysql.com/doc/refman/8.4/en/grant.html">privilèges</a>, ' +
+      '<a href="https://dev.mysql.com/doc/refman/8.4/en/privileges-provided.html">liste des privilèges</a>, ' +
+      '<a href="https://dev.mysql.com/doc/refman/8.4/en/stored-objects-security.html">sécurité des vues</a>.</p>',
+      '    </details>'
     ].join('\n')),
     disclaimer(course)
   ].join('\n\n');
@@ -107,10 +137,10 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du vocabulaire des bases de données jusqu’aux ' +
     'utilisateurs et privilèges. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de ' +
     'niveau B1 ou supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices de code corrigés</strong> : vous écrivez ' +
-    'vraiment le script, il est réellement exécuté, puis corrigé par des tests que vous ne voyez pas. Toutes ' +
-    'les requêtes du cours s’essaient aussi dans le <a href="atelier.html">simulateur SQL intégré</a> ' +
-    '— base parc_auto déjà chargée, résultats affichés en tableau. L’<a href="exercices/exercices.html">page ' +
+    '  <p>Chaque chapitre propose <strong>trois exercices SQL</strong> sur le schéma du parc, avec des données adaptées et des états de départ précisés. ' +
+    'Leur correction automatique nécessite un service d’exécution configuré et peut être indisponible. ' +
+    'Les requêtes du cours compatibles SQLite s’essaient aussi dans le <a href="atelier.html">simulateur SQL intégré</a> ' +
+    '— base parc_auto déjà chargée, résultats affichés en tableau ; les exemples MySQL sont signalés à part. La <a href="exercices/exercices.html">page ' +
     'exercices</a> propose en plus huit missions graduées avec leurs requêtes de référence.</p>',
     '  <div class="toc">',
     toc,
@@ -120,7 +150,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s’auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo SQL</span><br><span class="toc__d">Syntaxes, ordre des clauses, types et privilèges sur une page.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices guidés</span><br><span class="toc__d">Huit missions SQL graduées sur le parc auto, requêtes de référence incluses.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier &amp; simulateur</span><br><span class="toc__d">Écrire et exécuter des scripts Bash, puis du SQL réel dans le simulateur (base parc_auto chargée).</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier &amp; simulateur</span><br><span class="toc__d">Écrire et exécuter vos requêtes SQL dans le simulateur (base parc_auto chargée).</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l’épreuve, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -139,67 +169,18 @@ function sommaire(course, chapterList) {
 
 /* ======================== Atelier : simulateur SQL ======================== */
 
-const PARC_SQL = [
-  'CREATE TABLE Marque (',
-  '  codemarque TEXT PRIMARY KEY,',
-  '  nommarque  TEXT NOT NULL,',
-  '  paysmarque TEXT NOT NULL',
-  ');',
-  'CREATE TABLE Voiture (',
-  '  immat     TEXT PRIMARY KEY,',
-  '  marque    TEXT NOT NULL,',
-  '  moteur    TEXT NOT NULL,',
-  '  datecirc  TEXT,',
-  '  km        INTEGER NOT NULL,',
-  '  pxachat   INTEGER NOT NULL,',
-  '  nbreplace INTEGER NOT NULL',
-  ');',
-  "INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES",
-  "('TOY','TOYOTA','JAPON'),('MIT','MITSUBISHI','JAPON'),('MAZ','MAZDA','JAPON'),",
-  "('NIS','NISSAN','JAPON'),('SUZ','SUZUKI','JAPON'),('BNZ','MERCEDES BENZ','ALLEMAGNE'),",
-  "('BMW','BMW','ALLEMAGNE'),('KIA','KIA','COREE DU SUD'),('HYU','HYUNDAI','COREE DU SUD'),",
-  "('REN','RENAULT','FRANCE'),('PEU','PEUGEOT','FRANCE'),('MG','MG','ROYAUME-UNI');",
-  "INSERT INTO Voiture (immat, marque, moteur, datecirc, km, pxachat, nbreplace) VALUES",
-  "('TG-7854-Z','MERCEDES BENZ','DIESEL','2000-01-21',500,6000000,5),",
-  "('TG-6733-AB','MERCEDES BENZ','DIESEL','2002-01-21',0,16000000,5),",
-  "('TG-2020-AC','MERCEDES BENZ','ESSENCE','2003-03-21',0,9000000,5),",
-  "('TG-3733-AC','TOYOTA','HYBRIDE','2010-01-21',0,20000000,7),",
-  "('TG-6733-AC','MERCEDES BENZ','DIESEL','2012-01-21',0,9600000,5),",
-  "('TG-5420-AF','SUZUKI','ELECTRIQUE','2013-01-21',10000,21600000,5),",
-  "('TG-9420-AF','TOYOTA','ESSENCE','2013-09-21',0,50000000,7),",
-  "('TG-1200-AK','SUZUKI','ELECTRIQUE','2014-01-21',0,11600000,5),",
-  "('TG-9420-AK','TOYOTA','ESSENCE','2014-09-21',100,50000000,7),",
-  "('TG-0020-AL','TOYOTA','DIESEL','2014-11-21',0,50000000,7),",
-  "('TG-4444-AL','HYUNDAI','ESSENCE','2015-09-21',5,10000000,5),",
-  "('TG-5420-AL','BMW','ESSENCE','2015-10-21',0,50000000,7),",
-  "('TG-0020-AV','MITSUBISHI','ESSENCE','2018-10-21',30,50000000,7),",
-  "('TG-0480-AV','BMW','ELECTRIQUE','2015-12-21',0,50000000,5),",
-  "('TG-1420-AW','MAZDA','ESSENCE','2016-02-01',0,17000000,5),",
-  "('TG-2540-AW','KIA','ESSENCE','2016-10-21',0,50000000,7),",
-  "('TG-5220-BA','NISSAN','ESSENCE','2019-10-21',6700,10000000,5),",
-  "('TG-2222-BC','RENAULT','DIESEL','2020-01-20',0,15000000,5),",
-  "('TG-3333-BC','PEUGEOT','ESSENCE','2021-03-15',0,20000000,5),",
-  "('TG-4444-BC','PEUGEOT','DIESEL','2021-06-10',25000,30000000,7),",
-  "('TG-5555-BC','MG','ESSENCE','2022-08-01',0,20000000,5),",
-  "('TG-6666-BC','TOYOTA','HYBRIDE','2023-05-20',0,25000000,7),",
-  "('TG-7777-BC','HYUNDAI','ELECTRIQUE','2023-09-12',0,23000000,5);"
-].join('\n');
-
 function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
-    '  <h1>Atelier de scripts &amp; simulateur SQL</h1>',
-    '  <p class="lead">Deux machines dans une page : un éditeur Bash dont chaque script est réellement ' +
-    'exécuté côté serveur, et un vrai moteur SQL — base <strong>parc_auto</strong> du support déjà ' +
-    'chargée (12 marques, 23 voitures). La logique des requêtes se programme en Bash, les requêtes ' +
-    's’essaient en réel : rien à installer.</p>',
+    '  <h1>Atelier et simulateur SQL</h1>',
+    '  <p class="lead">Deux espaces SQLite dans votre navigateur : la zone libre et le simulateur démarrent ' +
+    'sur le même <strong>parc_auto</strong> (12 marques, 23 voitures), sans partager leurs modifications.</p>',
 
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
-      '      <li><strong>Valider</strong> vérifie la conformité de vos réponses dans la grille d’analyse.</li>',
-      '      <li><strong>Données du cas</strong> contient les paramètres soumis à l’étude.</li>',
-      '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n’écrit jamais de code à votre place.</li>',
-      '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l’éditeur ; votre code est conservé dans ce navigateur.</li>',
+      '      <li>Dans la zone libre, chaque exécution repart d’une copie du parc. Pour commencer sur une base vide, effacez le script de préparation dans « Entrée du programme ».</li>',
+      '      <li>Le moteur SQL fonctionne dans le navigateur ; la disponibilité du tuteur dépend de la configuration du service.</li>',
+      '      <li>Dans le simulateur ci-dessous, <strong>Ctrl + Entrée</strong> lance les requêtes localement et votre script est conservé dans ce navigateur.</li>',
       '    </ul>'
     ].join('\n')),
 
@@ -209,26 +190,20 @@ function atelier(course) {
       '     data-language="sql"',
       '     data-height="360"',
       '     data-languages="1"',
-      '     data-stdin="">',
-      '  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie du cours.\n# Rédigez votre analyse sous forme de grille structurée.\n\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
+      '     data-stdin="' + esc(PARC_SQL).replace(/\r?\n/g, '&#10;') + '">',
+      '  <script type="text/plain" data-lab-starter>SELECT COUNT(*) AS nb FROM Voiture;\n</script>',
       '  <div class="lab__head">',
-      '    <h3 class="lab__title">Zone libre — contrôleur de privilèges</h3>',
+      '    <h3 class="lab__title">Zone libre — requêtes SQL</h3>',
       '    <div class="lab__meta">',
-      '      <span class="lab__lang">' + ic('terminal') + ' Bash</span>',
+      '      <span class="lab__lang">' + ic('terminal') + ' SQL</span>',
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez une règle ' +
-      'du cours (filtre WHERE, jointure, GROUP BY, privilèges GRANT et REVOKE), programmez-la en Bash et ' +
-      'testez-la sur des cas limites.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> écrire une requête SQL et observer son résultat.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le script proposé rejoue la matrice des privilèges du chapitre 6 : lecture, écriture, ' +
-      'administration. Transforme-le : ajoute un rôle, refuse grant à l’écriture, journalise chaque refus, ' +
-      'ou remplace tout le script par la règle SQL que vous voulez vérifier.</p>',
-      '      <p>Dans le vrai SGBD, ces décisions vivent dans GRANT et REVOKE : la structure du script — ' +
-      'lire, décider, rapporter — reste exactement la même.</p>',
+      '      <p>La requête initiale compte les voitures du parc. Le script de préparation est modifiable dans « Entrée du programme ».</p>',
       '    </div>',
-      '    <p class="lab__note">Le simulateur SQL plus bas exécute les requêtes elles-mêmes : utilisez-le pour voir le résultat réel d’un SELECT.</p>',
+      '    <p class="lab__note">Les deux espaces exécutent SQLite localement ; seul le simulateur conserve les modifications entre deux exécutions.</p>',
       '  </div>',
       '</div>'
     ].join('\n'),
@@ -243,11 +218,12 @@ function atelier(course) {
       '      <li><strong>Exécuter</strong> (ou Ctrl + Entrée) lance tout ce qui est écrit dans l’éditeur, requête par requête, et affiche le résultat de la dernière.</li>',
       '      <li><strong>Réinitialiser</strong> reconstruit la base parc_auto à l’état initial — après un UPDATE ou un DELETE trop large, c’est le bouton magique.</li>',
       '      <li><strong>Historique</strong> garde vos requêtes de la session ; <strong>Exporter</strong> copie le résultat en CSV.</li>',
-      '      <li>Le moteur est <strong>SQLite</strong> (WebAssembly) : toutes les requêtes du cours y fonctionnent. Les commandes d’administration (CREATE USER, GRANT) restent du papier.</li>',
+      '      <li>Le moteur est <strong>SQLite</strong> (WebAssembly) : les exemples signalés MySQL, notamment CREATE USER, GRANT et MODIFY COLUMN, ne s’y exécutent pas.</li>',
       '      <li>Votre script est conservé dans ce navigateur ; aucune donnée ne quitte votre machine.</li>',
       '    </ul>'
     ].join('\n')),
 
+    '  <p>Une requête interrompue après quatre secondes entraîne la réinitialisation de la base : les modifications précédentes sont perdues. Les résultats sont limités à 2 000 lignes par instruction et à environ 1 Mo au total ; les allocations gérées par SQLite sont limitées à 32 Mio.</p>',
     '  <div class="sqlsim" id="sqlsim">',
     '    <div class="sqlsim__bar">',
     '      <button class="btn btn--primary" id="sqlsim-run">' + ic('play') + ' Exécuter</button>',
@@ -257,7 +233,7 @@ function atelier(course) {
     '    </div>',
     '    <div class="sqlsim__grid">',
     '      <div class="sqlsim__editor">',
-    '        <textarea id="sqlsim-query" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Requête SQL">-- Le parc au complet (23 lignes) :\nSELECT * FROM Voiture LIMIT 10;\n\n-- Compte par marque, du plus fourni au plus rare :\nSELECT marque, COUNT(*) AS nb\nFROM Voiture\nGROUP BY marque\nORDER BY nb DESC, marque;</textarea>',
+    '        <textarea id="sqlsim-query" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Requête SQL">-- Compte par marque, du plus fourni au plus rare :\nSELECT marque, COUNT(*) AS nb\nFROM Voiture\nGROUP BY marque\nORDER BY nb DESC, marque;\n\n-- Le parc au complet (23 lignes) :\nSELECT * FROM Voiture;</textarea>',
     '      </div>',
     '      <div class="sqlsim__out">',
     '        <div class="sqlsim__tabs" role="tablist">',
@@ -280,24 +256,28 @@ function atelier(course) {
       '    <p>Deux tables, fidèles au support :</p>',
       '    <ul>',
       '      <li><strong>Marque</strong> (codemarque, nommarque, paysmarque) : 12 lignes, de TOYOTA à MG.</li>',
-      '      <li><strong>Voiture</strong> (immat, marque, moteur, datecirc, km, pxachat, nbreplace) : 23 lignes, moteurs DIESEL/ESSENCE/HYBRIDE/ELECTRIQUE, prix de 6 à 50 millions, dates de 2000 à 2023.</li>',
+      '      <li><strong>Voiture</strong> (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) : 23 lignes, moteurs DIESEL/ESSENCE/HYBRIDE/ELECTRIQUE, prix de 6 à 50 millions, dates de 2000 à 2023.</li>',
       '    </ul>',
-      '    <p>Le lien entre les deux est la colonne <strong>marque</strong> de Voiture, qui porte le ' +
-      'nommarque — c’est elle qu’utilisent les jointures du chapitre 4. Après une modification, ' +
+      '    <p>Les clés primaires <strong>Marque.codemarque</strong> et <strong>Voiture.immat</strong> ' +
+      'sont non nulles. La clé étrangère composée de Voiture vérifie ensemble son code et son nom ' +
+      'contre <strong>Marque(codemarque, nommarque)</strong>. Dans Voiture, seule ' +
+      '<strong>datecirc</strong> accepte NULL ; les prix du jeu initial sont des entiers en francs. ' +
+      'SQLite applique ici des affinités de type : INTEGER et TEXT ne valident pas à eux seuls toutes les valeurs. Les clés étrangères ' +
+      'sont activées à l’initialisation de la connexion SQLite. Après une modification, ' +
       '<strong>Réinitialiser la base</strong> revient à l’état initial.</p>'
     ].join('\n')),
 
     '  <h2>Missions guidées</h2>',
-    '  <p>Huit missions, de la lecture simple à l’analyse groupée : la validation se fait dans le ' +
-    'simulateur, en comparant votre résultat au résultat de référence — chaque mission note le nombre de ' +
-    'lignes et la première ligne attendue.</p>',
+    '  <p>Huit missions progressives sont proposées sous le tableau. Écrivez d’abord votre requête dans le ' +
+    'simulateur : les résultats sont comparés aux tableaux de référence sur la base initiale. Une ' +
+    'correspondance aide à vérifier votre réponse sans prouver qu’elle fonctionne sur tous les jeux de données.</p>',
     box('method', 'Démarche conseillée', 'compass', [
       '    <ol>',
       '      <li><strong>Lisez la question</strong> et formulez-la en français : quelles colonnes, quelles lignes, quel ordre ?</li>',
       '      <li><strong>Écrivez le squelette</strong> (SELECT…FROM…WHERE…) puis complétez la condition.</li>',
       '      <li><strong>Exécutez</strong> et comparez au résultat de référence affiché sous le simulateur.</li>',
-      '      <li><strong>Corrige</strong> : nombre de lignes différent ? La condition WHERE ou le GROUP BY est en cause.</li>',
-      '      <li><strong>Réinitialise</strong> la base entre deux essais de mission qui modifient les données.</li>',
+      '      <li><strong>Corrigez</strong> : comparez les valeurs, les filtres et l’ordre demandé.</li>',
+      '      <li><strong>Réinitialisez</strong> la base entre deux essais de mission qui modifient les données.</li>',
       '    </ol>'
     ].join('\n')),
     chnav({ href: 'sommaire.html', label: 'Sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Chapitre 1 — Bases de données' }),
@@ -307,9 +287,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de scripts &amp; simulateur SQL | ' + course.brand,
-      description: 'Atelier du cours de bases de données B1 : scripts Bash réellement exécutés, tuteur ' +
-        'd’erreurs, et simulateur SQL complet (base parc_auto chargée, missions guidées et mode examen).',
+      title: 'Atelier et simulateur SQL | ' + course.brand,
+      description: 'Atelier SQL B1 : zone libre et simulateur SQLite local avec parc_auto, missions et mode examen.',
       active: 'atelier',
       body,
       sqlSimulator: true,
@@ -370,25 +349,29 @@ function formules(course) {
       '  </table>'
     ].join('\n')),
 
-    bloc('Types de colonnes', [
+    bloc('Types de colonnes : MySQL et SQLite', [
+      '<p>Repères MySQL :</p>',
       '<pre><code>entiers        TINYINT, SMALLINT, MEDIUMINT, INT, BIGINT\n',
-      'décimaux exacts  DECIMAL(p, s)   -- l’argent : toujours DECIMAL\n',
+      'décimaux exacts  DECIMAL(p, s)   -- prix avec centimes\n',
       'mesures         FLOAT, DOUBLE    -- arrondis possibles\n',
       'chaînes fixes   CHAR(x)          -- complété d’espaces\n',
       'chaînes variables  VARCHAR(x)    -- stocké tel quel\n',
       'temps           DATE \'AAAA-MM-JJ\', TIME \'HH:MM:SS\', DATETIME, TIMESTAMP, YEAR</code></pre>',
-      '<p>INT(x) ne change que l’affichage (avec ZEROFILL), pas le stockage.</p>'
+      '<p>En MySQL, INT(x) ne change pas la capacité de stockage. Dans SQLite, les noms de types ' +
+      'déterminent une affinité : VARCHAR(x) ne limite pas la longueur et DECIMAL ne garantit pas un ' +
+      'calcul décimal exact. Le parc utilise TEXT pour les dates et INTEGER pour les prix en francs.</p>'
     ].join('\n')),
 
-    bloc('Ordre des clauses (et de l’exécution)', [
+    bloc('Ordre des clauses', [
       '<pre><code>SELECT   colonnes, agrégats\n',
       'FROM     tables (jointures)\n',
       'WHERE    filtre les LIGNES\n',
       'GROUP BY découpe en GROUPES\n',
-      'HAVING   filtre les GROUPES (condition avec agrégat)\n',
+      'HAVING   filtre les GROUPES\n',
       'ORDER BY trie (ASC par défaut, DESC décroissant)\n',
       'LIMIT    n [OFFSET d]   borne le résultat</code></pre>',
-      '<p>L’ordre d’écriture est imposé ; une clause déplacée est une erreur de syntaxe.</p>'
+      '<p>Ordre d’écriture : ci-dessus. Ordre logique : FROM, WHERE, GROUP BY, HAVING, SELECT, ' +
+      'ORDER BY, LIMIT. L’optimiseur peut choisir un autre ordre physique.</p>'
     ].join('\n')),
 
     bloc('Opérateurs de WHERE', [
@@ -403,12 +386,13 @@ function formules(course) {
     bloc('Jointures', [
       '<pre><code>SELECT V.immat, M.nommarque\n',
       'FROM Voiture V\n',
-      'INNER JOIN Marque M ON V.marque = M.nommarque   -- correspondances seules\n',
+      'INNER JOIN Marque M ON V.codemarque = M.codemarque;\n',
       '\n',
-      'FROM Marque M\n',
-      'LEFT JOIN Voiture V ON …   -- toute la table de gauche, NULL à droite</code></pre>',
+      'SELECT M.nommarque, V.immat FROM Marque M\n',
+      'LEFT JOIN Voiture V ON V.codemarque = M.codemarque;</code></pre>',
       '<p>Sur une LEFT JOIN, compter COUNT(V.colonne) et non COUNT(*) : les NULL ne se comptent pas. ' +
-      'Deux tables qui partagent un nom de colonne : toujours préfixer par l’alias.</p>'
+      'Deux tables qui partagent un nom de colonne : préfixez par l’alias. USING et NATURAL sont ' +
+      'd’autres formes ; CROSS JOIN sans condition produit un produit cartésien.</p>'
     ].join('\n')),
 
     bloc('Agrégation', [
@@ -418,8 +402,10 @@ function formules(course) {
       'MIN(x) / MAX(x)       extrêmes (nombres, textes, dates)\n',
       'SUM(x) / AVG(x)       somme / moyenne (colonnes numériques)\n',
       '\n',
-      'GROUP BY col          toute colonne du SELECT y figure ou est agrégée\n',
-      'HAVING COUNT(*) &gt; 2   filtre les groupes (jamais WHERE avec un agrégat)</code></pre>'
+      'GROUP BY col          privilégier colonnes regroupées et agrégats\n',
+      'HAVING COUNT(*) &gt; 2   filtre les groupes (pas d’agrégat direct du même SELECT dans WHERE)</code></pre>',
+      '<p>SQLite peut accepter une colonne non regroupée, choisie sans garantie dans le groupe ; ' +
+      'HAVING peut aussi filtrer le groupe global d’une requête agrégée sans GROUP BY.</p>'
     ].join('\n')),
 
     bloc('Modification et droits', [
@@ -432,7 +418,8 @@ function formules(course) {
       'GRANT SELECT ON base.table TO \'login\'@\'hote\';\n',
       'REVOKE SELECT ON base.table FROM \'login\'@\'hote\';\n',
       'GRANT ALL PRIVILEGES ON base.* TO … WITH GRANT OPTION;   -- ALL seul ; OPTION = délégation</code></pre>',
-      '<p>Tester toute modification par le SELECT équivalent avant de l’exécuter.</p>'
+      '<p>Les exemples CREATE USER, GRANT et REVOKE ci-dessus concernent MySQL, pas SQLite. ' +
+      'Testez toute modification par le SELECT équivalent avant de l’exécuter.</p>'
     ].join('\n')),
 
     chnav({ href: 'cartes.html', label: 'Cartes' }, { href: 'simulateur-examen.html', label: 'Examens blancs' })
@@ -451,6 +438,19 @@ function formules(course) {
 
 /* ======================== Examens blancs ======================== */
 
+const EXAMEN_QCM = [
+  { stem: 'Dans un jeu hypothétique de 34 voitures dont 9 dates sont NULL, que vaut COUNT(datecirc) ?', opts: ['34', '25', '9'], correct: 1, exp: 'COUNT(colonne) ignore les NULL : 34 − 9 = 25 ; ce jeu diffère des 23 voitures initiales.' },
+  { stem: 'Comment teste-t-on NULL dans WHERE ?', opts: ['= NULL', 'IS NULL', 'LIKE NULL'], correct: 1, exp: '= NULL ne renvoie jamais vrai.' },
+  { stem: 'Une jointure interne retient…', opts: ['toutes les lignes des deux tables', 'les correspondances des deux côtés', 'les lignes de gauche'], correct: 1, exp: 'Sans correspondance des deux côtés, la ligne disparaît.' },
+  { stem: 'Sur une LEFT JOIN, compter les voitures par marque, c’est…', opts: ['COUNT(*)', 'COUNT(V.immat)', 'SUM(*)'], correct: 1, exp: 'COUNT(colonne) ignore les NULL des marques sans voiture.' },
+  { stem: 'La clause qui filtre les groupes est…', opts: ['WHERE', 'HAVING', 'ORDER BY'], correct: 1, exp: 'HAVING porte sur le résultat du regroupement, souvent avec un agrégat.' },
+  { stem: 'Dans le parc SQLite, quel type stocke le prix en francs entiers ?', opts: ['FLOAT', 'TEXT', 'INTEGER'], correct: 2, exp: 'Le schéma déclare pxachat INTEGER ; les prix du parc sont des entiers en francs.' },
+  { stem: 'Dans le parc SQLite, quelle chaîne représente le 21 novembre 2014 ?', opts: ['\'21/11/2014\'', '\'2014-11-21\'', '21-11-2014'], correct: 1, exp: 'Le parc utilise une chaîne au format année, mois, jour.' },
+  { stem: 'UPDATE sans WHERE…', opts: ['est refusé', 'modifie toutes les lignes', 'ne fait rien'], correct: 1, exp: 'La condition limite la modification ; sans elle, toute la table est touchée.' },
+  { stem: 'En MySQL 8.4, si le joker est actif, \'yeslows\'@\'%\' utilise quel motif d’hôte ?', opts: ['localhost seulement', 'tout hôte', 'aucun mot de passe'], correct: 1, exp: '% désigne un motif d’hôte général ; son usage dans l’hôte est déprécié et ne garantit pas l’authentification.' },
+  { stem: 'En MySQL, GRANT OPTION sert à…', opts: ['tout faire sur la base', 'transmettre ses propres privilèges à d’autres', 'créer des tables'], correct: 1, exp: 'Le droit de déléguer, jamais inclus dans ALL.' }
+];
+
 function examens(course) {
   const sujets = [
     {
@@ -461,7 +461,7 @@ function examens(course) {
           num: 'Exercice 1',
           badge: '/4 — Lecture filtrée',
           text: 'Écrivez la requête qui liste les voitures diesel mises en circulation avant 2015, de la plus ancienne à la plus récente (immatriculation, marque, date).',
-          sol: '<code>SELECT immat, marque, datecirc FROM Voiture<br>WHERE moteur = \'DIESEL\' AND datecirc &lt; \'2015-01-01\'<br>ORDER BY datecirc;</code><br>Résultat : 4 lignes — TG-7854-Z (2000), TG-6733-AB (2002), TG-6733-AC (2012), TG-0020-AL (2014).'
+          sol: '<code>SELECT immat, marque, datecirc FROM Voiture<br> WHERE moteur = \'DIESEL\' AND datecirc &lt; \'2015-01-01\'<br> ORDER BY datecirc;</code><br>Résultat : 4 lignes — TG-7854-Z (2000), TG-6733-AB (2002), TG-6733-AC (2012), TG-0020-AL (2014).'
         },
         {
           num: 'Exercice 2',
@@ -473,13 +473,13 @@ function examens(course) {
           num: 'Exercice 3',
           badge: '/5 — Jointure',
           text: 'Listez les voitures japonaises (immatriculation et marque), triées par immatriculation. Combien y en a-t-il ?',
-          sol: '<code>SELECT V.immat, V.marque FROM Voiture V<br>INNER JOIN Marque M ON V.marque = M.nommarque<br>WHERE M.paysmarque = \'JAPON\' ORDER BY V.immat;</code><br>10 voitures : les marques TOYOTA (5), SUZUKI (2), MITSUBISHI (1), MAZDA (1), NISSAN (1).'
+          sol: '<code>SELECT V.immat, V.marque FROM Voiture V<br> INNER JOIN Marque M ON V.codemarque = M.codemarque<br> WHERE M.paysmarque = \'JAPON\' ORDER BY V.immat;</code><br>10 voitures : les marques TOYOTA (5), SUZUKI (2), MITSUBISHI (1), MAZDA (1), NISSAN (1).'
         },
         {
           num: 'Exercice 4',
           badge: '/6 — Analyse complète',
           text: 'Quelles marques ont strictement plus de deux voitures dans le parc ? Donnez leur effectif, du plus grand au plus petit.',
-          sol: '<code>SELECT marque, COUNT(*) AS nb FROM Voiture<br>GROUP BY marque HAVING COUNT(*) &gt; 2<br>ORDER BY nb DESC;</code><br>TOYOTA (5) et MERCEDES BENZ (4). Le filtre porte sur un groupe : HAVING, pas WHERE.'
+          sol: '<code>SELECT marque, COUNT(*) AS nb FROM Voiture<br> GROUP BY marque HAVING COUNT(*) &gt; 2<br> ORDER BY nb DESC;</code><br>TOYOTA (5) et MERCEDES BENZ (4). Le filtre porte sur un groupe : HAVING, pas WHERE.'
         }
       ]
     },
@@ -490,19 +490,19 @@ function examens(course) {
         {
           num: 'Exercice 1',
           badge: '/5 — Création',
-          text: 'Écrivez le CREATE TABLE de la table Marque avec clé primaire, puis l’INSERT de TOYOTA (code TOY, Japon).',
-          sol: '<code>CREATE TABLE Marque (<br>&nbsp;&nbsp;codemarque CHAR(3) PRIMARY KEY,<br>&nbsp;&nbsp;nommarque VARCHAR(20) NOT NULL,<br>&nbsp;&nbsp;paysmarque VARCHAR(15) NOT NULL<br>);</code><br><code>INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES (\'TOY\', \'TOYOTA\', \'JAPON\');</code>'
+          text: 'Dans une base SQLite vierge, créez la table Marque du parc avec ses contraintes, puis insérez TOYOTA (code TOY, Japon).',
+          sol: '<pre><code>CREATE TABLE Marque (\n  codemarque TEXT NOT NULL PRIMARY KEY,\n  nommarque TEXT NOT NULL UNIQUE,\n  paysmarque TEXT NOT NULL,\n  UNIQUE (codemarque, nommarque)\n);\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES (\'TOY\', \'TOYOTA\', \'JAPON\');</code></pre>'
         },
         {
           num: 'Exercice 2',
           badge: '/5 — Modification',
-          text: 'Le parc devient 100 % électrique : toutes les voitures de marque TOYOTA passent en moteur ELECTRIQUE. Écrivez l’UPDATE, puis expliquez pourquoi on teste d’abord par SELECT.',
-          sol: '<code>UPDATE Voiture SET moteur = \'ELECTRIQUE\' WHERE marque = \'TOYOTA\';</code><br>Le SELECT avec le même WHERE ramène exactement les lignes qui seront modifiées (5 ici) : on voit avant de toucher. Sans WHERE, toute la table passerait en électrique.'
+          text: 'Toutes les voitures de marque TOYOTA passent en moteur ELECTRIQUE. Écrivez l’UPDATE, puis expliquez pourquoi on teste d’abord par SELECT.',
+          sol: '<code>UPDATE Voiture SET moteur = \'ELECTRIQUE\' WHERE marque = \'TOYOTA\';</code><br>Le SELECT avec le même WHERE repère les lignes visées (5 dans la base initiale). Contraintes ou changements concurrents peuvent ensuite modifier le résultat. Sans WHERE, toute la table passerait en électrique.'
         },
         {
           num: 'Exercice 3',
           badge: '/5 — Droits',
-          text: 'Créez l’utilisateur gestionnaire se connectant uniquement depuis localhost (mot de passe au choix) et accordez-lui la consultation de toute la base, mais l’écriture seulement sur Voiture.',
+          text: 'En MySQL, créez l’utilisateur gestionnaire se connectant uniquement depuis localhost et accordez-lui la consultation de toute la base, mais l’écriture seulement sur Voiture. Cette partie ne s’exécute pas dans SQLite.',
           sol: '<code>CREATE USER \'gestionnaire\'@\'localhost\' IDENTIFIED BY \'...mdp...\';</code><br><code>GRANT SELECT ON parc_auto.* TO \'gestionnaire\'@\'localhost\';</code><br><code>GRANT INSERT, UPDATE, DELETE ON parc_auto.Voiture TO \'gestionnaire\'@\'localhost\';</code><br>Principe du moindre privilège : chaque GRANT donne le minimum nécessaire.'
         },
         {
@@ -523,25 +523,12 @@ function examens(course) {
     '  </div>'
   ].join('\n');
 
-  const mastery = [
-    { stem: 'Que vaut COUNT(immat) sur 34 lignes dont 9 immat NULL ?', opts: ['34', '25', '9'], correct: 1, exp: 'COUNT(colonne) ignore les NULL : 34 − 9 = 25.' },
-    { stem: 'Comment teste-t-on NULL dans WHERE ?', opts: ['= NULL', 'IS NULL', 'LIKE NULL'], correct: 1, exp: '= NULL ne renvoie jamais vrai.' },
-    { stem: 'Une jointure interne retient…', opts: ['toutes les lignes des deux tables', 'les correspondances des deux côtés', 'les lignes de gauche'], correct: 1, exp: 'Sans correspondance des deux côtés, la ligne disparaît.' },
-    { stem: 'Sur une LEFT JOIN, compter les voitures par marque, c’est…', opts: ['COUNT(*)', 'COUNT(V.immat)', 'SUM(*)'], correct: 1, exp: 'COUNT(colonne) ignore les NULL des marques sans voiture.' },
-    { stem: 'La clause qui filtre les groupes est…', opts: ['WHERE', 'HAVING', 'ORDER BY'], correct: 1, exp: 'HAVING porte sur le résultat du regroupement, souvent avec un agrégat.' },
-    { stem: 'Quel type pour un prix en francs ?', opts: ['FLOAT', 'DECIMAL', 'INT'], correct: 1, exp: 'DECIMAL calcule en décimal exact.' },
-    { stem: 'Un littéral DATE s’écrit…', opts: ['\'21/11/2014\'', '\'2014-11-21\'', '21-11-2014'], correct: 1, exp: 'Année, mois, jour, quoté.' },
-    { stem: 'UPDATE sans WHERE…', opts: ['est refusé', 'modifie toutes les lignes', 'ne fait rien'], correct: 1, exp: 'La condition limite la modification ; sans elle, toute la table est touchée.' },
-    { stem: '\'yeslows\'@\'%\' permet de se connecter…', opts: ['depuis localhost seulement', 'depuis n’importe quel hôte', 'sans mot de passe'], correct: 1, exp: 'Le joker % désigne tous les hôtes.' },
-    { stem: 'GRANT OPTION sert à…', opts: ['tout faire sur la base', 'transmettre ses propres privilèges à d’autres', 'créer des tables'], correct: 1, exp: 'Le droit de déléguer, jamais inclus dans ALL.' }
-  ];
-
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Examens' }]),
     '  <h1>Simulateur d’examen</h1>',
     '  <p class="lead">Deux sujets blancs chronométrés, dans l’esprit de l’épreuve (durée 2 h, /20). ' +
-    'Écrivez les requêtes <strong>dans le simulateur</strong> pour vérifier vos réponses, puis corrigez-vous ' +
-    'sévèrement avec les corrigés.</p>',
+    'Vérifiez les requêtes SQLite sur le parc ou, si une base vierge est demandée, effacez le script de préparation dans la zone SQL libre. ' +
+    'Les questions de droits MySQL ne s’exécutent pas dans SQLite. Corrigez-vous avec les corrigés.</p>',
     [
       '  <div class="box box--method" data-timer data-minutes="120">',
       '    <div class="box__title">' + ic('clock') + ' Chronomètre d’examen — 2 h</div>',
@@ -554,7 +541,7 @@ function examens(course) {
     sujets.map(sujet => '  <h2>' + sujet.title + '</h2>\n\n  <p class="lead">' + sujet.intro + '</p>\n\n' +
       sujet.items.map(itemHtml).join('\n\n')).join('\n\n'),
     '  <h2>QCM final — toutes notions</h2>',
-    '  ' + qcm(mastery, { mastery: true }),
+    '  ' + qcm(EXAMEN_QCM, { mastery: true }),
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les requêtes des chapitres faibles dans le simulateur.' },
@@ -592,45 +579,57 @@ function exercices(course) {
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Exercices' }]),
     '  <h1>Exercices supplémentaires &amp; cas pratiques SQL</h1>',
-    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier de requêtage et d’optimisation relationnelle.</p>',
+    '  <p class="lead">De la pratique graduée sur le parc du simulateur, puis un dossier de conception ' +
+    'indépendant. Réinitialisez le parc après les exemples qui modifient sa structure ou ses données.</p>',
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
-      'Sélectionner des colonnes spécifiques avec projection SELECT et filtrage simple WHERE.',
-      'Éliminer les doublons dans les résultats avec le mot-clé DISTINCT.',
-      'Trier les résultats avec ORDER BY (ASC / DESC) et limiter le nombre de lignes retournées avec LIMIT.',
-      'Filtrer sur des intervalles (BETWEEN) ou des listes de valeurs (IN).'
+      'Affichez les immatriculations et marques des voitures diesel.',
+      'Listez les pays des marques sans doublon.',
+      'Affichez les dix voitures les plus récentes avec ORDER BY et LIMIT.',
+      'Affichez les voitures dont le prix est compris entre 20 et 30 millions de francs.'
     ], [
-      '<p><strong>1. Projection :</strong> <code>SELECT nom, email FROM clients WHERE ville = \'Paris\';</code></p>',
-      '<p><strong>2. Dédoublonnage :</strong> <code>SELECT DISTINCT pays FROM fournisseurs;</code></p>',
-      '<p><strong>3. Tri &amp; pagination :</strong> <code>SELECT * FROM commandes ORDER BY date_commande DESC LIMIT 10;</code></p>',
-      '<p><strong>4. Intervalles :</strong> <code>SELECT * FROM produits WHERE prix BETWEEN 20 AND 50;</code></p>'
+      '<p><strong>1. Projection :</strong> <code>SELECT immat, marque FROM Voiture WHERE moteur = \'DIESEL\';</code></p>',
+      '<p><strong>2. Dédoublonnage :</strong> <code>SELECT DISTINCT paysmarque FROM Marque;</code></p>',
+      '<p><strong>3. Tri &amp; pagination :</strong> <code>SELECT * FROM Voiture ORDER BY datecirc DESC, immat ASC LIMIT 10;</code></p>',
+      '<p><strong>4. Intervalle inclus :</strong> <code>SELECT * FROM Voiture WHERE pxachat BETWEEN 20000000 AND 30000000;</code></p>'
     ].join('\n')),
 
     '  <h2>Application</h2>',
     item('Application', 'n2', [
-      'Effectuer des jointures internes (INNER JOIN) entre plusieurs tables reliées par clés primaires et étrangères.',
-      'Utiliser les jointures externes (LEFT JOIN / RIGHT JOIN) pour conserver les enregistrements sans correspondance.',
-      'Calculer des agrégats (COUNT, SUM, AVG, MIN, MAX) regroupés par catégories avec GROUP BY.',
-      'Filtrer les résultats agrégés avec la clause HAVING.'
+      'Associez chaque voiture à sa marque par INNER JOIN.',
+      'Listez les marques sans voiture avec LEFT JOIN ; exprimez aussi la requête avec RIGHT JOIN.',
+      'Calculez le nombre et le prix moyen des voitures par moteur.',
+      'Listez les marques dont le budget total dépasse 100 millions de francs.'
     ], [
-      '<p><strong>1. Jointure interne :</strong> <code>SELECT c.nom, cmd.id FROM clients c INNER JOIN commandes cmd ON c.id = cmd.client_id;</code></p>',
-      '<p><strong>2. Jointure externe :</strong> <code>SELECT c.nom, cmd.id FROM clients c LEFT JOIN commandes cmd ON c.id = cmd.client_id WHERE cmd.id IS NULL;</code> (clients sans commande).</p>',
-      '<p><strong>3. Agrégation :</strong> <code>SELECT categorie, COUNT(*), AVG(prix) FROM produits GROUP BY categorie;</code></p>',
-      '<p><strong>4. Filtrage d’agrégat :</strong> <code>SELECT client_id, SUM(total) FROM commandes GROUP BY client_id HAVING SUM(total) > 1000;</code></p>'
+      '<p><strong>1. Jointure interne :</strong> <code>SELECT V.immat, M.nommarque FROM Voiture V INNER JOIN Marque M ON V.codemarque = M.codemarque;</code></p>',
+      '<p><strong>2. Jointure externe :</strong> <code>SELECT M.nommarque FROM Marque M LEFT JOIN Voiture V ON V.codemarque = M.codemarque WHERE V.immat IS NULL;</code> ' +
+      'Forme symétrique : <code>SELECT M.nommarque FROM Voiture V RIGHT JOIN Marque M ON V.codemarque = M.codemarque WHERE V.immat IS NULL;</code> ' +
+      'Dans le parc initial, ces requêtes renvoient zéro ligne ; ajoutez une marque sans voiture pour observer la différence.</p>',
+      '<p><strong>3. Agrégation :</strong> <code>SELECT moteur, COUNT(*), AVG(pxachat) FROM Voiture GROUP BY moteur;</code></p>',
+      '<p><strong>4. Filtrage d’agrégat :</strong> <code>SELECT marque, SUM(pxachat) FROM Voiture GROUP BY marque HAVING SUM(pxachat) &gt; 100000000;</code></p>'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
     item('Raisonnement', 'n3', [
-      'Écrire des sous-requêtes corrélées et imbriquées (IN, EXISTS, NOT EXISTS).',
-      'Gérer les transactions ACID avec BEGIN, COMMIT et ROLLBACK.',
-      'Créer et manipuler des vues (CREATE VIEW) pour sécuriser l’accès aux données.',
-      'Analyser le plan d’exécution d’une requête avec EXPLAIN pour justifier la création d’un index (INDEX).'
+      'Écrivez des sous-requêtes corrélées ou imbriquées avec IN, EXISTS et NOT EXISTS.',
+      'Essayez BEGIN, COMMIT et ROLLBACK sur une modification du kilométrage.',
+      'Créez une vue des achats mensuels et interrogez-la.',
+      'Créez un index et consultez un plan avec EXPLAIN QUERY PLAN.'
     ], [
-      '<p><strong>1. Sous-requête EXISTS :</strong> <code>SELECT nom FROM clients c WHERE EXISTS (SELECT 1 FROM commandes cmd WHERE cmd.client_id = c.id AND cmd.total > 500);</code></p>',
-      '<p><strong>2. Transaction :</strong> <code>BEGIN; UPDATE comptes SET solde = solde - 100 WHERE id = 1; UPDATE comptes SET solde = solde + 100 WHERE id = 2; COMMIT;</code></p>',
-      '<p><strong>3. Vue :</strong> <code>CREATE VIEW v_ventes_mensuelles AS SELECT strftime(\'%Y-%m\', date_commande) AS mois, SUM(total) AS ca FROM commandes GROUP BY mois;</code></p>',
-      '<p><strong>4. Index :</strong> <code>CREATE INDEX idx_cmd_client ON commandes(client_id);</code> transforme un Seq Scan (parcours complet) en Index Scan immédiat.</p>'
+      '<p><strong>1. Sous-requêtes :</strong> <code>SELECT M.nommarque FROM Marque M WHERE EXISTS (SELECT 1 FROM Voiture V WHERE V.codemarque = M.codemarque AND V.pxachat &gt; 30000000);</code> ' +
+      '<code>SELECT nommarque FROM Marque WHERE codemarque IN (SELECT codemarque FROM Voiture);</code> ' +
+      '<code>SELECT M.nommarque FROM Marque M WHERE NOT EXISTS (SELECT 1 FROM Voiture V WHERE V.codemarque = M.codemarque);</code></p>',
+      '<p><strong>2. Transaction :</strong> <code>BEGIN; UPDATE Voiture SET km = km + 100 WHERE immat = \'TG-7854-Z\'; SELECT km FROM Voiture WHERE immat = \'TG-7854-Z\'; ROLLBACK;</code> ' +
+      'ROLLBACK annule la modification. Pour la conserver, terminez une nouvelle transaction par COMMIT : ' +
+      '<code>BEGIN; UPDATE Voiture SET km = km + 100 WHERE immat = \'TG-7854-Z\'; COMMIT;</code> ' +
+      'Réinitialisez ensuite le parc.</p>',
+      '<p><strong>3. Vue :</strong> <code>CREATE VIEW v_achats_mensuels AS SELECT substr(datecirc, 1, 7) AS mois, SUM(pxachat) AS total FROM Voiture WHERE datecirc IS NOT NULL GROUP BY substr(datecirc, 1, 7);</code> ' +
+      '<code>SELECT mois, total FROM v_achats_mensuels ORDER BY mois;</code> Une vue nomme une requête. ' +
+      'Dans un SGBD avec privilèges, elle peut aussi limiter les données exposées ; SQLite ne gère pas de privilèges par vue.</p>',
+      '<p><strong>4. Index :</strong> <code>CREATE INDEX idx_voiture_code ON Voiture(codemarque);</code> ' +
+      '<code>EXPLAIN QUERY PLAN SELECT immat FROM Voiture WHERE codemarque = \'TOY\';</code> ' +
+      'Le plan indique le choix de l’optimiseur ; créer un index ne garantit pas qu’il sera utilisé.</p>'
     ].join('\n')),
 
     '  <h2>Dossier de synthèse — Conception &amp; Requêtage Relationnel</h2>',
@@ -695,4 +694,4 @@ function render(kit, course, chapterList) {
   return pages;
 }
 
-module.exports = { render, PARC_SQL };
+module.exports = { render, PARC_SQL, EXAMEN_QCM };

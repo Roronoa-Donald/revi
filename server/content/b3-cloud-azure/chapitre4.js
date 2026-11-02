@@ -38,12 +38,12 @@ module.exports = {
         '  <div class="card">',
         '    <h4>Les 5 Adresses IP Réservées par Azure</h4>',
         '    <ul>',
-        '      <li><code>.0</code> : <strong>Network ID</strong> (adresse réseau).</li>',
-        '      <li><code>.1</code> : <strong>Default Gateway</strong> (passerelle par défaut interne au VNet gérée par Azure).</li>',
-        '      <li><code>.2</code> : <strong>DNS Resolver Primaire</strong> (résolveur DNS Azure routé en interne).</li>',
-        '      <li><code>.3</code> : <strong>DNS Resolver Secondaire</strong> (redondance et allocation interne Azure).</li>',
-        '      <li><code>.&lt;dernière&gt;</code> (ex: <code>.255</code>) : <strong>Broadcast</strong> (adresse de diffusion non utilisée mais réservée).</li>',
-        '      <li><em>Conséquence :</em> un sous-réseau en <code>/24</code> (256 adresses théoriques) n\'offre que <strong>251 adresses IP exploitables</strong> pour les VMs (de .4 à .254).</li>',
+        '      <li><code>+0</code> : <strong>Network ID</strong> (adresse réseau).</li>',
+        '      <li><code>+1</code> : <strong>Default Gateway</strong> (passerelle par défaut gérée par Azure).</li>',
+        '      <li><code>+2</code> et <code>+3</code> : adresses réservées pour la <strong>correspondance des adresses Azure DNS</strong> dans l\'espace du VNet, et non résolveurs primaire et secondaire.</li>',
+        '      <li><strong>Dernière adresse</strong> : adresse de diffusion réservée ; Azure ne prend pas en charge le broadcast dans le VNet.</li>',
+        '      <li>Ces décalages partent de l\'adresse réseau : pour <code>10.0.5.16/28</code>, les adresses de correspondance sont <code>10.0.5.18</code> et <code>10.0.5.19</code>. Un <code>/24</code> offre 256 - 5 = <strong>251 adresses exploitables</strong>.</li>',
+        '      <li>Lorsque le DNS fourni par Azure est utilisé, son résolveur est accessible à <code>168.63.129.16</code>. Un VNet ou une interface peut aussi utiliser un DNS personnalisé ; ne remplacez pas sa configuration par cette adresse. Voir la <a href="https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-faq">FAQ réseau Microsoft</a>.</li>',
         '    </ul>',
         '  </div>',
         '</div>'
@@ -120,7 +120,7 @@ module.exports = {
   ],
   notions: [
     { term: 'Azure Virtual Network (VNet)', def: 'Réseau virtuel privé isolé sous Azure permettant la communication sécurisée entre ressources Cloud et sur site.' },
-    { term: 'Adresses IP réservées Azure', def: 'Les 5 adresses IP (.0 réseau, .1 passerelle, .2 DNS primaire, .3 DNS secondaire, .dernière broadcast) confisquées par le SDN Azure dans chaque subnet.' },
+    { term: 'Adresses IP réservées Azure', def: 'Les quatre premières adresses d\'un sous-réseau (réseau, passerelle, deux adresses de correspondance Azure DNS) et la dernière sont réservées.' },
     { term: 'Network Security Group (NSG)', def: 'Pare-feu de niveau 4 filtrant les paquets réseau par liste de contrôle d\'accès (ACL) ordonnée par priorité.' },
     { term: 'Azure Bastion', def: 'Passerelle PaaS managée permettant d\'administrer des machines virtuelles en RDP/SSH via le portail web (HTTPS) sans IP publique.' },
     { term: 'VNet Peering', def: 'Interconnexion directe à haute vitesse et faible latence entre deux réseaux virtuels via le réseau fédérateur privé de Microsoft.' }
@@ -139,15 +139,15 @@ module.exports = {
       exp: 'Azure réserve systématiquement 5 adresses IP dans chaque sous-réseau (.0, .1, .2, .3 et .255 en /24), ce qui laisse 256 - 5 = 251 adresses IP exploitables.'
     },
     {
-      stem: 'À quoi sert l\'adresse IP finissant par .1 dans chaque sous-réseau Azure ?',
+      stem: 'À quoi servent les adresses réservées aux décalages +2 et +3 dans un sous-réseau Azure ?',
       opts: [
-        'Adresse de diffusion (Broadcast)',
-        'Passerelle par défaut (Default Gateway) gérée par Azure',
-        'Résolveur DNS primaire',
-        'Première machine virtuelle créée'
+        'Deux résolveurs DNS primaire et secondaire du sous-réseau',
+        'La correspondance des adresses Azure DNS dans l\'espace du VNet',
+        'La passerelle par défaut et l\'adresse de diffusion',
+        'Les deux premières machines virtuelles créées'
       ],
       correct: 1,
-      exp: 'L\'adresse .1 est réservée par Azure pour faire office de Default Gateway (passerelle de routage par défaut) pour toutes les ressources du sous-réseau.'
+      exp: 'Ces deux adresses servent à la correspondance Azure DNS ; elles ne désignent pas deux résolveurs. Le DNS fourni par Azure utilise 168.63.129.16, sauf configuration DNS personnalisée.'
     },
     {
       stem: 'Comment s\'effectue l\'évaluation de deux règles contradictoires au sein d\'un même Network Security Group (NSG) ?',
@@ -198,7 +198,7 @@ module.exports = {
       stem: 'Quelle est la portée géographique du service Global VNet Peering sous Azure ?',
       opts: [
         'Uniquement entre deux datacenters de la même ville',
-        'Entrez n\'importe quelles régions Azure à travers le monde entier via le réseau fédérateur privé de Microsoft',
+        'Entre n\'importe quelles régions Azure à travers le monde entier via le réseau fédérateur privé de Microsoft',
         'Uniquement au sein de l\'Union Européenne',
         'Uniquement entre régions jumelées'
       ],
@@ -209,7 +209,7 @@ module.exports = {
   flashcards: [
     {
       q: 'Quelles sont les 5 adresses IP réservées par Azure dans chaque sous-réseau ?',
-      a: '.0 (Réseau), .1 (Passerelle par défaut), .2 (DNS primaire Azure), .3 (DNS secondaire Azure) et .dernière (Broadcast).'
+      a: 'À partir de l\'adresse réseau : +0 réseau, +1 passerelle, +2 et +3 pour la correspondance Azure DNS, puis la dernière adresse réservée. Le DNS fourni par Azure utilise 168.63.129.16 ; un DNS personnalisé peut être configuré.'
     },
     {
       q: 'Combien d\'adresses utilisables offre un sous-réseau Azure /28 (16 adresses) ?',

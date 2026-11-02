@@ -37,8 +37,8 @@ module.exports = {
         '<p>Une adresse IPv4 est un identifiant logique de <strong>32 bits</strong>, classiquement représenté sous forme décimale pointée ' +
         'en 4 octets séparés par des points (ex: <code>192.168.1.10</code>). Elle est composée de deux parties :</p>',
         '<ul>',
-        '  <li><strong>La partie réseau (Network ID) :</strong> Identifiez le réseau ou sous-réseau auquel appartient l’hôte.</li>',
-        '  <li><strong>La partie hôte (Host ID) :</strong> Identifiez l’interface réseau spécifique au sein de ce sous-réseau.</li>',
+        '  <li><strong>La partie réseau (Network ID) :</strong> Identifie le réseau ou sous-réseau auquel appartient l’hôte.</li>',
+        '  <li><strong>La partie hôte (Host ID) :</strong> Identifie l’interface réseau spécifique au sein de ce sous-réseau.</li>',
         '</ul>',
 
         '<div class="grid grid-2">',
@@ -95,7 +95,7 @@ module.exports = {
     {
       title: 'Calcul Pratique d’un Sous-Réseau : Réseau, Broadcast &amp; Plage',
       html: [
-        '<p>Pour toute adresse IP et son masque (ex: <code>192.168.10.77/26</code>), les éléments clés se calculent ainsi :</p>',
+        '<p>Pour l’adresse <code>192.168.10.77/26</code>, les éléments clés se calculent ainsi. Les /31 point-à-point et /32 sont des cas particuliers.</p>',
         '<ol>',
         '  <li><strong>Nombre de bits d’hôte :</strong> <code>32 - 26 = 6 bits</code>.</li>',
         '  <li><strong>Taille du bloc (pas d’incrément) :</strong> <code>2^6 = 64 adresses</code> (ou <code>256 - 192 = 64</code> sur le 4e octet).</li>',
@@ -145,7 +145,7 @@ module.exports = {
   summary: [
     'Une adresse IPv4 fait 32 bits découpés en portion réseau et portion hôte par le masque de sous-réseau.',
     'La RFC 1918 réserve trois plages privées non routables sur Internet public : 10.0.0.0/8, 172.16.0.0/12 et 192.168.0.0/16.',
-    'Le nombre d’hôtes utiles pour un masque /n est calculé par la formule 2^(32 - n) - 2.',
+    'Pour un sous-réseau IPv4 ordinaire jusqu’à /30 : 2^(32 - n) - 2 ; un /31 point-à-point compatible utilise les deux adresses.',
     'Le masque générique (Wildcard mask) est le complément à 255 de chaque octet du masque, utilisé notamment pour OSPF et les ACL.',
     'L’adresse réseau a tous ses bits d’hôte à 0 ; l’adresse de broadcast a tous ses bits d’hôte à 1.',
     'La méthode VLSM exige de traiter les besoins par taille décroissante pour éviter tout chevauchement et optimiser l’espace d’adressage.'
@@ -224,13 +224,13 @@ module.exports = {
       stem: 'Quel est le premier hôte utilisable sur le sous-réseau 10.50.80.0/20 ?',
       opts: ['10.50.80.0', '10.50.80.1', '10.50.81.1', '10.50.0.1'],
       correct: 1,
-      exp: 'Le premier hôte utilisable est toujours l’adresse réseau + 1, soit ici 10.50.80.1.'
+      exp: 'Pour ce sous-réseau /20 ordinaire, le premier hôte utilisable est l’adresse réseau + 1, soit 10.50.80.1.'
     },
     {
-      stem: 'Pour interconnecter deux routeurs sur une liaison point-à-point série ou Ethernet dédiée, quel masque standard optimise l’espace sans gaspiller d’adresses ?',
-      opts: ['/28 (255.255.255.240)', '/29 (255.255.255.248)', '/30 (255.255.255.252)', '/32 (255.255.255.255)'],
+      stem: 'Pour deux routeurs sur une liaison point-à-point compatible RFC 3021, quel préfixe utilise exactement deux adresses ?',
+      opts: ['/28 (255.255.255.240)', '/29 (255.255.255.248)', '/31 (255.255.255.254)', '/32 (255.255.255.255)'],
       correct: 2,
-      exp: 'Un masque /30 fournit un bloc de 4 adresses : 1 adresse réseau, 1 adresse broadcast et exactement 2 adresses hôtes exploitables, ce qui est parfait pour une liaison entre deux routeurs.'
+      exp: '/31 utilise les deux adresses sur la liaison compatible ; /30 reste une option classique avec quatre adresses dont deux utilisables.'
     }
   ],
 
@@ -241,7 +241,7 @@ module.exports = {
     },
     {
       q: 'Comment calcule-t-on le nombre d’hôtes utiles d’un sous-réseau /n ?',
-      a: 'Formule : 2^(32 - n) - 2 (on soustrait l’adresse réseau et l’adresse de broadcast).'
+      a: 'Pour un sous-réseau ordinaire jusqu’à /30 : 2^(32 - n) - 2. Exception : /31 point-à-point compatible RFC 3021, deux adresses utilisables ; /32 désigne une adresse unique.'
     },
     {
       q: 'Qu’est-ce qu’un masque générique (Wildcard mask) et comment le calcule-t-on ?',

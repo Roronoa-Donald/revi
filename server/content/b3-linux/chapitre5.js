@@ -20,7 +20,7 @@ module.exports = {
     'comprendre le routage par politiques (Policy-Based Routing) et la gestion de tables de routage alternatives multiples ;',
     'configurer des règles d’aiguillage PBR basées sur l’adresse IP source, l’interface d’entrée ou le marquage pare-feu (fwmark) ;',
     'analyser la séquence de résolution de noms d’hôtes orchestrée par le commutateur de services de noms (NSSwitch) ;',
-    'développer en Python 3 des validateurs de topologie réseau, des moteurs d’évaluation PBR et des simulateurs de résolution nsswitch.conf.'
+    'développer en scripts Bash et commandes système des validateurs de topologie réseau, des moteurs d’évaluation PBR et des simulateurs de résolution nsswitch.conf.'
   ],
   sections: [
     {

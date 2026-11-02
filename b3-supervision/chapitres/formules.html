@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -83,6 +83,8 @@
 
   </table>
 
+  <p>Sans aucune panne observée, les rapports MTTR et MTBF ci-dessus sont non calculables ; la durée observée ne constitue pas à elle seule leur valeur.</p>
+
 
 
   <h2>2. Protocoles &amp; Ports Standards de Supervision</h2>
@@ -97,7 +99,7 @@
 
       <tr><td><strong>SNMP Traps / Informs</strong></td><td><code>162 / UDP</code></td><td>Alertes spontanées émises par l'équipement vers le serveur collecteur.</td></tr>
 
-      <tr><td><strong>Syslog RFC 5424</strong></td><td><code>514 / UDP (ou TCP/TLS 6514)</code></td><td>Envoi de journaux d'événements réseau et système vers le collecteur.</td></tr>
+      <tr><td><strong>Syslog</strong></td><td>UDP 514 ; TCP 514 sans TLS ; TLS 6514</td><td>TLS protège le transport si les pairs sont correctement authentifiés ; la conservation durable et la non-répudiation nécessitent d’autres mesures.</td></tr>
 
       <tr><td><strong>Nagios NRPE</strong></td><td><code>5666 / TCP</code></td><td>Nagios Remote Plugin Executor (exécution de sondes distantes).</td></tr>
 
@@ -131,7 +133,7 @@
 
       <tr><td><code>1.3.6.1.2.1.1.1.0</code></td><td><code>sysDescr</code></td><td>DisplayString</td><td>Description textuelle de l'équipement (OS, version, matériel).</td></tr>
 
-      <tr><td><code>1.3.6.1.2.1.1.3.0</code></td><td><code>sysUpTime</code></td><td>TimeTicks</td><td>Temps écoulé depuis le dernier démarrage (centièmes de seconde).</td></tr>
+      <tr><td><code>1.3.6.1.2.1.1.3.0</code></td><td><code>sysUpTime</code></td><td>TimeTicks</td><td>Depuis la réinitialisation de la gestion réseau, en centièmes de seconde, modulo 2^32.</td></tr>
 
       <tr><td><code>1.3.6.1.2.1.1.5.0</code></td><td><code>sysName</code></td><td>DisplayString</td><td>Nom d'hôte (FQDN) configuré sur l'équipement réseau.</td></tr>
 
@@ -183,13 +185,13 @@
 
     <tbody>
 
-      <tr><td><code>rate(v[5m])</code></td><td>Calculez le taux d'accroissement moyen par seconde sur 5 minutes (pour les compteurs <code>counter</code>).</td></tr>
+      <tr><td><code>rate(v[5m])</code></td><td>Calcule le taux d'accroissement moyen par seconde sur 5 minutes (pour les compteurs <code>counter</code>).</td></tr>
 
       <tr><td><code>irate(v[2m])</code></td><td>Taux instantané par seconde basé sur les deux derniers points de mesure (détection des pics volatils).</td></tr>
 
       <tr><td><code>sum by (job, status) (rate(http_requests_total[5m]))</code></td><td>Agrège les requêtes par seconde en regroupant par service et code de statut HTTP.</td></tr>
 
-      <tr><td><code>histogram_quantile(0.95, sum(rate(http_latency_bucket[5m])) by (le))</code></td><td>Calculez le 95e centile (p95) du temps de réponse applicatif en secondes.</td></tr>
+      <tr><td><code>histogram_quantile(0.95, sum(rate(http_latency_bucket[5m])) by (le))</code></td><td>Calcule le 95e centile (p95) du temps de réponse applicatif en secondes.</td></tr>
 
       <tr><td><code>predict_linear(node_filesystem_free_bytes[4h], 86400 * 30) &lt; 0</code></td><td>Prédit par extrapolation linéaire si l'espace disque sera épuisé d'ici 30 jours.</td></tr>
 

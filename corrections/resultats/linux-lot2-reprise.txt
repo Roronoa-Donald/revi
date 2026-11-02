@@ -1,0 +1,134 @@
+TAP version 13
+# Subtest: F14 : syntaxe SSH explicite dans cours, QCM, carte et exercices
+not ok 1 - F14 : syntaxe SSH explicite dans cours, QCM, carte et exercices
+  ---
+  duration_ms: 16.730109
+  type: 'test'
+  location: '/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/linux-lot2.test.js:67:1'
+  failureType: 'testCodeFailure'
+  error: 'linux/chapitres/chapitre4.html'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: ' Chapitre 4 — Réseau statique et SSH | Administration Linux B2 Aller au contenu Portail / Administration Linux B2 Sommaire Ch. 1 Ch. 2 Ch. 3 Ch. 4 Ch. 5 Ch. 6 Cartes Mémo Exercices Atelier Examen Administration Linux B2 › Sommaire › Chapitre 4 Chapitre 4 — Réseau statique et SSH Module 4 ≈ 2 h de travail Réservé B2 et plus Mise en situation Un serveur qui n’est joignable que par sa console locale n’est pas un serveur. Il lui faut une adresse fixe, une passerelle, un nom résolu, et une porte d’entrée sûre : SSH. Ce chapitre relie l’adressage IP à la connexion distante. Objectifs pédagogiques À la fin de ce chapitre, vous serez capable de : valider et classer une adresse IPv4 (privée ou publique) ; lire et décrire une configuration réseau statique ; utiliser une cible SSH utilisateur@hôte et préciser un port avec -p ; expliquer le rôle des clés SSH face au mot de passe. 1. Adresser un serveur Une configuration IPv4 réunit quatre éléments : l’adresse, le masque (qui délimite le réseau local), la passerelle (la sortie vers Internet) et le DNS (qui traduit les noms en adresses). ip a # afficher adresses et interfaces ip route # afficher la passerelle (default via …) /etc/network/interfaces : # configuration statique (Debian) iface eth0 inet static address 192.168.1.10/24 gateway 192.168.1.1 dns-nameservers 9.9.9.9 Statique ou DHCP ? Un poste de travail peut recevoir son adresse automatiquement (DHCP) ; un serveur doit garder une adresse fixe, sinon les clients le perdent. On le documente ensuite dans /etc/hosts ou auprès du DNS. 2. Privée ou publique La RFC 1918 réserve trois plages d’adresses privées, non routables sur Internet : 10.0.0.0/8, 172.16.0.0/12 (soit 172.16 à 172.31) et 192.168.0.0/16. Toutes les autres sont publiques. 10.0.0.0 – 10.255.255.255 privée (classe A) 172.16.0.0 – 172.31.255.255 privée (classe B) 192.168.0.0 – 192.168.255.255 privée (classe C) 203.0.113.7, 8.8.8.8 publiques Reconnaître au premier octet 10.x et 192.168.x sont immédiatement privées. Le seul piège est 172 : seules les plages 16 à 31 sont privées ; 172.15 et 172.32 sont publiques. 3. Se connecter en SSH SSH chiffre la session d’administration. Une cible usuelle se lit utilisateur@hote ; pour préciser le port, utilisez -p. Sans autre configuration, le port par défaut est 22. ssh rd@192.168.1.10 # port 22 par défaut ssh -p 2222 sam@serveur # port personnalisé ssh-keygen -t ed25519 # générer une paire de clés ssh-copy-id rd@192.168.1.10 # installer la clé publique scp fichier rd@serveur:/tmp/ # copier via SSH Pourquoi une clé plutôt qu’un mot de passe ? Une clé SSH résiste aux attaques par force brute, ne circule jamais sur le réseau et permet d’automatiser des tâches. On garde la clé privée secrète ; seule la publique est déposée sur le serveur. 4. Exercices de code Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code et la validation fait tourner des jeux de tests indépendants : réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général. En cas d’erreur, le bouton Expliquer mon erreur interroge le tuteur : il décrit ce qui s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice. read -r n for ((i=0; i<n; i++)); do read -r ip # À compléter : compter les octets et vérifier chacun entre 0 et 255. done Exercice 1 — Valider une adresse IPv4 Bash Niveau 2 — Application Objectif : Contrôler qu’une adresse est bien formée avant de la configurer. Le script lit n lignes, chacune une adresse IPv4. Une adresse est valide si elle compte exactement quatre octets séparés par des points, chacun entre 0 et 255. Il affiche ip : valide ou ip : invalide. Entrée du programme3 192.168.1.1 10.0.0 256.1.1.1 Sortie attendueip : valide ip : invalide ip : invalide Deux indices, rédigés en mots Le premier contrôle est le nombre de champs : quatre octets exactement. Chaque octet ne doit contenir que des chiffres et rester inférieur ou égal à 255. read -r n for ((i=0; i<n; i++)); do read -r ip # À compléter : reconnaître les préfixes privés, sinon publique. done Exercice 2 — Classer une adresse privée ou publique Bash Niveau 2 — Application Objectif : Repérer les adresses réservées aux réseaux internes. Le script lit n lignes, chacune une adresse IPv4. Sont privées les adresses 10.*, 192.168.* et 172.16.* à 172.31.*. Les autres sont publiques. Il affiche classe : privee ou classe : publique. Entrée du programme3 10.0.0.5 8.8.8.8 192.168.1.1 Sortie attendueclasse : privee classe : publique classe : privee Deux indices, rédigés en mots Un case sur le préfixe suffit : 10.* et 192.168.* sont privés. Pour 172, seules les plages 16 à 31 sont privées ; 172.15 et 172.32 ne le sont pas. read -r n for ((i=0; i<n; i++)); do read -r cible # À compléter : découper la chaîne sur @ puis sur :. done Exercice 3 — Décoder une cible SSH Bash Niveau 3 — Raisonnement Objectif : Extraire utilisateur, hôte et port d’une chaîne de connexion. Le script lit n lignes selon la notation de cet exercice utilisateur@hote:port. Cette notation n’est pas une commande SSH : pour se connecter, utilisez ssh -p port utilisateur@hote. Pour chaque ligne, le script affiche : utilisateur : X, hote : Y, port : Z. Entrée du programme2 rd@10.0.0.5:22 admin@192.168.1.1:2222 Sortie attendueutilisateur : rd hote : 10.0.0.5 port : 22 utilisateur : admin hote : 192.168.1.1 port : 2222 Deux indices, rédigés en mots cut -d@ sépare la partie utilisateur de la partie hôte:port. cut -d: sépare ensuite le nom d’hôte du port. 5. QCM — niveau examen Combien d’octets dans une adresse IPv4 valide ? 2 4 6 IPv4 s’écrit en quatre octets séparés par des points, chacun de 0 à 255. Quelle adresse est privée ? 192.168.10.20 203.0.113.7 8.8.8.8 192.168.0.0/16 est une plage privée réservée aux réseaux internes. 172.32.1.1 est-elle privée ? oui non seulement en IPv6 Seules les plages 172.16 à 172.31 sont privées ; 172.32 est publique. À quoi sert la passerelle ? à traduire les noms à sortir du réseau local à chiffrer La passerelle (default via) est la sortie vers les réseaux extérieurs. Port SSH par défaut ? 21 22 443 SSH écoute sur le port 22 par défaut ; 21 est FTP et 443 HTTPS. Quelle commande SSH utilise le port 2222 pour sam@serveur ? ssh -p 2222 sam@serveur ssh sam@serveur:2222 ssh -p sam 2222@serveur L’option -p indique le port ; sans préfixe ssh://, le suffixe :2222 n’est pas interprété comme le port de la cible. Que fait ssh-copy-id ? copie un fichier installe la clé publique sur le serveur génère une clé Il dépose la clé publique dans le fichier authorized_keys du serveur. Pourquoi un serveur en IP fixe ? pour économiser pour rester joignable à la même adresse c’est obligatoire Les clients doivent retrouver le serveur à une adresse stable. 6. Erreurs classiques — récapitulatif À reconnaître en examen Oublier qu’une adresse compte exactement quatre octets de 0 à 255. Croire que toute adresse commençant par 172 est privée. Confondre passerelle (sortie du réseau) et DNS (traduction des noms). Laisser le port SSH par défaut et subir des tentatives automatisées. Déposer sa clé privée sur un serveur au lieu de la clé publique. 7. Méthodologie de résolution Rendre un serveur joignable Valider l’adresse : quatre octets, chacun entre 0 et 255. Classer : privée ou publique, selon le premier octet. Configurer : adresse, masque, passerelle, DNS. Tester : ip a, ip route, ping. Sécuriser l’accès : clé SSH, port dédié si besoin. 8. Révision active Résumé essentiel IPv4 = quatre octets de 0 à 255 ; une adresse doit être validée avant d’être posée. Plages privées : 10.0.0.0/8, 172.16–172.31, 192.168.0.0/16 ; le reste est public. La configuration statique réunit adresse, masque, passerelle et DNS. SSH utilise utilisateur@hote ; un port explicite se précise avec ssh -p PORT utilisateur@hote. La clé privée reste secrète, la clé publique est déposée sur le serveur. Checklist de maîtrise Je valide une adresse IPv4 octet par octet. Je classe une adresse en privée ou publique, même dans la plage 172. Je lis une cible SSH utilisateur@hote et précise le port avec -p. J’explique la différence entre clé publique et clé privée. Les 10 notions à connaître absolument adresse IPv4masquepasserelleDNSplage privéeadresse publiqueSSHport 22clé publiqueclé privée Réviser avec les flashcards Mémo syntaxe 9. Test de maîtrise Comment vous auto-évaluer Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage : < 50 % — Revoyez la validation octet par octet d’une adresse. 50–69 % — Mémorisez les trois plages privées et le piège du 172. 70–94 % — Solide : décode cinq cibles SSH d’affilée. ≥ 95 % — Maîtrise : passez au chapitre 5, scripts Bash. Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise). Sommaire Chapitre 5 — Scripts Bash : lire, décider, rapporter Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail. Sources : le cours historique d’administration Linux (Debian) : terminal, fichiers, droits, réseau, scripts et services. document.addEventListener("DOMContentLoaded", function() { function initMath() { if (typeof renderMathInElement === "function") { renderMathInElement(document.body, { delimiters: [ {left: "$$", right: "$$", display: true}, {left: "\\\\[", right: "\\\\]", display: true}, {left: "$", right: "$", display: false}, {left: "\\\\(", right: "\\\\)", display: false} ], ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"], throwOnError: false }); } else { setTimeout(initMath, 50); } } initMath(); }); '
+  operator: 'doesNotMatch'
+  stack: |-
+    TestContext.<anonymous> (/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/linux-lot2.test.js:77:12)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: F14 : OpenSSH interprète -p sans ouvrir de connexion
+ok 2 - F14 : OpenSSH interprète -p sans ouvrir de connexion
+  ---
+  duration_ms: 4.743437
+  type: 'test'
+  ...
+# Subtest: F147 : cp -r et mv ne partagent pas l’option récursive
+ok 3 - F147 : cp -r et mv ne partagent pas l’option récursive
+  ---
+  duration_ms: 6.270689
+  type: 'test'
+  ...
+# Subtest: F147 : sondes GNU cp et mv
+ok 4 - F147 : sondes GNU cp et mv
+  ---
+  duration_ms: 5.273496
+  type: 'test'
+  ...
+# Subtest: F149 : sauvegarder /etc ne suffit pas à restaurer la machine
+ok 5 - F149 : sauvegarder /etc ne suffit pas à restaurer la machine
+  ---
+  duration_ms: 2.865145
+  type: 'test'
+  ...
+# Subtest: F93 : /tmp est temporaire mais pas systématiquement vidé au démarrage
+not ok 6 - F93 : /tmp est temporaire mais pas systématiquement vidé au démarrage
+  ---
+  duration_ms: 8.560163
+  type: 'test'
+  location: '/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/linux-lot2.test.js:124:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /(?:peuvent|risquent).{0,40}(?:supprim|effac)/i. Input:
+    
+    'Configuration du système ; répertoires des utilisateurs ; temporaires pouvant être supprimés ; journaux et spools variables ; maison du super-utilisateur.'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: 'Configuration du système ; répertoires des utilisateurs ; temporaires pouvant être supprimés ; journaux et spools variables ; maison du super-utilisateur.'
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/linux-lot2.test.js:132:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: F94 : noms dans les répertoires, métadonnées dans l’inode
+ok 7 - F94 : noms dans les répertoires, métadonnées dans l’inode
+  ---
+  duration_ms: 3.564984
+  type: 'test'
+  ...
+# Subtest: F95 : le plafond de quatre entrées concerne MBR, pas GPT
+ok 8 - F95 : le plafond de quatre entrées concerne MBR, pas GPT
+  ---
+  duration_ms: 3.990361
+  type: 'test'
+  ...
+# Subtest: F96 : ctime concerne l’état de l’inode, pas la création
+ok 9 - F96 : ctime concerne l’état de l’inode, pas la création
+  ---
+  duration_ms: 1.000833
+  type: 'test'
+  ...
+# Subtest: F105 : syntaxe usuelle et chemin implicite de GNU find
+ok 10 - F105 : syntaxe usuelle et chemin implicite de GNU find
+  ---
+  duration_ms: 2.950078
+  type: 'test'
+  ...
+# Subtest: F98 : le swap est initialisé et activé, non monté comme ext4
+ok 11 - F98 : le swap est initialisé et activé, non monté comme ext4
+  ---
+  duration_ms: 3.310337
+  type: 'test'
+  ...
+# Subtest: F99 : verrouillage du mot de passe distinct du compte
+ok 12 - F99 : verrouillage du mot de passe distinct du compte
+  ---
+  duration_ms: 7.523566
+  type: 'test'
+  ...
+# Subtest: F100 : seuil UID 1000 documenté comme convention configurable
+ok 13 - F100 : seuil UID 1000 documenté comme convention configurable
+  ---
+  duration_ms: 1.607402
+  type: 'test'
+  ...
+# Subtest: F102 : la différence entre = et + dépend des droits initiaux
+ok 14 - F102 : la différence entre = et + dépend des droits initiaux
+  ---
+  duration_ms: 6.835689
+  type: 'test'
+  ...
+# Subtest: F106 : shadow contient des vérificateurs hachés, pas des mots de passe déchiffrables
+ok 15 - F106 : shadow contient des vérificateurs hachés, pas des mots de passe déchiffrables
+  ---
+  duration_ms: 2.223555
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 13
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 135.48918

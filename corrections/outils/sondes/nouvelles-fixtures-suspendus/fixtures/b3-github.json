@@ -1,0 +1,92 @@
+{
+  "gh3-c1-e1": {
+    "stdin": "OBJECT type=tag content=soleil Ω",
+    "expected": "GIT_HASH type=tag size=9 sha1=9a1062840e1ccc6e963a67cb2a09d7f183dce064",
+    "raison": "Le contenu fait 9 octets UTF-8 ; SHA-1 calculé par sha1sum sur l'en-tête tag 9, NUL et ces octets."
+  },
+  "gh3-c1-e2": {
+    "stdin": "ENTRY mode=100755 type=blob sha1=1111111111111111111111111111111111111111 name=z-script\nENTRY mode=040000 type=tree sha1=2222222222222222222222222222222222222222 name=Alpha data",
+    "expected": "040000 tree 2222222222222222222222222222222222222222\tAlpha data\n100755 blob 1111111111111111111111111111111111111111\tz-script\nTREE_SUMMARY total=2 blobs=1 subtrees=1 executables=1\n",
+    "raison": "Alpha data précède z-script en ordre octet ; il y a un arbre, un blob exécutable."
+  },
+  "gh3-c1-e3": {
+    "stdin": "REF name=HEAD target=ref: refs/heads/eco\nREF name=refs/heads/eco target=fedcba9876543210fedcba9876543210fedcba98\nREF name=refs/loop/a target=ref: refs/loop/b\nREF name=refs/loop/b target=ref: refs/loop/a\nRESOLVE name=HEAD\nRESOLVE name=refs/loop/a\nRESOLVE name=absente",
+    "expected": "RESOLVED name=HEAD commit=fedcba9876543210fedcba9876543210fedcba98 state=BRANCH_REF path=HEAD -> refs/heads/eco\nRESOLVED name=refs/loop/a status=CYCLE\nRESOLVED name=absente status=NOT_FOUND",
+    "raison": "HEAD renvoie directement à une branche ; les deux autres demandes sont cyclique puis absente."
+  },
+  "gh3-c2-e1": {
+    "stdin": "COMMIT id=origine parents=NONE\nCOMMIT id=gauche parents=origine\nCOMMIT id=droite parents=origine\nBRANCH name=stable commit=gauche\nBRANCH name=idee commit=droite\nMERGE_REQUEST current=stable incoming=idee",
+    "expected": "MERGE_STRATEGY from=idee into=stable type=THREE_WAY_MERGE lca=origine",
+    "raison": "Les deux têtes divergent après origine, leur seule meilleure base commune."
+  },
+  "gh3-c2-e2": {
+    "stdin": "TODO action=pick commit=A7 msg=Debut\nTODO action=drop commit=B7\nTODO action=squash commit=C7 msg=Suite\nTODO action=pick commit=D7 msg=Fin",
+    "expected": "REBASED_COMMIT id=A7 msg=\"Debut + Suite\"\nREBASED_COMMIT id=D7 msg=\"Fin\"\nREBASE_SUMMARY total_commits=2",
+    "raison": "drop est ignoré, squash concatène au dernier commit conservé, puis pick ajoute D7."
+  },
+  "gh3-c2-e3": {
+    "stdin": "LINE idx=31 base=stable ours=stable theirs=stable\nLINE idx=32 base=rouge ours=vert theirs=vert\nLINE idx=33 base=petit ours=petit theirs=grand",
+    "expected": "MERGE idx=31 status=CLEAN val=\"stable\"\nMERGE idx=32 status=RESOLVED_SAME val=\"vert\"\nMERGE idx=33 status=RESOLVED_THEIRS val=\"grand\"",
+    "raison": "Identité des trois valeurs, mêmes modifications, puis modification seulement de theirs."
+  },
+  "gh3-c3-e1": {
+    "stdin": "ACTIVE_BRANCH name=alpha tip=A7 ancestors=R7,Q7\nACTIVE_BRANCH name=beta tip=B7 ancestors=R7\nREFLOG_ENTRY id=HEAD@{0} commit=Q7 action=reset desc=encore accessible\nREFLOG_ENTRY id=HEAD@{1} commit=Z7 action=commit desc=etape perdue\nREFLOG_ENTRY id=HEAD@{2} commit=Z7 action=checkout desc=autre entree",
+    "expected": "RESCUE_CANDIDATE reflog=HEAD@{1} commit=Z7 action=\"commit\" desc=\"etape perdue\" status=DANGLING\nRESCUE_CANDIDATE reflog=HEAD@{2} commit=Z7 action=\"checkout\" desc=\"autre entree\" status=DANGLING",
+    "raison": "Q7 est ancêtre, Z7 n'est référencé par aucune branche et chaque entrée est traitée."
+  },
+  "gh3-c3-e2": {
+    "stdin": "HISTORY commits=P0,P1,P2,P3,P4\nSTATUSES P0=GOOD P1=BAD P2=BAD P3=BAD P4=BAD",
+    "expected": "BISECT_STEP step=1 testing=P2 verdict=BAD remaining=3\nBISECT_STEP step=2 testing=P1 verdict=BAD remaining=2\nBISECT_STEP step=3 testing=P0 verdict=GOOD remaining=1\nFIRST_BAD_COMMIT id=P1",
+    "raison": "Les intervalles après P2, P1 et P0 ont respectivement 3, 2 et 1 éléments."
+  },
+  "gh3-c3-e3": {
+    "stdin": "STASH_CMD action=push arg=ancien plan\nSTASH_CMD action=push arg=nouveau plan\nSTASH_CMD action=apply arg=1\nSTASH_CMD action=drop arg=0\nSTASH_CMD action=pop\nSTASH_CMD action=pop",
+    "expected": "STASH_OP action=push result=OK current_size=1 top=\"ancien plan\"\nSTASH_OP action=push result=OK current_size=2 top=\"nouveau plan\"\nSTASH_OP action=apply result=OK current_size=2 top=\"nouveau plan\"\nSTASH_OP action=drop result=OK current_size=1 top=\"ancien plan\"\nSTASH_OP action=pop result=OK current_size=0 top=\"EMPTY\"\nSTASH_OP action=pop result=STACK_EMPTY current_size=0 top=\"EMPTY\"",
+    "raison": "apply conserve la pile, drop retire l'élément de tête, puis pop vide et détecte la pile vide."
+  },
+  "gh3-c4-e1": {
+    "stdin": "BRANCH_EVENT wf=GIT_FLOW branch=hotfix/panne base=develop direct_push=NON\nBRANCH_EVENT wf=GITHUB_FLOW branch=main base=feature direct_push=OUI\nBRANCH_EVENT wf=GITHUB_FLOW branch=topic/rose base=main direct_push=NON",
+    "expected": "AUDIT branch=hotfix/panne status=BRANCHE_BASE_INVALIDE_ATTENDU_MAIN\nAUDIT branch=main status=VIOLATION_DIRECT_PUSH_PROTECTED_BRANCH\nAUDIT branch=topic/rose status=CONFORME",
+    "raison": "hotfix doit partir de main ; la protection du push est prioritaire ; topic part de main."
+  },
+  "gh3-c4-e2": {
+    "stdin": "CONFIG min_approvals=2 require_signed=OUI linear_history=OUI\nMERGE_REQ pr=731 approvals=2 ci_status=PENDING gpg_signed=NON merge_type=MERGE_COMMIT\nMERGE_REQ pr=732 approvals=2 ci_status=PASS gpg_signed=OUI merge_type=SQUASH",
+    "expected": "PR_MERGE pr=731 status=BLOCKED reason=CI_CHECKS_FAILED\nPR_MERGE pr=732 status=AUTHORIZED reason=OK",
+    "raison": "PENDING échoue à la CI avant signature et historique ; la seconde demande satisfait les règles."
+  },
+  "gh3-c4-e3": {
+    "stdin": "COMMIT_MSG id=731 msg=docs(core-2): BREAKING CHANGE migration\nCOMMIT_MSG id=732 msg=style: couleur",
+    "expected": "CONVENTIONAL_AUDIT id=731 valid=OUI type=docs scope=core-2 breaking=OUI\nCONVENTIONAL_AUDIT id=732 valid=NON error=TYPE_INCONNU",
+    "raison": "docs et le scope sont valides, la mention déclenche breaking ; style n'est pas dans la liste."
+  },
+  "gh3-c5-e1": {
+    "stdin": "NAME=Observatoire\nTRIGGERS=push,schedule,release\nJOB id=prepare runs_on=linux steps_count=1\nJOB id=verifie runs_on=linux steps_count=0",
+    "expected": "WORKFLOW_AUDIT name=\"Observatoire\" status=JOB_ZERO_STEPS triggers_count=2 jobs_count=2",
+    "raison": "push et schedule seuls sont reconnus ; le second job a zéro étape."
+  },
+  "gh3-c5-e2": {
+    "stdin": "MATRIX_DEF os=freebsd,ubuntu version=4,9\nEXCLUDE os=freebsd version=9\nEXCLUDE os=freebsd version=9\nEXCLUDE os=plan9 version=4",
+    "expected": "JOB_INSTANCE os=freebsd version=4 tag=\"freebsd-4\"\nJOB_INSTANCE os=ubuntu version=4 tag=\"ubuntu-4\"\nJOB_INSTANCE os=ubuntu version=9 tag=\"ubuntu-9\"\nMATRIX_TOTAL instances=3 excluded=1",
+    "raison": "La paire répétée est exclue une fois, celle hors matrice ne compte pas."
+  },
+  "gh3-c5-e3": {
+    "stdin": "STEP_INSPECT id=731 cmd=print secrets.DEMO\nSTEP_INSPECT id=732 cmd=echo ${{ github.head_ref }}\nSTEP_INSPECT id=733 cmd=run --safe",
+    "expected": "ACTION_AUDIT step=731 status=VULN_EXPOSED_SECRET\nACTION_AUDIT step=732 status=VULN_COMMAND_INJECTION\nACTION_AUDIT step=733 status=SECURE",
+    "raison": "Le premier correspond à print plus secrets., le second à l'interpolation directe, le dernier à aucun motif."
+  },
+  "gh3-c6-e1": {
+    "stdin": "FILE path=archives/mini.iso size_bytes=7 sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\nFILE path=archives/MAJ.ZIP size_bytes=8 sha256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "expected": "LFS_DECISION file=\"archives/mini.iso\" mode=LFS_POINTER oid=\"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\" size=7\nversion https://git-lfs.github.com/spec/v1\noid sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\nsize 7\nLFS_DECISION file=\"archives/MAJ.ZIP\" mode=GIT_BLOB",
+    "raison": ".iso impose LFS même petit ; .ZIP ne correspond pas à .zip sensible à la casse."
+  },
+  "gh3-c6-e2": {
+    "stdin": "INSPECT_FILE file=atelier.txt content=ligne normale\nINSPECT_FILE file=edition.txt content=avant <<<<<<< conflit",
+    "expected": "HOOK_RESULT file=\"atelier.txt\" verdict=COMMIT_ACCEPTED reason=CLEAN\nHOOK_RESULT file=\"edition.txt\" verdict=COMMIT_REJECTED reason=MERGE_CONFLICT_MARKERS",
+    "raison": "Le premier contenu ne contient aucun motif ; le second contient le marqueur de conflit."
+  },
+  "gh3-c6-e3": {
+    "stdin": "COMMIT id=Q0 files=app,secret parents=NONE\nCOMMIT id=Q1 files=docs parents=Q0\nCOMMIT id=Q2 files=app parents=NONE\nCOMMIT id=Q3 files=app,docs parents=Q1,Q2\nPURGE_FILE target=secret",
+    "expected": "PURGE_RESULT target=\"secret\" impacted_count=3 new_tip_hash=\"r_Q3\"\nREWRITTEN_COMMIT old=\"Q0\" new=\"r_Q0\" remaining_files=[app]\nREWRITTEN_COMMIT old=\"Q1\" new=\"r_Q1\" remaining_files=[docs]\nREWRITTEN_COMMIT old=\"Q3\" new=\"r_Q3\" remaining_files=[app,docs]",
+    "raison": "Q0 contient secret ; la réécriture se propage à Q1 puis Q3, pas à Q2."
+  }
+}

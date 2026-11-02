@@ -38,7 +38,7 @@ function index(course, chapterList) {
       'conceptuel au plus opérationnel. Le chapitre 1 est en accès libre.</p>',
       '    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> en ' +
       '<strong>PowerShell</strong> : vous écrivez un script d’administration qui lit l’entrée standard et ' +
-      'produit un résultat, puis vous le valides. L’atelier de code permet de manipuler librement.</p>'
+      'produit un résultat, puis vous le validez. L’atelier de code permet de manipuler librement.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
     '  <div class="toc">',

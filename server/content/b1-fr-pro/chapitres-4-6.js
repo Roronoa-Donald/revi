@@ -339,20 +339,20 @@ module.exports = [
       {
         title: 'Avoir ou être',
         html: [
-          '<p>Le passé composé = <strong>avoir ou être au présent + participe passé</strong>. Les verbes ' +
-          '<strong>transitifs</strong> (avec COD ou COI) prennent <strong>avoir</strong> : « J\'ai acheté un ' +
-          'livre » (quoi ? un livre) ; « Il a parlé de son film » (de quoi ? du film).</p>',
-          '<p>Les verbes <strong>intransitifs de mouvement</strong> prennent <strong>être</strong> : venir, ' +
-          'devenir, arriver, partir, entrer, sortir, monter, descendre, passer, retourner, tomber, rester, ' +
-          'naître, mourir — et leurs dérivés (revenir, rentrer…). Exemples : « Elle est partie en vacances ' +
-          'hier soir » ; « Ils se sont réveillés à 6 heures » (verbes pronominaux : être aussi).</p>',
-          '<p>Les verbes <strong>douteux</strong> — entrer, rentrer, sortir, monter, descendre, retourner, ' +
-          'passer, demeurer — prennent <strong>avoir avec un COD</strong> (« J\'ai monté les bagages ») et ' +
-          '<strong>être sans COD</strong> (« Je suis monté au premier étage »).</p>',
+          '<p>Le passé composé = <strong>avoir ou être au présent + participe passé</strong>. ' +
+          'Le choix dépend du <strong>verbe et de son emploi</strong>, pas simplement d\'une idée de mouvement : ' +
+          '« Elle est partie en vacances », mais « Elle a marché deux heures ». On dit aussi « J\'ai acheté un livre » ' +
+          'et « Il a parlé de son film ».</p>',
+          '<p>Dans ces emplois, partir, venir, arriver et tomber se conjuguent avec <strong>être</strong>. ' +
+          'Les verbes pronominaux utilisent également être : « Elle s\'est couchée » ; ' +
+          'le verbe non pronominal peut se construire autrement : « Elle a couché l\'enfant ».</p>',
+          '<p>Certains verbes changent d\'auxiliaire selon leur construction : « Elle est sortie du bureau » ' +
+          'mais « Elle a sorti le dossier » ; « Je suis monté au premier étage » mais « J\'ai monté les bagages ».</p>',
           box('mnemo', 'Mnémotechnique — « la maison d\'être »', 'pin',
-            '    <p>Aller, venir, partir, arriver, entrer, sortir, monter, descendre, naître, mourir, rester, ' +
-            'tomber, retourner, passer, demeurer : la maison d\'être — tout ce qui se déplace ou change ' +
-            'd\'état habite chez être ; ce qui s\'achète ou se dit reste chez avoir.</p>')
+            '    <p>La maison aide à retenir des emplois avec être, par exemple « elle est partie » et ' +
+            '« elle est sortie ». Elle ne comprend pas tous les verbes de mouvement : « elle a marché ». ' +
+            'Vérifie le verbe et la phrase complète.</p>'),
+          '<p>Pour approfondir : <a href="https://www.academie-francaise.fr/maria-k-allemagne">Académie française — choix de l\'auxiliaire</a> (consulté le 30 octobre 2026).</p>'
         ].join('\n')
       },
       {
@@ -362,10 +362,12 @@ module.exports = [
           '<strong>-u</strong> (eu, connu, entendu, reçu, venu, vécu, voulu) ; <strong>-it</strong> (dit, ' +
           'écrit, fait) ; <strong>-i</strong> (dormi, fini, parti, sorti) ; <strong>-is</strong> (acquis, ' +
           'appris, compris, mis, pris, soumis) ; <strong>-ert</strong> (découvert, ouvert, offert).</p>',
-          '<p>Avec <strong>être</strong>, le participe s\'accorde <strong>comme un adjectif</strong>, en genre ' +
+          '<p>Avec <strong>être</strong> et un verbe non pronominal, le participe s\'accorde <strong>comme un adjectif</strong>, en genre ' +
           'et en nombre : il est allé, elle est allée, ils sont allés, elles sont allées. « Julie dit : je ' +
           'suis <strong>allée</strong> » — le « je » représente Julie. « Djamel et Malika : nous sommes ' +
           '<strong>allés</strong> » — groupe mixte, masculin pluriel.</p>',
+          '<p>Pour un verbe pronominal, l\'accord demande une analyse supplémentaire : ' +
+          '« Elle s\'est lavée », mais « Elle s\'est lavé les mains ».</p>',
           '<p><strong>Vous</strong> : quatre cas — groupe d\'hommes ou mixte : « Vous êtes sortis » ; groupe ' +
           'féminin : « Vous êtes sorties » ; politesse envers un homme : « Vous êtes sorti » ; politesse ' +
           'envers une femme : « Vous êtes sortie ». Identifier l\'antécédent avant d\'accorder.</p>',
@@ -382,11 +384,11 @@ module.exports = [
 
     questions: [
       { q: 'Le passé composé se forme avec…', opts: ['avoir seul', 'être seul', 'avoir ou être au présent + participe passé'], correct: 2, exp: 'Auxiliaire au présent, puis participe passé.' },
-      { q: '« Elle est partie en vacances » : partir prend…', opts: ['avoir', 'être', 'les deux indifféremment'], correct: 1, exp: 'Verbe de mouvement : être.' },
+      { q: '« Elle est partie » et « elle a marché » : que conclure ?', opts: ['Partir prend être ici et marcher prend avoir.', 'Tous les verbes de mouvement prennent être.', 'Tous les verbes de mouvement prennent avoir.'], correct: 0, exp: 'Le mouvement seul ne détermine pas l\'auxiliaire : on examine le verbe et son emploi.' },
       { q: '« J\'ai monté les bagages » : monter prend…', opts: ['avoir (avec COD)', 'être (toujours)', 'avoir (sans COD)'], correct: 0, exp: 'COD présent : avoir. Sans COD : « je suis monté ».' },
       { q: 'Le participe de « écrire » est…', opts: ['écrivé', 'écrit', 'écris'], correct: 1, exp: 'Famille -it : dit, écrit, fait.' },
       { q: 'Le participe de « prendre » est…', opts: ['prendu', 'prené', 'pris'], correct: 2, exp: 'Famille -is : acquis, appris, compris, mis, pris, soumis.' },
-      { q: 'Avec être, le participe s\'accorde…', opts: ['avec le COD', 'comme un adjectif, avec le sujet', 'jamais'], correct: 1, exp: 'Genre et nombre du sujet : allée, allés, allées.' },
+      { q: 'Dans « elles sont allées », le participe s\'accorde…', opts: ['avec le COD', 'avec le sujet', 'jamais'], correct: 1, exp: 'Avec être et le verbe non pronominal aller, le participe s\'accorde avec le sujet : allées.' },
       { q: '« Vous » de politesse adressé à une femme : « Vous êtes… »', opts: ['sorti', 'sortie', 'sorties'], correct: 1, exp: 'Politesse + femme : féminin singulier.' },
       { q: 'Djamel et Malika disent : « Nous sommes… »', opts: ['allé', 'allée', 'allés'], correct: 2, exp: 'Groupe mixte : masculin pluriel.' }
     ],
@@ -400,16 +402,16 @@ module.exports = [
 
     methodTitle: 'Méthode — accorder le passé composé en trois gestes',
     method: [
-      'Choisir l\'auxiliaire : mouvement ou pronominal (être), transitif (avoir), douteux selon le COD.',
+      'Choisir l\'auxiliaire selon le verbe et la construction : « elle est sortie », mais « elle a sorti le dossier ».',
       'Identifier l\'antécédent du sujet, surtout pour je, tu, nous, vous.',
-      'Accorder avec être comme un adjectif : rien, e, s, es.'
+      'Accorder avec être selon le sujet pour un verbe non pronominal ; examiner les pronominaux séparément.'
     ],
 
     summary: [
       'Passé composé : avoir ou être au présent + participe passé.',
-      'Être : verbes de mouvement (maison d\'être), verbes pronominaux, verbes douteux sans COD.',
+      'Le mouvement ne suffit pas : « elle est partie », mais « elle a marché ». Les pronominaux emploient être.',
       'Participes par familles : -é, -u, -it, -i, -is, -ert.',
-      'Avec être, accord comme adjectif ; « vous » : quatre cas selon l\'antécédent.'
+      'Avec être et un verbe non pronominal, accord avec le sujet ; les pronominaux demandent une analyse supplémentaire.'
     ],
 
     checklist: [
@@ -422,10 +424,10 @@ module.exports = [
     notions: [
       '<strong>Passé composé</strong> : auxiliaire au présent + participe passé.',
       '<strong>Maison d\'être</strong> : aller, venir, partir, arriver, entrer, sortir, monter, descendre…',
-      '<strong>Verbes douteux</strong> : avoir avec COD, être sans COD (monter, sortir, descendre…).',
+      '<strong>Selon la construction</strong> : « elle est sortie », mais « elle a sorti le dossier ».',
       '<strong>Pronominaux</strong> : toujours être (se coucher, se lever, se souvenir).',
       '<strong>Familles de participes</strong> : -é, -u, -it, -i, -is, -ert.',
-      '<strong>Accord avec être</strong> : genre et nombre du sujet, comme l\'adjectif.',
+      '<strong>Accord avec être</strong> : avec le sujet pour un verbe non pronominal ; les pronominaux demandent une analyse supplémentaire.',
       '<strong>Vous masculin pluriel</strong> : groupe d\'hommes ou mixte — « vous êtes sortis ».',
       '<strong>Vous de politesse</strong> : accord selon la personne visée — sorti / sortie.'
     ],
@@ -438,7 +440,7 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Auxiliaire de partir ? d\'acheter ?', a: 'Partir : être (mouvement). Acheter : avoir (transitif avec COD).' },
+      { q: 'Auxiliaire de partir ? de marcher ?', a: '« Elle est partie » : être ; « elle a marché » : avoir. Le mouvement ne suffit pas à choisir.' },
       { q: 'Familles de participes du support ?', a: '-é (allé), -u (reçu), -it (dit), -i (fini), -is (pris), -ert (ouvert).' },
       { q: 'Les quatre cas de « vous » ?', a: 'Hommes ou groupe mixte : sortis. Femmes : sorties. Politesse homme : sorti. Politesse femme : sortie.' },
       { q: 'Monter avec ou sans COD ?', a: '« J\'ai monté les bagages » (COD, avoir) ; « Je suis monté au premier étage » (sans COD, être).' },

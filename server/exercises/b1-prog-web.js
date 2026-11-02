@@ -35,10 +35,11 @@ module.exports = [
     level: 'n1',
     language: 'javascript',
     title: 'Décomposer une URL',
-    goal: 'Séparer une adresse en ses quatre composantes : protocole, hôte, chemin, requête.',
-    brief: '<p>Le programme reçoit une adresse sur une seule ligne. Affichez ses quatre composantes, ' +
+    goal: 'Séparer une adresse HTTP simplifiée en protocole, autorité, chemin et requête.',
+    brief: '<p>Le programme reçoit une adresse HTTP absolue simplifiée, sans fragment ni identifiants, sur une seule ligne. ' +
+      'Si une requête est présente, l’adresse fournie contient un <code>/</code> entre l’autorité et le <code>?</code>. Affichez ses quatre composantes, ' +
       'chacune sur sa ligne, dans l’ordre : le <strong>protocole</strong> (ce qui précède <code>://</code>), ' +
-      'l’<strong>hôte</strong> (jusqu’au premier <code>/</code>), le <strong>chemin</strong> (jusqu’au ' +
+      'l’<strong>autorité</strong> (hôte et port éventuel, jusqu’au premier <code>/</code>), le <strong>chemin</strong> (jusqu’au ' +
       '<code>?</code>) et la <strong>requête</strong> (ce qui suit le <code>?</code>). Si l’adresse n’a pas ' +
       'de chemin, affichez <code>/</code> ; si elle n’a pas de requête, affichez <code>-</code>.</p>',
     starter: LIRE + `
@@ -47,7 +48,7 @@ const url = lignes[0];
 // À compléter : afficher le protocole, l’hôte, le chemin et la requête.
 `,
     hints: [
-      'indexOf() renvoie -1 quand le caractère cherché n’est pas là : c’est ce qui distingue « absent » de « présent ».',
+      'Comment repérer la position d’un séparateur et vérifier s’il est absent ?',
       'Pour couper une chaîne en deux à un séparateur, slice() suffit : slice(0, i) et slice(i + 1).'
     ],
     examples: [
@@ -94,16 +95,18 @@ const codes = lignes.slice(1, 1 + n).map(Number);
 // À compléter : afficher chaque code suivi de sa famille.
 `,
     hints: [
-      'La famille se lit sur le chiffre des centaines : 200 → 2xx → succès.',
+      'Quel chiffre du code permet de reconnaître sa famille ?',
       'Une table qui associe le chiffre des centaines au libellé évite cinq if imbriqués.'
     ],
     examples: [
       { stdin: '3\n200\n404\n301', expected: '200 succès\n404 erreur client\n301 redirection', note: 'Trois codes, trois familles.' }
     ],
     tests: [
+      { label: 'Fin de chaque classe et code 451', stdin: '5\n199\n299\n399\n451\n499', expected: '199 information\n299 succès\n399 redirection\n451 erreur client\n499 erreur client' },
       { label: 'Erreur serveur', stdin: '1\n500', expected: '500 erreur serveur' },
       { label: 'Information', stdin: '1\n100', expected: '100 information' },
-      { label: 'Les cinq familles', stdin: '5\n204\n302\n403\n503\n101', expected: '204 succès\n302 redirection\n403 erreur client\n503 erreur serveur\n101 information' }
+      { label: 'Les cinq familles', stdin: '5\n204\n302\n403\n503\n101', expected: '204 succès\n302 redirection\n403 erreur client\n503 erreur serveur\n101 information' },
+      { label: 'Ligne surnuméraire ignorée', stdin: '2\n200\n404\n999', expected: '200 succès\n404 erreur client' }
     ],
     solution: LIRE + `
 const n = Number(lignes[0]);
@@ -128,12 +131,14 @@ for (const code of codes) {
     level: 'n2',
     language: 'javascript',
     title: 'Méthodes HTTP et idempotence',
-    goal: 'Distinguer les méthodes qu’on peut rejouer sans conséquence des autres.',
-    brief: '<p>Une méthode est <strong>idempotente</strong> quand rejouer la même requête laisse le serveur ' +
-      'dans le même état : <code>GET</code>, <code>HEAD</code>, <code>PUT</code>, <code>DELETE</code>, ' +
-      '<code>OPTIONS</code> et <code>TRACE</code> le sont ; <code>POST</code> et <code>PATCH</code> ne le ' +
-      'sont pas. Le programme reçoit un entier <code>n</code>, puis <code>n</code> méthodes (une par ligne, ' +
-      'en majuscules). Affichez pour chacune <code>MÉTHODE oui</code> ou <code>MÉTHODE non</code>.</p>',
+    goal: 'Reconnaître les méthodes définies comme idempotentes par HTTP.',
+    brief: '<p>Une méthode est <strong>idempotente</strong> lorsque répéter une même requête a le même effet ' +
+      'demandé qu’une seule. HTTP définit <code>GET</code>, <code>HEAD</code>, <code>PUT</code>, <code>DELETE</code>, ' +
+      '<code>OPTIONS</code> et <code>TRACE</code> comme idempotentes ; il ne garantit pas cette propriété pour ' +
+      '<code>POST</code> et <code>PATCH</code>, même si une opération particulière peut l’être. Le programme ' +
+      'reçoit un entier <code>n</code>, puis <code>n</code> de ces méthodes (une par ligne, ' +
+      'en majuscules). Affichez <code>MÉTHODE oui</code> quand HTTP définit la méthode comme idempotente ; ' +
+      'sinon, affichez <code>MÉTHODE non</code>, même si une opération particulière peut être idempotente.</p>',
     starter: LIRE + `
 const n = Number(lignes[0]);
 const methodes = lignes.slice(1, 1 + n);
@@ -141,16 +146,17 @@ const methodes = lignes.slice(1, 1 + n);
 // À compléter : afficher chaque méthode suivie de « oui » ou « non ».
 `,
     hints: [
-      'Un tableau de méthodes idempotentes et un test includes() suffisent.',
+      'Comment vérifier si une méthode appartient au groupe des méthodes idempotentes ?',
       'La casse compte : normalise en majuscules si l’entrée n’est pas garantie.'
     ],
     examples: [
-      { stdin: '2\nGET\nPOST', expected: 'GET oui\nPOST non', note: 'GET ne modifie rien, POST crée quelque chose.' }
+      { stdin: '2\nGET\nPOST', expected: 'GET oui\nPOST non', note: 'GET est défini comme idempotent ; POST ne le garantit pas.' }
     ],
     tests: [
       { label: 'Trois méthodes', stdin: '3\nPATCH\nDELETE\nPUT', expected: 'PATCH non\nDELETE oui\nPUT oui' },
       { label: 'Méthodes de lecture', stdin: '2\nHEAD\nOPTIONS', expected: 'HEAD oui\nOPTIONS oui' },
-      { label: 'Inspection et création', stdin: '2\nTRACE\nPOST', expected: 'TRACE oui\nPOST non' }
+      { label: 'Inspection et création', stdin: '2\nTRACE\nPOST', expected: 'TRACE oui\nPOST non' },
+      { label: 'Ligne surnuméraire ignorée', stdin: '2\nGET\nPOST\nEXTRA', expected: 'GET oui\nPOST non' }
     ],
     solution: LIRE + `
 const n = Number(lignes[0]);
@@ -264,7 +270,9 @@ const titres = lignes.slice(1, 1 + n).map(texte => Number(texte.trim()[1]));
     tests: [
       { label: 'La page commence par h2', stdin: '2\nh2\nh3', expected: 'non conforme' },
       { label: 'Saut de deux niveaux', stdin: '3\nh1\nh3\nh4', expected: 'non conforme' },
-      { label: 'Deux titres de même niveau', stdin: '5\nh1\nh2\nh2\nh3\nh4', expected: 'conforme' }
+      { label: 'Deux titres de même niveau', stdin: '5\nh1\nh2\nh2\nh3\nh4', expected: 'conforme' },
+      { label: 'Ligne surnuméraire ignorée', stdin: '2\nh1\nh2\nh3', expected: 'conforme' },
+      { label: 'Ligne hors quota non conforme ignorée', stdin: '2\nh1\nh2\nh5', expected: 'conforme' }
     ],
     solution: LIRE + `
 const n = Number(lignes[0]);
@@ -308,7 +316,10 @@ const adresse = lignes[0];
     tests: [
       { label: 'Sans arobase', stdin: 'pas-une-adresse', expected: 'invalide' },
       { label: 'Partie locale vide', stdin: '@domaine.fr', expected: 'invalide' },
-      { label: 'Domaine sans point', stdin: 'nom@domaine', expected: 'invalide' }
+      { label: 'Domaine sans point', stdin: 'nom@domaine', expected: 'invalide' },
+      { label: 'Espace interdit', stdin: 'user name@domaine.fr', expected: 'invalide' },
+      { label: 'Domaine court valide', stdin: 'contact@x.org', expected: 'valide' },
+      { label: 'Domaine minimal deux lettres', stdin: 'test@a.b', expected: 'valide' }
     ],
     solution: LIRE + `
 const adresse = lignes[0];
@@ -352,7 +363,9 @@ const motDePasse = lignes[0];
     tests: [
       { label: 'Lettres minuscules seulement', stdin: 'abcdefgh', expected: '2 faible' },
       { label: 'Tout sauf un symbole', stdin: 'Abcdefg1', expected: '4 moyen' },
-      { label: 'Trop court', stdin: 'abc', expected: '1 faible' }
+      { label: 'Trop court', stdin: 'abc', expected: '1 faible' },
+      { label: 'Mot de passe complet valide', stdin: 'Exemple1!', expected: '5 fort' },
+      { label: 'Majuscule non initiale', stdin: 'Bbcdefg1', expected: '4 moyen' }
     ],
     solution: LIRE + `
 const motDePasse = lignes[0];
@@ -388,7 +401,7 @@ const texte = lignes[0];
 // À compléter : afficher le texte échappé.
 `,
     hints: [
-      'L’ordre des remplacements n’est pas neutre : commence impérativement par le & , sinon vous ré-échapperas les entités créées.',
+      'L’ordre des remplacements n’est pas neutre : commence impérativement par le & , sinon vous ré-échapperez les entités créées.',
       'replace() avec une expression régulière globale — le drapeau g — remplace toutes les occurrences, pas seulement la première.'
     ],
     examples: [
@@ -443,7 +456,9 @@ const selecteur = lignes[0];
     tests: [
       { label: 'Deux classes sur le même élément', stdin: '.btn.btn--primary', expected: '0 2 0' },
       { label: 'Identifiant en tête', stdin: '#app section h2', expected: '1 0 2' },
-      { label: 'Sélecteur universel', stdin: '*', expected: '0 0 0' }
+      { label: 'Sélecteur universel', stdin: '*', expected: '0 0 0' },
+      { label: 'Balises courantes', stdin: 'div.card span', expected: '0 1 2' },
+      { label: 'Balise personnalisée avec majuscule', stdin: 'Main', expected: '0 0 1' }
     ],
     solution: LIRE + `
 const selecteur = lignes[0];
@@ -611,7 +626,8 @@ const largeurs = lignes.slice(1, 1 + n).map(Number);
     tests: [
       { label: 'Téléphone', stdin: '1\n375', expected: '375 1' },
       { label: 'Tablette, borne basse des deux colonnes', stdin: '1\n600', expected: '600 2' },
-      { label: 'Trois largeurs', stdin: '3\n599\n899\n900', expected: '599 1\n899 2\n900 3' }
+      { label: 'Trois largeurs', stdin: '3\n599\n899\n900', expected: '599 1\n899 2\n900 3' },
+      { label: 'Ligne surnuméraire ignorée', stdin: '2\n400\n700\n1200', expected: '400 1\n700 2' }
     ],
     solution: LIRE + `
 const n = Number(lignes[0]);
@@ -690,7 +706,8 @@ const eleves = lignes.slice(1, 1 + n);
     tests: [
       { label: 'Un seul élève', stdin: '1\nGrace 17', expected: '<ul>\n<li>Grace : 17</li>\n</ul>' },
       { label: 'Trois élèves', stdin: '3\nAl 12\nBo 9\nCy 14', expected: '<ul>\n<li>Al : 12</li>\n<li>Bo : 9</li>\n<li>Cy : 14</li>\n</ul>' },
-      { label: 'Noms composés', stdin: '2\nAda Lovelace 20\nAlan Turing 19', expected: '<ul>\n<li>Ada Lovelace : 20</li>\n<li>Alan Turing : 19</li>\n</ul>' }
+      { label: 'Noms composés', stdin: '2\nAda Lovelace 20\nAlan Turing 19', expected: '<ul>\n<li>Ada Lovelace : 20</li>\n<li>Alan Turing : 19</li>\n</ul>' },
+      { label: 'Ligne surnuméraire ignorée', stdin: '2\nAl 10\nBo 15\nCy 20', expected: '<ul>\n<li>Al : 10</li>\n<li>Bo : 15</li>\n</ul>' }
     ],
     solution: LIRE + `
 const n = Number(lignes[0]);
@@ -734,7 +751,8 @@ const eleves = lignes.slice(1, 1 + n);
     tests: [
       { label: 'Égalité tranchée par ordre alphabétique', stdin: '2\nAl 12\nBo 12', expected: 'Al\nBo' },
       { label: 'Un seul admis', stdin: '2\nZoe 10\nYves 4', expected: 'Zoe' },
-      { label: 'Ordre déjà mélangé', stdin: '4\nA 15\nB 20\nC 9\nD 17', expected: 'B\nD\nA' }
+      { label: 'Ordre déjà mélangé', stdin: '4\nA 15\nB 20\nC 9\nD 17', expected: 'B\nD\nA' },
+      { label: 'Ligne surnuméraire ignorée', stdin: '2\nAl 12\nBo 14\nCy 16', expected: 'Bo\nAl' }
     ],
     solution: LIRE + `
 const n = Number(lignes[0]);
@@ -778,7 +796,8 @@ const evenements = lignes.slice(1, 1 + n);
     tests: [
       { label: 'Aucune remise à zéro', stdin: '4\nclick\nclick\nclick\nclick', expected: '4\n4' },
       { label: 'Remise à zéro initiale', stdin: '2\nreset\nreset', expected: '0\n0' },
-      { label: 'Alternance', stdin: '5\nclick\nreset\nclick\nclick\nreset', expected: '3\n0' }
+      { label: 'Alternance', stdin: '5\nclick\nreset\nclick\nclick\nreset', expected: '3\n0' },
+      { label: 'Ligne surnuméraire ignorée', stdin: '2\nclick\nclick\nreset', expected: '2\n2' }
     ],
     solution: LIRE + `
 const n = Number(lignes[0]);

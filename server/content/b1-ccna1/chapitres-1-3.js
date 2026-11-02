@@ -79,14 +79,20 @@ module.exports = [
           '(écrantée ET blindée, double écran commun), <strong>SSTP</strong> (super blindée : STP plus un ' +
           'écran commun sous la gaine).</p>',
           '<p>Les <strong>catégories</strong> (ANSI/TIA/EIA-568B) : cat 1 et 2 abandonnées (téléphonie, ' +
-          'Token Ring 4 Mbit/s), cat 3 (16 MHz, téléphonie et 100BASE-T), cat 4 (20 MHz, vite remplacée), ' +
-          'cat 5 (100 MHz), <strong>cat 5e</strong> (125 MHz, jusqu\'à 1 Gbit/s), <strong>cat 6</strong> ' +
+          'Token Ring 4 Mbit/s), cat 3 (16 MHz, téléphonie ; le 100BASE-T4 historique peut utiliser la catégorie 3), ' +
+          'cat 4 (20 MHz, vite remplacée), cat 5 (100 MHz ; 100BASE-TX utilise la catégorie 5), ' +
+          '<strong>cat 5e</strong> (jusqu\'à 1 Gbit/s), <strong>cat 6</strong> ' +
           '(250 MHz), <strong>cat 6a</strong> (500 MHz, 10 Gbit/s, compatible PoE/PoE+), cat 7 (600 MHz, ' +
           '10 Gbit/s sur 100 m, blindage individuel et collectif).</p>',
+          '<p>Pour le <strong>10GBASE-T</strong>, le module Cisco cité accepte la catégorie 6 UTP jusqu\'à ' +
+          '<strong>55 m</strong> et la catégorie 6a UTP jusqu\'à <strong>100 m</strong>, sous réserve d\'un ' +
+          'canal conforme et de la compatibilité des équipements. La catégorie 6a n\'est donc pas l\'unique choix. ' +
+          'Références Cisco : <a href="https://www.cisco.com/c/en/us/products/interfaces-modules/catalyst-6500-16-port-10-gigabit-ethernet-copper-module/index.html">module 10GBASE-T</a> et ' +
+          '<a href="https://www.cisco.com/c/en/us/td/docs/routers/12000/gsr_linecards/enet_lc/installation/guide/enet_lc.html">variantes Fast Ethernet</a>, consultées le 30 octobre 2026.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
             '    <ul>\n' +
             '      <li>FTP = écran commun (feuille d\'aluminium) ; STP = blindage par paire : deux blindages différents.</li>\n' +
-            '      <li>Cat 5e porte le gigabit ; le 10 Gigabit exige cat 6a ou 7.</li>\n' +
+            '      <li>Cat 5e porte le gigabit ; le choix pour 10GBASE-T dépend notamment de la portée et des équipements.</li>\n' +
             '      <li>Le hub (couche 1) ne cible personne ; le switch L2 transfère selon la MAC.</li>\n' +
             '      <li>L\'IDS alerte ; l\'IPS bloque : la différence est dans l\'action.</li>\n' +
             '    </ul>')
@@ -115,7 +121,7 @@ module.exports = [
       { q: 'L\'IPS se distingue de l\'IDS car il…', opts: ['alerte seulement', 'bloque les menaces', 'filtre les e-mails'], correct: 1, exp: 'L\'IPS répond aux menaces détectées : c\'est la prévention.' },
       { q: 'La paire STP est blindée…', opts: ['par feuille commune', 'par paire', 'par connecteur'], correct: 1, exp: 'STP : chaque paire entourée de sa couche conductrice (Token-Ring).' },
       { q: 'La feuille d\'aluminium autour de TOUTES les paires désigne…', opts: ['UTP', 'FTP', 'SSTP'], correct: 1, exp: 'FTP (F/UTP) : écran général entre gaine et groupement de paires.' },
-      { q: 'Le 10 Gigabit exige au minimum…', opts: ['cat 5e', 'cat 6a', 'cat 3'], correct: 1, exp: 'Cat 6a : 500 MHz, 10 Gbit/s, compatible PoE/PoE+.' },
+      { q: 'Sur le module Cisco cité, 10GBASE-T en catégorie 6 UTP atteint jusqu\'à…', opts: ['55 m', '100 m', '500 m'], correct: 0, exp: 'Pour ce module et un canal conforme, Cisco indique 55 m en catégorie 6 UTP ; 100 m correspondent à d\'autres catégories et 500 m dépassent cette indication.' },
       { q: 'Dans la fibre, la lumière est reconvertie par…', opts: ['une cellule photoélectrique', 'un hub', 'un transfo'], correct: 0, exp: 'Laser → fibre → cellule photoélectrique : le cycle électrique-lumière-électrique.' },
       { q: 'L\'atténuation minimale de la silice est vers…', opts: ['850 nm', '1550 nm', '2900 nm'], correct: 1, exp: 'Proche infrarouge : ~0,2 dB/km, réamplification périodique au-delà.' }
     ],
@@ -153,7 +159,7 @@ module.exports = [
       '<strong>Switch L3</strong> : commutation + routage entre VLAN.',
       '<strong>IDS / IPS</strong> : détection (alerte) / prévention (blocage) d\'intrusion.',
       '<strong>UTP / FTP / STP / SFTP / SSTP</strong> : les cinq types de paires torsadées.',
-      '<strong>Cat 5e</strong> : 125 MHz, jusqu\'à 1 Gbit/s.',
+      '<strong>Cat 5e</strong> : jusqu\'à 1 Gbit/s sur un canal conforme.',
       '<strong>Cat 6a</strong> : 500 MHz, 10 Gbit/s.',
       '<strong>Réfraction</strong> : changement de direction entre deux milieux.',
       '<strong>Atténuation</strong> : affaiblissement exponentiel (Beer-Lambert).'
@@ -167,20 +173,11 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Qu’est-ce que « Atténuation » ?', a: 'Atténuation : affaiblissement exponentiel (Beer-Lambert).' },
-      { q: 'Qu’est-ce que « IEEE 802.3 » ?', a: 'IEEE 802.3 : la famille de normes Ethernet filaire.' },
-      { q: 'Qu’est-ce que « RJ-45 » ?', a: 'RJ-45 : connecteur à 8 positions (broches).' },
-      { q: 'Qu’est-ce que « En-tête IPv4 » ?', a: 'En-tête IPv4 : 20 octets, adresses 32 bits inchangées.' },
-      { q: 'Qu’est-ce que « Routeur par défaut » ?', a: 'Routeur par défaut : destination des paquets hors du sous-réseau.' },
-      { q: 'Qu’est-ce que « ARP » ?', a: "ARP : apprend la MAC d'un hôte IP du LAN." },
-      { q: 'Qu’est-ce que « configure terminal » ?', a: 'configure terminal : passage au mode de configuration.' },
-      { q: 'Qu’est-ce que « enable secret » ?', a: 'enable secret : mot de passe du mode enable, en global.' },
-      { q: 'Qu’est-ce que « username nom secret motdepasse » ?', a: "username nom secret motdepasse : création d'un utilisateur local." },
       { q: 'Qu\'est-ce qu\'un réseau informatique ?', a: 'Ensemble de matériels reliés par des supports de transport et échangeant des données numériques (0 et 1).' },
       { q: 'Switch L2 contre switch L3 ?', a: 'L2 : commutation des trames dans un LAN. L3 : commutation PLUS routage entre VLAN.' },
       { q: 'IDS contre IPS ?', a: 'IDS : détecte et alerte. IPS : détecte ET bloque — la prochaine étape de l\'évolution.' },
       { q: 'Les cinq types de paires torsadées ?', a: 'UTP (rien), FTP (écran commun), STP (blindage par paire), SFTP (double écran), SSTP (super blindée).' },
-      { q: 'Cat 5e et cat 6a ?', a: 'Cat 5e : 125 MHz, 1 Gbit/s. Cat 6a : 500 MHz, 10 Gbit/s (PoE/PoE+).' },
+      { q: 'Cat 5e et cat 6a ?', a: 'Cat 5e : jusqu\'à 1 Gbit/s ; cat 6a : 10GBASE-T jusqu\'à 100 m sur le module cité. Cat 6 UTP : 55 m dans ce même exemple.' },
       { q: 'Le cycle de la fibre optique ?', a: 'Laser (électrique → lumière), propagation par réfraction, cellule photoélectrique (lumière → électrique).' }
     ]
   },
@@ -328,7 +325,7 @@ module.exports = [
     objectives: [
       'décrire un LAN SOHO (un commutateur, ou un routeur sans fil unique) et un LAN d\'entreprise (un switch par étage) ;',
       'décomposer la liaison Ethernet : câble, connecteurs RJ-45, ports ;',
-      'appliquer le brochage : câble droit (appareils différents), câble croisé (appareils similaires) ;',
+      'choisir un brochage droit ou croisé selon les interfaces MDI/MDI-X et l\'Auto-MDIX ;',
       'citer les champs de la trame 802.3 avec leurs tailles ;',
       'dérouler le chemin d\'une trame PC1 → SW1 → SW2 → PC2.'
     ],
@@ -343,16 +340,19 @@ module.exports = [
           '<strong>LAN d\'entreprise</strong> reproduit ce schéma à plus grande échelle : un commutateur et ' +
           'un point d\'accès par étage, dans la salle technique. Les normes sans fil commencent par ' +
           '<strong>802.11</strong> ; les normes Ethernet par <strong>802.3</strong>, de 10 Mbit/s à 400 Gbit/s.</p>',
-          '<p>La <strong>liaison Ethernet</strong> = câble + connecteurs RJ-45 + ports. 10BASE-T et ' +
-          '100BASE-T utilisent deux paires ; <strong>1000BASE-T</strong> en exige quatre. Les cartes ' +
-          'réseau émettent sur les broches <strong>1 et 2</strong> et reçoivent sur <strong>3 et 6</strong> ; ' +
-          'les commutateurs font le contraire. D\'où deux brochages : le <strong>câble droit</strong> ' +
-          '(broche à broche, entre appareils différents — PC vers switch) et le <strong>câble croisé</strong> ' +
-          '(paires croisées 1-2/3-6, entre appareils similaires — deux commutateurs). Le gigabit transmet ' +
-          'et reçoit simultanément sur chaque paire (broches 4-5 et 7-8 ajoutées).</p>',
-          box('mnemo', 'Mnémotechnique — « droit entre différents, croisé entre copains »', 'pin',
-            '    <p>PC-switch : droit. Switch-switch, PC-PC : croisé. Le gigabit transmet dans les deux ' +
-            'sens sur les quatre paires.</p>')
+          '<p>La <strong>liaison Ethernet</strong> associe câble, connecteurs et ports. 10BASE-T et ' +
+          '100BASE-TX utilisent deux paires ; 100BASE-T4 et <strong>1000BASE-T</strong> en utilisent quatre. ' +
+          'Pour des interfaces 10/100 MDI classiques, l\'émission utilise les broches 1-2 et la réception 3-6 ; ' +
+          'une interface MDI-X inverse ces fonctions. Sans <strong>Auto-MDIX</strong>, reliez MDI à MDI-X ' +
+          'avec un câble droit, et deux interfaces de même type avec un câble croisé. Un PC et un routeur ' +
+          'à interfaces MDI classiques utilisent ainsi un câble croisé malgré leurs noms différents. ' +
+          'L\'Auto-MDIX compatible et activé peut adapter le port au câble. En gigabit, les quatre paires ' +
+          'transportent des signaux dans les deux sens.</p>',
+          '<p>Références : <a href="https://community.cisco.com/kxiwq67737/attachments/kxiwq67737/5991-discussions-wan-routing-switching/16263/1/16878-Connections.pdf">Cisco, raccordement PC-routeur</a> et ' +
+          '<a href="https://www.cisco.com/c/en/us/support/docs/lan-switching/ethernet/10561-3.html">Cisco, Auto-MDIX</a>, consultées le 30 octobre 2026.</p>',
+          box('mnemo', 'Sans Auto-MDIX : comparer les interfaces, pas les noms', 'pin',
+            '    <p>MDI vers MDI-X : droit. MDI vers MDI ou MDI-X vers MDI-X : croisé. ' +
+            'Vérifiez la documentation de chaque port.</p>')
         ].join('\n')
       },
       {
@@ -372,7 +372,7 @@ module.exports = [
             '    <ul>\n' +
             '      <li>MAC destination et source : 6 octets chacune ; type : 2 ; FCS : 4.</li>\n' +
             '      <li>Les données font de 46 à 1500 octets : le pad comble le minimum.</li>\n' +
-            '      <li>Le câble croisé relie deux appareils SIMILAIRES, pas deux appareils quelconques.</li>\n' +
+            '      <li>Sans Auto-MDIX, deux interfaces MDI se croisent même si les appareils ont des noms différents.</li>\n' +
             '      <li>Duplex intégral = émission et réception simultanées, possible grâce aux commutateurs.</li>\n' +
             '    </ul>')
         ].join('\n')
@@ -382,8 +382,8 @@ module.exports = [
     questions: [
       { q: 'Les normes Ethernet commencent par…', opts: ['802.11', '802.3', '802.15'], correct: 1, exp: 'IEEE 802.3 ; 802.11 désigne le sans-fil.' },
       { q: 'Un LAN SOHO typique d\'aujourd\'hui utilise…', opts: ['un switch par étage', 'un appareil « routeur sans fil » unique', 'un hub central'], correct: 1, exp: 'Un seul appareil remplit routeur, commutateur et point d\'accès.' },
-      { q: 'Les cartes réseau émettent sur les broches…', opts: ['1 et 2', '3 et 6', '7 et 8'], correct: 0, exp: 'Émission 1-2, réception 3-6 ; les commutateurs font l\'inverse.' },
-      { q: 'Entre deux commutateurs, on utilise…', opts: ['un câble droit', 'un câble croisé', 'du coaxial'], correct: 1, exp: 'Appareils similaires : paires croisées 1-2/3-6.' },
+      { q: 'Une interface MDI 10/100BASE-TX classique émet sur les broches…', opts: ['1 et 2', '3 et 6', '7 et 8'], correct: 0, exp: 'MDI classique : émission 1-2, réception 3-6 ; une interface MDI-X les inverse.' },
+      { q: 'Sans Auto-MDIX, entre deux interfaces de commutateur MDI-X, on utilise…', opts: ['un câble droit', 'un câble croisé', 'du coaxial'], correct: 1, exp: 'Deux interfaces MDI-X requièrent un croisement dans ce cas ; avec Auto-MDIX compatible, le port peut s\'adapter.' },
       { q: '1000BASE-T utilise…', opts: ['deux paires', 'quatre paires', 'une fibre'], correct: 1, exp: 'Quatre paires, transmission simultanée sur chaque paire.' },
       { q: 'La MAC de destination fait…', opts: ['4 octets', '6 octets', '8 octets'], correct: 1, exp: 'Comme la MAC source : 6 octets.' },
       { q: 'Le champ données de la trame 802.3 fait…', opts: ['1 à 46 octets', '46 à 1500 octets', '1500 à 9000 octets'], correct: 1, exp: 'Minimum 46 (pad sinon), maximum 1500.' },
@@ -391,7 +391,7 @@ module.exports = [
     ],
 
     pitfalls: [
-      'Relier deux commutateurs par un câble droit : brochage croisé exigé.',
+      'Choisir selon les noms des appareils sans vérifier MDI/MDI-X et l\'Auto-MDIX.',
       'Oublier le pad quand les données sont sous 46 octets.',
       'Confondre SFD (1 octet) et préambule (7 octets).',
       'Imaginer du semi-duplex derrière des commutateurs modernes : c\'est le règne des hubs.'
@@ -406,7 +406,7 @@ module.exports = [
 
     summary: [
       'Ethernet = IEEE 802.3, de 10 Mbit/s à 400 Gbit/s ; sans-fil = 802.11.',
-      'Câble droit entre différents, croisé entre similaires ; gigabit sur 4 paires.',
+      'Sans Auto-MDIX : droit entre MDI et MDI-X, croisé entre interfaces de même type ; gigabit sur 4 paires.',
       'Trame : préambule 7, SFD 1, MAC 6+6, type 2, données 46-1500, FCS 4.',
       'Duplex intégral : émission et réception simultanées sur chaque liaison.'
     ],
@@ -421,8 +421,8 @@ module.exports = [
     notions: [
       '<strong>IEEE 802.3</strong> : la famille de normes Ethernet filaire.',
       '<strong>SOHO</strong> : Small Office Home Office — petit LAN, souvent un seul appareil.',
-      '<strong>Câble droit</strong> : broche à broche, entre appareils différents.',
-      '<strong>Câble croisé</strong> : paires croisées, entre appareils similaires.',
+      '<strong>Câble droit</strong> : broche à broche ; sans Auto-MDIX, relie MDI à MDI-X.',
+      '<strong>Câble croisé</strong> : paires croisées ; sans Auto-MDIX, relie deux interfaces de même type.',
       '<strong>RJ-45</strong> : connecteur à 8 positions (broches).',
       '<strong>Trame 802.3</strong> : préambule, SFD, MAC dest/src, type, données, FCS.',
       '<strong>FCS</strong> : 4 octets de détection d\'erreurs.',
@@ -437,7 +437,7 @@ module.exports = [
     ],
 
     flashcards: [
-      { q: 'Câble droit contre câble croisé ?', a: 'Droit : broche à broche, entre appareils DIFFÉRENTS (PC-switch). Croisé : paires 1-2/3-6 croisées, entre appareils SIMILAIRES (switch-switch).' },
+      { q: 'Câble droit contre câble croisé ?', a: 'Sans Auto-MDIX : droit entre MDI et MDI-X, croisé entre deux MDI ou deux MDI-X ; PC-routeur MDI classique : croisé.' },
       { q: 'Les champs de la trame 802.3 ?', a: 'Préambule 7, SFD 1, MAC destination 6, MAC source 6, type 2, données 46-1500, FCS 4.' },
       { q: '1000BASE-T ?', a: 'Quatre paires, émission et réception simultanées sur chaque paire (broches 4-5 et 7-8 ajoutées).' },
       { q: 'SOHO contre entreprise ?', a: 'SOHO : un commutateur (ou un routeur sans fil unique). Entreprise : un commutateur et un point d\'accès par étage.' },

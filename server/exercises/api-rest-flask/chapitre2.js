@@ -105,6 +105,11 @@ else:
         label: 'Action non reconnue',
         stdin: 'exporter_pdf',
         expected: 'INCONNU'
+      },
+      {
+        label: 'Action alternative ajouter',
+        stdin: 'ajouter',
+        expected: 'POST'
       }
     ],
     solution: `action = input().strip().lower()

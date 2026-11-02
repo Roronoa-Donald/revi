@@ -16,7 +16,7 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c3-e1) — Critère de Dantzig (Choix de la variable entrante)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux variables candidates positives]\n# Données : x1:3.5,x2:2.0,x3:5.8,s1:0.0\nA_COMPLETER\n\n[Cas 2 — Solution optimale (tous négatifs ou nuls)]\n# Données : x1:0.0,x2:-2.5,s1:-1.2,s2:0.0\nA_COMPLETER\n\n[Cas 3 — Égalité de coût réduit (règle de Bland du plus petit indice)]\n# Données : x1:4.0,x2:4.0,s1:0.0\nA_COMPLETER\n",
     "hints": [
       "Découpez par virgule puis chaque couple par deux-points.",
-      "Cherche le maximum strictement positif. S’il n’y en a aucun, c’est optimal."
+      "Cherchez le maximum strictement positif. S’il n’y en a aucun, c’est optimal."
     ],
     "examples": [
       {

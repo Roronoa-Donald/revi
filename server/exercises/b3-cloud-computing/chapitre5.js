@@ -82,40 +82,39 @@ module.exports = [
   {
     "id": "cc3-c5-e3",
     "chapter": 5,
-    "title": "Évaluateur de souveraineté des données (RGPD, Cloud Act, SecNumCloud)",
+    "title": "Inventaire préalable : données et qualification",
     "level": "n3",
     "language": "analyse",
-    "goal": "Analyser l’exposition légale d’une infrastructure Cloud aux lois extraterritoriales et vérifier la conformité aux exigences de souveraineté européennes.",
-    "brief": "<p>Analysez les paramètres du problème pour chaque cas.<br><br>\nCritères d'évaluation :<br>\n1. <strong>Conformité RGPD</strong> :<br>\n   - Si <code>donnees in [SANTE, BANQUE]</code> et <code>hebergement != EU</code> -&gt; <code>RGPD=NON_CONFORME</code>.<br>\n   - Sinon -&gt; <code>RGPD=CONFORME</code>.<br>\n2. <strong>Exposition au CLOUD Act américain</strong> :<br>\n   - Si <code>csp_origine == US</code> -&gt; <code>CLOUD_ACT=EXPOSE</code> (mandat judiciaire possible même si les serveurs sont situés en Europe).<br>\n   - Sinon -&gt; <code>CLOUD_ACT=PROTEGE</code>.<br>\n3. <strong>Statut de Souveraineté global</strong> :<br>\n   - Si <code>RGPD == NON_CONFORME</code> -&gt; <code>STATUT=ILLEGAL</code><br>\n   - Sinon si <code>hebergement == EU</code> et <code>csp_origine == EU</code> et <code>label == SECNUMCLOUD</code> -&gt; <code>STATUT=SOUVERAIN_QUALIFIE</code><br>\n   - Sinon si <code>hebergement == EU</code> et <code>csp_origine == EU</code> et <code>label == ISO27001</code> -&gt; <code>STATUT=CONFIANCE_EUROPEENNE</code><br>\n   - Sinon si <code>CLOUD_ACT == EXPOSE</code> -&gt; <code>STATUT=RISQUE_EXTRATERRITORIAL</code><br>\n   - Sinon -&gt; <code>STATUT=STANDARD</code><br><br>\nAfficher :<br>\n<code>SOUVERAINETE: &lt;org&gt; -&gt; RGPD=&lt;RGPD&gt; | CLOUD_ACT=&lt;CLOUD_ACT&gt; | STATUT=&lt;STATUT&gt;</code></p>",
-    "starter": "# Grille d'analyse (cc3-c5-e3) — Évaluateur de souveraineté des données (RGPD, Cloud Act, SecNumCloud)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Entreprise européenne sur cloud européen certifié ISO 27001]\n# Données : SOUVERAINETE org=pme_industrielle donnees=INTERNE hebergement=EU csp_origine=EU label=ISO27001\nA_COMPLETER\n\n[Cas 2 — Données publiques sans restriction]\n# Données : SOUVERAINETE org=portail_open_data donnees=PUBLIC hebergement=EU csp_origine=EU label=AUCUN\nA_COMPLETER\n\n[Cas 3 — Données bancaires hors UE illégales]\n# Données : SOUVERAINETE org=banque_mobile donnees=BANQUE hebergement=ASIE csp_origine=US label=ISO27001\nA_COMPLETER\n",
+    "goal": "Repérer les informations à vérifier sans prononcer un verdict de conformité ou d’immunité juridique.",
+    "brief": "<p>Cette grille est un inventaire fictif, pas un avis juridique : elle ne vérifie ni les contrats, ni les destinataires, ni l’existence d’une qualification. Pour chaque ligne <code>ANALYSE org=... transfert_hors_eee=OUI|NON|INCONNU qualification=SECNUMCLOUD|ISO27001|AUCUNE</code>, indiquez <code>TRANSFERT=A_ETUDIER</code> si un transfert hors EEE est déclaré, <code>NON_DECLARE</code> si aucun n’est déclaré, ou <code>INCONNU</code> si l’information manque. Indiquez <code>QUALIFICATION=DECLARATION_A_VERIFIER</code> si une qualification ou certification est déclarée, sinon <code>NON_DECLAREE</code>. Dans tous les cas, indiquez <code>CONFORMITE=NON_EVALUEE</code>.</p><p>La conformité dépend notamment des traitements, des transferts, de leurs garanties et de leurs autres conditions ; une origine, une localisation ou une étiquette ne suffisent pas. Vérifiez séparément le périmètre et la validité d’une qualification SecNumCloud déclarée. Elle n’établit pas une immunité générale aux lois étrangères. Format : <code>ANALYSE: &lt;org&gt; | TRANSFERT=&lt;statut&gt; | QUALIFICATION=&lt;statut&gt; | CONFORMITE=NON_EVALUEE</code>.</p>",
+    "starter": "# Grille d’analyse (cc3-c5-e3) — Inventaire préalable\n\n[Cas 1 — Transfert déclaré et qualification à vérifier]\n# Données : ANALYSE org=banque transfert_hors_eee=OUI qualification=SECNUMCLOUD\nA_COMPLETER\n\n[Cas 2 — Transfert non déclaré et autre qualification]\n# Données : ANALYSE org=industrie transfert_hors_eee=NON qualification=ISO27001\nA_COMPLETER\n\n[Cas 3 — Informations incomplètes]\n# Données : ANALYSE org=association transfert_hors_eee=INCONNU qualification=AUCUNE\nA_COMPLETER\n",
     "hints": [
-      "Le CLOUD Act s’applique à tout fournisseur de droit américain quel que soit le pays d’hébergement des serveurs.",
-      "La qualification SecNumCloud de l’ANSSI garantit une immunité totale aux lois extraterritoriales."
+      "Une déclaration de qualification n’est pas la vérification de son périmètre ni de sa validité.",
+      "Une localisation seule ne permet pas de conclure à la conformité RGPD ou à une immunité juridique."
     ],
     "examples": [
       {
-        "stdin": "SOUVERAINETE org=chu_bordeaux donnees=SANTE hebergement=EU csp_origine=EU label=SECNUMCLOUD\nSOUVERAINETE org=fintech_paris donnees=BANQUE hebergement=EU csp_origine=US label=ISO27001\nSOUVERAINETE org=labo_recherche donnees=SANTE hebergement=US csp_origine=US label=ISO27001",
-        "expected": "SOUVERAINETE: chu_bordeaux -> RGPD=CONFORME | CLOUD_ACT=PROTEGE | STATUT=SOUVERAIN_QUALIFIE\nSOUVERAINETE: fintech_paris -> RGPD=CONFORME | CLOUD_ACT=EXPOSE | STATUT=RISQUE_EXTRATERRITORIAL\nSOUVERAINETE: labo_recherche -> RGPD=NON_CONFORME | CLOUD_ACT=EXPOSE | STATUT=ILLEGAL",
-        "note": "Les données de santé hors de l’UE constituent une infraction directe au RGPD."
+        "stdin": "ANALYSE org=ecole transfert_hors_eee=OUI qualification=AUCUNE",
+        "expected": "ANALYSE: ecole | TRANSFERT=A_ETUDIER | QUALIFICATION=NON_DECLAREE | CONFORMITE=NON_EVALUEE"
       }
     ],
     "tests": [
       {
-        "label": "Entreprise européenne sur cloud européen certifié ISO 27001",
+        "label": "Transfert déclaré et qualification à vérifier",
         "stdin": "cas:1",
-        "expected": "SOUVERAINETE: pme_industrielle -> RGPD=CONFORME | CLOUD_ACT=PROTEGE | STATUT=CONFIANCE_EUROPEENNE"
+        "expected": "ANALYSE: banque | TRANSFERT=A_ETUDIER | QUALIFICATION=DECLARATION_A_VERIFIER | CONFORMITE=NON_EVALUEE"
       },
       {
-        "label": "Données publiques sans restriction",
+        "label": "Transfert non déclaré et autre qualification",
         "stdin": "cas:2",
-        "expected": "SOUVERAINETE: portail_open_data -> RGPD=CONFORME | CLOUD_ACT=PROTEGE | STATUT=STANDARD"
+        "expected": "ANALYSE: industrie | TRANSFERT=NON_DECLARE | QUALIFICATION=DECLARATION_A_VERIFIER | CONFORMITE=NON_EVALUEE"
       },
       {
-        "label": "Données bancaires hors UE illégales",
+        "label": "Informations incomplètes",
         "stdin": "cas:3",
-        "expected": "SOUVERAINETE: banque_mobile -> RGPD=NON_CONFORME | CLOUD_ACT=EXPOSE | STATUT=ILLEGAL"
+        "expected": "ANALYSE: association | TRANSFERT=INCONNU | QUALIFICATION=NON_DECLAREE | CONFORMITE=NON_EVALUEE"
       }
     ],
-    "solution": "[Exemple]\nSOUVERAINETE: chu_bordeaux -> RGPD=CONFORME | CLOUD_ACT=PROTEGE | STATUT=SOUVERAIN_QUALIFIE\nSOUVERAINETE: fintech_paris -> RGPD=CONFORME | CLOUD_ACT=EXPOSE | STATUT=RISQUE_EXTRATERRITORIAL\nSOUVERAINETE: labo_recherche -> RGPD=NON_CONFORME | CLOUD_ACT=EXPOSE | STATUT=ILLEGAL\n\n[Cas 1 — Entreprise européenne sur cloud européen certifié ISO 27001]\nSOUVERAINETE: pme_industrielle -> RGPD=CONFORME | CLOUD_ACT=PROTEGE | STATUT=CONFIANCE_EUROPEENNE\n\n[Cas 2 — Données publiques sans restriction]\nSOUVERAINETE: portail_open_data -> RGPD=CONFORME | CLOUD_ACT=PROTEGE | STATUT=STANDARD\n\n[Cas 3 — Données bancaires hors UE illégales]\nSOUVERAINETE: banque_mobile -> RGPD=NON_CONFORME | CLOUD_ACT=EXPOSE | STATUT=ILLEGAL"
+    "solution": "[Exemple]\nANALYSE: ecole | TRANSFERT=A_ETUDIER | QUALIFICATION=NON_DECLAREE | CONFORMITE=NON_EVALUEE\n\n[Cas 1 — Transfert déclaré et qualification à vérifier]\nANALYSE: banque | TRANSFERT=A_ETUDIER | QUALIFICATION=DECLARATION_A_VERIFIER | CONFORMITE=NON_EVALUEE\n\n[Cas 2 — Transfert non déclaré et autre qualification]\nANALYSE: industrie | TRANSFERT=NON_DECLARE | QUALIFICATION=DECLARATION_A_VERIFIER | CONFORMITE=NON_EVALUEE\n\n[Cas 3 — Informations incomplètes]\nANALYSE: association | TRANSFERT=INCONNU | QUALIFICATION=NON_DECLAREE | CONFORMITE=NON_EVALUEE"
   }
 ];

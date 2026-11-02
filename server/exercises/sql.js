@@ -8,7 +8,7 @@ const SQL2_EXERCISES = [
     "language": "sql",
     "title": "Création de table avec contraintes PRIMARY KEY, UNIQUE et CHECK",
     "goal": "Définir une table relationnelle avec contraintes d’unicité et de domaine.",
-    "brief": "<p>Créez la table <code>collaborateurs(id INT PRIMARY KEY, email TEXT UNIQUE NOT NULL, salaire INT CHECK (salaire &gt;= 100000))</code>.</p>",
+    "brief": "<p>Créez la table <code>collaborateurs(id INT PRIMARY KEY, email TEXT UNIQUE NOT NULL, salaire INT CHECK (salaire &gt;= 100000))</code>. Dans ce schéma, le salaire peut être NULL : CHECK seul n’impose pas sa présence.</p>",
     "starter": "-- Créez la table collaborateurs avec ses contraintes\nSELECT 'A_COMPLETER';",
     "hints": [
       "Ajoutez UNIQUE NOT NULL sur la colonne email.",
@@ -36,6 +36,16 @@ const SQL2_EXERCISES = [
         "label": "Trois collaborateurs",
         "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('collaborateurs') ORDER BY cid;\n-- cas 3",
         "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+---------+------+---------+------------+----+\n| name    | type | notnull | dflt_value | pk |\n+---------+------+---------+------------+----+\n| id      | INT  | 0       | NULL       | 1  |\n| email   | TEXT | 1       | NULL       | 0  |\n| salaire | INT  | 0       | NULL       | 0  |\n+---------+------+---------+------------+----+\n(3 lignes retournées)"
+      },
+      {
+        "label": "Borne salariale incluse et salaire inférieur refusé",
+        "stdin": "\n-- VERIFY:\nINSERT OR IGNORE INTO collaborateurs VALUES (17, 'seuil@example.test', 100000);\nINSERT OR IGNORE INTO collaborateurs VALUES (18, 'sous@example.test', 99999);\nSELECT COUNT(*) AS total FROM collaborateurs;",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (0 lignes modifiées).\n\n+-------+\n| total |\n+-------+\n| 1     |\n+-------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Unicité du courriel",
+        "stdin": "\n-- VERIFY:\nINSERT OR IGNORE INTO collaborateurs VALUES (21, 'double@example.test', 120000);\nINSERT OR IGNORE INTO collaborateurs VALUES (22, 'double@example.test', 150000);\nSELECT COUNT(*) AS total FROM collaborateurs;",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (0 lignes modifiées).\n\n+-------+\n| total |\n+-------+\n| 1     |\n+-------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c1-e1\nCREATE TABLE collaborateurs (\n  id INT PRIMARY KEY,\n  email TEXT UNIQUE NOT NULL,\n  salaire INT CHECK (salaire >= 100000)\n);"
@@ -75,6 +85,21 @@ const SQL2_EXERCISES = [
         "label": "Projet unique",
         "stdin": "CREATE TABLE services (id INT PRIMARY KEY, libelle TEXT);\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('projets') ORDER BY cid;\n-- cas 3",
         "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+------------+------+---------+------------+----+\n| name       | type | notnull | dflt_value | pk |\n+------------+------+---------+------------+----+\n| code       | TEXT | 0       | NULL       | 1  |\n| titre      | TEXT | 1       | NULL       | 0  |\n| service_id | INT  | 0       | NULL       | 0  |\n+------------+------+---------+------------+----+\n(3 lignes retournées)"
+      },
+      {
+        "label": "Titre NULL interdit malgré une référence facultative",
+        "stdin": "CREATE TABLE services (id INT PRIMARY KEY, libelle TEXT);\n-- VERIFY:\nINSERT INTO projets (code, titre, service_id) VALUES ('ref-valide', 'Atelier', NULL);\nINSERT OR IGNORE INTO projets (code, titre, service_id) VALUES ('ref-sans-titre', NULL, NULL);\nSELECT COUNT(*) AS titres_absents FROM projets WHERE titre IS NULL;",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (0 lignes modifiées).\n\n+----------------+\n| titres_absents |\n+----------------+\n| 0              |\n+----------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Référence vers la bonne table et la bonne colonne",
+        "stdin": "CREATE TABLE services (id INT PRIMARY KEY, libelle TEXT);\n-- VERIFY:\nSELECT COUNT(*) AS fk_correcte FROM pragma_foreign_key_list('projets') WHERE \"table\" = 'services' AND \"from\" = 'service_id' AND \"to\" = 'id';",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+-------------+\n| fk_correcte |\n+-------------+\n| 1           |\n+-------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Titre court autorisé et service absent autorisé",
+        "stdin": "CREATE TABLE services (id INT PRIMARY KEY, libelle TEXT);\n-- VERIFY:\nINSERT OR IGNORE INTO projets (code, titre, service_id) VALUES ('p-inédit', 'X', NULL);\nSELECT COUNT(*) AS total FROM projets;",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-------+\n| total |\n+-------+\n| 1     |\n+-------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c1-e2\nCREATE TABLE projets (\n  code TEXT PRIMARY KEY,\n  titre TEXT NOT NULL,\n  service_id INT REFERENCES services(id)\n);"
@@ -114,6 +139,16 @@ const SQL2_EXERCISES = [
         "label": "Affectation unique",
         "stdin": "\n-- VERIFY:\nSELECT name, type, \"notnull\", dflt_value, pk FROM pragma_table_info('affectations') ORDER BY cid;\n-- cas 3",
         "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+------------+------+---------+------------+----+\n| name       | type | notnull | dflt_value | pk |\n+------------+------+---------+------------+----+\n| employe_id | INT  | 0       | NULL       | 1  |\n| projet_id  | INT  | 0       | NULL       | 2  |\n| heures     | INT  | 1       | NULL       | 0  |\n+------------+------+---------+------------+----+\n(3 lignes retournées)"
+      },
+      {
+        "label": "Zéro heure est autorisé",
+        "stdin": "\n-- VERIFY:\nINSERT OR IGNORE INTO affectations VALUES (31, 41, 0);\nSELECT COUNT(*) AS total FROM affectations;",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-------+\n| total |\n+-------+\n| 1     |\n+-------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Un employé peut participer à deux projets",
+        "stdin": "\n-- VERIFY:\nINSERT OR IGNORE INTO affectations VALUES (31, 41, 4);\nINSERT OR IGNORE INTO affectations VALUES (31, 42, 7);\nSELECT COUNT(*) AS total FROM affectations;",
+        "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-------+\n| total |\n+-------+\n| 2     |\n+-------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c1-e3\nCREATE TABLE affectations (\n  employe_id INT,\n  projet_id INT,\n  heures INT NOT NULL,\n  PRIMARY KEY (employe_id, projet_id)\n);"
@@ -153,6 +188,16 @@ const SQL2_EXERCISES = [
         "label": "Client unique",
         "stdin": "CREATE TABLE clients (id INT, nom TEXT, ville TEXT); INSERT INTO clients VALUES (10, 'Sena', 'Aneho');",
         "expected": "+----+---------+---------------+\n| id | nom_maj | nb_caracteres |\n+----+---------+---------------+\n| 10 | SENA    | 4             |\n+----+---------+---------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Casse seule",
+        "stdin": "CREATE TABLE clients (id INT, nom TEXT, ville TEXT);\nINSERT INTO clients VALUES (51, 'Lira', 'Kara');",
+        "expected": "+----+---------+---------------+\n| id | nom_maj | nb_caracteres |\n+----+---------+---------------+\n| 51 | LIRA    | 4             |\n+----+---------+---------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Longueur seule",
+        "stdin": "CREATE TABLE clients (id INT, nom TEXT, ville TEXT);\nINSERT INTO clients VALUES (52, 'SOREN', 'AnehoX');",
+        "expected": "+----+---------+---------------+\n| id | nom_maj | nb_caracteres |\n+----+---------+---------------+\n| 52 | SOREN   | 5             |\n+----+---------+---------------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c2-e1\nSELECT id, UPPER(nom) AS nom_maj, LENGTH(nom) AS nb_caracteres FROM clients ORDER BY id ASC;"
@@ -192,6 +237,11 @@ const SQL2_EXERCISES = [
         "label": "Remise nulle et remise absente",
         "stdin": "CREATE TABLE factures (id INT, montant_ht INT, remise INT); INSERT INTO factures VALUES (1, 40000, 0), (2, 40000, NULL);",
         "expected": "+----+-------------+\n| id | montant_net |\n+----+-------------+\n| 1  | 40000       |\n| 2  | 40000       |\n+----+-------------+\n(2 lignes retournées)"
+      },
+      {
+        "label": "Remise non nulle",
+        "stdin": "CREATE TABLE factures (id INT, montant_ht REAL, remise REAL);\nINSERT INTO factures VALUES (52, 80, 12);",
+        "expected": "+----+-------------+\n| id | montant_net |\n+----+-------------+\n| 52 | 68          |\n+----+-------------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c2-e2\nSELECT id, montant_ht - COALESCE(remise, 0) AS montant_net FROM factures ORDER BY id ASC;"
@@ -231,6 +281,16 @@ const SQL2_EXERCISES = [
         "label": "Article unique",
         "stdin": "CREATE TABLE articles (id INT, libelle TEXT, prix_ht REAL); INSERT INTO articles VALUES (1, 'Licence', 199.99);",
         "expected": "+---------+----------+\n| libelle | prix_ttc |\n+---------+----------+\n| Licence | 235.99   |\n+---------+----------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Taux isolé",
+        "stdin": "CREATE TABLE articles (id INT, libelle TEXT, prix_ht REAL);\nINSERT INTO articles VALUES (51, 'Ruban', 5);",
+        "expected": "+---------+----------+\n| libelle | prix_ttc |\n+---------+----------+\n| Ruban   | 5.9      |\n+---------+----------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Deuxième décimale isolée",
+        "stdin": "CREATE TABLE articles (id INT, libelle TEXT, prix_ht REAL);\nINSERT INTO articles VALUES (52, 'Agrafe', 0.01);",
+        "expected": "+---------+----------+\n| libelle | prix_ttc |\n+---------+----------+\n| Agrafe  | 0.01     |\n+---------+----------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c2-e3\nSELECT libelle, ROUND(prix_ht * 1.18, 2) AS prix_ttc FROM articles ORDER BY id ASC;"
@@ -270,6 +330,16 @@ const SQL2_EXERCISES = [
         "label": "Parc nominal",
         "stdin": "CREATE TABLE serveurs (nom TEXT, cpu_pct INT); INSERT INTO serveurs VALUES ('app-1', 15), ('app-2', 42);",
         "expected": "+-------+---------+--------+\n| nom   | cpu_pct | etat   |\n+-------+---------+--------+\n| app-1 | 15      | NORMAL |\n| app-2 | 42      | NORMAL |\n+-------+---------+--------+\n(2 lignes retournées)"
+      },
+      {
+        "label": "Seuil critique",
+        "stdin": "CREATE TABLE serveurs (nom TEXT, cpu_pct INT);\nINSERT INTO serveurs VALUES ('AtlasX', 85);",
+        "expected": "+--------+---------+----------+\n| nom    | cpu_pct | etat     |\n+--------+---------+----------+\n| AtlasX | 85      | CRITIQUE |\n+--------+---------+----------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Seuil attention",
+        "stdin": "CREATE TABLE serveurs (nom TEXT, cpu_pct INT);\nINSERT INTO serveurs VALUES ('Borax', 60);",
+        "expected": "+-------+---------+-----------+\n| nom   | cpu_pct | etat      |\n+-------+---------+-----------+\n| Borax | 60      | ATTENTION |\n+-------+---------+-----------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c3-e1\nSELECT nom, cpu_pct, CASE WHEN cpu_pct >= 85 THEN 'CRITIQUE' WHEN cpu_pct >= 60 THEN 'ATTENTION' ELSE 'NORMAL' END AS etat FROM serveurs ORDER BY nom ASC;"
@@ -309,6 +379,11 @@ const SQL2_EXERCISES = [
         "label": "Trois salaires échelonnés",
         "stdin": "CREATE TABLE employes (nom TEXT, salaire INT); INSERT INTO employes VALUES ('A', 150000), ('B', 300000), ('C', 450000);",
         "expected": "+-----+---------+\n| nom | salaire |\n+-----+---------+\n| C   | 450000  |\n+-----+---------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Tri décroissant de trois salaires supérieurs à la moyenne",
+        "stdin": "CREATE TABLE employes (nom TEXT, salaire INT);\nINSERT INTO employes VALUES\n  ('Sira', 180000),\n  ('Malik', 220000),\n  ('Laura', 240000),\n  ('Yara', 270000),\n  ('Fode', 300000),\n  ('Naya', 350000);",
+        "expected": "+------+---------+\n| nom  | salaire |\n+------+---------+\n| Naya | 350000  |\n| Fode | 300000  |\n| Yara | 270000  |\n+------+---------+\n(3 lignes retournées)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c3-e2\nSELECT nom, salaire FROM employes WHERE salaire > (SELECT AVG(salaire) FROM employes) ORDER BY salaire DESC;"
@@ -348,6 +423,11 @@ const SQL2_EXERCISES = [
         "label": "Aucun client n’a commandé",
         "stdin": "CREATE TABLE clients (id INT, nom TEXT); CREATE TABLE commandes (id INT, client_id INT); INSERT INTO clients VALUES (1, 'Sena'), (2, 'Afi');",
         "expected": "+----+------+\n| id | nom  |\n+----+------+\n| 1  | Sena |\n| 2  | Afi  |\n+----+------+\n(2 lignes retournées)"
+      },
+      {
+        "label": "Commande sans client identifié",
+        "stdin": "CREATE TABLE clients (id INT, nom TEXT);\nINSERT INTO clients VALUES (41, 'Irma');\nCREATE TABLE commandes (id INT, client_id INT);\nINSERT INTO commandes VALUES (91, NULL);",
+        "expected": "+----+------+\n| id | nom  |\n+----+------+\n| 41 | Irma |\n+----+------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c3-e3\nSELECT c.id, c.nom FROM clients c WHERE NOT EXISTS (SELECT 1 FROM commandes cmd WHERE cmd.client_id = c.id) ORDER BY c.id ASC;"
@@ -426,6 +506,16 @@ const SQL2_EXERCISES = [
         "label": "Deux jours",
         "stdin": "CREATE TABLE recettes (jour INT, montant INT); INSERT INTO recettes VALUES (10, 25000), (20, 75000);",
         "expected": "+------+---------+--------+\n| jour | montant | cumul  |\n+------+---------+--------+\n| 10   | 25000   | 25000  |\n| 20   | 75000   | 100000 |\n+------+---------+--------+\n(2 lignes retournées)"
+      },
+      {
+        "label": "Somme différente du nombre",
+        "stdin": "CREATE TABLE recettes (jour INT, montant INT);\nINSERT INTO recettes VALUES (17, 2);",
+        "expected": "+------+---------+-------+\n| jour | montant | cumul |\n+------+---------+-------+\n| 17   | 2       | 2     |\n+------+---------+-------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Cumul et sens de parcours",
+        "stdin": "CREATE TABLE recettes (jour INT, montant INT);\nINSERT INTO recettes VALUES (18, 1), (19, 1);",
+        "expected": "+------+---------+-------+\n| jour | montant | cumul |\n+------+---------+-------+\n| 18   | 1       | 1     |\n| 19   | 1       | 2     |\n+------+---------+-------+\n(2 lignes retournées)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c4-e2\nSELECT jour, montant, SUM(montant) OVER (ORDER BY jour ASC) AS cumul FROM recettes ORDER BY jour ASC;"
@@ -465,6 +555,16 @@ const SQL2_EXERCISES = [
         "label": "Un seul vendeur au-dessus du seuil",
         "stdin": "CREATE TABLE ventes (vendeur TEXT, montant INT); INSERT INTO ventes VALUES ('Binta', 60000), ('Kodjo', 15000);",
         "expected": "+---------+----------+\n| vendeur | ca_total |\n+---------+----------+\n| Binta   | 60000    |\n+---------+----------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Total exactement au seuil",
+        "stdin": "CREATE TABLE ventes (vendeur TEXT, montant INT);\nINSERT INTO ventes VALUES ('Mara', 50000);",
+        "expected": "+---------+----------+\n| vendeur | ca_total |\n+---------+----------+\n| Mara    | 50000    |\n+---------+----------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Deux totaux admissibles composés de plusieurs ventes",
+        "stdin": "CREATE TABLE ventes (vendeur TEXT, montant INT);\nINSERT INTO ventes VALUES\n  ('Rama', 24000),\n  ('Rama', 37000),\n  ('Dede', 35000),\n  ('Dede', 18000),\n  ('Solo', 13000);",
+        "expected": "+---------+----------+\n| vendeur | ca_total |\n+---------+----------+\n| Rama    | 61000    |\n| Dede    | 53000    |\n+---------+----------+\n(2 lignes retournées)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c4-e3\nWITH totaux AS (\n  SELECT vendeur, SUM(montant) AS ca_total\n  FROM ventes\n  GROUP BY vendeur\n)\nSELECT vendeur, ca_total FROM totaux WHERE ca_total >= 50000 ORDER BY ca_total DESC;"
@@ -582,6 +682,11 @@ const SQL2_EXERCISES = [
         "label": "Deux transactions équilibrées",
         "stdin": "CREATE TABLE ecritures (tx_id INT, sens TEXT, montant INT); INSERT INTO ecritures VALUES (1, 'DEBIT', 1500), (1, 'CREDIT', 1500), (2, 'DEBIT', 4500), (2, 'CREDIT', 4500);",
         "expected": "+-------+-------------+--------------+\n| tx_id | total_debit | total_credit |\n+-------+-------------+--------------+\n| 1     | 1500        | 1500         |\n| 2     | 4500        | 4500         |\n+-------+-------------+--------------+\n(2 lignes retournées)"
+      },
+      {
+        "label": "Débit absent, crédit unitaire",
+        "stdin": "CREATE TABLE ecritures (tx_id INT, sens TEXT, montant INT);\nINSERT INTO ecritures VALUES (71, 'CREDIT', 1);",
+        "expected": "+-------+-------------+--------------+\n| tx_id | total_debit | total_credit |\n+-------+-------------+--------------+\n| 71    | 0           | 1            |\n+-------+-------------+--------------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c5-e3\nSELECT tx_id, SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit, SUM(CASE WHEN sens = 'CREDIT' THEN montant ELSE 0 END) AS total_credit FROM ecritures GROUP BY tx_id ORDER BY tx_id ASC;"
@@ -621,6 +726,11 @@ const SQL2_EXERCISES = [
         "label": "Trois cadres",
         "stdin": "CREATE TABLE employes (id INT, nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES (1, 'A', 'D1', 500000), (2, 'B', 'D2', 310000), (3, 'C', 'D3', 400000);\n-- VERIFY:\nSELECT id, nom, departement FROM vue_cadres ORDER BY id;",
         "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+----+-----+-------------+\n| id | nom | departement |\n+----+-----+-------------+\n| 1  | A   | D1          |\n| 2  | B   | D2          |\n| 3  | C   | D3          |\n+----+-----+-------------+\n(3 lignes retournées)"
+      },
+      {
+        "label": "Borne dans le département conservé",
+        "stdin": "CREATE TABLE employes (id INT, nom TEXT, departement TEXT, salaire INT);\nINSERT INTO employes VALUES (71, 'Sana', 'IT', 300000);\n-- VERIFY:\nSELECT id, nom, departement FROM vue_cadres ORDER BY id;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+------+-------------+\n| id | nom  | departement |\n+----+------+-------------+\n| 71 | Sana | IT          |\n+----+------+-------------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c6-e1\nCREATE VIEW vue_cadres AS\nSELECT id, nom, departement FROM employes WHERE salaire >= 300000;"
@@ -632,7 +742,7 @@ const SQL2_EXERCISES = [
     "language": "sql",
     "title": "Déclencheur d’audit automatique (CREATE TRIGGER AFTER UPDATE)",
     "goal": "Écrire un trigger enregistrant l’ancienne et la nouvelle valeur lors d’une mise à jour.",
-    "brief": "<p>Soient <code>comptes(id INT, solde INT)</code> et <code>journal_audit(compte_id INT, ancien_solde INT, nouveau_solde INT)</code>. Créez un déclencheur <code>trg_audit_solde</code> qui, <code>AFTER UPDATE ON comptes</code>, insère dans <code>journal_audit</code> les valeurs <code>(OLD.id, OLD.solde, NEW.solde)</code>.</p>",
+    "brief": "<p>Dans cet atelier SQLite, soient <code>comptes(id INT, solde INT)</code> et <code>journal_audit(compte_id INT, ancien_solde INT, nouveau_solde INT)</code>. Créez un déclencheur <code>trg_audit_solde</code> qui, <code>AFTER UPDATE ON comptes</code>, insère dans <code>journal_audit</code> les valeurs <code>(OLD.id, OLD.solde, NEW.solde)</code>. Le journal participe à la même transaction : un ROLLBACK annule aussi son insertion.</p>",
     "starter": "-- Créez le trigger trg_audit_solde AFTER UPDATE ON comptes\nSELECT * FROM comptes;",
     "hints": [
       "Utilisez CREATE TRIGGER trg_audit_solde AFTER UPDATE ON comptes FOR EACH ROW BEGIN ... END;",
@@ -660,6 +770,16 @@ const SQL2_EXERCISES = [
         "label": "Mise à jour globale de tous les comptes",
         "stdin": "CREATE TABLE comptes (id INT, solde INT); CREATE TABLE journal_audit (compte_id INT, ancien_solde INT, nouveau_solde INT); INSERT INTO comptes VALUES (1, 100), (2, 200);\n-- VERIFY:\nUPDATE comptes SET solde = solde + 50; SELECT compte_id, ancien_solde, nouveau_solde FROM journal_audit ORDER BY compte_id;",
         "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (2 lignes modifiées).\n\n+-----------+--------------+---------------+\n| compte_id | ancien_solde | nouveau_solde |\n+-----------+--------------+---------------+\n| 1         | 100          | 150           |\n| 2         | 200          | 250           |\n+-----------+--------------+---------------+\n(2 lignes retournées)"
+      },
+      {
+        "label": "Observer ancien solde",
+        "stdin": "CREATE TABLE comptes (id INT, solde INT);\nINSERT INTO comptes VALUES (71, 40);\nCREATE TABLE journal_audit (compte_id INT, ancien_solde INT, nouveau_solde INT);\n-- VERIFY:\nUPDATE comptes SET solde = 53 WHERE id = 71; SELECT ancien_solde FROM journal_audit;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+--------------+\n| ancien_solde |\n+--------------+\n| 40           |\n+--------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Observer nouveau solde",
+        "stdin": "CREATE TABLE comptes (id INT, solde INT);\nINSERT INTO comptes VALUES (72, 22);\nCREATE TABLE journal_audit (compte_id INT, ancien_solde INT, nouveau_solde INT);\n-- VERIFY:\nUPDATE comptes SET solde = 31 WHERE id = 72; SELECT nouveau_solde FROM journal_audit;",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+---------------+\n| nouveau_solde |\n+---------------+\n| 31            |\n+---------------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c6-e2\nCREATE TRIGGER trg_audit_solde\nAFTER UPDATE ON comptes\nFOR EACH ROW\nBEGIN\n  INSERT INTO journal_audit VALUES (OLD.id, OLD.solde, NEW.solde);\nEND;"
@@ -699,6 +819,16 @@ const SQL2_EXERCISES = [
         "label": "Événement unique",
         "stdin": "CREATE TABLE journaux (id INT, service TEXT, niveau TEXT, message TEXT); INSERT INTO journaux VALUES (5, 'auth', 'ERROR', 'Signature invalide');",
         "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+--------------------+\n| id | message            |\n+----+--------------------+\n| 5  | Signature invalide |\n+----+--------------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Ordre des colonnes de l’index",
+        "stdin": "CREATE TABLE journaux (id INT, service TEXT, niveau TEXT, message TEXT); INSERT INTO journaux VALUES (71, 'auth', 'ERROR', 'trace-a');\n-- VERIFY:\nSELECT group_concat(name, ',') AS ordre FROM (SELECT name FROM pragma_index_info('idx_journaux_service_niveau') ORDER BY seqno);",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+---------+\n| id | message |\n+----+---------+\n| 71 | trace-a |\n+----+---------+\n(1 ligne retournée)\n\n+----------------+\n| ordre          |\n+----------------+\n| service,niveau |\n+----------------+\n(1 ligne retournée)"
+      },
+      {
+        "label": "Index couvrant toutes les lignes",
+        "stdin": "CREATE TABLE journaux (id INT, service TEXT, niveau TEXT, message TEXT); INSERT INTO journaux VALUES (81, 'auth', 'ERROR', 'trace-b');\n-- VERIFY:\nSELECT \"partial\" AS est_partiel FROM pragma_index_list('journaux') WHERE name = 'idx_journaux_service_niveau';",
+        "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+---------+\n| id | message |\n+----+---------+\n| 81 | trace-b |\n+----+---------+\n(1 ligne retournée)\n\n+-------------+\n| est_partiel |\n+-------------+\n| 0           |\n+-------------+\n(1 ligne retournée)"
       }
     ],
     "solution": "-- Corrigé officiel sql2-c6-e3\nCREATE INDEX idx_journaux_service_niveau ON journaux(service, niveau);\nSELECT id, message FROM journaux WHERE service = 'auth' AND niveau = 'ERROR' ORDER BY id ASC;"

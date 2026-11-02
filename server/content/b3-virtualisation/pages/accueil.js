@@ -54,7 +54,7 @@ function index(course, chapterList) {
       'le déploiement et l\'administration de VMware vCenter Server (VCSA, Platform Services Controller, inventaires hiérarchiques, cycle de vie complet d\'une VM, anatomie des disques deltas de snapshots et ordonnancement fin par Resource Pools avec Shares, Reservations et Limits), ' +
       'les architectures de stockage d\'entreprise (système de fichiers clustered VMFS-6 avec verrouillage distribué ATS, stockage hyperconvergé VMware vSAN avec groupes de disques flash et politiques SPBM FTT-1/FTT-2, et multipathing NMP avec règles Round Robin et Fixed), ' +
       'la commutation virtuelle (vSwitch standard et commutateurs distribués vSphere Distributed Switch VDS, isolation VLAN 802.1Q par VST/EST/VGT, durcissement des Port Groups contre l\'usurpation d\'adresse MAC et régulation de trafic par Token Bucket), ' +
-      'la haute disponibilité et la mobilité à chaud (clustering vSphere HA avec agents FDM et contrôle d\'admission, équilibrage dynamique vSphere DRS avec règles d\'affinité et d\'anti-affinité, et migrations vMotion à chaud sans interruption de service avec modélisation du Dirty Rate et du débit réseau), ' +
+      'la haute disponibilité et la mobilité à chaud (clustering vSphere HA avec agents FDM et contrôle d\'admission, équilibrage dynamique vSphere DRS avec règles d\'affinité et d\'anti-affinité, et migrations vMotion à chaud avec pause de bascule possible, modélisation du Dirty Rate et du débit réseau), ' +
       'et enfin les stratégies modernes de sauvegarde et de virtualisation du poste de travail (Changed Block Tracking CBT, APIs VADP, durcissement sécuritaire des hyperviseurs ESXi et architectures VDI avec VMware Horizon et Citrix Virtual Desktops).'
     ]),
     '',

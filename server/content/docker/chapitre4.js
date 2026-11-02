@@ -98,7 +98,7 @@ module.exports = {
         '<div class="grid grid-3">',
         '  <div class="card">',
         '    <h4>Bridge Network (Par Défaut)</h4>',
-        '    <p>Créez une interface pont virtuelle (comme <code>docker0</code>) et attribue une adresse IP privée ' +
+        '    <p>Crée une interface pont virtuelle (comme <code>docker0</code>) et attribue une adresse IP privée ' +
         '    (ex: 172.17.0.X) à chaque conteneur. L’accès extérieur s’effectue par translation d’adresses NAT.</p>',
         '  </div>',
         '  <div class="card">',
@@ -272,7 +272,7 @@ module.exports = {
       exp: 'L’option -p 8080:80 (ou --publish) ordonne à Docker de configurer les règles iptables pour transférer les paquets arrivant sur le port 8080 de l’hôte vers le port 80 du conteneur.'
     },
     {
-      stem: 'Quelle commande permet d’ouvrir un terminal interactif dans un conteneur déjà en cours d’exécution sans l’arrêter ni le redémarrer ?',
+      stem: 'Quelle commande lance un nouveau shell interactif dans un conteneur déjà en cours d’exécution ?',
       opts: [
         'docker run -it mon_conteneur',
         'docker exec -it mon_conteneur /bin/sh',
@@ -280,7 +280,7 @@ module.exports = {
         'docker inspect mon_conteneur'
       ],
       correct: 1,
-      exp: 'docker exec lance un nouveau processus fils dans les namespaces du conteneur existant, ce qui est idéal pour inspecter l’environnement en direct.'
+      exp: 'docker exec lance une nouvelle commande dans le conteneur tant que son processus principal fonctionne. docker attach relie les flux au processus principal existant, qui peut lui-même être un shell interactif ; il ne crée pas un nouveau processus.'
     },
     {
       stem: 'Que caractérise un montage de type « Tmpfs » (--tmpfs /tmp) sous Docker ?',

@@ -77,9 +77,11 @@ module.exports = {
         'Hyper-V. VHDX est la version améliorée, plus tolérante aux erreurs.</li>',
         '</ul>',
         box('tech', 'Thin provisioning', 'layers',
-          '    <p>Le <em>thin provisioning</em> n’alloue que l’espace réellement utilisé : la VM ' +
-          's’agrandit au fil du temps. Le <em>thick</em> réserve tout de suite l’espace complet. Le ' +
-          'premier économise le stockage, le second garantit l’espace.</p>')
+          '    <p>En <em>thin provisioning</em>, les blocs sont généralement alloués à la demande. ' +
+          'La suppression d’un fichier dans la VM ne provoque pas nécessairement la récupération ' +
+          'immédiate des blocs sur le stockage. Le <em>thick</em> réserve l’espace du disque virtuel ' +
+          'sur la couche concernée, sans garantir la capacité de chaque couche sous-jacente ni les performances. ' +
+          'Surveillez l’allocation et la capacité disponible. Source : <a href="https://knowledge.broadcom.com/external/article/450717/deleting-data-from-a-thin-provisioned-di.html">récupération d’espace thin VMware</a>, consultée le 30 octobre 2026.</p>')
       ].join('\n')
     },
     {
@@ -136,7 +138,7 @@ module.exports = {
   ],
 
   checklist: [
-    'Je distingue les deux types d’hyperviseur.',
+    'Je distinguez les deux types d’hyperviseur.',
     'Je situe ESXi, vCenter et vSphere Client.',
     'Je compare NAT, Bridge et Host-Only.',
     'J’explique vCPU, CPU Ready Time et thin provisioning.'
@@ -146,7 +148,7 @@ module.exports = {
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Reprenez les deux types d’hyperviseur.' },
     { cls: 'mid', text: '50–69 % — Entraînez-vous sur les modes réseau.' },
-    { cls: 'good', text: '70–94 % — Solide : vous dimensionnez et connectes une VM.' },
+    { cls: 'good', text: '70–94 % — Solide : vous dimensionnez et connectez une VM.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : enchaîne sur les snapshots, chapitre 6.' }
   ],
 

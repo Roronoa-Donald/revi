@@ -182,7 +182,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Atelier de code libre — ' + course.brand,
-      description: 'Bac à sable interactif de manière méthodiquepour auditer, tester et automatiser la qualité documentaire IT et la conformité OpenAPI.',
+      description: 'Bac à sable interactif pour auditer, tester et automatiser la qualité documentaire IT et la conformité OpenAPI.',
       active: 'atelier',
       body
     }

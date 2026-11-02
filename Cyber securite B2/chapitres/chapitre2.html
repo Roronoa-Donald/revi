@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -119,35 +119,39 @@ A ^ A = 0     et     A ^ 0 = A</code></pre>
 
 <h2>3. Hachage cryptographique &amp; Code d’authentification HMAC</h2>
 
-<p>Une fonction de hachage transforme un message de taille quelconque en une empreinte de taille fixe (ex. 256 bits pour <strong>SHA-256</strong>). Une fonction cryptographique robuste doit garantir trois propriétés absolues :</p>
+<p>Une fonction de hachage transforme un message de taille quelconque en une empreinte de taille fixe (ex. 256 bits pour <strong>SHA-256</strong>). Une fonction cryptographique robuste vise trois propriétés de résistance calculatoire, et non des impossibilités absolues :</p>
 <ol>
-  <li><strong>Résistance à la préimage (sens unique) :</strong> Étant donné une empreinte <i>H</i>, il est calculatoirement impossible de retrouver le message original <i>m</i> tel que <i>hash(m) = H</i>.</li>
-  <li><strong>Résistance à la seconde préimage :</strong> Étant donné <i>m1</i>, impossible de trouver <i>m2 &ne; m1</i> tel que <i>hash(m1) = hash(m2)</i>.</li>
-  <li><strong>Résistance aux collisions :</strong> Impossible de trouver deux messages distincts quelconques produisant la même empreinte.   (C’est l’écroulement de cette résistance qui a rendu MD5 et SHA-1 totalement obsolètes).</li>
+  <li><strong>Résistance à la préimage (sens unique) :</strong> Étant donné une empreinte <i>H</i>, trouver un message <i>m</i> tel que <i>hash(m) = H</i> est pratiquement infaisable.</li>
+  <li><strong>Résistance à la seconde préimage :</strong> Étant donné <i>m1</i>, il est pratiquement infaisable de trouver <i>m2 &ne; m1</i> tel que <i>hash(m1) = hash(m2)</i>.</li>
+  <li><strong>Résistance aux collisions :</strong> Trouver deux messages distincts quelconques produisant la même empreinte est pratiquement infaisable.   (C’est l’écroulement de cette résistance qui a rendu MD5 et SHA-1 totalement obsolètes).</li>
 </ol>
   <div class="box box--info">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Code d’authentification de message : HMAC (RFC 2104)</div>
-<p>Le simple hachage <code>hash(message)</code> garantit l’intégrité contre les erreurs de transmission, mais pas contre un pirate qui modifie le message et recalcule son hash. Le <strong>HMAC</strong> (Hash-based Message Authentication Code) combine le message avec une clé secrète partagée <i>K</i> :</p><pre><code>HMAC(K, m) = hash((K ^ opad) || hash((K ^ ipad) || m))</code></pre><p>Seul celui qui détient la clé secrète <i>K</i> peut forger un HMAC valide.</p>
+<p>Comparer <code>hash(message)</code> à une empreinte de référence fiable permet de détecter une différence, avec un risque résiduel de collision. Un adversaire qui modifie le message et remplace aussi l’empreinte peut recalculer un hachage cohérent : la comparaison seule ne l’authentifie pas.</p><p>Protéger la référence, par exemple en l’obtenant par un canal authentifié. Sinon, utiliser un <strong>HMAC</strong> avec une clé secrète partagée ou une signature numérique vérifiée avec la clé publique authentifiée de l’émetteur. Le HMAC (Hash-based Message Authentication Code) combine le message avec une clé secrète <i>K</i>, normalisée en <i>K0</i> à la taille du bloc de hachage :</p><pre><code>HMAC(K, m) = hash((K0 XOR opad) || hash((K0 XOR ipad) || m))</code></pre><p>Si la clé reste secrète et la mise en œuvre est sûre, un tiers ne peut pas fabriquer un HMAC valide en pratique. Le MAC authentifie le message entre les détenteurs de la clé, sans distinguer lequel l’a créé.</p>
   </div>
+<p>Sources : <a href="https://csrc.nist.gov/pubs/fips/180-4/upd1/final">NIST FIPS 180-4 : hachage</a>, <a href="https://csrc.nist.gov/pubs/fips/198-1/final">NIST FIPS 198-1 : HMAC</a> (retrait proposé, remplacement en projet par <a href="https://csrc.nist.gov/pubs/sp/800/224/ipd">NIST SP 800-224</a>) et <a href="https://csrc.nist.gov/pubs/fips/186-5/final">NIST FIPS 186-5 : signature numérique</a> (consultés le 30/10/2026).</p>
 
 <h2>4. Signature numérique &amp; Infrastructure à clés publiques (PKI)</h2>
 
-<p>La signature numérique est l’équivalent informatique de la signature manuscrite notariée : elle prouve l’authenticité de l’émetteur, garantit l’intégrité du document et empêche la répudiation.</p>
+<p>Une signature numérique permet de vérifier l’intégrité d’un document et de le relier à la clé du signataire. Pour attribuer la signature à une personne ou une organisation, il faut authentifier sa clé publique et protéger sa clé privée ; la vérification n’est pas une preuve absolue en cas de compromission.</p>
+<p>Le calcul RSA ci-dessous est un modèle arithmétique simplifié, non sûr contre les falsifications. En pratique, utiliser un schéma de signature normalisé tel que RSA-PSS et une clé publique authentifiée.</p>
 <table class="table">
   <thead><tr><th>Étape</th><th>Acteur</th><th>Opération mathématique</th><th>Objectif</th></tr></thead>
   <tbody>
-    <tr><td><strong>1. Condensation</strong></td><td>Émetteur (Alice)</td><td><code>h = SHA-256(document)</code></td><td>Créer une empreinte unique de taille fixe.</td></tr>
-    <tr><td><strong>2. Signature</strong></td><td>Émetteur (Alice)</td><td><code>s = h^d (mod n)</code> avec sa <strong>clé privée</strong></td><td>Sceller l’empreinte de façon infalsifiable.</td></tr>
+    <tr><td><strong>1. Condensation</strong></td><td>Émetteur (Alice)</td><td><code>h = SHA-256(document) mod n</code></td><td>Construire un entier pour ce modèle.</td></tr>
+    <tr><td><strong>2. Signature</strong></td><td>Émetteur (Alice)</td><td><code>s = h^d (mod n)</code> avec sa <strong>clé privée</strong></td><td>Illustrer l’opération RSA brute, sans protection pratique.</td></tr>
     <tr><td><strong>3. Transmission</strong></td><td>Réseau public</td><td>Envoi du document en clair + de la signature <code>s</code></td><td>Transport sans secret nécessaire.</td></tr>
-    <tr><td><strong>4. Vérification</strong></td><td>Récepteur (Bob)</td><td><code>h_verif = s^e (mod n)</code> avec la <strong>clé publique</strong> d’Alice</td><td>Vérifier que <code>h_verif == SHA-256(document)</code>.</td></tr>
+    <tr><td><strong>4. Vérification</strong></td><td>Récepteur (Bob)</td><td><code>h_verif = s^e (mod n)</code> avec la <strong>clé publique</strong> d’Alice</td><td>Comparer <code>h_verif</code> à <code>SHA-256(document) mod n</code>, sans en déduire une sécurité réelle.</td></tr>
   </tbody>
 </table>
-<p>Pour s’assurer que la clé publique appartient réellement à Alice et non à un usurpateur (attaque Man-in-the-Middle), une Autorité de Certification (CA) signe un <strong>certificat numérique X.509</strong> liant l’identité d’Alice à sa clé publique.</p>
+<p>Pour s’assurer que la clé publique appartient réellement à Alice et non à un usurpateur (attaque Man-in-the-Middle), une Autorité de Certification (CA) peut signer un <strong>certificat numérique X.509</strong> liant l’identité d’Alice à sa clé publique. Le récepteur doit notamment vérifier la chaîne de confiance, l’identité et la validité du certificat.</p>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>5. Études de cas &amp; applications pratiques</h2>
-  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Compléter chaque grille d’analyse à partir des données du cas, puis lancer la validation pour vérifier les réponses critère par critère.</p>
-  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour guider l’application de la méthodologie sans donner directement la solution.</p>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
 <div class="lab" id="cs2-c2-e1" data-lab
      data-exercise="cs2-c2-e1"
      data-language="analyse"
@@ -176,25 +180,23 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 1 — Chiffrement symétrique par masque jetable XOR (Vernam)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="cs2-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Chiffrement symétrique par masque jetable XOR (Vernam)</p>
-    <div class="lab__brief"><p>Le masque jetable (One-Time Pad) inventé par Gilbert Vernam repose sur l’opération logique XOR bit à bit. l’étude de cas comporte une chaîne hexadécimale représentant le texte en clair (ou chiffré) et une clé ASCII séparées par un point-virgule : <code>flux_hex;cle_ascii</code>.
+    <div class="lab__brief"><p>Le masque jetable (One-Time Pad) inventé par Gilbert Vernam repose sur l’opération logique XOR bit à bit. L’étude de cas comporte une chaîne hexadécimale représentant le texte en clair (ou chiffré) et une clé ASCII séparées par un point-virgule : <code>flux_hex;cle_ascii</code>.
 
 Traitement :
 1. Convertir le flux hexadécimal en liste d’octets (valeurs 0..255).
 2. Convertir la clé ASCII en liste d’octets de ses codes ASCII.
 3. Pour chaque octet $i$ du flux, calculer $octet_i \oplus cle_{i \pmod L}$ où $L$ est la longueur de la clé.
-4. Afficher le résultat sous forme de chaîne hexadécimale en minuscules (2 chiffres par octet).
-
-Exemple : <code>48656c6c6f;KEY</code> &rarr; <code>032035272a</code></p></div>
+4. Afficher le résultat sous forme de chaîne hexadécimale en minuscules (2 chiffres par octet).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>48656c6c6f;KEY</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>032035272a</pre></div>
     </div>
-    <p class="lab__note">Exemple de référence.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
@@ -209,54 +211,54 @@ Exemple : <code>48656c6c6f;KEY</code> &rarr; <code>032035272a</code></p></div>
      data-exercise="cs2-c2-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="Transfert de 500 EUR;6b120e5d190c04b00f51804bdd3daa3cfe22d81210f31321f69794f879c513bf">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c2-e2) — Contrôle d’intégrité et détection de falsification SHA-256
+     data-stdin="fiable;Transfert de 500 EUR;6b120e5d190c04b00f51804bdd3daa3cfe22d81210f31321f69794f879c513bf">
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cs2-c2-e2) — Comparaison SHA-256 et fiabilité de la référence
 # Complétez la résolution demandée sous chaque cas ci-dessous :
 
 [Cas 1 — Test de validation 1]
-# Données : Transfert de 500 EUR;0000000000000000000000000000000000000000000000000000000000000000
+# Données : fiable;Transfert de 500 EUR;0000000000000000000000000000000000000000000000000000000000000000
 A_COMPLETER
 
 [Cas 2 — Test de validation 2]
-# Données : Cybersecurite B2;4f488e082c757c61d3e1ac9961723ea2c83a5c80595e6432800739adea006a0a
+# Données : fiable;Cybersecurite B2;4f488e082c757c61d3e1ac9961723ea2c83a5c80595e6432800739adea006a0a
 A_COMPLETER
 
 [Cas 3 — Test de validation 3]
-# Données : Cybersecurite B2;4F488E082C757C61D3E1AC9961723EA2C83A5C80595E6432800739ADEA006A0A
+# Données : fiable;Cybersecurite B2;4F488E082C757C61D3E1AC9961723EA2C83A5C80595E6432800739ADEA006A0A
 A_COMPLETER
 
 [Cas 4 — Test de validation 4]
-# Données : Message legitime;1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+# Données : non_fiable;Transfert de 900 EUR;30f821c94461cff75f24ea420033f1511b157cb7167a5efe43ade362b92c4140
+A_COMPLETER
+
+[Cas 5 — Test de validation 5]
+# Données : non_fiable;Transfert de 900 EUR;0000000000000000000000000000000000000000000000000000000000000000
+A_COMPLETER
+
+[Cas 6 — Test de validation 6]
+# Données : fiable;Message legitime;1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Contrôle d’intégrité et détection de falsification SHA-256</h3>
+    <h3 class="lab__title">Exercice 2 — Comparaison SHA-256 et fiabilité de la référence</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Contrôle d’intégrité et détection de falsification SHA-256</p>
-    <div class="lab__brief"><p>Les fonctions de hachage cryptographique comme SHA-256 garantissent l’intégrité d’un message : la moindre modification d’un seul bit produit une empreinte radicalement différente (effet avalanche).
-
-Entrée : <code>message_texte;hash_attendu</code>
-Traitement :
-1. Calculer l’empreinte SHA-256 du texte en minuscules hexadécimales.
-2. Comparer avec le <code>hash_attendu</code> (insensible à la casse).
-3. Résultat d’analyse attendu :
-- Si identique : <code>INTEGRE (&lt;hash_calcule&gt;)</code>
-- Si différent : <code>FALSIFIE (&lt;hash_calcule&gt; != &lt;hash_attendu&gt;)</code>.</p></div>
+    <p class="lab__formative-notice" id="cs2-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer des empreintes en tenant compte de la fiabilité de la référence</p>
+    <div class="lab__brief"><p>Une empreinte SHA-256 ne détecte une modification par comparaison que si la référence est fiable : un adversaire peut modifier à la fois le message et l’empreinte fournie. La fiabilité est une hypothèse de la grille, à établir en pratique par une référence authentifiée, un MAC tel que HMAC ou une signature vérifiée avec une clé publique authentifiée.</p><p>Chaque cas est au format <code>provenance;message_texte;hash_attendu</code>, avec une provenance <code>fiable</code> ou <code>non_fiable</code>. Calculez SHA-256 sur les octets UTF-8 exacts du message, affichez l’empreinte en minuscules et comparez les empreintes sans tenir compte de la casse hexadécimale.</p><p>Répondez selon le format <code>SHA256=&lt;empreinte&gt; | COMPARAISON=&lt;IDENTIQUE ou DIFFERENTE&gt; | CONCLUSION=&lt;conclusion&gt;</code>. Avec une référence fiable, la conclusion est <code>AUCUNE_MODIFICATION_DETECTEE</code> si les empreintes correspondent, sinon <code>DIFFERENCE_DETECTEE</code>. Avec une référence non fiable, concluez toujours <code>INTEGRITE_NON_ETABLIE</code>, même en cas de correspondance. Une différence ne prouve pas une falsification, et une correspondance garde un risque résiduel de collision.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Transfert de 500 EUR;6b120e5d190c04b00f51804bdd3daa3cfe22d81210f31321f69794f879c513bf</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>INTEGRE (6b120e5d190c04b00f51804bdd3daa3cfe22d81210f31321f69794f879c513bf)</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>fiable;Transfert de 500 EUR;6b120e5d190c04b00f51804bdd3daa3cfe22d81210f31321f69794f879c513bf</pre></div>
     </div>
-    <p class="lab__note">Exemple de référence.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>La moindre altération d’un octet produit une empreinte de hachage radicalement différente (effet avalanche).</li>
-        <li>Comparez l’empreinte calculée avec l’empreinte de référence certifiée pour attester de l’intégrité.</li>
+        <li>Calculez l’empreinte des octets exacts puis comparez-la à la référence sans distinguer majuscules et minuscules hexadécimales.</li>
+        <li>Une correspondance avec une référence non fiable n’établit pas l’intégrité ; une différence ne permet pas d’attribuer une intention.</li>
       </ol>
     </details>
   </div>
@@ -290,32 +292,33 @@ A_COMPLETER
     <h3 class="lab__title">Exercice 3 — Vérification de signature numérique asymétrique RSA</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
+    <p class="lab__formative-notice" id="cs2-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
     <p class="lab__goal"><strong>Objectif :</strong> Vérification de signature numérique asymétrique RSA</p>
-    <div class="lab__brief"><p>Dans le schéma de signature RSA, l’émetteur signe un condensat $m$ avec sa clé privée $d$ : $s = m^d \pmod n$. Le récepteur vérifie la signature à l’aide de la clé publique de l’émetteur $(e, n)$ en calculant : $m’ = s^e \pmod n$.
+    <div class="lab__brief"><p>Ce modèle RSA jouet illustre uniquement une égalité arithmétique : le RSA brut n’est pas un schéma de signature sûr contre les falsifications. Ici, <code>VALIDE</code> signifie seulement que l’égalité est vérifiée, sans établir l’intégrité ni l’identité. En pratique, utiliser un schéma normalisé tel que RSA-PSS et authentifier la clé publique du signataire.</p><p>Dans ce modèle, l’émetteur calcule $s = m^d \pmod n$ à partir d’un entier $m$ et de sa clé privée $d$. Le récepteur calcule $m' = s^e \pmod n$ avec $(e, n)$.
 
 Entrée : Quatre entiers séparés par des points-virgules <code>m;s;e;n</code>.
-Traitement : Calculer $m’ = pow(s, e, n)$ grâce à l’exponentiation modulaire efficace.
+Traitement : Calculer $m' = pow(s, e, n)$ grâce à l’exponentiation modulaire efficace.
 Résultat d’analyse attendu :
-- Si $m’ == m$ : <code>VALIDE (m = &lt;m&gt;)</code>
-- Si $m’ <br>e m$ : <code>INVALIDE (obtenu: &lt;m’&gt;, attendu: &lt;m&gt;)</code>.</p></div>
+- Si $m' == m$ : <code>VALIDE (m = &lt;m&gt;)</code>
+- Si $m' \ne m$ : <code>INVALIDE (obtenu: &lt;m'&gt;, attendu: &lt;m&gt;)</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>42;168;7;187</pre></div>
-      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VALIDE (m = 42)</pre></div>
     </div>
-    <p class="lab__note">Exemple de référence.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>La signature numérique garantit l’authenticité de l’émetteur et la non-répudiation du message.</li>
-        <li>La signature se vérifie avec la clé publique de l’émetteur sur l’empreinte cryptographique du document.</li>
+        <li>Dans cette grille, VALIDE désigne une égalité arithmétique et non une signature résistante aux falsifications.</li>
+        <li>Une signature réelle utilise un schéma sûr tel que RSA-PSS et se vérifie avec une clé publique authentifiée.</li>
       </ol>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>6. QCM — niveau examen</h2>
 
@@ -338,17 +341,27 @@ Résultat d’analyse attendu :
         <button class="opt">Avec sa propre clé publique</button>
         <button class="opt">Avec une clé symétrique temporaire négociée par Diffie-Hellman</button>
       </div>
-      <div class="q__exp">La signature est générée avec la clé privée de l’émetteur (que lui seul possède). Tout le monde peut ensuite vérifier la validité de la signature grâce à sa clé publique.</div>
+      <div class="q__exp">La signature est générée avec la clé privée de l’émetteur. La vérification utilise sa clé publique, dont l’appartenance au signataire doit être authentifiée ; la clé privée doit rester protégée.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Quelle propriété d’une fonction de hachage cryptographique garantit qu’un pirate ne peut pas trouver deux fichiers différents produisant la même empreinte SHA-256 ?</p>
+      <p class="q__stem">Quelle propriété d’une fonction de hachage cryptographique rend pratiquement infaisable la recherche de deux fichiers différents de même empreinte SHA-256 ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">La résistance aux collisions</button>
         <button class="opt">La résistance à la première préimage</button>
         <button class="opt">L’effet miroir</button>
         <button class="opt">La réversibilité polynomiale</button>
       </div>
-      <div class="q__exp">La résistance aux collisions garantit qu’il est calculatoirement impossible de trouver deux entrées x et y distinctes telles que H(x) = H(y).</div>
+      <div class="q__exp">La résistance aux collisions rend pratiquement infaisable la recherche de deux entrées x et y distinctes telles que H(x) = H(y) ; elle ne rend pas les collisions mathématiquement impossibles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une empreinte accompagne un fichier et un attaquant peut modifier les deux. Comment détecter une modification malveillante ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Vérifier un HMAC avec la clé secrète partagée ou une signature avec une clé publique authentifiée</button>
+        <button class="opt">Recalculer le hachage du fichier et le comparer à l’empreinte fournie par le même attaquant</button>
+        <button class="opt">Vérifier uniquement que l’empreinte contient 64 caractères hexadécimaux</button>
+        <button class="opt">Compresser le fichier avant de calculer son hachage</button>
+      </div>
+      <div class="q__exp">Une comparaison avec une empreinte de référence fiable peut détecter une différence ; si l’attaquant modifie aussi cette référence, un MAC ou une signature avec clés protégées permet d’authentifier le message.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans un échange de clés Diffie-Hellman, que représente le secret final K calculé par Alice et Bob ?</p>
@@ -370,7 +383,7 @@ Résultat d’analyse attendu :
       <li>Utiliser le mode AES-ECB pour chiffrer des données volumineuses ou structurées.</li>
       <li>Réutiliser le même vecteur d’initialisation (IV) ou le même masque de Vernam avec la même clé.</li>
       <li>Confondre chiffrement asymétrique (clé publique du destinataire pour chiffrer) et signature numérique (clé privée de l’émetteur pour signer).</li>
-      <li>Considérer une fonction de hachage simple (SHA-256) comme suffisante pour authentifier un message sans associer de clé secrète (HMAC).</li>
+      <li>Considérer un hachage simple (SHA-256) comme suffisant pour authentifier un message sans référence fiable, MAC ou signature.</li>
       <li>Faire confiance à une clé publique sans vérifier la chaîne de certification X.509 remontant à une autorité racine (Root CA).</li>
     </ul>
   </div>
@@ -395,8 +408,8 @@ Résultat d’analyse attendu :
       <li>Le chiffrement symétrique (AES) assure le débit et la confidentialité en masse ; le mode GCM apporte en plus l’authenticité.</li>
       <li>Le masque jetable de Vernam est théoriquement inviolable si la clé est aléatoire, unique et de même taille que le clair.</li>
       <li>La cryptographie asymétrique (RSA, Diffie-Hellman) résout la distribution des clés sans canal sécurisé préalable.</li>
-      <li>Les fonctions de hachage (SHA-256) et les codes HMAC scellent l’intégrité des messages.</li>
-      <li>La signature numérique combinée aux certificats X.509 garantit l’authenticité et la non-répudiation des échanges.</li>
+      <li>Une empreinte SHA-256 se compare à une référence fiable ; un HMAC ou une signature protège l’intégrité contre une modification adversariale si les clés sont protégées.</li>
+      <li>Une signature vérifiée avec une clé publique authentifiée relie le message à la clé du signataire ; son attribution dépend notamment de la protection de la clé privée.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
@@ -420,10 +433,10 @@ Résultat d’analyse attendu :
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>&lt; 50 % — Revoyez les propriétés du XOR et la distinction entre clé publique et clé privée.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Revoyez les propriétés du XOR et la distinction entre clé publique et clé privée.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur les modes opératoires (ECB vs GCM) et le mécanisme de signature.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Très bon niveau : vous maîtrisez l’ensemble des briques cryptographiques modernes.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise totale : passe à la sécurité des réseaux et au filtrage périmétrique au module 3.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise totale : passez à la sécurité des réseaux et au filtrage périmétrique au module 3.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

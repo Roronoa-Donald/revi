@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -79,7 +79,7 @@
     </ol>
   </div>
 
-<h2>1. Les Fonctions de Fenêtrage (Window Functions) & La Clause OVER</h2>
+<h2>1. Les Fonctions de Fenêtrage (Window Functions) &amp; La Clause OVER</h2>
 
 <p>Contrairement à une agrégation classique avec <code>GROUP BY</code> qui regroupe et compresse plusieurs tuples en une ligne unique, une <strong>fonction de fenêtrage</strong> calcule une valeur agrégée ou ordonnée pour chaque ligne tout en <em>conservant l’intégrité et l’identité de chaque ligne individuelle</em> du résultat :</p>
 <div class="grid grid-2">
@@ -93,7 +93,7 @@
        ) AS salaire_moyen_cumul
 FROM employes;</code></pre>
     <ul>
-      <li><strong>PARTITION BY :</strong> Découpez le jeu de données en sous-groupes indépendants (ex: par département). Le calcul redémarre à zéro pour chaque partition.</li>
+      <li><strong>PARTITION BY :</strong> Découpe le jeu de données en sous-groupes indépendants (ex: par département). Le calcul redémarre à zéro pour chaque partition.</li>
       <li><strong>ORDER BY :</strong> Détermine l’ordre d’évaluation séquentielle des tuples au sein de chaque partition.</li>
     </ul>
   </div>
@@ -112,7 +112,7 @@ FROM employes;</code></pre>
 
   </div>
 
-<h2>2. Cadrage de Fenêtres (Window Frames) & Fonctions de Décalage (LAG, LEAD)</h2>
+<h2>2. Cadrage de Fenêtres (Window Frames) &amp; Fonctions de Décalage (LAG, LEAD)</h2>
 
 <p>Le cadre de fenêtre (<em>window frame</em>) permet de restreindre l’ensemble des lignes prises en compte par la fonction d’agrégation autour du tuple courant :</p>
 <div class="grid grid-2">
@@ -131,7 +131,7 @@ FROM employes;</code></pre>
     </ul>
   </div>
   <div class="card">
-    <h4>Navigation Relative : LAG, LEAD & NTILE</h4>
+    <h4>Navigation Relative : LAG, LEAD &amp; NTILE</h4>
     <pre><code>SELECT date_mesure, valeur,
        LAG(valeur, 1, 0) OVER (ORDER BY date_mesure) AS val_prec,
        LEAD(valeur, 1, 0) OVER (ORDER BY date_mesure) AS val_suiv,
@@ -180,19 +180,17 @@ SELECT * FROM hierarchie ORDER BY niveau, id;</code></pre>
   </div>
 </div>
   <div class="box box--danger">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <strong>Risque de boucle infinie en cas de cycle :</strong> Si les données contiennent une référence circulaire (ex: A est le manager de B qui est le manager de A), la CTE récursive bouclera indéfiniment jusqu’au crash mémoire ou au timeout. L’utilisation d’un tableau d’identifiants parcourus (<code>ARRAY[id]</code>) avec une condition <code>WHERE NOT (id = ANY(chemin))</code> est impérative pour détecter et couper les cycles !</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <strong>Cycle atteignable depuis l’ancre :</strong> Dans PostgreSQL et SQLite, <code>UNION</code> élimine les doublons sur toutes les colonnes de la ligne entière. Sur un graphe fini, si la ligne ne contient que l’identifiant, les répétitions peuvent arrêter la récursion. Mais si le niveau ou le chemin change à chaque passage, les lignes restent différentes : <code>UNION</code> seul ne suffit pas. L’exemple PostgreSQL ci-dessus suit le chemin avec <code>ARRAY</code> et <code>ANY</code> pour couper les cycles ; SQLite ne possède pas ces tableaux et exige une garde adaptée à son dialecte.</div>
 
   </div>
 
 <!-- code-labs:start -->
+  <div id="exercices">
   <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
-  et la validation fait tourner des jeux de tests indépendants :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
+  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
 <div class="lab" id="sql3-c4-e1" data-lab
      data-exercise="sql3-c4-e1"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 100000), (2, 130000), (3, 115000);&#10;-- exemple">
@@ -202,11 +200,13 @@ SELECT mois, ca FROM chiffre_affaires;</script>
     <h3 class="lab__title">Exercice 1 — Comparaison temporelle ligne à ligne avec LAG() OVER</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Utiliser la fonction de fenêtrage LAG() pour calculer l’écart avec la période précédente.</p>
+    <p class="lab__note" id="sql3-c4-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans la table <code>chiffre_affaires(mois INT, ca INT)</code>, affichez <code>mois</code>, <code>ca</code>, le CA du mois précédent (<code>LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS ca_precedent</code>) et la variation (<code>ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation</code>), triés par <code>mois</code> croissant.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 100000), (2, 130000), (3, 115000);
@@ -233,6 +233,7 @@ SELECT mois, ca FROM chiffre_affaires;</script>
 
 <div class="lab" id="sql3-c4-e2" data-lab
      data-exercise="sql3-c4-e2"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Amina', 'IT', 500000), ('Koffi', 'IT', 400000), ('Yao', 'IT', 300000), ('Sena', 'RH', 450000);&#10;-- exemple">
@@ -242,11 +243,13 @@ SELECT departement, nom, salaire FROM employes;</script>
     <h3 class="lab__title">Exercice 2 — Top-N par département avec DENSE_RANK() dans une CTE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Extraire les 2 meilleurs salaires de chaque département sans trou de classement.</p>
+    <p class="lab__note" id="sql3-c4-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans la table <code>employes(nom, departement, salaire)</code>, utilisez une CTE calculant <code>DENSE_RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang</code> pour afficher <code>departement</code>, <code>nom</code>, <code>salaire</code> et <code>rang</code> uniquement pour les employés classés aux rangs <code>1</code> ou <code>2</code> (<code>WHERE rang &lt;= 2</code>), triés par <code>departement</code> croissant, <code>rang</code> croissant et <code>nom</code> croissant.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Amina', 'IT', 500000), ('Koffi', 'IT', 400000), ('Yao', 'IT', 300000), ('Sena', 'RH', 450000);
@@ -273,6 +276,7 @@ SELECT departement, nom, salaire FROM employes;</script>
 
 <div class="lab" id="sql3-c4-e3" data-lab
      data-exercise="sql3-c4-e3"
+     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (1, 'DG', NULL), (2, 'DSI', 1), (3, 'Admin Réseau', 2);&#10;-- exemple">
@@ -282,12 +286,14 @@ SELECT id, nom FROM organigramme;</script>
     <h3 class="lab__title">Exercice 3 — Parcours d’arbre hiérarchique avec WITH RECURSIVE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
+      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Écrire une CTE récursive pour calculer la profondeur hiérarchique d’un organigramme.</p>
-    <div class="lab__brief"><p>La table <code>organigramme(id INT, nom TEXT, manager_id INT)</code> représente la hiérarchie d’une entreprise (la racine a <code>manager_id IS NULL</code>). Écrivez une requête <code>WITH RECURSIVE hierarchie AS (...)</code> qui calcule pour chaque employé son <code>id</code>, son <code>nom</code> et son niveau hiérarchique <code>niveau</code> (<code>1</code> pour la racine, puis <code>h.niveau + 1</code> pour chaque subordonné), triée par <code>niveau</code> croissant puis <code>id</code> croissant.</p></div>
+    <p class="lab__note" id="sql3-c4-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
+    <div class="lab__brief"><p>Dans cet atelier SQLite, la table <code>organigramme(id INT, nom TEXT, manager_id INT)</code> représente une hiérarchie dont les racines ont <code>manager_id IS NULL</code>. Les identifiants sont uniques et les liens forment une forêt sans cycle. Écrivez une requête <code>WITH RECURSIVE hierarchie AS (...)</code> qui calcule pour chaque employé son <code>id</code>, son <code>nom</code> et son niveau hiérarchique <code>niveau</code> (<code>1</code> pour une racine, puis <code>h.niveau + 1</code> pour chaque subordonné), triée par <code>niveau</code> croissant puis <code>id</code> croissant. Si ces hypothèses ne sont pas garanties, une garde anti-cycle est nécessaire : UNION seul ne suffit pas lorsque le niveau change.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (1, 'DG', NULL), (2, 'DSI', 1), (3, 'Admin Réseau', 2);
 -- exemple</pre></div>
@@ -310,6 +316,7 @@ SELECT id, nom FROM organigramme;</script>
     </details>
   </div>
 </div>
+  </div>
   <!-- code-labs:end -->
   <h2>5. QCM — niveau examen</h2>
 
@@ -355,24 +362,24 @@ SELECT id, nom FROM organigramme;</script>
       <div class="q__exp">Le troisième paramètre de LAG permet de remplacer la valeur NULL retournée pour la toute première ligne de la partition.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Dans une CTE WITH RECURSIVE, quel mot-clé combine traditionnellement l’ancre et le terme récursif ?</p>
+      <p class="q__stem">Dans une CTE WITH RECURSIVE, quel opérateur relie l’ancre au terme récursif en conservant les doublons ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">UNION ALL</button>
         <button class="opt">INTERSECT</button>
         <button class="opt">CROSS JOIN</button>
         <button class="opt">MERGE</button>
       </div>
-      <div class="q__exp">UNION ALL combine l’ensemble initial de l’ancre avec les tuples générés à chaque itération par le terme récursif.</div>
+      <div class="q__exp">UNION ALL conserve les doublons générés par le terme récursif. UNION est aussi possible : il élimine les doublons sur la ligne entière.</div>
     </div>
     <div class="q">
-      <p class="q__stem">Comment éviter qu’une requête WITH RECURSIVE ne boucle à l’infini dans un graphe contenant des cycles ?</p>
+      <p class="q__stem">Dans PostgreSQL, comment éviter qu’une requête WITH RECURSIVE contenant une colonne niveau qui augmente ne boucle sur un cycle ?</p>
       <div class="opts">
         <button class="opt">En désactivant le cache PostgreSQL</button>
         <button class="opt" data-correct="1">En traçant les identifiants visités dans un tableau et en vérifiant WHERE NOT (id = ANY(chemin))</button>
-        <button class="opt">En remplaçant UNION ALL par UNION</button>
+        <button class="opt">En remplaçant UNION ALL par UNION, qui suffit toujours</button>
         <button class="opt">En augmentant la variable work_mem</button>
       </div>
-      <div class="q__exp">L’accumulation des IDs visités dans un tableau ARRAY permet d’exclure les nœuds déjà visités et d’interrompre la récursion.</div>
+      <div class="q__exp">Dans PostgreSQL, le tableau ARRAY permet d’exclure les identifiants déjà visités. UNION élimine les doublons sur toutes les colonnes : il peut arrêter un cycle si la ligne entière se répète, mais pas si le niveau augmente à chaque passage.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la différence fondamentale entre une fonction d’agrégation ordinaire et une fonction de fenêtrage ?</p>
@@ -418,7 +425,7 @@ SELECT id, nom FROM organigramme;</script>
       <li>3. Établir l’ordre chronologique ou de tri strict avec ORDER BY au sein du bloc analytique.</li>
       <li>4. Préciser le cadre ROWS BETWEEN lorsque vous calculez des moyennes ou sommes mobiles physiques.</li>
       <li>5. Structurer les CTEs récursives avec une ancre claire (racines WHERE parent IS NULL) et un terme récursif avec jointure.</li>
-      <li>6. Intégrer systématiquement une colonne de profondeur (niveau) et un tableau anti-cycle (path array) pour garantir la terminaison.</li>
+      <li>6. Choisir une garde anti-cycle adaptée lorsque UNION ne suffit pas, par exemple un tableau de chemin dans PostgreSQL.</li>
     </ol>
   </div>
 
@@ -432,7 +439,7 @@ SELECT id, nom FROM organigramme;</script>
       <li>LAG et LEAD permettent d’accéder sans auto-jointure aux valeurs précédentes et suivantes d’une partition.</li>
       <li>La clause ROWS BETWEEN définit le cadre physique des lignes mobiles pour le lissage statistique (moyennes mobiles).</li>
       <li>WITH RECURSIVE résout l’exploration des graphes et des arbres hiérarchiques par point fixe itératif.</li>
-      <li>La prévention des boucles infinies dans les graphes cycliques s’opère par la détection de présence dans un tableau de trace de parcours.</li>
+      <li>UNION élimine les lignes complètes déjà vues ; lorsque la profondeur varie, une garde comme le tableau de parcours PostgreSQL permet de couper les cycles.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
@@ -445,7 +452,7 @@ SELECT id, nom FROM organigramme;</script>
     </ul>
     <h3>Les 8 notions à connaître absolument</h3>
     <ol>
-      <li>Clause OVER()</li><li>PARTITION BY & ORDER BY</li><li>ROW_NUMBER(), RANK(), DENSE_RANK()</li><li>LAG() & LEAD()</li><li>Cadres de fenêtre ROWS vs RANGE BETWEEN</li><li>Moyennes glissantes (Moving Averages)</li><li>Common Table Expression récursive (WITH RECURSIVE)</li><li>Détection et rupture de cycles hiérarchiques</li>
+      <li>Clause OVER()</li><li>PARTITION BY &amp; ORDER BY</li><li>ROW_NUMBER(), RANK(), DENSE_RANK()</li><li>LAG() &amp; LEAD()</li><li>Cadres de fenêtre ROWS vs RANGE BETWEEN</li><li>Moyennes glissantes (Moving Averages)</li><li>Common Table Expression récursive (WITH RECURSIVE)</li><li>Détection et rupture de cycles hiérarchiques</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -457,10 +464,10 @@ SELECT id, nom FROM organigramme;</script>
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>< 50 % — </strong>Difficultés à formuler une clause OVER ou confusion entre agrégation classique et calcul analytique.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Difficultés à formuler une clause OVER ou confusion entre agrégation classique et calcul analytique.</div>
       <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Compréhension partielle : reprenez les sections où une erreur subsiste et refaites les exercices des niveaux 1 et 2.</div>
       <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Bonne maîtrise de ROW_NUMBER, RANK, LAG et calculs cumulatifs mobiles avec cadrage ROWS.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Conception avancée de requêvos hiérarchiques complexes avec WITH RECURSIVE, anti-boucle robuste et calculs analytiques multi-niveaux.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Conception avancée de requêtes hiérarchiques complexes avec WITH RECURSIVE, anti-boucle robuste et calculs analytiques multi-niveaux.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>

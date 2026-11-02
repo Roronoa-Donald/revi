@@ -9,7 +9,7 @@ module.exports = {
   n: 5,
   title: 'Pratique Délibérée, Entrelacement &amp; Résolution de Problèmes',
   short: 'Pratique Délibérée',
-  toc: 'Pratique délibérée d’Anders Ericsson, entrelacement (interleaving) vs pratique bloquée, feedback immédiat et zone des 85 %.',
+  toc: 'Pratique délibérée d’Anders Ericsson, entrelacement (interleaving) vs pratique bloquée, feedback immédiat et modèle des 85 %.',
   time: '≈ 2 h 45 de travail',
   free: false,
   lockLabel: 'Réservé B2 et plus',
@@ -24,7 +24,7 @@ module.exports = {
     'définir la pratique délibérée selon le chercheur Anders Ericsson (Peak: Secrets from the New Science of Expertise) ;',
     'comprendre la supériorité de l’entrelacement (Interleaving) sur la pratique bloquée (Blocked Practice) ;',
     'réguler la boucle de rétroaction (Feedback Loop) pour corriger immédiatement les modèles mentaux défaillants ;',
-    'calibrer la difficulté d’entraînement selon la règle des 85 % de Robert Wilson ;',
+    'situer le modèle des 85 % de Wilson et ajuster la difficulté à partir de retours contextualisés ;',
     'analyser ses erreurs comme des opportunités d’apprentissage grâce à la taxonomie des fautes cognitives.'
   ],
 
@@ -68,17 +68,14 @@ module.exports = {
       ].join('\n')
     },
     {
-      title: 'La règle des 85 % et la culture du feedback correcteur',
+      title: 'Le modèle des 85 % et la culture du feedback correcteur',
       html: [
-        '<p>À quel niveau de difficulté doit-on s’entraîner ? Une étude de <strong>Robert Wilson et al. (Nature Communications, 2019)</strong> ' +
-        'a calculé le taux d’erreur mathématiquement optimal pour maximiser la vitesse d’apprentissage :</p>',
-        '<blockquote>\n' +
-        '  <strong>La règle des 85 %</strong> : la progression est maximale lorsque l’apprenant réussit environ <strong>85 %</strong> des tentatives ' +
-        'et commet environ <strong>15 % d’erreurs stimulantes</strong>.\n' +
-        '</blockquote>',
+        '<p>L’étude de <strong>Robert Wilson et al. (Nature Communications, 2019)</strong> examine des modèles d’apprentissage pour des tâches de classification binaire. ' +
+        'Sous les hypothèses étudiées, certains algorithmes apprennent le plus vite autour de 85 % de réponses correctes. ' +
+        'Ce résultat ne constitue pas un seuil universel pour les étudiants ou toutes les disciplines.</p>',
         '<ul>\n' +
-        '  <li><strong>Si le taux de réussite &gt; 90 %</strong> : les exercices sont trop faciles ; l’apprenant stagne dans sa zone de confort.</li>\n' +
-        '  <li><strong>Si le taux de réussite &lt; 75 %</strong> : la tâche est trop complexe ; le cerveau sature en charge cognitive et se décourage.</li>\n' +
+        '  <li>Un taux de réussite est un indice parmi d’autres : examiner aussi la qualité des erreurs, les objectifs et le nombre d’essais.</li>\n' +
+        '  <li>Adapter éventuellement la difficulté ou les aides après échange avec l’apprenant, sans poser de diagnostic à partir d’un pourcentage seul.</li>\n' +
         '</ul>',
         box('astuce', 'La taxonomie des erreurs', 'lightbulb',
           '    <p>Ne vous contentez pas de cocher « faux ». Classez chaque erreur commise en 3 catégories :</p>\n' +
@@ -94,7 +91,7 @@ module.exports = {
   questions: [
     { stem: 'Selon Anders Ericsson, quel est le facteur déterminant de l’expertise humaine ?', opts: ['La pratique délibérée ciblée sur les points faibles avec feedback', 'Le talent génétique inné', 'L’accumulation passive d’années d’expérience'], correct: 0, exp: 'L’expertise résulte de la pratique délibérée : effort conscient hors de la zone de confort avec boucle de correction immédiate.' },
     { stem: 'Pourquoi l’entrelacement (Interleaving) est-il supérieur à la pratique bloquée pour préparer un examen ?', opts: ['Il oblige le cerveau à discriminer et choisir la méthode appropriée sans indice de contexte', 'Il prend moins de temps d’étude', 'Il évite d’avoir à réfléchir'], correct: 0, exp: 'Mélanger les types de problèmes apprend à diagnostiquer la nature de l’énoncé, compétence clé testée lors des examens.' },
-    { stem: 'Selon l’étude de Robert Wilson (2019), quel est le taux de réussite optimal pour maximiser la vitesse d’apprentissage ?', opts: ['Environ 85 % (15 % d’erreurs stimulantes)', '100 % de réussite parfaite', '50 % de réussite aléatoire'], correct: 0, exp: 'Le seuil des 85 % maintient la motivation tout en stimulant les réajustements synaptiques par les erreurs.' },
+    { stem: 'Quelle portée donner au résultat de Wilson et al. (2019) sur les 85 % ?', opts: ['Un résultat de modèles de classification binaire sous certaines hypothèses, non un optimum universel', 'Un seuil médical valable pour tous les étudiants', 'Une preuve que toute erreur empêche d’apprendre'], correct: 0, exp: 'Les auteurs étudient des algorithmes et des tâches de classification binaire ; leur résultat ne permet pas de déduire un seuil optimal pour chaque étudiant.' },
     { stem: 'Quel est le danger principal de la pratique bloquée (résoudre 20 exercices consécutifs sur la même formule) ?', opts: ['Elle crée une illusion de maîtrise immédiate qui disparaît dès que les problèmes sont mélangés', 'Elle fatigue la vue', 'Elle coûte trop cher en papier'], correct: 0, exp: 'L’étudiant sait d’avance quel outil appliquer sans fournir l’effort d’analyse du problème.' },
     { stem: 'Comment qualifie-t-on une erreur due au fait de ne pas avoir su quel outil théorique appliquer dans une situation inédite ?', opts: ['Une erreur de transfert', 'Une erreur de frappe', 'Une erreur d’encodage'], correct: 0, exp: 'L’erreur de transfert révèle que le concept est su isolément mais non relié aux contextes d’application réels.' },
     { stem: 'Quelle condition est indispensable à la pratique délibérée selon Ericsson ?', opts: ['Un feedback immédiat pour corriger immédiatement les écarts', 'Une absence totale de professeur', 'Travailler uniquement la nuit'], correct: 0, exp: 'Sans retour d’information rapide, le cerveau automatise ses propres erreurs au lieu de les rectifier.' },
@@ -122,7 +119,7 @@ module.exports = {
   summary: [
     'La pratique délibérée (Ericsson) surpasse la pratique naïve par ses objectifs précis, sa concentration et son feedback immédiat.',
     'L’entrelacement (Interleaving) force le cerveau à catégoriser les problèmes et double la rétention aux examens.',
-    'La règle des 85 % de Wilson fixe le ratio optimal : 85 % de succès pour 15 % d’erreurs stimulantes.',
+    'Le résultat de Wilson autour de 85 % dépend de modèles et d’hypothèses ; il ne fixe pas un taux optimal universel pour les étudiants.',
     'Le feedback correcteur immédiat est la condition sine qua non pour empêcher l’automatisation de faux réflexes.',
     'La taxonomie des erreurs (encodage, récupération, transfert) transforme les échecs en plans d’action précis.'
   ],
@@ -130,16 +127,16 @@ module.exports = {
   checklist: [
     'Je sais distinguer la pratique délibérée de la simple répétition routinière.',
     'J’organise mes séances d’entraînement sous forme entrelacée plutôt que bloquée.',
-    'Je calibre la difficulté de mes exercices pour viser environ 85 % de réussite.',
+    'J’ajuste la difficulté avec des retours contextualisés, sans considérer 85 % comme un seuil universel.',
     'J’analyse la cause de chaque erreur selon la typologie ENC / REC / TRA.',
     'Je ne consulte le corrigé qu’après un effort réel de recherche autonome.'
   ],
 
-  notions: ['Pratique délibérée', 'Anders Ericsson', 'Entrelacement', 'Interleaving', 'Pratique bloquée', 'Règle des 85 %', 'Robert Wilson', 'Feedback immédiat', 'Taxonomie des erreurs', 'Zone proximale de développement'],
+  notions: ['Pratique délibérée', 'Anders Ericsson', 'Entrelacement', 'Interleaving', 'Pratique bloquée', 'Modèle des 85 %', 'Robert Wilson', 'Feedback immédiat', 'Taxonomie des erreurs', 'Zone proximale de développement'],
 
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Révise les 4 piliers de la pratique délibérée et les bénéfices de l’entrelacement.' },
-    { cls: 'mid', text: '50–69 % — Entraînez-vous sur la règle des 85 % et la taxonomie des erreurs cognitives.' },
+    { cls: 'mid', text: '50–69 % — Situez le modèle des 85 % et entraînez-vous sur la taxonomie des erreurs.' },
     { cls: 'good', text: '70–94 % — Solide : vous maîtrisez les principes de l’entraînement d’expertise.' },
     { cls: 'top', text: '≥ 95 % — Parfait : passe à la métacognition et aux routines durables au chapitre 6.' }
   ],
@@ -147,7 +144,7 @@ module.exports = {
   flashcards: [
     { q: 'Qu’est-ce qui caractérise la pratique délibérée selon Anders Ericsson ?', a: 'Un objectif précis, une concentration totale, une sortie de la zone de confort et un feedback immédiat.' },
     { q: 'Pourquoi l’entrelacement (Interleaving) est-il plus performant que la pratique bloquée ?', a: 'Il force le cerveau à diagnostiquer la nature du problème avant de choisir l’algorithme de résolution.' },
-    { q: 'Que stipule la règle des 85 % de Robert Wilson ?', a: 'La vitesse d’apprentissage est maximale avec environ 85 % de réussite et 15 % d’erreurs instructives.' },
+    { q: 'Quelle est la portée du résultat des 85 % de Wilson et al. ?', a: 'Il concerne des modèles de classification binaire sous certaines hypothèses ; il ne fixe pas l’optimum d’apprentissage de chaque étudiant.' },
     { q: 'Quels sont les 3 types d’erreurs cognitives ?', a: 'Erreur d’encodage (mauvaise lecture), de récupération (oubli de formule) et de transfert (mauvais contexte).' },
     { q: 'Pourquoi consulter trop vite la solution d’un problème est-il contre-productif ?', a: 'Cela court-circuite l’effort synaptique d’extraction et prive le cerveau du renforcement mnésique.' },
     { q: 'Qu’est-ce que la Zone Proximale de Développement (ZPD) ?', a: 'L’espace d’apprentissage optimal entre ce que l’étudiant réussit seul et ce qu’il peut accomplir avec guidage.' }

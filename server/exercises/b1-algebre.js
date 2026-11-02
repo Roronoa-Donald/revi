@@ -53,8 +53,8 @@ module.exports = [
     "brief": "<p>Dans cette étude, on considère un entier <code>k</code> (le scalaire), puis un entier <code>n</code>, puis les <code>n</code> composantes d’un vecteur <code>v</code> (une par ligne). Affichez le vecteur <code>k · v</code> sur une seule ligne, composantes séparées par un espace.</p>",
     "starter": "# Grille de calcul (al-c1-e2) — Multiplication par un scalaire\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Scalaire avec composante négative]\n# Données : 2\n# Données : 2\n# Données : 5\n# Données : -4\nA_COMPLETER\n\n[Cas 2 — Scalaire négatif]\n# Données : -1\n# Données : 3\n# Données : 1\n# Données : 2\n# Données : 3\nA_COMPLETER\n\n[Cas 3 — Scalaire nul]\n# Données : 0\n# Données : 4\n# Données : 7\n# Données : 8\n# Données : 9\n# Données : 10\nA_COMPLETER\n",
     "hints": [
-      "Multiplier un vecteur par un scalaire multiplie chacune de ses composantes par ce nombre.",
-      "Aucune composante n’est oubliée : la boucle doit passer par tous les indices."
+      "Que devient chaque coordonnée quand on applique le scalaire ?",
+      "Vérifiez que le résultat contient autant de coordonnées que le vecteur initial."
     ],
     "examples": [
       {
@@ -323,10 +323,10 @@ module.exports = [
     "language": "analyse",
     "title": "Résoudre un système 2 × 2",
     "goal": "Mettre en œuvre l’élimination de Gauss et la remontée sur un système carré.",
-    "brief": "<p>Dans cette étude, on considère trois lignes : <code>a b e</code> pour l’équation <code>a·x + b·y = e</code>, puis <code>c d f</code> pour <code>c·x + d·y = f</code>. Le déterminant est non nul. Indiquez <code>x</code> puis <code>y</code>, chacun sur sa ligne, arrondis à deux décimales.</p>",
+    "brief": "<p>Dans cette étude, on considère deux lignes : <code>a b e</code> pour l’équation <code>a·x + b·y = e</code>, puis <code>c d f</code> pour <code>c·x + d·y = f</code>. Le déterminant est non nul. Indiquez <code>x</code> puis <code>y</code>, chacun sur sa ligne, arrondis à deux décimales.</p>",
     "starter": "# Grille de calcul (al-c3-e3) — Résoudre un système 2 × 2\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Determinant négatif]\n# Données : 1 2 5\n# Données : 3 1 5\nA_COMPLETER\n\n[Cas 2 — Coefficients plus grands]\n# Données : 2 3 12\n# Données : 1 -1 1\nA_COMPLETER\n\n[Cas 3 — Second membre pair]\n# Données : 4 2 10\n# Données : 1 1 4\nA_COMPLETER\n",
     "hints": [
-      "Élimine x dans la deuxième équation : multiplie la première par c et la seconde par a, puis soustrais.",
+      "Éliminez x dans la deuxième équation : multipliez la première par c et la seconde par a, puis soustrayez.",
       "Vous pouvez aussi résoudre par les formules de Cramer : x = (e·d − b·f)/det et y = (a·f − e·c)/det."
     ],
     "examples": [

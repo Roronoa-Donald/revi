@@ -7,7 +7,8 @@
   <meta name="robots" content="noindex">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
+  <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
   <style>
     :root {
       --bg-deep: #f5f3f1;
@@ -156,15 +157,43 @@
 
       <!-- Paywall : abonnement requis -->
       <div id="payBlock">
-        <button class="btn" id="subscribeBtn">S'abonner — 1 000 F / mois</button>
-        <p class="hint">Paiement sécurisé FedaPay — Mobile Money ou carte.<br>Renouvellement en un clic, sans engagement.</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button class="btn" data-pay-feda data-pay-plan="monthly" data-pay-amount="5000" id="subscribeBtn">
+            Formule Mensuelle — 5 000 FCFA / mois
+          </button>
+          <button class="btn is-white" data-pay-feda data-pay-plan="annual" data-pay-amount="45000" id="subscribeAnnualBtn" style="border:2px solid var(--blue); color:var(--blue); font-weight:700;">
+            Formule Annuelle — 45 000 FCFA / an (Économie 25%)
+          </button>
+        </div>
+        <p class="hint">Paiement Mobile Money (MTN, Moov, Orange, Wave) ou carte via FedaPay.<br>Activation immédiate et sécurisée.</p>
       </div>
 
       <!-- Abonné : gestion -->
       <div id="manageBlock" style="display:none;">
-        <button class="btn" id="renewBtn">Renouveler — +1 mois (1 000 F)</button>
-        <p class="hint">Le renouvellement s'ajoute après votre date d'échéance actuelle.</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button class="btn" data-pay-feda data-pay-plan="monthly" data-pay-amount="5000" id="renewBtn">
+            Prolonger — +1 mois (5 000 FCFA)
+          </button>
+          <button class="btn is-white" data-pay-feda data-pay-plan="annual" data-pay-amount="45000" id="renewAnnualBtn" style="border:1px solid var(--border-oat);">
+            Prolonger — +1 an (45 000 FCFA)
+          </button>
+        </div>
+        <p class="hint">Le renouvellement s'ajoute directement après votre date d'échéance actuelle.</p>
       </div>
+
+      <!-- CANAL C : Formulaire de secours / Récupération manuelle -->
+      <details class="recovery-box" id="fedapay-recovery-form" style="margin-top:20px; font-size:0.85rem; border:1px solid var(--border-oat); border-radius:var(--radius-sm); padding:10px 14px; background:#fafafa;">
+        <summary style="cursor:pointer; font-weight:600; color:var(--text-secondary);">Un paiement n'apparaît pas ? Saisissez la référence reçue par SMS/e-mail</summary>
+        <div style="margin-top:10px;">
+          <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:8px;">
+            En cas de coupure de réseau pendant la transaction Mobile Money, entrez votre référence FedaPay pour synchroniser votre compte :
+          </p>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="recoveryTxInput" placeholder="Ex: 123456" style="flex:1; padding:8px 10px; border:1px solid var(--border-oat); border-radius:8px; font-family:inherit; font-size:0.9rem;">
+            <button type="button" class="btn" id="recoverySubmitBtn" style="width:auto; padding:8px 14px; font-size:0.85rem;">Valider</button>
+          </div>
+        </div>
+      </details>
 
       <section class="switcher" id="switcher">
         <h2>Mes cours</h2>
@@ -240,7 +269,7 @@
                 .then(function (r) { return r.json(); })
                 .then(function (cfg) {
                   payEnabled = !!cfg.enabled;
-                  payAmount = cfg.amount || 1000;
+                  payAmount = (cfg.amounts && cfg.amounts.monthly) || cfg.amount || 5000;
                   updatePayBlocks();
                   if (payRequired) {
                     showMsg("L'abonnement est requis pour accéder à ce contenu. Choisis ton mode de paiement ci-dessus.", true);
@@ -347,33 +376,137 @@
         }
       }
 
-      // ── Lancer un paiement (abonnement ou renouvellement)
-      function startCheckout() {
-        var btn = subscribed ? document.getElementById('renewBtn') : document.getElementById('subscribeBtn');
+      // ── Initialisation sécurisée FedaPay (Fail-Closed en 3 étapes)
+      function initFedaPayCheckout(plan, btn) {
         btn.disabled = true;
-        showMsg('Création du paiement…', false);
-        fetch('/api/fedapay/checkout', {
+        showMsg('Préparation de votre paiement sécurisé…', false);
+
+        fetch('/api/fedapay/attempt', {
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ months: 1 })
+          body: JSON.stringify({ plan: plan })
         })
-          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            btn.disabled = false;
+            if (!data.success || !data.attempt) {
+              showMsg(esc(data.message) || 'Erreur lors de la préparation.', true);
+              return;
+            }
+
+            var attempt = data.attempt;
+            var pubKey = data.public_key;
+            var env = data.environment;
+
+            if (typeof FedaPay === 'undefined') {
+              showMsg('Le module de paiement FedaPay n\'a pas pu être chargé. Vérifiez votre connexion.', true);
+              return;
+            }
+
+            // Ouverture du widget officiel FedaPay
+            FedaPay.init({
+              public_key: pubKey,
+              environment: env,
+              transaction: {
+                amount: attempt.amount,
+                description: plan === 'annual' ? 'Abonnement Annuel' : 'Abonnement Mensuel',
+                merchant_reference: attempt.merchant_reference
+              },
+              currency: { iso: 'XOF' },
+              onComplete: function (checkoutResult) {
+                if (checkoutResult && checkoutResult.reason === FedaPay.CHECKOUT_COMPLETED) {
+                  var transactionId = checkoutResult.transaction && checkoutResult.transaction.id;
+                  if (transactionId) {
+                    verifyFedaPayPayment(plan, transactionId, attempt.payment_id, attempt.merchant_reference);
+                  }
+                }
+              }
+            }).open();
+          })
+          .catch(function () {
+            btn.disabled = false;
+            showMsg('Erreur réseau. Vérifiez votre connexion.', true);
+          });
+      }
+
+      // CANAL A : Retour rapide navigateur avec vérification serveur stricte
+      function verifyFedaPayPayment(plan, transactionId, paymentId, merchantRef) {
+        showMsg('Paiement initié. Vérification auprès de l\'opérateur en cours…', false);
+
+        fetch('/api/fedapay/callback', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            transaction_id: transactionId,
+            payment_id: paymentId,
+            merchant_reference: merchantRef,
+            plan: plan
+          })
+        })
+          .then(function (r) { return r.json(); })
           .then(function (res) {
-            if (res.ok && res.d.success && res.d.url) {
-              window.location.href = res.d.url;
+            if (res.success && (res.subscribed || res.status === 'approved')) {
+              showMsg('Paiement confirmé ! Votre abonnement est désormais actif.', false);
+              fetch('/api/me', { credentials: 'include' })
+                .then(function (r) { return r.json(); })
+                .then(renderAccount);
             } else {
-              showMsg(esc(res.d.message) || 'Paiement indisponible. Réessaie.', true);
-              btn.disabled = false;
+              showMsg(esc(res.message) || 'Paiement non approuvé par l\'opérateur.', true);
             }
           })
           .catch(function () {
-            showMsg('Erreur réseau. Réessaie.', true);
-            btn.disabled = false;
+            showMsg('Validation en cours en arrière-plan via le webhook. Vous pouvez recharger la page dans un instant.', false);
           });
       }
-      document.getElementById('subscribeBtn').addEventListener('click', startCheckout);
-      document.getElementById('renewBtn').addEventListener('click', startCheckout);
+
+      // Liaison de tous les boutons de paiement data-pay-feda
+      document.querySelectorAll('[data-pay-feda]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var plan = b.getAttribute('data-pay-plan') || 'monthly';
+          initFedaPayCheckout(plan, b);
+        });
+      });
+
+      // CANAL C : Formulaire de secours / Récupération manuelle
+      var recoveryBtn = document.getElementById('recoverySubmitBtn');
+      if (recoveryBtn) {
+        recoveryBtn.addEventListener('click', function () {
+          var input = document.getElementById('recoveryTxInput');
+          var txId = (input ? input.value : '').trim();
+          if (!txId) {
+            showMsg('Veuillez entrer votre numéro de transaction FedaPay.', true);
+            return;
+          }
+
+          recoveryBtn.disabled = true;
+          showMsg('Vérification de la référence auprès de FedaPay…', false);
+
+          fetch('/api/fedapay/recover', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transaction_id: txId })
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+              recoveryBtn.disabled = false;
+              if (res.success && res.subscribed) {
+                showMsg('Paiement vérifié avec succès ! Votre abonnement a été activé.', false);
+                fetch('/api/me', { credentials: 'include' })
+                  .then(function (r) { return r.json(); })
+                  .then(renderAccount);
+              } else {
+                showMsg(esc(res.message) || 'Transaction introuvable ou non approuvée.', true);
+              }
+            })
+            .catch(function () {
+              recoveryBtn.disabled = false;
+              showMsg('Erreur réseau lors de la récupération.', true);
+            });
+        });
+      }
 
       // ── Déconnexion
       document.getElementById('logoutBtn').addEventListener('click', function () {

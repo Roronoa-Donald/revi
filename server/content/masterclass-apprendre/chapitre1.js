@@ -15,13 +15,13 @@ module.exports = {
 
   situation:
     'Trop d’étudiants abordent leurs études d’ingénierie comme si le cerveau était un enregistreur passif. ' +
-    'Ils passent des heures à relire des pages sans comprendre pourquoi 80 % des informations s’évaporent ' +
-    'en 48 heures. Comprendre l’architecture neurobiologique de la mémoire humaine et ses limites structurales ' +
-    'est la première étape indispensable pour apprendre deux fois plus vite avec deux fois moins de fatigue.',
+    'La relecture seule ne garantit pas la compréhension ni la mémorisation durable. ' +
+    'Explorer différents modèles de mémoire aide à choisir et ajuster des stratégies d’apprentissage, ' +
+    'sans promettre un gain de vitesse ou une réduction de fatigue chiffrés.',
 
   objectives: [
     'distinguer avec rigueur les trois registres de mémoire : sensorielle, de travail et à long terme ;',
-    'comprendre le goulot d’étranglement de la mémoire de travail et la loi de Miller ($7 \\pm 2$ chunks) ;',
+    'situer le repère historique de Miller et expliquer pourquoi l’empan dépend des tâches et des personnes ;',
     'maîtriser la théorie de la charge cognitive de John Sweller (charges intrinsèque, extrinsèque et germane) ;',
     'analyser le rôle de la neuroplasticité synaptique (règle de Hebb) et de la myélinisation dans l’expertise ;',
     'optimiser les phases de sommeil lent profond et paradoxal pour la consolidation mnésique nocturne.'
@@ -43,9 +43,7 @@ module.exports = {
         '(sémantique pour les concepts généraux, épisodique pour les souvenirs personnels) et mémoire implicite (procédurale pour les automatismes moteurs).</li>\n' +
         '</ul>',
         box('danger', 'Le goulot d’étranglement conscient', 'alert',
-          '    <p>La mémoire de travail est le filtre le plus étroit de notre système cognitif. George A. Miller ' +
-          'a quantifié son empan à <strong>$7 \\pm 2$ éléments d’information</strong> (souvent ramené à 4 par Nelson Cowan ' +
-          'pour des concepts complexes). Tout débordement d’information non regroupée est immédiatement perdu.</p>')
+          '    <p>Dans son article historique de 1956, George A. Miller discute notamment un empan d’environ <strong>$7 \\pm 2$ éléments</strong> dans certaines tâches de mémoire immédiate. Ce n’est pas une capacité universelle de la mémoire de travail : l’empan varie avec la tâche, le matériel, les stratégies et les personnes. Le regroupement en unités significatives peut aider sans garantir un résultat.</p>')
       ].join('\n')
     },
     {
@@ -53,10 +51,8 @@ module.exports = {
       html: [
         '<p>Formulée à la fin des années 1980 par le psychologue australien <strong>John Sweller</strong>, ' +
         'la théorie de la charge cognitive (<em>Cognitive Load Theory</em>) est la clé de voûte de l’ingénierie pédagogique. ' +
-        'La charge totale en mémoire de travail se décompose en trois éléments :</p>',
-        '<div class="formule-box">\n' +
-        '  $$\\text{Charge Totale} = \\text{Charge Intrinsèque} + \\text{Charge Extrinsèque} + \\text{Charge Germane}$$\n' +
-        '</div>',
+        'Certains modèles distinguent trois aspects de la charge ; leur interprétation et leur mesure dépendent du cadre retenu. ' +
+        'Cette distinction ne permet pas d’additionner des notes arbitraires pour diagnostiquer une capacité individuelle :</p>',
         '<ul>\n' +
         '  <li><strong>Charge Intrinsèque</strong> : inhérente à la difficulté du concept lui-même et au nombre d’interactions ' +
         'd’éléments simultanés (ex. comprendre le calcul d’un pointeur C ou un algorithme récursif). Elle ne peut être réduite ' +
@@ -95,7 +91,7 @@ module.exports = {
 
   questions: [
     { stem: 'Selon le modèle d’Atkinson et Shiffrin, quel registre de mémoire possède la durée de rétention la plus courte ?', opts: ['La mémoire sensorielle (200 à 1 000 ms)', 'La mémoire de travail', 'La mémoire sémantique'], correct: 0, exp: 'La mémoire sensorielle s’efface en moins d’une seconde sans attention sélective immédiate.' },
-    { stem: 'Quelle est la limite canonique de la mémoire de travail quantifiée par George Miller ?', opts: ['7 ± 2 éléments (chunks)', '150 connexions', 'Illimitée'], correct: 0, exp: 'L’empan mnésique conscient moyen de l’être humain est de 5 à 9 éléments distincts.' },
+    { stem: 'Comment interpréter le repère 7 ± 2 associé à Miller ?', opts: ['Un résultat historique pour certaines tâches, qui varie selon le contexte et les personnes', 'Une limite universelle identique pour toutes les tâches', 'La preuve que la mémoire est illimitée'], correct: 0, exp: 'Miller discutait des tâches particulières de mémoire immédiate en 1956 ; la nature des éléments, les stratégies et les personnes influencent les résultats.' },
     { stem: 'Dans la théorie de John Sweller, comment qualifie-t-on la charge cognitive parasite due aux distractions et au désordre ?', opts: ['Charge extrinsèque', 'Charge intrinsèque', 'Charge germane'], correct: 0, exp: 'La charge extrinsèque est le bruit inutile généré par une mauvaise présentation ou un environnement perturbé.' },
     { stem: 'Quel mécanisme biologique formalise l’adage « les neurones qui s’activent ensemble se connectent ensemble » ?', opts: ['La potentialisation à long terme (règle de Donald Hebb)', 'La mitose cellulaire', 'L’osmose inverse'], correct: 0, exp: 'La règle de Hebb et la LTP consolident la liaison synaptique entre neurones co-activés.' },
     { stem: 'Quel constituant biologique accélère jusqu’à 100 fois la vitesse de l’influx nerveux le long des axones entraînés ?', opts: ['La gaine de myéline', 'L’hémoglobine', 'La mélatonine'], correct: 0, exp: 'La myélinisation isole les axones et permet la conduction saltatoire rapide de l’influx.' },
@@ -123,7 +119,7 @@ module.exports = {
 
   summary: [
     'L’information transite de la mémoire sensorielle vers la mémoire de travail, puis vers la mémoire à long terme.',
-    'La mémoire de travail est limitée à $7 \\pm 2$ chunks d’information pendant une trentaine de secondes.',
+    'Le repère historique $7 \\pm 2$ de Miller concerne certaines tâches de mémoire immédiate ; il ne fixe pas une capacité universelle.',
     'La théorie de Sweller impose de supprimer la charge extrinsèque pour libérer la charge germane structurante.',
     'La répétition synaptique et la myélinisation (loi de Hebb) transforment l’effort conscient en automatisme fluide.',
     'Le sommeil lent profond et le sommeil paradoxal sont indispensables pour ancrer les souvenirs dans le néocortex.'
@@ -147,25 +143,10 @@ module.exports = {
   ],
 
   flashcards: [
-      { q: 'Qu’est-ce que « Chunking » ?', a: 'George A. Miller a démontré que la mémoire de travail ne peut retenir que $7 \\pm 2$ éléments isolés. Le chunking (morcellement) regroupe les symboles en paquets significatifs pour démultiplier la capacité de rétention.' },
-      { q: 'Qu’est-ce que « Illusion de compétence » ?', a: 'Illusion de compétence : Surligner tout un manuel au feutre jaune donne une fausse sensation de sécurité : le texte paraît familier, donc on s’imagine le maîtriser. Le jour de l’épreuve, devant la copie blanche sans le support sous les yeux, c’est le trou noir. Cette désillusion porte un nom scientifique' },
-      { q: 'Qu’est-ce que « Fluency Illusion » ?', a: 'démasquer l’illusion de compétence et la fausse aisance cognitive (Fluency Illusion) ;' },
-      { q: 'Qu’est-ce que « Dunning-Kruger » ?', a: 'L’effet Dunning-Kruger : les étudiants qui maîtrisent le moins un sujet sont statistiquement ceux qui surestiment le plus leur performance future, faute d’avoir conscience de l’étendue de leurs lacunes.' },
-      { q: 'Qu’est-ce que « Active Recall » ?', a: 'Active Recall : Surligner tout un manuel au feutre jaune donne une fausse sensation de sécurité : le texte paraît familier, donc on s’imagine le maîtriser. Le jour de l’épreuve, devant la copie blanche sans le support sous les yeux, c’est le trou noir. Cette désillusion porte un nom scientifique' },
-      { q: 'Qu’est-ce que « Technique Feynman » ?', a: 'Technique Feynman : maîtriser les 4 étapes de la technique de vulgarisation de Richard Feynman.' },
-      { q: 'Qu’est-ce que « Courbe de l’oubli » ?', a: 'Courbe de l’oubli : Le bachotage intensif la veille d’un examen permet parfois de sauver les meubles le lendemain matin, mais deux semaines plus tard, tout est oublié. Le cerveau élimine impitoyablement les informations qui ne sont pas réactivées à intervalles réguliers. La répétition espacée (Space' },
-      { q: 'Qu’est-ce que « Spacing Effect » ?', a: 'comprendre l’effet d’espacement (Spacing Effect) par rapport au regroupement massif (Cramming) ;' },
-      { q: 'Qu’est-ce que « Piotr Wozniak » ?', a: 'maîtriser l’algorithme mathématique SM-2 de Piotr Wozniak régissant les moteurs comme Anki ;' },
-      { q: 'Qu’est-ce que « Neuromythes » ?', a: 'Neuromythes : Masterclass Apprendre à apprendre B2 › Sommaire › Chapitre 4' },
-      { q: 'Qu’est-ce que « Tony Buzan » ?', a: 'concevoir des cartes mentales (Mind Maps de Tony Buzan) pour cartographier les liens hiérarchiques ;' },
-      { q: 'Qu’est-ce que « Carte conceptuelle » ?', a: 'différencier une carte mentale d’une carte conceptuelle (Concept Map de Joseph Novak) ;' },
-      { q: 'Qu’est-ce que « Monitoring » ?', a: 'Monitoring (Surveillance) : se poser en temps réel la question : « Suis-je vraiment en train de comprendre ce paragraphe ? ».' },
-      { q: 'Qu’est-ce que « Chronobiologie » ?', a: 'Être intelligent ne suffit pas pour réussir des études exigeantes : la capacité à s’auto-réguler, à gérer son attention et à respecter son rythme biologique est le véritable facteur différenciateur. La métacognition (la pensée sur sa propre pensée) et la chronobiologie permettent' },
-      { q: 'Qu’est-ce que « Rythmes circadiens » ?', a: 'Rythmes circadiens : exploiter les rythmes ultradiens (90 minutes) et la technique Pomodoro de concentration fractionnée ;' },
     { q: 'Quels sont les 3 étages du modèle mnésique d’Atkinson et Shiffrin ?', a: 'La mémoire sensorielle (&lt; 1 s), la mémoire de travail (20-30 s, 7 chunks) et la mémoire à long terme (illimitée).' },
     { q: 'Quelle est la formule de la charge cognitive totale selon John Sweller ?', a: 'Charge Totale = Charge Intrinsèque (difficulté du contenu) + Charge Extrinsèque (parasite) + Charge Germane (utile).' },
     { q: 'Que stipule la règle de Donald Hebb (1949) ?', a: 'Les neurones qui s’activent ensemble se connectent ensemble (renforcement synaptique LTP).' },
-    { q: 'Quel est l’empan moyen de la mémoire de travail selon George Miller ?', a: '7 ± 2 éléments distincts (chunks d’information).' },
+    { q: 'Comment situer le repère 7 ± 2 de George Miller ?', a: 'Il résume des observations historiques de mémoire immédiate ; la capacité varie selon les tâches, les éléments, les stratégies et les personnes.' },
     { q: 'À quoi sert la myélinisation des axones neuronaux ?', a: 'À isoler les fibres nerveuses pour multiplier jusqu’à 100 fois la vitesse de transmission des influx nerveux.' },
     { q: 'Pourquoi le sommeil est-il capital après une journée de cours ?', a: 'Le sommeil lent profond transfère les souvenirs de l’hippocampe vers le néocortex durable.' }
   ],

@@ -30,13 +30,14 @@ module.exports = [
     situation:
       'Le <strong>WAN</strong> est l\'interconnexion de plusieurs LAN — par ligne louée (HDLC, PPP) ou par ' +
       'Ethernet WAN (EoMPLS). Le routage IP y achemine les paquets de bout en bout : chaque routeur ' +
-      'désencapsule, consulte sa table, réencapsule — tandis que l\'en-tête IP reste inchangé.',
+      'désencapsule, consulte sa table et réencapsule. Lors du transfert IPv4, le TTL diminue ' +
+      'et la somme de contrôle de l\'en-tête est actualisée.',
 
     objectives: [
       'décrire le WAN de lignes louées et le WAN Ethernet (EoMPLS) ;',
       'dérouler les quatre étapes du routage interne d\'un routeur ;',
-      'appliquer les deux règles d\'or des sous-réseaux (routeur entre les adresses ou non) ;',
-      'expliquer l\'en-tête IPv4 de 20 octets (adresses source et destination 32 bits) ;',
+      'comparer des adresses IPv4 et leurs masques pour identifier les sous-réseaux ;',
+      'décrire l\'en-tête IPv4, sa taille et les champs modifiés lors du routage ;',
       'décrire l\'apprentissage des routes par protocole de routage (connectées, annonces, métrique).'
     ],
 
@@ -55,20 +56,26 @@ module.exports = [
           'comparer l\'IP de destination à la table de routage (meilleure route → interface sortante et ' +
           'saut suivant) ; <strong>4.</strong> encapsuler le paquet dans un nouvel en-tête approprié à ' +
           'l\'interface sortante et transmettre.</p>',
-          box('mnemo', 'Mnémotechnique — « l\'en-tête IP voyage intact, l\'en-tête de liaison change à chaque saut »', 'pin',
-            '    <p>Les MAC et en-têtes de trame se renouvellent à chaque routeur ; les adresses IP de ' +
-            'bout en bout restent les mêmes.</p>')
+          box('mnemo', 'À chaque saut, la trame change et le TTL IPv4 diminue', 'pin',
+            '    <p>La trame est adaptée à la liaison sortante. Les adresses IP source et destination ' +
+            'restent généralement les mêmes en l\'absence de traduction d\'adresses ou de tunnel.</p>')
         ].join('\n')
       },
       {
         title: 'Sous-réseaux, en-tête IP et protocoles de routage',
         html: [
-          '<p>Les <strong>règles d\'or</strong> des groupes d\'adresses : deux adresses <em>non séparées</em> ' +
-          'par un routeur appartiennent au <strong>même groupe</strong> (sous-réseau) ; deux adresses ' +
-          '<em>séparées</em> par au moins un routeur appartiennent à des <strong>groupes différents</strong>. ' +
-          'L\'analogie du support : le sous-réseau est le code postal des adresses IP. L\'<strong>en-tête ' +
-          'IPv4</strong> fait 20 octets, avec les adresses source et destination de 32 bits — inchangées ' +
-          'par le routage.</p>',
+          '<p>Un <strong>sous-réseau</strong> est un ensemble d\'adresses défini par un préfixe et un ' +
+          'masque. Le même segment physique peut porter plusieurs sous-réseaux : comparez les adresses ' +
+          'et leur masque, pas seulement la présence d\'un routeur. Par exemple, ' +
+          '<code>192.0.2.1/24</code> et <code>192.0.3.1/24</code> ont des préfixes différents, même si ' +
+          'elles sont reliées au même commutateur.</p>',
+          '<p>L\'en-tête IPv4 mesure <strong>20 octets au minimum</strong> et jusqu\'à <strong>60 octets</strong> ' +
+          'avec des options ; les adresses source et destination ont chacune 32 bits. Lorsqu\'un routeur ' +
+          'transmet un paquet, son <strong>TTL diminue</strong> d\'au moins une unité et la somme de contrôle ' +
+          'de l\'en-tête est recalculée. Sans NAT ni tunnel, les adresses IP restent généralement identiques.</p>',
+          '<p>Références : <a href="https://www.rfc-editor.org/rfc/rfc791">RFC 791, IPv4</a>, ' +
+          '<a href="https://www.rfc-editor.org/rfc/rfc1122">RFC 1122, réseaux logiques multiples</a> et ' +
+          '<a href="https://www.rfc-editor.org/rfc/rfc1812">RFC 1812, routeurs IPv4</a>, consultées le 30 octobre 2026.</p>',
           '<p>Les <strong>protocoles de routage</strong> apprennent les routes en trois étapes : chaque ' +
           'routeur ajoute d\'abord ses routes <em>connectées</em> ; chaque protocole annonce les routes de ' +
           'sa table à ses voisins (mises à jour de routage) ; après apprentissage, la meilleure route — ' +
@@ -78,8 +85,8 @@ module.exports = [
           box('pitfall', 'Confusions d\'examen', 'warning',
             '    <ul>\n' +
             '      <li>Le FCS est vérifié AVANT la désencapsulation : trame fautive = trame jetée.</li>\n' +
-            '      <li>Adresses séparées par un routeur = sous-réseaux différents : la règle inverse piège.</li>\n' +
-            '      <li>L\'en-tête IP reste inchangé de bout en bout : ce sont les en-têtes de liaison qui changent.</li>\n' +
+            '      <li>Un segment commun ne prouve pas que les adresses partagent le même préfixe IP.</li>\n' +
+            '      <li>Le TTL et la somme de contrôle IPv4 changent lors du transfert par un routeur.</li>\n' +
             '      <li>EoMPLS est un WAN Ethernet : plus d\'actualité que HDLC.</li>\n' +
             '    </ul>')
         ].join('\n')
@@ -89,9 +96,9 @@ module.exports = [
     questions: [
       { q: 'Le WAN de lignes louées utilise comme protocole de liaison…', opts: ['HDLC', 'EoMPLS', 'ARP'], correct: 0, exp: 'HDLC (ou PPP) ; EoMPLS est le WAN Ethernet, plus récent.' },
       { q: 'Première étape du routage interne :', opts: ['chercher la route', 'vérifier le FCS', 'encapsuler'], correct: 1, exp: 'FCS d\'abord : trame erronée jetée.' },
-      { q: 'Deux adresses non séparées par un routeur appartiennent…', opts: ['au même sous-réseau', 'à des sous-réseaux différents', 'à des VLAN différents'], correct: 0, exp: 'Première règle d\'or du sous-réseautage.' },
-      { q: 'L\'en-tête IPv4 fait…', opts: ['20 octets', '32 octets', '64 octets'], correct: 0, exp: 'Avec des adresses source et destination de 32 bits chacune.' },
-      { q: 'Pendant le routage, l\'en-tête IP…', opts: ['est réécrit à chaque saut', 'reste inchangé', 'est jeté'], correct: 1, exp: 'Seuls les en-têtes de liaison de données se renouvellent.' },
+      { q: 'Deux adresses sont sur le même segment : comment comparer leurs sous-réseaux ?', opts: ['Comparer les adresses et leurs masques ou préfixes', 'Supposer qu\'elles sont toujours dans le même sous-réseau', 'Vérifier uniquement leur adresse MAC'], correct: 0, exp: 'Un segment peut porter plusieurs préfixes ; la MAC seule ne détermine pas le sous-réseau IP.' },
+      { q: 'L\'en-tête IPv4 fait…', opts: ['20 à 60 octets selon les options', 'toujours 20 octets', 'toujours 64 octets'], correct: 0, exp: 'Le minimum est 20 octets ; des options peuvent porter la taille à 60 octets.' },
+      { q: 'Pendant le routage IPv4, que devient l\'en-tête du paquet transmis ?', opts: ['Le TTL diminue et la somme de contrôle est recalculée', 'Il reste intégralement inchangé', 'Il est toujours supprimé'], correct: 0, exp: 'La trame change, et le routeur actualise aussi des champs de l\'en-tête IPv4.' },
       { q: 'La « meilleure route » est choisie selon…', opts: ['une métrique', 'un hasard', 'l\'alphabet'], correct: 0, exp: 'Métrique : le critère de choix entre plusieurs routes.' },
       { q: 'Un hôte envoie les paquets distants à…', opts: ['son routeur par défaut', 'son switch', 'le serveur DNS'], correct: 0, exp: 'Logique de transfert de l\'hôte : envoyer au routeur par défaut.' },
       { q: 'ARP sert à…', opts: ['apprendre la MAC d\'un hôte IP du LAN', 'router entre sous-réseaux', 'chiffrer SSH'], correct: 0, exp: 'Résolution d\'adresse : IP → MAC sur le segment local.' }
@@ -100,7 +107,7 @@ module.exports = [
     pitfalls: [
       'Chercher la route avant de vérifier le FCS.',
       'Encapsuler sans désencapsuler : le vieux cabeau de liaison doit partir.',
-      'Placer deux adresses séparées par un routeur dans le même sous-réseau.',
+      'Supposer qu\'un segment physique unique impose un préfixe IP unique.',
       'Confondre route connectée (apprentissage automatique) et route apprise (annonce).'
     ],
 
@@ -108,20 +115,20 @@ module.exports = [
     method: [
       'Repérer le sous-réseau de destination : même groupe ou saut vers le routeur par défaut.',
       'À chaque routeur : FCS, désencapsulation, table, réencapsulation.',
-      'Vérifier au bout : les adresses IP sont intactes, les en-têtes de liaison ont changé à chaque saut.'
+      'Vérifier le TTL et la somme de contrôle IPv4 ; sans NAT ni tunnel, les adresses IP restent généralement identiques.'
     ],
 
     summary: [
       'WAN : lignes louées (HDLC, PPP) ou Ethernet WAN (EoMPLS).',
       'Routage interne : FCS → désencapsulation → table → réencapsulation.',
-      'Sous-réseaux : routeur entre les adresses = groupes différents.',
+      'Sous-réseaux : comparer les adresses et les masques, même sur un segment commun.',
       'Protocoles de routage : routes connectées, annonces aux voisins, métrique.'
     ],
 
     checklist: [
       'Je sais dérouler les quatre étapes du routage dans l\'ordre.',
-      'Je sais appliquer les deux règles des sous-réseaux.',
-      'Je sais expliquer l\'en-tête IPv4 et sa stabilité.',
+      'Je sais comparer deux préfixes de sous-réseau.',
+      'Je sais expliquer la taille de l\'en-tête IPv4 et ses champs modifiés.',
       'Je sais décrire l\'apprentissage d\'une route par protocole de routage.'
     ],
 
@@ -131,7 +138,7 @@ module.exports = [
       '<strong>Table de routage</strong> : sous-réseau → interface sortante + saut suivant.',
       '<strong>Métrique</strong> : critère de choix de la meilleure route.',
       '<strong>Route connectée</strong> : ajoutée sans protocole de routage.',
-      '<strong>En-tête IPv4</strong> : 20 octets, adresses 32 bits inchangées.',
+      '<strong>En-tête IPv4</strong> : 20 à 60 octets ; TTL et somme de contrôle sont actualisés au routage.',
       '<strong>Routeur par défaut</strong> : destination des paquets hors du sous-réseau.',
       '<strong>ARP</strong> : apprend la MAC d\'un hôte IP du LAN.'
     ],
@@ -146,8 +153,8 @@ module.exports = [
     flashcards: [
       { q: 'Les deux façons de bâtir un WAN ?', a: 'Lignes louées (HDLC/PPP) ou Ethernet WAN (EoMPLS), plus d\'actualité.' },
       { q: 'Les 4 étapes du routage interne ?', a: '1 FCS (jeter si erreur), 2 désencapsulation, 3 meilleure route dans la table, 4 réencapsulation et transmission.' },
-      { q: 'Les deux règles des sous-réseaux ?', a: 'Pas de routeur entre deux adresses → même groupe ; au moins un routeur → groupes différents.' },
-      { q: 'Qu\'est-ce qui change à chaque saut ?', a: 'Les en-têtes de liaison de données (MAC, HDLC) — l\'en-tête IP de 20 octets reste inchangé.' },
+      { q: 'Comment comparer deux sous-réseaux ?', a: 'Calculer les préfixes à partir des adresses et de leurs masques ; un segment peut accueillir plusieurs préfixes.' },
+      { q: 'Qu\'est-ce qui change à chaque saut ?', a: 'La trame de liaison change ; le TTL IPv4 diminue et la somme de contrôle est actualisée.' },
       { q: 'Comment un protocole de routage apprend-il ?', a: 'Routes connectées d\'abord, puis annonces aux voisins, et la meilleure route (métrique) entre dans la table.' }
     ]
   },
@@ -317,10 +324,14 @@ module.exports = [
           'enable un attaquant rechargerait le commutateur ou modifierait la configuration.</p>',
           '<p>Les <strong>utilisateurs locaux</strong> : créer les couples avec <em>username nom secret ' +
           'motdepasse</em>, puis activer avec <em>login local</em> (et nettoyer avec <em>no password</em>). ' +
-          'Pour <strong>SSH</strong> — le seul accès chiffré, qui exige un couple utilisateur/mot de passe : ' +
-          'hostname + <em>ip domain-name</em> (le FQDN sert à générer la clé), puis <em>crypto key generate ' +
-          'rsa</em> (au moins 768 bits pour SSHv2), <em>ip ssh version 2</em>, et <em>transport input ' +
-          'ssh</em> en vty pour interdire Telnet.</p>',
+          'Pour <strong>SSH</strong>, <em>login local</em> est une configuration possible avec un compte et ' +
+          'un mot de passe ; l\'authentification peut aussi utiliser une clé publique lorsque la plateforme ' +
+          'est configurée pour cela. Cette clé de l\'utilisateur est distincte de la clé du serveur SSH. ' +
+          'Dans cet exemple Cisco : hostname et <em>ip domain-name</em>, puis <em>crypto key generate rsa</em>, ' +
+          '<em>ip ssh version 2</em> et <em>transport input ssh</em> en vty. Depuis <strong>IOS XE 17.10</strong>, ' +
+          'Cisco indique un minimum de <strong>2048 bits</strong> pour la paire RSA ; vérifiez la version et la ' +
+          'politique de votre équipement.</p>',
+          '<p>Référence : <a href="https://www.cisco.com/c/en/us/td/docs/routers/ios/config/17-x/sec-vpn/b-security-vpn/m_sec-secure-shell-v2-0.html">Cisco IOS XE, SSH version 2</a>, consultée le 30 octobre 2026.</p>',
           box('mnemo', 'Mnémotechnique — « secret pour enable, local pour user, crypto pour SSH »', 'pin',
             '    <p>Trois protections, trois commandes-clés : enable secret, login local, crypto key ' +
             'generate rsa.</p>')
@@ -336,16 +347,18 @@ module.exports = [
           'configuration globale — indispensable pour parler hors du sous-réseau, comme pour un hôte. ' +
           'Alternative : <em>ip address dhcp</em> pour apprendre les paramètres dynamiquement.</p>',
           '<p>Trois commandes de <strong>confort</strong> : <em>logging synchronous</em> — les messages ' +
-          'syslog attendent la fin de la commande en cours au lieu de s\'inviter en pleine saisie ; ' +
-          '<em>exec-timeout minutes secondes</em> — délai de déconnexion d\'inactivité (5 min par défaut, ' +
-          '0 0 = jamais, pour le laboratoire) ; <em>no ip domain-lookup</em> — plus d\'attente d\'une ' +
-          'minute après une commande mal tapée qu\'IOS essaie de résoudre en nom d\'hôte.</p>',
+          'non sollicités s\'affichent sur une ligne séparée, puis l\'invite est réaffichée ; ' +
+          '<em>exec-timeout minutes secondes</em> — délai de déconnexion d\'inactivité (10 minutes par défaut ' +
+          'dans la documentation Cisco IOS, mise à jour en 2019 ; vérifier la plateforme et la configuration ; ' +
+          '0 0 : délai EXEC d\'inactivité désactivé, pour le laboratoire ; d\'autres causes peuvent terminer la session) ; <em>no ip domain-lookup</em> — évite une attente de résolution ' +
+          'DNS après une commande mal tapée. Sources : <a href="https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/fundamentals/command/cf_command_ref/D_through_E.html">exec-timeout</a> ' +
+          'et <a href="https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/fundamentals/command/cf_command_ref/L_through_mode.html">logging synchronous</a>, consultées le 30 octobre 2026.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
             '    <ul>\n' +
-            '      <li>SSH ne fonctionne pas avec un simple mot de passe : il exige un couple utilisateur/mot de passe.</li>\n' +
+            '      <li>SSH ne se limite pas au mot de passe : une clé publique utilisateur est possible selon la configuration.</li>\n' +
             '      <li>Le crypto key a besoin du FQDN : hostname + ip domain-name avant.</li>\n' +
             '      <li>Sans ip default-gateway, le commutateur ne parle pas hors de son sous-réseau.</li>\n' +
-            '      <li>exec-timeout 0 0 = jamais déconnecté : pour le labo, pas la production.</li>\n' +
+            '      <li>exec-timeout 0 0 : délai EXEC d\'inactivité désactivé ; pour le labo, pas la production.</li>\n' +
             '    </ul>')
         ].join('\n')
       }
@@ -356,17 +369,17 @@ module.exports = [
       { q: 'Le mot de passe du mode enable se pose par…', opts: ['enable secret', 'line password', 'login local'], correct: 0, exp: 'Commande de configuration globale : enable secret.' },
       { q: 'Les lignes vty portent…', opts: ['le mot de passe console', 'le mot de passe Telnet', 'le mot de passe enable'], correct: 1, exp: 'line vty 0 15 : le mot de passe vty (Telnet).' },
       { q: 'login local signifie…', opts: ['utiliser la liste locale des noms d\'utilisateurs', 'un mot de passe simple', 'une authentification externe'], correct: 0, exp: 'Couple nom/mot de passe par utilisateur, créé par username nom secret motdepasse.' },
-      { q: 'La clé SSH se génère par…', opts: ['crypto key generate rsa', 'ssh keygen', 'ip ssh key'], correct: 0, exp: 'Avec au moins 768 bits pour SSHv2 ; le FQDN (hostname + ip domain-name) sert d\'entrée.' },
+      { q: 'Dans cet exemple Cisco, la clé du serveur SSH se génère par…', opts: ['crypto key generate rsa', 'ssh keygen', 'ip ssh key'], correct: 0, exp: 'Le FQDN est configuré avant ; IOS XE 17.10 indique au moins 2048 bits pour la paire RSA.' },
       { q: 'L\'adresse IP de gestion se pose sur…', opts: ['un port physique', 'l\'interface VLAN (SVI)', 'la console'], correct: 1, exp: 'interface vlan 1 par défaut — carte réseau virtuelle du commutateur.' },
       { q: 'Sans ip default-gateway, le commutateur…', opts: ['ne commmute pas', 'ne parle pas hors de son sous-réseau', 'perd sa MAC'], correct: 1, exp: 'La commutation continue ; seul le trafic de gestion distant échoue.' },
-      { q: 'logging synchronous sert à…', opts: ['chiffrer la console', 'synchroniser l\'affichage des messages syslog', 'déconnecter'], correct: 1, exp: 'Les syslog attendent la fin de la sortie en cours.' }
+      { q: 'logging synchronous sert à…', opts: ['chiffrer la console', 'synchroniser l\'affichage des messages syslog', 'déconnecter'], correct: 1, exp: 'Les messages non sollicités apparaissent sur une ligne séparée, puis l\'invite est réaffichée.' }
     ],
 
     pitfalls: [
       'Activer SSH sans crypto key generate rsa : pas de clés, pas de SSH.',
       'Oublier ip default-gateway après l\'ip address : gestion locale seulement.',
       'Laisser transport input all en production : Telnet en clair reste ouvert.',
-      'Mettre exec-timeout 0 0 en production : sessions jamais expirées.'
+      'Mettre exec-timeout 0 0 en production : délai EXEC d\'inactivité désactivé.'
     ],
 
     methodTitle: 'Méthode — sécuriser et connecter un switch en trois gestes',
@@ -398,7 +411,7 @@ module.exports = [
       '<strong>crypto key generate rsa</strong> : génération des clés SSH.',
       '<strong>transport input ssh</strong> : SSH seul sur les lignes vty.',
       '<strong>SVI / interface vlan 1</strong> : interface virtuelle de gestion.',
-      '<strong>exec-timeout 0 0</strong> : jamais déconnecté (laboratoire).'
+      '<strong>exec-timeout 0 0</strong> : délai EXEC d\'inactivité désactivé (laboratoire).'
     ],
 
     mastery: [
@@ -410,10 +423,10 @@ module.exports = [
 
     flashcards: [
       { q: 'Sécuriser console et vty avec un mot de passe simple ?', a: 'En mode de ligne : password + login — line con 0 pour la console, line vty 0 15 pour Telnet.' },
-      { q: 'La checklist SSH ?', a: 'hostname, ip domain-name, crypto key generate rsa (≥ 768 bits pour SSHv2), ip ssh version 2, transport input ssh, login local.' },
+      { q: 'La checklist SSH ?', a: 'Exemple Cisco : hostname, ip domain-name, clé RSA du serveur (2048 bits minimum sous IOS XE 17.10), SSHv2 et transport input ssh. login local est un choix ; une clé publique utilisateur est aussi possible selon la plateforme.' },
       { q: 'Les cinq étapes IPv4 du commutateur ?', a: 'interface vlan 1 → ip address → no shutdown → ip default-gateway → (facultatif) ip name-server.' },
       { q: 'Pourquoi une SVI ?', a: 'L\'interface VLAN est la carte réseau virtuelle du commutateur : elle porte l\'IP de gestion, sans lien avec la commutation.' },
-      { q: 'Les trois commandes de confort ?', a: 'logging synchronous (syslog), exec-timeout minutes seconds (déconnexion), no ip domain-lookup (pas d\'attente DNS).' }
+      { q: 'Les trois commandes de confort ?', a: 'logging synchronous (syslog), exec-timeout minutes seconds (délai EXEC d\'inactivité), no ip domain-lookup (pas d\'attente DNS).' }
     ]
   }
 ];

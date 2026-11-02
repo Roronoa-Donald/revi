@@ -178,7 +178,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire Linguistique libre — ' + course.brand,
-      description: 'Bac à sable interactif de manière méthodiquepour tester vos scripts d’audit linguistique et calculs de SLA.',
+      description: 'Bac à sable interactif pour tester vos scripts d’audit linguistique et calculs de SLA.',
       active: 'atelier',
       body
     }

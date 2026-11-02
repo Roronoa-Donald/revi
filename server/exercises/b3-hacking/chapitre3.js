@@ -94,41 +94,40 @@ module.exports = [
   {
     "id": "hk3-c3-e3",
     "chapter": 3,
-    "title": "Simulateur d'Audit SNMP et Détection de Communautés Vulnérables",
+    "title": "Recherche simulée dans une liste de communautés SNMP",
     "level": "n3",
     "language": "analyse",
-    "goal": "Auditer les chaînes de communauté SNMP d'un commutateur ou routeur et classifier le niveau de compromission.",
-    "brief": "<p>SNMP v1 et v2c transmettent les chaînes de communauté en clair sans chiffrement.<br><br>\nRègles d'évaluation :<br>\n- On teste successivement chaque chaîne de la liste de dictionnaires <code>wordlist</code> contre la cible.<br>\n- Si une chaîne correspond à <code>target_community</code> :<br>\n  - Si <code>target_perm == 'RW'</code> : <code>status=COMPROMISED</code>, <code>risk=CRITICAL</code> (modification d'équipement possible).<br>\n  - Si <code>target_perm == 'RO'</code> : <code>status=COMPROMISED</code>, <code>risk=HIGH</code> (fuite complète d'arborescence MIB).<br>\n- Si aucune chaîne ne correspond :<br>\n  - <code>status=SECURE</code>, <code>risk=LOW</code>.<br><br>\nDonnées du cas : <code>SNMP_TEST target=&lt;ip&gt; wordlist=&lt;w1,w2,...&gt; target_community=&lt;comm&gt; target_perm=&lt;RO|RW&gt; sys_descr=&lt;descr&gt;</code>.<br>\nRésultat d’analyse attendu :<br>\n- Si compromis : <code>SNMP_AUDIT: target=&lt;ip&gt; status=COMPROMISED matched_community=&lt;comm&gt; perm=&lt;perm&gt; attempts=&lt;N&gt; risk=&lt;risk&gt; sys_descr=&lt;descr&gt;</code><br>\n- Si non compromis : <code>SNMP_AUDIT: target=&lt;ip&gt; status=SECURE attempts=&lt;N&gt; risk=LOW reason=COMMUNITY_NOT_FOUND</code></p>",
-    "starter": "# Grille d'analyse (hk3-c3-e3) — Simulateur d'Audit SNMP et Détection de Communautés Vulnérables\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Chaîne de communauté d'écriture Read-Write découverte au troisième essai]\n# Données : SNMP_TEST target=10.0.0.254 wordlist=public,cisco,private,switch target_community=private target_perm=RW sys_descr=Juniper_EX4300\nA_COMPLETER\n\n[Cas 2 — Cible robuste dont la chaîne n'est pas dans le dictionnaire testé]\n# Données : SNMP_TEST target=172.16.1.1 wordlist=public,private,secret target_community=complex_snmp_9821 target_perm=RO sys_descr=Linux_Router\nA_COMPLETER\n\n[Cas 3 — Dictionnaire volumineux arrêtant la recherche dès la première correspondance]\n# Données : SNMP_TEST target=192.168.100.10 wordlist=manager,monitor,operator target_community=monitor target_perm=RO sys_descr=HP_ProCurve\nA_COMPLETER\n",
+    "goal": "Comparer des chaînes fictives sans conclure au niveau de sécurité d’un service.",
+    "brief": "<p>Dans cette simulation, comparer successivement les chaînes de <code>wordlist</code> à <code>target_community</code> et arrêter à la première correspondance. Le résultat ne prouve pas qu’un service réel est sûr, compromis ou qu’un niveau de risque particulier s’applique ; d’autres configurations et contrôles doivent être examinés. Toute vérification réelle exige une autorisation.</p><p>Données : <code>SNMP_TEST target=&lt;ip&gt; wordlist=&lt;liste&gt; target_community=&lt;chaine&gt; target_perm=&lt;RO|RW&gt; sys_descr=&lt;description&gt;</code>.<br>Si trouvée : <code>SNMP_AUDIT: target=&lt;ip&gt; status=TROUVEE matched_community=&lt;chaine&gt; perm=&lt;RO|RW&gt; attempts=&lt;n&gt; risk=NON_EVALUE sys_descr=&lt;description&gt;</code>.<br>Sinon : <code>SNMP_AUDIT: target=&lt;ip&gt; status=NON_TROUVEE attempts=&lt;n&gt; risk=NON_EVALUE</code>.</p>",
+    "starter": "# Grille d'analyse (hk3-c3-e3) — Recherche simulée dans une liste de communautés SNMP\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Correspondance au troisième essai]\n# Données : SNMP_TEST target=10.0.0.254 wordlist=public,cisco,private,switch target_community=private target_perm=RW sys_descr=Juniper_EX4300\nA_COMPLETER\n\n[Cas 2 — Aucune correspondance dans la liste]\n# Données : SNMP_TEST target=172.16.1.1 wordlist=public,private,secret target_community=complex_snmp_9821 target_perm=RO sys_descr=Linux_Router\nA_COMPLETER\n\n[Cas 3 — Correspondance au deuxième essai]\n# Données : SNMP_TEST target=192.168.100.10 wordlist=manager,monitor,operator target_community=monitor target_perm=RO sys_descr=HP_ProCurve\nA_COMPLETER\n",
     "hints": [
-      "Découpez wordlist sur la virgule et itérez dans l'ordre.",
-      "Dès qu'un mot correspond à target_community, arrêtez-vous et notez le nombre d'essais effectués.",
-      "Si target_perm == RW -> risk=CRITICAL, sinon risk=HIGH."
+      "Compter les essais jusqu’à la première correspondance, ou toute la liste si aucune chaîne ne correspond.",
+      "Ne déduire aucun risque global du seul résultat."
     ],
     "examples": [
       {
         "stdin": "SNMP_TEST target=192.168.1.1 wordlist=public,private,cisco,admin target_community=public target_perm=RO sys_descr=Cisco_IOS_Software_C2960",
-        "expected": "SNMP_AUDIT: target=192.168.1.1 status=COMPROMISED matched_community=public perm=RO attempts=1 risk=HIGH sys_descr=Cisco_IOS_Software_C2960",
-        "note": "Chaîne publique par défaut permettant la lecture intégrale des interfaces et tables ARP."
+        "expected": "SNMP_AUDIT: target=192.168.1.1 status=TROUVEE matched_community=public perm=RO attempts=1 risk=NON_EVALUE sys_descr=Cisco_IOS_Software_C2960",
+        "note": "La première chaîne correspond dans ce scénario fictif ; les droits réels ne sont pas évalués."
       }
     ],
     "tests": [
       {
-        "label": "Chaîne de communauté d'écriture Read-Write découverte au troisième essai",
+        "label": "Correspondance au troisième essai",
         "stdin": "cas:1",
-        "expected": "SNMP_AUDIT: target=10.0.0.254 status=COMPROMISED matched_community=private perm=RW attempts=3 risk=CRITICAL sys_descr=Juniper_EX4300"
+        "expected": "SNMP_AUDIT: target=10.0.0.254 status=TROUVEE matched_community=private perm=RW attempts=3 risk=NON_EVALUE sys_descr=Juniper_EX4300"
       },
       {
-        "label": "Cible robuste dont la chaîne n'est pas dans le dictionnaire testé",
+        "label": "Aucune correspondance dans la liste",
         "stdin": "cas:2",
-        "expected": "SNMP_AUDIT: target=172.16.1.1 status=SECURE attempts=3 risk=LOW reason=COMMUNITY_NOT_FOUND"
+        "expected": "SNMP_AUDIT: target=172.16.1.1 status=NON_TROUVEE attempts=3 risk=NON_EVALUE"
       },
       {
-        "label": "Dictionnaire volumineux arrêtant la recherche dès la première correspondance",
+        "label": "Correspondance au deuxième essai",
         "stdin": "cas:3",
-        "expected": "SNMP_AUDIT: target=192.168.100.10 status=COMPROMISED matched_community=monitor perm=RO attempts=2 risk=HIGH sys_descr=HP_ProCurve"
+        "expected": "SNMP_AUDIT: target=192.168.100.10 status=TROUVEE matched_community=monitor perm=RO attempts=2 risk=NON_EVALUE sys_descr=HP_ProCurve"
       }
     ],
-    "solution": "[Exemple]\nSNMP_AUDIT: target=192.168.1.1 status=COMPROMISED matched_community=public perm=RO attempts=1 risk=HIGH sys_descr=Cisco_IOS_Software_C2960\n\n[Cas 1 — Chaîne de communauté d'écriture Read-Write découverte au troisième essai]\nSNMP_AUDIT: target=10.0.0.254 status=COMPROMISED matched_community=private perm=RW attempts=3 risk=CRITICAL sys_descr=Juniper_EX4300\n\n[Cas 2 — Cible robuste dont la chaîne n'est pas dans le dictionnaire testé]\nSNMP_AUDIT: target=172.16.1.1 status=SECURE attempts=3 risk=LOW reason=COMMUNITY_NOT_FOUND\n\n[Cas 3 — Dictionnaire volumineux arrêtant la recherche dès la première correspondance]\nSNMP_AUDIT: target=192.168.100.10 status=COMPROMISED matched_community=monitor perm=RO attempts=2 risk=HIGH sys_descr=HP_ProCurve"
+    "solution": "[Exemple]\nSNMP_AUDIT: target=192.168.1.1 status=TROUVEE matched_community=public perm=RO attempts=1 risk=NON_EVALUE sys_descr=Cisco_IOS_Software_C2960\n\n[Cas 1 — Correspondance au troisième essai]\nSNMP_AUDIT: target=10.0.0.254 status=TROUVEE matched_community=private perm=RW attempts=3 risk=NON_EVALUE sys_descr=Juniper_EX4300\n\n[Cas 2 — Aucune correspondance dans la liste]\nSNMP_AUDIT: target=172.16.1.1 status=NON_TROUVEE attempts=3 risk=NON_EVALUE\n\n[Cas 3 — Correspondance au deuxième essai]\nSNMP_AUDIT: target=192.168.100.10 status=TROUVEE matched_community=monitor perm=RO attempts=2 risk=NON_EVALUE sys_descr=HP_ProCurve\n"
   }
 ];

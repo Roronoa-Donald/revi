@@ -62,7 +62,7 @@ function formules(course) {
     '    <tbody>',
     '      <tr><td><strong>CREATE TABLE</strong></td><td><code>CREATE TABLE t (id INT PRIMARY KEY, nom VARCHAR(50) NOT NULL);</code></td><td>Création d’une nouvelle table avec clé primaire et contrainte de présence.</td></tr>',
     '      <tr><td><strong>FOREIGN KEY</strong></td><td><code>FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE</code></td><td>Maintien de l’intégrité référentielle avec suppression en cascade.</td></tr>',
-    '      <tr><td><strong>CHECK</strong></td><td><code>CHECK (prix &gt; 0 AND stock &ge; 0)</code></td><td>Validation de domaine sur les colonnes lors des insertions et mises à jour.</td></tr>',
+    '      <tr><td><strong>CHECK</strong></td><td><code>CHECK (prix &gt; 0 AND stock &ge; 0)</code></td><td>Rejette une condition fausse mais accepte UNKNOWN, notamment avec NULL ; ajouter NOT NULL aux colonnes obligatoires. Pour un prix fini PostgreSQL NUMERIC, exclure aussi NaN et Infinity.</td></tr>',
     '      <tr><td><strong>ALTER TABLE</strong></td><td><code>ALTER TABLE t ADD COLUMN date_creation DATE DEFAULT CURRENT_DATE;</code></td><td>Modification de la structure d’une table existante sans perte de données.</td></tr>',
     '    </tbody>',
     '  </table>',

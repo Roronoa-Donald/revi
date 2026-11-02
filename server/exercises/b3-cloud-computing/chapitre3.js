@@ -82,40 +82,45 @@ module.exports = [
   {
     "id": "cc3-c3-e3",
     "chapter": 3,
-    "title": "Dimensionnement d’instances face à une charge crête transactionnelle",
+    "title": "Dimensionnement illustratif : moyenne et pointe",
     "level": "n3",
     "language": "analyse",
-    "goal": "Calculer le nombre minimal d’instances Cloud nécessaires pour absorber un pic de transactions par seconde (TPS) selon les limites CPU, RAM et IOPS.",
-    "brief": "<p>Analysez les paramètres du problème pour chaque cas.<br><br>\nFormules :<br>\nLe coefficient de sécurité $K = marge\\_securite / 100.0$ (ex: 70% -&gt; 0.70).<br>\nBesoins globaux par seconde :<br>\n- $Besoin_{cpu} = tps \\times cpu\\_ms$ (en ms)<br>\n- $Besoin_{ram} = (tps \\times ram\\_mb) / 1024$ (en Go)<br>\n- $Besoin_{iops} = tps \\times iops$ (en opérations/sec)<br><br>\nInstances requises par critère (arrondi supérieur <code>math.ceil</code>) :<br>\n- $N_{cpu} = \\lceil Besoin_{cpu} / (cpu\\_max\\_ms \\times K) \\rceil$<br>\n- $N_{ram} = \\lceil Besoin_{ram} / (ram\\_max\\_gb \\times K) \\rceil$<br>\n- $N_{iops} = \\lceil Besoin_{iops} / (iops\\_max \\times K) \\rceil$<br><br>\nNombre final d'instances : $N_{final} = \\max(N_{cpu}, N_{ram}, N_{iops})$.<br>\nFacteur limitant : le premier critère atteignant $N_{final}$ dans l'ordre de priorité <code>CPU</code>, <code>RAM</code>, <code>IOPS</code>.<br><br>\nAfficher :<br>\n<code>SIZING: TPS=&lt;tps&gt; -&gt; INSTANCES=&lt;N_final&gt; (CPU=&lt;N_cpu&gt;, RAM=&lt;N_ram&gt;, IOPS=&lt;N_iops&gt;) | LIMITANT=&lt;LIMITANT&gt;</code></p>",
-    "starter": "# Grille d'analyse (cc3-c3-e3) — Dimensionnement d’instances face à une charge crête transactionnelle\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Goulot d’étranglement sur les entrées-sorties disque IOPS]\n# Données : CHARGE tps=2000 cpu_ms=2 ram_mb=8 iops=10\n# Données : SPEC_NOEUD cpu_max_ms=8000 ram_max_gb=32 iops_max=4000 marge_securite=80\nA_COMPLETER\n\n[Cas 2 — Application gloutonne en mémoire vive RAM]\n# Données : CHARGE tps=1000 cpu_ms=3 ram_mb=128 iops=2\n# Données : SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 iops_max=5000 marge_securite=75\nA_COMPLETER\n\n[Cas 3 — Charge modérée sur nœud puissant]\n# Données : CHARGE tps=100 cpu_ms=10 ram_mb=32 iops=5\n# Données : SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 iops_max=2000 marge_securite=80\nA_COMPLETER\n",
+    "goal": "Estimer séparément la concurrence moyenne et une capacité de pointe sous des hypothèses explicites.",
+    "brief": "<p>Ce modèle fictif suppose un régime moyen stable : une transaction occupe <code>ram_mb</code> pendant toute sa durée moyenne <code>duree_ms</code>, et le débit moyen d’entrée égale celui de sortie. La concurrence moyenne vaut <code>tps_moy × duree_ms / 1000</code> (loi de Little) ; elle ne permet pas de déduire la pointe. <code>pic_concurrent</code> et <code>tps_pic</code> sont des valeurs de pointe observées ou fournies séparément. On suppose le coût CPU et IOPS par transaction constant, les nœuds identiques, la charge bien répartie et aucune réserve de redondance.</p><p>La mémoire de base <code>base_mb</code> est consommée sur chaque nœud. Avec <code>K = cible_pct / 100</code>, le budget utile par nœud est <code>ram_max_gb × 1024 × K − base_mb</code> en Mo. S’il est nul ou négatif, afficher <code>SIZING: BASE_NON_ADMISSIBLE</code>. Si durée ou concurrence de pointe manque, afficher <code>SIZING: CONCURRENCE=INDETERMINEE | RAM=INDETERMINEE | INSTANCES=INDETERMINEES</code>.</p><p>Sinon, arrondir à l’entier supérieur : <code>CPU = tps_pic × cpu_ms / (cpu_max_ms × K)</code> ; <code>RAM_MOY = concurrence_moyenne × ram_mb / budget_utile</code> ; <code>RAM_PIC = pic_concurrent × ram_mb / budget_utile</code> ; <code>IOPS = tps_pic × iops_tx / (iops_max × K)</code>. Les exemples supposent une pointe au moins égale à la moyenne. L’estimation de pointe est le maximum de CPU, RAM_PIC et IOPS ; en cas d’égalité, retenir CPU puis RAM puis IOPS. Afficher <code>SIZING: CONC_MOY=&lt;2 décimales&gt; | CONC_PIC=&lt;pic&gt; | CPU=&lt;n&gt; | RAM_MOY=&lt;n&gt; | RAM_PIC=&lt;n&gt; | IOPS=&lt;n&gt; | INSTANCES_PIC=&lt;n&gt; | LIMITANT=&lt;nom&gt;</code>. Ce résultat théorique ne couvre pas la haute disponibilité, les files d’attente, les variations de charge ni une mesure réelle.</p>",
+    "starter": "# Grille d’analyse (cc3-c3-e3) — Dimensionnement illustratif\n\n[Cas 1 — Pointe limitée par les entrées-sorties]\n# Données : CHARGE tps_moy=1000 tps_pic=2000 duree_ms=250 pic_concurrent=300 cpu_ms=2 ram_mb=8 iops_tx=10\n# Données : SPEC_NOEUD cpu_max_ms=8000 ram_max_gb=32 base_mb=1024 iops_max=4000 cible_pct=80\nA_COMPLETER\n\n[Cas 2 — Pointe limitée par la mémoire]\n# Données : CHARGE tps_moy=1000 tps_pic=1200 duree_ms=200 pic_concurrent=300 cpu_ms=3 ram_mb=128 iops_tx=2\n# Données : SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 base_mb=1024 iops_max=5000 cible_pct=75\nA_COMPLETER\n\n[Cas 3 — Durée et concurrence absentes]\n# Données : CHARGE tps_moy=1000 tps_pic=1200 cpu_ms=3 ram_mb=128 iops_tx=2\n# Données : SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 base_mb=1024 iops_max=5000 cible_pct=75\nA_COMPLETER\n\n[Cas 4 — Mémoire de base trop élevée]\n# Données : CHARGE tps_moy=500 tps_pic=600 duree_ms=200 pic_concurrent=160 cpu_ms=4 ram_mb=64 iops_tx=3\n# Données : SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=2 base_mb=2048 iops_max=3000 cible_pct=80\nA_COMPLETER\n",
     "hints": [
-      "Utiliser math.ceil pour obtenir un nombre entier d’instances suffisant.",
-      "Ne pas oublier de diviser ram_mb par 1024 pour comparer avec ram_max_gb."
+      "Une durée en millisecondes se convertit en secondes ; le débit seul n’est pas une concurrence.",
+      "Retirez la mémoire de base du budget de chaque nœud ; la pointe est une donnée distincte."
     ],
     "examples": [
       {
-        "stdin": "CHARGE tps=500 cpu_ms=12 ram_mb=16 iops=4\nSPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 iops_max=3000 marge_securite=70",
-        "expected": "SIZING: TPS=500 -> INSTANCES=3 (CPU=3, RAM=1, IOPS=1) | LIMITANT=CPU",
-        "note": "CPU réclame 500 * 12 = 6000 ms/s. Chaque nœud à 70% délivre 2800 ms/s. ceil(6000/2800) = 3 instances."
+        "stdin": "CHARGE tps_moy=500 tps_pic=600 duree_ms=200 pic_concurrent=160 cpu_ms=4 ram_mb=64 iops_tx=3\nSPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 base_mb=1024 iops_max=3000 cible_pct=80",
+        "expected": "SIZING: CONC_MOY=100.00 | CONC_PIC=160 | CPU=1 | RAM_MOY=1 | RAM_PIC=1 | IOPS=1 | INSTANCES_PIC=1 | LIMITANT=CPU",
+        "note": "À débit moyen stable, 500 transactions/s pendant 0,2 s correspondent à 100 transactions simultanées en moyenne. La pointe est fournie séparément."
       }
     ],
     "tests": [
       {
-        "label": "Goulot d’étranglement sur les entrées-sorties disque IOPS",
+        "label": "Pointe limitée par les entrées-sorties",
         "stdin": "cas:1",
-        "expected": "SIZING: TPS=2000 -> INSTANCES=7 (CPU=1, RAM=1, IOPS=7) | LIMITANT=IOPS"
+        "expected": "SIZING: CONC_MOY=250.00 | CONC_PIC=300 | CPU=1 | RAM_MOY=1 | RAM_PIC=1 | IOPS=7 | INSTANCES_PIC=7 | LIMITANT=IOPS"
       },
       {
-        "label": "Application gloutonne en mémoire vive RAM",
+        "label": "Pointe limitée par la mémoire",
         "stdin": "cas:2",
-        "expected": "SIZING: TPS=1000 -> INSTANCES=11 (CPU=1, RAM=11, IOPS=1) | LIMITANT=RAM"
+        "expected": "SIZING: CONC_MOY=200.00 | CONC_PIC=300 | CPU=2 | RAM_MOY=3 | RAM_PIC=4 | IOPS=1 | INSTANCES_PIC=4 | LIMITANT=RAM"
       },
       {
-        "label": "Charge modérée sur nœud puissant",
+        "label": "Durée et concurrence absentes",
         "stdin": "cas:3",
-        "expected": "SIZING: TPS=100 -> INSTANCES=1 (CPU=1, RAM=1, IOPS=1) | LIMITANT=CPU"
+        "expected": "SIZING: CONCURRENCE=INDETERMINEE | RAM=INDETERMINEE | INSTANCES=INDETERMINEES"
+      },
+      {
+        "label": "Mémoire de base trop élevée",
+        "stdin": "cas:4",
+        "expected": "SIZING: BASE_NON_ADMISSIBLE"
       }
     ],
-    "solution": "[Exemple]\nSIZING: TPS=500 -> INSTANCES=3 (CPU=3, RAM=1, IOPS=1) | LIMITANT=CPU\n\n[Cas 1 — Goulot d’étranglement sur les entrées-sorties disque IOPS]\nSIZING: TPS=2000 -> INSTANCES=7 (CPU=1, RAM=1, IOPS=7) | LIMITANT=IOPS\n\n[Cas 2 — Application gloutonne en mémoire vive RAM]\nSIZING: TPS=1000 -> INSTANCES=11 (CPU=1, RAM=11, IOPS=1) | LIMITANT=RAM\n\n[Cas 3 — Charge modérée sur nœud puissant]\nSIZING: TPS=100 -> INSTANCES=1 (CPU=1, RAM=1, IOPS=1) | LIMITANT=CPU"
+    "solution": "[Exemple]\nSIZING: CONC_MOY=100.00 | CONC_PIC=160 | CPU=1 | RAM_MOY=1 | RAM_PIC=1 | IOPS=1 | INSTANCES_PIC=1 | LIMITANT=CPU\n\n[Cas 1 — Pointe limitée par les entrées-sorties]\nSIZING: CONC_MOY=250.00 | CONC_PIC=300 | CPU=1 | RAM_MOY=1 | RAM_PIC=1 | IOPS=7 | INSTANCES_PIC=7 | LIMITANT=IOPS\n\n[Cas 2 — Pointe limitée par la mémoire]\nSIZING: CONC_MOY=200.00 | CONC_PIC=300 | CPU=2 | RAM_MOY=3 | RAM_PIC=4 | IOPS=1 | INSTANCES_PIC=4 | LIMITANT=RAM\n\n[Cas 3 — Durée et concurrence absentes]\nSIZING: CONCURRENCE=INDETERMINEE | RAM=INDETERMINEE | INSTANCES=INDETERMINEES\n\n[Cas 4 — Mémoire de base trop élevée]\nSIZING: BASE_NON_ADMISSIBLE"
   }
 ];

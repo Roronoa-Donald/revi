@@ -1,0 +1,234 @@
+TAP version 13
+# Subtest: F62 : les surcharges IPv4 et IPv6 et leurs hypothèses sont explicites
+not ok 1 - F62 : les surcharges IPv4 et IPv6 et leurs hypothèses sont explicites
+  ---
+  duration_ms: 0.99578
+  type: 'test'
+  location: '/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/voip-lot2.test.js:10:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /IPv4 sans options/i. Input:
+    
+    "<p>Si le codec G.711 fournit une fidélité acoustique irréprochable sur un réseau local d'entreprise, le transport de dizaines d'appels simultanés sur une liaison WAN ou internet exige souvent l'usage d'algorithmes de compression vocale (codecs avec perte) pour économiser la ressource spectrale.</p>\n" +
+      '<table class="table">\n' +
+      '  <thead><tr><th>Codec</th><th>Standard</th><th>Débit Brut</th><th>Algorithme de Compression</th><th>Complexité DSP</th><th>Usage Typique</th></tr></thead>\n' +
+      '  <tbody>\n' +
+      '    <tr><td><strong>G.711 (PCMA / PCMU)</strong></td><td>ITU-T</td><td>64 kbps</td><td>Modulation PCM logarithmique sans prédiction</td><td>Nulle (0.1 MIPS)</td><td>LAN local, qualité cristal, aucun lag de compression.</td></tr>\n' +
+      '    <tr><td><strong>G.729 (G.729a)</strong></td><td>ITU-T</td><td>8 kbps</td><td>CS-ACELP (synthèse vocale par prédiction linéaire)</td><td>Élevée (20-30 MIPS)</td><td>Liens WAN contraints, économie de 70% de bande passante.</td></tr>\n' +
+      "    <tr><td><strong>G.722</strong></td><td>ITU-T</td><td>64 kbps</td><td>SB-ADPCM (Large bande 50 Hz - 7 kHz)</td><td>Modérée (5 MIPS)</td><td>Téléphonie HD d'entreprise, conférences audiophiles.</td></tr>\n" +
+      '    <tr><td><strong>OPUS</strong></td><td>IETF RFC 6716</td><td>6 à 510 kbps</td><td>Hybride SILK (voix) + CELT (musique), adaptatif</td><td>Modérée à forte</td><td>WebRTC, visioconférence et réseaux internet grand public.</td></tr>\n' +
+      '  </tbody>\n' +
+      '</table>\n' +
+      '<div class="card">\n' +
+      '  <h4>Calcul Rigoureux de la Bande Passante Réseau (Overhead En-Têtes)</h4>\n' +
+      '  <p>Une erreur fréquente consiste à dimensionner un lien WAN en additionnant uniquement les débits bruts des codecs. En ToIP, chaque échantillon audio de 20 ms est encapsulé dans trois en-têtes réseau superposés :</p>\n' +
+      "  <pre><code>[ En-tête IP : 20 octets ] + [ En-tête UDP : 8 octets ] + [ En-tête RTP : 12 octets ] = 40 octets d'en-têtes</code></pre>\n" +
+      '  <p>Pour un paquetage standard de <code>PTIME = 20 ms</code> (soit <code>50 paquets par seconde</code>) :</p>\n' +
+      '  <ul>\n' +
+      '    <li><strong>G.711 (64 kbps) :</strong> Charge utile = 160 octets. Paquet total = 160 + 40 = 200 octets. Débit réel par appel = <code>200 octets * 8 bits * 50 pps = 80.0 kbps</code>.</li>\n' +
+      '    <li><strong>G.729 (8 kbps) :</strong> Charge utile = 20 octets. Paquet total = 20 + 40 = 60 octets. Débit réel par appel = <code>60 octets * 8 bits * 50 pps = 24.0 kbps</code>.</li>\n' +
+      '  </ul>\n' +
+      '</div>\n' +
+      '<div class="card">\n' +
+      '  <h4>Évaluation de la Qualité Vocale : Modèle E &amp; Score MOS (ITU-T G.107)</h4>\n' +
+      "  <p>Le <strong>Mean Opinion Score (MOS)</strong> est une échelle normalisée de 1.0 (incompréhensible) à 5.0 (parfait, qualité studio) mesurant la qualité ressentie d'une conversation téléphonique. Le <strong>modèle E (G.107)</strong> permet d'estimer ce score par calcul à partir d'un facteur de transmission <code>R</code> (0 à 100) :</p>\n" +
+      '  <pre><code>R = R0 - Id(Délai) - Ie(Pertes &amp; Codec)</code></pre>\n' +
+      "  <p>La valeur de R est ensuite traduite en MOS : un score MOS &ge; 4.03 qualifie une communication d'<strong>Excellente</strong>, entre 3.60 et 4.02 de <strong>Bonne</strong>, entre 3.10 et 3.59 de <strong>Moyenne</strong>, et en dessous de 3.10 de <strong>Mauvaise</strong>.</p>\n" +
+      '</div>'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    <p>Si le codec G.711 fournit une fidélité acoustique irréprochable sur un réseau local d'entreprise, le transport de dizaines d'appels simultanés sur une liaison WAN ou internet exige souvent l'usage d'algorithmes de compression vocale (codecs avec perte) pour économiser la ressource spectrale.</p>
+    <table class="table">
+      <thead><tr><th>Codec</th><th>Standard</th><th>Débit Brut</th><th>Algorithme de Compression</th><th>Complexité DSP</th><th>Usage Typique</th></tr></thead>
+      <tbody>
+        <tr><td><strong>G.711 (PCMA / PCMU)</strong></td><td>ITU-T</td><td>64 kbps</td><td>Modulation PCM logarithmique sans prédiction</td><td>Nulle (0.1 MIPS)</td><td>LAN local, qualité cristal, aucun lag de compression.</td></tr>
+        <tr><td><strong>G.729 (G.729a)</strong></td><td>ITU-T</td><td>8 kbps</td><td>CS-ACELP (synthèse vocale par prédiction linéaire)</td><td>Élevée (20-30 MIPS)</td><td>Liens WAN contraints, économie de 70% de bande passante.</td></tr>
+        <tr><td><strong>G.722</strong></td><td>ITU-T</td><td>64 kbps</td><td>SB-ADPCM (Large bande 50 Hz - 7 kHz)</td><td>Modérée (5 MIPS)</td><td>Téléphonie HD d'entreprise, conférences audiophiles.</td></tr>
+        <tr><td><strong>OPUS</strong></td><td>IETF RFC 6716</td><td>6 à 510 kbps</td><td>Hybride SILK (voix) + CELT (musique), adaptatif</td><td>Modérée à forte</td><td>WebRTC, visioconférence et réseaux internet grand public.</td></tr>
+      </tbody>
+    </table>
+    <div class="card">
+      <h4>Calcul Rigoureux de la Bande Passante Réseau (Overhead En-Têtes)</h4>
+      <p>Une erreur fréquente consiste à dimensionner un lien WAN en additionnant uniquement les débits bruts des codecs. En ToIP, chaque échantillon audio de 20 ms est encapsulé dans trois en-têtes réseau superposés :</p>
+      <pre><code>[ En-tête IP : 20 octets ] + [ En-tête UDP : 8 octets ] + [ En-tête RTP : 12 octets ] = 40 octets d'en-têtes</code></pre>
+      <p>Pour un paquetage standard de <code>PTIME = 20 ms</code> (soit <code>50 paquets par seconde</code>) :</p>
+      <ul>
+        <li><strong>G.711 (64 kbps) :</strong> Charge utile = 160 octets. Paquet total = 160 + 40 = 200 octets. Débit réel par appel = <code>200 octets * 8 bits * 50 pps = 80.0 kbps</code>.</li>
+        <li><strong>G.729 (8 kbps) :</strong> Charge utile = 20 octets. Paquet total = 20 + 40 = 60 octets. Débit réel par appel = <code>60 octets * 8 bits * 50 pps = 24.0 kbps</code>.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Évaluation de la Qualité Vocale : Modèle E &amp; Score MOS (ITU-T G.107)</h4>
+      <p>Le <strong>Mean Opinion Score (MOS)</strong> est une échelle normalisée de 1.0 (incompréhensible) à 5.0 (parfait, qualité studio) mesurant la qualité ressentie d'une conversation téléphonique. Le <strong>modèle E (G.107)</strong> permet d'estimer ce score par calcul à partir d'un facteur de transmission <code>R</code> (0 à 100) :</p>
+      <pre><code>R = R0 - Id(Délai) - Ie(Pertes &amp; Codec)</code></pre>
+      <p>La valeur de R est ensuite traduite en MOS : un score MOS &ge; 4.03 qualifie une communication d'<strong>Excellente</strong>, entre 3.60 et 4.02 de <strong>Bonne</strong>, entre 3.10 et 3.59 de <strong>Moyenne</strong>, et en dessous de 3.10 de <strong>Mauvaise</strong>.</p>
+    </div>
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/voip-lot2.test.js:12:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: F62 : exercice, QCM, mémento et examen annoncent le modèle IPv4
+not ok 2 - F62 : exercice, QCM, mémento et examen annoncent le modèle IPv4
+  ---
+  duration_ms: 0.274804
+  type: 'test'
+  location: '/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/voip-lot2.test.js:23:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /IPv4 sans options/i. Input:
+    
+    "<p>La transmission de la voix sur IP encapsule les échantillons audio numériques dans des paquets RTP, puis UDP et IP. Chaque paquet comporte une charge utile audio (payload) correspondant à une durée d'échantillonnage de paquetisation (typiquement 20 ms), précédée des en-têtes suivants : Total des en-têtes réseau = 40 octets par paquet.</p><ul><li>En-tête IP : 20 octets</li><li>En-tête UDP : 8 octets</li><li>En-tête RTP : 12 octets</li></ul>\n" +
+      '<p>Les codecs usuels présentent les caractéristiques suivantes pour 20 ms de voix :</p><ul><li>G.711 (PCMA / PCMU) : débit brut 64 kbps -> charge utile = 160 octets</li><li>G.729 : débit brut 8 kbps -> charge utile = 20 octets</li><li>G.722 : débit brut 64 kbps -> charge utile = 160 octets</li><li>OPUS : débit brut configurable (ex: 24 kbps -> charge utile = 60 octets, calculé par: (bitrate_kbps * 1000 * 0.02) / 8 octets)</li></ul>\n' +
+      "<p>Format d'entrée (les données d’entrée) :<br>Lignes de la forme :<br>CODEC=<nom> BITRATE_KBPS=<val> PTIME_MS=<ms> CALLS=<nb></p>\n" +
+      "<p>Pour chaque ligne :<br>1. Calculer le nombre de paquets par seconde par appel : <code>pps = 1000 / PTIME_MS</code>.<br>2. Calculer la taille de la charge utile en octets :<br>   <code>payload_bytes = int((BITRATE_KBPS * 1000 * (PTIME_MS / 1000)) / 8)</code><br>3. Calculer la taille totale d'un paquet en octets : <code>packet_bytes = payload_bytes + 40</code>.<br>4. Calculer le débit réseau total par appel en kbps (avec en-têtes) :<br>   <code>bandwidth_per_call_kbps = (packet_bytes * 8 * pps) / 1000</code><br>5. Calculer le débit total cumulé pour l'ensemble des appels simultanés :<br>   <code>total_bandwidth_kbps = bandwidth_per_call_kbps * CALLS</code></p>\n" +
+      '<p>Format de sortie :<br>Pour chaque ligne analysée, afficher :<br>CODEC:<nom> | PAYLOAD:<payload_bytes>B | PACKET:<packet_bytes>B | PER_CALL:<bandwidth_per_call_kbps:.1f>kbps | TOTAL:<total_bandwidth_kbps:.1f>kbps</p>'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    <p>La transmission de la voix sur IP encapsule les échantillons audio numériques dans des paquets RTP, puis UDP et IP. Chaque paquet comporte une charge utile audio (payload) correspondant à une durée d'échantillonnage de paquetisation (typiquement 20 ms), précédée des en-têtes suivants : Total des en-têtes réseau = 40 octets par paquet.</p><ul><li>En-tête IP : 20 octets</li><li>En-tête UDP : 8 octets</li><li>En-tête RTP : 12 octets</li></ul>
+    <p>Les codecs usuels présentent les caractéristiques suivantes pour 20 ms de voix :</p><ul><li>G.711 (PCMA / PCMU) : débit brut 64 kbps -> charge utile = 160 octets</li><li>G.729 : débit brut 8 kbps -> charge utile = 20 octets</li><li>G.722 : débit brut 64 kbps -> charge utile = 160 octets</li><li>OPUS : débit brut configurable (ex: 24 kbps -> charge utile = 60 octets, calculé par: (bitrate_kbps * 1000 * 0.02) / 8 octets)</li></ul>
+    <p>Format d'entrée (les données d’entrée) :<br>Lignes de la forme :<br>CODEC=<nom> BITRATE_KBPS=<val> PTIME_MS=<ms> CALLS=<nb></p>
+    <p>Pour chaque ligne :<br>1. Calculer le nombre de paquets par seconde par appel : <code>pps = 1000 / PTIME_MS</code>.<br>2. Calculer la taille de la charge utile en octets :<br>   <code>payload_bytes = int((BITRATE_KBPS * 1000 * (PTIME_MS / 1000)) / 8)</code><br>3. Calculer la taille totale d'un paquet en octets : <code>packet_bytes = payload_bytes + 40</code>.<br>4. Calculer le débit réseau total par appel en kbps (avec en-têtes) :<br>   <code>bandwidth_per_call_kbps = (packet_bytes * 8 * pps) / 1000</code><br>5. Calculer le débit total cumulé pour l'ensemble des appels simultanés :<br>   <code>total_bandwidth_kbps = bandwidth_per_call_kbps * CALLS</code></p>
+    <p>Format de sortie :<br>Pour chaque ligne analysée, afficher :<br>CODEC:<nom> | PAYLOAD:<payload_bytes>B | PACKET:<packet_bytes>B | PER_CALL:<bandwidth_per_call_kbps:.1f>kbps | TOTAL:<total_bandwidth_kbps:.1f>kbps</p>
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/voip-lot2.test.js:25:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: F180 : STUN découvre une adresse observée sans garantir un passage direct
+not ok 3 - F180 : STUN découvre une adresse observée sans garantir un passage direct
+  ---
+  duration_ms: 0.169566
+  type: 'test'
+  location: '/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/voip-lot2.test.js:35:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /RFC 8489/. Input:
+    
+    "<p>La translation d'adresses réseau (NAT / Network Address Translation) brise le modèle de connectivité de bout en bout d'Internet et constitue la cause principale des pannes en téléphonie sur IP (notamment le syndrome redouté du <strong>One-Way Audio</strong>, où un seul des correspondants entend la voix de l'autre).</p>\n" +
+      '<div class="card">\n' +
+      '  <h4>Pourquoi le NAT perturbe-t-il la ToIP ?</h4>\n' +
+      "  <p>Les protocoles SIP et SDP transportent des adresses IP et des ports directement <em>à l'intérieur</em> de la charge utile de leurs messages (ex: <code>Contact: &lt;sip:101@192.168.1.50&gt;</code> et <code>c=IN IP4 192.168.1.50</code>). Le routeur NAT classique traduit l'en-tête IP externe du paquet, mais ne modifie pas les adresses privées insérées dans le texte SIP/SDP. L'interlocuteur distant tente alors d'émettre ses flux audio RTP vers une adresse IP privée <code>192.168.1.50</code> non routable sur Internet, ce qui conduit à la perte intégrale du média.</p>\n" +
+      '</div>\n' +
+      '<div class="card">\n' +
+      '  <h4>Technologies de Traversée de NAT (STUN, TURN, ICE)</h4>\n' +
+      '  <ul>\n' +
+      '    <li><strong>STUN (RFC 5389) :</strong> Le client envoie une requête UDP à un serveur STUN public qui lui renvoie sa véritable adresse IP et son port publics (MAPPED-ADDRESS). Le client peut ainsi insérer ses coordonnées publiques dans ses offres SDP. STUN fonctionne parfaitement sur les NAT de type Cone (Full Cone, Restricted Cone).</li>\n' +
+      "    <li><strong>TURN (RFC 5766) :</strong> Lorsque le routeur applique un <em>NAT symétrique</em> (le port externe change pour chaque destination IP différente), STUN échoue. Un serveur relais <strong>TURN (Traversal Using Relays around NAT)</strong> doit alors relayer l'intégralité des flux RTP entre les deux terminaux.</li>\n" +
+      '    <li><strong>ICE (RFC 5245) :</strong> Cadre global combinant STUN et TURN pour tester systématiquement tous les chemins de communication possibles et sélectionner le plus direct et performant.</li>\n' +
+      '    <li><strong>SIP ALG (Application Layer Gateway) :</strong> Module présent sur de nombreux routeurs grand public/PME censé réécrire les adresses SIP. En pratique, la majorité des implémentations SIP ALG sont défaillantes, corrompent les paquets et doivent être <strong>impérativement désactivées</strong>.</li>\n' +
+      '  </ul>\n' +
+      '</div>'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    <p>La translation d'adresses réseau (NAT / Network Address Translation) brise le modèle de connectivité de bout en bout d'Internet et constitue la cause principale des pannes en téléphonie sur IP (notamment le syndrome redouté du <strong>One-Way Audio</strong>, où un seul des correspondants entend la voix de l'autre).</p>
+    <div class="card">
+      <h4>Pourquoi le NAT perturbe-t-il la ToIP ?</h4>
+      <p>Les protocoles SIP et SDP transportent des adresses IP et des ports directement <em>à l'intérieur</em> de la charge utile de leurs messages (ex: <code>Contact: &lt;sip:101@192.168.1.50&gt;</code> et <code>c=IN IP4 192.168.1.50</code>). Le routeur NAT classique traduit l'en-tête IP externe du paquet, mais ne modifie pas les adresses privées insérées dans le texte SIP/SDP. L'interlocuteur distant tente alors d'émettre ses flux audio RTP vers une adresse IP privée <code>192.168.1.50</code> non routable sur Internet, ce qui conduit à la perte intégrale du média.</p>
+    </div>
+    <div class="card">
+      <h4>Technologies de Traversée de NAT (STUN, TURN, ICE)</h4>
+      <ul>
+        <li><strong>STUN (RFC 5389) :</strong> Le client envoie une requête UDP à un serveur STUN public qui lui renvoie sa véritable adresse IP et son port publics (MAPPED-ADDRESS). Le client peut ainsi insérer ses coordonnées publiques dans ses offres SDP. STUN fonctionne parfaitement sur les NAT de type Cone (Full Cone, Restricted Cone).</li>
+        <li><strong>TURN (RFC 5766) :</strong> Lorsque le routeur applique un <em>NAT symétrique</em> (le port externe change pour chaque destination IP différente), STUN échoue. Un serveur relais <strong>TURN (Traversal Using Relays around NAT)</strong> doit alors relayer l'intégralité des flux RTP entre les deux terminaux.</li>
+        <li><strong>ICE (RFC 5245) :</strong> Cadre global combinant STUN et TURN pour tester systématiquement tous les chemins de communication possibles et sélectionner le plus direct et performant.</li>
+        <li><strong>SIP ALG (Application Layer Gateway) :</strong> Module présent sur de nombreux routeurs grand public/PME censé réécrire les adresses SIP. En pratique, la majorité des implémentations SIP ALG sont défaillantes, corrompent les paquets et doivent être <strong>impérativement désactivées</strong>.</li>
+      </ul>
+    </div>
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/voip-lot2.test.js:37:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: F180 : le modèle rapporte les mappages observés sans prédire la topologie
+not ok 4 - F180 : le modèle rapporte les mappages observés sans prédire la topologie
+  ---
+  duration_ms: 0.213055
+  type: 'test'
+  location: '/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/voip-lot2.test.js:47:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /ne permet[^.]*filtrage/i. Input:
+    
+    "<p>Lorsqu'un terminal VoIP est derrière un routeur NAT, ses paquets SIP et RTP comportent des adresses IP privées inaccessibles depuis Internet. Le protocole STUN (RFC 5389) permet au client de découvrir son adresse IP et son port publics (MAPPED-ADDRESS) vus par le serveur externe. En envoyant deux requêtes STUN vers deux adresses de serveurs distinctes (S1 et S2), le client qualifie le comportement de son NAT :   -> <code>NAT_CONE</code> (Full Cone, Restricted Cone ou Port-Restricted Cone) : STUN suffit pour établir les flux directs sans relais.   -> <code>NAT_SYMETRIQUE</code> : les communications directes échouent souvent sans serveur relais TURN.   -> <code>PAS_DE_NAT</code> (IP publique directe).</p><ul><li>Si l'adresse IP et le port mappés sont identiques pour S1 et S2 :</li><li>Si le port externe change entre S1 et S2 pour le même socket local :</li><li>Si l'adresse mappée est égale à l'adresse locale privée :</li></ul>\n" +
+      "<p>Format d'entrée :<br>Lignes au format :<br>CLIENT_LOCAL=<ip_locale:port> STUN1_MAPPED=<ip_pub1:port1> STUN2_MAPPED=<ip_pub2:port2></p>\n" +
+      '<p>Format de sortie : Pour chaque ligne, déterminer :   - PAS_DE_NAT -> <code>ROUTAGE_DIRECT</code>   - NAT_CONE -> <code>STUN_DIRECT</code>   - NAT_SYMETRIQUE -> <code>SERVEUR_RELAIS_TURN</code> LOCAL:<local> | MAPPED_S1:<s1> | MAPPED_S2:<s2> | TOPOLOGIE:<type> | SOLUTION:<solution></p><ul><li>Le type de NAT : <code>PAS_DE_NAT</code>, <code>NAT_CONE</code> ou <code>NAT_SYMETRIQUE</code>.</li><li>La solution recommandée :</li><li>Afficher :</li></ul>'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    <p>Lorsqu'un terminal VoIP est derrière un routeur NAT, ses paquets SIP et RTP comportent des adresses IP privées inaccessibles depuis Internet. Le protocole STUN (RFC 5389) permet au client de découvrir son adresse IP et son port publics (MAPPED-ADDRESS) vus par le serveur externe. En envoyant deux requêtes STUN vers deux adresses de serveurs distinctes (S1 et S2), le client qualifie le comportement de son NAT :   -> <code>NAT_CONE</code> (Full Cone, Restricted Cone ou Port-Restricted Cone) : STUN suffit pour établir les flux directs sans relais.   -> <code>NAT_SYMETRIQUE</code> : les communications directes échouent souvent sans serveur relais TURN.   -> <code>PAS_DE_NAT</code> (IP publique directe).</p><ul><li>Si l'adresse IP et le port mappés sont identiques pour S1 et S2 :</li><li>Si le port externe change entre S1 et S2 pour le même socket local :</li><li>Si l'adresse mappée est égale à l'adresse locale privée :</li></ul>
+    <p>Format d'entrée :<br>Lignes au format :<br>CLIENT_LOCAL=<ip_locale:port> STUN1_MAPPED=<ip_pub1:port1> STUN2_MAPPED=<ip_pub2:port2></p>
+    <p>Format de sortie : Pour chaque ligne, déterminer :   - PAS_DE_NAT -> <code>ROUTAGE_DIRECT</code>   - NAT_CONE -> <code>STUN_DIRECT</code>   - NAT_SYMETRIQUE -> <code>SERVEUR_RELAIS_TURN</code> LOCAL:<local> | MAPPED_S1:<s1> | MAPPED_S2:<s2> | TOPOLOGIE:<type> | SOLUTION:<solution></p><ul><li>Le type de NAT : <code>PAS_DE_NAT</code>, <code>NAT_CONE</code> ou <code>NAT_SYMETRIQUE</code>.</li><li>La solution recommandée :</li><li>Afficher :</li></ul>
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/voip-lot2.test.js:49:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: F180 : les observations du modèle correspondent indépendamment aux données
+not ok 5 - F180 : les observations du modèle correspondent indépendamment aux données
+  ---
+  duration_ms: 0.598993
+  type: 'test'
+  location: '/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/voip-lot2.test.js:59:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'LOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10500 | TOPOLOGIE:NAT_CONE | SOLUTION:STUN_DIRECT'
+    - 'LOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10500 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'LOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10500 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE'
+  actual: 'LOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10500 | TOPOLOGIE:NAT_CONE | SOLUTION:STUN_DIRECT'
+  operator: 'strictEqual'
+  stack: |-
+    /home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/voip-lot2.test.js:71:14
+    Array.forEach (<anonymous>)
+    TestContext.<anonymous> (/home/rd/Téléchargements/revi-cours-html /revi-cours-html/tests/voip-lot2.test.js:68:11)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 0
+# fail 5
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 48.14503

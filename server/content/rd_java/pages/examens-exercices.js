@@ -98,7 +98,7 @@ function examens(course) {
     { stem: 'Premier indice d’un tableau ?', opts: ['0', '1', '−1'], correct: 0, exp: 'Les indices vont de 0 à length−1.' },
     { stem: 'Que protège private ?', opts: ['L’accès au code de la classe', 'Rien', 'La vitesse'], correct: 0, exp: 'private réserve l’accès à la classe elle-même.' },
     { stem: 'Quelle collection élimine les doublons ?', opts: ['Set', 'List', 'Map'], correct: 0, exp: 'Un Set ne garde qu’une copie par valeur.' },
-    { stem: 'Que fait @Override ?', opts: ['Redéfinit une méthode héritée', 'Créez un objet', 'Supprimez'], correct: 0, exp: 'Il redéfinit la version de la classe mère.' },
+    { stem: 'Que fait @Override ?', opts: ['Redéfinit une méthode héritée', 'Crée un objet', 'Supprime'], correct: 0, exp: 'Il redéfinit la version de la classe mère.' },
     { stem: 'Quand s’exécute finally ?', opts: ['Dans tous les cas', 'Jamais', 'Seulement sans erreur'], correct: 0, exp: 'finally s’exécute après le try ou le catch.' },
     { stem: 'Quelle exception pour parseInt invalide ?', opts: ['NumberFormatException', 'ArithmeticException', 'IOException'], correct: 0, exp: 'La conversion d’un texte non numérique échoue ainsi.' },
     { stem: 'Que déclare throws ?', opts: ['Qu’une méthode peut lever une exception', 'Qu’elle la capture', 'Qu’elle est abstraite'], correct: 0, exp: 'L’appelant doit capturer ou propager.' }
@@ -256,7 +256,7 @@ function exercices(course) {
 
     '  <h2>Projet intégrateur — « gestion d’étudiants »</h2>',
     box('situation', 'Cahier des charges', 'play', [
-      '    <p>On te confie une petite application de gestion d’étudiants. Le programme lit un entier ' +
+      '    <p>On vous confie une petite application de gestion d’étudiants. Le programme lit un entier ' +
       '<code>n</code>, puis <code>n</code> lignes au format <code>nom note</code>. Il range chaque étudiant ' +
       'dans une classe <code>Etudiant</code> (nom, note), calcule la moyenne de la promotion, puis affiche ' +
       'la moyenne et les étudiants ayant une note supérieure ou égale à 10.</p>'

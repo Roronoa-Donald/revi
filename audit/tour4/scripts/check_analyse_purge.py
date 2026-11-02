@@ -45,7 +45,7 @@ def is_justified_exception(rel_path: str, matched_token: str, context: str) -> b
 def main():
     courses = set()
     for p in ROOT.rglob('*.html'):
-        if any(x in p.as_posix() for x in ['dist/', 'audit/', 'revi-cours-html/', 'node_modules/']):
+        if 'dist/' in p.as_posix() or 'audit/' in p.as_posix():
             continue
         if 'data-language="analyse"' in p.read_text(encoding='utf-8', errors='ignore'):
             courses.add(p.parts[len(ROOT.parts)])

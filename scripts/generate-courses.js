@@ -33,6 +33,7 @@ const changes = [];
 const problems = [];
 
 function write(file, content) {
+  if (/\.html$/i.test(file)) content = require('./course-kit').escapeUnknownTags(content);
   if (CHECK) {
     if (!fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== content) {
       problems.push(path.relative(ROOT, file));

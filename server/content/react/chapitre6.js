@@ -23,6 +23,7 @@ module.exports = {
     'configurer React Router v6 (BrowserRouter, Routes, Route, Link) ;',
     'extraire des paramètres dynamiques d’URL avec le Hook useParams ;',
     'concevoir des routes imbriquées à l’aide du composant Outlet ;',
+    'distinguer une garde d’interface côté client de l’autorisation côté serveur ;',
     'gérer des flux d’état globaux avec useReducer et structurer une base de code professionnelle.'
   ],
 
@@ -60,6 +61,27 @@ module.exports = {
       ].join('\n')
     },
     {
+      title: 'Routes privées : garde d’interface et autorisation serveur',
+      html: [
+        '<p>Une garde React comme <code>PrivateRoute</code> peut afficher un composant ou rediriger ' +
+        'un utilisateur non connecté. Elle améliore la navigation, mais elle s’exécute dans le navigateur : ' +
+        'elle peut être contournée et ne protège pas, à elle seule, les données ou les API.</p>',
+        '<p>Pour <strong>chaque requête</strong> visant une ressource sensible, le serveur authentifie ' +
+        'la session ou le jeton et vérifie les droits de l’utilisateur sur l’action et la ressource demandées, ' +
+        'y compris pour une requête directe ou un fichier sensible. Il ne fait pas confiance à un rôle ou un ' +
+        'identifiant simplement déclaré par le client et refuse l’accès par défaut.</p>',
+        box('warn', 'Exemple : consulter un cours privé', 'shield',
+          '    <ul>\n' +
+          '      <li>Sans authentification valide, le serveur répond <code>401</code>.</li>\n' +
+          '      <li>Avec une identité valide mais sans droit sur ce cours, il répond <code>403</code> ' +
+          '(ou <code>404</code> si la politique masque son existence).</li>\n' +
+          '      <li>Il peut renvoyer les données uniquement après validation de l’identité et des droits sur ce cours.</li>\n' +
+          '    </ul>'),
+        '<p>Référence : <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html">' +
+        'recommandations OWASP sur l’autorisation</a>.</p>'
+      ].join('\n')
+    },
+    {
       title: 'Architecture professionnelle et gestion d’état par Reducer',
       html: [
         '<p>Lorsque la complexité augmente, regrouper les données dans de multiples <code>useState</code> devient confus. ' +
@@ -81,10 +103,11 @@ module.exports = {
     { stem: 'Le Hook pour extraire les paramètres d’URL (ex. :id) s’appelle…', opts: ['useParams()', 'useRouteQuery()', 'useURL()'], correct: 0, exp: 'useParams renvoie un objet avec les segments dynamiques de la route.' },
     { stem: 'Le composant servant d’emplacement pour les sous-routes est…', opts: ['&lt;Outlet /&gt;', '&lt;Placeholder /&gt;', '&lt;RouteSlot /&gt;'], correct: 0, exp: 'Outlet permet à un layout parent de rendre le composant de la sous-route active.' },
     { stem: 'Le hook useReducer est particulièrement recommandé lorsque…', opts: ['L’état est complexe et implique de multiples sous-valeurs interdépendantes', 'L’application ne comporte aucun composant', 'On veut bloquer le rendu du DOM'], correct: 0, exp: 'useReducer centralise les règles de transition d’état dans une fonction pure.' },
-    { stem: 'Une route 404 « introuvable » est configurée avec le chemin…', opts: ['path="*"\', \'path="404"\', \'path="none"'], correct: 0, exp: 'L’astérisque (*) capture toutes les URLs ne correspondant à aucune route précédente.' },
-    { stem: 'Pour rediriger automatiquement un utilisateur non authentifié, on rend…', opts: ['&lt;Navigate to="/login" replace /&gt;', '&lt;RedirectPermanent /&gt;', '&lt;window.forward /&gt;'], correct: 0, exp: 'Navigate permet des redirections déclaratives en JSX.' },
+    { stem: 'Une route 404 « introuvable » est configurée avec le chemin…', opts: ['path="*"', 'path="404"', 'path="none"'], correct: 0, exp: 'L’astérisque (*) capture les chemins non reconnus. Les chemins « 404 » et « none » correspondent seulement à ces chemins précis.' },
+    { stem: 'Pour rediriger automatiquement un utilisateur non authentifié, on rend…', opts: ['&lt;Navigate to="/login" replace /&gt;', '&lt;RedirectPermanent /&gt;', '&lt;window.forward /&gt;'], correct: 0, exp: 'Navigate permet une redirection côté client, sans remplacer les contrôles d’autorisation du serveur.' },
     { stem: 'La navigation programmatique (ex. après validation d’un formulaire) s’effectue avec…', opts: ['const navigate = useNavigate()', 'history.jump()', 'router.forward()'], correct: 0, exp: 'useNavigate fournit une fonction impérative de changement de route.' },
-    { stem: 'Dans quel dossier place-t-on habituellement les appels aux APIs distantes ?', opts: ['src/services/', 'src/styles/', 'public/assets/'], correct: 0, exp: 'Isoler les services réseau découple la logique métier de la vue UI.' }
+    { stem: 'Dans quel dossier place-t-on habituellement les appels aux APIs distantes ?', opts: ['src/services/', 'src/styles/', 'public/assets/'], correct: 0, exp: 'Isoler les services réseau découple la logique métier de la vue UI.' },
+    { stem: 'Quel contrôle protège les données d’une route privée ?', opts: ['Le serveur vérifie l’identité et les droits sur la ressource à chaque requête', 'PrivateRoute dans le navigateur suffit', 'Masquer le lien dans le menu suffit'], correct: 0, exp: 'La garde client est contournable : le serveur contrôle chaque requête, y compris les accès directs, et refuse par défaut.' }
   ],
 
   pitfalls: [
@@ -92,7 +115,8 @@ module.exports = {
     'Oublier d’envelopper l’arborescence des routes dans un &lt;BrowserRouter&gt;.',
     'Omettre le composant &lt;Outlet /&gt; dans un composant de Layout contenant des sous-routes.',
     'Muter l’état à l’intérieur d’un reducer au lieu de renvoyer un nouvel objet { ...state }.',
-    'Mélanger les responsabilités en plaçant des requêtes HTTP directes dans des composants UI de bas niveau.'
+    'Mélanger les responsabilités en plaçant des requêtes HTTP directes dans des composants UI de bas niveau.',
+    'Croire qu’une garde React ou un lien masqué remplace l’autorisation côté serveur.'
   ],
 
   methodTitle: 'Structurer et sécuriser la navigation d’une application React',
@@ -100,7 +124,8 @@ module.exports = {
     '<strong>Définir</strong> l’arborescence des URLs (publiques, privées, introuvables).',
     '<strong>Configurer</strong> le BrowserRouter au niveau le plus haut de l’application.',
     '<strong>Organiser</strong> les composants dans des dossiers dédiés (pages, components, services).',
-    '<strong>Protéger</strong> les routes sensibles à l’aide d’un composant PrivateRoute vérifiant la session.',
+    '<strong>Limiter</strong> l’affichage côté client avec une garde comme PrivateRoute et rediriger si nécessaire.',
+    '<strong>Vérifier</strong> côté serveur, à chaque requête sensible, l’identité et les droits sur l’action et la ressource ; refuser par défaut.',
     '<strong>Gérer</strong> les paramètres d’URL avec useParams pour les vues de détail dynamiques.'
   ],
 
@@ -109,6 +134,7 @@ module.exports = {
     'BrowserRouter synchronise l’UI avec l’URL du navigateur via l’History API.',
     'Les composants Link et NavLink évitent le rechargement de page natif.',
     'useParams et Outlet permettent des routes dynamiques et des layouts imbriqués modulaires.',
+    'Une garde React améliore la navigation ; le serveur vérifie l’autorisation sur chaque requête sensible.',
     'useReducer apporte une architecture prévisible pour les états complexes et volumineux.'
   ],
 
@@ -117,6 +143,7 @@ module.exports = {
     'J’utilise Link ou NavLink pour tous mes liens internes.',
     'J’extrais des identifiants dynamiques avec useParams.',
     'J’utilise Outlet pour composer des pages avec barre de navigation ou sidebar.',
+    'Je distingue la redirection côté client de la vérification des droits côté serveur.',
     'Je structure mes projets React selon les standards professionnels de l’industrie.'
   ],
 
@@ -134,7 +161,7 @@ module.exports = {
     { q: 'Que fait le composant &lt;Link to="..."&gt; ?', a: 'Il modifie l’URL via window.history sans déclencher de rechargement réseau de la page.' },
     { q: 'À quoi sert useParams() ?', a: 'À récupérer les paramètres dynamiques d’URL déclarés avec la notation :nom dans la Route.' },
     { q: 'Quel est le rôle de &lt;Outlet /&gt; ?', a: 'C’est le point d’insertion où le composant de la sous-route active est affiché à l’intérieur d’un layout parent.' },
-    { q: 'Comment rediriger un utilisateur non connecté ?', a: 'En renvoyant &lt;Navigate to="/login" replace /&gt; si la condition d’authentification est fausse.' },
+    { q: 'Comment rediriger un utilisateur non connecté ?', a: 'Avec &lt;Navigate to="/login" replace /&gt; côté client ; le serveur vérifie séparément les droits à chaque requête sensible.' },
     { q: 'Qu’est-ce qu’une fonction réductrice (reducer) ?', a: 'Une fonction pure (state, action) => newState calculant le prochain état de manière immuable.' }
   ]
 };

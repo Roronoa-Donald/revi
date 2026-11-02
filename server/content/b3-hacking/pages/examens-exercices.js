@@ -24,7 +24,7 @@ function examens(course) {
     box('standard', 'Sujet du Contrôle Continu — Cadre Juridique, Méthodologie Offensive &amp; Vulnérabilités Web', [
       '<h4>Partie 1 : Cadre Légal, Éthique &amp; Méthodologie PTES (6 points)</h4>',
       '<ol>',
-      '  <li>Citez et expliquez l\'article 323-1 du Code Pénal français relatif à l\'accès frauduleux à un système de traitement automatisé de données (STAD). Quelles sont les peines encourues en cas d\'altération de données ? Pourquoi un ordre oral de son supérieur ne constitue-t-il pas une protection juridique pour l\'auditeur ? (3 pts)</li>',
+      '  <li>Expliquez l\'article 323-1 du Code pénal français relatif à l\'accès frauduleux à un système de traitement automatisé de données (STAD). Où vérifier les peines applicables ? Pourquoi rechercher une autorisation écrite et préciser son périmètre avant un audit ? (3 pts)</li>',
       '  <li>Distinguez les approches de test d\'intrusion en boîte noire (Black Box), boîte grise (Grey Box) et boîte blanche (White Box). Dans quel contexte opérationnel chaque méthode est-elle préconisée ? (3 pts)</li>',
       '</ol>',
       '<h4>Partie 2 : Balayage Réseau, Sondes TCP &amp; Analyse Nmap (7 points)</h4>',
@@ -43,9 +43,8 @@ function examens(course) {
       '<h4>Corrigé Partie 1 (6 points)</h4>',
       '<ul>',
       '  <li><strong>Article 323-1 du Code Pénal (3 pts) :</strong> ' +
-      '  L\'article 323-1 réprime le fait d\'accéder ou de se maintenir frauduleusement dans tout ou partie d\'un système de traitement automatisé de données (STAD) (jusqu\'à 3 ans d\'emprisonnement et 100 000 € d\'amende). ' +
-      '  Lorsqu\'il en résulte soit la suppression ou la modification de données, soit une altération du fonctionnement du système, la peine est portée à 5 ans d\'emprisonnement et 150 000 € d\'amende. ' +
-      '  Un ordre oral n\'a aucune valeur exonératoire : sans convention écrite formelle (lettre de mission signée par le représentant légal de l\'entité propriétaire des systèmes précisant le périmètre exact et les dates), l\'acte est réputé illégal et relève de la responsabilité pénale personnelle de l\'auditeur.</li>',
+      '  L\'article 323-1 vise le fait d\'accéder ou de se maintenir frauduleusement dans tout ou partie d\'un STAD. Vérifiez les peines et les éventuelles circonstances aggravantes dans le texte en vigueur sur Légifrance : l\'accès direct n\'a pas pu être contrôlé lors de la mise à jour du 30 octobre 2026. ' +
+      '  Une autorisation écrite préalable d\'une personne habilitée, avec périmètre, dates et techniques, aide à cadrer et à prouver la mission ; elle ne garantit pas à elle seule l\'absence de poursuites. Un accord oral imprécis peut être difficile à établir ; la qualification juridique dépend des faits et du droit applicable.</li>',
       '  <li><strong>Typologie des Approches de Pentest (3 pts) :</strong> ' +
       '  - <em>Boîte Noire (Black Box) :</em> Aucune information préalable (seul le nom de l\'entreprise ou le domaine est fourni). Simule la posture d\'un attaquant externe opportuniste. Coûteuse en temps de reconnaissance. ' +
       '  - <em>Boîte Grise (Grey Box) :</em> Accès partiel (compte utilisateur standard, schémas d\'architecture haut niveau). Représente le scénario le plus réaliste et rentable (attaquant ayant compromis un compte ou collaborateur malveillant). ' +

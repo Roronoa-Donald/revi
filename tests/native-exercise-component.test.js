@@ -18,7 +18,6 @@ const courseConfig = require('../server/exercises/course-config');
 
 const ROOT = path.resolve(__dirname, '..');
 
-// Extraction de la fonction de parsing identique à code-lab.js
 function parseAnalyseStarter(starter) {
   const lines = String(starter || '').replace(/\r\n?/g, '\n').split('\n');
   const headerRe = /^\[(?:cas\s*(\d+)|exemple)\b\s*(?:[—–-]\s*(.*?))?\]$/i;
@@ -78,7 +77,7 @@ test('Composant natif : parsing et reconstruction canonique des grilles de cas',
   assert.ok(ex, 'pb2-c1-e1 doit exister');
 
   const parsed = parseAnalyseStarter(ex.starter);
-  assert.strictEqual(parsed.cases.length, 3, 'Doit contenir exactement 3 cas');
+  assert.strictEqual(parsed.cases.length, 5, 'Doit conserver les trois cas et les deux bornes');
   assert.strictEqual(parsed.cases[0].index, 1);
   assert.strictEqual(parsed.cases[0].label, 'Deux sur huit');
   assert.deepStrictEqual(parsed.cases[0].dataLines, ['8', '2']);
@@ -88,6 +87,8 @@ test('Composant natif : parsing et reconstruction canonique des grilles de cas',
   parsed.cases[0].value = '1/4';
   parsed.cases[1].value = '7/10';
   parsed.cases[2].value = '1/2';
+  parsed.cases[3].value = '0/1';
+  parsed.cases[4].value = '1/1';
 
   const reconstructed = formatAnalyseCode(parsed);
   assert.ok(reconstructed.includes('[Cas 1 — Deux sur huit]'));
@@ -96,10 +97,21 @@ test('Composant natif : parsing et reconstruction canonique des grilles de cas',
   assert.ok(reconstructed.includes('7/10'));
   assert.ok(reconstructed.includes('[Cas 3 — Deux sur quatre]'));
   assert.ok(reconstructed.includes('1/2'));
+  assert.ok(reconstructed.includes('[Cas 4 — Aucun cas favorable]'));
+  assert.ok(reconstructed.includes('0/1'));
+  assert.ok(reconstructed.includes('[Cas 5 — Toutes les issues favorables]'));
+  assert.ok(reconstructed.includes('1/1'));
 });
 
-test('Moteur de correction : tolérance mathématique robuste (fractions et décimaux avec virgule)', async () => {
-  const ex = exercises.getExercise('pb2-c1-e1');
+test('Moteur de correction : tolérance mathématique par défaut (fractions et décimaux avec virgule)', async () => {
+  const exercise = {
+    language: 'analyse',
+    tests: [
+      { stdin: 'cas:1', expected: '1/4' },
+      { stdin: 'cas:2', expected: '7/10' },
+      { stdin: 'cas:3', expected: '1/2' }
+    ]
+  };
 
   // Test avec fraction 1/4, décimal avec virgule 0,7 et décimal 0.50
   const submission = `
@@ -113,7 +125,7 @@ test('Moteur de correction : tolérance mathématique robuste (fractions et déc
 0.50
 `;
 
-  const report = await runTests(ex, submission, {
+  const report = await runTests(exercise, submission, {
     execute: async ({ code, stdin }) => {
       const res = await localRunner.runAnalyse(code, stdin);
       return { ok: true, status: 'success', stdout: res.data.stdout, stderr: '' };
@@ -124,6 +136,25 @@ test('Moteur de correction : tolérance mathématique robuste (fractions et déc
   assert.strictEqual(report.passed, 3);
   assert.strictEqual(report.total, 3);
   assert.strictEqual(report.stop, null);
+});
+
+test('Moteur de correction : fraction réduite exigée pour la probabilité', async () => {
+  const exercise = exercises.getExercise('pb2-c1-e1');
+  const execute = async ({ code, stdin }) => {
+    const result = await localRunner.runAnalyse(code, stdin);
+    return { ok: true, status: 'success', stdout: result.data.stdout, stderr: '' };
+  };
+  const valid = await runTests(exercise, exercise.solution, { execute });
+  assert.strictEqual(valid.passed, 5);
+  assert.strictEqual(valid.total, 5);
+  assert.strictEqual(valid.stop, null);
+  for (const wrong of ['0.25', '2/8']) {
+    const submission = exercise.solution.replace('[Cas 1 — Deux sur huit]\n1/4', `[Cas 1 — Deux sur huit]\n${wrong}`);
+    assert.notStrictEqual(submission, exercise.solution);
+    const report = await runTests(exercise, submission, { execute });
+    assert.strictEqual(report.passed, 0);
+    assert.strictEqual(report.stop.reason, 'wrong_output');
+  }
 });
 
 test('Moteur de correction : tolérance disciplinaire (insensibilité à la casse)', async () => {

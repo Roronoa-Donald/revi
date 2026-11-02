@@ -14,17 +14,17 @@ module.exports = {
   free: true,
 
   situation:
-    'Plus de 50 % des échecs de projets informatiques trouvent leur origine dans des exigences mal comprises, ' +
-    'incomplètes ou changeantes. Avant d’écrire la moindre ligne de code ou de choisir une technologie, ' +
+    'Des exigences mal comprises, ' +
+    'incomplètes ou changeantes peuvent fragiliser un projet. Avant d’écrire la moindre ligne de code ou de choisir une technologie, ' +
     'l’ingénieur des exigences doit explorer le problème réel du client, identifier les véritables parties prenantes ' +
     'et transformer des attentes souvent informelles en spécifications rigoureuses.',
 
   objectives: [
-    'distinguer avec certitude un besoin métier (Quoi / Pourquoi) d’une solution technique prématurée (Comment) ;',
+    'distinguer un besoin métier (Quoi / Pourquoi) d’une solution technique prématurée (Comment), en signalant les ambiguïtés ;',
     'maîtriser la définition normative d’une exigence selon le standard ISO/IEC/IEEE 29148 ;',
     'comprendre les phases du cycle de vie de l’ingénierie des exigences ;',
     'cartographier les parties prenantes (Stakeholders) selon la matrice Pouvoir / Intérêt de Mendelow ;',
-    'structurer les attributs obligatoires d’une fiche d’exigence professionnelle.'
+    'structurer une fiche d’exigence selon les attributs choisis pour le cours.'
   ],
 
   sections: [
@@ -100,14 +100,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Quelle phrase relève de l’espace « problème » (besoin métier) et non de l’espace « solution » ?', opts: ['Permettre aux clients de suivre l’acheminement de leur colis en temps réel', 'Créer une base de données PostgreSQL hébergée sur AWS', 'Utiliser un framework Angular pour les formulaires'], correct: 0, exp: 'L’acheminement de colis exprime l’objectif client sans présumer des technologies employées.' },
-    { stem: 'Quelle norme internationale cadre formellement l’ingénierie des exigences logicielles et systèmes ?', opts: ['ISO/IEC/IEEE 29148', 'ISO 9001', 'RFC 8259'], correct: 0, exp: 'La norme ISO/IEC/IEEE 29148 remplace l’historique IEEE 830 pour encadrer le cycle de vie des exigences.' },
-    { stem: 'Que préconise la matrice de Mendelow pour une partie prenante ayant un Pouvoir Fort et un Intérêt Faible ?', opts: ['Garder satisfait', 'Gérer de près', 'Surveiller avec un effort minimal'], correct: 0, exp: 'Les acteurs à fort pouvoir et faible intérêt (ex. conformité juridique) doivent être maintenus satisfaits pour éviter tout veto.' },
-    { stem: 'Quelle technique permet de remonter au besoin originel lorsqu’un utilisateur formule d’emblée une solution technique ?', opts: ['Les 5 Pourquoi (Root Cause Analysis)', 'Le tri par insertion', 'La compilation incrémentale'], correct: 0, exp: 'Demander « Pourquoi » de façon itérative permet d’isoler le problème de fond.' },
-    { stem: 'Dans une matrice RACI, combien d’acteurs peuvent porter le rôle « Accountable » (A) sur une tâche donnée ?', opts: ['Un seul et unique acteur', 'Autant d’acteurs que souhaité', 'Au moins trois directeurs'], correct: 0, exp: 'Le rôle A (responsable ultime / approbateur) doit être strictement unique pour éviter la dilution des responsabilités.' },
-    { stem: 'Quelle est la première macro-activité du cycle de vie de l’ingénierie des exigences ?', opts: ['L’élicitation (recueil des besoins)', 'La recette utilisateur (UAT)', 'L’architecture logicielle'], correct: 0, exp: 'L’élicitation est la phase de découverte et d’extraction des attentes auprès des parties prenantes.' },
-    { stem: 'Pourquoi un identifiant d’exigence (ex. REQ-042) doit-il être immuable ?', opts: ['Pour garantir la traçabilité des liens vers les tests et le code même si le titre change', 'Pour économiser la mémoire vive du serveur', 'Pour des raisons fiscales'], correct: 0, exp: 'L’immuabilité de l’ID préserve la matrice de traçabilité tout au long de la vie du projet.' },
-    { stem: 'Que désigne le terme « Stakeholder » dans un projet logiciel ?', opts: ['Toute personne, groupe ou organisation impactée ou ayant une influence sur le projet', 'Uniquement le développeur senior', 'Le fournisseur d’accès Internet'], correct: 0, exp: 'Les parties prenantes englobent clients, utilisateurs, décideurs, régulateurs et équipes techniques.' }
+    { stem: 'Quelle phrase relève de l’espace « problème » (besoin métier) et non de l’espace « solution » ?', opts: ['Permettre aux clients de suivre l’acheminement de leur colis en temps réel', 'Créer une base de données PostgreSQL hébergée sur AWS', 'Utiliser un framework Angular pour les formulaires'], correct: 0, exp: 'Le suivi exprime une finalité client ; PostgreSQL sur AWS et Angular décrivent des choix de réalisation.' },
+    { stem: 'Quelle norme citée dans le cours traite de l’ingénierie des exigences logicielles et systèmes ?', opts: ['ISO/IEC/IEEE 29148', 'ISO 9001', 'RFC 8259'], correct: 0, exp: 'Le cours cite ISO/IEC/IEEE 29148 pour les exigences ; ISO 9001 concerne le management de la qualité et RFC 8259 le format JSON.' },
+    { stem: 'Dans la matrice du cours, quelle stratégie correspond à un pouvoir fort et un intérêt faible ?', opts: ['Garder satisfait', 'Gérer de près', 'Surveiller avec un effort minimal'], correct: 0, exp: 'Le quadrant fort pouvoir / faible intérêt correspond à « garder satisfait ». « Gérer de près » vise un intérêt fort ; « surveiller » concerne le quadrant faible pouvoir / faible intérêt.' },
+    { stem: 'Quelle technique peut aider à explorer le besoin lorsqu’un utilisateur formule d’emblée une solution technique ?', opts: ['Les 5 Pourquoi (Root Cause Analysis)', 'Le tri par insertion', 'La compilation incrémentale'], correct: 0, exp: 'Les questions « pourquoi » peuvent approfondir le problème sans garantir à elles seules sa découverte. Le tri et la compilation ne sont pas des méthodes d’entretien.' },
+    { stem: 'Dans la convention RACI présentée ici, combien d’acteurs portent le rôle « Accountable » (A) sur une tâche ?', opts: ['Un seul et unique acteur', 'Autant d’acteurs que souhaité', 'Au moins trois directeurs'], correct: 0, exp: 'La convention du cours prévoit un responsable ultime unique pour clarifier la décision ; elle n’impose ni un nombre libre ni trois directeurs.' },
+    { stem: 'Dans la présentation du cours, quelle activité est placée en premier pour découvrir les attentes ?', opts: ['L’élicitation (recueil des besoins)', 'La recette utilisateur (UAT)', 'L’architecture logicielle'], correct: 0, exp: 'L’élicitation recueille les attentes ; la recette vérifie un résultat et l’architecture décrit une solution. Ces activités peuvent ensuite être itératives.' },
+    { stem: 'Quel est l’intérêt de conserver un identifiant d’exigence stable ?', opts: ['Faciliter la traçabilité des liens vers les tests et le code même si le titre change', 'Économiser la mémoire vive du serveur', 'Satisfaire systématiquement une règle fiscale'], correct: 0, exp: 'Un identifiant stable facilite le maintien des liens de traçabilité ; il n’économise pas la mémoire et n’est pas une règle fiscale générale.' },
+    { stem: 'Que désigne le terme « Stakeholder » dans un projet logiciel ?', opts: ['Toute personne, groupe ou organisation impactée ou ayant une influence sur le projet', 'Uniquement le développeur senior', 'Une personne sans aucun effet sur le projet et non affectée par lui'], correct: 0, exp: 'La notion couvre les acteurs affectés ou influents, pas seulement le développeur senior. Une personne sans lien ni effet ne répond pas à cette définition.' }
   ],
 
   pitfalls: [
@@ -153,22 +153,6 @@ module.exports = {
   ],
 
   flashcards: [
-      { q: 'Qu’est-ce que « Espace Problème » ?', a: 'Le Besoin (Espace Problème / « Quoi & Pourquoi ») : exprime une opportunité, une obligation réglementaire ou un problème concret vécu par les utilisateurs. Exemple : « Réduire le temps d’attente des clients au guichet bancaire » .' },
-      { q: 'Qu’est-ce que « Espace Solution » ?', a: 'La Solution (Espace Solution / « Comment ») : correspond à un choix technique d’implémentation. Exemple : « Développer une application mobile React avec base MongoDB » .' },
-      { q: 'Qu’est-ce que « SMART » ?', a: 'Une exigence SMART est Spécifique (périmètre net), Mesurable (seuil chiffré), Atteignable (technologiquement réaliste), Pertinente / Relevant (alignée sur les objectifs stratégiques) et Temporellement définie (délai ou jalon d’exécution clair).' },
-      { q: 'Qu’est-ce que « Testabilité » ?', a: 'S (Supportability) : testabilité, maintenabilité, modularité, extensibilité et portabilité.' },
-      { q: 'Qu’est-ce que « Non-ambiguïté » ?', a: 'Que signifie le critère de « Non-ambiguïté » d’une exigence ?' },
-      { q: 'Qu’est-ce que « Shadowing » ?', a: 'pratiquer l’observation directe et le shadowing pour confronter travail prescrit et travail réel ;' },
-      { q: 'Qu’est-ce que « Effet Hawthorne » ?', a: 'L’effet Hawthorne : attention au biais par lequel un individu modifie son comportement habituel du simple fait qu’il se sait observé. D’où la nécessité de séances d’immersion prolongées.' },
-      { q: 'Qu’est-ce que « Workaround » ?', a: 'Découverte des « Workarounds » (Contournements) : les utilisateurs inventent souvent des béquilles informelles pour pallier les défauts de l’ancien système. Ces contournements révèlent les besoins métier les plus urgents.' },
-      { q: 'Qu’est-ce que « Échantillonnage » ?', a: 'Échantillonnage : Ingénierie du besoin B2 › Sommaire › Chapitre 3' },
-      { q: 'Qu’est-ce que « Personas » ?', a: 'construire des personas utilisateurs réalistes dotés d’objectifs, de frustrations et de scénarios d’usage.' },
-      { q: 'Qu’est-ce que « Triangulation » ?', a: 'Ne vous fiez jamais à une seule technique. La triangulation consiste à croiser au moins trois sources : par exemple, un entretien stratégique avec le manager, une journée d’observation terrain avec les opérateurs, et un questionnaire de validation auprès de l’ensemble des agences' },
-      { q: 'Qu’est-ce que « Critères d’acceptation » ?', a: 'Critères d’acceptation (Acceptance Criteria) : conditions spécifiques et mesurables propres à la story que le livrable doit valider pour être accepté par le Product Owner.' },
-      { q: 'Qu’est-ce que « DoD » ?', a: 'distinguer clairement la Definition of Ready (DoR) et la Definition of Done (DoD) ;' },
-      { q: 'Qu’est-ce que « Codification » ?', a: 'La codification systématique (ex. BNK-AUTH-FR-001) garantit une traçabilité pérenne à travers le cycle de vie.' },
-      { q: 'Qu’est-ce que « RTM » ?', a: 'concevoir une matrice de traçabilité des exigences (RTM) bidirectionnelle (amont et aval) ;' },
-      { q: 'Qu’est-ce que « Change Request » ?', a: 'Change Request : Même avec la meilleure élicitation du monde, les besoins d’une entreprise évoluent en permanence. Les changements incontrôlés mènent tout droit au phénomène destructeur du « Scope Creep » (dérive des objectifs). L’ingénieur des exigences doit mettre en place des revues formelles ' },
     { q: 'Quelle est la différence fondamentale entre besoin et solution ?', a: 'Le besoin décrit le problème ou l’objectif métier (Quoi/Pourquoi) ; la solution décrit l’implémentation technique (Comment).' },
     { q: 'Quelle norme internationale régit l’ingénierie des exigences ?', a: 'La norme ISO/IEC/IEEE 29148 (qui remplace l’historique IEEE 830).' },
     { q: 'Quels sont les 4 quadrants de la matrice de Mendelow ?', a: 'Gérer de près (P+ / I+), Garder satisfait (P+ / I-), Garder informé (P- / I+), Surveiller (P- / I-).' },

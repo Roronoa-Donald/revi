@@ -29,9 +29,11 @@ module.exports = {
     {
       title: 'Le snapshot',
       html: [
-        '<p>Un <strong>snapshot</strong> (instantané) capture l’état d’une VM à un instant donné : le ' +
-        'contenu de la mémoire, l’état du processeur et l’état des disques virtuels. Il permet de ' +
-        '<strong>revenir en arrière</strong> en cas de problème après un changement critique.</p>',
+        '<p>Un <strong>snapshot</strong> (instantané) permet un retour à un état antérieur de la VM, ' +
+        'mais son contenu dépend du produit et du type choisi. Dans Hyper-V, un checkpoint ' +
+        '<strong>standard</strong> capture aussi la mémoire ; un checkpoint de <strong>production</strong> ' +
+        'est créé sans capture de la mémoire, avec VSS ou le gel du système de fichiers invité.</p>',
+        '<p>Source : <a href="https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/checkpoints">documentation Microsoft des checkpoints Hyper-V</a>, consultée le 30 octobre 2026.</p>',
         '<p>Deux précautions : les snapshots <strong>consomment de l’espace disque</strong> au fil du ' +
         'temps, et il ne faut <strong>pas les conserver longtemps</strong> en production.</p>',
         '<table><thead><tr><th>Critère</th><th>Snapshot</th><th>Sauvegarde</th></tr></thead><tbody>',
@@ -70,9 +72,9 @@ module.exports = {
         '<strong>modèle</strong> pour créer de nouvelles VM, ce qui standardise les déploiements, fait ' +
         'gagner du temps et garantit la cohérence.</p>',
         '<p><strong>vMotion</strong> migre une VM <strong>en cours d’exécution</strong> d’un hôte ' +
-        'physique vers un autre, <strong>sans interruption de service</strong>. Exemple : une VM ' +
-        'devenue lente parce que d’autres VM surchargent son hôte est déplacée vers un hôte moins ' +
-        'sollicité ; les performances reviennent.</p>',
+        'physique vers un autre en cherchant à limiter l’interruption. Une courte <strong>pause</strong> ' +
+        'de bascule subsiste et peut perturber certaines applications sensibles ; le résultat dépend de ' +
+        'la charge, du réseau et de la configuration.</p>',
         box('tech', 'Un template, des déploiements', 'layers',
           '    <p>Un template bien tenu contient les mises à jour et les bases de sécurité à jour. ' +
           'Chaque VM créée en hérite : le déploiement devient reproductible plutôt qu’artisanal.</p>')
@@ -100,12 +102,12 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Que capture un snapshot ?', opts: ['Mémoire, processeur et disques virtuels', 'Seulement les fichiers', 'Le réseau'], correct: 0, exp: 'Il enregistre l’état complet de la VM à un instant donné.' },
+    { stem: 'Que capture un checkpoint Hyper-V de production ?', opts: ['Un état cohérent sans mémoire de la VM', 'Toujours la mémoire de la VM', 'Seulement le réseau'], correct: 0, exp: 'La capture de mémoire caractérise le checkpoint standard, pas le checkpoint de production.' },
     { stem: 'Durée de conservation d’un snapshot ?', opts: ['Temporaire', 'Long terme', 'Permanente'], correct: 0, exp: 'Il ne doit pas rester longtemps en production.' },
-    { stem: 'Que fait un clone complet ?', opts: ['Copie indépendante de la VM', 'Partage les disques', 'Supprimez la source'], correct: 0, exp: 'Il fonctionne même si la source est supprimée.' },
+    { stem: 'Que fait un clone complet ?', opts: ['Copie indépendante de la VM', 'Partage les disques', 'Supprime la source'], correct: 0, exp: 'Il fonctionne même si la source est supprimée.' },
     { stem: 'Faiblesse d’un clone lié ?', opts: ['Il dépend de la VM source', 'Il est trop gros', 'Il est trop lent'], correct: 0, exp: 'Si la source est supprimée, il cesse de fonctionner.' },
     { stem: 'À quoi sert un template ?', opts: ['Standardiser les déploiements', 'Sauvegarder les données', 'Migrer à chaud'], correct: 0, exp: 'C’est un modèle de VM préconfigurée.' },
-    { stem: 'Que fait vMotion ?', opts: ['Migrer une VM à chaud sans interruption', 'Éteindre un hôte', 'Cloner un template'], correct: 0, exp: 'La VM change d’hôte en cours d’exécution.' },
+    { stem: 'Que fait vMotion ?', opts: ['Migrer une VM à chaud avec une pause de bascule', 'Éteindre un hôte', 'Cloner un template'], correct: 0, exp: 'La VM change d’hôte en limitant l’interruption, sans garantir son absence.' },
     { stem: 'En cas de panne, que fait un cluster HA ?', opts: ['Redémarre les VM sur un autre hôte', 'Efface les snapshots', 'Réinstalle ESXi'], correct: 0, exp: 'Les VM redémarrent automatiquement ailleurs.' },
     { stem: 'Que permet Veeam ?', opts: ['Sauvegarde automatique et restauration rapide', 'Compiler du code', 'Créer des réseaux'], correct: 0, exp: 'Il sauvegarde les VM et restaure rapidement.' }
   ],
@@ -128,10 +130,10 @@ module.exports = {
   ],
 
   summary: [
-    'Snapshot : mémoire + CPU + disques, temporaire, ne remplace pas une sauvegarde.',
+    'Checkpoint Hyper-V : standard avec mémoire ; production sans mémoire ; aucun ne remplace une sauvegarde.',
     'Clone complet : indépendant ; clone lié : dépendant de la source.',
     'Template : VM préconfigurée qui standardise les déploiements.',
-    'vMotion : migration à chaud sans interruption.',
+    'vMotion : migration à chaud avec une courte pause de bascule et un impact possible.',
     'Cluster HA et Veeam : redémarrage automatique et sauvegarde des VM.'
   ],
 
@@ -146,16 +148,16 @@ module.exports = {
   mastery: [
     { cls: 'low', text: '&lt; 50 % — Reprenez la différence snapshot / sauvegarde.' },
     { cls: 'mid', text: '50–69 % — Entraînez-vous sur les clones complet / lié.' },
-    { cls: 'good', text: '70–94 % — Solide : vous protègez et déploies des VM correctement.' },
+    { cls: 'good', text: '70–94 % — Solide : vous protégez et déployez des VM correctement.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : le cours est bouclé, place aux examens blancs.' }
   ],
 
   flashcards: [
-    { q: 'Que capture un snapshot ?', a: 'La mémoire, l’état du processeur et les disques virtuels.' },
+    { q: 'Checkpoint Hyper-V de production ou standard ?', a: 'Production : état cohérent sans mémoire ; standard : capture aussi la mémoire.' },
     { q: 'Snapshot vs sauvegarde ?', a: 'Snapshot : court terme ; sauvegarde : long terme.' },
     { q: 'Clone complet ?', a: 'Copie indépendante, fonctionne même si la source est supprimée.' },
     { q: 'Clone lié ?', a: 'Partage des disques avec la source : moins d’espace mais dépendant.' },
-    { q: 'À quoi sert vMotion ?', a: 'Migrer une VM en cours d’exécution sans interruption.' },
+    { q: 'À quoi sert vMotion ?', a: 'Migrer une VM en cours d’exécution avec une courte pause de bascule possible.' },
     { q: 'Que protège un cluster HA ?', a: 'Il redémarre automatiquement les VM sur un autre hôte.' }
   ]
 };

@@ -13,7 +13,7 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -62,14 +62,14 @@
 
 etc        configuration (à sauvegarder)      home   répertoires des utilisateurs
 
-tmp        temporaires, vidés au reboot        var    journaux, spools, bases
+tmp        temporaires, conservation non garantie   var    journaux, spools, bases
 
 root       maison du super-utilisateur         dev    fichiers des périphériques
 
 usr        programmes et bibliothèques         bin/sbin  binaires essentiels
 
 boot       noyau et démarrage                  proc   arborescence virtuelle du noyau</code></pre>
-<p>Tout chemin absolu commence par / ; /root n’est pas /.</p>
+<p>Tout chemin absolu commence par / ; /root n’est pas /. Sauvegardez aussi les données et testez la restauration.</p>
 
   <h2>Commandes de base</h2>
 <pre><code>où suis-je        pwd            changer      cd chemin
@@ -83,7 +83,7 @@ renommer/déplacer mv             supprimer   rm [-r] (danger : -f)
 afficher          cat, head, tail            manuel      man cmd
 
 écrire            echo "x" &gt; f (écrase) ; echo "x" &gt;&gt; f (ajoute)</code></pre>
-<p>Syntaxe immuable : COMMANDE OPTIONS ARGUMENTS — ls -l /home.</p>
+<p>Forme fréquente : COMMANDE OPTIONS ARGUMENTS — ls -l /home. La syntaxe dépend de la commande.</p>
 
   <h2>Chercher : find et grep</h2>
 <pre><code>find /tmp -name "fich*"     -type f|d    -size +10M   -user root
@@ -112,15 +112,17 @@ vérifier       ls -l, id utilisateur</code></pre>
   <h2>Comptes et groupes</h2>
 <pre><code>/etc/passwd  login:mot-de-passe:UID:GID:info:maison:shell
 
-             x ou ! = mot de passe dans shadow ; * interdit ; !! désactive
+             x = vérificateur dans shadow
 
-/etc/shadow  mots de passe chiffrés (root seul)
+/etc/shadow  vérificateurs hachés avec sel ; ! ou * bloquent le mot de passe
+
+             d’autres moyens d’authentification peuvent rester disponibles
 
 /etc/group   groupe:*:GID:utilisateurs
 
 commandes    useradd, usermod, userdel -r, passwd, groupadd, groupdel
 
-UID          root = 0 ; &lt; 1000 = système ; ≥ 1000 = humains</code></pre>
+UID          root = 0 ; UID_MIN et les plages système sont configurables</code></pre>
 <p>id utilisateur affiche UID, GID et groupes secondaires.</p>
 
   <h2>Réseau et SSH</h2>
@@ -130,7 +132,7 @@ privées  10.0.0.0/8 ; 172.16–172.31 ; 192.168.0.0/16
 
 statique /etc/network/interfaces : address / gateway / dns-nameservers
 
-ssh user@hote:port       port 22 par défaut
+ssh -p PORT user@hote    port explicite ; 22 par défaut sans configuration
 
 ssh-keygen -t ed25519 ; ssh-copy-id user@hote ; scp f user@hote:/tmp/</code></pre>
 <p>Adresse IPv4 valide : exactement quatre octets de 0 à 255.</p>

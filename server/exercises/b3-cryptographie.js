@@ -7,17 +7,17 @@ module.exports = [
     "title": "Chiffrement et Déchiffrement de César et Substitution Affine",
     "level": "n1",
     "language": "analyse",
-    "goal": "Implémenter les chiffrements classiques de César (décalage mod 26) et de substitution affine avec calcul d'inverse modulaire.",
-    "brief": "<p>Dans la cryptographie classique, le chiffrement par décalage de César applique la transformation :\n<code>C = (P + k) mod 26</code>.\nLe chiffrement par substitution affine généralise ce principe selon :\n<code>C = (a * P + b) mod 26</code>, où la clé multiplicative <code>a</code> doit être strictement première avec 26 (<code>pgcd(a, 26) == 1</code>) pour garantir l'inversibilité.<br><br>\nAnalysez les données fournies pour chaque cas. <code>CAESAR ENC k=&lt;entier&gt; text=&lt;texte&gt;</code> :<br>\n   Décale chaque lettre de <code>k</code> positions (A=0, ..., Z=25). Les minuscules sont converties en majuscules, les caractères non alphabétiques sont préservés.<br>\n2. <code>CAESAR DEC k=&lt;entier&gt; text=&lt;texte&gt;</code> :<br>\n   Déchiffre le texte avec la clé <code>k</code>.<br>\n3. <code>AFFINE ENC a=&lt;entier&gt; b=&lt;entier&gt; text=&lt;texte&gt;</code> :<br>\n   Si <code>pgcd(a, 26) != 1</code>, Indiquez <code>ERROR: gcd(a,26)!=1</code>.<br>\n   Sinon chiffre selon <code>C = (a * P + b) mod 26</code>.<br>\n4. <code>AFFINE DEC a=&lt;entier&gt; b=&lt;entier&gt; text=&lt;texte&gt;</code> :<br>\n   Si <code>pgcd(a, 26) != 1</code>, Indiquez <code>ERROR: gcd(a,26)!=1</code>.<br>\n   Sinon calcule <code>a_inv = pow(a, -1, 26)</code> et déchiffre selon <code>P = (a_inv * (C - b)) mod 26</code>.<br><br>\nPour toute opération réussie :<br>\n<code>OUT: &lt;texte_resultat&gt;</code></p>",
-    "starter": "# Grille d'analyse (cr3-c1-e1) — Chiffrement et Déchiffrement de César et Substitution Affine\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Déchiffrement de César]\n# Données : CAESAR DEC k=3 text=DWWDTXH D O'DXEH\nA_COMPLETER\n\n[Cas 2 — Chiffrement affine valide]\n# Données : AFFINE ENC a=5 b=8 text=SECRET\nA_COMPLETER\n\n[Cas 3 — Déchiffrement affine valide]\n# Données : AFFINE DEC a=5 b=8 text=UCSPCZ\nA_COMPLETER\n\n[Cas 4 — Rejet clé affine non inversible]\n# Données : AFFINE ENC a=4 b=3 text=HELLO\nA_COMPLETER\n",
+    "goal": "Analyser des cas de chiffrements de César et de substitution affine, avec calcul d’inverse modulaire.",
+    "brief": "<p>Dans la cryptographie classique, le chiffrement par décalage de César applique la transformation :\n<code>C = (P + k) mod 26</code>.\nLe chiffrement par substitution affine généralise ce principe selon :\n<code>C = (a * P + b) mod 26</code>, où la clé multiplicative <code>a</code> doit être strictement première avec 26 (<code>pgcd(a, 26) == 1</code>) pour garantir l'inversibilité.<br><br>\nAnalysez les données fournies pour chaque cas. <code>CAESAR ENC k=&lt;entier&gt; text=&lt;texte&gt;</code> :<br>\n   Décale chaque lettre de <code>k</code> positions (A=0, ..., Z=25). Les minuscules sont converties en majuscules, les caractères non alphabétiques sont préservés.<br>\n2. <code>CAESAR DEC k=&lt;entier&gt; text=&lt;texte&gt;</code> :<br>\n   Déchiffre le texte avec la clé <code>k</code>.<br>\n3. <code>AFFINE ENC a=&lt;entier&gt; b=&lt;entier&gt; text=&lt;texte&gt;</code> :<br>\n   Si <code>pgcd(a, 26) != 1</code>, utilisez le format <code>ERROR: &lt;motif&gt;</code> avec le motif <code>gcd(a,26)!=1</code>.<br>\n   Sinon chiffre selon <code>C = (a * P + b) mod 26</code>.<br>\n4. <code>AFFINE DEC a=&lt;entier&gt; b=&lt;entier&gt; text=&lt;texte&gt;</code> :<br>\n   Si <code>pgcd(a, 26) != 1</code>, utilisez le format <code>ERROR: &lt;motif&gt;</code> avec le motif <code>gcd(a,26)!=1</code>.<br>\n   Sinon calcule <code>a_inv = pow(a, -1, 26)</code> et déchiffre selon <code>P = (a_inv * (C - b)) mod 26</code>.<br><br>\nPour toute opération réussie :<br>\n<code>OUT: &lt;texte_resultat&gt;</code></p>",
+    "starter": "# Grille d'analyse (cr3-c1-e1) — Chiffrement de César et substitution affine\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Déchiffrement de César]\n# Données : CAESAR DEC k=3 text=DWWDTXH D O'DXEH\nA_COMPLETER\n\n[Cas 2 — Opération B]\n# Données : AFFINE ENC a=5 b=8 text=SECRET\nA_COMPLETER\n\n[Cas 3 — Opération C]\n# Données : AFFINE DEC a=5 b=8 text=PCJW\nA_COMPLETER\n\n[Cas 4 — Opération D]\n# Données : AFFINE ENC a=4 b=3 text=HELLO\nA_COMPLETER\n",
     "hints": [
-      "Pour isoler text=, découpez la ligne en recherchant text= afin de préserver les espaces dans le message.",
-      "Utilisez math.gcd(a, 26) pour tester l inversibilité et pow(a, -1, 26) pour calculer l inverse modulaire de manière méthodique.8+."
+      "Comment associer chaque lettre à son indice sans modifier les espaces et la ponctuation ?",
+      "Pour le chiffre affine, que faut-il vérifier sur a et 26 avant de chercher l’inverse modulaire ?"
     ],
     "examples": [
       {
-        "stdin": "CAESAR ENC k=3 text=ATTAQUE A L'AUBE",
-        "expected": "OUT: DWWDTXH D O'DXEH",
+        "stdin": "CAESAR ENC k=3 text=BONJOUR",
+        "expected": "OUT: ERQMRXU",
         "note": "Chiffrement de César avec décalage de 3 positions."
       }
     ],
@@ -35,7 +35,7 @@ module.exports = [
       {
         "label": "Déchiffrement affine valide",
         "stdin": "cas:3",
-        "expected": "OUT: SECRET"
+        "expected": "OUT: REVI"
       },
       {
         "label": "Rejet clé affine non inversible",
@@ -43,7 +43,7 @@ module.exports = [
         "expected": "ERROR: gcd(a,26)!=1"
       }
     ],
-    "solution": "[Exemple]\nOUT: DWWDTXH D O'DXEH\n\n[Cas 1 — Déchiffrement de César]\nOUT: ATTAQUE A L'AUBE\n\n[Cas 2 — Chiffrement affine valide]\nOUT: UCSPCZ\n\n[Cas 3 — Déchiffrement affine valide]\nOUT: SECRET\n\n[Cas 4 — Rejet clé affine non inversible]\nERROR: gcd(a,26)!=1"
+    "solution": "[Exemple]\nOUT: ERQMRXU\n\n[Cas 1 — Déchiffrement de César]\nOUT: ATTAQUE A L'AUBE\n\n[Cas 2 — Chiffrement affine valide]\nOUT: UCSPCZ\n\n[Cas 3 — Déchiffrement affine valide]\nOUT: REVI\n\n[Cas 4 — Rejet clé affine non inversible]\nERROR: gcd(a,26)!=1"
   },
   {
     "id": "cr3-c1-e2",
@@ -51,18 +51,18 @@ module.exports = [
     "title": "Chiffre Polyalphabétique de Vigenère et Masque Jetable (OTP)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Réaliser le chiffrement et le déchiffrement polyalphabétique de Vigenère et valider les propriétés de sécurité d'un masque jetable (One-Time Pad).",
-    "brief": "<p>Le chiffre de Vigenère utilise une clé alphabétique répétée pour masquer les fréquences de lettres. Le masque jetable (Vernam / OTP) offre une confidentialité théorique parfaite si et seulement si la clé est purement aléatoire, au moins aussi longue que le message, et jamais réutilisée.<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>VIGENERE ENC key=&lt;cle&gt; text=&lt;texte&gt;</code> : chiffre le texte.<br>\n2. <code>VIGENERE DEC key=&lt;cle&gt; text=&lt;texte&gt;</code> : déchiffre le texte.<br>\n3. <code>OTP VERIFY key_len=&lt;k&gt; text_len=&lt;t&gt; reuse=&lt;true|false&gt;</code> :<br>\n   - Si <code>key_len &lt; text_len</code> : <code>OTP: INVALID (key shorter than message)</code><br>\n   - Sinon si <code>reuse == true</code> : <code>OTP: INVALID (key reused, vulnerable to two-time pad attack)</code><br>\n   - Sinon : <code>OTP: VALID (perfect secrecy achieved)</code><br><br>\nPour les opérations VIGENERE : <code>OUT: &lt;texte_resultat&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (cr3-c1-e2) — Chiffre Polyalphabétique de Vigenère et Masque Jetable (OTP)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Déchiffrement de Vigenère]\n# Données : VIGENERE DEC key=SECRET text=EIUJEZW GQEJBVIPKMXD\nA_COMPLETER\n\n[Cas 2 — Validation OTP conforme]\n# Données : OTP VERIFY key_len=64 text_len=64 reuse=false\nA_COMPLETER\n\n[Cas 3 — Clé OTP trop courte]\n# Données : OTP VERIFY key_len=32 text_len=64 reuse=false\nA_COMPLETER\n\n[Cas 4 — Réutilisation de clé OTP interdite]\n# Données : OTP VERIFY key_len=128 text_len=64 reuse=true\nA_COMPLETER\n",
+    "goal": "Analyser Vigenère et examiner deux conditions nécessaires déclarées sans prétendre prouver la sécurité d’un masque jetable.",
+    "brief": "<p>Le chiffre de Vigenère utilise une clé alphabétique répétée. Le masque jetable (Vernam / OTP) assure la confidentialité parfaite sous les hypothèses suivantes : clé secrète, uniformément aléatoire, indépendante du message, au moins aussi longue que lui et jamais réutilisée. Les longueurs et l’indicateur de réemploi sont des valeurs déclarées ; aucune clé ni aucun historique ne sont vérifiés. Ces paramètres ne permettent pas de démontrer la confidentialité parfaite : ils ne vérifient ni le secret, ni la distribution, ni l’indépendance. Une clé de zéros, assez longue et utilisée une seule fois, laisse pourtant le clair inchangé sous XOR.<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>VIGENERE ENC key=&lt;cle&gt; text=&lt;texte&gt;</code> : chiffre le texte.<br>\n2. <code>VIGENERE DEC key=&lt;cle&gt; text=&lt;texte&gt;</code> : déchiffre le texte.<br>\n3. <code>OTP VERIFY key_len=&lt;k&gt; text_len=&lt;t&gt; reuse=&lt;true|false&gt;</code> compare seulement les longueurs déclarées et l’indicateur de réemploi :<br>\n   Utilisez <code>OTP: &lt;statut&gt; (&lt;detail&gt;)</code>. Les statuts possibles sont <code>INVALID</code> et <code>CONDITIONS_NECESSAIRES_OK</code>. Les détails possibles sont <code>key shorter than message</code>, <code>key reused, vulnerable to two-time pad attack</code> et <code>perfect secrecy not verified</code>. Vérifiez d’abord la longueur, ensuite le réemploi, puis l’absence de ces deux motifs de rejet.<br><br>\nPour VIGENERE : <code>OUT: &lt;texte_resultat&gt;</code>.</p>",
+    "starter": "# Grille d'analyse (cr3-c1-e2) — Chiffre Polyalphabétique de Vigenère et Masque Jetable (OTP)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Opération A]\n# Données : VIGENERE DEC key=SECRET text=EIUJEZW GQEJBVIPKMXD\nA_COMPLETER\n\n[Cas 2 — Opération B]\n# Données : OTP VERIFY key_len=64 text_len=64 reuse=false\nA_COMPLETER\n\n[Cas 3 — Opération C]\n# Données : OTP VERIFY key_len=32 text_len=64 reuse=false\nA_COMPLETER\n\n[Cas 4 — Opération D]\n# Données : OTP VERIFY key_len=128 text_len=64 reuse=true\nA_COMPLETER\n",
     "hints": [
-      "Maintenez un index ki incrémenté uniquement lorsque le caractère courant est une lettre alphabétique.",
-      "Pour OTP, vérifiez d abord si key_len < text_len, puis si reuse est true, sinon déclarez valide."
+      "Pour Vigenère, avancez dans la clé uniquement sur les lettres et conservez les espaces.",
+      "La longueur et le non-réemploi sont nécessaires mais ne prouvent ni le secret, ni l’uniformité, ni l’indépendance de la clé."
     ],
     "examples": [
       {
-        "stdin": "VIGENERE ENC key=SECRET text=MESSAGE CONFIDENTIEL",
-        "expected": "OUT: EIUJEZW GQEJBVIPKMXD",
-        "note": "Chiffrement polyalphabétique avec la clé SECRET répétée."
+        "stdin": "VIGENERE ENC key=LUNE text=BONJOUR",
+        "expected": "OUT: MIANZOE",
+        "note": "Chiffrement polyalphabétique avec la clé LUNE répétée."
       }
     ],
     "tests": [
@@ -72,9 +72,9 @@ module.exports = [
         "expected": "OUT: MESSAGE CONFIDENTIEL"
       },
       {
-        "label": "Validation OTP conforme",
+        "label": "Conditions nécessaires satisfaites, sécurité non vérifiée",
         "stdin": "cas:2",
-        "expected": "OTP: VALID (perfect secrecy achieved)"
+        "expected": "OTP: CONDITIONS_NECESSAIRES_OK (perfect secrecy not verified)"
       },
       {
         "label": "Clé OTP trop courte",
@@ -87,7 +87,7 @@ module.exports = [
         "expected": "OTP: INVALID (key reused, vulnerable to two-time pad attack)"
       }
     ],
-    "solution": "[Exemple]\nOUT: EIUJEZW GQEJBVIPKMXD\n\n[Cas 1 — Déchiffrement de Vigenère]\nOUT: MESSAGE CONFIDENTIEL\n\n[Cas 2 — Validation OTP conforme]\nOTP: VALID (perfect secrecy achieved)\n\n[Cas 3 — Clé OTP trop courte]\nOTP: INVALID (key shorter than message)\n\n[Cas 4 — Réutilisation de clé OTP interdite]\nOTP: INVALID (key reused, vulnerable to two-time pad attack)"
+    "solution": "[Exemple]\nOUT: MIANZOE\n\n[Cas 1 — Déchiffrement de Vigenère]\nOUT: MESSAGE CONFIDENTIEL\n\n[Cas 2 — Conditions nécessaires satisfaites, sécurité non vérifiée]\nOTP: CONDITIONS_NECESSAIRES_OK (perfect secrecy not verified)\n\n[Cas 3 — Clé OTP trop courte]\nOTP: INVALID (key shorter than message)\n\n[Cas 4 — Réutilisation de clé OTP interdite]\nOTP: INVALID (key reused, vulnerable to two-time pad attack)"
   },
   {
     "id": "cr3-c1-e3",
@@ -95,9 +95,9 @@ module.exports = [
     "title": "Analyse Fréquentielle et Indice de Coïncidence (IC) pour Cryptanalyse",
     "level": "n3",
     "language": "analyse",
-    "goal": "Calculer l'Indice de Coïncidence (IC) d'un texte et identifier les fréquences majeures pour distinguer chiffrement monoalphabétique et polyalphabétique.",
-    "brief": "<p>L'Indice de Coïncidence de Friedman est défini par :<br>\n<code>IC = sum(f_i * (f_i - 1)) / (N * (N - 1))</code><br>\noù <code>f_i</code> est la fréquence de chaque lettre (A-Z) et <code>N</code> est le nombre total de lettres.<br><br>\nOpérations soumises à l’analyse : <code>ANALYZE text=&lt;texte&gt;</code><br>\n1. Si <code>N &lt; 2</code> : <code>ERROR: TEXT_TOO_SHORT</code>.<br>\n2. Calculer <code>IC</code> (4 décimales).<br>\n3. Qualifier le type :<br>\n   - Si <code>IC &gt;= 0.0650</code> : <code>TYPE=MONOALPHABETIC</code><br>\n   - Sinon si <code>IC &gt;= 0.0450</code> : <code>TYPE=POLYALPHABETIC_SHORT_KEY</code><br>\n   - Sinon : <code>TYPE=POLYALPHABETIC_OR_RANDOM</code><br>\n4. Identifier le top 3 : <code>TOP=L1(c1),L2(c2),L3(c3)</code> trié par occurrences décroissantes puis alphabétiquement.<br><br>\nFormat de sortie : <code>N=&lt;N&gt; IC=&lt;IC:.4f&gt; TYPE=&lt;TYPE&gt; TOP=&lt;TOP&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (cr3-c1-e3) — Analyse Fréquentielle et Indice de Coïncidence (IC) pour Cryptanalyse\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Texte chiffré par César conservant l IC monoalphabétique]\n# Données : ANALYZE text=OH SHWLW FKDSHURQ URXJH VH SURPHQDLW GDQV OD IRUHW WRXW VHXO HW UHQFRQWUD OH ORXS\nA_COMPLETER\n\n[Cas 2 — Texte aplati polyalphabétique ou aléatoire]\n# Données : ANALYZE text=WZKX PLMZ OJQY RTVA BXZP QWMC VBNM LKJH GFDS AZXC VBNM QWER TYUI OPAS DFGH JKLL ZXC\nA_COMPLETER\n\n[Cas 3 — Texte trop court pour le calcul d IC]\n# Données : ANALYZE text=A\nA_COMPLETER\n",
+    "goal": "Calculer l’indice de coïncidence et les fréquences, puis appliquer un barème indicatif sans identifier le chiffrement avec certitude.",
+    "brief": "<p>L'Indice de Coïncidence de Friedman est défini par :<br>\n<code>IC = sum(f_i * (f_i - 1)) / (N * (N - 1))</code><br>\noù <code>f_i</code> est la fréquence de chaque lettre (A-Z) et <code>N</code> est le nombre total de lettres.<br><br>\nOpérations soumises à l’analyse : <code>ANALYZE text=&lt;texte&gt;</code><br>\n1. Si <code>N &lt; 2</code>, utilisez le format <code>ERROR: &lt;motif&gt;</code> avec le motif <code>TEXT_TOO_SHORT</code>.<br>\n2. Calculer <code>IC</code> (4 décimales).<br>\n3. Attribuer une catégorie selon le barème fictif ci-dessous ; elle suggère une piste, sans identifier avec certitude le type de chiffrement :<br>\n   - Si <code>IC &gt;= 0.0650</code> : <code>TYPE=MONOALPHABETIC</code><br>\n   - Sinon si <code>IC &gt;= 0.0450</code> : <code>TYPE=POLYALPHABETIC_SHORT_KEY</code><br>\n   - Sinon : <code>TYPE=POLYALPHABETIC_OR_RANDOM</code><br>\n4. Identifier le top 3 : <code>TOP=L1(c1),L2(c2),L3(c3)</code> trié par occurrences décroissantes puis alphabétiquement.<br><br>\nFormat de sortie : <code>N=&lt;N&gt; IC=&lt;IC:.4f&gt; TYPE=&lt;TYPE&gt; TOP=&lt;TOP&gt;</code>.</p>",
+    "starter": "# Grille d'analyse (cr3-c1-e3) — Analyse Fréquentielle et Indice de Coïncidence (IC) pour Cryptanalyse\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Texte A]\n# Données : ANALYZE text=OH SHWLW FKDSHURQ URXJH VH SURPHQDLW GDQV OD IRUHW WRXW VHXO HW UHQFRQWUD OH ORXS\nA_COMPLETER\n\n[Cas 2 — Texte B]\n# Données : ANALYZE text=WZKX PLMZ OJQY RTVA BXZP QWMC VBNM LKJH GFDS AZXC VBNM QWER TYUI OPAS DFGH JKLL ZXC\nA_COMPLETER\n\n[Cas 3 — Texte C]\n# Données : ANALYZE text=A\nA_COMPLETER\n",
     "hints": [
       "Filtrez le texte pour ne conserver que les 26 lettres de l'alphabet en majuscules.",
       "Classez les lettres par nombre d'occurrences décroissant, puis par ordre alphabétique en cas d'égalité."
@@ -490,67 +490,72 @@ module.exports = [
     "title": "Simulateur de Signature Numérique et Vérification (RSA Sign & Verify)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Implémenter la signature numérique RSA d'un message haché et sa vérification avec la clé publique.",
-    "brief": "<p>Une signature numérique lie cryptographiquement l'empreinte d'un message à la clé privée de l'émetteur :<br>\n- Empreinte : <code>h = int(sha256(M), 16) mod n</code>.<br>\n- Signature : <code>sig = pow(h, d, n)</code>.<br>\n- Vérification : <code>h_recupere = pow(sig, e, n)</code>.<br>\n- Si <code>h == h_recupere</code>, la signature est valide.<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>SIGN n=&lt;n&gt; d=&lt;d&gt; text=&lt;texte&gt;</code> : produit <code>SIGN: n=&lt;n&gt; digest_mod=&lt;h&gt; sig=&lt;sig&gt;</code>.<br>\n2. <code>VERIFY n=&lt;n&gt; e=&lt;e&gt; sig=&lt;sig&gt; text=&lt;texte&gt;</code> :<br>\n   - Si valide : <code>VERIFY: status=VALID_SIGNATURE (authentic & untampered)</code><br>\n   - Si invalide : <code>VERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)</code></p>",
-    "starter": "# Grille d'analyse (cr3-c5-e1) — Simulateur de Signature Numérique et Vérification (RSA Sign & Verify)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Vérification signature valide]\n# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_OFFICIEL\nA_COMPLETER\n\n[Cas 2 — Détection d altération de message sous signature]\n# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_FALSIFIE\nA_COMPLETER\n\n[Cas 3 — Rejet signature numérique corrompue]\n# Données : VERIFY n=3233 e=17 sig=9999 text=CONTRAT_OFFICIEL\nA_COMPLETER\n",
+    "goal": "Effectuer un calcul RSA brut jouet, reconnaître ses limites et distinguer une signature RSA-PSS réelle.",
+    "brief": "<p>Ce calcul jouet de RSA brut avec un très petit module ne fournit aucune garantie de sécurité. La réduction de SHA-256 modulo <code>n</code> crée facilement des collisions : une égalité ne prouve ni l’authenticité ni l’absence d’altération. En pratique, utiliser une bibliothèque et un schéma standard comme RSA-PSS (RFC 8017).<br><br>\nDans ce modèle pédagogique : <code>h = int(sha256(M), 16) mod n</code>, <code>sig = pow(h, d, n)</code> et <code>h_recupere = pow(sig, e, n)</code>.<br>\n1. <code>SIGN n=&lt;n&gt; d=&lt;d&gt; text=&lt;texte&gt;</code> produit <code>SIGN: n=&lt;n&gt; digest_mod=&lt;h&gt; sig=&lt;sig&gt;</code>.<br>\n2. <code>VERIFY n=&lt;n&gt; e=&lt;e&gt; sig=&lt;sig&gt; text=&lt;texte&gt;</code> :<br>\n   - Si <code>sig &lt; 0</code> ou <code>sig &gt;= n</code> : <code>VERIFY: status=SIGNATURE_OUT_OF_RANGE</code>.<br>\n   - Si les valeurs réduites coïncident : <code>VERIFY: status=TOY_MATCH (no_security_guarantee)</code>.<br>\n   - Sinon : <code>VERIFY: status=TOY_MISMATCH</code>.<br>\nComparer notamment deux messages distincts avec la même signature dans les cas 1 et 4.</p>",
+    "starter": "# Grille d'analyse (cr3-c5-e1) — Simulateur de Signature Numérique et Vérification (RSA Sign & Verify)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Égalité des valeurs pour le premier message]\n# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_OFFICIEL\nA_COMPLETER\n\n[Cas 2 — Valeurs réduites différentes]\n# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_FALSIFIE\nA_COMPLETER\n\n[Cas 3 — Signature hors de la plage du module]\n# Données : VERIFY n=3233 e=17 sig=9999 text=CONTRAT_OFFICIEL\nA_COMPLETER\n\n[Cas 4 — Collision avec un autre message]\n# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_COLLISION_13147\nA_COMPLETER\n",
     "hints": [
       "Calculez h = int(hashlib.sha256(text.encode(\"utf-8\")).hexdigest(), 16) % n.",
-      "Pour vérifier, calculez pow(sig, e, n) et comparez directement avec h."
+      "Vérifiez d’abord 0 <= sig < n, puis comparez pow(sig, e, n) à h : une égalité ne prouve pas la sécurité."
     ],
     "examples": [
       {
         "stdin": "SIGN n=3233 d=2753 text=CONTRAT_OFFICIEL",
         "expected": "SIGN: n=3233 digest_mod=566 sig=1706",
-        "note": "Signature calculée avec la clé privée (d=2753) sur le condensé modulo 3233."
+        "note": "Calcul jouet avec un petit module, sans garantie de sécurité."
       }
     ],
     "tests": [
       {
-        "label": "Vérification signature valide",
+        "label": "Égalité des valeurs pour le premier message",
         "stdin": "cas:1",
-        "expected": "VERIFY: status=VALID_SIGNATURE (authentic & untampered)"
+        "expected": "VERIFY: status=TOY_MATCH (no_security_guarantee)"
       },
       {
-        "label": "Détection d altération de message sous signature",
+        "label": "Valeurs réduites différentes",
         "stdin": "cas:2",
-        "expected": "VERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)"
+        "expected": "VERIFY: status=TOY_MISMATCH"
       },
       {
-        "label": "Rejet signature numérique corrompue",
+        "label": "Signature hors de la plage du module",
         "stdin": "cas:3",
-        "expected": "VERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)"
+        "expected": "VERIFY: status=SIGNATURE_OUT_OF_RANGE"
+      },
+      {
+        "label": "Collision avec un autre message",
+        "stdin": "cas:4",
+        "expected": "VERIFY: status=TOY_MATCH (no_security_guarantee)"
       }
     ],
-    "solution": "[Exemple]\nSIGN: n=3233 digest_mod=566 sig=1706\n\n[Cas 1 — Vérification signature valide]\nVERIFY: status=VALID_SIGNATURE (authentic & untampered)\n\n[Cas 2 — Détection d altération de message sous signature]\nVERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)\n\n[Cas 3 — Rejet signature numérique corrompue]\nVERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)"
+    "solution": "[Exemple]\nSIGN: n=3233 digest_mod=566 sig=1706\n\n[Cas 1 — Égalité des valeurs pour le premier message]\nVERIFY: status=TOY_MATCH (no_security_guarantee)\n\n[Cas 2 — Valeurs réduites différentes]\nVERIFY: status=TOY_MISMATCH\n\n[Cas 3 — Signature hors de la plage du module]\nVERIFY: status=SIGNATURE_OUT_OF_RANGE\n\n[Cas 4 — Collision avec un autre message]\nVERIFY: status=TOY_MATCH (no_security_guarantee)"
   },
   {
     "id": "cr3-c5-e2",
     "chapter": 5,
-    "title": "Validateur de Structure et de Validité Temporelle de Certificat X.509",
+    "title": "Contrôle Partiel d’un Nom DNS SAN et des Dates d’un Certificat X.509",
     "level": "n2",
     "language": "analyse",
-    "goal": "Valider la conformité temporelle et l'admissibilité du nom de domaine (Common Name et SAN avec wildcards) d'un certificat X.509.",
-    "brief": "<p>Un certificat X.509 lie une identité à une clé publique.<br>\nCritères de validation :<br>\n1. Validité temporelle :<br>\n   - Si <code>date &lt; not_before</code> : <code>STATUS=INVALID reason=NOT_YET_VALID</code><br>\n   - Si <code>date &gt; not_after</code> : <code>STATUS=INVALID reason=CERTIFICATE_EXPIRED</code><br>\n2. Correspondance du nom d'hôte :<br>\n   - Le FQDN doit correspondre à <code>cn</code> ou à un nom dans <code>san</code>.<br>\n   - Un wildcard <code>*.domaine.corp</code> couvre tout sous-domaine de niveau 1 (ex: <code>web.domaine.corp</code>).<br>\n   - Si aucune correspondance : <code>STATUS=INVALID reason=HOSTNAME_MISMATCH</code>.<br>\n3. Si conforme : <code>STATUS=VALID fqdn=&lt;fqdn&gt; valid_until=&lt;not_after&gt; ca=&lt;is_ca&gt;</code>.<br><br>\nParamètres soumis à l’analyse : <code>CERT_VALIDATE fqdn=&lt;fqdn&gt; date=&lt;date&gt; cn=&lt;cn&gt; san=&lt;san&gt; not_before=&lt;date&gt; not_after=&lt;date&gt; is_ca=&lt;bool&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (cr3-c5-e2) — Validateur de Structure et de Validité Temporelle de Certificat X.509\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Validation FQDN par wildcard SAN]\n# Données : CERT_VALIDATE fqdn=web.cloud.corp date=2026-10-15 cn=cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 2 — Rejet FQDN ne figurant ni dans CN ni dans SAN]\n# Données : CERT_VALIDATE fqdn=hacker.net date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 3 — Rejet certificat expiré]\n# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2028-05-01 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 4 — Rejet certificat pas encore valide]\n# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2025-11-01 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n",
+    "goal": "Contrôler les dates et un nom DNS dans le SAN sans prétendre valider complètement le certificat.",
+    "brief": "<p>Ce modèle vérifie uniquement des dates ISO et un nom DNS dans des entrées dNSName du SAN. Selon la RFC 9525, le CN est ignoré pour identifier le service, même s’il correspond au nom demandé. Le SAN contient ici une liste de noms séparés par des virgules, comparés sans tenir compte de la casse ; <code>san=-</code> indique un SAN absent.<br>\nUne entrée <code>*.cloud.corp</code> ne couvre qu’un seul label à gauche : <code>web.cloud.corp</code>, mais ni <code>cloud.corp</code> ni <code>api.dev.cloud.corp</code>.<br>\nContrôle partiel seulement : chaîne : non contrôlée ; les signatures, l’ancre de confiance, les contraintes et usages, ainsi que la révocation restent à vérifier. Le champ <code>is_ca</code> est seulement recopié et n’est pas validé.<br><br>\nRègles :<br>\n1. Si <code>date &lt; not_before</code> : <code>STATUS=INVALID reason=NOT_YET_VALID</code>.<br>\n2. Si <code>date &gt; not_after</code> : <code>STATUS=INVALID reason=CERTIFICATE_EXPIRED</code> ; les deux bornes sont incluses.<br>\n3. Si aucun DNS-ID du SAN ne correspond : <code>STATUS=INVALID reason=HOSTNAME_MISMATCH</code>.<br>\n4. Si ces deux contrôles passent : <code>STATUS=PARTIAL fqdn=&lt;fqdn&gt; valid_until=&lt;not_after&gt; ca=&lt;is_ca&gt; chain=NOT_CHECKED</code>.<br><br>\nParamètres : <code>CERT_VALIDATE fqdn=&lt;fqdn&gt; date=&lt;date&gt; cn=&lt;cn&gt; san=&lt;san&gt; not_before=&lt;date&gt; not_after=&lt;date&gt; is_ca=&lt;bool&gt;</code>.</p>",
+    "starter": "# Grille d'analyse (cr3-c5-e2) — Contrôle Partiel d’un Nom DNS SAN et des Dates d’un Certificat X.509\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Correspondance partielle par wildcard SAN]\n# Données : CERT_VALIDATE fqdn=web.cloud.corp date=2026-10-15 cn=cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 2 — CN correspondant mais SAN absent]\n# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=- not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 3 — Rejet certificat expiré]\n# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2028-05-01 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 4 — Rejet certificat pas encore valide]\n# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2025-11-01 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 5 — CN correspondant mais SAN différent]\n# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=www.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 6 — Wildcard ne couvrant pas deux labels]\n# Données : CERT_VALIDATE fqdn=api.dev.cloud.corp date=2026-10-15 cn=api.dev.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n\n[Cas 7 — Wildcard ne couvrant pas le domaine racine]\n# Données : CERT_VALIDATE fqdn=cloud.corp date=2026-10-15 cn=cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false\nA_COMPLETER\n",
     "hints": [
-      "Comparez lexicographiquement les dates au format ISO YYYY-MM-DD.",
-      "Pour les wildcards, vérifiez si le motif commence par \"*.\" et découpez le nom pour tester qu il s agit d un sous-domaine direct sans point supplémentaire."
+      "Comparez les dates ISO YYYY-MM-DD avec bornes incluses, puis ignorez le CN pour la correspondance du nom.",
+      "Un wildcard complet dans le label le plus à gauche couvre exactement un label ; même si les contrôles passent, la chaîne reste non contrôlée."
     ],
     "examples": [
       {
         "stdin": "CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp,cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false",
-        "expected": "STATUS=VALID fqdn=api.cloud.corp valid_until=2027-01-01 ca=false",
-        "note": "Certificat en cours de validité avec correspondance exacte FQDN."
+        "expected": "STATUS=PARTIAL fqdn=api.cloud.corp valid_until=2027-01-01 ca=false chain=NOT_CHECKED",
+        "note": "Dates et wildcard SAN correspondent ; la chaîne n’est pas vérifiée."
       }
     ],
     "tests": [
       {
-        "label": "Validation FQDN par wildcard SAN",
+        "label": "Correspondance partielle par wildcard SAN",
         "stdin": "cas:1",
-        "expected": "STATUS=VALID fqdn=web.cloud.corp valid_until=2027-01-01 ca=false"
+        "expected": "STATUS=PARTIAL fqdn=web.cloud.corp valid_until=2027-01-01 ca=false chain=NOT_CHECKED"
       },
       {
-        "label": "Rejet FQDN ne figurant ni dans CN ni dans SAN",
+        "label": "CN correspondant mais SAN absent",
         "stdin": "cas:2",
         "expected": "STATUS=INVALID reason=HOSTNAME_MISMATCH"
       },
@@ -563,48 +568,73 @@ module.exports = [
         "label": "Rejet certificat pas encore valide",
         "stdin": "cas:4",
         "expected": "STATUS=INVALID reason=NOT_YET_VALID"
+      },
+      {
+        "label": "CN correspondant mais SAN différent",
+        "stdin": "cas:5",
+        "expected": "STATUS=INVALID reason=HOSTNAME_MISMATCH"
+      },
+      {
+        "label": "Wildcard ne couvrant pas deux labels",
+        "stdin": "cas:6",
+        "expected": "STATUS=INVALID reason=HOSTNAME_MISMATCH"
+      },
+      {
+        "label": "Wildcard ne couvrant pas le domaine racine",
+        "stdin": "cas:7",
+        "expected": "STATUS=INVALID reason=HOSTNAME_MISMATCH"
       }
     ],
-    "solution": "[Exemple]\nSTATUS=VALID fqdn=api.cloud.corp valid_until=2027-01-01 ca=false\n\n[Cas 1 — Validation FQDN par wildcard SAN]\nSTATUS=VALID fqdn=web.cloud.corp valid_until=2027-01-01 ca=false\n\n[Cas 2 — Rejet FQDN ne figurant ni dans CN ni dans SAN]\nSTATUS=INVALID reason=HOSTNAME_MISMATCH\n\n[Cas 3 — Rejet certificat expiré]\nSTATUS=INVALID reason=CERTIFICATE_EXPIRED\n\n[Cas 4 — Rejet certificat pas encore valide]\nSTATUS=INVALID reason=NOT_YET_VALID"
+    "solution": "[Exemple]\nSTATUS=PARTIAL fqdn=api.cloud.corp valid_until=2027-01-01 ca=false chain=NOT_CHECKED\n\n[Cas 1 — Correspondance partielle par wildcard SAN]\nSTATUS=PARTIAL fqdn=web.cloud.corp valid_until=2027-01-01 ca=false chain=NOT_CHECKED\n\n[Cas 2 — CN correspondant mais SAN absent]\nSTATUS=INVALID reason=HOSTNAME_MISMATCH\n\n[Cas 3 — Rejet certificat expiré]\nSTATUS=INVALID reason=CERTIFICATE_EXPIRED\n\n[Cas 4 — Rejet certificat pas encore valide]\nSTATUS=INVALID reason=NOT_YET_VALID\n\n[Cas 5 — CN correspondant mais SAN différent]\nSTATUS=INVALID reason=HOSTNAME_MISMATCH\n\n[Cas 6 — Wildcard ne couvrant pas deux labels]\nSTATUS=INVALID reason=HOSTNAME_MISMATCH\n\n[Cas 7 — Wildcard ne couvrant pas le domaine racine]\nSTATUS=INVALID reason=HOSTNAME_MISMATCH"
   },
   {
     "id": "cr3-c5-e3",
     "chapter": 5,
-    "title": "Contrôleur de Chaîne de Certification PKI et Révocation (CRL/OCSP)",
+    "title": "Contrôle Partiel de Chaîne PKI et de Liste de Révocation Fictive",
     "level": "n3",
     "language": "analyse",
-    "goal": "Vérifier la validité d'une chaîne de confiance PKI complète et contrôler l'absence de certificats révoqués dans la liste CRL.",
-    "brief": "<p>Contrôle de conformité d'une chaîne PKI :<br>\n- Ligne d'en-tête : <code>PKI_CHAIN trust_root=&lt;root&gt; crl_revoked=&lt;s1,s2,...&gt;</code>.<br>\n- Certificats (de la feuille à la racine) : <code>CERT subject=&lt;s&gt; issuer=&lt;i&gt; serial=&lt;ser&gt; is_ca=&lt;bool&gt;</code>.<br><br>\nRègles :<br>\n1. Révocation : si un serial est dans <code>crl_revoked</code> : <code>CHAIN: INVALID reason=REVOKED_CERTIFICATE serial=&lt;ser&gt; subject=&lt;s&gt;</code>.<br>\n2. Liaison : pour tout certificat i &lt; N-1, <code>cert[i].issuer == cert[i+1].subject</code>. Sinon <code>CHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=&lt;cert[i].subject&gt;</code>.<br>\n3. Émetteur : <code>cert[i+1].is_ca == True</code>. Sinon <code>CHAIN: INVALID reason=INTERMEDIATE_NOT_CA subject=&lt;cert[i+1].subject&gt;</code>.<br>\n4. Racine : le dernier certificat doit être auto-signé (<code>issuer == subject</code>) et égal à <code>trust_root</code>. Sinon <code>CHAIN: INVALID reason=UNTRUSTED_ROOT root=&lt;root&gt;</code>.<br>\n5. Succès : <code>CHAIN: VALID depth=&lt;N&gt; root=&lt;root&gt; leaf=&lt;leaf&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (cr3-c5-e3) — Contrôleur de Chaîne de Certification PKI et Révocation (CRL/OCSP)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Rejet certificat révoqué dans la CRL]\n# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-1001\n# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n\n[Cas 2 — Rupture de liaison d émetteur dans la chaîne]\n# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999\n# Données : CERT subject=api.bank.com issuer=Rogue_Intermediate serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n\n[Cas 3 — Racine non présente dans le magasin de confiance]\n# Données : PKI_CHAIN trust_root=Official_Root_CA crl_revoked=none\n# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=Fake_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=Fake_Root_CA issuer=Fake_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n",
+    "goal": "Effectuer un contrôle partiel des noms et d’une liste de révocation fictive, sans valider une chaîne PKI réelle.",
+    "brief": "<p>Ce modèle contrôle uniquement des chaînes de noms et des numéros de série dans une liste fictive. Les signatures des certificats et de la liste sont non vérifiées ; les dates, contraintes complètes, usages, identité du service, authenticité de l’ancre et fraîcheur de révocation ne sont pas vérifiés non plus. Il ne valide pas une chaîne PKI réelle et n’interroge pas OCSP. Tous les diagnostics, même négatifs, ne concernent que les données fictives et ne certifient pas le statut réel.<br>\nUn sujet égal à l’émetteur indique ici un certificat auto-émis, pas la preuve qu’il est auto-signé. <code>trust_root</code> est seulement un nom attendu, non une ancre cryptographique vérifiée.<br><br>\nLigne d’en-tête : <code>PKI_CHAIN trust_root=&lt;root&gt; crl_revoked=&lt;s1,s2,...&gt;</code>.<br>\nCertificats de la feuille à la racine : <code>CERT subject=&lt;s&gt; issuer=&lt;i&gt; serial=&lt;ser&gt; is_ca=&lt;bool&gt;</code>.<br><br>\nRègles de ce modèle :<br>\n1. Si un numéro de série figure dans la liste : <code>CHAIN: INVALID reason=REVOKED_CERTIFICATE serial=&lt;ser&gt; subject=&lt;s&gt;</code>.<br>\n2. Pour tout certificat i &lt; N-1, comparer <code>cert[i].issuer == cert[i+1].subject</code> ; sinon <code>CHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=&lt;cert[i].subject&gt;</code>.<br>\n3. Vérifier l’indicateur déclaré <code>cert[i+1].is_ca == true</code> ; sinon <code>CHAIN: INVALID reason=INTERMEDIATE_NOT_CA subject=&lt;cert[i+1].subject&gt;</code>.<br>\n4. Le dernier sujet doit égaler son émetteur et <code>trust_root</code> ; sinon <code>CHAIN: INVALID reason=UNTRUSTED_ROOT root=&lt;root&gt;</code>.<br>\n5. Si ces seuls contrôles passent : <code>CHAIN: PARTIAL depth=&lt;N&gt; root=&lt;root&gt; leaf=&lt;leaf&gt; signatures=NOT_CHECKED</code>.</p>",
+    "starter": "# Grille d'analyse (cr3-c5-e3) — Contrôle Partiel de Chaîne PKI et de Liste de Révocation Fictive\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Numéro de série présent dans la liste fictive]\n# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-1001\n# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n\n[Cas 2 — Rupture de liaison des noms d’émetteur]\n# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999\n# Données : CERT subject=api.bank.com issuer=Rogue_Intermediate serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n\n[Cas 3 — Nom de racine différent du nom attendu]\n# Données : PKI_CHAIN trust_root=Official_Root_CA crl_revoked=none\n# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=Fake_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=Fake_Root_CA issuer=Fake_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n\n[Cas 4 — Noms cohérents mais signatures non contrôlées]\n# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999\n# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true\n# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n\n[Cas 5 — Émetteur intermédiaire sans indicateur CA]\n# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999\n# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\n# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=false\n# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true\nA_COMPLETER\n",
     "hints": [
-      "Contrôlez en premier lieu l’état de révocation du certificat en consultant la liste de révocation (CRL) ou le protocole OCSP.",
-      "Validez l’ensemble de la chaîne de confiance en vérifiant que chaque certificat intermédiaire est signé par l’autorité supérieure."
+      "Comparez les numéros de série à la liste fictive avant de vérifier les noms et les indicateurs CA.",
+      "Des noms cohérents ne vérifient pas les signatures ni l’ancre de confiance : le verdict positif reste partiel."
     ],
     "examples": [
       {
         "stdin": "PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999\nCERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false\nCERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true\nCERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true",
-        "expected": "CHAIN: VALID depth=3 root=DigiTrust_Root_CA leaf=api.bank.com",
-        "note": "Chaîne PKI 3 niveaux intacte liée à la racine de confiance."
+        "expected": "CHAIN: PARTIAL depth=3 root=DigiTrust_Root_CA leaf=api.bank.com signatures=NOT_CHECKED",
+        "note": "Contrôles de noms et liste fictive seulement ; les signatures et la confiance réelle ne sont pas vérifiées."
       }
     ],
     "tests": [
       {
-        "label": "Rejet certificat révoqué dans la CRL",
+        "label": "Numéro de série présent dans la liste fictive",
         "stdin": "cas:1",
         "expected": "CHAIN: INVALID reason=REVOKED_CERTIFICATE serial=SN-1001 subject=api.bank.com"
       },
       {
-        "label": "Rupture de liaison d émetteur dans la chaîne",
+        "label": "Rupture de liaison des noms d’émetteur",
         "stdin": "cas:2",
         "expected": "CHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=api.bank.com"
       },
       {
-        "label": "Racine non présente dans le magasin de confiance",
+        "label": "Nom de racine différent du nom attendu",
         "stdin": "cas:3",
         "expected": "CHAIN: INVALID reason=UNTRUSTED_ROOT root=Fake_Root_CA"
+      },
+      {
+        "label": "Noms cohérents mais signatures non contrôlées",
+        "stdin": "cas:4",
+        "expected": "CHAIN: PARTIAL depth=3 root=DigiTrust_Root_CA leaf=api.bank.com signatures=NOT_CHECKED"
+      },
+      {
+        "label": "Émetteur intermédiaire sans indicateur CA",
+        "stdin": "cas:5",
+        "expected": "CHAIN: INVALID reason=INTERMEDIATE_NOT_CA subject=DigiTrust_Intermediate_CA"
       }
     ],
-    "solution": "[Exemple]\nCHAIN: VALID depth=3 root=DigiTrust_Root_CA leaf=api.bank.com\n\n[Cas 1 — Rejet certificat révoqué dans la CRL]\nCHAIN: INVALID reason=REVOKED_CERTIFICATE serial=SN-1001 subject=api.bank.com\n\n[Cas 2 — Rupture de liaison d émetteur dans la chaîne]\nCHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=api.bank.com\n\n[Cas 3 — Racine non présente dans le magasin de confiance]\nCHAIN: INVALID reason=UNTRUSTED_ROOT root=Fake_Root_CA"
+    "solution": "[Exemple]\nCHAIN: PARTIAL depth=3 root=DigiTrust_Root_CA leaf=api.bank.com signatures=NOT_CHECKED\n\n[Cas 1 — Numéro de série présent dans la liste fictive]\nCHAIN: INVALID reason=REVOKED_CERTIFICATE serial=SN-1001 subject=api.bank.com\n\n[Cas 2 — Rupture de liaison des noms d’émetteur]\nCHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=api.bank.com\n\n[Cas 3 — Nom de racine différent du nom attendu]\nCHAIN: INVALID reason=UNTRUSTED_ROOT root=Fake_Root_CA\n\n[Cas 4 — Noms cohérents mais signatures non contrôlées]\nCHAIN: PARTIAL depth=3 root=DigiTrust_Root_CA leaf=api.bank.com signatures=NOT_CHECKED\n\n[Cas 5 — Émetteur intermédiaire sans indicateur CA]\nCHAIN: INVALID reason=INTERMEDIATE_NOT_CA subject=DigiTrust_Intermediate_CA"
   },
   {
     "id": "cr3-c6-e1",
@@ -612,77 +642,117 @@ module.exports = [
     "title": "Analyseur de Suite Cryptographique TLS (Cipher Suite Parser)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Analyser une suite cryptographique TLS pour déterminer sa version, ses primitives, sa garantie de confidentialité persistante (PFS) et sa conformité.",
-    "brief": "<p>Une suite TLS définit l'assemblage de primitives cryptographiques pour une session.<br>\nRègles :<br>\n1. Suites TLS 1.3 : (ex: <code>TLS_AES_256_GCM_SHA384</code>, <code>TLS_AES_128_GCM_SHA256</code>, <code>TLS_CHACHA20_POLY1305_SHA256</code>) :<br>\n   <code>ver=TLS1.3 kex=ECDHE/DHE enc=&lt;algo&gt; pfs=YES status=SECURE</code>.<br>\n2. Suites TLS 1.2 : comportent <code>_WITH_</code> :<br>\n   - <code>pfs=YES</code> si l'échange contient <code>DHE</code> ou <code>ECDHE</code>, sinon <code>pfs=NO</code>.<br>\n   - Si le chiffrement contient <code>RC4</code>, <code>DES</code>, <code>3DES</code>, <code>NULL</code> ou <code>EXPORT</code> :<br>\n     <code>status=INSECURE (deprecated cipher)</code><br>\n   - Sinon si <code>pfs == NO</code> : <code>status=WEAK (no forward secrecy)</code><br>\n   - Sinon : <code>status=SECURE</code>.<br><br>\nCommande : <code>PARSE_SUITE suite=&lt;nom_suite&gt;</code>.<br>\nRésultat d’analyse attendu : <code>SUITE: &lt;nom&gt; ver=&lt;ver&gt; kex=&lt;kex&gt; enc=&lt;enc&gt; pfs=&lt;pfs&gt; status=&lt;status&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (cr3-c6-e1) — Analyseur de Suite Cryptographique TLS (Cipher Suite Parser)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Suite standard TLS 1.3]\n# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384\nA_COMPLETER\n\n[Cas 2 — Suite TLS 1.2 sans confidentialité persistante]\n# Données : PARSE_SUITE suite=TLS_RSA_WITH_AES_256_CBC_SHA256\nA_COMPLETER\n\n[Cas 3 — Suite TLS dépréciée et vulnérable]\n# Données : PARSE_SUITE suite=TLS_RSA_WITH_RC4_128_SHA\nA_COMPLETER\n",
+    "goal": "Analyser une suite et les paramètres TLS négociés sans déduire la PFS du seul nom TLS 1.3.",
+    "brief": "<p>En TLS 1.3, la suite indique l’AEAD et la fonction de hachage HKDF ; elle ne détermine ni le mode d’échange, ni le groupe, ni la PFS. Le mode, le groupe et la phase doivent être connus séparément. Ce modèle traite les paramètres des cas sans vérifier une négociation réelle ni la sécurité globale. <code>dhe</code> désigne ici un échange éphémère sans PSK ; ce n’est pas un mode PSK TLS.<br><br>\nPour les suites TLS 1.3 du modèle, analyser <code>PARSE_SUITE suite=&lt;nom&gt; mode=&lt;mode&gt; group=&lt;groupe&gt; phase=&lt;phase&gt;</code>. Pour chaque paramètre absent, afficher <code>UNKNOWN</code> ; si des informations nécessaires manquent, afficher <code>pfs=UNKNOWN status=PARAMETERS_REQUIRED</code>.<br>\nEn <code>phase=1-rtt</code>, <code>mode=psk_ke group=none</code> donne <code>pfs=NO</code> dans ce modèle ; <code>mode=dhe</code> ou <code>mode=psk_dhe_ke</code> avec un groupe éphémère donne <code>pfs=CONDITIONAL</code>, sous réserve d’authentification et d’effacement des secrets éphémères. En <code>phase=0-rtt</code>, la PFS est <code>NOT_GUARANTEED</code>, quel que soit le mode ultérieur ; les données anticipées présentent un risque de rejeu. Lorsque ces paramètres sont indiqués, <code>status=PARAMETERS_ONLY</code> n’est pas une certification de sécurité.<br>\nPour les suites avec <code>_WITH_</code>, on suppose TLS 1.2 : leur nom ne prouve pas la version négociée. Extraire échange, chiffrement et hachage. Un échange ECDHE/DHE indique <code>pfs=CONDITIONAL status=PARAMETERS_ONLY</code> ; RSA statique indique <code>pfs=NO status=WEAK_NO_PFS</code>. RC4, DES, 3DES, NULL ou EXPORT conduit à <code>status=INSECURE</code>.<br><br>\nFormat TLS 1.3 : <code>SUITE: &lt;nom&gt; ver=TLS1.3 kex=&lt;mode&gt; group=&lt;groupe&gt; phase=&lt;phase&gt; enc=&lt;algorithme&gt; hash=&lt;hachage&gt; pfs=&lt;pfs&gt; status=&lt;statut&gt;</code>.<br>\nFormat TLS 1.2 : <code>SUITE: &lt;nom&gt; ver=TLS1.2 kex=&lt;échange&gt; enc=&lt;algorithme&gt; hash=&lt;hachage&gt; pfs=&lt;pfs&gt; status=&lt;statut&gt;</code>.</p>",
+    "starter": "# Grille d'analyse (cr3-c6-e1) — Analyseur de Suite Cryptographique TLS (Cipher Suite Parser)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Suite TLS 1.3 sans paramètres négociés]\n# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384\nA_COMPLETER\n\n[Cas 2 — Suite TLS 1.2 sans confidentialité persistante]\n# Données : PARSE_SUITE suite=TLS_RSA_WITH_AES_256_CBC_SHA256\nA_COMPLETER\n\n[Cas 3 — Suite TLS avec chiffrement déprécié]\n# Données : PARSE_SUITE suite=TLS_RSA_WITH_RC4_128_SHA\nA_COMPLETER\n\n[Cas 4 — TLS 1.3 avec PSK seul en 1-RTT]\n# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384 mode=psk_ke group=none phase=1-rtt\nA_COMPLETER\n\n[Cas 5 — TLS 1.3 avec PSK et échange éphémère en 1-RTT]\n# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384 mode=psk_dhe_ke group=x25519 phase=1-rtt\nA_COMPLETER\n\n[Cas 6 — Même suite et échange, données anticipées 0-RTT]\n# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384 mode=psk_dhe_ke group=x25519 phase=0-rtt\nA_COMPLETER\n\n[Cas 7 — Handshake initial TLS 1.3 avec échange éphémère]\n# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384 mode=dhe group=x25519 phase=1-rtt\nA_COMPLETER\n",
     "hints": [
-      "Identifiez d abord si la suite est TLS 1.3 via sa présence dans la liste blanche TLS 1.3.",
-      "Pour TLS 1.2, découpez sur \"_WITH_\" pour isoler kex_part et l algorithme de chiffrement."
+      "Le nom TLS 1.3 indique l’AEAD et le hachage, mais ne révèle pas le mode d’échange ni le groupe.",
+      "Distinguez les données 0-RTT, le mode PSK seul et le mode PSK avec échange éphémère en 1-RTT ; ne concluez pas à une sécurité globale."
     ],
     "examples": [
       {
         "stdin": "PARSE_SUITE suite=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-        "expected": "SUITE: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 ver=TLS1.2 kex=ECDHE_RSA enc=AES_128_GCM_SHA256 pfs=YES status=SECURE",
-        "note": "Suite TLS 1.2 moderne avec échange ECDHE apportant la confidentialité persistante."
+        "expected": "SUITE: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 ver=TLS1.2 kex=ECDHE_RSA enc=AES_128_GCM hash=SHA256 pfs=CONDITIONAL status=PARAMETERS_ONLY",
+        "note": "L’échange ECDHE permet la PFS sous hypothèses ; la configuration complète n’est pas auditée."
       }
     ],
     "tests": [
       {
-        "label": "Suite standard TLS 1.3",
+        "label": "Suite TLS 1.3 sans paramètres négociés",
         "stdin": "cas:1",
-        "expected": "SUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=ECDHE/DHE enc=AES_256_GCM pfs=YES status=SECURE"
+        "expected": "SUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=UNKNOWN group=UNKNOWN phase=UNKNOWN enc=AES_256_GCM hash=SHA384 pfs=UNKNOWN status=PARAMETERS_REQUIRED"
       },
       {
         "label": "Suite TLS 1.2 sans confidentialité persistante",
         "stdin": "cas:2",
-        "expected": "SUITE: TLS_RSA_WITH_AES_256_CBC_SHA256 ver=TLS1.2 kex=RSA enc=AES_256_CBC_SHA256 pfs=NO status=WEAK (no forward secrecy)"
+        "expected": "SUITE: TLS_RSA_WITH_AES_256_CBC_SHA256 ver=TLS1.2 kex=RSA enc=AES_256_CBC hash=SHA256 pfs=NO status=WEAK_NO_PFS"
       },
       {
-        "label": "Suite TLS dépréciée et vulnérable",
+        "label": "Suite TLS avec chiffrement déprécié",
         "stdin": "cas:3",
-        "expected": "SUITE: TLS_RSA_WITH_RC4_128_SHA ver=TLS1.2 kex=RSA enc=RC4_128_SHA pfs=NO status=INSECURE (deprecated cipher)"
+        "expected": "SUITE: TLS_RSA_WITH_RC4_128_SHA ver=TLS1.2 kex=RSA enc=RC4_128 hash=SHA pfs=NO status=INSECURE"
+      },
+      {
+        "label": "TLS 1.3 avec PSK seul en 1-RTT",
+        "stdin": "cas:4",
+        "expected": "SUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=psk_ke group=none phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=NO status=PARAMETERS_ONLY"
+      },
+      {
+        "label": "TLS 1.3 avec PSK et échange éphémère en 1-RTT",
+        "stdin": "cas:5",
+        "expected": "SUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=psk_dhe_ke group=x25519 phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=CONDITIONAL status=PARAMETERS_ONLY"
+      },
+      {
+        "label": "Même suite et échange, données anticipées 0-RTT",
+        "stdin": "cas:6",
+        "expected": "SUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=psk_dhe_ke group=x25519 phase=0-rtt enc=AES_256_GCM hash=SHA384 pfs=NOT_GUARANTEED status=PARAMETERS_ONLY"
+      },
+      {
+        "label": "Handshake initial TLS 1.3 avec échange éphémère",
+        "stdin": "cas:7",
+        "expected": "SUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=dhe group=x25519 phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=CONDITIONAL status=PARAMETERS_ONLY"
       }
     ],
-    "solution": "[Exemple]\nSUITE: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 ver=TLS1.2 kex=ECDHE_RSA enc=AES_128_GCM_SHA256 pfs=YES status=SECURE\n\n[Cas 1 — Suite standard TLS 1.3]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=ECDHE/DHE enc=AES_256_GCM pfs=YES status=SECURE\n\n[Cas 2 — Suite TLS 1.2 sans confidentialité persistante]\nSUITE: TLS_RSA_WITH_AES_256_CBC_SHA256 ver=TLS1.2 kex=RSA enc=AES_256_CBC_SHA256 pfs=NO status=WEAK (no forward secrecy)\n\n[Cas 3 — Suite TLS dépréciée et vulnérable]\nSUITE: TLS_RSA_WITH_RC4_128_SHA ver=TLS1.2 kex=RSA enc=RC4_128_SHA pfs=NO status=INSECURE (deprecated cipher)"
+    "solution": "[Exemple]\nSUITE: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 ver=TLS1.2 kex=ECDHE_RSA enc=AES_128_GCM hash=SHA256 pfs=CONDITIONAL status=PARAMETERS_ONLY\n\n[Cas 1 — Suite TLS 1.3 sans paramètres négociés]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=UNKNOWN group=UNKNOWN phase=UNKNOWN enc=AES_256_GCM hash=SHA384 pfs=UNKNOWN status=PARAMETERS_REQUIRED\n\n[Cas 2 — Suite TLS 1.2 sans confidentialité persistante]\nSUITE: TLS_RSA_WITH_AES_256_CBC_SHA256 ver=TLS1.2 kex=RSA enc=AES_256_CBC hash=SHA256 pfs=NO status=WEAK_NO_PFS\n\n[Cas 3 — Suite TLS avec chiffrement déprécié]\nSUITE: TLS_RSA_WITH_RC4_128_SHA ver=TLS1.2 kex=RSA enc=RC4_128 hash=SHA pfs=NO status=INSECURE\n\n[Cas 4 — TLS 1.3 avec PSK seul en 1-RTT]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=psk_ke group=none phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=NO status=PARAMETERS_ONLY\n\n[Cas 5 — TLS 1.3 avec PSK et échange éphémère en 1-RTT]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=psk_dhe_ke group=x25519 phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=CONDITIONAL status=PARAMETERS_ONLY\n\n[Cas 6 — Même suite et échange, données anticipées 0-RTT]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=psk_dhe_ke group=x25519 phase=0-rtt enc=AES_256_GCM hash=SHA384 pfs=NOT_GUARANTEED status=PARAMETERS_ONLY\n\n[Cas 7 — Handshake initial TLS 1.3 avec échange éphémère]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=dhe group=x25519 phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=CONDITIONAL status=PARAMETERS_ONLY"
   },
   {
     "id": "cr3-c6-e2",
     "chapter": 6,
-    "title": "Simulateur de Négociation TLS 1.3 et Validation de Confidentialité Persistante (PFS)",
+    "title": "Analyse illustrative des phases TLS 1.3 et de la confidentialité persistante (PFS)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Simuler l'établissement de session TLS 1.3 (1-RTT et 0-RTT PSK) et dériver le secret maître éphémère.",
-    "brief": "<p>TLS 1.3 (RFC 8446) accélère la poignée de mains à 1 aller-retour (1-RTT) ou 0 aller-retour (0-RTT avec risque de rejeu) :<br>\nRègles :<br>\n- Si <code>server_version == 'TLSv1.2'</code> : <code>TLS1.2: rtt=2-RTT pfs=CONDITIONAL status=LEGACY_HANDSHAKE</code>.<br>\n- Si version autre : <code>STATUS=REJECTED (TLS version unsupported: &lt;v&gt;)</code>.<br>\n- Pour TLSv1.3, groupes autorisés : <code>x25519</code>, <code>secp256r1</code>, <code>secp384r1</code>.<br>\n- Si non supporté : <code>STATUS=REJECTED (unsupported elliptic group: &lt;grp&gt;)</code>.<br>\n- Dériver <code>master_secret</code> sur 16 caractères hexadécimaux de <code>sha256(client_share:server_share:group)</code>.<br><br>\nRésultat d’analyse attendu : <code>TLS1.3: rtt=&lt;rtt&gt; group=&lt;grp&gt; pfs=PERFECT_FORWARD_SECRECY master_secret=&lt;ms&gt; status=ESTABLISHED</code>.</p>",
-    "starter": "# Grille d'analyse (cr3-c6-e2) — Simulateur de Négociation TLS 1.3 et Validation de Confidentialité Persistante (PFS)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Reprise de session TLS 1.3 en mode 0-RTT]\n# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 psk_mode=0-rtt\nA_COMPLETER\n\n[Cas 2 — Négociation de repli en TLS 1.2]\n# Données : TLS_HANDSHAKE client_version=TLSv1.2 server_version=TLSv1.2 group=secp256r1 client_share=A1B2 server_share=C3D4 psk_mode=none\nA_COMPLETER\n\n[Cas 3 — Rejet version obsolète TLS 1.0]\n# Données : TLS_HANDSHAKE client_version=TLSv1.0 server_version=TLSv1.0 group=none client_share=none server_share=none psk_mode=none\nA_COMPLETER\n",
+    "goal": "Comparer les phases TLS 1.3 et calculer un identifiant public purement illustratif, sans dériver de secret TLS.",
+    "brief": "<p>TLS 1.3 (RFC 9846 ; RFC 8446 historique) peut transmettre des données 0-RTT avant la fin de la poignée de mains : leur confidentialité persistante n’est pas garantie par le protocole et elles peuvent être rejouées. En 1-RTT, un échange éphémère authentifié peut fournir la PFS si les secrets éphémères sont effacés ; le mode PSK seul ne la fournit pas par son échange. Le serveur peut refuser les données anticipées.<br><br>\nCe modèle ne simule pas le protocole réel, ni la validation des pairs. Les cas 0-RTT supposent un PSK ; <code>dhe</code> désigne ici un échange éphémère sans PSK, pas un mode PSK TLS. TLS dérive ses secrets avec HKDF à partir notamment du PSK et/ou d’un secret d’échange, selon la phase et le transcript. On calcule ici seulement <code>demo_id = sha256(client_share:server_share:group)[:16]</code> sur la chaîne encodée en UTF-8, puis en conservant les 16 premiers caractères hexadécimaux. Il n’est pas un secret, une clé ou une dérivation TLS ; les valeurs sont publiques et synthétiques. En 0-RTT, les parts éventuelles sont données après coup pour cet identifiant, pas pour dériver les données anticipées.<br><br>\nRègles du modèle :<br>\n- Pour un handshake initial TLSv1.2, <code>mode=dhe</code> donne <code>pfs=CONDITIONAL</code> sous les hypothèses ci-dessus ; <code>mode=rsa</code> (RSA statique) donne <code>pfs=NO</code>, sinon <code>pfs=UNKNOWN</code>. Format : <code>TLS1.2: rtt=2-RTT pfs=&lt;pfs&gt; status=MODEL_ONLY</code>.<br>\n- Pour une autre version que TLSv1.2 ou TLSv1.3 : <code>STATUS=REJECTED (TLS version unsupported: &lt;v&gt;)</code>.<br>\n- Pour TLSv1.3 en mode <code>dhe</code> ou <code>psk_dhe_ke</code>, accepter seulement <code>x25519</code>, <code>secp256r1</code>, <code>secp384r1</code> ; sinon <code>STATUS=REJECTED (unsupported elliptic group: &lt;grp&gt;)</code>. En mode <code>psk_ke</code>, il n’y a ni groupe ni parts : utiliser <code>none</code>.<br>\n- En <code>phase=0-rtt</code>, afficher <code>pfs=NOT_GUARANTEED</code>. En <code>phase=1-rtt</code>, afficher <code>pfs=NO</code> pour <code>psk_ke</code>, sinon <code>pfs=CONDITIONAL</code> sous les hypothèses ci-dessus.<br>\nFormat : <code>TLS1.3: phase=&lt;phase&gt; mode=&lt;mode&gt; group=&lt;grp&gt; pfs=&lt;pfs&gt; demo_id=&lt;id&gt; status=MODEL_ONLY</code>.</p>",
+    "starter": "# Grille d'analyse (cr3-c6-e2) — Analyse illustrative des phases TLS 1.3 et de la confidentialité persistante (PFS)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Données anticipées 0-RTT avec PSK et échange ultérieur]\n# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 mode=psk_dhe_ke phase=0-rtt\nA_COMPLETER\n\n[Cas 2 — Handshake initial TLS 1.2 avec RSA statique]\n# Données : TLS_HANDSHAKE client_version=TLSv1.2 server_version=TLSv1.2 group=none client_share=none server_share=none mode=rsa phase=1-rtt\nA_COMPLETER\n\n[Cas 3 — Rejet version obsolète TLS 1.0]\n# Données : TLS_HANDSHAKE client_version=TLSv1.0 server_version=TLSv1.0 group=none client_share=none server_share=none mode=none phase=1-rtt\nA_COMPLETER\n\n[Cas 4 — Données 1-RTT avec PSK et échange éphémère]\n# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 mode=psk_dhe_ke phase=1-rtt\nA_COMPLETER\n\n[Cas 5 — Données 1-RTT avec PSK seul]\n# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=none client_share=none server_share=none mode=psk_ke phase=1-rtt\nA_COMPLETER\n\n[Cas 6 — Données anticipées 0-RTT avec PSK seul]\n# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=none client_share=none server_share=none mode=psk_ke phase=0-rtt\nA_COMPLETER\n\n[Cas 7 — Groupe non pris en charge par le modèle]\n# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=legacy1024 client_share=A1B2 server_share=C3D4 mode=dhe phase=1-rtt\nA_COMPLETER\n",
     "hints": [
-      "Validez d abord server_version avant de tester les groupes de négociation.",
-      "Concaténez f\"{client_share}:{server_share}:{group}\".encode(\"utf-8\") et prenez hexdigest()[:16] pour master_secret."
+      "Distinguez la phase des données du mode d’échange négocié ; 0-RTT ne termine pas le handshake et ne garantit pas la PFS.",
+      "Pour l’identifiant public uniquement, concaténez client_share, server_share et group avec « : », puis prenez les 16 premiers caractères hexadécimaux de SHA-256."
     ],
     "examples": [
       {
-        "stdin": "TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 psk_mode=none",
-        "expected": "TLS1.3: rtt=1-RTT group=x25519 pfs=PERFECT_FORWARD_SECRECY master_secret=f91a13a53fa8daae status=ESTABLISHED",
-        "note": "Poignée de mains 1-RTT avec échange éphémère x25519 garantissant le PFS."
+        "stdin": "TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 mode=dhe phase=1-rtt",
+        "expected": "TLS1.3: phase=1-rtt mode=dhe group=x25519 pfs=CONDITIONAL demo_id=f91a13a53fa8daae status=MODEL_ONLY",
+        "note": "Échange éphémère illustratif ; le hachage public n’est pas un secret TLS."
       }
     ],
     "tests": [
       {
-        "label": "Reprise de session TLS 1.3 en mode 0-RTT",
+        "label": "Données anticipées 0-RTT avec PSK et échange ultérieur",
         "stdin": "cas:1",
-        "expected": "TLS1.3: rtt=0-RTT (early data) group=x25519 pfs=PERFECT_FORWARD_SECRECY master_secret=f91a13a53fa8daae status=ESTABLISHED"
+        "expected": "TLS1.3: phase=0-rtt mode=psk_dhe_ke group=x25519 pfs=NOT_GUARANTEED demo_id=f91a13a53fa8daae status=MODEL_ONLY"
       },
       {
-        "label": "Négociation de repli en TLS 1.2",
+        "label": "Handshake initial TLS 1.2 avec RSA statique",
         "stdin": "cas:2",
-        "expected": "TLS1.2: rtt=2-RTT pfs=CONDITIONAL status=LEGACY_HANDSHAKE"
+        "expected": "TLS1.2: rtt=2-RTT pfs=NO status=MODEL_ONLY"
       },
       {
         "label": "Rejet version obsolète TLS 1.0",
         "stdin": "cas:3",
         "expected": "STATUS=REJECTED (TLS version unsupported: TLSv1.0)"
+      },
+      {
+        "label": "Données 1-RTT avec PSK et échange éphémère",
+        "stdin": "cas:4",
+        "expected": "TLS1.3: phase=1-rtt mode=psk_dhe_ke group=x25519 pfs=CONDITIONAL demo_id=f91a13a53fa8daae status=MODEL_ONLY"
+      },
+      {
+        "label": "Données 1-RTT avec PSK seul",
+        "stdin": "cas:5",
+        "expected": "TLS1.3: phase=1-rtt mode=psk_ke group=none pfs=NO demo_id=882e45d0b744de68 status=MODEL_ONLY"
+      },
+      {
+        "label": "Données anticipées 0-RTT avec PSK seul",
+        "stdin": "cas:6",
+        "expected": "TLS1.3: phase=0-rtt mode=psk_ke group=none pfs=NOT_GUARANTEED demo_id=882e45d0b744de68 status=MODEL_ONLY"
+      },
+      {
+        "label": "Groupe non pris en charge par le modèle",
+        "stdin": "cas:7",
+        "expected": "STATUS=REJECTED (unsupported elliptic group: legacy1024)"
       }
     ],
-    "solution": "[Exemple]\nTLS1.3: rtt=1-RTT group=x25519 pfs=PERFECT_FORWARD_SECRECY master_secret=f91a13a53fa8daae status=ESTABLISHED\n\n[Cas 1 — Reprise de session TLS 1.3 en mode 0-RTT]\nTLS1.3: rtt=0-RTT (early data) group=x25519 pfs=PERFECT_FORWARD_SECRECY master_secret=f91a13a53fa8daae status=ESTABLISHED\n\n[Cas 2 — Négociation de repli en TLS 1.2]\nTLS1.2: rtt=2-RTT pfs=CONDITIONAL status=LEGACY_HANDSHAKE\n\n[Cas 3 — Rejet version obsolète TLS 1.0]\nSTATUS=REJECTED (TLS version unsupported: TLSv1.0)"
+    "solution": "[Exemple]\nTLS1.3: phase=1-rtt mode=dhe group=x25519 pfs=CONDITIONAL demo_id=f91a13a53fa8daae status=MODEL_ONLY\n\n[Cas 1 — Données anticipées 0-RTT avec PSK et échange ultérieur]\nTLS1.3: phase=0-rtt mode=psk_dhe_ke group=x25519 pfs=NOT_GUARANTEED demo_id=f91a13a53fa8daae status=MODEL_ONLY\n\n[Cas 2 — Handshake initial TLS 1.2 avec RSA statique]\nTLS1.2: rtt=2-RTT pfs=NO status=MODEL_ONLY\n\n[Cas 3 — Rejet version obsolète TLS 1.0]\nSTATUS=REJECTED (TLS version unsupported: TLSv1.0)\n\n[Cas 4 — Données 1-RTT avec PSK et échange éphémère]\nTLS1.3: phase=1-rtt mode=psk_dhe_ke group=x25519 pfs=CONDITIONAL demo_id=f91a13a53fa8daae status=MODEL_ONLY\n\n[Cas 5 — Données 1-RTT avec PSK seul]\nTLS1.3: phase=1-rtt mode=psk_ke group=none pfs=NO demo_id=882e45d0b744de68 status=MODEL_ONLY\n\n[Cas 6 — Données anticipées 0-RTT avec PSK seul]\nTLS1.3: phase=0-rtt mode=psk_ke group=none pfs=NOT_GUARANTEED demo_id=882e45d0b744de68 status=MODEL_ONLY\n\n[Cas 7 — Groupe non pris en charge par le modèle]\nSTATUS=REJECTED (unsupported elliptic group: legacy1024)"
   },
   {
     "id": "cr3-c6-e3",

@@ -25,7 +25,7 @@ function examens(course) {
       '<h4>Partie 1 : Numérisation Vocale, Théorème de Nyquist &amp; Codecs (6 points)</h4>',
       '<ol>',
       '  <li>Énoncez le théorème de Nyquist-Shannon. Pourquoi la fréquence d\'échantillonnage de la voix téléphonique classique (bande 300 - 3 400 Hz) a-t-elle été fixée à 8 000 Hz ? Expliquez le principe de la compression logarithmique A-law et µ-law dans la norme ITU-T G.711. (3 pts)</li>',
-      '  <li>Une entreprise déploie un lien WAN pour relier un site distant de 40 collaborateurs téléphonant simultanément. Comparez la bande passante réseau totale consommée si les communications utilisent : (a) le codec G.711 (64 kbps, payload 20 ms), (b) le codec G.729 (8 kbps, payload 20 ms). Les en-têtes réseau IP (20B), UDP (8B) et RTP (12B) totalisent 40 octets par paquet. (3 pts)</li>',
+      '  <li>Une entreprise relie un site de 40 collaborateurs téléphonant simultanément. Comparez le débit IP dans un sens pour G.711 (64 kbps) et G.729 (8 kbps) avec une paquetisation de 20 ms, IPv4 sans options, UDP et RTP minimal. Ignorez les autres surcharges pour ce modèle. (3 pts)</li>',
       '</ol>',
       '<h4>Partie 2 : Protocoles de Signalisation &amp; Médias SIP, SDP &amp; RTP (7 points)</h4>',
       '<ol>',
@@ -48,7 +48,7 @@ function examens(course) {
       '  - Les lois de compression A-law (Europe, ITU-T G.711A) et µ-law (USA/Japon, G.711U) appliquent une quantification logarithmique non linéaire non uniforme : les signaux de faible amplitude (plus fréquents et sensibles à l\'oreille) sont quantifiés avec des pas très fins, tandis que les fortes amplitudes ont des pas plus larges, réduisant le signal de 13/14 bits linéaires à 8 bits par échantillon (8 000 éch/s * 8 bits = 64 kbps).</li>',
       '  <li><strong>Calcul de bande passante réseau (3 pts) :</strong> ' +
       '  - Durée de paquetisation = 20 ms -> 50 paquets/seconde (1000 / 20). ' +
-      '  - En-têtes réseau par paquet : IP (20B) + UDP (8B) + RTP (12B) = 40 octets = 320 bits. ' +
+      '  - IPv4 sans options (20 B), UDP (8 B) et RTP minimal (12 B) : 40 octets par paquet, hors couche liaison et autres protections. ' +
       '  - <em>Cas G.711 (64 kbps) :</em> Charge utile = (64 000 * 0.02) / 8 = 160 octets. Taille du paquet = 160 + 40 = 200 octets. Débit par appel = 200 * 8 * 50 = 80 000 bps = <strong>80.0 kbps</strong>. Pour 40 appels : 40 * 80.0 = <strong>3 200 kbps (3.2 Mbps)</strong>. ' +
       '  - <em>Cas G.729 (8 kbps) :</em> Charge utile = (8 000 * 0.02) / 8 = 20 octets. Taille du paquet = 20 + 40 = 60 octets. Débit par appel = 60 * 8 * 50 = 24 000 bps = <strong>24.0 kbps</strong>. Pour 40 appels : 40 * 24.0 = <strong>960 kbps (0.96 Mbps)</strong>. ' +
       '  - Gain : G.729 économise 70% de bande passante sur le lien WAN.</li>',
@@ -89,13 +89,13 @@ function examens(course) {
       '<ol>',
       '  <li>Calculez l\'intensité de trafic offert <code>A</code> en Erlangs. (2 pts)</li>',
       '  <li>La direction fixe un taux d\'appels perdus maximal (Grade of Service, GoS) de 1.0% (probabilité de blocage B &le; 0.01). En appliquant la formule récursive d\'Erlang B (ou vos tables de dimensionnement), déterminez le nombre minimal de canaux téléphoniques simultanés <code>N</code> nécessaires sur le trunk SIP opérateur. (2 pts)</li>',
-      '  <li>Si le trunk utilise le codec G.711 avec paquetisation de 20 ms (80 kbps par canal avec en-têtes réseau), quelle bande passante WAN symétrique minimale (en Mbps) doit être réservée exclusivement pour la téléphonie avec une marge de sécurité de 20% ? (2 pts)</li>',
+      '  <li>Avec G.711 à 20 ms, IPv4 sans options et RTP minimal (80 kbps au niveau IP par sens), estimez le débit symétrique pour la téléphonie avec 20 % de marge. Signalez les surcharges non modélisées. (2 pts)</li>',
       '</ol>',
       '<h4>Dossier 2 : Qualité de Service (QoS) &amp; Traversée de NAT (7 points)</h4>',
       '<ol>',
       '  <li>Pourquoi le trafic voix ToIP est-il extrêmement intolérant au jitter (gigue) et aux pertes de paquets par rapport au trafic de données bureautiques ? Donnez les seuils maximaux recommandés (délai unidirectionnel, gigue, perte). (2 pts)</li>',
       '  <li>Décrivez la mise en œuvre de la QoS de bout en bout : (a) au niveau réseau local (802.1Q Voice VLAN, marquage 802.1p CoS 5), (b) au niveau routage IP (marquage DSCP EF 46 pour RTP, CS3 / AF31 pour SIP, file d\'attente prioritaire LLQ). (3 pts)</li>',
-      '  <li>Expliquez pourquoi le passage à travers un routeur NAT pose problème pour la voix sur IP (problème du One-Way Audio). Comment le protocole STUN résout-il cette difficulté et dans quel cas l\'utilisation d\'un serveur relais TURN devient-elle obligatoire ? Pourquoi faut-il impérativement désactiver le SIP ALG sur les routeurs ? (2 pts)</li>',
+      '  <li>Expliquez comment le NAT peut provoquer du One-Way Audio, puis les rôles respectifs de STUN, des vérifications ICE et d\'un relais TURN. Comment vérifier si le SIP ALG convient au déploiement ? (2 pts)</li>',
       '</ol>',
       '<h4>Dossier 3 : Fonctions Avancées, Trunks Inter-Sites &amp; Sécurité ToIP (7 points)</h4>',
       '<ol>',
@@ -131,9 +131,9 @@ function examens(course) {
       '  - Politiques d\'ordonnancement : configuration d\'une file prioritaire stricte à faible latence (LLQ - Low Latency Queueing) qui transmet immédiatement les paquets EF avant tout autre trafic.</li>',
       '  <li><strong>Problématique du NAT &amp; STUN/TURN/SIP ALG (2 pts) :</strong> ' +
       '  - <em>One-Way Audio :</em> Les téléphones insèrent leur adresse IP privée locale dans les champs <code>Contact:</code> SIP et <code>c=IN IP4</code> SDP. Le destinataire externe tente de répondre vers cette adresse privée non routable sur Internet, provoquant un silence unilatéral (la voix n\'arrive pas). ' +
-      '  - <em>STUN :</em> Le client interroge un serveur STUN public qui lui renvoie son adresse IP publique et son port externe mappé, lui permettant de remplacer son IP privée dans les messages SDP. ' +
-      '  - <em>TURN :</em> Si le routeur applique un NAT symétrique (le port change pour chaque destination distante), STUN échoue ; un serveur relais TURN doit obligatoirement relayer l\'intégralité des flux RTP. ' +
-      '  - <em>SIP ALG :</em> Les routeurs intègrent souvent un module d\'inspection SIP Application Layer Gateway mal implémenté qui altère ou corrompt les en-têtes SIP sans recalculer les longueurs de contenu, provoquant des échecs d\'enregistrement et de transferts. Il est impératif de le <strong>désactiver</strong>.</li>',
+      '  - <em>STUN et ICE :</em> STUN fournit une adresse observée ; elle ne démontre pas la joignabilité. ICE vérifie la connectivité des paires de candidats compte tenu du filtrage. ' +
+      '  - <em>TURN :</em> Un relais peut être utilisé si les candidats directs ne fournissent pas de chemin adapté ; le résultat dépend de la topologie et des règles réseau. ' +
+      '  - <em>SIP ALG :</em> Vérifier sa compatibilité et son effet dans le déploiement ; une désactivation peut être indiquée si le module perturbe la signalisation.</li>',
       '</ul>',
       '<h4>Corrigé Dossier 3 (7 points)</h4>',
       '<ul>',

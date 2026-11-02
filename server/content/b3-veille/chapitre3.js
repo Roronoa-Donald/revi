@@ -150,15 +150,15 @@ module.exports = {
       exp: 'Really Simple Syndication désigne le format de données standardisé XML utilisé pour la diffusion de contenus web.'
     },
     {
-      stem: 'Dans un élément &lt;item&gt; d’un flux RSS 2.0, quelle balise garantit l’identifiant unique de la ressource ?',
+      stem: 'Dans un élément <item> d’un flux RSS 2.0, quelle balise garantit l’identifiant unique de la ressource ?',
       opts: [
-        '&lt;title&gt;',
-        '&lt;guid&gt;',
-        '&lt;link&gt;',
-        '&lt;description&gt;'
+        '<title>',
+        '<guid>',
+        '<link>',
+        '<description>'
       ],
       correct: 1,
-      exp: 'La balise &lt;guid&gt; (Globally Unique Identifier) fournit un identifiant permanent et unique pour chaque dépêche.'
+      exp: 'La balise <guid> (Globally Unique Identifier) fournit un identifiant permanent et unique pour chaque dépêche.'
     },
     {
       stem: 'À quoi servent les paramètres utm_source et utm_medium ajoutés à la fin d’une URL web ?',
@@ -234,7 +234,7 @@ module.exports = {
     },
     {
       q: 'Quelles sont les balises clés d’un item RSS ?',
-      a: '&lt;title&gt; (titre), &lt;link&gt; (URL), &lt;guid&gt; (identifiant unique) et &lt;pubDate&gt; (date de publication).'
+      a: '<title> (titre), <link> (URL), <guid> (identifiant unique) et <pubDate> (date de publication).'
     },
     {
       q: 'Comment calculer l’indice de similarité de Jaccard ?',
