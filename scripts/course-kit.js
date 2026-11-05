@@ -1,5 +1,5 @@
 /**
- * scripts/course-kit.js — gabarit « 19/20 » d'un cours B1/B2/B3.
+ * scripts/course-kit.js — gabarit « Stitch » d'un cours B1/B2/B3.
  *
  * Bibliothèque sans effet de bord : elle transforme les données d'un cours
  * (`server/content/<cours>.js`) en pages HTML. Un seul rendu pour tous les
@@ -132,7 +132,7 @@ function renderJs(course) {
 const FONTS = [
   '<link rel="preconnect" href="https://fonts.googleapis.com">',
   '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
-  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&amp;display=swap">'
+  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">'
 ];
 
 /** Entrées de navigation, dans l'ordre, pour un cours donné. */
@@ -208,7 +208,7 @@ function normalizePageBody(course, pagePath, rawBody) {
     .replace(/Comment t['’]auto-évaluer/gi, 'Grille d’auto-évaluation')
     .replace(/ton QCM de compréhension et ta checklist sont combinés/gi, 'le QCM de compréhension et la checklist sont combinés')
     .replace(/Lis ton pourcentage/gi, 'Interprétation du score obtenu')
-    .replace(/ta note réelle dépend aussi de votre travail/gi, 'la maîtrise réelle dépend de la régularité du travail personnel')
+    .replace(/ta note réelle dépend aussi de votre travail/gi, 'la maîtrise réelle dépend aussi de la régularité du travail personnel')
     .replace(/(<div class="bandrow[^>]*>[\s\S]*?)\btu\s+(?:maîtrises|distingues|résous|choisis|conditionnes|traites|standardises|lis et affiches|factorises et tu utilises|cycles|cloisonnes|qualifies|analyses|évalues|gères|possèdes|as acquis|peux)\b/gi, '$1maîtrise confirmée :')
     .replace(/(<div class="bandrow[^>]*>[\s\S]*?)\btes classes ont\b/gi, '$1les classes ont')
     .replace(/(<div class="bandrow[^>]*>[\s\S]*?)\btraque les barbarismes dans tes mails\b/gi, '$1chasser les barbarismes dans les courriels')
@@ -217,7 +217,63 @@ function normalizePageBody(course, pagePath, rawBody) {
     .replace(/félicitations,\s*tu domines/gi, 'maîtrise complète de')
     .replace(/et assure-toi de pouvoir/gi, 'pour valider chaque étape et');
 
-  return body;
+  return upgradeLists(body);
+}
+
+/**
+ * Adaptateur de composition : les listes `.toc` écrites par les modules de
+ * contenu (64 cours, une trentaine de pages) sont rendues avec le balisage
+ * Stitch — lignes de chapitres numérotées ou cartes de ressources — sans
+ * toucher au contenu lui-même. Toute liste non reconnue reste inchangée.
+ */
+function upgradeLists(html) {
+  return html.replace(/<div class="toc">([\s\S]*?)<\/div>/g, (block, inner) => {
+    const items = [];
+    const re = /<a class="toc__item" href="([^"]+)">([\s\S]*?)<\/a>/g;
+    let m;
+    while ((m = re.exec(inner))) items.push({ href: m[1], html: m[2] });
+    if (!items.length) return block;
+
+    const parsed = items.map(item => {
+      const n = /<span class="toc__n">([\s\S]*?)<\/span>/.exec(item.html);
+      const t = /<span class="toc__t">([\s\S]*?)<\/span>/.exec(item.html);
+      const d = /<span class="toc__d">([\s\S]*?)<\/span>/.exec(item.html);
+      const lock = /<span class="locknote">([\s\S]*?)<\/span>/.exec(item.html);
+      return {
+        href: item.href,
+        n: n ? n[1].trim() : '',
+        t: t ? t[1].trim() : '',
+        d: d ? d[1].trim() : '',
+        lock: lock ? lock[1].replace(/<svg[\s\S]*?<\/svg>/g, '').trim() : ''
+      };
+    });
+
+    const isChapters = parsed.every(p => /^\d+$/.test(p.n));
+    if (isChapters) {
+      return '<div class="sechead"><h2>Parcours des ' + parsed.length + ' chapitres</h2></div>\n<ol class="chlist">\n' + parsed.map(p => {
+        const free = /libre/i.test(p.lock);
+        return [
+          '<li><a class="chrow' + (free ? ' chrow--free' : '') + '" href="' + p.href + '">',
+          '  <span class="chrow__main"><span class="chrow__n">' + p.n + '</span>',
+          '  <span class="chrow__body"><span class="chrow__t">' + p.t + '</span>',
+          p.d ? '<span class="chrow__d">' + p.d + '</span>' : '',
+          '  </span></span>',
+          '  <span class="chrow__meta"><span class="chrow__pill' + (free ? ' chrow__pill--free' : '') + '">' +
+            (free ? '<span class="chrow__dot"></span>' : ic('lock')) + ' ' + (p.lock || 'Chapitre') + '</span></span>',
+          '</a></li>'
+        ].filter(Boolean).join('\n');
+      }).join('\n') + '\n</ol>';
+    }
+
+    return '<div class="resgrid">\n' + parsed.map(p => [
+      '<a class="rescard" href="' + p.href + '">',
+      '  <span class="rescard__ico">' + (p.n || ic('book')) + '</span>',
+      '  <span class="rescard__t">' + p.t + '</span>',
+      p.d ? '  <span class="rescard__d">' + p.d + '</span>' : '',
+      '  <span class="rescard__go"><span>Ouvrir</span><span aria-hidden="true">→</span></span>',
+      '</a>'
+    ].filter(Boolean).join('\n')).join('\n') + '\n</div>';
+  });
 }
 
 /**
@@ -229,10 +285,12 @@ function normalizePageBody(course, pagePath, rawBody) {
 function page(course, pagePath, opts) {
   const p = prefix(pagePath);
   const nav = navItems(course)
-    .map(item => '    <a href="' + p + item.path + '"' + (item.key === opts.active ? ' class="is-active"' : '') + '>' + item.label + '</a>')
+    .map(item => '      <a href="' + p + item.path + '"' + (item.key === opts.active ? ' class="is-active"' : '') + '>' + item.label + '</a>')
     .join('\n');
 
   const bodyAttr = opts.dataChapter ? ' data-chapter="' + opts.dataChapter + '"' : '';
+  const isChapter = /^chapitres\/chapitre\d+\.html$/.test(pagePath);
+  const pageKind = pagePath === 'index.html' ? 'index' : (isChapter ? 'chapter' : 'default');
   const bodyHtml = normalizePageBody(course, pagePath, opts.body);
 
   return [
@@ -257,28 +315,42 @@ function page(course, pagePath, opts) {
     '<script src="/assets/js/theme.js"></script>',
     ...(opts.extraHead || []),
     '</head>',
-    '<body' + bodyAttr + '>',
+    '<body' + bodyAttr + ' class="page page--' + pageKind + '">',
     '',
     '<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>',
     '',
-    '<nav class="' + course.slug + 'nav"><div class="' + course.slug + 'nav__in">',
-    '  <a class="' + course.slug + 'nav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails">' + ic('house') + ' <span>Portail</span></a>',
-    '  <span class="' + course.slug + 'nav__sep" aria-hidden="true">/</span>',
-    '  <a class="' + course.slug + 'nav__brand" href="' + p + 'index.html">' + ic(course.brandIcon) + ' ' + esc(course.brand) + '</a>',
-    '  <div class="' + course.slug + 'nav__links">',
+    '<header class="' + course.slug + 'nav"><div class="' + course.slug + 'nav__in">',
+    '  <a class="' + course.slug + 'nav__home" href="/" title="cours.interactifs — Tous les cours" aria-label="cours.interactifs — Tous les cours">',
+    '    <span class="' + course.slug + 'nav__mark">' + ic(course.brandIcon) + '</span>',
+    '    <span class="' + course.slug + 'nav__word">cours.interactifs</span>',
+    '  </a>',
+    '  <div class="' + course.slug + 'nav__ctx"><a href="/">Portail</a><span aria-hidden="true">/</span><a class="' + course.slug + 'nav__chip" href="' + p + 'index.html">' + esc(course.brand) + '</a></div>',
+    '  <nav class="' + course.slug + 'nav__links" aria-label="Navigation du cours">',
     nav,
-    '  </div>',
+    '  </nav>',
     '  <div class="' + course.slug + 'nav__actions">',
-    '    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">',
+    '    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre" title="Basculer le thème clair / sombre">',
     '      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>',
     '      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
     '    </button>',
     '  </div>',
-    '</div></nav>',
+    '</div></header>',
     '',
     '<main id="content" class="' + course.slug + 'wrap">',
     bodyHtml,
     '</main>',
+    '',
+    '<footer class="cfoot">',
+    '  <div class="cfoot__in">',
+    '    <a class="cfoot__brand" href="/">cours.interactifs</a>',
+    '    <p class="cfoot__copy">© 2025-2026 Cours Interactifs — RD4SLOQ · ' + esc(course.brand) + '</p>',
+    '    <nav class="cfoot__links" aria-label="Liens utiles">',
+    '      <a href="/">Tous les cours</a>',
+    '      <a href="/epreuves/index.html">Épreuves</a>',
+    '      <a href="/preparation-web/index.html">Atelier Web</a>',
+    '    </nav>',
+    '  </div>',
+    '</footer>',
     '',
     '<script src="' + p + 'assets/js/cours.js"></script>',
     '<script src="/assets/vendor/katex/katex.min.js" defer></script>',
@@ -292,7 +364,7 @@ function page(course, pagePath, opts) {
     '            {left: "$$", right: "$$", display: true},',
     '            {left: "\\\\[", right: "\\\\]", display: true},',
     '            {left: "$", right: "$", display: false},',
-    '            {left: "\\\\(", right: "\\\\)", display: false}',
+    '            {left: "\\\\)", right: "\\\\)", display: false}',
     '          ],',
     '          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],',
     '          throwOnError: false',
@@ -485,12 +557,12 @@ const IMPERATIVES_TU_VOUS = {
 };
 // verbes ambigus (noms ou autres emplois) : convertis seulement devant un complément typique
 const IMPERATIVES_AMBIGUS = [
-  [/passe(?= (?:aux?|à|en|directement|ensuite|le|la|les|un|une)(?![\\p{L}\\p{N}_]))/i, 'passez'],
-  [/cible(?= (?:la|le|les|l['’]|un|une|des)(?![\\p{L}\\p{N}_]))/i, 'ciblez'],
-  [/pratique(?= (?:les?|la|l['’]|ces|des)(?![\\p{L}\\p{N}_]))/i, 'pratiquez'],
-  [/compte(?= (?:aussi|les?|la|chaque|combien|le)(?![\\p{L}\\p{N}_]))/i, 'comptez'],
-  [/structure(?= (?:un|une|le|la|les|l['’])(?![\\p{L}\\p{N}_]))/i, 'structurez'],
-  [/chiffre(?= (?:votre|le|la|les|un|une)(?![\\p{L}\\p{N}_]))/i, 'chiffrez']
+  [/passe(?= (?:aux?|à|en|directement|ensuite|le|la|les|un|une)(?![\p{L}\p{N}_]))/i, 'passez'],
+  [/cible(?= (?:la|le|les|l['’]|un|une|des)(?![\p{L}\p{N}_]))/i, 'ciblez'],
+  [/pratique(?= (?:les?|la|l['’]|ces|des)(?![\p{L}\p{N}_]))/i, 'pratiquez'],
+  [/compte(?= (?:aussi|les?|la|chaque|combien|le)(?![\p{L}\p{N}_]))/i, 'comptez'],
+  [/structure(?= (?:un|une|le|la|les|l['’])(?![\p{L}\p{N}_]))/i, 'structurez'],
+  [/chiffre(?= (?:votre|le|la|les|un|une)(?![\p{L}\p{N}_]))/i, 'chiffrez']
 ];
 function imperativesToVous(text) {
   const head = '(^|>\\s*|[—:;,]\\s*|\\s(?:puis|et|ou)\\s|\\.\\s+)';
@@ -516,8 +588,8 @@ function imperativesToVous(text) {
 const KNOWN_TAGS = new Set(('a abbr article aside audio b bdi bdo blockquote body br button canvas caption circle cite clippath code col colgroup ' +
   'data dd defs del desc details dfn dialog div dl dt ellipse em fieldset figcaption figure foreignobject footer form g h1 h2 h3 h4 h5 h6 head header hr ' +
   'html i iframe image img input ins kbd label legend li line lineargradient link main mark marker mask math menu meta meter mfrac mi mn mo mrow msub msup ' +
-  'nav noscript ol optgroup option output p path pattern picture polygon polyline pre progress q radialgradient rect rp rt ruby s samp script section ' +
-  'select slot small source span stop strong style sub summary sup svg symbol table tbody td template text textarea tfoot th thead time title tr track ' +
+  'nav noscript ol optgroup option output p path pattern picture polygon polyline pre progress q radialgradient rect rp rt ruby s samp script section select ' +
+  'slot small source span stop strong style sub summary sup svg symbol table tbody td template text textarea tfoot th thead time title tr track ' +
   'tspan u ul use var video wbr animate animatetransform').split(' '));
 
 const characterReferences = new Map();
@@ -689,40 +761,50 @@ function chapter(course, ch) {
     { href: '../sommaire.html', label: 'Sommaire' },
     { label: 'Chapitre ' + ch.n }
   ]));
-  out.push('<h1>Chapitre ' + ch.n + ' — ' + ch.title + '</h1>');
 
-  const meta = [{ label: 'Module ' + ch.n }];
+  const meta = [{ label: 'Module ' + ch.n, cls: 'tag--module' }];
   if (ch.time) meta.push({ label: ch.time, cls: 'tag--time' });
   meta.push(ch.free
-    ? { label: 'Accès libre', cls: 'tag--time' }
-    : { label: ch.lockLabel || 'Réservé B1 et plus', cls: 'tag--time' });
+    ? { label: 'Accès libre', cls: 'tag--free' }
+    : { label: ch.lockLabel || 'Réservé B1 et plus', cls: 'tag--lock' });
   out.push(tags(meta));
 
-  out.push(box('situation', 'Mise en situation', 'play', '    <p>' + ch.situation + '</p>'));
+  out.push('<h1>Chapitre ' + ch.n + ' — ' + ch.title + '</h1>');
+
+  out.push('<div class="lead">' + box('situation', 'Mise en situation', 'play', '    <p>' + ch.situation + '</p>') + '</div>');
   out.push(box('objectifs', 'Objectifs pédagogiques', 'target',
     '    <p>' + (usesVous ? 'À la fin de ce chapitre, vous serez capable de :' : 'À la fin de ce chapitre, tu seras capable de :') + '</p>\n    <ol>\n' +
     ch.objectives.map(o => '      <li>' + o + '</li>').join('\n') + '\n    </ol>'));
 
   // Sections numérotées 1..N
   ch.sections.forEach((section, index) => {
+    out.push('<section class="sec">');
     out.push('<h2>' + (index + 1) + '. ' + section.title + '</h2>');
     out.push(Array.isArray(section.html) ? section.html.join('\n') : section.html);
+    out.push('</section>');
   });
 
   const qcmNumber = ch.sections.length + 1;
 
   // Ancre attendue par scripts/generate-code-labs.js : deux espaces devant <h2>.
+  out.push('  <section class="sec">');
   out.push('  <h2>' + qcmNumber + '. ' + (ch.qcmTitle || 'QCM — niveau examen') + '</h2>');
   out.push('  ' + qcm(ch.questions));
+  out.push('  </section>');
 
+  out.push('<section class="sec">');
   out.push('<h2>' + (qcmNumber + 1) + '. Erreurs classiques — récapitulatif</h2>');
   out.push(box('pitfall', ch.pitfallTitle || 'À reconnaître en examen', 'warning',
     '    <ul>\n' + ch.pitfalls.map(item => '      <li>' + item + '</li>').join('\n') + '\n    </ul>'));
+  out.push('</section>');
 
+  out.push('<section class="sec">');
   out.push('<h2>' + (qcmNumber + 2) + '. Méthodologie de résolution</h2>');
   out.push(box('method', ch.methodTitle || 'Démarche d’ingénierie pas à pas', 'compass',
     '    <ol>\n' + ch.method.map(item => '      <li>' + item + '</li>').join('\n') + '\n    </ol>'));
+  out.push('</section>');
 
+  out.push('<section class="sec">');
   out.push('<h2>' + (qcmNumber + 3) + '. Révision active</h2>');
   out.push([
     '  <div class="box box--revision">',
@@ -742,6 +824,7 @@ function chapter(course, ch) {
     '       <a class="btn" href="formules.html">' + ic('file') + ' Mémo syntaxe</a></p>',
     '  </div>'
   ].join('\n'));
+  out.push('</section>');
 
   let masteryIntroText = ch.masteryIntro || (usesVous
     ? 'Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :'
@@ -753,6 +836,7 @@ function chapter(course, ch) {
       .replace(/\bLis ton pourcentage\b/g, 'Lisez votre pourcentage');
   }
 
+  out.push('<section class="sec">');
   out.push('<h2>' + (qcmNumber + 4) + '. Test de maîtrise</h2>');
   out.push([
     '  <div class="box box--tech">',
@@ -762,6 +846,7 @@ function chapter(course, ch) {
     '    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>',
     '  </div>'
   ].join('\n'));
+  out.push('</section>');
 
   if (ch.extra) out.push(ch.extra);
 

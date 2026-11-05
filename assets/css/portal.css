@@ -1,624 +1,311 @@
 /* ════════════════════════════════════════════════════════════════════════════
-   PORTAL v3 — « Papier chaud » (référence brilliant.org) × JetBrains Mono
-   Hero + search + chips + grille de cours
-   Classes inchangées (compat DOM) — nouveau skin + micro-delight
+   PORTAIL — composition Google Stitch « Active STEM Discovery »
+   En-tête blanc, hero centré, carte de reprise, sélecteur de niveau segmenté,
+   recherche à droite, grille 4 colonnes, cartes à bord 2 px et enfoncement.
    ════════════════════════════════════════════════════════════════════════════ */
 
-/* ─────────────────────────────────────────────────────────────────────────
-   1. HERO — respirant, monumental, calme
-   ──────────────────────────────────────────────────────────────────────── */
-/* DEMO BANNER — injecté par auth-check.js (bandeau noir activation) */
+/* Bandeau d'activation injecté par auth-check.js */
 #demo-banner {
-  position: relative;
-  z-index: var(--z-sticky);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-2) var(--space-4);
-  background: #000000;
-  color: #cccccc;
-  font-size: var(--text-xs);
-  line-height: 1.5;
+  position: relative; z-index: var(--z-sticky);
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 16px; background: #1b1b1e; color: #d4d4d8; font-size: .78rem;
 }
-
-#demo-banner .demo-banner-content {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-#demo-banner strong { color: #ffffff; font-weight: var(--weight-semibold); }
-
-#demo-banner .demo-banner-link {
-  background: #000000;
-  color: #ffffff;
-  font-weight: var(--weight-bold);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-#demo-banner .demo-banner-link:hover { color: var(--bf-pastel-teal, #a0dcd5); }
-
+#demo-banner .demo-banner-content { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
+#demo-banner strong { color: #fff; }
+#demo-banner .demo-banner-link { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 #demo-banner .demo-banner-close {
-  margin-left: var(--space-2);
-  display: inline-flex;
+  margin-left: 8px; width: 28px; height: 28px; background: transparent;
+  border: 0; border-radius: 6px; color: #d4d4d8; cursor: pointer;
+}
+#demo-banner .demo-banner-close:hover { background: rgba(255,255,255,.14); color: #fff; }
+
+/* ── En-tête ───────────────────────────────────────────────────────────── */
+.topbar {
+  position: sticky; top: 0; z-index: var(--z-sticky);
+  display: grid; grid-template-columns: auto 1fr auto;
+  align-items: center; gap: 24px;
+  height: 56px; padding-inline: 24px;
+  background: #fff; border-bottom: 1px solid #e4e4e7;
+  box-shadow: none;
+}
+.topbar__brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-display); font-size: 1.05rem; font-weight: 700;
+  letter-spacing: -.02em; color: #006d2f; text-decoration: none;
+}
+.topbar__brand svg {
+  width: 32px; height: 32px; padding: 6px; box-sizing: border-box;
+  background: #21c35e; color: #00491d;
+  border: 1px solid #1b1b1e; border-radius: 8px;
+  stroke-width: 1.9;
+}
+.topbar__nav { display: flex; justify-content: flex-end; gap: 22px; }
+.topbar__nav-link {
+  padding: 4px 0 6px; font-size: .82rem; font-weight: 500;
+  color: #3d4a3d; text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color .15s ease, border-color .15s ease;
+}
+.topbar__nav-link:hover { color: #1b1b1e; border-bottom-color: #1b1b1e; }
+.topbar__actions { display: flex; align-items: center; gap: 6px; }
+.profile-btn, .theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; background: #fff; color: #3d4a3d;
+  border: 1px solid #e4e4e7; border-radius: 8px; cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.profile-btn:hover, .theme-toggle:hover { background: #f0edf1; color: #1b1b1e; border-color: #d4d4d8; }
+.profile-btn svg, .theme-toggle svg { width: 18px; height: 18px; }
+.theme-toggle__sun, .theme-toggle__moon { display: none; }
+[data-theme="dark"] .theme-toggle__sun { display: block; }
+:root:not([data-theme="dark"]) .theme-toggle__moon { display: block; }
+
+/* ── Hero : grille de composition Stitch ───────────────────────────────── */
+.portal-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-full);
-  color: #cccccc;
-  cursor: pointer;
-  font-size: var(--text-sm);
+  gap: 12px 28px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 56px 24px 0;
+  text-align: left;
+  background: none;
 }
+.portal-hero::after { content: none; }
 
-#demo-banner .demo-banner-close:hover { background: rgba(255, 255, 255, 0.14); color: #ffffff; }
-
-[data-theme="dark"] #demo-banner { background: #1c1917; }
-
-/* v3.1 latte — le halo du hero se pose sur le fond chaud */
-.portal-hero {
-  background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.55), transparent 70%);
-}
-
-@media (max-width: 640px) {
-  .topbar { padding-inline: var(--space-4); }
-  .topbar__brand span { display: none; }   /* 375px : icône seule */
-  .portal-hero { padding-block: var(--space-16) var(--space-10); }
-}
-
-@media (max-width: 480px) {
-  .topbar { padding-inline: var(--space-3); gap: var(--space-2); }
-  .topbar__nav { gap: 2px; }
-  .topbar__nav-link { padding: 4px 6px; font-size: 11px; white-space: nowrap; }
-}
-
-/* Ligne gradient signature bundle sous le hero */
-.portal-hero::after {
-  content: '';
-  display: block;
-  width: 220px;
-  height: 4px;
-  margin: var(--space-6) auto 0;
-  border-radius: var(--radius-full);
-  background: var(--bf-gradient-signature);
-  opacity: 0.85;
-}
-
-[data-theme="dark"] .portal-hero::after { opacity: 0.6; }
-
-.portal-hero {
-  text-align: center;
-  padding-block: var(--space-24) var(--space-16);
-  max-width: 900px;
-  margin-inline: auto;
-  padding-inline: var(--space-6);
-}
-
-/* Eyebrow badge retiré : un chip au-dessus du titre est un tic de gabarit.
-   Le contexte (« quelle promo ») vit dans le sous-titre et les filtres. */
+.portal-hero__title { grid-column: 1 / -1; order: 2; }
+.portal-hero__subtitle { grid-column: 1 / -1; order: 3; }
+.portal-free-banner { grid-column: 1 / -1; order: 1; }
+.portal-level-section { grid-column: 1 / 2; order: 4; }
+.portal-search { grid-column: 2 / 3; order: 4; margin: 0; max-width: none; }
+.portal-status-bar { grid-column: 1 / -1; order: 5; }
 
 .portal-hero__title {
-  font-size: clamp(var(--text-4xl), 6vw, var(--text-6xl));
-  font-weight: var(--weight-extrabold);
-  line-height: 1.05;
-  letter-spacing: var(--tracking-tighter);
-  color: var(--color-text);
-  margin-bottom: var(--space-5);
-  text-wrap: balance;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5.4vw, 4rem);
+  font-weight: 700; line-height: 1.02;
+  letter-spacing: -.035em; color: #1b1b1e;
+  margin: 0 0 12px; text-align: center; text-wrap: balance;
 }
-
 .portal-hero__subtitle {
-  font-size: var(--text-lg);
-  line-height: var(--leading-relaxed);
-  color: var(--color-text-muted);
-  max-width: 620px;
-  margin: 0 auto var(--space-10);
-  text-wrap: pretty;
+  font-size: 1.0625rem; line-height: 1.6; color: #3d4a3d;
+  max-width: 760px; margin: 0 auto 28px; text-align: center; text-wrap: pretty;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   2. SEARCH BAR (hero)
-   ──────────────────────────────────────────────────────────────────────── */
-.portal-search {
-  max-width: 480px;
-  margin: 0 auto var(--space-6);
-  position: relative;
+/* Badge d'accès libre : pilule verte au-dessus du titre */
+.portal-free-banner {
+  justify-self: center;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px; margin-bottom: 18px;
+  background: #e8f7ee; border: 1px solid #21c35e; border-radius: 999px;
+  color: #00491d; font-size: .8rem; font-weight: 600;
 }
+.portal-free-banner strong { font-weight: 700; }
+.portal-free-banner .ic { width: 15px; height: 15px; color: #006d2f; }
 
+/* ── Sélecteur de niveau segmenté ──────────────────────────────────────── */
+.portal-level-section { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.portal-level-label { display: none; }
+.portal-level-tabs {
+  display: inline-flex; align-items: stretch;
+  padding: 4px; gap: 2px;
+  background: #f0edf1; border: 1px solid #e4e4e7; border-radius: 10px;
+}
+.level-tab {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px; min-height: 40px;
+  background: transparent; border: 1px solid transparent; border-radius: 8px;
+  font-family: var(--font-sans); font-size: .82rem; color: #3d4a3d;
+  cursor: pointer; white-space: nowrap;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.level-tab:hover { color: #1b1b1e; }
+.level-tab.is-active {
+  background: #fff; color: #1b1b1e; font-weight: 700;
+  border-color: #e4e4e7; box-shadow: 0 1px 2px rgba(27,27,30,.06);
+}
+.level-tab__badge { display: none; }
+.level-tab__title { font-weight: inherit; }
+.level-tab.is-active .level-tab__title::before {
+  content: ""; display: inline-block; width: 7px; height: 7px;
+  margin-right: 7px; border-radius: 50%; background: #21c35e;
+  vertical-align: middle;
+}
+.level-tab__count { font-size: .76rem; color: #6b6f6c; font-weight: 500; }
+.level-tab.is-active .level-tab__count { color: #3d4a3d; }
+
+/* ── Recherche ─────────────────────────────────────────────────────────── */
+.portal-search { position: relative; }
 .portal-search__input {
-  width: 100%;
-  min-height: 48px;
-  padding: 0 var(--space-3) 0 var(--space-10);
-  font-family: var(--font-sans);
-  font-size: var(--text-base);
-  color: var(--color-text);
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-xs);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  width: 100%; min-height: 48px;
+  padding: 0 14px 0 44px;
+  font-family: var(--font-sans); font-size: .94rem; color: #1b1b1e;
+  background: #fff; border: 1px solid #d4d4d8; border-radius: 10px;
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
-
-.portal-search__input::placeholder {
-  color: var(--color-text-subtle);
-}
-
+.portal-search__input::placeholder { color: #6b6f6c; }
 .portal-search__input:focus {
-  outline: none;
-  border-color: var(--color-interactive, var(--color-accent));
-  box-shadow: var(--shadow-glow-accent);
+  outline: none; border-color: #006d2f; box-shadow: 0 0 0 3px rgba(33,195,94,.18);
 }
-
 .portal-search__icon {
-  position: absolute;
-  left: var(--space-3);
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  color: var(--color-text-subtle);
-  pointer-events: none;
+  position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+  width: 17px; height: 17px; color: #6b6f6c; pointer-events: none;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   3. CHIPS ROW (filtres) — pill, active encre
-   ──────────────────────────────────────────────────────────────────────── */
-.portal-chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-2);
-  max-width: 720px;
-  margin: 0 auto var(--space-16);
+/* ── En-tête de section (statut + tri) ─────────────────────────────────── */
+.portal-status-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  justify-self: stretch; width: 100%;
+  gap: 16px; flex-wrap: wrap;
+  margin: 40px 0 20px; padding-bottom: 14px;
+  border-bottom: 1px solid #e4e4e7;
+  font-size: .86rem; color: #3d4a3d;
 }
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-height: 32px;
-  padding: 0 var(--space-3);
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  color: var(--color-text-muted);
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  transition: all var(--transition-fast);
+.portal-status-bar__main { display: inline-flex; align-items: center; gap: 8px; }
+.portal-status-bar__dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #21c35e; box-shadow: 0 0 0 3px rgba(33,195,94,.18);
 }
+.portal-status-bar__sep { color: #a1a1aa; }
+.portal-status-bar__sort { font-size: .78rem; color: #6b6f6c; }
+.portal-status-bar strong { color: #1b1b1e; font-weight: 700; }
 
-.chip:hover {
-  color: var(--color-text);
-  border-color: var(--color-border-strong);
-}
-
-.chip:focus-visible {
-  outline: 2px solid var(--color-ring);
-  outline-offset: 2px;
-}
-
-.chip.is-active {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-3d-black);
-}
-
-.chip.is-active:hover { transform: translateY(1px); box-shadow: var(--shadow-3d-hover-black); }
-
-.chip__count {
-  font-size: 11.5px;
-  color: var(--color-text-muted);
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
-   3b. REPRISE — carte conditionnelle (hidden par défaut, zéro layout shift)
-   ──────────────────────────────────────────────────────────────────────── */
+/* ── Carte « Reprendre » ───────────────────────────────────────────────── */
 .bf-resume {
-  display: none;
-  align-items: center;
-  gap: var(--space-4);
-  max-width: 640px;
-  margin: 0 auto var(--space-12);
-  padding: var(--space-4) var(--space-5);
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--bf-card-shadow);
+  display: none; align-items: center; gap: 16px;
+  max-width: 1280px; margin: 32px auto 0; padding: 16px 20px;
+  background: #fff; border: 1px solid #e4e4e7; border-radius: 12px;
+  box-shadow: 0 2px 0 #e4e4e7;
 }
-
-.bf-resume:not([hidden]) { display: flex; animation: portal-fade-up 500ms var(--ease-out) backwards; }
-
+.bf-resume:not([hidden]) { display: flex; animation: portal-fade-up 400ms var(--ease-out) backwards; }
 .bf-resume__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  color: var(--color-accent);
-  background: var(--color-accent-soft);
-  border-radius: var(--radius-md);
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; color: #006d2f; background: #e8f7ee;
+  border-radius: 8px; flex-shrink: 0;
 }
-
-.bf-resume__icon svg { width: 20px; height: 20px; }
-
-.bf-resume__body {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.bf-resume__label {
-  font-size: 11.5px;
-  font-weight: var(--weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wider);
-  color: var(--color-text-subtle);
-}
-
-.bf-resume__title {
-  font-size: var(--text-base);
-  font-weight: var(--weight-semibold);
-  color: var(--color-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
+.bf-resume__icon svg { width: 22px; height: 22px; }
+.bf-resume__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.bf-resume__label { font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #6b6f6c; }
+.bf-resume__title { font-size: 1rem; font-weight: 700; color: #1b1b1e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bf-resume__cta {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  color: var(--color-on-accent);
-  background: var(--color-accent);
-  border-radius: var(--radius-full);
-  box-shadow: var(--shadow-3d-green);
-  text-decoration: none;
-  flex-shrink: 0;
-  transition: all var(--transition-fast);
+  margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 20px; font-family: var(--font-display); font-size: .86rem; font-weight: 700;
+  color: #00491d; background: #21c35e; border: 1px solid #1b1b1e; border-radius: 8px;
+  box-shadow: 0 4px 0 #1b1b1e; text-decoration: none; flex-shrink: 0;
+  transition: transform .1s ease, box-shadow .1s ease;
 }
+.bf-resume__cta:hover { transform: translateY(-1px); box-shadow: 0 5px 0 #1b1b1e; }
+.bf-resume__cta:active { transform: translateY(3px); box-shadow: 0 1px 0 #1b1b1e; }
+.bf-resume__cta .ic { width: 1rem; height: 1rem; }
 
-.bf-resume__cta:hover { transform: translateY(2px); box-shadow: var(--shadow-3d-hover-green); }
-.bf-resume__cta:active { transform: translateY(4px); box-shadow: none; }
-.bf-resume__cta .ic { width: 1rem; height: 1rem; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-/* ─────────────────────────────────────────────────────────────────────────
-   4. GRILLE DE COURS
-   ──────────────────────────────────────────────────────────────────────── */
+/* ── Grille ─────────────────────────────────────────────────────────────── */
 .portal-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr));
-  gap: var(--space-4);
-  max-width: var(--container-xl);
-  margin-inline: auto;
-  padding-inline: var(--space-6);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  max-width: 1280px; margin: 0 auto;
+  padding: 0 24px 40px;
 }
 
-@media (min-width: 768px) {
-  .portal-grid { gap: var(--space-5); }
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
-   5. CARTES — surface blanche, barre d'accent, lift au hover
-   ──────────────────────────────────────────────────────────────────────── */
+/* ── Cartes de cours ───────────────────────────────────────────────────── */
 .portal-card {
-  --course-accent: var(--color-primary);
-  position: relative;
-  overflow: hidden;
-  transition:
-    transform var(--transition-base) var(--ease-out),
-    box-shadow var(--transition-base) var(--ease-out),
-    border-color var(--transition-base) var(--ease-out);
+  --course-accent: #006d2f;
+  display: flex; flex-direction: column;
+  gap: 10px; padding: 18px;
+  background: #fff; border: 2px solid #e4e4e7; border-radius: 12px;
+  box-shadow: 0 2px 0 #e4e4e7;
+  text-decoration: none; color: inherit;
+  min-height: 148px;
+  transition: transform .15s ease-out, box-shadow .15s ease-out, border-color .15s ease-out;
 }
-
-/* Barre d'accent par cours — 3px à gauche */
-.portal-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--course-accent);
-  opacity: 0.9;
-  transform: scaleY(0.4);
-  transform-origin: center;
-  transition: transform var(--transition-base) var(--ease-out), opacity var(--transition-base);
-}
-
 .portal-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--bf-card-shadow-hover);
-  border-color: var(--color-border-strong);
+  transform: translateY(-2px);
+  border-color: #1b1b1e; box-shadow: 0 4px 0 #1b1b1e;
 }
-
-.portal-card:hover::before {
-  transform: scaleY(1);
-}
-
-.portal-card:active {
-  transform: translateY(-1px);
-}
-
-/* Icône : square teinté doux + micro-zoom au hover */
+.portal-card:active { transform: translateY(0); }
+.card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .portal-card .card__icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--course-accent) 10%, transparent);
-  transition: transform var(--transition-spring);
-}
-
-.portal-card .card__icon svg {
-  width: 19px;
-  height: 19px;
-}
-
-.portal-card:hover .card__icon {
-  transform: scale(1.08) rotate(-2deg);
-}
-
-.portal-card .card__title {
-  font-size: var(--text-base);
-  font-weight: var(--weight-semibold);
-  line-height: var(--leading-snug);
-}
-
-.portal-card .card__desc {
-  display: none;  /* compact : pas de description */
-}
-
-.portal-card .card__meta {
-  display: none;  /* compact */
-}
-
-.portal-card .card__shortcut {
-  margin-left: auto;
-  font-size: 11.5px;
-  color: var(--color-text-subtle);
-  font-family: var(--font-mono);
-  transition: color var(--transition-fast);
-}
-
-.portal-card:hover .card__shortcut {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 42px; height: 42px; border-radius: 8px;
+  background: color-mix(in srgb, var(--course-accent) 12%, #fff);
   color: var(--course-accent);
+  border: 1px solid color-mix(in srgb, var(--course-accent) 22%, #fff);
+  transition: transform .15s ease;
 }
-
-/* Carte featured (Atelier Web) — liseré periwinkle doux */
-.portal-card.card--featured {
-  border-color: color-mix(in srgb, var(--color-accent) 35%, var(--color-border));
-  background:
-    linear-gradient(180deg, var(--color-accent-soft) 0%, var(--color-bg-elevated) 55%);
+.portal-card .card__icon svg { width: 21px; height: 21px; }
+.portal-card:hover .card__icon { transform: rotate(-2deg) scale(1.04); }
+.portal-card .card__title {
+  font-family: var(--font-display); font-size: 1.0625rem; font-weight: 700;
+  line-height: 1.3; letter-spacing: -.015em; color: #1b1b1e;
 }
-
-/* Couleurs par cours — inchangées */
-.portal-card--proba { --course-accent: var(--course-probabilites); }
-.portal-card--sql { --course-accent: var(--course-sql); }
-.portal-card--ro { --course-accent: var(--course-RD-RO); }
-.portal-card--php { --course-accent: var(--course-php); }
-.portal-card--linux { --course-accent: var(--course-linux); }
-.portal-card--winserver { --course-accent: var(--course-rd_winserver); }
-.portal-card--adminvm { --course-accent: var(--course-admin-vm); }
-.portal-card--droit { --course-accent: var(--course-droit); }
-.portal-card--react { --course-accent: var(--course-react); }
-.portal-card--api { --course-accent: var(--course-api-rest-flask); }
-.portal-card--erp { --course-accent: var(--course-erp-si); }
-.portal-card--requirements { --course-accent: var(--course-ingenierie-besoin); }
-.portal-card--masterclass { --course-accent: var(--course-masterclass-apprendre); }
-.portal-card--java { --course-accent: var(--course-rd_java); }
-.portal-card--csharp { --course-accent: var(--course-csharp); }
-.portal-card--uml { --course-accent: var(--course-uml); }
-.portal-card--ccna { --course-accent: var(--course-ccna); }
-.portal-card--uiux { --course-accent: var(--course-uiux); }
-.portal-card--asm { --course-accent: var(--course-assembleur); }
-.portal-card--docker { --course-accent: var(--course-docker); }
-.portal-card--infographie { --course-accent: var(--course-infographie); }
-.portal-card--preparation { --course-accent: var(--course-preparation-web); }
-.portal-card--cyber { --course-accent: var(--course-cyber); }
-
-/* ─────────────────────────────────────────────────────────────────────────
-   6. TOPBAR — glass léger sur papier (seul endroit "frosted", toléré)
-   ──────────────────────────────────────────────────────────────────────── */
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  height: var(--topbar-height);
-  padding-inline: var(--space-6);
-  background: var(--color-bg-elevated);
-  box-shadow: var(--shadow-xl);
-  border-bottom: 1px solid var(--color-border);
+.portal-card .card__desc, .portal-card .card__meta { display: none; }
+.portal-card .card__foot {
+  margin-top: auto; padding-top: 10px;
+  border-top: 1px solid #ececef;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
 }
-
-.topbar__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  letter-spacing: var(--tracking-tight);
-  color: var(--color-text);
-  text-decoration: none;
+.portal-card .card__shortcut {
+  font-size: .74rem; color: #6b6f6c; font-family: var(--font-sans);
 }
+.card--featured { background: #fbfdf9; }
 
-.topbar__brand svg { color: var(--color-interactive, var(--color-accent)); }
-
-.topbar__nav {
-  display: flex;
-  gap: var(--space-1);
-}
-
-.topbar__nav-link {
-  padding: var(--space-1) var(--space-3);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  text-decoration: none;
-  border-radius: var(--radius-sm);
-  transition: color var(--transition-fast), background var(--transition-fast);
-}
-
-.topbar__nav-link:hover {
-  color: var(--color-text);
-  background: var(--color-primary-soft);
-}
-
-.topbar__actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.profile-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-  text-decoration: none;
-  cursor: pointer;
-  position: relative;
-  transition: all var(--transition-fast);
-}
-
-.profile-btn:hover {
-  color: var(--color-primary);
-  background: var(--color-primary-soft);
-  border-color: var(--color-primary);
-  transform: translateY(-1px);
-}
-
-.profile-btn.is-authenticated {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-}
-
-.profile-btn.is-authenticated::after {
-  content: '';
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 7px;
-  height: 7px;
-  background: #10b981;
-  border-radius: 50%;
-  border: 1.5px solid var(--color-surface, #fff);
-}
-
-.profile-btn svg { width: 18px; height: 18px; }
-
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.theme-toggle:hover {
-  color: var(--color-text);
-  background: var(--color-primary-soft);
-}
-
-.theme-toggle svg { width: 17px; height: 17px; }
-
-/* ─────────────────────────────────────────────────────────────────────────
-   7. FOOTER
-   ──────────────────────────────────────────────────────────────────────── */
+/* ── Pied de page ──────────────────────────────────────────────────────── */
 .portal-footer {
-  text-align: center;
-  padding: var(--space-16) var(--space-6) var(--space-8);
-  margin-top: var(--space-24);
-  background: #000000;
-  color: #cccccc;
-  font-size: var(--text-xs);
+  margin-top: 40px; padding: 24px;
+  background: #1b1b1e; color: #d4d4d8; font-size: .8rem;
+  border-top: 1px solid #1b1b1e;
 }
-
-.portal-footer a { /* impeccable-disable-line low-contrast -- footer background is #000000 */
-  color: #ffffff;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  transition: color var(--transition-fast);
+.portal-footer__inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
 }
+.portal-footer a { color: #fff; text-decoration: none; }
+.portal-footer a:hover { text-decoration: underline; }
+.portal-footer p { color: #d4d4d8; max-width: none; margin: 0; }
 
-.portal-footer a:hover { color: var(--bf-pastel-teal, #a0dcd5); } /* impeccable-disable-line low-contrast -- footer background is #000000 */
-
-/* La règle `p` de base.css force --color-text (#141414) sur le footer noir :
-   on rétablit la couleur claire du footer (AA sur #000) et on annule le max-width. */
-.portal-footer p {
-  color: #cccccc;
-  max-width: none;
-}
-
-/* Sur chip active (fond noir), le compteur doit rester clair (AA sur #000). */
-.chip.is-active .chip__count {
-  color: var(--color-on-primary);
-}
-
-/* Conteneur du skip-link : nav = landmark, contenu body rattaché (axe region). */
-.skip-nav {
-  margin: 0;
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
-   8. APPARITION EN STAGGER
-   ──────────────────────────────────────────────────────────────────────── */
+/* ── Animations d'apparition ───────────────────────────────────────────── */
 @keyframes portal-fade-up {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-.portal-hero,
-.portal-search,
-.portal-chips,
-.portal-grid {
-  animation: portal-fade-up 550ms var(--ease-out) backwards;
-}
-
-.portal-search { animation-delay: 90ms; }
-.portal-chips { animation-delay: 160ms; }
-.portal-grid { animation-delay: 230ms; }
-
-/* Stagger léger sur les cartes elles-mêmes */
-.portal-grid .portal-card {
-  animation: portal-fade-up 500ms var(--ease-out) backwards;
-  animation-delay: calc(230ms + min(var(--bf-i, 0), 11) * 35ms);
-}
-
+.portal-grid .portal-card { animation: portal-fade-up 380ms var(--ease-out) backwards; animation-delay: calc(min(var(--bf-i, 0), 11) * 22ms); }
 @media (prefers-reduced-motion: reduce) {
-  .portal-hero,
-  .portal-search,
-  .portal-chips,
-  .portal-grid,
-  .portal-grid .portal-card {
-    animation: none;
-  }
-  .portal-card, .portal-card .card__icon { transition: none; }
+  .portal-grid .portal-card, .bf-resume:not([hidden]) { animation: none; }
+  .portal-card, .portal-card .card__icon, .portal-card:hover { transition: none; transform: none; }
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .portal-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .portal-hero { grid-template-columns: 1fr; padding-top: 40px; }
+  .portal-level-section, .portal-search { grid-column: 1 / -1; }
+  .portal-level-section { order: 4; }
+  .portal-search { order: 5; }
+  .portal-status-bar { order: 6; }
+  .portal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .topbar { padding-inline: 16px; gap: 12px; height: 52px; }
+  .topbar__brand span { font-size: .92rem; }
+  .topbar__nav { display: none; }
+  .topbar__brand svg { width: 30px; height: 30px; }
+  .portal-hero { padding: 28px 16px 0; }
+  .portal-hero__title { font-size: 2.1rem; text-align: left; }
+  .portal-hero__subtitle { font-size: .96rem; text-align: left; margin-bottom: 20px; }
+  .portal-free-banner { justify-self: start; }
+  .portal-level-tabs { width: 100%; overflow-x: auto; }
+  .level-tab { padding: 8px 12px; font-size: .78rem; }
+  .portal-status-bar::after { display: none; }
+  .portal-grid { grid-template-columns: 1fr; gap: 12px; padding: 0 16px 32px; }
+  .portal-card { min-height: 0; }
+  .portal-footer__inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .bf-resume { margin: 20px 16px 0; flex-wrap: wrap; }
+  .bf-resume__cta { width: 100%; justify-content: center; }
+}
+@media (max-width: 380px) {
+  .portal-hero__title { font-size: 1.85rem; }
 }
