@@ -1,0 +1,221 @@
+#!/usr/bin/env python3
+"""
+══════════════════════════════════════════════════════════════════════════════
+GÉNÉRATEUR DES MANIFESTES DE CERTIFICATION ET D'ÉCARTS HISTORIQUES
+Produit manifest_ecarts_historiques.json et manifest_claims_certification.json
+══════════════════════════════════════════════════════════════════════════════
+"""
+
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent.parent
+OUT_MANIF = ROOT / "RECONCILIATION_CONTRE_AUDIT_GLOBAL" / "07_MANIFESTES"
+
+print("=== GÉNÉRATION DES MANIFESTES DE CERTIFICATION ET ÉCARTS HISTORIQUES ===")
+
+ecarts = [
+    {
+        "id_claim": "CLAIM-01",
+        "sujet": "Catalogue global des exercices",
+        "affirmation_historique": "1 250 exercices uniques au catalogue",
+        "chiffre_historique": 1250,
+        "chiffre_reconcilie": 1250,
+        "ecart_arithmetique": 0,
+        "type_ecart": "EXACT",
+        "source_preuve": "server/exercises/index.js (listExercises())",
+        "niveau_preuve": "P4",
+        "statut_confiance": "CERTIFIÉ",
+        "commentaire": "Catalogue stable de 1 250 exercices uniques sur 68 cours (0 doublon)."
+    },
+    {
+        "id_claim": "CLAIM-02",
+        "sujet": "Exercices suspendus de notation",
+        "affirmation_historique": "354 exercices suspendus de notation",
+        "chiffre_historique": 354,
+        "chiffre_reconcilie": 354,
+        "ecart_arithmetique": 0,
+        "type_ecart": "EXACT",
+        "source_preuve": "server/exercises/grading-policy.js",
+        "niveau_preuve": "P4",
+        "statut_confiance": "CERTIFIÉ",
+        "commentaire": "Décomposition prouvée : 126 par cours (7 cours * 18) + 1 individuel (algo-c9-e2) + 227 par empreinte manquante/périmée = 354."
+    },
+    {
+        "id_claim": "CLAIM-03",
+        "sujet": "Exercices actifs éligibles",
+        "affirmation_historique": "896 exercices actifs non suspendus",
+        "chiffre_historique": 896,
+        "chiffre_reconcilie": 896,
+        "ecart_arithmetique": 0,
+        "type_ecart": "EXACT",
+        "source_preuve": "server/exercises/index.js & grading-policy.js",
+        "niveau_preuve": "P4",
+        "statut_confiance": "CERTIFIÉ",
+        "commentaire": "1250 total - 354 suspendus = 896 actifs."
+    },
+    {
+        "id_claim": "CLAIM-04",
+        "sujet": "Lots pilotes et complémentaires",
+        "affirmation_historique": "82 exercices pilotes ou complémentaires (revendiqué 56+26 ou 55+27 selon passages)",
+        "chiffre_historique": 82,
+        "chiffre_reconcilie": 82,
+        "ecart_arithmetique": 0,
+        "type_ecart": "EXACT_COMPOSITION_RECTIFIEE",
+        "source_preuve": "server/exercises/course-config.js & grading-policy.js",
+        "niveau_preuve": "P3",
+        "statut_confiance": "CERTIFIÉ AVEC RÉSERVES",
+        "commentaire": "Le total de 82 est exact, mais la justification antérieure était erronée. Réalité : 55 pilotes actifs (b1-linux: 17, proba: 18, RD-RO: 20) + 27 complémentaires actifs (rd_winserver: 15, react: 12) = 82."
+    },
+    {
+        "id_claim": "CLAIM-05",
+        "sujet": "Exercices actifs hors pilotes",
+        "affirmation_historique": "814 exercices actifs hors pilote certifiés",
+        "chiffre_historique": 814,
+        "chiffre_reconcilie": 814,
+        "ecart_arithmetique": 0,
+        "type_ecart": "EXACT_MAIS_GENERATEUR_TRONQUE",
+        "source_preuve": "server/exercises/index.js",
+        "niveau_preuve": "P3",
+        "statut_confiance": "CERTIFIÉ AVEC RÉSERVES",
+        "commentaire": "896 actifs - 82 = 814 effectif exact. Mais le script historique build_audit_global_csvs.js avait exclu les mauvais cours pilotes (858 candidats) et forcé .slice(0, 814), amputant 44 fiches B3."
+    },
+    {
+        "id_claim": "CLAIM-06",
+        "sujet": "Exercices sans tests négatifs ou limites",
+        "affirmation_historique": "551 exercices sans tests négatifs/limites (ou 652 dans anciens rapports)",
+        "chiffre_historique": 551,
+        "chiffre_reconcilie": 551,
+        "ecart_arithmetique": 0,
+        "type_ecart": "EXACT_SUR_CORPUS_814",
+        "source_preuve": "server/exercises/course-config.js (analyse structurelle des bancs de test)",
+        "niveau_preuve": "P3",
+        "statut_confiance": "CERTIFIÉ",
+        "commentaire": "Sur les 814 fiches : 135 ont des tests négatifs, 138 des tests de limites, 10 ont les deux (union: 263). 814 - 263 = 551 fiches purement nominales. L'ancien chiffre 652 provenait d'un regex partiel qui manquait 101 tests."
+    },
+    {
+        "id_claim": "CLAIM-07",
+        "sujet": "Corpus global des QCM",
+        "affirmation_historique": "3 185 QCM uniques (après 3 089 et 3 158)",
+        "chiffre_historique": 3185,
+        "chiffre_reconcilie": 3185,
+        "ecart_arithmetique": 0,
+        "type_ecart": "EXACT",
+        "source_preuve": "server/content/*.js & examens/*.js",
+        "niveau_preuve": "P4",
+        "statut_confiance": "CERTIFIÉ",
+        "commentaire": "2 925 questions de chapitres (64 cours) + 260 questions d'examen (26 fichiers * 10). Omission de 69 QCM réparée (3089->3158) et casse de Cyber securite B2 réparée (3158->3185)."
+    },
+    {
+        "id_claim": "CLAIM-08",
+        "sujet": "Asymétrie de longueur des QCM",
+        "affirmation_historique": "1 160 QCM asymétriques (ratio >= 2.0x) selon le dernier rapport, 701 antérieurement",
+        "chiffre_historique": 1160,
+        "chiffre_reconcilie": 1160,
+        "ecart_arithmetique": 0,
+        "type_ecart": "EXACT_SELON_METHODE_B",
+        "source_preuve": "Calcul ratio Clé / Moyenne distracteurs",
+        "niveau_preuve": "P3",
+        "statut_confiance": "CERTIFIÉ",
+        "commentaire": "Méthode B (Clé/Moyenne) donne exactement 983 (chars) + 976 (mots) - 799 (intersection) = 1 160 (36,42%). Méthode A (Max/Min option) donne 1 961 items (61,57%). L'ancien 701 était codé en dur sans calcul."
+    },
+    {
+        "id_claim": "CLAIM-09",
+        "sujet": "Questions à formulation négative",
+        "affirmation_historique": "31 questions selon un passage, 35 selon un autre",
+        "chiffre_historique": 31,
+        "chiffre_reconcilie": 31,
+        "ecart_arithmetique": 0,
+        "type_ecart": "VARIE_SELON_CRITÈRES",
+        "source_preuve": "CONTRE_AUDIT_AUDIT_GLOBAL/OUTILS/analyze_qcm_psychometrics.js",
+        "niveau_preuve": "P2",
+        "statut_confiance": "CERTIFIÉ AVEC RÉSERVES",
+        "commentaire": "Avec le dictionnaire de mots-clés du script historique (incluant 'interdit', 'faux', etc.), exactement 31 questions sont identifiées. Une analyse grammaticale pure dans la phrase interrogative ne retient que 18 énoncés réellement négatifs."
+    },
+    {
+        "id_claim": "CLAIM-10",
+        "sujet": "Questions avec option Toutes/Aucune",
+        "affirmation_historique": "33 questions selon le dernier rapport, 1 dans un passage ancien",
+        "chiffre_historique": 33,
+        "chiffre_reconcilie": 33,
+        "ecart_arithmetique": 0,
+        "type_ecart": "VARIE_SELON_CRITÈRES",
+        "source_preuve": "CONTRE_AUDIT_AUDIT_GLOBAL/OUTILS/analyze_qcm_psychometrics.js",
+        "niveau_preuve": "P2",
+        "statut_confiance": "CERTIFIÉ AVEC RÉSERVES",
+        "commentaire": "33 questions contiennent des options combinatoires larges ('les deux', '1 et 2', 'a et b', etc.). Strictement formulée ('toutes les réponses' / 'aucune des réponses'), 1 seule question existe dans le corpus."
+    },
+    {
+        "id_claim": "CLAIM-11",
+        "sujet": "Pages HTML du projet",
+        "affirmation_historique": "832 pages canoniques, 868 sur disque cours, 931 servies, 1 067 total workspace",
+        "chiffre_historique": 1067,
+        "chiffre_reconcilie": 1067,
+        "ecart_arithmetique": 0,
+        "type_ecart": "EXACT_RECONCILIE",
+        "source_preuve": "course-kit.js & scan physique du workspace",
+        "niveau_preuve": "P4",
+        "statut_confiance": "CERTIFIÉ",
+        "commentaire": "Équations fermées prouvées : 832 + 36 surplus = 868 générées ; 868 + 60 manuelles + 3 prep-web = 931 servies ; 931 + 136 hors-cours = 1 067 physiques."
+    },
+    {
+        "id_claim": "CLAIM-12",
+        "sujet": "Vecteurs d'attaque HTTP",
+        "affirmation_historique": "12 vecteurs d'attaque HTTP testés",
+        "chiffre_historique": 12,
+        "chiffre_reconcilie": 11,
+        "ecart_arithmetique": -1,
+        "type_ecart": "SURÉVALUATION_DÉCLARATIVE",
+        "source_preuve": "AUDIT_GLOBAL_FINAL/PREUVES/http_adversarial_proofs.log",
+        "niveau_preuve": "P2",
+        "statut_confiance": "NON CERTIFIÉ (RECTIFIÉ À 11)",
+        "commentaire": "Le fichier de journal http_adversarial_proofs.log ne contient rigoureusement que 11 sections 'TEST VECTEUR'. L'affirmation '12 vecteurs' était erronée."
+    },
+    {
+        "id_claim": "CLAIM-13",
+        "sujet": "Assertions de tests npm test",
+        "affirmation_historique": "50 000 assertions validées avec succès",
+        "chiffre_historique": 50000,
+        "chiffre_reconcilie": 8401,
+        "ecart_arithmetique": -41599,
+        "type_ecart": "CONFUSION_LIGNES_LOG_ET_ASSERTIONS",
+        "source_preuve": "AUDIT_GLOBAL_FINAL/PREUVES/npm_test_full.log",
+        "niveau_preuve": "P3",
+        "statut_confiance": "NON CERTIFIÉ (RECTIFIÉ À 8 401)",
+        "commentaire": "Le journal TAP contient 50 609 lignes de texte. Le résumé TAP officiel à la ligne 50 601 indique : # tests 8401, # pass 8398, # skipped 3, # fail 0. L'auteur a confondu les lignes de log avec des assertions."
+    },
+    {
+        "id_claim": "CLAIM-14",
+        "sujet": "Persistance et schéma PostgreSQL",
+        "affirmation_historique": "Cluster réel PostgreSQL testé sur port 54333 avec 5 migrations",
+        "chiffre_historique": 5,
+        "chiffre_reconcilie": 5,
+        "ecart_arithmetique": 0,
+        "type_ecart": "PREUVE_HERITEE_NON_RAFRAICHIE",
+        "source_preuve": "postgresql_isolated_run.log & scripts/run_isolated_postgres_suite.js",
+        "niveau_preuve": "P2",
+        "statut_confiance": "CERTIFIÉ AVEC RÉSERVES (PREUVE HÉRITÉE)",
+        "commentaire": "L'épreuve est techniquement réelle et solide (12 tables, 46 index, idempotence), mais le journal de AUDIT_GLOBAL_FINAL est une copie conforme octet par octet de CONTRE_AUDIT_FINAL sans rejeu au moment de l'audit global."
+    }
+]
+
+# Matrice de certification globale
+claims_certification = {
+    "statut_global": "CERTIFIÉ AVEC RÉSERVES",
+    "justification_globale": "L'arithmétique des effectifs pivots (1 250, 354, 896, 82, 814, 3 185, 832, 931, 1 067) est 100 % exacte et démontrée. Toutefois, des réserves majeures s'imposent : deux affirmations emblématiques ('50 000 assertions' et '12 vecteurs HTTP') étaient factuellement fausses (8 401 tests réels et 11 vecteurs réels), des preuves ont été dupliquées sans ré-exécution, et les générateurs d'audit antérieurs contenaient des artefacts critiques (slice(0, 814), constantes de complaisance).",
+    "statistiques_certifications": {
+        "total_claims": len(ecarts),
+        "certifie_plein": len([c for c in ecarts if c["statut_confiance"] == "CERTIFIÉ"]),
+        "certifie_avec_reserves": len([c for c in ecarts if "RÉSERVES" in c["statut_confiance"]]),
+        "non_certifie": len([c for c in ecarts if "NON CERTIFIÉ" in c["statut_confiance"]])
+    },
+    "claims": ecarts
+}
+
+with open(OUT_MANIF / "manifest_ecarts_historiques.json", "w", encoding="utf-8") as f:
+    json.dump(ecarts, f, indent=2, ensure_ascii=False)
+
+with open(OUT_MANIF / "manifest_claims_certification.json", "w", encoding="utf-8") as f:
+    json.dump(claims_certification, f, indent=2, ensure_ascii=False)
+
+print("Les 2 manifestes finaux (ecarts et claims) ont été générés avec succès.")

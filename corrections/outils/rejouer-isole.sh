@@ -54,6 +54,14 @@ if [[ "$mode" == catalogue && "$2" == code-lab-analyse ]]; then
   mkdir -p "$temp_dir/project/tests"
   cp -- "$root/tests/code-lab-analyse-lot1.test.js" "$temp_dir/project/tests/code-lab-analyse-lot1.test.js"
 fi
+if [[ -f "$root/server/routes/qcm.js" && ! -f "$temp_dir/project/server/routes/qcm.js" ]]; then
+  mkdir -p "$temp_dir/project/server/routes"
+  cp -- "$root/server/routes/qcm.js" "$temp_dir/project/server/routes/qcm.js"
+fi
+if [[ -f "$root/server/exercises/command-validator.js" && ! -f "$temp_dir/project/server/exercises/command-validator.js" ]]; then
+  mkdir -p "$temp_dir/project/server/exercises"
+  cp -- "$root/server/exercises/command-validator.js" "$temp_dir/project/server/exercises/command-validator.js"
+fi
 if [[ "$mode" == sql-audit ]]; then
   if [[ $# -eq 1 ]]; then
     git -C "$root" ls-files -z > "$temp_dir/results/sql-tracked"

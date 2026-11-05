@@ -367,27 +367,32 @@ function box(kind, title, iconName, inner) {
   return renderedBox;
 }
 
-/** QCM interactif (corrigé par `assets/js/cours.js`). */
+/** QCM interactif (corrigé par `assets/js/cours.js` en mode entraînement, ou via API /api/qcm en mode sécurisé). */
 function qcm(questions, opts) {
   if (!Array.isArray(questions)) return '';
+  const isSecure = Boolean(opts && (opts.secure || opts.mode === 'exam'));
   const rows = questions.map(q => {
     const rawOpts = q.opts || q.choices || q.options || [];
     const correctIdx = typeof q.correct === 'number' ? q.correct : q.answer;
     const options = rawOpts.map((label, index) =>
-      '        <button class="opt"' + (index === correctIdx ? ' data-correct="1"' : '') + '>' + inlineHtml(label) + '</button>'
+      '        <button class="opt"' + (!isSecure && index === correctIdx ? ' data-correct="1"' : '') + '>' + inlineHtml(label) + '</button>'
     ).join('\n');
+    const expDiv = isSecure
+      ? '      <div class="q__exp" data-secure="1"></div>'
+      : '      <div class="q__exp">' + inlineHtml(q.exp || q.explanation || '') + '</div>';
     return [
       '    <div class="q">',
       '      <p class="q__stem">' + inlineHtml(q.stem || q.q || '') + '</p>',
       '      <div class="opts">',
       options,
       '      </div>',
-      '      <div class="q__exp">' + inlineHtml(q.exp || q.explanation || '') + '</div>',
+      expDiv,
       '    </div>'
     ].join('\n');
   }).join('\n');
 
-  return '<div class="qcm"' + (opts && opts.mastery ? ' data-mastery="1"' : '') + '>\n' + rows + '\n  </div>';
+  const secureAttr = isSecure ? ' data-secure="1"' : '';
+  return '<div class="qcm"' + (opts && opts.mastery ? ' data-mastery="1"' : '') + secureAttr + '>\n' + rows + '\n  </div>';
 }
 
 

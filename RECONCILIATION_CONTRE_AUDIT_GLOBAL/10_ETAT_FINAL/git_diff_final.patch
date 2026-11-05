@@ -1,0 +1,288 @@
+diff --git a/corrections/outils/rejouer-isole.sh b/corrections/outils/rejouer-isole.sh
+index 4ca89b3..46733b9 100644
+--- a/corrections/outils/rejouer-isole.sh
++++ b/corrections/outils/rejouer-isole.sh
+@@ -54,6 +54,14 @@ if [[ "$mode" == catalogue && "$2" == code-lab-analyse ]]; then
+   mkdir -p "$temp_dir/project/tests"
+   cp -- "$root/tests/code-lab-analyse-lot1.test.js" "$temp_dir/project/tests/code-lab-analyse-lot1.test.js"
+ fi
++if [[ -f "$root/server/routes/qcm.js" && ! -f "$temp_dir/project/server/routes/qcm.js" ]]; then
++  mkdir -p "$temp_dir/project/server/routes"
++  cp -- "$root/server/routes/qcm.js" "$temp_dir/project/server/routes/qcm.js"
++fi
++if [[ -f "$root/server/exercises/command-validator.js" && ! -f "$temp_dir/project/server/exercises/command-validator.js" ]]; then
++  mkdir -p "$temp_dir/project/server/exercises"
++  cp -- "$root/server/exercises/command-validator.js" "$temp_dir/project/server/exercises/command-validator.js"
++fi
+ if [[ "$mode" == sql-audit ]]; then
+   if [[ $# -eq 1 ]]; then
+     git -C "$root" ls-files -z > "$temp_dir/results/sql-tracked"
+diff --git a/scripts/course-kit.js b/scripts/course-kit.js
+index 1b9a486..c780856 100644
+--- a/scripts/course-kit.js
++++ b/scripts/course-kit.js
+@@ -367,27 +367,32 @@ function box(kind, title, iconName, inner) {
+   return renderedBox;
+ }
+ 
+-/** QCM interactif (corrigé par `assets/js/cours.js`). */
++/** QCM interactif (corrigé par `assets/js/cours.js` en mode entraînement, ou via API /api/qcm en mode sécurisé). */
+ function qcm(questions, opts) {
+   if (!Array.isArray(questions)) return '';
++  const isSecure = Boolean(opts && (opts.secure || opts.mode === 'exam'));
+   const rows = questions.map(q => {
+     const rawOpts = q.opts || q.choices || q.options || [];
+     const correctIdx = typeof q.correct === 'number' ? q.correct : q.answer;
+     const options = rawOpts.map((label, index) =>
+-      '        <button class="opt"' + (index === correctIdx ? ' data-correct="1"' : '') + '>' + inlineHtml(label) + '</button>'
++      '        <button class="opt"' + (!isSecure && index === correctIdx ? ' data-correct="1"' : '') + '>' + inlineHtml(label) + '</button>'
+     ).join('\n');
++    const expDiv = isSecure
++      ? '      <div class="q__exp" data-secure="1"></div>'
++      : '      <div class="q__exp">' + inlineHtml(q.exp || q.explanation || '') + '</div>';
+     return [
+       '    <div class="q">',
+       '      <p class="q__stem">' + inlineHtml(q.stem || q.q || '') + '</p>',
+       '      <div class="opts">',
+       options,
+       '      </div>',
+-      '      <div class="q__exp">' + inlineHtml(q.exp || q.explanation || '') + '</div>',
++      expDiv,
+       '    </div>'
+     ].join('\n');
+   }).join('\n');
+ 
+-  return '<div class="qcm"' + (opts && opts.mastery ? ' data-mastery="1"' : '') + '>\n' + rows + '\n  </div>';
++  const secureAttr = isSecure ? ' data-secure="1"' : '';
++  return '<div class="qcm"' + (opts && opts.mastery ? ' data-mastery="1"' : '') + secureAttr + '>\n' + rows + '\n  </div>';
+ }
+ 
+ 
+diff --git a/server/app.js b/server/app.js
+index 693c03c..772794a 100755
+--- a/server/app.js
++++ b/server/app.js
+@@ -1,104 +1,105 @@
+-/**
+- * Application Fastify partagée
+- * Utilisée par :
+- *   - server.js (Render / local) → ajoute le serveur de fichiers statiques + listen()
+- *   - api/index.js (Vercel) → expose en serverless function
+- */
+-require('dotenv').config();
+-
+-function buildApp(opts = {}) {
+-  const fastify = require('fastify')({
+-    logger: opts.logger !== undefined ? opts.logger : true,
+-    bodyLimit: 1048576, // 1MB
+-    trustProxy: true   // Render/Vercel : req.ip = IP réelle du client (rate-limit par IP fiable)
+-  });
+-
+-  // ========================
+-  // Plugins
+-  // ========================
+-  fastify.register(require('@fastify/cookie'));
+-  fastify.register(require('@fastify/cors'), {
+-    origin: function(origin, cb) {
+-      // Allow requests with no origin (mobile apps, curl, same-origin)
+-      if (!origin) return cb(null, true);
+-      const allowedPatterns = [
+-        /^https?:\/\/localhost(:\d+)?$/,
+-        /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
+-        /^https:\/\/revi-mu(-[a-z0-9-]+)?\.vercel\.app$/,
+-        /^https:\/\/revi-mu(-[a-z0-9-]+)?\.onrender\.com$/
+-      ];
+-      if (allowedPatterns.some(re => re.test(origin))) return cb(null, true);
+-
+-      const extraOrigins = String(process.env.ALLOWED_ORIGINS || '')
+-        .split(',')
+-        .map(s => s.trim())
+-        .filter(Boolean);
+-      if (extraOrigins.includes(origin)) return cb(null, true);
+-
+-      return cb(null, false); // refus propre : pas d'en-têtes CORS, pas d'exception 500
+-    },
+-    credentials: true
+-  });
+-
+-  // Sécurité : headers HTTP et Content-Security-Policy (OPS-001)
+-  fastify.register(require('@fastify/helmet'), {
+-    contentSecurityPolicy: {
+-      directives: {
+-        defaultSrc: ["'self'"],
+-        formAction: ["'self'", "https://*.fedapay.com"],
+-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "blob:", "https://cdn.fedapay.com"],
+-        workerSrc: ["'self'", "blob:"],
+-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.fedapay.com"],
+-        styleSrcElem: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.fedapay.com"],
+-        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+-        imgSrc: ["'self'", "data:", "blob:", "https:", "https://cdn.fedapay.com"],
+-        connectSrc: [
+-          "'self'",
+-          "https://revi-mu.vercel.app",
+-          "https://revi-mu.onrender.com",
+-          "https://fonts.googleapis.com",
+-          "https://fonts.gstatic.com",
+-          "https://api.fedapay.com",
+-          "https://sandbox-api.fedapay.com"
+-        ],
+-        frameSrc: ["'self'", "https://*.fedapay.com"],
+-        frameAncestors: ["'self'"],
+-        objectSrc: ["'none'"],
+-        baseUri: ["'self'"]
+-      }
+-    }
+-  });
+-
+-  // Rate-limiting global (100 req/min par IP réelle — trustProxy activé)
+-  fastify.register(require('@fastify/rate-limit'), {
+-    max: 100,
+-    timeWindow: '1 minute'
+-  });
+-
+-  // Capture du body brut pour les webhooks signés (ex: FedaPay HMAC)
+-  fastify.addContentTypeParser('application/json', { parseAs: 'buffer' }, function (req, body, done) {
+-    try {
+-      req.rawBody = body.toString('utf8');
+-      const json = req.rawBody ? JSON.parse(req.rawBody) : {};
+-      done(null, json);
+-    } catch (err) {
+-      err.statusCode = 400;
+-      done(err, undefined);
+-    }
+-  });
+-
+-  // ========================
+-  // Routes API
+-  // ========================
+-  fastify.register(require('./routes/auth'), { prefix: '/api' });
+-  fastify.register(require('./routes/admin'), { prefix: '/api/admin' });
+-  fastify.register(require('./routes/ai-chat'), { prefix: '/api' });
+-  fastify.register(require('./routes/execute'), { prefix: '/api' });
+-  fastify.register(require('./routes/exercises'), { prefix: '/api' });
+-  fastify.register(require('./routes/preparation'), { prefix: '/api/preparation' });
+-  fastify.register(require('./routes/fedapay'));
+-
+-  return fastify;
+-}
+-
+-module.exports = { buildApp };
++/**
++ * Application Fastify partagée
++ * Utilisée par :
++ *   - server.js (Render / local) → ajoute le serveur de fichiers statiques + listen()
++ *   - api/index.js (Vercel) → expose en serverless function
++ */
++require('dotenv').config();
++
++function buildApp(opts = {}) {
++  const fastify = require('fastify')({
++    logger: opts.logger !== undefined ? opts.logger : true,
++    bodyLimit: 1048576, // 1MB
++    trustProxy: true   // Render/Vercel : req.ip = IP réelle du client (rate-limit par IP fiable)
++  });
++
++  // ========================
++  // Plugins
++  // ========================
++  fastify.register(require('@fastify/cookie'));
++  fastify.register(require('@fastify/cors'), {
++    origin: function(origin, cb) {
++      // Allow requests with no origin (mobile apps, curl, same-origin)
++      if (!origin) return cb(null, true);
++      const allowedPatterns = [
++        /^https?:\/\/localhost(:\d+)?$/,
++        /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
++        /^https:\/\/revi-mu(-[a-z0-9-]+)?\.vercel\.app$/,
++        /^https:\/\/revi-mu(-[a-z0-9-]+)?\.onrender\.com$/
++      ];
++      if (allowedPatterns.some(re => re.test(origin))) return cb(null, true);
++
++      const extraOrigins = String(process.env.ALLOWED_ORIGINS || '')
++        .split(',')
++        .map(s => s.trim())
++        .filter(Boolean);
++      if (extraOrigins.includes(origin)) return cb(null, true);
++
++      return cb(null, false); // refus propre : pas d'en-têtes CORS, pas d'exception 500
++    },
++    credentials: true
++  });
++
++  // Sécurité : headers HTTP et Content-Security-Policy (OPS-001)
++  fastify.register(require('@fastify/helmet'), {
++    contentSecurityPolicy: {
++      directives: {
++        defaultSrc: ["'self'"],
++        formAction: ["'self'", "https://*.fedapay.com"],
++        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "blob:", "https://cdn.fedapay.com"],
++        workerSrc: ["'self'", "blob:"],
++        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.fedapay.com"],
++        styleSrcElem: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.fedapay.com"],
++        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
++        imgSrc: ["'self'", "data:", "blob:", "https:", "https://cdn.fedapay.com"],
++        connectSrc: [
++          "'self'",
++          "https://revi-mu.vercel.app",
++          "https://revi-mu.onrender.com",
++          "https://fonts.googleapis.com",
++          "https://fonts.gstatic.com",
++          "https://api.fedapay.com",
++          "https://sandbox-api.fedapay.com"
++        ],
++        frameSrc: ["'self'", "https://*.fedapay.com"],
++        frameAncestors: ["'self'"],
++        objectSrc: ["'none'"],
++        baseUri: ["'self'"]
++      }
++    }
++  });
++
++  // Rate-limiting global (100 req/min par IP réelle — trustProxy activé)
++  fastify.register(require('@fastify/rate-limit'), {
++    max: 100,
++    timeWindow: '1 minute'
++  });
++
++  // Capture du body brut pour les webhooks signés (ex: FedaPay HMAC)
++  fastify.addContentTypeParser('application/json', { parseAs: 'buffer' }, function (req, body, done) {
++    try {
++      req.rawBody = body.toString('utf8');
++      const json = req.rawBody ? JSON.parse(req.rawBody) : {};
++      done(null, json);
++    } catch (err) {
++      err.statusCode = 400;
++      done(err, undefined);
++    }
++  });
++
++  // ========================
++  // Routes API
++  // ========================
++  fastify.register(require('./routes/auth'), { prefix: '/api' });
++  fastify.register(require('./routes/admin'), { prefix: '/api/admin' });
++  fastify.register(require('./routes/ai-chat'), { prefix: '/api' });
++  fastify.register(require('./routes/execute'), { prefix: '/api' });
++  fastify.register(require('./routes/exercises'), { prefix: '/api' });
++  fastify.register(require('./routes/preparation'), { prefix: '/api/preparation' });
++  fastify.register(require('./routes/qcm'), { prefix: '/api/qcm' });
++  fastify.register(require('./routes/fedapay'));
++
++  return fastify;
++}
++
++module.exports = { buildApp };
+diff --git a/tests/db-persistence.test.js b/tests/db-persistence.test.js
+index 1a25e1d..8ec1c09 100644
+--- a/tests/db-persistence.test.js
++++ b/tests/db-persistence.test.js
+@@ -102,7 +102,8 @@ async function simulatedQuery(text, params = []) {
+         { name: '001_init.sql' },
+         { name: '002_users.sql' },
+         { name: '003_user_level.sql' },
+-        { name: '004_ai_config.sql' }
++        { name: '004_ai_config.sql' },
++        { name: '005_fedapay_webhook_events.sql' }
+       ]
+     };
+   }

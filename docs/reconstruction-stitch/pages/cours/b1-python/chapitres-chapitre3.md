@@ -1,0 +1,212 @@
+# Chapitre 3 — Fonctions : modularité et réutilisabilité
+
+> Fiche extraite du fichier `b1-python/chapitres/chapitre3.html` (580 lignes, 32.3 Ko, sha256 `d266618c3ed5`).
+> Famille : **cours-b1-python** · sous-type : `chapitre` · statut : **servi-canonique**.
+> Cette fiche decrit ce que le document contient reellement ; les elements deduits du JavaScript sont signales `[deduit]` et references au document thematique.
+
+## 1. Identite et acces
+
+| Champ | Valeur |
+|---|---|
+| URL servie | `/b1-python/chapitres/chapitre3.html` |
+| Titre du document | Chapitre 3 — Fonctions : modularité et réutilisabilité \| Python B1 |
+| Description meta | Chapitre 3 du cours Python B1 : définition et appel de fonctions, return, paramètres, portée des variables, fonctions intégrées, lambda, docstrings. Théorie, exemples, exercices 5 niveaux, QCM corrigés. |
+| Robots | indexable (defaut) |
+| Langue / theme | `fr` / `defaut` |
+| Chapitre (body) | 3 |
+| Regle d'acces | Compte connecte + niveau B1 ou superieur + abonnement actif |
+| Statut de service | servi-canonique |
+
+## 2. Structure du document (ordre observe)
+
+| # | Element | Classe / role | Contenu cle |
+|---|---|---|---|
+| 1 | nav | pynav | 11 liens, aria="" |
+| 2 | h1 | — | Chapitre 3 — Fonctions : modularité et réutilisabilité |
+| 3 | h2 | — | 1. Définir et appeler |
+| 4 | h2 | — | 2. return vs print |
+| 5 | h2 | — | 3. Types de paramètres |
+| 6 | h2 | — | 4. Portée des variables |
+| 7 | h2 | — | 5. Modules standards et fonctions intégrées |
+| 8 | h2 | — | 6. Lambda et docstrings |
+| 9 | h2 | — | 7. Exemples travaillés |
+| 10 | h2 | — | 8. Exercices (5 niveaux) |
+| 11 | h2 | — | 9. Exercices de code |
+| 12 | h2 | — | 10. QCM — niveau examen |
+| 13 | h2 | — | 11. Erreurs classiques |
+| 14 | h2 | — | 12. Méthodologie de résolution |
+| 15 | .lab | code lab | 3 bloc(s) |
+| 16 | .qcm | QCM | 11 question(s) |
+| 17 | table | — | 1 tableau(x) |
+
+## 3. Hierarchie des titres
+
+- **H1** — Chapitre 3 — Fonctions : modularité et réutilisabilité
+  - **H2** — 1. Définir et appeler
+  - **H2** — 2. return vs print
+  - **H2** — 3. Types de paramètres
+  - **H2** — 4. Portée des variables
+  - **H2** — 5. Modules standards et fonctions intégrées
+  - **H2** — 6. Lambda et docstrings
+  - **H2** — 7. Exemples travaillés
+  - **H2** — 8. Exercices (5 niveaux)
+  - **H2** — 9. Exercices de code
+    - **H3** — Exercice 1 — calcul_statistiques — sujet d’examen
+    - **H3** — Exercice 2 — Division qui ne plante pas
+    - **H3** — Exercice 3 — est_premier — sujet d’examen
+  - **H2** — 10. QCM — niveau examen
+  - **H2** — 11. Erreurs classiques
+  - **H2** — 12. Méthodologie de résolution
+  - **H2** — 13. Révision active
+    - **H3** — Checklist de maîtrise
+    - **H3** — Les 10 notions à connaître absolument
+  - **H2** — 14. Test de maîtrise
+
+## 4. Navigation et liens
+
+| Zone | Classe | Liens |
+|---|---|---|
+| nav | `pynav` | Portail → `/`<br>Python B1 → `../index.html`<br>Sommaire → `../sommaire.html`<br>Ch. 1 → `chapitre1.html`<br>Ch. 2 → `chapitre2.html`<br>Ch. 3 → `chapitre3.html`<br>Cartes → `cartes.html`<br>Mémo → `formules.html`<br>Exercices → `../exercices/exercices.html`<br>Atelier → `../atelier.html`<br>Examen → `simulateur-examen.html` |
+
+Liens sortants : **17** (externes : 0).
+
+| Libelle | href | Cible resolue | Type |
+|---|---|---|---|
+| Portail | `/` | `.` | interne |
+| Python B1 | `../index.html` | `b1-python/index.html` | interne |
+| Sommaire | `../sommaire.html` | `b1-python/sommaire.html` | interne |
+| Ch. 1 | `chapitre1.html` | `b1-python/chapitres/chapitre1.html` | interne |
+| Ch. 2 | `chapitre2.html` | `b1-python/chapitres/chapitre2.html` | interne |
+| Ch. 3 | `chapitre3.html` | `b1-python/chapitres/chapitre3.html` | interne |
+| Cartes | `cartes.html` | `b1-python/chapitres/cartes.html` | interne |
+| Mémo | `formules.html` | `b1-python/chapitres/formules.html` | interne |
+| Exercices | `../exercices/exercices.html` | `b1-python/exercices/exercices.html` | interne |
+| Atelier | `../atelier.html` | `b1-python/atelier.html` | interne |
+| Examen | `simulateur-examen.html` | `b1-python/chapitres/simulateur-examen.html` | interne |
+| Flashcards | `cartes.html` | `b1-python/chapitres/cartes.html` | interne |
+| Chapitre 2 | `chapitre2.html` | `b1-python/chapitres/chapitre2.html` | interne |
+| Chapitre 4 — Structures de données | `chapitre4.html` | `b1-python/chapitres/chapitre4.html` | interne |
+
+## 5. Formulaires et champs
+
+Aucun formulaire dans cette page.
+## 6. Boutons et controles interactifs
+
+| Libelle | type | id | classes | aria-label | Etat initial | data-* |
+|---|---|---|---|---|---|---|
+| 0 |  | — | `opt` | — | actif | — |
+| None |  | — | `opt` | — | actif | data-correct=1 |
+| Erreur |  | — | `opt` | — | actif | — |
+| Erreur : argument manquant |  | — | `opt` | — | actif | — |
+| 6 |  | — | `opt` | — | actif | data-correct=1 |
+| 0 |  | — | `opt` | — | actif | — |
+| 6 |  | — | `opt` | — | actif | — |
+| 12 |  | — | `opt` | — | actif | data-correct=1 |
+| Erreur |  | — | `opt` | — | actif | — |
+| 5 |  | — | `opt` | — | actif | — |
+| NameError |  | — | `opt` | — | actif | data-correct=1 |
+| None |  | — | `opt` | — | actif | — |
+| print et return sont interchangeables |  | — | `opt` | — | actif | — |
+| return renvoie une valeur réutilisable, print non |  | — | `opt` | — | actif | data-correct=1 |
+| return affiche à l'écran |  | — | `opt` | — | actif | — |
+| 1 |  | — | `opt` | — | actif | — |
+| 4 |  | — | `opt` | — | actif | data-correct=1 |
+| Erreur |  | — | `opt` | — | actif | — |
+| 4 |  | — | `opt` | — | actif | — |
+| 3 |  | — | `opt` | — | actif | data-correct=1 |
+| 3.9 |  | — | `opt` | — | actif | — |
+| def f(x = None, y): |  | — | `opt` | — | actif | — |
+| def f(x, y=0): |  | — | `opt` | — | actif | data-correct=1 |
+| def f(x=0, y): |  | — | `opt` | — | actif | — |
+| (6, 2) |  | — | `opt` | — | actif | — |
+| (2, 6) |  | — | `opt` | — | actif | data-correct=1 |
+| Erreur |  | — | `opt` | — | actif | — |
+| random.random() * 6 |  | — | `opt` | — | actif | — |
+| random.randint(1, 6) |  | — | `opt` | — | actif | data-correct=1 |
+| math.randint(1, 6) |  | — | `opt` | — | actif | — |
+| … | | | | | | 3 de plus |
+
+## 7. Composants pedagogiques et etats observes
+
+| Exercice | Langage | Hauteur | Correction | Entree standard | Titre |
+|---|---|---|---|---|---|
+| `py-c3-e1` | python | 300 | suspendue | `5 12 15 14 9 18` | Exercice 1 — calcul_statistiques — sujet d’examen |
+| `py-c3-e2` | python | 300 | suspendue | `10 2` | Exercice 2 — Division qui ne plante pas |
+| `py-c3-e3` | python | 300 | suspendue | `17` | Exercice 3 — est_premier — sujet d’examen |
+
+- QCM : 1 bloc(s), **11 question(s)**.
+- Encadres pedagogiques : 12 (`.box`, variantes `box--*`).
+- Blocs replies : 8 (`<details>`).
+
+Etats et interactions a reconstruire :
+
+- En-tete compact : fil d'Ariane, titre, meta (module, duree, statut gratuit).
+- Encadres pedagogiques : mise en situation, objectifs, intuition, piege, methode, technique, revision.
+- Tableaux de donnees et blocs pseudo-code defilables horizontalement.
+- Exercices de code (`div.lab[data-lab]`) : editeur, entree standard, console a 3 onglets, tuteur IA.
+- Correction suspendue si `data-grading-suspended="1"` : bouton « Validation suspendue » desactive et avis visible.
+- QCM : options desactivees apres reponse, bonne reponse `is-correct`, mauvaise `is-wrong`, explication `is-shown`.
+- Score QCM : `Score : n/N (p %)` + palier de maitrise (4 bandes).
+- Checklist de maitrise : case `data-mark-done`, etat persiste en localStorage par chapitre.
+- Navigation de bas de page : chapitre precedent / suivant.
+
+## 8. Tableaux, code et medias
+
+- Tableaux : 1 (0 lignes / 3 en-tetes)
+- Blocs `pre` : 18 · elements `code` : 156
+- SVG inline : 36 · images : 0
+- Icones du sprite utilisees : `#i-house`, `#i-code`, `#i-play`, `#i-target`, `#i-lightbulb`, `#i-wrench`, `#i-warning`, `#i-arrow-right`, `#i-cpu`, `#i-terminal`, `#i-compass`, `#i-pin`, `#i-cards`, `#i-file`, `#i-chart`, `#i-arrow-left`
+- Volume de texte : ~2305 mots · 654 noeuds HTML
+
+## 9. Ressources chargees
+
+- Feuilles de style : `https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap`, `/assets/css/tokens.css`, `../assets/css/cours.css`, `/assets/css/code-lab.css`
+- Scripts externes : `../assets/js/cours.js`, `/assets/js/code-lab.js`
+- Blocs `<style>` inline : 0 · scripts inline : 3
+
+## 10. Classes et attributs data observes
+
+Classes distinctes : 66. Les plus frequentes :
+
+| Classe | Occurrences |
+|---|---|
+| `ic` | 36 |
+| `opt` | 33 |
+| `box` | 12 |
+| `box__title` | 12 |
+| `badge` | 11 |
+| `q` | 11 |
+| `q__stem` | 11 |
+| `opts` | 11 |
+| `q__exp` | 11 |
+| `item` | 8 |
+| `item__head` | 8 |
+| `lab__note` | 6 |
+| `lab__sample-part` | 6 |
+| `sol` | 5 |
+| `badge--n3` | 4 |
+| `btn` | 4 |
+| `bandrow` | 4 |
+| `tag` | 3 |
+| `box--tech` | 3 |
+| `box--pitfall` | 3 |
+
+Attributs `data-*` : `data-correct` (11), `data-lab` (3), `data-exercise` (3), `data-grading-suspended` (3), `data-language` (3), `data-height` (3), `data-stdin` (3), `data-lab-starter` (3), `data-chapter` (1), `data-mastery` (1), `data-mark-done` (1)
+
+## 11. Controle qualite automatique
+
+- Titres `h1` : 1
+- Boutons sans texte ni aria-label : 0
+- Champs identifies sans label associe : 0
+- Images sans attribut alt : 0
+- Liens sans texte ni aria-label : 0
+- Emoji detectes : 0 (la charte du produit les proscrit)
+
+## 12. Renvois
+
+- Layouts et gabarits : [04_LAYOUTS_ET_STRUCTURES.md](../../../04_LAYOUTS_ET_STRUCTURES.md)
+- Composants et etats : [05_COMPOSANTS_REUTILISABLES.md](../../../05_COMPOSANTS_REUTILISABLES.md) · [10_ETATS_INTERFACE.md](../../../10_ETATS_INTERFACE.md)
+- Regles d'acces : [11_ETATS_CONDITIONNELS.md](../../../11_ETATS_CONDITIONNELS.md) · [17_REGLES_METIER.md](../../../17_REGLES_METIER.md)
+- Captures a produire : [22_REGISTRE_CAPTURES.md](../../../22_REGISTRE_CAPTURES.md)
+
+*Fiche generee le 2026-11-05 par `tools/extract.mjs` ; donnees brutes dans `evidence/pages.json`.

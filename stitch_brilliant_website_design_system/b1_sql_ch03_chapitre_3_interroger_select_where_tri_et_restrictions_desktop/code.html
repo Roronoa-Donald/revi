@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>B1-SQL-CH03 — Chapitre 3 — Interroger : SELECT, WHERE, tri et restrictions — cours.interactifs</title>
+<!-- Google Fonts: Space Grotesk & Hanken Grotesk + JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "feedback-correct": "#16A34A",
+            "on-primary": "#ffffff",
+            "on-tertiary-fixed-variant": "#003ea8",
+            "error": "#ba1a1a",
+            "tertiary-fixed-dim": "#b4c5ff",
+            "on-secondary-container": "#684000",
+            "on-surface": "#1b1b1e",
+            "inverse-surface": "#303033",
+            "border-subtle": "#E4E4E7",
+            "surface-container-highest": "#e4e1e6",
+            "surface-container-low": "#f6f2f7",
+            "surface": "#fbf8fc",
+            "inverse-primary": "#4ce178",
+            "inverse-on-surface": "#f3f0f4",
+            "surface-tint": "#006d2f",
+            "outline": "#6d7b6c",
+            "primary-fixed": "#6cfe91",
+            "secondary-fixed-dim": "#ffb95f",
+            "on-primary-fixed": "#002109",
+            "surface-container-high": "#eae7eb",
+            "surface-dim": "#dcd9dd",
+            "error-container": "#ffdad6",
+            "on-error-container": "#93000a",
+            "on-surface-variant": "#3d4a3d",
+            "surface-variant": "#e4e1e6",
+            "surface-container-lowest": "#ffffff",
+            "canvas-warm": "#F7F5F0",
+            "on-error": "#ffffff",
+            "outline-variant": "#bccbb9",
+            "surface-container": "#f0edf1",
+            "feedback-error": "#EF4444",
+            "on-primary-fixed-variant": "#005322",
+            "on-secondary-fixed-variant": "#653e00",
+            "border-strong": "#D4D4D8",
+            "background": "#fbf8fc",
+            "on-secondary": "#ffffff",
+            "on-secondary-fixed": "#2a1700",
+            "on-tertiary-container": "#003797",
+            "on-primary-container": "#00491d",
+            "on-background": "#1b1b1e",
+            "secondary-container": "#fea619",
+            "primary": "#006d2f",
+            "primary-container": "#21c35e",
+            "surface-white": "#FFFFFF",
+            "secondary-fixed": "#ffddb8",
+            "surface-bright": "#fbf8fc",
+            "tertiary": "#0053db",
+            "primary-fixed-dim": "#4ce178",
+            "accent-electric": "#0EA5E9",
+            "tertiary-fixed": "#dbe1ff",
+            "tertiary-container": "#8aa7ff",
+            "on-tertiary": "#ffffff",
+            "on-tertiary-fixed": "#00174b",
+            "secondary": "#855300"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-lg": "1.5rem",
+            "space-sm": "0.5rem",
+            "space-xl": "2.5rem",
+            "margin-mobile": "1rem",
+            "space-md": "1rem",
+            "gutter": "1.5rem",
+            "margin": "2rem",
+            "space-xs": "0.25rem",
+            "gutter-mobile": "1rem"
+          },
+          "fontFamily": {
+            "title-md": ["Space Grotesk", "sans-serif"],
+            "label-lg": ["Space Grotesk", "sans-serif"],
+            "label-sm": ["Space Grotesk", "sans-serif"],
+            "headline-sm": ["Space Grotesk", "sans-serif"],
+            "display": ["Space Grotesk", "sans-serif"],
+            "body-lg": ["Hanken Grotesk", "sans-serif"],
+            "headline-lg": ["Space Grotesk", "sans-serif"],
+            "label-md": ["Space Grotesk", "sans-serif"],
+            "headline-lg-mobile": ["Space Grotesk", "sans-serif"],
+            "body-sm": ["Hanken Grotesk", "sans-serif"],
+            "headline-md": ["Space Grotesk", "sans-serif"],
+            "body-md": ["Hanken Grotesk", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          "fontSize": {
+            "title-md": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+            "label-lg": ["15px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "700" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "display": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "headline-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "headline-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .tactile-btn {
+      box-shadow: 0 4px 0 #15803d;
+      transition: all 0.1s ease-in-out;
+    }
+    .tactile-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 0 #15803d;
+    }
+    .tactile-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #15803d;
+    }
+    .tactile-card {
+      box-shadow: 0 3px 0 #E4E4E7;
+      transition: all 0.15s ease;
+    }
+    .tactile-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 0 #D4D4D8;
+    }
+    .tactile-ghost {
+      box-shadow: 0 3px 0 #E4E4E7;
+    }
+    .tactile-ghost:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #E4E4E7;
+    }
+    pre, code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body class="bg-canvas-warm text-on-surface antialiased min-h-screen flex flex-col font-body-md selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- 1. STICKY NAVIGATION (Conformité JSON & Style) -->
+<header class="sticky top-0 w-full z-50 bg-surface dark:bg-inverse-surface border-b border-border-subtle dark:border-outline">
+<div class="flex items-center justify-between px-6 py-3 w-full max-w-7xl mx-auto">
+<!-- Logo + Contexte -->
+<div class="flex items-center gap-4">
+<a class="flex items-center gap-2 group" href="/b1-sql/">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary font-headline-sm font-bold shadow-sm">
+<span>Σ</span>
+</div>
+<span class="text-headline-sm font-headline-sm text-primary dark:text-primary-fixed tracking-tight">cours.interactifs</span>
+</a>
+<div class="hidden lg:flex items-center text-label-md font-label-md text-on-surface-variant gap-1.5 pl-3 border-l border-border-subtle">
+<span>Portail</span>
+<span class="text-outline-variant">/</span>
+<span class="text-on-surface font-semibold">SQL B1</span>
+</div>
+</div>
+<!-- Navigation links du Chapitre -->
+<nav class="hidden md:flex items-center gap-5 text-label-md font-label-md">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-on-surface dark:hover:text-surface-bright pb-1 transition-colors" href="#sommaire">Sommaire</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-on-surface dark:hover:text-surface-bright pb-1 transition-colors" href="/b1-sql/chapitres/chapitre1.html">Ch. 1</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-on-surface dark:hover:text-surface-bright pb-1 transition-colors" href="/b1-sql/chapitres/chapitre2.html">Ch. 2</a>
+<!-- Ch. 3 Actif (style_active_navigation) -->
+<a class="border-b-2 border-primary dark:border-primary-fixed text-primary dark:text-primary-fixed font-bold pb-1" href="/b1-sql/chapitres/chapitre3.html">Ch. 3</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-on-surface dark:hover:text-surface-bright pb-1 transition-colors" href="/b1-sql/chapitres/chapitre4.html">Ch. 4</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-on-surface dark:hover:text-surface-bright pb-1 transition-colors" href="/b1-sql/chapitres/chapitre5.html">Ch. 5</a>
+<span class="text-outline-variant">|</span>
+<a class="text-on-surface-variant hover:text-primary flex items-center gap-1 transition-colors" href="#exercices">
+<span class="material-symbols-outlined text-[16px]">code</span>
+<span>Exercices</span>
+</a>
+<a class="text-on-surface-variant hover:text-primary flex items-center gap-1 transition-colors" href="#qcm">
+<span class="material-symbols-outlined text-[16px]">quiz</span>
+<span>QCM</span>
+</a>
+</nav>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-3">
+<button aria-label="Atelier pratique" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-strong text-label-md font-label-md text-on-surface hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+<span>Atelier</span>
+</button>
+<button aria-label="Passer l'examen" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-white border-2 border-on-surface text-label-md font-label-md text-on-surface tactile-ghost font-bold transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Examen</span>
+</button>
+<!-- Thème & Profil -->
+<button aria-label="Changer de thème" class="w-9 h-9 rounded-lg border border-border-subtle flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">dark_mode</span>
+</button>
+<div class="flex items-center gap-2 pl-2 border-l border-border-subtle">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container font-headline-sm font-bold flex items-center justify-center text-[12px] border border-amber-300">
+            B1
+          </div>
+<span class="hidden xl:inline text-label-md font-label-md text-on-surface">Étudiant B1</span>
+</div>
+</div>
+</div>
+</header>
+<!-- WORKSPACE MAIN CANVAS -->
+<main class="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-12 space-y-12">
+<!-- 2. EN-TÊTE DU CHAPITRE -->
+<header class="space-y-4 border-b border-border-subtle pb-8">
+<!-- Breadcrumb -->
+<nav aria-label="Fil d'Ariane" class="flex items-center gap-2 text-label-md font-label-md text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="/b1-sql/">Portail</a>
+<span class="text-outline-variant">›</span>
+<a class="hover:text-primary transition-colors" href="/b1-sql/">SQL B1</a>
+<span class="text-outline-variant">›</span>
+<span>Chapitres</span>
+<span class="text-outline-variant">›</span>
+<span class="text-primary font-bold">Chapitre 3</span>
+</nav>
+<!-- Badge Strip -->
+<div class="flex flex-wrap items-center gap-2.5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-white border border-border-strong text-label-sm font-label-sm text-on-surface uppercase tracking-wider font-bold">
+<span class="w-2 h-2 rounded-full bg-feedback-correct"></span>
+          Module 3
+        </span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-white border border-border-subtle text-label-sm font-label-sm text-on-surface-variant font-medium">
+<span class="material-symbols-outlined text-[15px]">schedule</span>
+          ≈ 2 h 30 de travail
+        </span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-label-sm font-label-sm text-amber-900 font-semibold">
+<span class="material-symbols-outlined text-[15px]">lock</span>
+          Réservé B1 et plus
+        </span>
+</div>
+<!-- Titre H1 -->
+<h1 class="text-headline-lg font-headline-lg text-on-surface tracking-tight">
+        Chapitre 3 — Interroger : SELECT, WHERE, tri et restrictions
+      </h1>
+<!-- Chapô -->
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-4xl leading-relaxed">
+        Maîtrisez la syntaxe déclarative d'extraction SQL. Filtrez avec précision grâce aux opérateurs <code class="px-1.5 py-0.5 rounded bg-surface-container text-primary font-mono text-[14px]">WHERE</code> et <code class="px-1.5 py-0.5 rounded bg-surface-container text-primary font-mono text-[14px]">LIKE</code>, combinez les prédicats logiques (<code class="font-mono text-sm">AND</code>, <code class="font-mono text-sm">OR</code>, <code class="font-mono text-sm">NOT</code>, <code class="font-mono text-sm">IN</code>, <code class="font-mono text-sm">BETWEEN</code>), éliminez les doublons avec <code class="font-mono text-sm">DISTINCT</code>, triez vos résultats avec <code class="font-mono text-sm">ORDER BY</code> et paginez efficacement avec <code class="font-mono text-sm">LIMIT</code> et <code class="font-mono text-sm">OFFSET</code>.
+      </p>
+</header>
+<!-- 3. ENCADRÉS PÉDAGOGIQUES LIMINAIRES (.box) -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- .box--situation -->
+<article class="bg-[#FFFBEB] border-2 border-[#FDE68A] rounded-xl p-6 relative overflow-hidden shadow-sm flex flex-col justify-between">
+<div class="space-y-3">
+<div class="flex items-center gap-2.5 text-[#92400E] font-title-md font-title-md">
+<span class="material-symbols-outlined text-[24px]">lightbulb</span>
+<h3>Mise en situation : Pourquoi filtrer à la source ?</h3>
+</div>
+<p class="text-body-md font-body-md text-[#78350F] leading-relaxed">
+            Transférer <strong class="font-semibold">500 000 lignes brutes</strong> du serveur SQL vers un script applicatif (Python ou Node.js) pour ne garder que 12 éléments engendre un transfert réseau de <span class="font-mono font-bold">140 Mo</span> et une latence de <strong class="font-semibold text-feedback-error">4,2 secondes</strong>.
+          </p>
+<div class="p-3.5 bg-surface-white/80 rounded-lg border border-amber-200 text-body-sm font-body-sm text-[#78350F] space-y-1">
+<div class="flex items-center justify-between font-mono text-[13px]">
+<span>Filter en SQL (indexé) :</span>
+<span class="text-feedback-correct font-bold">0,8 ms (12 lignes transmises)</span>
+</div>
+<div class="flex items-center justify-between font-mono text-[13px]">
+<span>Filter en Node.js (in-memory) :</span>
+<span class="text-feedback-error font-bold">4 200 ms (Crash mémoire potentiel)</span>
+</div>
+</div>
+</div>
+<p class="text-label-sm font-label-sm text-secondary uppercase tracking-wider font-bold mt-4">
+          Règle d'or : Faire travailler le moteur relationnel au plus près du disque
+        </p>
+</article>
+<!-- .box--objectifs -->
+<article class="bg-[#F0FDF4] border-2 border-[#BBF7D0] rounded-xl p-6 shadow-sm flex flex-col justify-between">
+<div class="space-y-3">
+<div class="flex items-center gap-2.5 text-[#166534] font-title-md font-title-md">
+<span class="material-symbols-outlined text-[24px]">flag</span>
+<h3>Objectifs opérationnels du Chapitre</h3>
+</div>
+<ul class="space-y-2.5 text-body-sm font-body-sm text-[#14532D]">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-feedback-correct text-[18px] mt-0.5">check_circle</span>
+<span><strong>Comprendre l'ordre logique d'exécution :</strong> Distinguer l'écriture syntaxique de l'évaluation réelle (FROM → WHERE → SELECT...).</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-feedback-correct text-[18px] mt-0.5">check_circle</span>
+<span><strong>Opérateurs et logique ternaire :</strong> Dompter le piège critique de <code class="bg-white px-1 rounded font-mono font-bold">NULL</code> et les priorités logiques (AND vs OR).</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-feedback-correct text-[18px] mt-0.5">check_circle</span>
+<span><strong>Recherche floue et intervalles :</strong> Exploiter <code class="bg-white px-1 rounded font-mono">LIKE</code> avec <code class="font-mono">%</code> et <code class="font-mono">_</code>, <code class="bg-white px-1 rounded font-mono">BETWEEN</code> et <code class="bg-white px-1 rounded font-mono">IN</code>.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-feedback-correct text-[18px] mt-0.5">check_circle</span>
+<span><strong>Tri et pagination d'API :</strong> Multi-critères <code class="bg-white px-1 rounded font-mono">ORDER BY</code> et calcul mathématique d'<code class="bg-white px-1 rounded font-mono">OFFSET</code> pour pages Web.</span>
+</li>
+</ul>
+</div>
+<div class="mt-4 flex items-center justify-between text-label-sm font-label-sm text-primary font-bold">
+<span>Temps moyen estimé : 2h30</span>
+<span class="px-2 py-0.5 bg-primary/10 rounded">Niveau : Débutant à Intermédiaire</span>
+</div>
+</article>
+</section>
+<!-- 4. CORPUS THÉORIQUE (SECTIONS 1 À 5) -->
+<!-- Section 1 : Ordre d'évaluation -->
+<section class="bg-surface-white border border-border-subtle rounded-2xl p-6 sm:p-8 space-y-6 tactile-card">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center font-title-md font-bold text-primary">1</span>
+<h2 class="text-headline-md font-headline-md text-on-surface">L'ordre d'évaluation des clauses SQL</h2>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant">
+        Le langage SQL est <strong class="font-semibold text-on-surface">déclaratif</strong> : vous décrivez <em>ce que vous voulez</em> plutôt que la séquence impérative d'instructions. Cependant, le compilateur SQL interne traite votre requête selon un flux logique très strict qui diffère fondamentalement de l'ordre d'écriture.
+      </p>
+<!-- Tableau comparatif -->
+<div class="overflow-x-auto border border-border-subtle rounded-xl">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container text-label-md font-label-md text-on-surface border-b border-border-subtle">
+<th class="p-3.5">Étape</th>
+<th class="p-3.5">Ordre Écrit (Syntaxique)</th>
+<th class="p-3.5">Ordre d'Évaluation (Moteur SQL)</th>
+<th class="p-3.5">Action réalisée par le SGBD</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-subtle text-body-sm font-body-sm">
+<tr class="hover:bg-surface transition-colors">
+<td class="p-3.5 font-bold font-mono text-primary">1.</td>
+<td class="p-3.5 font-mono font-semibold text-tertiary">SELECT col1, col2 AS alias</td>
+<td class="p-3.5 font-mono font-bold bg-primary/5 text-primary">FROM table</td>
+<td class="p-3.5 text-on-surface-variant">Charge le jeu de données relationnel initial en mémoire tampon.</td>
+</tr>
+<tr class="hover:bg-surface transition-colors">
+<td class="p-3.5 font-bold font-mono text-primary">2.</td>
+<td class="p-3.5 font-mono font-semibold text-tertiary">FROM table</td>
+<td class="p-3.5 font-mono font-bold bg-primary/5 text-primary">WHERE condition</td>
+<td class="p-3.5 text-on-surface-variant">Filtre ligne par ligne selon les prédicats booléens.</td>
+</tr>
+<tr class="hover:bg-surface transition-colors">
+<td class="p-3.5 font-bold font-mono text-primary">3.</td>
+<td class="p-3.5 font-mono font-semibold text-tertiary">WHERE condition</td>
+<td class="p-3.5 font-mono font-bold bg-primary/5 text-primary">SELECT projection</td>
+<td class="p-3.5 text-on-surface-variant">Extrait uniquement les colonnes demandées et calcule les alias.</td>
+</tr>
+<tr class="hover:bg-surface transition-colors">
+<td class="p-3.5 font-bold font-mono text-primary">4.</td>
+<td class="p-3.5 font-mono font-semibold text-tertiary">ORDER BY col1 ASC</td>
+<td class="p-3.5 font-mono font-bold bg-primary/5 text-primary">ORDER BY expression</td>
+<td class="p-3.5 text-on-surface-variant">Trie l'ensemble projeté résultant.</td>
+</tr>
+<tr class="hover:bg-surface transition-colors">
+<td class="p-3.5 font-bold font-mono text-primary">5.</td>
+<td class="p-3.5 font-mono font-semibold text-tertiary">LIMIT n OFFSET m</td>
+<td class="p-3.5 font-mono font-bold bg-primary/5 text-primary">LIMIT / OFFSET</td>
+<td class="p-3.5 text-on-surface-variant">Tronque la liste pour ne renvoyer que la fenêtre demandée.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Point d'attention théorique -->
+<div class="p-4 bg-amber-50 rounded-xl border border-amber-200 flex items-start gap-3">
+<span class="material-symbols-outlined text-amber-600 mt-0.5 text-[22px]">warning</span>
+<div class="space-y-1">
+<h4 class="font-title-md font-title-md text-amber-900 text-sm">Pourquoi un alias de SELECT est-il inconnu dans la clause WHERE ?</h4>
+<p class="text-body-sm font-body-sm text-amber-800 leading-relaxed">
+            Puisque la clause <code class="font-mono bg-white px-1 rounded">WHERE</code> est évaluée <em>avant</em> la clause <code class="font-mono bg-white px-1 rounded">SELECT</code>, le moteur n'a pas encore calculé vos alias de projection ! Écrire <code class="font-mono bg-white px-1 rounded text-feedback-error">WHERE prix_ttc &gt; 100</code> provoquera l'erreur <em>« column "prix_ttc" does not exist »</em> si cet alias a été créé dans le SELECT.
+          </p>
+</div>
+</div>
+</section>
+<!-- Section 2 : Opérateurs du WHERE et logique ternaire -->
+<section class="bg-surface-white border border-border-subtle rounded-2xl p-6 sm:p-8 space-y-6 tactile-card">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center font-title-md font-bold text-primary">2</span>
+<h2 class="text-headline-md font-headline-md text-on-surface">Les opérateurs du WHERE et gestion de la logique ternaire</h2>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant">
+        Le filtrage s'exécute à l'aide d'opérateurs de comparaison et d'opérateurs booléens. En SQL, les conditions n'évaluent pas seulement à <code class="font-mono font-bold">TRUE</code> ou <code class="font-mono font-bold">FALSE</code>, mais à un troisième état : <code class="font-mono font-bold text-tertiary">UNKNOWN</code> (logique à trois valeurs de Kleene).
+      </p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Table des opérateurs -->
+<div class="space-y-3">
+<h3 class="font-title-md font-title-md text-on-surface text-base">Opérateurs relationnels classiques</h3>
+<div class="border border-border-subtle rounded-xl overflow-hidden">
+<table class="w-full text-left border-collapse text-body-sm font-body-sm">
+<thead class="bg-surface-container text-label-sm font-label-sm uppercase">
+<tr>
+<th class="p-2.5">Opérateur</th>
+<th class="p-2.5">Signification</th>
+<th class="p-2.5">Exemple</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-subtle">
+<tr><td class="p-2.5 font-mono font-bold text-primary">=</td><td class="p-2.5">Égalité stricte</td><td class="p-2.5 font-mono">km = 0</td></tr>
+<tr><td class="p-2.5 font-mono font-bold text-primary">!= ou &lt;&gt;</td><td class="p-2.5">Différent</td><td class="p-2.5 font-mono">marque &lt;&gt; 'Audi'</td></tr>
+<tr><td class="p-2.5 font-mono font-bold text-primary">&lt; , &lt;=</td><td class="p-2.5">Inférieur / Inférieur ou égal</td><td class="p-2.5 font-mono">prix &lt;= 15000</td></tr>
+<tr><td class="p-2.5 font-mono font-bold text-primary">&gt; , &gt;=</td><td class="p-2.5">Supérieur / Supérieur ou égal</td><td class="p-2.5 font-mono">annee &gt; 2020</td></tr>
+<tr><td class="p-2.5 font-mono font-bold text-feedback-correct">IS NULL</td><td class="p-2.5">Vérifie l'absence de valeur</td><td class="p-2.5 font-mono">options IS NULL</td></tr>
+<tr><td class="p-2.5 font-mono font-bold text-feedback-correct">IS NOT NULL</td><td class="p-2.5">Vérifie la présence d'une valeur</td><td class="p-2.5 font-mono">prix IS NOT NULL</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Le piège de NULL et priorité booléenne -->
+<div class="space-y-4">
+<div class="p-4 rounded-xl border border-red-200 bg-red-50 space-y-2">
+<h4 class="font-title-md font-title-md text-red-950 flex items-center gap-1.5 text-sm">
+<span class="material-symbols-outlined text-feedback-error text-[20px]">cancel</span>
+              Le piège absolu : '= NULL' renvoie toujours UNKNOWN
+            </h4>
+<p class="text-body-sm font-body-sm text-red-900 leading-relaxed">
+              En SQL standard, <code class="font-mono bg-white px-1 rounded">NULL = NULL</code> ne renvoie pas TRUE, mais <strong class="font-bold">UNKNOWN</strong>. Comme le WHERE ne garde que les lignes strictement évaluées à <strong class="font-bold">TRUE</strong>, la requête <code class="font-mono bg-white px-1 rounded">WHERE remise = NULL</code> retournera toujours <strong>0 ligne</strong>, même si la colonne est vide !
+            </p>
+</div>
+<div class="p-4 rounded-xl border border-border-subtle bg-surface-container-low space-y-2">
+<h4 class="font-title-md font-title-md text-on-surface text-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-tertiary text-[20px]">psychology</span>
+              Priorité booléenne : AND prime sur OR
+            </h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              L'opérateur <code class="font-mono font-bold">AND</code> agit comme une multiplication logique, et <code class="font-mono font-bold">OR</code> comme une addition. Sans parenthèses, le moteur regroupe d'abord les membres avec <code class="font-mono">AND</code>.
+            </p>
+<div class="p-2.5 bg-surface-white rounded border border-border-subtle font-mono text-xs text-on-surface">
+<span class="text-feedback-error font-bold">-- Mauvais :</span> WHERE marque = 'Renault' OR annee &gt; 2022 AND prix &lt; 10000<br/>
+<span class="text-feedback-correct font-bold">-- Correct :</span> WHERE (marque = 'Renault' OR annee &gt; 2022) AND prix &lt; 10000
+            </div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3 : Prédicats avancés (IN, BETWEEN, LIKE) -->
+<section class="bg-surface-white border border-border-subtle rounded-2xl p-6 sm:p-8 space-y-6 tactile-card">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center font-title-md font-bold text-primary">3</span>
+<h2 class="text-headline-md font-headline-md text-on-surface">Prédicats avancés : IN, BETWEEN et filtrage de texte LIKE</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+<!-- Carte IN -->
+<div class="p-5 border-2 border-border-subtle rounded-xl bg-canvas-warm flex flex-col justify-between space-y-3">
+<div class="space-y-2">
+<span class="px-2 py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-mono text-xs font-bold">IN (...)</span>
+<h3 class="font-title-md font-title-md text-on-surface">Appartenance ensembliste</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Remplace élégamment une suite fastidieuse de disjonctions <code class="font-mono">OR</code>. Permet aussi d'accueillir des sous-requêtes.
+            </p>
+</div>
+<div class="p-3 bg-surface-white rounded-lg border border-border-subtle font-mono text-xs text-on-surface">
+            SELECT * FROM Voiture<br/>
+            WHERE marque IN ('BMW', 'Audi', 'Tesla');
+          </div>
+</div>
+<!-- Carte BETWEEN -->
+<div class="p-5 border-2 border-border-subtle rounded-xl bg-canvas-warm flex flex-col justify-between space-y-3">
+<div class="space-y-2">
+<span class="px-2 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-mono text-xs font-bold">BETWEEN a AND b</span>
+<h3 class="font-title-md font-title-md text-on-surface">Intervalle inclusif</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Équivaut exactement à <code class="font-mono">val &gt;= a AND val &lt;= b</code>. Les bornes extrêmes sont obligatoirement incluses dans le résultat.
+            </p>
+</div>
+<div class="p-3 bg-surface-white rounded-lg border border-border-subtle font-mono text-xs text-on-surface">
+            SELECT * FROM Voiture<br/>
+            WHERE prix BETWEEN 10000 AND 25000;
+          </div>
+</div>
+<!-- Carte LIKE -->
+<div class="p-5 border-2 border-border-subtle rounded-xl bg-canvas-warm flex flex-col justify-between space-y-3">
+<div class="space-y-2">
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-mono text-xs font-bold">LIKE 'pattern'</span>
+<h3 class="font-title-md font-title-md text-on-surface">Motif textuel (Jokers)</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+<strong class="font-mono font-bold">%</strong> : 0, 1 ou plusieurs caractères.<br/>
+<strong class="font-mono font-bold">_</strong> : Exactement 1 seul caractère arbitraire.
+            </p>
+</div>
+<div class="p-3 bg-surface-white rounded-lg border border-border-subtle font-mono text-xs text-on-surface">
+            -- Ex: '208', '308', '508'<br/>
+            WHERE modele LIKE '_08';
+          </div>
+</div>
+</div>
+</section>
+<!-- Section 4 : Tri des données avec ORDER BY -->
+<section class="bg-surface-white border border-border-subtle rounded-2xl p-6 sm:p-8 space-y-6 tactile-card">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center font-title-md font-bold text-primary">4</span>
+<h2 class="text-headline-md font-headline-md text-on-surface">Tri des données avec ORDER BY</h2>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant">
+        Dans le modèle relationnel pur, une table est un <strong>ensemble non ordonné</strong> de tuples. Si vous ne spécifiez pas de clause <code class="font-mono font-bold">ORDER BY</code>, l'ordre de retour est purement aléatoire et dépend des optimisations physiques du moteur (pages disque, partitions, parallélisme).
+      </p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-3 p-5 rounded-xl border border-border-subtle bg-surface-container-low">
+<h3 class="font-title-md font-title-md text-on-surface text-base">Direction du tri et multi-critères</h3>
+<ul class="space-y-2 text-body-sm font-body-sm text-on-surface-variant">
+<li>• <strong class="font-mono text-on-surface">ASC</strong> : Ordre croissant (valeur par défaut, optionnelle).</li>
+<li>• <strong class="font-mono text-on-surface">DESC</strong> : Ordre décroissant (du plus grand au plus petit).</li>
+<li>• <strong class="font-semibold text-on-surface">Tri multi-colonnes</strong> : séparer les colonnes par des virgules. Le tri s'effectue de gauche à droite en cascade.</li>
+</ul>
+<div class="p-3 bg-surface-white rounded-lg border border-border-subtle font-mono text-xs text-on-surface">
+            ORDER BY marque ASC, prix DESC;
+            <p class="text-[11px] text-on-surface-variant font-sans mt-1">→ Trie par marque alphabétique, et départage les doublons par prix le plus élevé d'abord.</p>
+</div>
+</div>
+<div class="space-y-3 p-5 rounded-xl border border-border-subtle bg-surface-container-low">
+<h3 class="font-title-md font-title-md text-on-surface text-base">Gestion des valeurs NULL dans le tri</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+            Selon les SGBD (PostgreSQL, SQLite, MySQL), les <code class="font-mono font-bold">NULL</code> sont soit placés en tout premier soit en tout dernier. Le standard SQL permet de forcer leur position :
+          </p>
+<div class="p-3 bg-surface-white rounded-lg border border-border-subtle font-mono text-xs text-on-surface space-y-1">
+<div>ORDER BY prix DESC NULLS LAST;</div>
+<div class="text-[11px] text-feedback-correct font-sans">✓ Garantit que les véhicules au prix inconnu ne pollueront pas le haut de page.</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 5 : Pagination avec LIMIT et OFFSET -->
+<section class="bg-surface-white border border-border-subtle rounded-2xl p-6 sm:p-8 space-y-6 tactile-card">
+<div class="flex items-center gap-3">
+<span class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center font-title-md font-bold text-primary">5</span>
+<h2 class="text-headline-md font-headline-md text-on-surface">Pagination industrielle avec LIMIT et OFFSET</h2>
+</div>
+<div class="flex flex-col lg:flex-row gap-6 items-center">
+<div class="space-y-4 flex-1">
+<p class="text-body-md font-body-md text-on-surface-variant">
+            Pour découper de volumineux catalogues en pages web navigables (ex. 10 ou 20 articles par vue), on restreint l'extraction avec <code class="font-mono font-bold">LIMIT</code> (taille de page) et <code class="font-mono font-bold">OFFSET</code> (nombre de lignes sautées).
+          </p>
+<div class="p-4 bg-canvas-warm rounded-xl border border-border-strong font-mono text-sm space-y-2">
+<div class="text-primary font-bold">-- Formule de pagination universelle :</div>
+<div class="text-on-surface">LIMIT :taille_page OFFSET (:numero_page - 1) * :taille_page</div>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+<strong class="text-on-surface">Cas pratique :</strong> Pour extraire la <strong>page 3</strong> avec 10 véhicules par page, le décalage est de <code class="font-mono">(3 - 1) * 10 = 20</code>. La requête saute les 20 premières lignes et extrait les 10 suivantes.
+          </p>
+</div>
+<div class="w-full lg:w-80 p-5 rounded-xl border-2 border-primary bg-primary/5 space-y-3">
+<div class="flex items-center gap-2 text-primary font-title-md font-title-md text-sm">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+<span>Règle d'or de Pagination</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface leading-snug">
+<strong>NE JAMAIS exécuter de LIMIT sans clause ORDER BY déterministe.</strong>
+</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant text-xs">
+            Sans tri explicite (ex. sur la clé primaire <code class="font-mono">immat</code>), des lignes peuvent apparaître en double sur deux pages distinctes ou disparaître purement entre deux requêtes !
+          </p>
+</div>
+</div>
+</section>
+<!-- 5. SECTION 6 — EXERCICES DE CODE INTERACTIFS (.lab[data-lab]) -->
+<section class="space-y-6 pt-4" id="exercices">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border-subtle pb-4">
+<div>
+<h2 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2.5">
+<span class="material-symbols-outlined text-primary text-[28px]">terminal</span>
+            6. Ateliers Pratiques et SQL Sandbox
+          </h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+            Schéma actif en mémoire : <code class="bg-surface-white px-2 py-0.5 rounded border border-border-subtle font-mono text-primary font-bold">Voiture (immat [PK], marque, modele, km, prix, annee)</code>
+</p>
+</div>
+<span class="px-3 py-1 bg-surface-white border border-border-strong rounded-full text-label-sm font-label-sm text-on-surface-variant">
+          3 Exercices interactifs
+        </span>
+</div>
+<!-- Exercice 1 -->
+<article class="bg-surface-white border-2 border-border-subtle rounded-2xl overflow-hidden shadow-sm" data-lab="sq-c3-e1">
+<div class="bg-surface-container-low px-6 py-4 border-b border-border-subtle flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-xs">E1</span>
+<h3 class="font-title-md font-title-md text-on-surface text-base">Exercice 1 — Filtrage conditionnel et opérateurs logiques</h3>
+</div>
+<span class="text-label-sm font-label-sm px-2.5 py-0.5 rounded bg-surface-white border border-border-subtle text-primary font-semibold">Facile</span>
+</div>
+<div class="p-6 space-y-4">
+<p class="text-body-sm font-body-sm text-on-surface">
+<strong>Consigne :</strong> Écrire la requête retournant l'immatriculation (<code class="font-mono">immat</code>), le modèle (<code class="font-mono">modele</code>) et le prix (<code class="font-mono">prix</code>) de toutes les voitures de la marque <strong>'Peugeot'</strong> dont le prix est strictement inférieur à <strong>12 000 €</strong>.
+          </p>
+<!-- Éditeur SQL -->
+<div class="rounded-xl border border-border-strong overflow-hidden bg-[#1E1E24] text-slate-100 font-mono text-sm shadow-inner">
+<div class="bg-[#18181B] px-4 py-2 text-xs text-slate-400 flex items-center justify-between border-b border-slate-700">
+<span class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-yellow-500 inline-block"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>
+<span class="ml-2">editeur_requete.sql</span>
+</span>
+<span class="text-[11px] text-slate-400">SQLite 3.42 WebEngine</span>
+</div>
+<textarea class="w-full p-4 bg-transparent text-slate-100 font-mono text-sm border-0 focus:ring-0 resize-none h-28 outline-none leading-relaxed" spellcheck="false">SELECT immat, modele, prix
+FROM Voiture
+WHERE marque = 'Peugeot' AND prix &lt; 12000;</textarea>
+</div>
+<!-- Actions -->
+<div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-lg bg-surface-white border-2 border-on-surface font-label-md font-label-md text-on-surface tactile-ghost flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">play_arrow</span>
+<span>Exécuter</span>
+</button>
+<button class="px-5 py-2 rounded-lg bg-feedback-correct text-on-primary font-label-md font-label-md tactile-btn flex items-center gap-1.5 font-bold" type="button">
+<span class="material-symbols-outlined text-[18px]">task_alt</span>
+<span>Valider l'exercice</span>
+</button>
+</div>
+<span class="text-label-sm font-label-sm text-feedback-correct flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check</span>
+              Test validé : 2 lignes retournées
+            </span>
+</div>
+<!-- Console Résultat -->
+<div class="rounded-xl border border-border-subtle bg-surface-container-low p-3.5 space-y-2 font-mono text-xs">
+<div class="text-on-surface-variant font-bold text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">table_rows</span>
+              Résultat d'exécution (Tableau relationnel)
+            </div>
+<table class="w-full text-left bg-surface-white rounded border border-border-subtle">
+<thead>
+<tr class="bg-surface-container text-on-surface border-b border-border-subtle">
+<th class="p-2">immat</th>
+<th class="p-2">modele</th>
+<th class="p-2">prix</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-border-subtle">
+<td class="p-2 font-semibold">AA-222-BB</td>
+<td class="p-2">208 Style</td>
+<td class="p-2 text-feedback-correct font-bold">10 900 €</td>
+</tr>
+<tr>
+<td class="p-2 font-semibold">CD-888-EF</td>
+<td class="p-2">2008 Active</td>
+<td class="p-2 text-feedback-correct font-bold">11 850 €</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</article>
+<!-- Exercice 2 -->
+<article class="bg-surface-white border-2 border-border-subtle rounded-2xl overflow-hidden shadow-sm" data-lab="sq-c3-e2">
+<div class="bg-surface-container-low px-6 py-4 border-b border-border-subtle flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-xs">E2</span>
+<h3 class="font-title-md font-title-md text-on-surface text-base">Exercice 2 — Recherche floue avec LIKE et intervalle BETWEEN</h3>
+</div>
+<span class="text-label-sm font-label-sm px-2.5 py-0.5 rounded bg-surface-white border border-border-subtle text-primary font-semibold">Intermédiaire</span>
+</div>
+<div class="p-6 space-y-4">
+<p class="text-body-sm font-body-sm text-on-surface">
+<strong>Consigne :</strong> Récupérer toutes les informations des voitures dont l'immatriculation commence par la chaîne <strong>'AB'</strong> et dont l'année de mise en circulation est comprise entre <strong>2018 et 2022 inclus</strong>.
+          </p>
+<div class="rounded-xl border border-border-strong overflow-hidden bg-[#1E1E24] text-slate-100 font-mono text-sm shadow-inner">
+<div class="bg-[#18181B] px-4 py-2 text-xs text-slate-400 flex items-center justify-between border-b border-slate-700">
+<span>editeur_requete_2.sql</span>
+<span class="text-[11px] text-slate-400">Ready</span>
+</div>
+<textarea class="w-full p-4 bg-transparent text-slate-100 font-mono text-sm border-0 focus:ring-0 resize-none h-28 outline-none leading-relaxed" spellcheck="false">SELECT *
+FROM Voiture
+WHERE immat LIKE 'AB%' AND annee BETWEEN 2018 AND 2022;</textarea>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-lg bg-surface-white border-2 border-on-surface font-label-md font-label-md text-on-surface tactile-ghost flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">play_arrow</span>
+<span>Exécuter</span>
+</button>
+<button class="px-5 py-2 rounded-lg bg-feedback-correct text-on-primary font-label-md font-label-md tactile-btn flex items-center gap-1.5 font-bold" type="button">
+<span class="material-symbols-outlined text-[18px]">task_alt</span>
+<span>Valider l'exercice</span>
+</button>
+</div>
+<span class="text-label-sm font-label-sm text-feedback-correct flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check</span>
+              Structure exacte conforme
+            </span>
+</div>
+</div>
+</article>
+<!-- Exercice 3 -->
+<article class="bg-surface-white border-2 border-border-subtle rounded-2xl overflow-hidden shadow-sm" data-lab="sq-c3-e3">
+<div class="bg-surface-container-low px-6 py-4 border-b border-border-subtle flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-xs">E3</span>
+<h3 class="font-title-md font-title-md text-on-surface text-base">Exercice 3 — Tri multi-critères et pagination</h3>
+</div>
+<span class="text-label-sm font-label-sm px-2.5 py-0.5 rounded bg-surface-white border border-border-subtle text-amber-700 font-semibold">Avancé</span>
+</div>
+<div class="p-6 space-y-4">
+<p class="text-body-sm font-body-sm text-on-surface">
+<strong>Consigne :</strong> Extraire les <strong>3 voitures</strong> les plus récentes (par année décroissante), et en cas d'égalité sur l'année, les moins kilométrées (par kilométrage croissant).
+          </p>
+<div class="rounded-xl border border-border-strong overflow-hidden bg-[#1E1E24] text-slate-100 font-mono text-sm shadow-inner">
+<div class="bg-[#18181B] px-4 py-2 text-xs text-slate-400 flex items-center justify-between border-b border-slate-700">
+<span>editeur_requete_3.sql</span>
+<span class="text-[11px] text-slate-400">Ready</span>
+</div>
+<textarea class="w-full p-4 bg-transparent text-slate-100 font-mono text-sm border-0 focus:ring-0 resize-none h-28 outline-none leading-relaxed" spellcheck="false">SELECT immat, marque, modele, annee, km
+FROM Voiture
+ORDER BY annee DESC, km ASC
+LIMIT 3;</textarea>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-lg bg-surface-white border-2 border-on-surface font-label-md font-label-md text-on-surface tactile-ghost flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">play_arrow</span>
+<span>Exécuter</span>
+</button>
+<button class="px-5 py-2 rounded-lg bg-feedback-correct text-on-primary font-label-md font-label-md tactile-btn flex items-center gap-1.5 font-bold" type="button">
+<span class="material-symbols-outlined text-[18px]">task_alt</span>
+<span>Valider l'exercice</span>
+</button>
+</div>
+<span class="text-label-sm font-label-sm text-feedback-correct flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check</span>
+              Tri composite optimal validé
+            </span>
+</div>
+</div>
+</article>
+</section>
+<!-- 6. SECTION 7 — QCM DE NIVEAU EXAMEN (6 Questions) -->
+<section class="space-y-6 pt-6" id="qcm">
+<!-- Score Banner -->
+<div class="p-6 rounded-2xl bg-surface-white border-2 border-feedback-correct shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-feedback-correct"></span>
+<span class="text-label-sm font-label-sm uppercase tracking-wider text-feedback-correct font-bold">Évaluation sommative continue</span>
+</div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Auto-évaluation certifiante du Chapitre 3</h2>
+</div>
+<div class="flex items-center gap-3 bg-[#F0FDF4] px-4 py-2.5 rounded-xl border border-feedback-correct/30">
+<span class="material-symbols-outlined text-feedback-correct text-[26px]">military_tech</span>
+<div>
+<div class="text-title-md font-title-md text-feedback-correct leading-none">Score : 6 / 6 (100 %)</div>
+<div class="text-label-sm font-label-sm text-emerald-800">Maîtrise validée avec félicitations</div>
+</div>
+</div>
+</div>
+<!-- Grille des 6 questions -->
+<div class="space-y-6">
+<!-- Q1 -->
+<article class="p-6 rounded-2xl bg-surface-white border border-border-subtle shadow-sm space-y-4">
+<div class="flex items-start justify-between gap-3">
+<h3 class="font-title-md font-title-md text-on-surface text-base">
+<span class="text-primary font-bold">Question 1 —</span> Dans quel ordre le moteur SQL évalue-t-il les clauses d'une requête ?
+            </h3>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-emerald-50 text-feedback-correct font-bold">1 / 1 pt</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              SELECT, FROM, WHERE, ORDER BY
+            </div>
+<!-- Bonne réponse -->
+<div class="p-3 rounded-xl border-2 border-feedback-correct bg-[#F0FDF4] text-body-sm font-body-sm text-[#14532D] font-bold flex items-center justify-between">
+<span>FROM, WHERE, SELECT, ORDER BY</span>
+<span class="material-symbols-outlined text-feedback-correct text-[20px]">check_circle</span>
+</div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              WHERE, FROM, SELECT, ORDER BY
+            </div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              FROM, SELECT, WHERE, ORDER BY
+            </div>
+</div>
+<p class="text-body-sm font-body-sm text-[#166534] bg-emerald-50/70 p-3 rounded-lg border border-emerald-100">
+<strong>Explication :</strong> Le moteur doit d'abord identifier la source des tuples (<code class="font-mono">FROM</code>), puis filtrer les lignes (<code class="font-mono">WHERE</code>), avant de calculer les projections/alias (<code class="font-mono">SELECT</code>) et enfin trier le flux résultant (<code class="font-mono">ORDER BY</code>).
+          </p>
+</article>
+<!-- Q2 -->
+<article class="p-6 rounded-2xl bg-surface-white border border-border-subtle shadow-sm space-y-4">
+<div class="flex items-start justify-between gap-3">
+<h3 class="font-title-md font-title-md text-on-surface text-base">
+<span class="text-primary font-bold">Question 2 —</span> Quelle expression permet de tester si la colonne 'remise' ne contient aucune valeur ?
+            </h3>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-emerald-50 text-feedback-correct font-bold">1 / 1 pt</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              remise = NULL
+            </div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              remise == NULL
+            </div>
+<!-- Bonne réponse -->
+<div class="p-3 rounded-xl border-2 border-feedback-correct bg-[#F0FDF4] text-body-sm font-body-sm text-[#14532D] font-bold flex items-center justify-between">
+<span>remise IS NULL</span>
+<span class="material-symbols-outlined text-feedback-correct text-[20px]">check_circle</span>
+</div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              remise IS EMPTY
+            </div>
+</div>
+<p class="text-body-sm font-body-sm text-[#166534] bg-emerald-50/70 p-3 rounded-lg border border-emerald-100">
+<strong>Explication :</strong> NULL représentant l'absence d'information, toute comparaison avec <code class="font-mono">=</code> produit UNKNOWN. On doit impérativement employer le prédicat spécifique <code class="font-mono">IS NULL</code>.
+          </p>
+</article>
+<!-- Q3 -->
+<article class="p-6 rounded-2xl bg-surface-white border border-border-subtle shadow-sm space-y-4">
+<div class="flex items-start justify-between gap-3">
+<h3 class="font-title-md font-title-md text-on-surface text-base">
+<span class="text-primary font-bold">Question 3 —</span> Quel est le résultat du prédicat <code class="font-mono bg-surface-container px-1 py-0.5 rounded">modele LIKE '_0_'</code> sur les valeurs '208', '3008', '508' et 'C3' ?
+            </h3>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-emerald-50 text-feedback-correct font-bold">1 / 1 pt</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+<!-- Bonne réponse -->
+<div class="p-3 rounded-xl border-2 border-feedback-correct bg-[#F0FDF4] text-body-sm font-body-sm text-[#14532D] font-bold flex items-center justify-between">
+<span>'208' et '508' seulement</span>
+<span class="material-symbols-outlined text-feedback-correct text-[20px]">check_circle</span>
+</div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              Toutes les valeurs contenant un 0
+            </div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              '208', '3008' et '508'
+            </div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              Aucune valeur
+            </div>
+</div>
+<p class="text-body-sm font-body-sm text-[#166534] bg-emerald-50/70 p-3 rounded-lg border border-emerald-100">
+<strong>Explication :</strong> Le joker <code class="font-mono">_</code> correspond à exactement 1 caractère. Le motif <code class="font-mono">_0_</code> cible donc une chaîne de 3 caractères avec un 0 au milieu. '3008' compte 4 caractères et est donc rejeté.
+          </p>
+</article>
+<!-- Q4 -->
+<article class="p-6 rounded-2xl bg-surface-white border border-border-subtle shadow-sm space-y-4">
+<div class="flex items-start justify-between gap-3">
+<h3 class="font-title-md font-title-md text-on-surface text-base">
+<span class="text-primary font-bold">Question 4 —</span> Que produit l'instruction <code class="font-mono bg-surface-container px-1 py-0.5 rounded">ORDER BY prix, annee DESC</code> ?
+            </h3>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-emerald-50 text-feedback-correct font-bold">1 / 1 pt</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              Prix décroissant, année décroissante
+            </div>
+<!-- Bonne réponse -->
+<div class="p-3 rounded-xl border-2 border-feedback-correct bg-[#F0FDF4] text-body-sm font-body-sm text-[#14532D] font-bold flex items-center justify-between">
+<span>Prix croissant, puis année décroissante en cas d'égalité de prix</span>
+<span class="material-symbols-outlined text-feedback-correct text-[20px]">check_circle</span>
+</div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              Prix décroissant, puis année croissante
+            </div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              Erreur de syntaxe
+            </div>
+</div>
+<p class="text-body-sm font-body-sm text-[#166534] bg-emerald-50/70 p-3 rounded-lg border border-emerald-100">
+<strong>Explication :</strong> Lorsqu'aucun modificateur n'est précisé après le nom de la colonne, SQL applique le mot-clé implicite <code class="font-mono">ASC</code>. Seule la colonne <code class="font-mono">annee</code> sera donc ordonnée en ordre descendant.
+          </p>
+</article>
+<!-- Q5 -->
+<article class="p-6 rounded-2xl bg-surface-white border border-border-subtle shadow-sm space-y-4">
+<div class="flex items-start justify-between gap-3">
+<h3 class="font-title-md font-title-md text-on-surface text-base">
+<span class="text-primary font-bold">Question 5 —</span> Pour afficher les résultats de la page 4 avec 20 éléments par page, quelle clause appliquer ?
+            </h3>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-emerald-50 text-feedback-correct font-bold">1 / 1 pt</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              LIMIT 20 OFFSET 4
+            </div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              LIMIT 4 OFFSET 20
+            </div>
+<!-- Bonne réponse -->
+<div class="p-3 rounded-xl border-2 border-feedback-correct bg-[#F0FDF4] text-body-sm font-body-sm text-[#14532D] font-bold flex items-center justify-between">
+<span>LIMIT 20 OFFSET 60</span>
+<span class="material-symbols-outlined text-feedback-correct text-[20px]">check_circle</span>
+</div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              LIMIT 20 OFFSET 80
+            </div>
+</div>
+<p class="text-body-sm font-body-sm text-[#166534] bg-emerald-50/70 p-3 rounded-lg border border-emerald-100">
+<strong>Explication :</strong> La formule est <code class="font-mono">OFFSET = (Page - 1) * Taille = (4 - 1) * 20 = 60</code>. On saute ainsi exactement les 60 premiers éléments des pages 1, 2 et 3.
+          </p>
+</article>
+<!-- Q6 -->
+<article class="p-6 rounded-2xl bg-surface-white border border-border-subtle shadow-sm space-y-4">
+<div class="flex items-start justify-between gap-3">
+<h3 class="font-title-md font-title-md text-on-surface text-base">
+<span class="text-primary font-bold">Question 6 —</span> Pourquoi l'expression <code class="font-mono bg-surface-container px-1 py-0.5 rounded">WHERE statut = 'VIP' OR age &gt; 25 AND solde &gt; 1000</code> induit-elle une faille logique ?
+            </h3>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-emerald-50 text-feedback-correct font-bold">1 / 1 pt</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              Parce que le compilateur SQL refuse cette syntaxe
+            </div>
+<!-- Bonne réponse -->
+<div class="p-3 rounded-xl border-2 border-feedback-correct bg-[#F0FDF4] text-body-sm font-body-sm text-[#14532D] font-bold flex items-center justify-between">
+<span>Parce que l'opérateur AND est prioritaire sur l'opérateur OR</span>
+<span class="material-symbols-outlined text-feedback-correct text-[20px]">check_circle</span>
+</div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              Parce que OR s'exécute toujours avant AND
+            </div>
+<div class="p-3 rounded-xl border border-border-subtle text-body-sm font-body-sm text-on-surface-variant bg-surface opacity-70">
+              Parce que les colonnes ont des types incompatibles
+            </div>
+</div>
+<p class="text-body-sm font-body-sm text-[#166534] bg-emerald-50/70 p-3 rounded-lg border border-emerald-100">
+<strong>Explication :</strong> AND a une précédence supérieure. La condition sera interprétée comme <code class="font-mono">statut = 'VIP' OR (age &gt; 25 AND solde &gt; 1000)</code>, sélectionnant ainsi tous les VIP quel que soit leur solde bancaire !
+          </p>
+</article>
+</div>
+</section>
+<!-- 7. SECTIONS DE SYNTHÈSE ET DE RÉVISION -->
+<section class="space-y-8 pt-4">
+<!-- 8. Erreurs classiques (.box--pitfall) -->
+<article class="bg-[#FEF2F2] border-2 border-[#FECACA] rounded-2xl p-6 sm:p-8 space-y-4 shadow-sm">
+<div class="flex items-center gap-2.5 text-[#991B1B]">
+<span class="material-symbols-outlined text-[26px]">error</span>
+<h3 class="font-headline-sm font-headline-sm">8. Erreurs classiques de l'étudiant B1 à proscrire</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-body-sm font-body-sm">
+<div class="p-4 bg-surface-white/90 rounded-xl border border-red-200 space-y-1">
+<h4 class="font-bold text-red-950 font-title-md text-sm">1. Utilisation de '= NULL'</h4>
+<p class="text-red-900">Ne jamais écrire <code class="font-mono text-xs bg-red-100 px-1">WHERE col = NULL</code>. Employer obligatoirement <code class="font-mono text-xs bg-emerald-100 text-emerald-900 px-1 font-bold">IS NULL</code>.</p>
+</div>
+<div class="p-4 bg-surface-white/90 rounded-xl border border-red-200 space-y-1">
+<h4 class="font-bold text-red-950 font-title-md text-sm">2. Oubli de parenthèses (AND vs OR)</h4>
+<p class="text-red-900">La priorité de l'opérateur AND casse la logique attendue dès que vous mélangez les conjonctions sans parenthèses explicites.</p>
+</div>
+<div class="p-4 bg-surface-white/90 rounded-xl border border-red-200 space-y-1">
+<h4 class="font-bold text-red-950 font-title-md text-sm">3. Alias de SELECT dans le WHERE</h4>
+<p class="text-red-900">Le WHERE est calculé avant la projection SELECT : répétez l'expression complète au lieu d'appeler l'alias.</p>
+</div>
+<div class="p-4 bg-surface-white/90 rounded-xl border border-red-200 space-y-1">
+<h4 class="font-bold text-red-950 font-title-md text-sm">4. Pagination sans ORDER BY</h4>
+<p class="text-red-900">Utiliser un LIMIT / OFFSET sans ordre strict conduit à une pagination instable et non reproductible.</p>
+</div>
+</div>
+</article>
+<!-- 9. Méthodologie de résolution en 4 étapes (.box--method) -->
+<article class="bg-surface-white border-2 border-border-strong rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
+<div class="flex items-center gap-2.5 text-primary">
+<span class="material-symbols-outlined text-[26px]">account_tree</span>
+<h3 class="font-headline-sm font-headline-sm text-on-surface">9. Méthodologie d'extraction SQL en 4 étapes</h3>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="p-4 rounded-xl border border-border-subtle bg-surface-container-low space-y-2">
+<div class="w-7 h-7 rounded-lg bg-primary text-on-primary font-bold text-xs flex items-center justify-center">1</div>
+<h4 class="font-title-md font-title-md text-on-surface text-sm">Identifier le FROM</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Déterminez la ou les tables sources indispensables contenant les données brutes.</p>
+</div>
+<div class="p-4 rounded-xl border border-border-subtle bg-surface-container-low space-y-2">
+<div class="w-7 h-7 rounded-lg bg-primary text-on-primary font-bold text-xs flex items-center justify-center">2</div>
+<h4 class="font-title-md font-title-md text-on-surface text-sm">Filtrer avec le WHERE</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Isolez les enregistrements cibles à la source à l'aide de prédicats indexables.</p>
+</div>
+<div class="p-4 rounded-xl border border-border-subtle bg-surface-container-low space-y-2">
+<div class="w-7 h-7 rounded-lg bg-primary text-on-primary font-bold text-xs flex items-center justify-center">3</div>
+<h4 class="font-title-md font-title-md text-on-surface text-sm">Projeter via SELECT</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Ne conservez que les colonnes nécessaires (évitez <code class="font-mono text-xs">SELECT *</code> en production).</p>
+</div>
+<div class="p-4 rounded-xl border border-border-subtle bg-surface-container-low space-y-2">
+<div class="w-7 h-7 rounded-lg bg-primary text-on-primary font-bold text-xs flex items-center justify-center">4</div>
+<h4 class="font-title-md font-title-md text-on-surface text-sm">Ordonner et Paginer</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Structurez le rendu avec <code class="font-mono text-xs">ORDER BY</code> puis tronquez la vue via <code class="font-mono text-xs">LIMIT / OFFSET</code>.</p>
+</div>
+</div>
+</article>
+<!-- 10. Checklist de maîtrise & 10 notions clés -->
+<article class="bg-surface-white border border-border-subtle rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-subtle pb-4">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-feedback-correct text-[26px]">checklist_rtl</span>
+<h3 class="font-headline-sm font-headline-sm text-on-surface">10. Révision active &amp; 10 Notions Piliers</h3>
+</div>
+<label class="inline-flex items-center gap-2 cursor-pointer bg-primary/5 px-3 py-1.5 rounded-lg border border-primary/20">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-0" type="checkbox"/>
+<span class="text-label-sm font-label-sm text-primary font-bold">Je considère ce chapitre maîtrisé</span>
+</label>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+<div class="p-3 bg-surface-container-low rounded-xl border border-border-subtle font-mono text-xs font-semibold text-on-surface">1. FROM avant WHERE</div>
+<div class="p-3 bg-surface-container-low rounded-xl border border-border-subtle font-mono text-xs font-semibold text-on-surface">2. IS NULL vs = NULL</div>
+<div class="p-3 bg-surface-container-low rounded-xl border border-border-subtle font-mono text-xs font-semibold text-on-surface">3. LIKE &amp; Jokers % _</div>
+<div class="p-3 bg-surface-container-low rounded-xl border border-border-subtle font-mono text-xs font-semibold text-on-surface">4. Prédicat IN (...)</div>
+<div class="p-3 bg-surface-container-low rounded-xl border border-border-subtle font-mono text-xs font-semibold text-on-surface">5. Prédicat BETWEEN</div>
+<div class="p-3 bg-surface-container-low rounded-xl border border-border-subtle font-mono text-xs font-semibold text-on-surface">6. Priorité AND &gt; OR</div>
+<div class="p-3 bg-surface-container-low rounded-xl border border-border-subtle font-mono text-xs font-semibold text-on-surface">7. Projection SELECT</div>
+<div class="p-3 bg-surface-container-low rounded-xl border border-border-subtle font-mono text-xs font-semibold text-on-surface">8. ORDER BY Multi</div>
+<div class="p-3 bg-surface-container-low rounded-xl border border-border-subtle font-mono text-xs font-semibold text-on-surface">9. LIMIT Déterministe</div>
+<div class="p-3 bg-surface-container-low rounded-xl border border-border-subtle font-mono text-xs font-semibold text-on-surface">10. Calcul d'OFFSET</div>
+</div>
+</article>
+<!-- 11. Paliers d'évaluation -->
+<article class="bg-surface-white border border-border-subtle rounded-2xl p-6 sm:p-8 space-y-4">
+<h3 class="font-title-md font-title-md text-on-surface text-base flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">analytics</span>
+          11. Barème et Paliers de validation du Chapitre 3
+        </h3>
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+<div class="p-3 rounded-lg border border-border-subtle bg-surface text-center">
+<span class="block text-label-sm font-label-sm text-red-600 font-bold">&lt; 50 %</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant text-xs">Insuffisant (Revoir la théorie)</span>
+</div>
+<div class="p-3 rounded-lg border border-border-subtle bg-surface text-center">
+<span class="block text-label-sm font-label-sm text-amber-600 font-bold">50 – 69 %</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant text-xs">En acquisition (Refaire exercices)</span>
+</div>
+<div class="p-3 rounded-lg border border-border-subtle bg-surface text-center">
+<span class="block text-label-sm font-label-sm text-blue-600 font-bold">70 – 94 %</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant text-xs">Validé (Prêt pour le Ch. 4)</span>
+</div>
+<div class="p-3 rounded-lg border-2 border-feedback-correct bg-emerald-50 text-center">
+<span class="block text-label-sm font-label-sm text-feedback-correct font-bold">≥ 95 % (Actuel : 100 %)</span>
+<span class="text-body-sm font-body-sm text-emerald-900 font-semibold text-xs">Niveau Expert certifié</span>
+</div>
+</div>
+</article>
+</section>
+<!-- 8. NAVIGATION DE BAS DE PAGE (.chnav) -->
+<nav aria-label="Navigation entre chapitres" class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border-subtle">
+<!-- Précédent -->
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border-2 border-border-strong bg-surface-white text-on-surface font-label-md font-label-md tactile-ghost transition-all hover:border-on-surface" href="/b1-sql/chapitres/chapitre2.html">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+<span>Chapitre 2 — Types de données et création de tables</span>
+</a>
+<!-- Suivant (Primaire tactile 3D) -->
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-feedback-correct text-on-primary font-label-md font-label-md tactile-btn font-bold transition-all shadow-sm" href="/b1-sql/chapitres/chapitre4.html">
+<span>Chapitre 4 — Jointures : relier les tables</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</a>
+</nav>
+</main>
+<!-- 9. FOOTER OFFICIEL (Conformité JSON & Style) -->
+<footer class="w-full bg-canvas-warm dark:bg-inverse-surface border-t border-border-subtle dark:border-outline mt-12">
+<div class="flex flex-col md:flex-row justify-between items-center px-6 py-8 max-w-7xl mx-auto gap-4">
+<div class="space-y-1 text-center md:text-left">
+<div class="flex items-center justify-center md:justify-start gap-2">
+<div class="w-5 h-5 rounded bg-primary text-on-primary flex items-center justify-center text-xs font-bold font-headline-sm">Σ</div>
+<span class="text-headline-sm font-headline-sm text-primary dark:text-primary-fixed">cours.interactifs</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant dark:text-surface-variant">
+          © 2025 cours.interactifs — Plateforme d'apprentissage informatique pour étudiants
+        </p>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-6 text-label-md font-label-md text-on-surface-variant dark:text-surface-variant">
+<a class="hover:text-on-surface dark:hover:text-surface-bright transition-colors duration-150" href="#mentions">Mentions légales</a>
+<a class="hover:text-on-surface dark:hover:text-surface-bright transition-colors duration-150" href="#confidentialite">Politique de confidentialité</a>
+<a class="hover:text-on-surface dark:hover:text-surface-bright transition-colors duration-150" href="#documentation">Documentation</a>
+<a class="hover:text-on-surface dark:hover:text-surface-bright transition-colors duration-150 flex items-center gap-1" href="https://github.com" rel="noopener noreferrer" target="_blank">
+<span>Contribuer sur GitHub</span>
+<span class="material-symbols-outlined text-[15px]">open_in_new</span>
+</a>
+</div>
+</div>
+</footer>
+</body></html>

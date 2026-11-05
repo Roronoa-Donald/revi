@@ -102,7 +102,8 @@ async function simulatedQuery(text, params = []) {
         { name: '001_init.sql' },
         { name: '002_users.sql' },
         { name: '003_user_level.sql' },
-        { name: '004_ai_config.sql' }
+        { name: '004_ai_config.sql' },
+        { name: '005_fedapay_webhook_events.sql' }
       ]
     };
   }

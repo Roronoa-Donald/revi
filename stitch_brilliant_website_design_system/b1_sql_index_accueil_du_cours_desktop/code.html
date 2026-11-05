@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bases de données &amp; SQL — interroger une base (B1) | Cours Interactif</title>
+<!-- Google Fonts: Space Grotesk & Hanken Grotesk -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Configuration (verbatim tokens) -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-tertiary-fixed-variant": "#003ea8",
+            "primary-fixed": "#6cfe91",
+            "on-primary-fixed": "#002109",
+            "inverse-primary": "#4ce178",
+            "tertiary-container": "#8aa7ff",
+            "border-strong": "#D4D4D8",
+            "on-surface": "#1b1b1e",
+            "surface-container-low": "#f6f2f7",
+            "secondary-fixed-dim": "#ffb95f",
+            "on-surface-variant": "#3d4a3d",
+            "surface-container": "#f0edf1",
+            "canvas-warm": "#F7F5F0",
+            "inverse-surface": "#303033",
+            "feedback-correct": "#16A34A",
+            "border-subtle": "#E4E4E7",
+            "primary-container": "#21c35e",
+            "surface": "#fbf8fc",
+            "surface-dim": "#dcd9dd",
+            "on-tertiary": "#ffffff",
+            "on-error": "#ffffff",
+            "on-error-container": "#93000a",
+            "error": "#ba1a1a",
+            "secondary-fixed": "#ffddb8",
+            "on-background": "#1b1b1e",
+            "background": "#fbf8fc",
+            "accent-electric": "#0EA5E9",
+            "surface-tint": "#006d2f",
+            "surface-bright": "#fbf8fc",
+            "inverse-on-surface": "#f3f0f4",
+            "tertiary": "#0053db",
+            "secondary-container": "#fea619",
+            "on-secondary-fixed": "#2a1700",
+            "on-secondary-container": "#684000",
+            "surface-white": "#FFFFFF",
+            "error-container": "#ffdad6",
+            "surface-container-lowest": "#ffffff",
+            "outline": "#6d7b6c",
+            "tertiary-fixed-dim": "#b4c5ff",
+            "primary-fixed-dim": "#4ce178",
+            "on-primary-fixed-variant": "#005322",
+            "on-secondary": "#ffffff",
+            "feedback-error": "#EF4444",
+            "on-secondary-fixed-variant": "#653e00",
+            "outline-variant": "#bccbb9",
+            "secondary": "#855300",
+            "surface-container-high": "#eae7eb",
+            "on-tertiary-container": "#003797",
+            "tertiary-fixed": "#dbe1ff",
+            "surface-variant": "#e4e1e6",
+            "on-primary-container": "#00491d",
+            "surface-container-highest": "#e4e1e6",
+            "on-primary": "#ffffff",
+            "primary": "#006d2f",
+            "on-tertiary-fixed": "#00174b"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-lg": "1.5rem",
+            "gutter": "1.5rem",
+            "margin-mobile": "1rem",
+            "space-sm": "0.5rem",
+            "gutter-mobile": "1rem",
+            "space-xl": "2.5rem",
+            "space-md": "1rem",
+            "margin": "2rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "headline-lg-mobile": ["Space Grotesk"],
+            "body-lg": ["Hanken Grotesk"],
+            "label-lg": ["Space Grotesk"],
+            "title-md": ["Space Grotesk"],
+            "label-md": ["Space Grotesk"],
+            "body-md": ["Hanken Grotesk"],
+            "headline-md": ["Space Grotesk"],
+            "headline-lg": ["Space Grotesk"],
+            "label-sm": ["Space Grotesk"],
+            "body-sm": ["Hanken Grotesk"],
+            "display": ["Space Grotesk"],
+            "headline-sm": ["Space Grotesk"]
+          },
+          "fontSize": {
+            "headline-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "label-lg": ["15px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "title-md": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+            "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "700" }],
+            "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "display": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Brilliant-style 3D physical tactile push effect */
+    .btn-tactile-primary {
+      box-shadow: 0 4px 0 #16A34A;
+      transition: all 0.1s ease;
+    }
+    .btn-tactile-primary:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #16A34A;
+    }
+    .btn-tactile-secondary {
+      box-shadow: 0 3px 0 #D4D4D8;
+      transition: all 0.1s ease;
+    }
+    .btn-tactile-secondary:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #D4D4D8;
+    }
+    .card-tactile {
+      box-shadow: 0 3px 0 #E4E4E7;
+      transition: all 0.15s ease;
+    }
+    .card-tactile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 0 #18181B;
+      border-color: #18181B;
+    }
+    .card-tactile:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 0 #18181B;
+    }
+    /* Custom subtle grid canvas texture */
+    .bg-grid-stem {
+      background-size: 24px 24px;
+      background-image: radial-gradient(circle, #E4E4E7 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex flex-col font-body-md text-body-md selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- 1. TOP NAVIGATION SHELL (Shared Component: TopNavBar with course context) -->
+<header class="sticky top-0 w-full z-50 bg-surface dark:bg-inverse-surface border-b border-border-subtle dark:border-outline">
+<div class="flex items-center justify-between px-6 py-3 w-full max-w-7xl mx-auto gap-4">
+<!-- Brand & Course Anchor -->
+<div class="flex items-center gap-4 shrink-0">
+<a class="flex items-center gap-2 group" href="/" title="Accueil cours.interactifs">
+<div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center text-surface-white font-headline-sm text-headline-sm font-bold shadow-sm group-hover:scale-105 transition-transform">
+            Σ
+          </div>
+<span class="text-headline-sm font-headline-sm text-primary dark:text-primary-fixed tracking-tight font-bold">
+            cours.interactifs
+          </span>
+</a>
+<div class="h-5 w-px bg-border-subtle hidden sm:block"></div>
+<a class="hidden sm:flex items-center gap-1 text-label-md font-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="/portail">
+          Portail <span class="text-outline">/</span>
+</a>
+<!-- Badge cours actif -->
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high border border-border-subtle">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="database">database</span>
+<span class="text-label-md font-label-md text-on-surface font-bold">SQL B1</span>
+</div>
+</div>
+<!-- Course Chapters Bar (Scrollable desktop navigation) -->
+<nav class="hidden lg:flex items-center gap-3 overflow-x-auto py-1 text-label-md font-label-md">
+<!-- Active destination is Sommaire/Overview of this course -->
+<a class="border-b-2 border-primary dark:border-primary-fixed text-primary dark:text-primary-fixed font-bold pb-1" href="sommaire.html">
+          Sommaire
+        </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-on-surface dark:hover:text-surface-bright pb-1 transition-colors" href="chapitres/chapitre1.html">
+          Ch. 1
+        </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-on-surface dark:hover:text-surface-bright pb-1 transition-colors" href="chapitres/chapitre2.html">
+          Ch. 2
+        </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-on-surface dark:hover:text-surface-bright pb-1 transition-colors" href="chapitres/chapitre3.html">
+          Ch. 3
+        </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-on-surface dark:hover:text-surface-bright pb-1 transition-colors" href="chapitres/chapitre4.html">
+          Ch. 4
+        </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-on-surface dark:hover:text-surface-bright pb-1 transition-colors" href="chapitres/chapitre5.html">
+          Ch. 5
+        </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-on-surface dark:hover:text-surface-bright pb-1 transition-colors" href="chapitres/chapitre6.html">
+          Ch. 6
+        </a>
+<a class="text-on-surface-variant hover:text-on-surface pb-1 transition-colors" href="chapitres/cartes.html">
+          Cartes
+        </a>
+<a class="text-on-surface-variant hover:text-on-surface pb-1 transition-colors" href="chapitres/formules.html">
+          Mémo
+        </a>
+<a class="text-on-surface-variant hover:text-on-surface pb-1 transition-colors" href="exercices/exercices.html">
+          Exercices
+        </a>
+</nav>
+<!-- Trailing Actions (JSON Anchors) -->
+<div class="flex items-center gap-2.5 shrink-0">
+<a class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-white border border-border-strong text-on-surface text-label-md font-label-md hover:bg-surface-container transition-colors" href="atelier.html">
+<span class="material-symbols-outlined text-[16px] text-accent-electric" data-icon="terminal">terminal</span>
+          Atelier
+        </a>
+<a class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-white border border-border-strong text-on-surface text-label-md font-label-md hover:bg-surface-container transition-colors" href="chapitres/simulateur-examen.html">
+<span class="material-symbols-outlined text-[16px] text-secondary" data-icon="timer">timer</span>
+          Examen
+        </a>
+<!-- Dark mode toggle button -->
+<button aria-label="Bascule mode clair/sombre" class="w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" id="themeToggleBtn" title="Bascule mode clair/sombre" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="dark_mode">dark_mode</span>
+</button>
+<!-- User profile icon button -->
+<button aria-label="Profil étudiant" class="w-9 h-9 rounded-full bg-surface-container-high border border-border-subtle flex items-center justify-center text-on-surface hover:border-border-strong transition-colors" title="Profil étudiant" type="button">
+<span class="material-symbols-outlined text-[22px]" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- MAIN WRAPPER -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
+<!-- 2. BREADCRUMBS (.crumb) -->
+<nav aria-label="Fil d'Ariane" class="flex items-center space-x-2 text-label-sm font-label-sm text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="/portail">Portail</a>
+<span class="text-outline-variant">›</span>
+<span class="font-semibold text-on-surface">SQL B1</span>
+<span class="text-outline-variant">›</span>
+<span class="text-primary font-bold">Accueil</span>
+</nav>
+<!-- 3. HERO / EN-TÊTE DE COURS -->
+<section class="relative bg-surface-white rounded-xl border border-border-strong p-6 sm:p-10 card-tactile bg-grid-stem overflow-hidden">
+<!-- Ambient technical accent ribbon -->
+<div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-container via-accent-electric to-secondary-container"></div>
+<div class="max-w-4xl space-y-6">
+<!-- Badges de métadonnées (.chapmeta) -->
+<div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-high text-on-surface font-bold border border-border-subtle">
+<span class="material-symbols-outlined text-[15px] text-tertiary" data-icon="school">school</span>
+            B1 - Licence 1
+          </span>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-high text-on-surface font-bold border border-border-subtle">
+<span class="material-symbols-outlined text-[15px] text-on-surface-variant" data-icon="menu_book">menu_book</span>
+            6 chapitres
+          </span>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-label-sm font-label-sm bg-surface-container-high text-on-surface font-bold border border-border-subtle">
+<span class="material-symbols-outlined text-[15px] text-secondary" data-icon="schedule">schedule</span>
+            ≈ 14 h d'apprentissage
+          </span>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-label-sm font-label-sm bg-primary-fixed text-on-primary-fixed font-bold border border-feedback-correct">
+<span class="material-symbols-outlined text-[15px]" data-icon="lock_open">lock_open</span>
+            Premier chapitre 100% libre
+          </span>
+</div>
+<!-- Titre H1 officiel -->
+<div class="space-y-2">
+<h1 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg text-on-surface tracking-tight">
+            Bases de données &amp; SQL — interroger une base
+          </h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-3xl leading-relaxed">
+            Comprenez le modèle relationnel et maîtrisez les requêtes SQL : modélisation, jointures, fonctions d'agrégation, calculs de groupes et transactions grâce à notre simulateur SQLite local interactif.
+          </p>
+</div>
+<!-- Actions directes (.hero__actions) -->
+<div class="flex flex-wrap items-center gap-4 pt-2">
+<a class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg bg-primary-container text-on-primary text-label-lg font-label-lg font-bold btn-tactile-primary hover:bg-feedback-correct" href="chapitres/chapitre1.html">
+<span>Commencer le chapitre 1</span>
+<span class="material-symbols-outlined text-[20px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+<a class="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-lg bg-surface-white border-2 border-on-surface text-on-surface text-label-lg font-label-lg font-bold btn-tactile-secondary hover:bg-surface-container" href="sommaire.html">
+<span class="material-symbols-outlined text-[20px]" data-icon="toc">toc</span>
+<span>Consulter le sommaire</span>
+</a>
+<!-- Quick interactive simulator shortcut badge -->
+<div class="hidden sm:flex items-center gap-2 ml-auto text-label-md font-label-md text-on-surface-variant bg-canvas-warm px-3.5 py-2 rounded-lg border border-border-subtle">
+<span class="w-2.5 h-2.5 rounded-full bg-feedback-correct animate-pulse"></span>
+<span>Moteur SQLite 3.44 WebAssembly actif</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. ENCADRÉS PÉDAGOGIQUES (.box) : Bento 3 colonnes -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="text-headline-sm font-headline-sm text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[24px]" data-icon="lightbulb">lightbulb</span>
+          Piliers pédagogiques du module
+        </h2>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Conforme référentiel L1 Informatique</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- .box--objectifs -->
+<article class="bg-surface-white border-2 border-border-strong rounded-xl p-6 flex flex-col justify-between card-tactile relative overflow-hidden">
+<div class="space-y-4">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[22px]" data-icon="checklist">checklist</span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface font-bold">
+              Ce que vous allez apprendre
+            </h3>
+<ul class="space-y-2.5 text-body-sm font-body-sm text-on-surface-variant">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-feedback-correct shrink-0 mt-0.5" data-icon="check_circle">check_circle</span>
+<span>Vocabulaire fondamental SGBD, tables et contraintes d'intégrité</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-feedback-correct shrink-0 mt-0.5" data-icon="check_circle">check_circle</span>
+<span>Projections et sélections : SELECT, WHERE, ORDER BY, LIMIT</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-feedback-correct shrink-0 mt-0.5" data-icon="check_circle">check_circle</span>
+<span>Jointures relationnelles : INNER JOIN, LEFT JOIN et alias</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-feedback-correct shrink-0 mt-0.5" data-icon="check_circle">check_circle</span>
+<span>Agrégation et calculs : COUNT, GROUP BY et clauses HAVING</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-feedback-correct shrink-0 mt-0.5" data-icon="check_circle">check_circle</span>
+<span>Manipulation de données (DML) : UPDATE, DELETE et droits de sécurité</span>
+</li>
+</ul>
+</div>
+<div class="pt-5 mt-4 border-t border-border-subtle flex items-center text-label-sm font-label-sm text-primary font-bold">
+<span>Compétence visée : Niveau opérationnel SQL</span>
+</div>
+</article>
+<!-- .box--method -->
+<article class="bg-surface-white border-2 border-border-strong rounded-xl p-6 flex flex-col justify-between card-tactile relative overflow-hidden">
+<div class="space-y-4">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[22px]" data-icon="code_blocks">code_blocks</span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface font-bold">
+              Méthodologie d'apprentissage
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant leading-relaxed">
+              Une démarche de <strong>manipulation active guidée</strong>. Pas de simple lecture passive : chaque notion théorique est immédiatement mise à l'épreuve dans notre console interactive.
+            </p>
+<div class="space-y-2 text-body-sm font-body-sm text-on-surface-variant bg-canvas-warm p-3.5 rounded-lg border border-border-subtle">
+<div class="flex items-center gap-2 font-bold text-on-surface">
+<span class="material-symbols-outlined text-[18px] text-tertiary" data-icon="terminal">terminal</span>
+                Simulateur SQLite WebAssembly
+              </div>
+<p class="text-label-sm font-label-sm">
+                Exécution 100% locale dans votre navigateur, aucun serveur externe requis, zéro latence pour déboguer vos erreurs de syntaxe.
+              </p>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Validations automatiques instantanées et feedback visuel des tables résultantes pour corriger vos raisonnements logiques.
+            </p>
+</div>
+<div class="pt-5 mt-4 border-t border-border-subtle flex items-center text-label-sm font-label-sm text-tertiary font-bold">
+<span>Tests formateurs sans pénalité</span>
+</div>
+</article>
+<!-- .box--it -->
+<article class="bg-surface-white border-2 border-border-strong rounded-xl p-6 flex flex-col justify-between card-tactile relative overflow-hidden">
+<div class="space-y-4">
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[22px]" data-icon="domain">domain</span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface font-bold">
+              Ancrage informatique &amp; pro
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant leading-relaxed">
+              Le standard SQL régit l'infrastructure de données mondiale depuis 40 ans. Ce cours prépare directement aux exigences du développement logiciel moderne :
+            </p>
+<div class="space-y-2">
+<div class="flex items-center gap-2 text-body-sm font-body-sm text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span><strong>Ingénierie Back-end :</strong> persistance robuste et ORM</span>
+</div>
+<div class="flex items-center gap-2 text-body-sm font-body-sm text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span><strong>Data Analysis &amp; BI :</strong> extraction et agrégation massive</span>
+</div>
+<div class="flex items-center gap-2 text-body-sm font-body-sm text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span><strong>Gouvernance :</strong> intégrité ACID et sécurité des accès</span>
+</div>
+</div>
+<div class="p-3 bg-surface-container rounded-lg text-label-sm font-label-sm text-on-surface-variant">
+              Compatible standards ANSI SQL, PostgreSQL, MySQL et SQLite.
+            </div>
+</div>
+<div class="pt-5 mt-4 border-t border-border-subtle flex items-center text-label-sm font-label-sm text-secondary font-bold">
+<span>Transfert direct en entreprise</span>
+</div>
+</article>
+</div>
+</section>
+<!-- 5. PROGRAMME DU COURS (.toc) : 6 Chapitres interactifs -->
+<section class="space-y-6">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border-subtle pb-3">
+<div>
+<h2 class="text-headline-md font-headline-md text-on-surface tracking-tight">
+            Programme du cours
+          </h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+            Parcours structuré en 6 modules progressifs avec bac à sable d'expérimentation.
+          </p>
+</div>
+<div class="flex items-center gap-2 text-label-md font-label-md">
+<span class="text-on-surface-variant">Progression :</span>
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-bold">0 / 6 terminés</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+<!-- Chapitre 1 (Accès libre) -->
+<a class="group bg-surface-white border-2 border-feedback-correct rounded-xl p-6 card-tactile flex flex-col justify-between space-y-4" href="chapitres/chapitre1.html">
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm font-bold text-feedback-correct flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="lock_open">lock_open</span>
+                Accès 100% libre
+              </span>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-mono">
+                ~2 h
+              </span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface group-hover:text-primary transition-colors font-bold">
+              1. Bases de données et SGBD
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Définition, fonctions, types de bases de données, naissance du modèle relationnel et architecture client-serveur.
+            </p>
+</div>
+<div class="pt-3 border-t border-border-subtle flex items-center justify-between">
+<span class="text-label-sm font-label-sm font-bold text-primary group-hover:underline flex items-center gap-1">
+              Commencer le cours
+              <span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</span>
+<span class="w-6 h-6 rounded-full bg-primary-container text-on-primary flex items-center justify-center text-xs font-bold">
+              1
+            </span>
+</div>
+</a>
+<!-- Chapitre 2 -->
+<a class="group bg-surface-white border-2 border-border-strong rounded-xl p-6 card-tactile flex flex-col justify-between space-y-4" href="chapitres/chapitre2.html">
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm font-bold text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="verified_user">verified_user</span>
+                B1 et plus
+              </span>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-mono">
+                ~2 h 30
+              </span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface group-hover:text-primary transition-colors font-bold">
+              2. Types de données et création de tables
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Types numériques, CHAR/VARCHAR, temporels, clés primaires et étrangères, instructions CREATE TABLE et premiers INSERT.
+            </p>
+</div>
+<div class="pt-3 border-t border-border-subtle flex items-center justify-between">
+<span class="text-label-sm font-label-sm font-bold text-on-surface group-hover:underline flex items-center gap-1">
+              Ouvrir le module
+              <span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</span>
+<span class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center text-xs font-bold font-mono">
+              2
+            </span>
+</div>
+</a>
+<!-- Chapitre 3 -->
+<a class="group bg-surface-white border-2 border-border-strong rounded-xl p-6 card-tactile flex flex-col justify-between space-y-4" href="chapitres/chapitre3.html">
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm font-bold text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="verified_user">verified_user</span>
+                B1 et plus
+              </span>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-mono">
+                ~2 h 30
+              </span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface group-hover:text-primary transition-colors font-bold">
+              3. Interroger : SELECT, WHERE, tri et restrictions
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Filtrage par prédicats logiques, dédoublonnage avec DISTINCT, tri multicritère via ORDER BY et fenêtrage LIMIT / OFFSET.
+            </p>
+</div>
+<div class="pt-3 border-t border-border-subtle flex items-center justify-between">
+<span class="text-label-sm font-label-sm font-bold text-on-surface group-hover:underline flex items-center gap-1">
+              Ouvrir le module
+              <span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</span>
+<span class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center text-xs font-bold font-mono">
+              3
+            </span>
+</div>
+</a>
+<!-- Chapitre 4 -->
+<a class="group bg-surface-white border-2 border-border-strong rounded-xl p-6 card-tactile flex flex-col justify-between space-y-4" href="chapitres/chapitre4.html">
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm font-bold text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="verified_user">verified_user</span>
+                B1 et plus
+              </span>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-mono">
+                ~3 h
+              </span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface group-hover:text-primary transition-colors font-bold">
+              4. Jointures : relier les tables
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Jointure interne (INNER JOIN), jointures externes (LEFT JOIN / RIGHT JOIN), auto-jointures, alias de tables et cardinalités.
+            </p>
+</div>
+<div class="pt-3 border-t border-border-subtle flex items-center justify-between">
+<span class="text-label-sm font-label-sm font-bold text-on-surface group-hover:underline flex items-center gap-1">
+              Ouvrir le module
+              <span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</span>
+<span class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center text-xs font-bold font-mono">
+              4
+            </span>
+</div>
+</a>
+<!-- Chapitre 5 -->
+<a class="group bg-surface-white border-2 border-border-strong rounded-xl p-6 card-tactile flex flex-col justify-between space-y-4" href="chapitres/chapitre5.html">
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm font-bold text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="verified_user">verified_user</span>
+                B1 et plus
+              </span>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-mono">
+                ~2 h
+              </span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface group-hover:text-primary transition-colors font-bold">
+              5. Agrégation : compter, regrouper, filtrer les groupes
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Fonctions d'agrégat (COUNT, SUM, AVG, MIN, MAX), découpage par GROUP BY et filtrage conditionnel a posteriori avec HAVING.
+            </p>
+</div>
+<div class="pt-3 border-t border-border-subtle flex items-center justify-between">
+<span class="text-label-sm font-label-sm font-bold text-on-surface group-hover:underline flex items-center gap-1">
+              Ouvrir le module
+              <span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</span>
+<span class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center text-xs font-bold font-mono">
+              5
+            </span>
+</div>
+</a>
+<!-- Chapitre 6 -->
+<a class="group bg-surface-white border-2 border-border-strong rounded-xl p-6 card-tactile flex flex-col justify-between space-y-4" href="chapitres/chapitre6.html">
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm font-bold text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="verified_user">verified_user</span>
+                B1 et plus
+              </span>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-mono">
+                ~2 h
+              </span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface group-hover:text-primary transition-colors font-bold">
+              6. Modifier les données et gérer les droits
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Mises à jour atomiques UPDATE, suppressions ciblées DELETE, évolution du schéma avec ALTER TABLE et privilèges GRANT/REVOKE.
+            </p>
+</div>
+<div class="pt-3 border-t border-border-subtle flex items-center justify-between">
+<span class="text-label-sm font-label-sm font-bold text-on-surface group-hover:underline flex items-center gap-1">
+              Ouvrir le module
+              <span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</span>
+<span class="w-6 h-6 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center text-xs font-bold font-mono">
+              6
+            </span>
+</div>
+</a>
+</div>
+</section>
+<!-- 6. OUTILS ET RESSOURCES TRANSVERSES -->
+<section class="space-y-4">
+<div class="flex items-center justify-between border-b border-border-subtle pb-3">
+<h2 class="text-headline-md font-headline-md text-on-surface tracking-tight">
+          Outils &amp; ressources transverses
+        </h2>
+<span class="text-label-md font-label-md text-on-surface-variant hidden sm:inline">
+          Accès rapide tout au long du cursus
+        </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+<!-- Atelier SQL -->
+<a class="bg-surface-white border-2 border-border-strong rounded-xl p-5 card-tactile flex flex-col justify-between group" href="atelier.html">
+<div class="space-y-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-accent-electric group-hover:bg-accent-electric group-hover:text-surface-white transition-colors">
+<span class="material-symbols-outlined text-[24px]" data-icon="terminal">terminal</span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface font-bold">
+              Atelier &amp; simulateur SQL
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Console libre avec bases pré-chargées (e-commerce, université, hôpital).
+            </p>
+</div>
+<div class="pt-4 mt-3 border-t border-border-subtle text-label-sm font-label-sm text-primary font-bold flex items-center gap-1">
+<span>Ouvrir l'atelier</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</a>
+<!-- Flashcards -->
+<a class="bg-surface-white border-2 border-border-strong rounded-xl p-5 card-tactile flex flex-col justify-between group" href="chapitres/cartes.html">
+<div class="space-y-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-tertiary group-hover:bg-tertiary group-hover:text-surface-white transition-colors">
+<span class="material-symbols-outlined text-[24px]" data-icon="style">style</span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface font-bold">
+              Cartes de révision
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Flashcards de répétition espacée sur les clauses et le vocabulaire SGBD.
+            </p>
+</div>
+<div class="pt-4 mt-3 border-t border-border-subtle text-label-sm font-label-sm text-primary font-bold flex items-center gap-1">
+<span>Réviser (48 cartes)</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</a>
+<!-- Mémo Syntaxes -->
+<a class="bg-surface-white border-2 border-border-strong rounded-xl p-5 card-tactile flex flex-col justify-between group" href="chapitres/formules.html">
+<div class="space-y-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-on-surface group-hover:bg-on-surface group-hover:text-surface-white transition-colors">
+<span class="material-symbols-outlined text-[24px]" data-icon="menu_book">menu_book</span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface font-bold">
+              Mémo des syntaxes
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Cheatsheet officiel SQL : clauses, ordres d'évaluation et pièges fréquents.
+            </p>
+</div>
+<div class="pt-4 mt-3 border-t border-border-subtle text-label-sm font-label-sm text-primary font-bold flex items-center gap-1">
+<span>Télécharger / Voir</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</a>
+<!-- Exercices guidés -->
+<a class="bg-surface-white border-2 border-border-strong rounded-xl p-5 card-tactile flex flex-col justify-between group" href="exercices/exercices.html">
+<div class="space-y-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-feedback-correct group-hover:bg-feedback-correct group-hover:text-surface-white transition-colors">
+<span class="material-symbols-outlined text-[24px]" data-icon="fitness_center">fitness_center</span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface font-bold">
+              Exercices guidés
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              45 cas pratiques gradués avec indices pas-à-pas et auto-correction.
+            </p>
+</div>
+<div class="pt-4 mt-3 border-t border-border-subtle text-label-sm font-label-sm text-primary font-bold flex items-center gap-1">
+<span>S'entraîner</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</a>
+<!-- Simulateur Examen -->
+<a class="bg-surface-white border-2 border-border-strong rounded-xl p-5 card-tactile flex flex-col justify-between group" href="chapitres/simulateur-examen.html">
+<div class="space-y-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-surface-white transition-colors">
+<span class="material-symbols-outlined text-[24px]" data-icon="timer">timer</span>
+</div>
+<h3 class="text-title-md font-title-md text-on-surface font-bold">
+              Examen blanc
+            </h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+              Épreuve chronométrée de 45 minutes dans les conditions universitaires.
+            </p>
+</div>
+<div class="pt-4 mt-3 border-t border-border-subtle text-label-sm font-label-sm text-secondary font-bold flex items-center gap-1">
+<span>Lancer l'épreuve</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</a>
+</div>
+</section>
+<!-- 7. NAVIGATION DE BAS DE PAGE (.chnav) -->
+<section class="border-t border-border-strong pt-8 pb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-surface-white border-2 border-border-strong text-on-surface text-label-md font-label-md font-bold btn-tactile-secondary hover:bg-surface-container" href="/portail">
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_back">arrow_back</span>
+<span>Portail des cours</span>
+</a>
+<div class="text-center sm:text-right">
+<div class="text-label-sm font-label-sm text-on-surface-variant">Étape suivante conseillée :</div>
+<a class="w-full sm:w-auto mt-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary-container text-on-primary text-label-md font-label-md font-bold btn-tactile-primary hover:bg-feedback-correct" href="chapitres/chapitre1.html">
+<span>Commencer le chapitre 1 →</span>
+</a>
+</div>
+</section>
+</main>
+<!-- 8. OFFICIAL FOOTER (Shared Component: Footer) -->
+<footer class="w-full bg-canvas-warm dark:bg-inverse-surface border-t border-border-subtle dark:border-outline mt-12">
+<div class="flex flex-col md:flex-row justify-between items-center px-6 py-8 max-w-7xl mx-auto gap-4">
+<!-- Brand & Copyright -->
+<div class="space-y-1 text-center md:text-left">
+<div class="text-headline-sm font-headline-sm text-primary dark:text-primary-fixed font-bold tracking-tight">
+          cours.interactifs
+        </div>
+<p class="text-body-sm font-body-sm text-on-surface-variant dark:text-surface-variant">
+          © 2025 cours.interactifs — Plateforme d'apprentissage informatique pour étudiants
+        </p>
+<p class="text-label-sm font-label-sm text-outline">
+          Built for active STEM discovery. Mon compte · Épreuves · Atelier
+        </p>
+</div>
+<!-- Footer navigation links with casing preserved -->
+<div class="flex flex-wrap justify-center items-center gap-4 text-label-md font-label-md text-on-surface-variant dark:text-surface-variant">
+<a class="hover:text-on-surface dark:hover:text-surface-bright transition-colors duration-150" href="/mentions">
+          Mentions légales
+        </a>
+<span class="text-border-strong">•</span>
+<a class="hover:text-on-surface dark:hover:text-surface-bright transition-colors duration-150" href="/confidentialite">
+          Politique de confidentialité
+        </a>
+<span class="text-border-strong">•</span>
+<a class="hover:text-on-surface dark:hover:text-surface-bright transition-colors duration-150" href="/doc">
+          Documentation
+        </a>
+<span class="text-border-strong">•</span>
+<a class="hover:text-on-surface dark:hover:text-surface-bright transition-colors duration-150 flex items-center gap-1" href="https://github.com">
+          Contribuer sur GitHub
+          <span class="material-symbols-outlined text-[14px]" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+</div>
+</footer>
+<!-- Micro-interaction JS for Theme Toggle -->
+<script>
+    const themeBtn = document.getElementById('themeToggleBtn');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        const icon = themeBtn.querySelector('.material-symbols-outlined');
+        if (icon) {
+          if (document.documentElement.classList.contains('dark')) {
+            icon.textContent = 'light_mode';
+          } else {
+            icon.textContent = 'dark_mode';
+          }
+        }
+      });
+    }
+  </script>
+</body></html>
